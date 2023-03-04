@@ -176,6 +176,7 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_PDM_Alerts_SendAperiodic);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);

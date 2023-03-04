@@ -48,6 +48,9 @@
             "StackWatermarkAboveThresholdTask1Hz": {
                 "bits": 1
             },
+            "StackWatermarkAboveThresholdTask100Hz": {
+                "bits" : 1
+            },
             "StackWatermarkAboveThresholdTask1kHz": {
                 "bits": 1
             },
@@ -59,6 +62,9 @@
             },
             "WatchdogTimeout": {
                 "bits": 1
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
             }
         }
     },
@@ -78,6 +84,9 @@
             },
             "ValidDutyCycle": {
                 "bits": 1
+            },
+            "Condition": {
+                "bits": 3
             }
         }
     },

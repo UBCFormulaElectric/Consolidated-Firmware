@@ -8,6 +8,20 @@
 #include "App_CanTx.h"
 #include "App_TractiveSystem.h"
 
+typedef enum
+{
+    ACCUMULATOR_SEGMENT_0 = 0U,
+    ACCUMULATOR_SEGMENT_1,
+    ACCUMULATOR_SEGMENT_2,
+    ACCUMULATOR_SEGMENT_3,
+    ACCUMULATOR_SEGMENT_4,
+    ACCUMULATOR_SEGMENT_5,
+    ACCUMULATOR_NUM_SEGMENTS,
+} AccumulatorSegment;
+
+#define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
+#define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
+
 // Min and Max cell temperatures depending on state
 #define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
@@ -16,18 +30,16 @@
 #define MAX_CELL_VOLTAGE (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 
+// Discharge Parameters
+#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV (600U)
+
 struct Accumulator;
 
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(void),
-    float (*get_min_cell_voltage)(uint8_t *, uint8_t *),
-    float (*get_max_cell_voltage)(uint8_t *, uint8_t *),
-    float (*get_segment_voltage)(AccumulatorSegments_E),
-    float (*get_pack_voltage)(void),
-    float (*get_avg_cell_voltage)(void),
+    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
@@ -50,6 +62,29 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
 bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator);
 
 /**
+ * Get a voltage for a specific cell
+ * @param accumulator The accumulator to get the voltage from
+ * @param segment The segment containing the cell voltage
+ * @param cell The cell location for the voltage
+ * @return The voltage at the location given in V
+ */
+float App_Accumulator_GetCellVoltage(
+    const struct Accumulator *const accumulator,
+    AccumulatorSegment              segment,
+    uint8_t                         cell);
+
+/**
+ * Get a voltage for a specific cell
+ * @param segment The segment containing the cell voltage
+ * @param cell The cell location for the voltage
+ * @return The voltage at the location given in V
+ */
+float App_Accumulator_GetCellVoltage(
+    const struct Accumulator *const accumulator,
+    AccumulatorSegment              segment,
+    uint8_t                         cell);
+
+/**
  * Get min voltage for the accumulator
  * @param accumulator The accumulator to get the min voltage for
  * @param segment The segment containing the min cell voltage
@@ -66,6 +101,36 @@ float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator,
  * @return The max voltage in V
  */
 float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell);
+
+/**
+ * Get average cell voltage in a given segment
+ * @param accumulator The accumulator to get the average voltage for
+ * @param segment The segment to get the average voltage for
+ * @return The average voltage in V
+ */
+float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accumulator, uint8_t segment);
+
+/**
+ * Get voltage for an entire segment in an accumulator
+ * @param accumulator The accumulator to get the segment voltage from
+ * @param segment The segment to get the voltage of
+ * @return The segment voltage in V
+ */
+float App_Accumulator_GetSegmentVoltage(const struct Accumulator *const accumulator, uint8_t segment);
+
+/**
+ * Get average voltage of all segments
+ * @param accumulator The accumulator to get the average voltage for
+ * @return The average voltage in V
+ */
+float App_Accumulator_GetAverageSegmentVoltage(const struct Accumulator *const accumulator);
+
+/**
+ * Get voltage for an entire accumulator
+ * @param accumulator The accumulator to get the voltage of
+ * @return The accumulator voltage in V
+ */
+float App_Accumulator_GetAccumulatorVoltage(const struct Accumulator *const accumulator);
 
 /**
  * Get the min cell temp
@@ -97,13 +162,6 @@ float App_Accumulator_GetMaxCellTempDegC(
  * @return The average cell temp in degC
  */
 float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
-
-/**
- * Get the pack voltage in V
- * @param accumulator The accumulator to get the pack voltage
- * @return The accumulator pack voltage in V
- */
-float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);

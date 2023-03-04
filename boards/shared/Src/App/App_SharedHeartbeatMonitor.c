@@ -44,10 +44,8 @@ bool App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *const heartbeat_mo
     {
         heartbeat_monitor->previous_timeout_ms += heartbeat_monitor->timeout_period_ms;
 
-#ifdef NDEBUG
         // Check if the board received all the heartbeats it's listening for
         status = heartbeat_monitor->heartbeats_to_check == heartbeat_monitor->heartbeats_checked_in;
-#endif
 
         // Clear the list of boards that have checked in
         heartbeat_monitor->heartbeats_checked_in = 0U;

@@ -2,12 +2,13 @@
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 // clang-format off
 
 #define NOMINAL_TEMPERATURE            (200U)
 #define NUM_OF_THERMISTORS_PER_SEGMENT (8U)
-#define TOTAL_NUM_OF_THERMISTORS       (NUM_OF_THERMISTORS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define TOTAL_NUM_OF_THERMISTORS       (NUM_OF_THERMISTORS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 #define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
 
@@ -82,7 +83,7 @@ struct LTC6813TempStatistics
 struct LTC6813Temperatures
 {
     struct LTC6813TempStatistics stats;
-    uint16_t cell[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_AUX_REGISTER_GROUPS][NUM_OF_READINGS_PER_REG_GROUP];
+    uint16_t cell[ACCUMULATOR_NUM_SEGMENTS][NUM_OF_AUX_REGISTER_GROUPS][NUM_OF_READINGS_PER_REG_GROUP];
 };
 static struct LTC6813Temperatures ltc6813_temp = { 0U };
 
@@ -123,7 +124,7 @@ static void Io_UpdateCellTemperatureStatistics(void)
 
     uint32_t sum_temp = 0U;
 
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
         for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
         {
@@ -230,7 +231,7 @@ static bool Io_ParseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
 {
     bool status = true;
 
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
         // Set the starting index to read cell voltages for the current segment
         // from rx_buffer

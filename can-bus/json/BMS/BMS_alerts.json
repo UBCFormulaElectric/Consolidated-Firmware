@@ -1,6 +1,6 @@
 {
     "msg_id": 150,
     "alerts": [
-        "BMS_ALERT_DUMMY"
+        "BMS_ALERT_STARTUP"
     ]
 }
