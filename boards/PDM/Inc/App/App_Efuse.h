@@ -129,14 +129,14 @@ bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
  * If current == 0 or current > max current, then it will go through this fault procedure function (channel0)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
- * @return 1 if fine, 0 if channel failed
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
  */
-bool App_Efuse_FaultProcedureChannel0(struct Efuse *efuse, int max_attempts);
+int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts);
 
 /**
  * If current == 0 or current > max current, then it will go through this fault procedure function (channel1)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
- * @return 1 if fine, 0 if channel failed
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
  */
-bool App_Efuse_FaultProcedureChannel1(struct Efuse *efuse, int max_attempts);
+int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts);
