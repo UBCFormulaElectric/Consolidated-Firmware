@@ -11,6 +11,7 @@
 !/.env
 !**/.clang-format
 !inverter-eeprom-config/
+!/.vscode/settings.json
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -56,6 +57,7 @@
 
 # Python
 *.pyc
+Pipfile.lock
 
 # Other files
 *.build_log.htm
@@ -121,3 +123,6 @@ hooksl
 
 # Ignore auto-saved inverter EEPROM configurations
 /inverter-eeprom-config/conf/
+
+# generated dbc files not allowed
+can-bus/**/*.dbc

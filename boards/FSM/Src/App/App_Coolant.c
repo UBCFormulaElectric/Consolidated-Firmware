@@ -7,7 +7,6 @@
 #include "configs/App_FlowRateThresholds.h"
 
 #include "App_SharedSetPeriodicCanSignals.h"
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 
 struct Coolant
 {
@@ -58,19 +57,14 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
 {
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
-    // Value Broadcast TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
-    // App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
-    // App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
-    // App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
+    App_CanTx_FSM_Coolant_TemperatureA_Set(coolant->get_temperature_A());
+    App_CanTx_FSM_Coolant_TemperatureB_Set(coolant->get_temperature_B());
+    App_CanTx_FSM_Coolant_PressureA_Set(coolant->get_pressure_A());
+    App_CanTx_FSM_Coolant_PressureB_Set(coolant->get_pressure_B());
 
-    // information in range check TODO: JSONCAN ->
-    // App_SetPeriodicCanSignals_InRangeCheck(
-    //    can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
-    //    App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+    App_SetPeriodicCanSignals_InRangeCheck_float(
+        coolant->flow_rate_in_range_check, App_CanTx_FSM_Coolant_FlowRate_Set,
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_FlowRateOutOfRange_Set);
 
     // motor shutdown in flow rate check
     float                    flow_rate;
@@ -79,11 +73,5 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW =
-    //    flow_in_range_signal_state == SIGNAL_STATE_ACTIVE
-    //        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE
-    //        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
-    //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW);
+    App_CanTx_FSM_Warning_FlowMeterHasUnderflow_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
