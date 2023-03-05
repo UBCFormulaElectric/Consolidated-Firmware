@@ -21,11 +21,11 @@ void Io_WheelSpeedSensors_Init(
     assert(htim_right_wheel_speed_sensor != NULL);
 
     left_wheel_speed_sensor = Io_SharedFreqOnlyPwmInput_Create(
-        htim_left_wheel_speed_sensor, TIMx_FREQUENCY / TIM16_PRESCALER, TIM_CHANNEL_1, TIM16_AUTO_RELOAD_REG,
+        htim_left_wheel_speed_sensor, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_1, TIM12_AUTO_RELOAD_REG,
         HAL_TIM_ACTIVE_CHANNEL_1);
 
     right_wheel_speed_sensor = Io_SharedFreqOnlyPwmInput_Create(
-        htim_right_wheel_speed_sensor, TIMx_FREQUENCY / TIM17_PRESCALER, TIM_CHANNEL_1, TIM17_AUTO_RELOAD_REG,
+        htim_right_wheel_speed_sensor, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_1, TIM12_AUTO_RELOAD_REG,
         HAL_TIM_ACTIVE_CHANNEL_1);
 }
 

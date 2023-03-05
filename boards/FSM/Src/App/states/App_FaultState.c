@@ -4,9 +4,7 @@
 
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    // TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_FSM_STATE_MACHINE_STATE_FAULT_CHOICE);
+    App_CanTx_FSM_Vitals_State_Set(FSM_STATE_FAULT);
 }
 
 void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
@@ -16,10 +14,7 @@ void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
 void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
-
-    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    // TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
 }
 void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
 {

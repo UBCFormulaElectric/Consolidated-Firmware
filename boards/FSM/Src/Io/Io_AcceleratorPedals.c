@@ -28,7 +28,7 @@
 float Io_AcceleratorPedals_GetPapps(void)
 {
     // Length calculated via voltage
-    float       pedal_voltage = Io_Adc_GetChannel1Voltage();
+    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_2);
     const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
     // Compute the angle relative to the y-axis with cosine law

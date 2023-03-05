@@ -12,7 +12,7 @@
 
 bool Io_Brake_IsActuated(void)
 {
-    return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(BSPD_BRAKE_PRESSED_5V_GPIO_Port, BSPD_BRAKE_PRESSED_5V_Pin) == GPIO_PIN_SET;
 }
 bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
 {
@@ -21,7 +21,7 @@ bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
 
 float Io_Brake_GetFrontPressureSensorVoltage(void)
 {
-    return Io_Adc_GetChannel3Voltage();
+    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_7);
 }
 float Io_Brake_GetFrontPressurePsi(void)
 {
