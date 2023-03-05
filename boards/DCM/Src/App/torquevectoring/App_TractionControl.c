@@ -16,7 +16,7 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
     outputs->torque_right_final_Nm = k * inputs->torque_right_Nm;
 }
 
-float ComputeSlip(int motor_speed_rpm, float front_wheel_speed_rpm)
+float ComputeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
-    return (front_wheel_speed_rpm - PLANETARY_GEAR_RATIO * (float) motor_speed_rpm) / ((float) motor_speed_rpm + SMALL_EPSILON);
+    return (front_wheel_speed_rpm - PLANETARY_GEAR_RATIO * motor_speed_rpm) / (motor_speed_rpm + SMALL_EPSILON);
 }

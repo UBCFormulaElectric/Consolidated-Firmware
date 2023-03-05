@@ -10,6 +10,7 @@
         "INVR_MotorPositionInfo",
         "BMS_AvailablePower",
         "INVL_Temperatures3",
-        "INVR_Temperatures3"
+        "INVR_Temperatures3",
+        "BMS_TractiveSystem"
     ]
 }

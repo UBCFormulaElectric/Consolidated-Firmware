@@ -1,17 +1,17 @@
 #include "torquevectoring/App_PID.h"
 
-void APP_PID_Init(PID *pid, float Kp, float Ki, float Kd, float out_min, float out_max)
+void App_PID_Init(PID *pid, const PID_Config *conf)
 {
-    pid->Kp         = Kp;
-    pid->Ki         = Ki;
-    pid->Kd         = Kd;
-    pid->prev_error = 0;
-    pid->integral   = 0;
-    pid->out_min    = out_min;
-    pid->out_max    = out_max;
+    pid->Kp         = conf->Kp;
+    pid->Ki         = conf->Ki;
+    pid->Kd         = conf->Kd;
+    pid->prev_error = 0.0f;
+    pid->integral   = 0.0f;
+    pid->out_min    = conf->out_min;
+    pid->out_max    = conf->out_max;
 }
 
-float APP_PID_Compute(PID *pid, float setpoint, float input)
+float App_PID_Compute(PID *pid, float setpoint, float input)
 {
     float error = setpoint - input;
     pid->integral += error;
@@ -31,7 +31,7 @@ float APP_PID_Compute(PID *pid, float setpoint, float input)
     return output;
 }
 
-void APP_PID_RequestReset(PID *pid)
+void App_PID_RequestReset(PID *pid)
 {
     pid->prev_error = 0;
     pid->integral   = 0;
