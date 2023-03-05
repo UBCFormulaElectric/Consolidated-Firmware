@@ -135,7 +135,6 @@ class DimStateMachineTest : public BaseStateMachineTest
             seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
             traction_control_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led,
             clock);
-
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -273,7 +272,6 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 
     EXPECT_EQ(DIM_STATE_DRIVE, App_CanTx_DIM_Vitals_State_Get());
 }
-
 
 // DIM-9
 // TODO: Redo 7-seg display tests
@@ -608,5 +606,4 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_green_fake.call_count);
 }
-
 } // namespace StateMachineTest
