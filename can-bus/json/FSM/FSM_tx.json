@@ -1,5 +1,5 @@
 {
-	"FSM_Errors":{
+	"FSM_Warning":{
 		"msg_id": 301,
 		"cycle_time": 1000,
 		"signals": {
@@ -12,35 +12,25 @@
 			"WatchdogTimeout": { "bits": 1 },
 			"MissingHeartbeat": {"bits":  1},
 			"WatchdogTimeoutTaskName": { "enum": "RtosTaskName" },
-			"BrakeAccDisagreement": {"enum": "BrakeAccDisagreement"},
-			"SteeringAngleSensorOCSC": {"enum": "SteeringAngleSensorOCSC"},
-			"LeftWheelSpeedOutOfRange": {"enum":  "LeftWheelSpeedOutOfRange"},
-			"RightWheelSpeedOutOfRange": {"enum":  "RightWheelSpeedOutOfRange"},
-			"SteeringAngleOutOfRange": {"enum": "SteeringAngleOutOfRange"},
-			"FrontBrakePressureOutOfRange": {"enum": "FrontBrakePressureOutOfRange"},
-			"RearBrakePressureOutOfRange": {"enum": "RearBrakePressureOutOfRange"},
-			"FlowRateOutOfRange": {"enum": "FlowRateOutOfRange"}
-		}
-	},
-	"FSM_MotorShutdownErrors":{
-		"msg_id": 302,
-		"cycle_time": 1000,
-		"signals": {
-			"PappsOCSCIsActive": {"enum": "PappsOCSC"},
-			"SappsOCSCIsActive": {"enum": "SappsOCSC"},
-			"AppsDisagreementIsActive": {"enum": "AppsDisagreement"},
-			"FlowMeterHasUnderflow": {"enum": "FlowMeterHasUnderFlow"}
-		}
-	},
-	"FSM_CanFifoOverflow":{
-		"msg_id": 303,
-		"cycle_time": 5000,
-		"signals":{
+			"BrakeAccDisagreement": {"bits": 1},
+			"SteeringAngleSensorOCSC": {"bits": 1},
+			"LeftWheelSpeedOutOfRange": {"enum":  "Range_Check"},
+			"RightWheelSpeedOutOfRange": {"enum":  "Range_Check"},
+			"SteeringAngleOutOfRange": {"enum": "Range_Check"},
+			"FrontBrakePressureOutOfRange": {"enum": "Range_Check"},
+			"RearBrakePressureOutOfRange": {"enum": "Range_Check"},
+			"FlowRateOutOfRange": {"enum": "Range_Check"},
+
+			"PappsOCSCIsActive": {"bits": 1},
+			"SappsOCSCIsActive": {"bits": 1},
+			"AppsDisagreementIsActive": {"bits": 1},
+			"FlowMeterHasUnderflow": {"bits": 1},
+
 			"TxOverflowCount": {
-				"bits": 32
+				"bits": 8
 			},
 			"RxOverflowCount": {
-				"bits": 32
+				"bits": 8
 			}
 		}
 	},
@@ -110,9 +100,11 @@
 				"max": 100,
 				"unit": "%"
 			},
-			"IsActuated": {"enum": "BrakeActuation"},
-			"PressureSensorOpenShortCircuit": {"enum": "BrakePressureSensorOCSC"},
-			"PedalOpenShortCircuit": {"enum": "BrakePedalOCSC"}
+			"IsActuated": {
+				"bits": 1
+			},
+			"PressureSensorOpenShortCircuit": {"bits":  1},
+			"PedalOpenShortCircuit": {"bits":  1}
 		}
 	},
 	"FSM_Coolant": {

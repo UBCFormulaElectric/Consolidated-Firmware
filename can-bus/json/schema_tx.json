@@ -15,46 +15,46 @@
 				},
 				"signals": {
 					"type": "object",
-					"description": "All of the individual messages in this group",
+					"description": "All of the individual signals in this group",
 					"patternProperties": {
 						"[A-Z]\\w+": {
 							"type": "object",
 							"properties": {
 								"resolution": {
-									"description": "Finest resolution that this message requires, determines amount of bits that are required",
+									"description": "Finest resolution that this signal requires, determines amount of bits that are required",
 									"type": "number"
 								},
 								"bits": {
-									"description": "Explicit Declaration of amount of bits required for CAN Message",
+									"description": "Explicit Declaration of amount of bits required for CAN signal",
 									"type": "integer"
 								},
 								"min": {
-									"description": "Minimum Value this CAN Message can take on",
-									"type": "integer"
+									"description": "Minimum Value this CAN signal can take on",
+									"type": "number"
 								},
 								"max": {
-									"description": "Maximum Value this CAN Message can take on",
-									"type": "integer"
+									"description": "Maximum Value this CAN signal can take on",
+									"type": "number"
 								},
 								"unit": {
-									"description": "Units that are used to measure this message, (Optional)",
+									"description": "Units that are used to measure this signal, (Optional)",
 									"type": "string"
 								},
 								"scale": {
-									"description": "idk scale?",
-									"type": "integer"
+									"description": "Explicitly specify the DBC scale parameter used to pack/unpack this signal.",
+									"type": "number"
 								},
 								"offset": {
-									"description": "idk offset?",
-									"type": "integer"
+									"description": "Explicitly specify the DBC offset parameter used to pack/unpack this signal.",
+									"type": "number"
 								},
 								"signed": {
 									"description": "Whether or not the integer must be signed",
 									"type": "boolean"
 								},
 								"start_bit":{
-									"description": "Overrides which start bit should be used in the message. Signals will be tightly-packed unless otherwise specified, one after another, in the order they are specified.",
-									"type": "integer"
+									"description": "Overrides which start bit should be used in the signal. Signals will be tightly-packed unless otherwise specified, one after another, in the order they are specified.",
+									"type": "number"
 								}
 							}
 						}
