@@ -473,12 +473,12 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
-    EXPECT_EQ(FSM_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_FSM_StateMachine_State_Get());
+    EXPECT_EQ(FSM_STATE_DRIVE, App_CanTx_FSM_Vitals_State_Get());
 }
 // FSM-10
 TEST_F(FsmStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
-    EXPECT_EQ(FSM_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_FSM_StateMachine_State_Get());
+    EXPECT_EQ(FSM_STATE_FAULT, App_CanTx_FSM_Vitals_State_Get());
 }
 } // namespace StateMachineTest
