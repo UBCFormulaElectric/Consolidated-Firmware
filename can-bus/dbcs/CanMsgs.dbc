@@ -7,9 +7,9 @@ BU_: BMS DCM DIM FSM GSM INVL INVR PDM DEBUG
 
 
 BO_ 100 BMS_Vitals: 1 BMS
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,PDM
-SG_ CurrentState : 1|3@1+ (1,0) [0|4] "" DEBUG,DCM,PDM
-SG_ StateOfCharge : 4|3@1+ (14.285714285714286,0) [0|100] "" DEBUG,DCM,PDM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,FSM,PDM
+SG_ CurrentState : 1|3@1+ (1,0) [0|4] "" DEBUG,DCM,FSM,PDM
+SG_ StateOfCharge : 4|3@1+ (14.285714285714286,0) [0|100] "" DEBUG,DCM,FSM,PDM
 
 BO_ 101 BMS_CanFifoOverflow: 8 BMS
 SG_ TxOverflowCount : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
@@ -165,11 +165,65 @@ SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] ""
 SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 5|1@1+ (1,0) [0|1] "" DEBUG
 SG_ DIM_ALERT_WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 303 FSM_Vitals: 1 FSM
+BO_ 304 FSM_Vitals: 1 FSM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+SG_ State : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+
+BO_ 301 FSM_Warning: 6 FSM
+SG_ PappsOutOfRange : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SappsOutOfRange : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1Hz : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ MissingHeartbeat : 7|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 8|3@1+ (1,0) [0|4] "" DEBUG
+SG_ BrakeAccDisagreement : 11|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SteeringAngleSensorOCSC : 12|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LeftWheelSpeedOutOfRange : 13|2@1+ (1,0) [0|2] "" DEBUG
+SG_ RightWheelSpeedOutOfRange : 15|2@1+ (1,0) [0|2] "" DEBUG
+SG_ SteeringAngleOutOfRange : 17|2@1+ (1,0) [0|2] "" DEBUG
+SG_ FrontBrakePressureOutOfRange : 19|2@1+ (1,0) [0|2] "" DEBUG
+SG_ RearBrakePressureOutOfRange : 21|2@1+ (1,0) [0|2] "" DEBUG
+SG_ FlowRateOutOfRange : 23|2@1+ (1,0) [0|2] "" DEBUG
+SG_ PappsOCSCIsActive : 25|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SappsOCSCIsActive : 26|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AppsDisagreementIsActive : 27|1@1+ (1,0) [0|1] "" DEBUG
+SG_ FlowMeterHasUnderflow : 28|1@1+ (1,0) [0|1] "" DEBUG
+SG_ TxOverflowCount : 29|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 37|8@1+ (1,0) [0|255] "" DEBUG
+
+BO_ 151 FSM_Apps: 4 FSM
+SG_ PappsMappedPedalPercentage : 0|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ SappsMappedPedalPercentage : 10|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ TorqueLimit : 20|11@1+ (0.1,0) [0|150] "Nm" DEBUG
+SG_ TorquePlausabilityFailed : 31|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 14 FSM_Brake: 5 FSM
+SG_ FrontBrakePressure : 0|12@1+ (1,0) [0|2500] "psi" DEBUG
+SG_ RearBrakePressure : 12|12@1+ (1,0) [0|2500] "psi" DEBUG
+SG_ BrakePedalPercentage : 24|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ IsActuated : 34|1@1+ (1,0) [0|1] "" DEBUG
+SG_ PressureSensorOpenShortCircuit : 35|1@1+ (1,0) [0|1] "" DEBUG
+SG_ PedalOpenShortCircuit : 36|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 307 FSM_Coolant: 7 FSM
+SG_ FlowRate : 0|10@1+ (0.1,0) [0|100] "L/min" DEBUG
+SG_ TemperatureA : 10|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ TemperatureB : 20|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ PressureA : 30|10@1+ (0.1,0) [0|100] "psi" DEBUG
+SG_ PressureB : 40|10@1+ (0.1,0) [0|100] "psi" DEBUG
+
+BO_ 318 FSM_Steering: 2 FSM
+SG_ SteeringAngle : 0|12@1+ (0.1,-110) [-110|110] "deg" DEBUG
+
+BO_ 317 FSM_Wheels: 3 FSM
+SG_ LeftWheelSpeed : 0|11@1+ (0.1,0) [0|150] "km/h" DEBUG
+SG_ RightWheelSpeed : 11|11@1+ (0.1,0) [0|150] "km/h" DEBUG
 
 BO_ 300 FSM_Alerts: 1 FSM
-SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ FSM_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -602,8 +656,50 @@ BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1K
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_WATCHDOG_TIMEOUT 0;
-BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 304 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 304 State 0;
+BA_ "GenSigStartValue" SG_ 301 PappsOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 SappsOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 301 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 301 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 301 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 301 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 301 MissingHeartbeat 0;
+BA_ "GenSigStartValue" SG_ 301 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 301 BrakeAccDisagreement 0;
+BA_ "GenSigStartValue" SG_ 301 SteeringAngleSensorOCSC 0;
+BA_ "GenSigStartValue" SG_ 301 LeftWheelSpeedOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 RightWheelSpeedOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 SteeringAngleOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 FrontBrakePressureOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 RearBrakePressureOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 FlowRateOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 301 PappsOCSCIsActive 0;
+BA_ "GenSigStartValue" SG_ 301 SappsOCSCIsActive 0;
+BA_ "GenSigStartValue" SG_ 301 AppsDisagreementIsActive 0;
+BA_ "GenSigStartValue" SG_ 301 FlowMeterHasUnderflow 0;
+BA_ "GenSigStartValue" SG_ 301 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 301 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 151 PappsMappedPedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 151 SappsMappedPedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 151 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 151 TorquePlausabilityFailed 0;
+BA_ "GenSigStartValue" SG_ 14 FrontBrakePressure 0;
+BA_ "GenSigStartValue" SG_ 14 RearBrakePressure 0;
+BA_ "GenSigStartValue" SG_ 14 BrakePedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 14 IsActuated 0;
+BA_ "GenSigStartValue" SG_ 14 PressureSensorOpenShortCircuit 0;
+BA_ "GenSigStartValue" SG_ 14 PedalOpenShortCircuit 0;
+BA_ "GenSigStartValue" SG_ 307 FlowRate 0;
+BA_ "GenSigStartValue" SG_ 307 TemperatureA 0;
+BA_ "GenSigStartValue" SG_ 307 TemperatureB 0;
+BA_ "GenSigStartValue" SG_ 307 PressureA 0;
+BA_ "GenSigStartValue" SG_ 307 PressureB 0;
+BA_ "GenSigStartValue" SG_ 318 SteeringAngle -110;
+BA_ "GenSigStartValue" SG_ 317 LeftWheelSpeed 0;
+BA_ "GenSigStartValue" SG_ 317 RightWheelSpeed 0;
+BA_ "GenSigStartValue" SG_ 300 FSM_STARTUP 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 0 ModuleATemperature -3276.8;
@@ -888,7 +984,13 @@ BA_ "GenMsgCycleTime" BO_ 204  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  1000;
 BA_ "GenMsgCycleTime" BO_ 504  1000;
-BA_ "GenMsgCycleTime" BO_ 303  1000;
+BA_ "GenMsgCycleTime" BO_ 304  1000;
+BA_ "GenMsgCycleTime" BO_ 301  1000;
+BA_ "GenMsgCycleTime" BO_ 151  100;
+BA_ "GenMsgCycleTime" BO_ 14  10;
+BA_ "GenMsgCycleTime" BO_ 307  1000;
+BA_ "GenMsgCycleTime" BO_ 318  100;
+BA_ "GenMsgCycleTime" BO_ 317  100;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 0  100;
 BA_ "GenMsgCycleTime" BO_ 1  100;
@@ -930,6 +1032,14 @@ VAL_ 502 State 0 "DIM_STATE_DRIVE";
 VAL_ 503 StartSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
 VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
 VAL_ 505 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 304 State 0 "FSM_STATE_DRIVE" 1 "FSM_STATE_FAULT";
+VAL_ 301 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 301 LeftWheelSpeedOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
+VAL_ 301 RightWheelSpeedOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
+VAL_ 301 SteeringAngleOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
+VAL_ 301 FrontBrakePressureOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
+VAL_ 301 RearBrakePressureOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
+VAL_ 301 FlowRateOutOfRange 0 "RANGE_CHECK_OK" 1 "RANGE_CHECK_UNDERFLOW" 2 "RANGE_CHECK_OVERFLOW";
 VAL_ 10 VsmState 0 "INVERTER_VSM_START_STATE" 1 "INVERTER_VSM_PRECHARGE_INIT_STATE" 2 "INVERTER_VSM_PRECHARGE_ACTIVE_STATE" 3 "INVERTER_VSM_PRECHARGE_COMPLETE_STATE" 4 "INVERTER_VSM_WAIT_STATE" 5 "INVERTER_VSM_READY_STATE" 6 "INVERTER_VSM_MOTOR_RUNNING_STATE" 7 "INVERTER_VSM_BLINK_FAULT_CODE_STATE" 14 "INVERTER_VSM_SHUTDOWN_IN_PROCESS" 15 "INVERTER_VSM_RECYCLE_POWER_STATE";
 VAL_ 10 InverterState 0 "INVERTER_POWER_ON_STATE" 1 "INVERTER_STOP_STATE" 2 "INVERTER_OPEN_LOOP_STATE" 3 "INVERTER_CLOSED_LOOP_STATE" 4 "INVERTER_WAIT_STATE" 8 "INVERTER_IDLE_RUN_STATE" 9 "INVERTER_IDLE_STOP_STATE";
 VAL_ 10 InverterActiveDischargeState 0 "INVERTER_ACTIVE_DISCHARGE_DISABLED" 1 "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING" 2 "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK" 3 "INVERTER_ACTIVE_DISCHARGE_OCCURING" 4 "INVERTER_ACTIVE_DISCHARGE_COMPLETED";

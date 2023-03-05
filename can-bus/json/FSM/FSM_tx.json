@@ -1,12 +1,216 @@
 {
-    "FSM_Vitals": {
-        "msg_id": 303,
-        "cycle_time": 1000,
-        "description": "FSM Heartbeat signal",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
-    }
+	"FSM_Vitals": {
+		"msg_id": 304,
+		"cycle_time": 1000,
+		"description": "FSM Heartbeat signal",
+		"signals": {
+			"Heartbeat": {
+				"bits": 1
+			},
+			"State": {
+				"enum": "State_Machine"
+			}
+		}
+	},
+	"FSM_Warning": {
+		"msg_id": 301,
+		"cycle_time": 1000,
+		"signals": {
+			"PappsOutOfRange": {
+				"bits": 1
+			},
+			"SappsOutOfRange": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTask1Hz": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTask1kHz": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTaskCanTx": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTaskCanRx": {
+				"bits": 1
+			},
+			"WatchdogTimeout": {
+				"bits": 1
+			},
+			"MissingHeartbeat": {
+				"bits": 1
+			},
+			"WatchdogTimeoutTaskName": {
+				"enum": "RtosTaskName"
+			},
+			"BrakeAccDisagreement": {
+				"bits": 1
+			},
+			"SteeringAngleSensorOCSC": {
+				"bits": 1
+			},
+			"LeftWheelSpeedOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"RightWheelSpeedOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"SteeringAngleOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"FrontBrakePressureOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"RearBrakePressureOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"FlowRateOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"PappsOCSCIsActive": {
+				"bits": 1
+			},
+			"SappsOCSCIsActive": {
+				"bits": 1
+			},
+			"AppsDisagreementIsActive": {
+				"bits": 1
+			},
+			"FlowMeterHasUnderflow": {
+				"bits": 1
+			},
+			"TxOverflowCount": {
+				"bits": 8
+			},
+			"RxOverflowCount": {
+				"bits": 8
+			}
+		}
+	},
+	"FSM_Apps": {
+		"msg_id": 151,
+		"cycle_time": 100,
+		"signals": {
+			"PappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"TorqueLimit": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "Nm"
+			},
+			"TorquePlausabilityFailed": {
+				"bits": 1
+			}
+		}
+	},
+	"FSM_Brake": {
+		"msg_id": 14,
+		"cycle_time": 10,
+		"signals": {
+			"FrontBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"RearBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"BrakePedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"IsActuated": {
+				"bits": 1
+			},
+			"PressureSensorOpenShortCircuit": {
+				"bits": 1
+			},
+			"PedalOpenShortCircuit": {
+				"bits": 1
+			}
+		}
+	},
+	"FSM_Coolant": {
+		"msg_id": 307,
+		"cycle_time": 1000,
+		"signals": {
+			"FlowRate": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "L/min"
+			},
+			"TemperatureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"TemperatureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"PressureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			},
+			"PressureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			}
+		}
+	},
+	"FSM_Steering": {
+		"msg_id": 318,
+		"cycle_time": 100,
+		"signals": {
+			"SteeringAngle": {
+				"resolution": 0.1,
+				"min": -110,
+				"max": 110,
+				"unit": "deg"
+			}
+		}
+	},
+	"FSM_Wheels": {
+		"msg_id": 317,
+		"cycle_time": 100,
+		"signals": {
+			"LeftWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			},
+			"RightWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			}
+		}
+	}
 }

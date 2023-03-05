@@ -53,5 +53,10 @@
     "InverterReadWriteCommand": {
         "INVERTER_READ_COMMAND": 0,
         "INVERTER_WRITE_COMMAND": 1
-    }
+    },
+    "RangeCheck": {
+		"RANGE_CHECK_OK": 0,
+		"RANGE_CHECK_UNDERFLOW": 1,
+		"RANGE_CHECK_OVERFLOW": 2
+	}
 }

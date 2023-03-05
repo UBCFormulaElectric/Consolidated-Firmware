@@ -1,3 +1,6 @@
 {
-    
+	"State_Machine": {
+		"FSM_STATE_DRIVE": 0,
+		"FSM_STATE_FAULT": 1
+	}
 }
