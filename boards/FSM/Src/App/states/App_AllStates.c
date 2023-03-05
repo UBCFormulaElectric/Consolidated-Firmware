@@ -10,18 +10,14 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct Brake *   brake = App_FsmWorld_GetBrake(world);
 
-    uint8_t BrakePressureOCSCEnum = App_Brake_PressureElectricalFault(brake)
-                                        ? PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
-                                        : PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
-    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(BrakePressureOCSCEnum);
+    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *        world      = App_SharedStateMachine_GetWorld(state_machine);
-    struct HeartbeatMonitor *hb_monitor = App_FsmWorld_GetHeartbeatMonitor(world);
-    //    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
-    static uint8_t error_count = 0;
+    struct FsmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
+    static uint8_t           error_count = 0;
 
     App_CanTx_FSM_Vitals_Heartbeat_Set(true);
 
@@ -64,10 +60,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set((uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
 
-    // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
-    // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
-
-    App_CanTx_FSM_Errors_MissingHeartbeat_Set(!App_SharedHeartbeatMonitor_Tick(hb_monitor));
+    App_CanTx_FSM_Warning_MissingHeartbeat_Set(!App_SharedHeartbeatMonitor_Tick(hb_monitor));
 
     App_AcceleratorPedals_Broadcast(world);
     App_Brake_Broadcast(world);

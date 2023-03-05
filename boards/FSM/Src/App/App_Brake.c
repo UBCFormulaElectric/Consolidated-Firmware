@@ -7,8 +7,6 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "configs/App_BrakePressureThresholds.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
-
 struct Brake
 {
     struct InRangeCheck *front_pressure_in_range_check;
@@ -100,29 +98,18 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     // Brake Pedal Value
     App_CanTx_FSM_Brake_BrakePedalPercentage_Set(brake->get_pedal_travel());
 
-    uint8_t BrakeActuatedEnum =
-        brake->is_brake_actuated() ? BRAKE_IS_ACTUATED_TRUE_CHOICE : BRAKE_IS_ACTUATED_FALSE_CHOICE;
-    App_CanTx_FSM_Brake_IsActuated_Set(BrakeActuatedEnum);
+    App_CanTx_FSM_Brake_IsActuated_Set(brake->is_brake_actuated());
 
     App_SetPeriodicCanSignals_InRangeCheck_long(
         brake->front_pressure_in_range_check, App_CanTx_FSM_Brake_FrontBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_FrontBrakePressureOutOfRange_Set,
-        BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OK_CHOICE, BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
-        BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_FrontBrakePressureOutOfRange_Set);
     App_SetPeriodicCanSignals_InRangeCheck_long(
         brake->rear_pressure_in_range_check, App_CanTx_FSM_Brake_RearBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_RearBrakePressureOutOfRange_Set,
-        BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OK_CHOICE, BRAKE_REAR_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
-        BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_RearBrakePressureOutOfRange_Set);
 
-    uint8_t PressureSensorOCSCEnum = App_Brake_PressureElectricalFault(brake)
-                                         ? PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
-                                         : PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
-    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(PressureSensorOCSCEnum);
+    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
 
-    uint8_t PedalOCSCEnum = brake->pedal_travel_sensor_ocsc() ? PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
-                                                              : PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
-    App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(PedalOCSCEnum);
+    App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(brake->pedal_travel_sensor_ocsc());
     if (brake->pedal_travel_sensor_ocsc())
     {
         App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);

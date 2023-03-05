@@ -6,8 +6,6 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
-
 struct Steering
 {
     float (*get_steering_angle)(void);
@@ -39,16 +37,15 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
 
     App_CanTx_FSM_Steering_SteeringAngle_Set(steering->get_steering_angle());
 
-    bool    steering_sensor_ocsc = steering->steering_sensor_OCSC();
-    uint8_t SteeringAngleOCSCEnum =
-        steering_sensor_ocsc ? STEERING_SENSOR_OCSC_TRUE_CHOICE : STEERING_SENSOR_OCSC_FALSE_CHOICE;
-    App_CanTx_FSM_Errors_SteeringAngleSensorOCSC_Set(SteeringAngleOCSCEnum);
+    bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
+    App_CanTx_FSM_Warning_SteeringAngleSensorOCSC_Set(steering_sensor_ocsc);
     if (steering_sensor_ocsc)
+    {
         App_CanTx_FSM_Steering_SteeringAngle_Set(0);
+    }
 
     struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
     App_SetPeriodicCanSignals_InRangeCheck_float(
         steering_angle_in_range_check, App_CanTx_FSM_Steering_SteeringAngle_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_SteeringAngleOutOfRange_Set, STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
-        STEERING_ANGLE_OUT_OF_RANGE_WIDELEFT_CHOICE, STEERING_ANGLE_OUT_OF_RANGE_WIDERIGHT_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_SteeringAngleOutOfRange_Set);
 }

@@ -20,5 +20,5 @@ float Io_SteeringAngleSensor_GetAngleDegree(void)
 bool Io_SteeringSensorOCSC(void)
 {
     float steering_voltage = Io_SteeringSensorVoltage();
-    return !(MIN_STEERING_VOLTAGE <= steering_voltage || steering_voltage <= MAX_STEERING_VOLTAGE);
+    return !(MIN_STEERING_VOLTAGE <= steering_voltage && steering_voltage <= MAX_STEERING_VOLTAGE);
 }

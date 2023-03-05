@@ -7,7 +7,6 @@
 #include "configs/App_FlowRateThresholds.h"
 
 #include "App_SharedSetPeriodicCanSignals.h"
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
 
 struct Coolant
 {
@@ -65,8 +64,7 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         coolant->flow_rate_in_range_check, App_CanTx_FSM_Coolant_FlowRate_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_FlowRateOutOfRange_Set, FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE, FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_FlowRateOutOfRange_Set);
 
     // motor shutdown in flow rate check
     float                    flow_rate;
@@ -75,8 +73,5 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-    uint8_t FlowMeterUnderflowEnum = flow_in_range_signal_state == SIGNAL_STATE_ACTIVE
-                                         ? FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE
-                                         : FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE;
-    App_CanTx_FSM_MotorShutdownErrors_FlowMeterHasUnderflow_Set(FlowMeterUnderflowEnum);
+    App_CanTx_FSM_Warning_FlowMeterHasUnderflow_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }

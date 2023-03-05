@@ -6,8 +6,6 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
-
 struct Wheels
 {
     float (*get_left_wheel_speed)(void);
@@ -57,11 +55,9 @@ void App_Wheels_Broadcast(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         left_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_LeftWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_LeftWheelSpeedOutOfRange_Set, LEFT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
-        LEFT_WHEEL_SPEED_OUT_OF_RANGE_UNDERSPEED_CHOICE, LEFT_WHEEL_SPEED_OUT_OF_RANGE_OVERSPEED_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_LeftWheelSpeedOutOfRange_Set);
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         right_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_RightWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Errors_RightWheelSpeedOutOfRange_Set, RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
-        RIGHT_WHEEL_SPEED_OUT_OF_RANGE_UNDERSPEED_CHOICE, RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OVERSPEED_CHOICE);
+        (void (*)(uint8_t))App_CanTx_FSM_Warning_RightWheelSpeedOutOfRange_Set);
 }
