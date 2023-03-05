@@ -22,6 +22,7 @@ enum InRangeCheck_Status CheckStatus(enum InRangeCheck_Status status, void (*con
         }
         break;
     }
+    
     return status;
 }
 

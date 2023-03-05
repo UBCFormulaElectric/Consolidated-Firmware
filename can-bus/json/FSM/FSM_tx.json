@@ -1,54 +1,90 @@
 {
-	"FSM_Warning":{
-		"msg_id": 301,
-		"cycle_time": 1000,
-		"signals": {
-			"PappsOutOfRange": {"bits": 1},
-			"SappsOutOfRange": {"bits": 1},
-			"StackWatermarkAboveThresholdTask1Hz": { "bits": 1 },
-			"StackWatermarkAboveThresholdTask1kHz":{ "bits": 1 },
-			"StackWatermarkAboveThresholdTaskCanTx": { "bits": 1 },
-			"StackWatermarkAboveThresholdTaskCanRx": { "bits": 1 },
-			"WatchdogTimeout": { "bits": 1 },
-			"MissingHeartbeat": {"bits":  1},
-			"WatchdogTimeoutTaskName": { "enum": "RtosTaskName" },
-			"BrakeAccDisagreement": {"bits": 1},
-			"SteeringAngleSensorOCSC": {"bits": 1},
-			"LeftWheelSpeedOutOfRange": {"enum":  "Range_Check"},
-			"RightWheelSpeedOutOfRange": {"enum":  "Range_Check"},
-			"SteeringAngleOutOfRange": {"enum": "Range_Check"},
-			"FrontBrakePressureOutOfRange": {"enum": "Range_Check"},
-			"RearBrakePressureOutOfRange": {"enum": "Range_Check"},
-			"FlowRateOutOfRange": {"enum": "Range_Check"},
-
-			"PappsOCSCIsActive": {"bits": 1},
-			"SappsOCSCIsActive": {"bits": 1},
-			"AppsDisagreementIsActive": {"bits": 1},
-			"FlowMeterHasUnderflow": {"bits": 1},
-
-			"TxOverflowCount": {
-				"bits": 8
-			},
-			"RxOverflowCount": {
-				"bits": 8
-			}
-		}
-	},
 	"FSM_Vitals": {
 		"msg_id": 304,
 		"cycle_time": 1000,
 		"description": "FSM Heartbeat signal",
 		"signals": {
 			"Heartbeat": {
-					"bits": 1
+				"bits": 1
+			},
+			"State": {
+				"enum": "State_Machine"
 			}
 		}
 	},
-	"FSM_StateMachine": {
-		"msg_id": 305,
-		"cycle_time": 100,
+	"FSM_Warning": {
+		"msg_id": 301,
+		"cycle_time": 1000,
 		"signals": {
-			"State": {"enum": "State_Machine"}
+			"PappsOutOfRange": {
+				"bits": 1
+			},
+			"SappsOutOfRange": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTask1Hz": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTask1kHz": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTaskCanTx": {
+				"bits": 1
+			},
+			"StackWatermarkAboveThresholdTaskCanRx": {
+				"bits": 1
+			},
+			"WatchdogTimeout": {
+				"bits": 1
+			},
+			"MissingHeartbeat": {
+				"bits": 1
+			},
+			"WatchdogTimeoutTaskName": {
+				"enum": "RtosTaskName"
+			},
+			"BrakeAccDisagreement": {
+				"bits": 1
+			},
+			"SteeringAngleSensorOCSC": {
+				"bits": 1
+			},
+			"LeftWheelSpeedOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"RightWheelSpeedOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"SteeringAngleOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"FrontBrakePressureOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"RearBrakePressureOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"FlowRateOutOfRange": {
+				"enum": "RangeCheck"
+			},
+			"PappsOCSCIsActive": {
+				"bits": 1
+			},
+			"SappsOCSCIsActive": {
+				"bits": 1
+			},
+			"AppsDisagreementIsActive": {
+				"bits": 1
+			},
+			"FlowMeterHasUnderflow": {
+				"bits": 1
+			},
+			"TxOverflowCount": {
+				"bits": 8
+			},
+			"RxOverflowCount": {
+				"bits": 8
+			}
 		}
 	},
 	"FSM_Apps": {
@@ -67,7 +103,7 @@
 				"max": 100,
 				"unit": "%"
 			},
-			"TorqueLimit":{
+			"TorqueLimit": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 150,
@@ -81,7 +117,7 @@
 	"FSM_Brake": {
 		"msg_id": 14,
 		"cycle_time": 10,
-		"signals":{
+		"signals": {
 			"FrontBrakePressure": {
 				"resolution": 1,
 				"min": 0,
@@ -103,8 +139,12 @@
 			"IsActuated": {
 				"bits": 1
 			},
-			"PressureSensorOpenShortCircuit": {"bits":  1},
-			"PedalOpenShortCircuit": {"bits":  1}
+			"PressureSensorOpenShortCircuit": {
+				"bits": 1
+			},
+			"PedalOpenShortCircuit": {
+				"bits": 1
+			}
 		}
 	},
 	"FSM_Coolant": {
