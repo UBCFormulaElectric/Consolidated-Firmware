@@ -1,6 +1,6 @@
 {
     "msg_id": 300,
     "alerts": [
-        "PDM_ALERT_DUMMY"
+        "FSM_STARTUP"
     ]
 }
