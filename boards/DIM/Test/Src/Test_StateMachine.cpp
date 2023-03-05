@@ -493,8 +493,11 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the FSM LED turns red
     // TODO: JSON2CAN
     //    App_SharedErrorTable_SetError(error_table, FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
+    App_CanRx_FSM_Warnings_MissingHeartbeat_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
+
+    App_CanRx_FSM_Warnings_MissingHeartbeat_Update(false);
 }
 
 // DIM-2
@@ -503,8 +506,11 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
     // Set any warning and check that the FSM LED turns blue
     // TODO: JSON2CAN
     //    App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_blue_fake.call_count);
+
+    App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Update(false);
 }
 
 // DIM-2
@@ -524,9 +530,15 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
     // TODO: JSON2CAN
     //    App_SharedErrorTable_SetError(error_table, FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
     //    App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_CanRx_FSM_Warnings_MissingHeartbeat_Update(true);
+    App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Update(true);
+
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_fsm_status_led_blue_fake.call_count);
+
+    App_CanRx_FSM_Warnings_MissingHeartbeat_Update(false);
+    App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Update(false);
 }
 
 // DIM-2

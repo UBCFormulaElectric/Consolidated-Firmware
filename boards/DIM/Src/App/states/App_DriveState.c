@@ -22,8 +22,8 @@ static bool App_DriveState_HasDIMFault()
 
 static bool App_DriveState_HasFSMFault()
 {
-    // No FSM Faults yet
-    return false;
+    // TODO: Promote this message to fault
+    return App_CanRx_FSM_Warnings_MissingHeartbeat_Get();
 }
 
 static bool App_DriveState_HasPDMFault()
@@ -59,13 +59,27 @@ static bool App_DriveState_HasDIMWarning()
            App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
            App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
            App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
-           App_CanRx_BMS_Warnings_WatchdogTimeout_Get();
+           App_CanTx_DIM_Warnings_WatchdogTimeout_Get();
 }
 
 static bool App_DriveState_HasFSMWarning()
 {
-    // TODO: Update with FSM Warnings
-    return false;
+    return App_CanRx_FSM_Warnings_PappsOutOfRange_Get() || App_CanRx_FSM_Warnings_SappsOutOfRange_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_FSM_Warnings_WatchdogTimeout_Get() || App_CanRx_FSM_Warnings_BrakeAccDisagreement_Get() ||
+           App_CanRx_FSM_Warnings_SteeringAngleSensorOCSC_Get() ||
+           App_CanRx_FSM_Warnings_LeftWheelSpeedOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_RightWheelSpeedOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_SteeringAngleOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_FrontBrakePressureOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_RearBrakePressureOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_FlowRateOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_PappsOCSCIsActive_Get() || App_CanRx_FSM_Warnings_SappsOCSCIsActive_Get() ||
+           App_CanRx_FSM_Warnings_FlowMeterHasUnderflow_Get();
 }
 
 static bool App_DriveState_HasPDMWarning()

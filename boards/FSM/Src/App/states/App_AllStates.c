@@ -60,7 +60,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set((uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
 
-    App_CanTx_FSM_Warning_MissingHeartbeat_Set(!App_SharedHeartbeatMonitor_Tick(hb_monitor));
+    App_CanTx_FSM_Warnings_MissingHeartbeat_Set(!App_SharedHeartbeatMonitor_Tick(hb_monitor));
 
     App_AcceleratorPedals_Broadcast(world);
     App_Brake_Broadcast(world);
