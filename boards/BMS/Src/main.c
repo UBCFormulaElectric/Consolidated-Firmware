@@ -46,6 +46,8 @@
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
+#include "Io_SharedI2c.h"
+#include "Io_Eeprom.h"
 
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
@@ -78,6 +80,8 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 CAN_HandleTypeDef hcan1;
+
+I2C_HandleTypeDef hi2c1;
 
 IWDG_HandleTypeDef hiwdg;
 
@@ -129,6 +133,7 @@ static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM13_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_I2C1_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
@@ -192,6 +197,7 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM13_Init();
     MX_IWDG_Init();
+    MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -254,6 +260,38 @@ int main(void)
     App_AllStates_Init();
 
     App_CanAlerts_SetAlert(BMS_ALERT_STARTUP, true);
+
+    // TESTING
+
+    Io_Eeprom_Init(&hi2c1);
+
+    float cell_voltages[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+//    bool write_ok = Io_Eeprom_WriteRaw(0, cell_voltages, sizeof(cell_voltages));
+
+//    write_ok = Io_Eeprom_WriteFloat(510, -3.1415f);
+
+//    float rx_buf[10] = {0};
+//    bool write_ok = Io_Eeprom_ReadRaw(0, rx_buf, sizeof(rx_buf));
+
+//    Io_Eeprom_WriteFloat(0, 0);
+//    Io_Eeprom_WriteFloat(1, 1);
+//    Io_Eeprom_WriteFloat(2, 2);
+//    Io_Eeprom_WriteFloat(3, 3);
+//    Io_Eeprom_WriteFloat(4, 4);
+//    Io_Eeprom_WriteFloat(5, 5);
+
+    float rx_buf[9] = {0};
+    Io_Eeprom_ReadFloat(0, &rx_buf[0]);
+    Io_Eeprom_ReadFloat(1, &rx_buf[1]);
+    Io_Eeprom_ReadFloat(2, &rx_buf[2]);
+    Io_Eeprom_ReadFloat(3, &rx_buf[3]);
+    Io_Eeprom_ReadFloat(4, &rx_buf[4]);
+    Io_Eeprom_ReadFloat(5, &rx_buf[5]);
+
+    float rx_val = 0;
+    bool write_ok = Io_Eeprom_ReadFloat(510, &rx_val);
+
+    (void)write_ok;
 
     /* USER CODE END 2 */
 
@@ -442,6 +480,38 @@ static void MX_CAN1_Init(void)
     }
     /* USER CODE BEGIN CAN1_Init 2 */
     /* USER CODE END CAN1_Init 2 */
+}
+
+/**
+ * @brief I2C1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2C1_Init(void)
+{
+    /* USER CODE BEGIN I2C1_Init 0 */
+
+    /* USER CODE END I2C1_Init 0 */
+
+    /* USER CODE BEGIN I2C1_Init 1 */
+
+    /* USER CODE END I2C1_Init 1 */
+    hi2c1.Instance             = I2C1;
+    hi2c1.Init.ClockSpeed      = 100000;
+    hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
+    hi2c1.Init.OwnAddress1     = 0;
+    hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2     = 0;
+    hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2C1_Init 2 */
+
+    /* USER CODE END I2C1_Init 2 */
 }
 
 /**
@@ -713,14 +783,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PB9 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
