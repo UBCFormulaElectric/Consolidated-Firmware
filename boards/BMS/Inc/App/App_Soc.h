@@ -1,6 +1,14 @@
 #pragma once
 
 #include "App_SharedExitCode.h"
+#include "App_Accumulator.h"
+#include "App_TractiveSystem.h"
+
+struct Soc;
+
+struct Soc* App_Soc_Create(struct Accumulator* accumulator);
+
+void App_Soc_Destroy(struct Soc* soc);
 
 /**
  * Given three state-of-charge (SoCs), check whether the absolute difference
@@ -37,3 +45,15 @@
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+void App_Soc_UpdatePackEnergy(struct Soc* soc, struct Accumulator* accumulator, struct TractiveSystem* ts, float time_step_s);
+
+/**
+ * Get the min cell energy in percent. The pack when unbalanced is limited by this cell energy
+ * @param segment The segment where the cell with the min cell energy is located
+ * @param cell The cell containing the min cell energy
+ * @return The cell energy in percent relative to the max cell energy
+ */
+float App_Soc_GetMinCellEnergyInPercent(struct Soc* soc, uint8_t *segment, uint8_t *cell);
+
+float App_Soc_GetMaxCellEnergyInPercent(struct Soc* soc, uint8_t *segment, uint8_t *cell);

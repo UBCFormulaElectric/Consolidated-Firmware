@@ -12,6 +12,7 @@
 #include "App_Airs.h"
 #include "App_PreChargeRelay.h"
 #include "App_TractiveSystem.h"
+#include "App_Soc.h"
 #include "App_SharedClock.h"
 
 struct BmsWorld;
@@ -37,6 +38,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Airs *            airs,
     struct PrechargeRelay *  precharge_relay,
     struct TractiveSystem *  tractive_system,
+    struct Soc* soc,
     struct Clock *           clock);
 
 /**
@@ -121,6 +123,8 @@ struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *con
  * @return The tractive system for the given world
  */
 struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *world);
+
+struct Soc* App_BmsWorld_GetSoc(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world

@@ -2,9 +2,9 @@
 
 #define V_TO_SOC_LUT_SIZE (121U)
 
-// Use the voltage to SoC lookup table to get the index. Use this index to look up the state of charge
+// Use the voltage to SoC lookup table to get the index. Use this index to look up the state of charge.
 
-static const float v_to_soc_lookup[V_TO_SOC_LUT_SIZE] = {
+static const float v_to_index[V_TO_SOC_LUT_SIZE] = {
     4.17231f, 4.14838f, 4.13835f, 4.1293f,  4.12121f, 4.11312f, 4.10504f, 4.09728f, 4.08919f, 4.08175f, 4.07367f,
     4.06655f, 4.05943f, 4.05361f, 4.04908f, 4.04456f, 4.03971f, 4.03324f, 4.02353f, 4.0093f,  3.99442f, 3.98116f,
     3.96984f, 3.96079f, 3.9527f,  3.94591f, 3.94009f, 3.93459f, 3.93006f, 3.92521f, 3.921f,   3.91648f, 3.91162f,
@@ -18,7 +18,7 @@ static const float v_to_soc_lookup[V_TO_SOC_LUT_SIZE] = {
     3.65191f, 3.64576f, 3.63606f, 3.62086f, 3.59886f, 3.56911f, 3.53029f, 3.47919f, 3.40965f, 3.30648f, 3.07522f
 };
 
-static const float energy_lookup[V_TO_SOC_LUT_SIZE] = { 13720.845657204027f,
+static const float index_to_energy[V_TO_SOC_LUT_SIZE] = { 13720.845657204027f,
                                                         13624.421069240241f,
                                                         13523.644904952154f,
                                                         13420.350505257114f,

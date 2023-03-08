@@ -5,6 +5,7 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "App_Soc.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -118,6 +119,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
+    struct Soc* soc = App_BmsWorld_GetSoc(world);
 
     bool status = true;
     App_SendAndReceiveHeartbeat(hb_monitor);
@@ -155,6 +157,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+
+    App_Soc_UpdatePackEnergy(soc, accumulator, ts, 0.01f);
 
     return status;
 }

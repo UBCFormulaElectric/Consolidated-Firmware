@@ -120,6 +120,7 @@ struct CellMonitors *    cell_monitors;
 struct Airs *            airs;
 struct PrechargeRelay *  precharge_relay;
 struct TractiveSystem *  ts;
+struct Soc* soc;
 struct Clock *           clock;
 /* USER CODE END PV */
 
@@ -250,11 +251,13 @@ int main(void)
 
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
+    soc = App_Soc_Create(accumulator);
+
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
-        ts, clock);
+        ts, soc, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
