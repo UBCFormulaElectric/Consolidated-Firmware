@@ -286,13 +286,16 @@ TEST_F(DimStateMachineTest, check_7_seg_displays_show_error_id_in_drive_state_if
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_val.enabled);
 
+    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_m_hex_digit_fake.arg0_val.enabled);
     ASSERT_EQ(true, set_middle_r_hex_digit_fake.arg0_val.enabled);
 
-    ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_val.enabled);
-    ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_val.enabled);
 }
 
 // DIM-9
