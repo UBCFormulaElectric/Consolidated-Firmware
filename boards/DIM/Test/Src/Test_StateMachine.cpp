@@ -92,10 +92,10 @@ class DimStateMachineTest : public BaseStateMachineTest
         right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
         right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
 
-
         seven_seg_displays = App_SevenSegDisplays_Create(
-            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display, middle_m_seven_seg_display, middle_r_seven_seg_display,
-            right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -112,7 +112,7 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         aux_switch = App_BinarySwitch_Create(aux_switch_is_turned_on);
 
-//        torque_vectoring_switch = App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
+        //        torque_vectoring_switch = App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
 
         bms_status_led = App_SharedRgbLed_Create(
             turn_bms_status_led_red, turn_bms_status_led_green, turn_bms_status_led_blue, turn_off_bms_status_led);
@@ -133,8 +133,7 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         world = App_DimWorld_Create(
             seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-            aux_switch, bms_status_led, dcm_status_led, dim_status_led,
-            fsm_status_led, pdm_status_led, clock);
+            aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
@@ -164,7 +163,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_off_bspd_led);
         RESET_FAKE(start_switch_is_turned_on);
         RESET_FAKE(aux_switch_is_turned_on);
-        //RESET_FAKE(torque_vectoring_switch_is_turned_on);
+        // RESET_FAKE(torque_vectoring_switch_is_turned_on);
         RESET_FAKE(turn_bms_status_led_red);
         RESET_FAKE(turn_bms_status_led_green);
         RESET_FAKE(turn_bms_status_led_blue);
@@ -208,7 +207,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(bspd_led, App_Led_Destroy);
         TearDownObject(start_switch, App_BinarySwitch_Destroy);
         TearDownObject(aux_switch, App_BinarySwitch_Destroy);
-        //TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
+        // TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
         TearDownObject(bms_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(dcm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(dim_status_led, App_SharedRgbLed_Destroy);
@@ -256,24 +255,23 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct Led *             bspd_led;
     struct BinarySwitch *    start_switch;
     struct BinarySwitch *    aux_switch;
-   // struct BinarySwitch *    torque_vectoring_switch;
-    struct RotarySwitch *    drive_mode_switch;
-    struct RgbLed *          bms_status_led;
-    struct RgbLed *          dcm_status_led;
-    struct RgbLed *          dim_status_led;
-    struct RgbLed *          fsm_status_led;
-    struct RgbLed *          pdm_status_led;
-    struct Clock *           clock;
+    // struct BinarySwitch *    torque_vectoring_switch;
+    struct RotarySwitch *drive_mode_switch;
+    struct RgbLed *      bms_status_led;
+    struct RgbLed *      dcm_status_led;
+    struct RgbLed *      dim_status_led;
+    struct RgbLed *      fsm_status_led;
+    struct RgbLed *      pdm_status_led;
+    struct Clock *       clock;
 };
 
-//DIM-12
+// DIM-12
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
     //    EXPECT_EQ(CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
-
 
 // DIM-9
 TEST_F(DimStateMachineTest, check_7_seg_displays_show_error_id_in_drive_state_if_there_is_any_error)
@@ -352,7 +350,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 }
 //
 //// DIM-4
-//TEST_F(DimStateMachineTest, check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
+// TEST_F(DimStateMachineTest, check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
 //{
 //    torque_vectoring_switch_is_turned_on_fake.return_val = false;
 //    LetTimePass(state_machine, 10);
@@ -368,7 +366,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 // DIM-5
-//TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
+// TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 //{
 //    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
 //    LetTimePass(state_machine, 10);
@@ -387,7 +385,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-6
-//TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
+// TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 //{
 //    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
 //    LetTimePass(state_machine, 10);
@@ -405,7 +403,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //    ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 //}
 //
-//TEST_F(DimStateMachineTest, rgb_led_sequence_in_drive_state)
+// TEST_F(DimStateMachineTest, rgb_led_sequence_in_drive_state)
 //{
 //    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
 //                                    &turn_on_blue_led_fake.call_count };
@@ -422,7 +420,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
+// TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
 //{
 //    // Set any critical error and check that the DIM LED turns red
 //    //    App_SharedErrorTable_SetError(error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
@@ -431,7 +429,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
+// TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
 //{
 //    // Set any non-critical error and check that the DIM LED turns blue
 //    //    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -440,14 +438,14 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dim_board_status_led_control_with_no_error)
+// TEST_F(DimStateMachineTest, dim_board_status_led_control_with_no_error)
 //{
 //    // Don't set any error and check that the DIM LED turns green
 //    LetTimePass(state_machine, 10);
 //    ASSERT_EQ(1, turn_dim_status_led_green_fake.call_count);
 //}
 //
-//TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
+// TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
 //{
 //    // If the error table contains critical and non-critical errors
 //    // simultaneously, the critical error should take precedence and turn the
@@ -460,7 +458,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
+// TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
 //{
 //    // Set any critical error and check that the DCM LED turns red
 //    //    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
@@ -469,7 +467,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_warning)
+// TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_warning)
 //{
 //    // Set any warning and check that the DCM LED turns blue
 //    //    App_SharedErrorTable_SetError(error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -478,7 +476,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_no_error)
+// TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_no_error)
 //{
 //    // Don't set any error and check that the DCM LED turns green
 //    LetTimePass(state_machine, 10);
@@ -486,7 +484,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
+// TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
 //{
 //    // If the error table contains critical and non-critical errors
 //    // simultaneously, the critical error should take precedence and turn the
@@ -499,7 +497,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
+// TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
 //{
 //    // Set any critical error and check that the FSM LED turns red
 //    //    App_SharedErrorTable_SetError(error_table, FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
@@ -508,7 +506,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
+// TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
 //{
 //    // Set any warning and check that the FSM LED turns blue
 //    //    App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -517,7 +515,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_no_error)
+// TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_no_error)
 //{
 //    // Don't set any error and check that the FSM LED turns green
 //    LetTimePass(state_machine, 10);
@@ -525,7 +523,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
+// TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 //{
 //    // If the error table contains critical and non-critical errors
 //    // simultaneously, the critical error should take precedence and turn the
@@ -538,7 +536,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
+// TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
 //{
 //    // Set OK statuses such that the red led is not set without fault
 //    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
@@ -554,7 +552,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
+// TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
 //{
 //    // Set any critical error and check that the PDM LED turns red
 //    //    App_SharedErrorTable_SetError(error_table, PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
@@ -563,7 +561,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_warning)
+// TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_warning)
 //{
 //    // Set any warning and check that the PDM LED turns blue
 //    //    App_SharedErrorTable_SetError(error_table, PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -572,7 +570,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 //// DIM-2
-//TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
+// TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
 //{
 //    // Don't set any error and check that the PDM LED turns green
 //    LetTimePass(state_machine, 10);
@@ -580,7 +578,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //}
 //
 // DIM-2
-//TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
+// TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
 //{
 //    // If the error table contains critical and non-critical errors
 //    // simultaneously, the critical error should take precedence and turn the
@@ -592,7 +590,7 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 //    ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
 //}
 //
-//TEST_F(DimStateMachineTest, check_enum_ordering)
+// TEST_F(DimStateMachineTest, check_enum_ordering)
 //{
 //    // Test to ensure BoardLeds enum matches Boards enum for use in DIM drive state
 //    //    ASSERT_EQ(DCM_LED, DCM);

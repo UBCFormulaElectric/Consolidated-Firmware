@@ -205,9 +205,9 @@ int main(void)
     right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_RightHexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
-        left_l_seven_seg_display, left_m_seven_seg_display,left_r_seven_seg_display,  middle_l_seven_seg_display, middle_m_seven_seg_display,
-        middle_r_seven_seg_display,right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display,
-        Io_SevenSegDisplays_WriteCommands);
+        left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+        middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display, right_m_seven_seg_display,
+        right_r_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);

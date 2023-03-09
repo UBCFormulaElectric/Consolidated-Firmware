@@ -82,7 +82,7 @@ void Io_SevenSegDisplays_WriteCommands(void)
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
             const bool bit_state = IS_BIT_SET(display_data, i);
-            //TODOL correct pinouts
+            // TODOL correct pinouts
             // Write bit state to data line
             HAL_GPIO_WritePin(
                 SEVENSEGS_SEROUT_GPIO_Port, SEVENSEGS_SEROUT_Pin, bit_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -212,10 +212,13 @@ void Io_SevenSegDisplays_SetRight_M_HexDigit(struct SevenSegHexDigit hex_digit)
 }
 
 void Io_SevenSegDisplays_SetRight_R_HexDigit(struct SevenSegHexDigit hex_digit)
-        {
-    if (!hex_digit.enabled) {
+{
+    if (!hex_digit.enabled)
+    {
         commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
-    } else {
+    }
+    else
+    {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
