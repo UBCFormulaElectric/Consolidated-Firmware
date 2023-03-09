@@ -100,7 +100,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
-    { //this is where the nonsense is happening
+    { // this is where the nonsense is happening
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 0x5F5E100);
     }
 }

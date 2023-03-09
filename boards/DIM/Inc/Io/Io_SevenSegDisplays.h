@@ -36,7 +36,6 @@ void Io_SevenSegDisplays_SetLeft_M_HexDigit(struct SevenSegHexDigit hex_digit);
  */
 void Io_SevenSegDisplays_SetLeft_R_HexDigit(struct SevenSegHexDigit hex_digit);
 
-
 /**
  * Using the given hexadecimal digit, update the command value to send to the
  * middle 7-segment display during the next Io_SevenSegDisplays_WriteCommands()

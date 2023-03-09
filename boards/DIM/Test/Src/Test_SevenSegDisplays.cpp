@@ -32,10 +32,10 @@ class SevenSegDisplaysTest : public testing::Test
         right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
         right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
 
-
         seven_seg_displays = App_SevenSegDisplays_Create(
-                left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display, middle_m_seven_seg_display, middle_r_seven_seg_display,
-                right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         RESET_FAKE(set_left_l_hex_digit);
         RESET_FAKE(set_left_m_hex_digit);
@@ -75,7 +75,6 @@ class SevenSegDisplaysTest : public testing::Test
     struct SevenSegDisplays *seven_seg_displays;
 };
 
-
 TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
 {
     // Counter used as index for the argument history and call count of fake
@@ -83,7 +82,7 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
     size_t count = 1;
 
     constexpr size_t num_inputs        = 3;
-    uint8_t          input[num_inputs] = {0,0,0};
+    uint8_t          input[num_inputs] = { 0, 0, 0 };
 
     for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
     {
@@ -101,7 +100,6 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
         ASSERT_EQ(count, set_right_l_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_right_m_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_right_r_hex_digit_fake.call_count);
-
 
         ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[count - 1].enabled);
         ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[count - 1].enabled);
@@ -128,11 +126,12 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
     size_t count = 1;
 
     constexpr size_t num_inputs        = 6;
-    uint8_t          input[num_inputs] = { 0, 0,0,0,0,0};
+    uint8_t          input[num_inputs] = { 0, 0, 0, 0, 0, 0 };
 
-    for (input[0] = 0,input[1] = 0, input[2] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, input[1]++,input[2]++)
+    for (input[0] = 0, input[1] = 0, input[2] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, input[1]++, input[2]++)
     {
-        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS; input[3]++, input[4]++, input[5]++,count++)
+        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS;
+             input[3]++, input[4]++, input[5]++, count++)
         {
             ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
             ASSERT_EQ(EXIT_CODE_OK, exit_code);
@@ -178,13 +177,14 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
     size_t count = 1;
 
     constexpr size_t num_inputs        = 9;
-    uint8_t          input[num_inputs] = { 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0};
+    uint8_t          input[num_inputs] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     for (input[0] = 0, input[1] = 0, input[2] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, input[1]++, input[2]++)
     {
-        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS; input[3]++, input[4]++,input[5]++)
+        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS; input[3]++, input[4]++, input[5]++)
         {
-            for (input[6] = 0, input[7] = 0, input[8] = 0; input[6] < NUM_HEX_DIGITS; input[6]++, input[7]++,input[8]++, count++)
+            for (input[6] = 0, input[7] = 0, input[8] = 0; input[6] < NUM_HEX_DIGITS;
+                 input[6]++, input[7]++, input[8]++, count++)
             {
                 ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
                 ASSERT_EQ(EXIT_CODE_OK, exit_code);
@@ -213,7 +213,6 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
                 ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[count - 1].enabled);
                 ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[count - 1].enabled);
 
-
                 ASSERT_EQ(input[0], set_left_l_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(input[1], set_left_m_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(input[2], set_left_r_hex_digit_fake.arg0_history[count - 1].value);
@@ -225,7 +224,6 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
                 ASSERT_EQ(input[6], set_right_l_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(input[7], set_right_m_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(input[8], set_right_r_hex_digit_fake.arg0_history[count - 1].value);
-
 
                 // Sanity check to make sure the argument history is long enough
                 ASSERT_EQ(0, set_left_l_hex_digit_fake.arg_histories_dropped);
@@ -288,7 +286,7 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
     }
 }
 
-//TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
+// TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
 //{
 //    App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 0);
 //    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[0].enabled);
