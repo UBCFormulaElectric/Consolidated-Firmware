@@ -172,11 +172,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        if ((*has_fault_funcs[i])())
+        if (has_fault_funcs[i]())
         {
             App_SharedRgbLed_TurnRed(board_status_led);
         }
-        else if ((*has_warning_funcs[i])())
+        else if (has_warning_funcs[i]())
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }
