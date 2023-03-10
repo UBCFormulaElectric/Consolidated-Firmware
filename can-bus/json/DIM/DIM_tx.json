@@ -38,17 +38,8 @@
             }
         }
     },
-    "DIM_WatchdogTimeout": {
-        "msg_id": 505,
-        "description": "Aperiodic message sent when watchdog is tripped.",
-        "signals": {
-            "TaskName": {
-                "enum": "RtosTaskName"
-            }
-        }
-    },
     "DIM_Warnings": {
-        "msg_id": 506,
+        "msg_id": 505,
         "cycle_time": 1000,
         "description": "Warning flags for DIM",
         "signals": {
@@ -69,6 +60,9 @@
             },
             "WatchdogTimeout": {
                 "bits": 1
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
             }
         }
     }

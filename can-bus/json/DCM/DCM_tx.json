@@ -99,7 +99,8 @@
             },
             "DirectionCommand": {
                 "start_bit": 32,
-                "enum": "InverterDirection"
+                "enum": "InverterDirection",
+                "start_value": 0
             },
             "EnableInverter": {
                 "start_bit": 40,
