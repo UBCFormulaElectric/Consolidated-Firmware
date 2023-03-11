@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 
