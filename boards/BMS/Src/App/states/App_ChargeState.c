@@ -25,12 +25,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
-        struct Charger *    charger     = App_BmsWorld_GetCharger(world);
-        struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
-        struct Airs *       airs        = App_BmsWorld_GetAirs(world);
-        struct TractiveSystem * const ts      = App_BmsWorld_GetTractiveSystem(world);
-
+        struct BmsWorld *            world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct Charger *             charger = App_BmsWorld_GetCharger(world);
+        struct Airs *                airs    = App_BmsWorld_GetAirs(world);
+        struct TractiveSystem *const ts      = App_BmsWorld_GetTractiveSystem(world);
 
         static uint16_t ignore_chgr_fault_counter  = 0U;
         bool            has_charger_faulted        = false;
@@ -53,6 +51,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
         App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
+        App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(external_shutdown_occurred);
 
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
         if (charging_completed || !charging_enabled||is_missing_hb)
@@ -64,16 +63,15 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
-    struct Charger *          charger = App_BmsWorld_GetCharger(world);
-    struct BmsCanRxInterface *can_rx  = App_BmsWorld_GetCanRx(world);
-    struct Airs *             airs    = App_BmsWorld_GetAirs(world);
+    struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
+    struct Charger * charger = App_BmsWorld_GetCharger(world);
+    struct Airs *    airs    = App_BmsWorld_GetAirs(world);
     // If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge
     // state, disable them when leaving
     // Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
     App_Airs_OpenAirPositive(airs);
-    App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);
+    App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
 }
 
 const struct State *App_GetChargeState(void)

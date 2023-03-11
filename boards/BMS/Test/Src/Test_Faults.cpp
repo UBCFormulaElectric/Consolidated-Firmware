@@ -310,14 +310,11 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_drive_state)
 {
-<<<<<<< HEAD
-=======
     // Set TS current positive to trigger discharging condition in tempertature check
     get_high_res_current_fake.return_val   = 10.0f;
     get_low_res_current_fake.return_val    = 10.0f;
     is_air_negative_closed_fake.return_val = true;
 
->>>>>>> 9562de5e (-Changed shutdown loop in charge state to go into fault state)
     SetInitialState(App_GetInitState());
 
     // Let accumulator startup count expire
