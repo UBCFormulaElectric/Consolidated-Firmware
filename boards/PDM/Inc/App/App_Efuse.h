@@ -8,6 +8,7 @@ struct Efuse;
 struct Io_Efuse;
 
 /**
+ *
  * @param io_efuse              Full Io_Efuse structure extraction
  * @param enable_channel_0      A function that calls IO_function to enable channel_0
  * @param disable_channel_0     A function that calls IO_function to disable channel_0
@@ -21,7 +22,8 @@ struct Io_Efuse;
  * @param channel_0_max_current Maximum current channel 0 can reach.
  * @param channel_1_min_current Minimum current channel 1 can drop to.
  * @param channel_1_max_current Maximum current channel 1 can reach.
- * @return Efuse structure
+ * @param max_reset_attempts    Maximum Standby Resets before the channel has "failed"
+ * @return
  */
 struct Efuse *App_Efuse_Create(
     struct Io_Efuse(*io_efuse),
@@ -37,7 +39,8 @@ struct Efuse *App_Efuse_Create(
     float channel_0_min_current,
     float channel_0_max_current,
     float channel_1_min_current,
-    float channel_1_max_current);
+    float channel_1_max_current,
+    int   max_reset_attempts);
 
 void App_Efuse_Destroy(struct Efuse *efuse);
 
@@ -132,15 +135,15 @@ bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
  * (channel0)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
- * @return 0 if fault, 1 if fine
+ * @return true if fault, false if fine
  */
-int App_Efuse_FaultProcedureChannel0(struct Efuse *efuse, int max_attempts);
+bool App_Efuse_FaultCheckChannel0(struct Efuse *efuse);
 
 /**
  * If current too low & enabled or current > max current, then it will go through this fault procedure function
  * (channel1)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
- * @return 0 if fault, 1 if fine
+ * @return true if fault, false if fine
  */
-int App_Efuse_FaultProcedureChannel1(struct Efuse *efuse, int max_attempts);
+bool App_Efuse_FaultCheckChannel1(struct Efuse *efuse);
