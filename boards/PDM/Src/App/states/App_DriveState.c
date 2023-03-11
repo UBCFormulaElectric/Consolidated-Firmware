@@ -38,7 +38,7 @@ void Efuse_ErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struc
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultCheckChannel0(efuse1));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultCheckChannel1(efuse1));
     App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultCheckChannel0(efuse2));
-    // App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultCheckChannel1(efuse2, ));
+    App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultCheckChannel1(efuse2));
     App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultCheckChannel0(efuse3));
     App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultCheckChannel1(efuse3));
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultCheckChannel0(efuse4));
