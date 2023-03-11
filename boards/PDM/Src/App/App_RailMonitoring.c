@@ -58,20 +58,20 @@ bool App_RailMonitoring_VbatVoltageHighCheck(struct RailMonitoring *rail_monitor
 
 bool App_RailMonitoring_24VAccumulatorVoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
-    return rail_monitor->get_24v_acc_voltage() < _24V_ACC_MIN_VOLTAGE;
+    return rail_monitor->get_24v_acc_voltage() < ACC_24V_MIN_VOLTAGE;
 }
 
 bool App_RailMonitoring_24VAccumulatorVoltageHighCheck(struct RailMonitoring *rail_monitor)
 {
-    return rail_monitor->get_24v_acc_voltage() > _24V_ACC_MAX_VOLTAGE;
+    return rail_monitor->get_24v_acc_voltage() > ACC_24V_MAX_VOLTAGE;
 }
 
 bool App_RailMonitoring_22VAuxiliaryVoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
-    return rail_monitor->get_22v_aux_voltage() < _22V_AUX_MIN_VOLTAGE;
+    return rail_monitor->get_22v_aux_voltage() < AUX_22V_MIN_VOLTAGE;
 }
 
 bool App_RailMonitoring_22VAuxiliaryVoltageHighCheck(struct RailMonitoring *rail_monitor)
 {
-    return rail_monitor->get_22v_aux_voltage() > _22V_AUX_MAX_VOLTAGE;
+    return rail_monitor->get_22v_aux_voltage() > AUX_22V_MAX_VOLTAGE;
 }
