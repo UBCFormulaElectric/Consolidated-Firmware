@@ -14,7 +14,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
-    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
+    struct Airs *       airs          = App_BmsWorld_GetAirs(world);
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
@@ -32,8 +32,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
-        struct Charger * charger = App_BmsWorld_GetCharger(world);
+        struct BmsWorld *      world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct Charger *       charger = App_BmsWorld_GetCharger(world);
 
         bool is_charger_connected = App_Charger_IsConnected(charger);
 
