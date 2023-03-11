@@ -15,14 +15,14 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
 void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
-    App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultProcedureChannel0(efuse1, 3));
-    App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultProcedureChannel1(efuse1, 3));
-    App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultProcedureChannel1(efuse2, 0));
-    // App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
-    App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
-    App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
-    App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
-    App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
+    App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultCheckChannel0(efuse1));
+    App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultCheckChannel1(efuse1));
+    App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultCheckChannel0(efuse2));
+    // App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultCheckChannel1(efuse2, ));
+    App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultCheckChannel0(efuse3));
+    App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultCheckChannel1(efuse3));
+    App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultCheckChannel0(efuse4));
+    App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultCheckChannel1(efuse4));
 }
 
 void Efuse_Enable_Channels_18650Startup(
@@ -48,8 +48,10 @@ bool InitFaultDetection(
     struct Efuse *         efuse4,
     struct RailMonitoring *rail_monitor)
 {
-    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 && App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
-        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 && App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
+    if (App_Efuse_FaultCheckChannel0(efuse1) == false && // AIR
+        App_Efuse_FaultCheckChannel0(efuse2) == false && // EMETER
+        App_Efuse_FaultCheckChannel0(efuse3) == false && // LEFT INVERTER
+        App_Efuse_FaultCheckChannel1(efuse3) == false && // RIGHT INVERTER
         !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor))

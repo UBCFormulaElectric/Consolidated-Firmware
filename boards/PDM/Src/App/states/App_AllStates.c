@@ -4,13 +4,7 @@
 #include "App_PdmWorld.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
-/*
-void Low_Voltage_Battery_CANTX(struct LowVoltageBattery *LVB)
-{
-    App_CanTx_PDM_LowVoltageBattery_Faults_Charge_Fault_Set(App_LowVoltageBattery_HasChargeFault(LVB));
-    App_CanTx_PDM_LowVoltageBattery_Faults_Boost_Fault_Set(App_LowVoltageBattery_HasBoostControllerFault(LVB));
-}
-*/
+
 void Rail_Voltages_CANTX(struct RailMonitoring *rail_monitor)
 {
     // Main Rail CAN_TX:
@@ -75,7 +69,4 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     Efuse_Currents_CANTX(efuse1, efuse2, efuse3, efuse4);
     Rail_Voltages_CANTX(rail_monitor);
-
-    // App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
-    // HeartbeatCheck(can_tx, can_rx, hb_monitor);
 }
