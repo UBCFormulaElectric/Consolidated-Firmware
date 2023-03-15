@@ -20,17 +20,3 @@ typedef enum
  * @return A pointer to the Drive State. THIS SHOULD NOT BE MODIFIED.
  */
 const struct State *App_GetDriveState(void);
-
-/**
- * Check CAN bus for BMS Fault messages
- * @param can_rx Dim CAN RX interface for recieving messages
- * @return True if any BMS Fault is present
- */
-bool App_DriveState_HasBmsFault(void);
-
-/**
- * Check CAN bus for BMS Warning messages
- * @param can_rx Dim CAN RX interface for recieving messages
- * @return True if any BMS Warning is present
- */
-bool App_DriveState_HasBmsWarning(void);

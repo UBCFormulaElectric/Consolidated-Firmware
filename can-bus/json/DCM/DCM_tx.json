@@ -144,6 +144,9 @@
             "StackWatermarkAboveThresholdTask1Hz": {
                 "bits": 1
             },
+            "StackWatermarkAboveThresholdTask100Hz": {
+                "bits": 1
+            },
             "StackWatermarkAboveThresholdTask1kHz": {
                 "bits": 1
             },

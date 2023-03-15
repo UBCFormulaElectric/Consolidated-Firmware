@@ -38,11 +38,30 @@
             }
         }
     },
-    "DIM_WatchdogTimeout": {
+    "DIM_Warnings": {
         "msg_id": 505,
-        "description": "Aperiodic message sent when watchdog is tripped.",
+        "cycle_time": 1000,
+        "description": "Warning flags for DIM",
         "signals": {
-            "TaskName": {
+            "StackWatermarkAboveThresholdTask1Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask100Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask1kHz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanRx": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanTx": {
+                "bits": 1
+            },
+            "WatchdogTimeout": {
+                "bits": 1
+            },
+            "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
             }
         }
