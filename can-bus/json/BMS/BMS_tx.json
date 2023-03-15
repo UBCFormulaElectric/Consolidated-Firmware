@@ -17,29 +17,6 @@
             }
         }
     },
-    "BMS_CanFifoOverflow": {
-        "msg_id": 101,
-        "cycle_time": 5000,
-        "description": "BMS tx/rx fifo overflow count",
-        "signals": {
-            "TxOverflowCount": {
-                "bits": 32
-            },
-            "RxOverflowCount": {
-                "bits": 32
-            }
-        }
-    },
-    "BMS_WatchdogTimeout": {
-        "msg_id": 103,
-        "cycle_time": 1000,
-        "description": "placeholder",
-        "signals": {
-            "TaskName": {
-                "enum": "RtosTaskName"
-            }
-        }
-    },
     "BMS_Warnings": {
         "msg_id": 104,
         "cycle_time": 1000,
@@ -62,6 +39,12 @@
             },
             "WatchdogTimeout": {
                 "bits": 1
+            },
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"

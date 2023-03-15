@@ -38,7 +38,7 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
     App_CanTx_FSM_Steering_SteeringAngle_Set(steering->get_steering_angle());
 
     bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
-    App_CanTx_FSM_Warning_SteeringAngleSensorOCSC_Set(steering_sensor_ocsc);
+    App_CanTx_FSM_Warnings_SteeringAngleSensorOCSC_Set(steering_sensor_ocsc);
     if (steering_sensor_ocsc)
     {
         App_CanTx_FSM_Steering_SteeringAngle_Set(0);
@@ -47,5 +47,5 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
     struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
     App_SetPeriodicCanSignals_InRangeCheck_float(
         steering_angle_in_range_check, App_CanTx_FSM_Steering_SteeringAngle_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_SteeringAngleOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_SteeringAngleOutOfRange_Set);
 }

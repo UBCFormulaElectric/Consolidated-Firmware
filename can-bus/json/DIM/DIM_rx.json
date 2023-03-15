@@ -1,5 +1,10 @@
 {
     "messages": [
-        "BMS_OkStatuses"
+        "BMS_OkStatuses",
+        "BMS_Vitals",
+        "BMS_Warnings",
+        "PDM_Warnings",
+        "DCM_Warnings",
+        "FSM_Warnings"
     ]
 }

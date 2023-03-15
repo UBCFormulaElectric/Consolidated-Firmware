@@ -3,6 +3,95 @@
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
+static bool App_DriveState_HasBMSFault()
+{
+    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_FAULT_STATE;
+}
+
+static bool App_DriveState_HasDCMFault()
+{
+    // No DCM Faults yet
+    return App_CanRx_DCM_Warnings_MissingHeartbeat_Get();
+}
+
+static bool App_DriveState_HasDIMFault()
+{
+    // No DIM Faults yet
+    return false;
+}
+
+static bool App_DriveState_HasFSMFault()
+{
+    // TODO: Promote this message to fault
+    return App_CanRx_FSM_Warnings_MissingHeartbeat_Get();
+}
+
+static bool App_DriveState_HasPDMFault()
+{
+    // No PDM Faults yet
+    return false;
+}
+
+static bool App_DriveState_HasBMSWarning()
+{
+    return App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_BMS_Warnings_WatchdogTimeout_Get();
+}
+
+static bool App_DriveState_HasDCMWarning()
+{
+    return App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_DCM_Warnings_WatchdogTimeout_Get();
+}
+
+static bool App_DriveState_HasDIMWarning()
+{
+    return App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanTx_DIM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanTx_DIM_Warnings_WatchdogTimeout_Get();
+}
+
+static bool App_DriveState_HasFSMWarning()
+{
+    return App_CanRx_FSM_Warnings_PappsOutOfRange_Get() || App_CanRx_FSM_Warnings_SappsOutOfRange_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_FSM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_FSM_Warnings_WatchdogTimeout_Get() || App_CanRx_FSM_Warnings_BrakeAccDisagreement_Get() ||
+           App_CanRx_FSM_Warnings_SteeringAngleSensorOCSC_Get() ||
+           App_CanRx_FSM_Warnings_LeftWheelSpeedOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_RightWheelSpeedOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_SteeringAngleOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_FrontBrakePressureOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_RearBrakePressureOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_FlowRateOutOfRange_Get() != RANGE_CHECK_OK ||
+           App_CanRx_FSM_Warnings_PappsOCSCIsActive_Get() || App_CanRx_FSM_Warnings_SappsOCSCIsActive_Get() ||
+           App_CanRx_FSM_Warnings_FlowMeterHasUnderflow_Get();
+}
+
+static bool App_DriveState_HasPDMWarning()
+{
+    return App_CanRx_PDM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_PDM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_PDM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_PDM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_PDM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_PDM_Warnings_WatchdogTimeout_Get();
+}
+
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_Vitals_State_Set(DIM_STATE_DRIVE);
@@ -26,6 +115,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
+
+    bool (*has_fault_funcs[NUM_BOARD_LEDS])(void) = {
+        [BMS_LED] = App_DriveState_HasBMSFault, [DCM_LED] = App_DriveState_HasDCMFault,
+        [DIM_LED] = App_DriveState_HasDIMFault, [FSM_LED] = App_DriveState_HasFSMFault,
+        [PDM_LED] = App_DriveState_HasPDMFault,
+    };
+    bool (*has_warning_funcs[NUM_BOARD_LEDS])(void) = {
+        [BMS_LED] = App_DriveState_HasBMSWarning, [DCM_LED] = App_DriveState_HasDCMWarning,
+        [DIM_LED] = App_DriveState_HasDIMWarning, [FSM_LED] = App_DriveState_HasFSMWarning,
+        [PDM_LED] = App_DriveState_HasPDMWarning,
+    };
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
@@ -60,7 +160,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
-    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
@@ -68,25 +168,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                                                          [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
                                                          [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
 
-    // TODO: Update these LEDs to reflect board status, now that error table is gone
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        if (i == BMS_LED)
+        if (has_fault_funcs[i]())
         {
-            if (App_DriveState_HasBmsFault())
-            {
-                App_SharedRgbLed_TurnRed(board_status_led);
-            }
-            else if (App_DriveState_HasBmsWarning())
-            {
-                App_SharedRgbLed_TurnBlue(board_status_led);
-            }
-            else
-            {
-                App_SharedRgbLed_TurnGreen(board_status_led);
-            }
+            App_SharedRgbLed_TurnRed(board_status_led);
+        }
+        else if (has_warning_funcs[i]())
+        {
+            App_SharedRgbLed_TurnBlue(board_status_led);
         }
         else
         {
@@ -121,22 +213,4 @@ const struct State *App_GetDriveState(void)
     };
 
     return &drive_state;
-}
-
-bool App_DriveState_HasBmsFault()
-{
-    // return App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
-    return false;
-}
-
-bool App_DriveState_HasBmsWarning()
-{
-    // TODO: Confirm whether or not these should be aperiodic
-    // return App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
-
-    return false;
 }

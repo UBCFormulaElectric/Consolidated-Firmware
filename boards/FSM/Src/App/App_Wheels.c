@@ -55,9 +55,9 @@ void App_Wheels_Broadcast(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         left_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_LeftWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_LeftWheelSpeedOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_LeftWheelSpeedOutOfRange_Set);
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         right_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_RightWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_RightWheelSpeedOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_RightWheelSpeedOutOfRange_Set);
 }
