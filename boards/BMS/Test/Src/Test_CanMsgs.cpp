@@ -10,11 +10,6 @@ TEST(CanMsgsTest, vitals_message_frequency)
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_VITALS_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, fifo_overflow_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(0.2), CAN_MSG_BMS_CAN_FIFO_OVERFLOW_CYCLE_TIME_MS);
-}
-
 TEST(CanMsgsTest, imd_status_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_IMD_STATUS_CYCLE_TIME_MS);

@@ -102,10 +102,10 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck_long(
         brake->front_pressure_in_range_check, App_CanTx_FSM_Brake_FrontBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_FrontBrakePressureOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_FrontBrakePressureOutOfRange_Set);
     App_SetPeriodicCanSignals_InRangeCheck_long(
         brake->rear_pressure_in_range_check, App_CanTx_FSM_Brake_RearBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_RearBrakePressureOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_RearBrakePressureOutOfRange_Set);
 
     App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
 

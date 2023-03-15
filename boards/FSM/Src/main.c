@@ -144,12 +144,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_Warning_RxOverflowCount_Set(overflow_count);
+    App_CanTx_FSM_Warnings_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_Warning_TxOverflowCount_Set(overflow_count);
+    App_CanTx_FSM_Warnings_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
