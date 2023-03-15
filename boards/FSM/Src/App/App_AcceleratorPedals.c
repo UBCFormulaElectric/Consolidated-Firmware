@@ -183,12 +183,12 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
-    App_CanTx_FSM_Warning_PappsOCSCIsActive_Set(papp_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanTx_FSM_Warnings_PappsOCSCIsActive_Set(papp_signal_state == SIGNAL_STATE_ACTIVE);
 
     const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
-    App_CanTx_FSM_Warning_SappsOCSCIsActive_Set(sapp_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanTx_FSM_Warnings_SappsOCSCIsActive_Set(sapp_signal_state == SIGNAL_STATE_ACTIVE);
     // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
@@ -201,7 +201,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
-    App_CanTx_FSM_Warning_AppsDisagreementIsActive_Set(app_agreement_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanTx_FSM_Warnings_AppsDisagreementIsActive_Set(app_agreement_signal_state == SIGNAL_STATE_ACTIVE);
     if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
@@ -215,7 +215,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
         accelerator_pedals->get_primary_pedal_percent() < 5);
 
-    App_CanTx_FSM_Warning_BrakeAccDisagreement_Set(app_brake_disagreement == SIGNAL_STATE_ACTIVE);
+    App_CanTx_FSM_Warnings_BrakeAccDisagreement_Set(app_brake_disagreement == SIGNAL_STATE_ACTIVE);
     if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);

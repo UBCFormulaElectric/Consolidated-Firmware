@@ -64,7 +64,7 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck_float(
         coolant->flow_rate_in_range_check, App_CanTx_FSM_Coolant_FlowRate_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_FlowRateOutOfRange_Set);
+        (void (*)(uint8_t))App_CanTx_FSM_Warnings_FlowRateOutOfRange_Set);
 
     // motor shutdown in flow rate check
     float                    flow_rate;
@@ -73,5 +73,5 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-    App_CanTx_FSM_Warning_FlowMeterHasUnderflow_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanTx_FSM_Warnings_FlowMeterHasUnderflow_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }

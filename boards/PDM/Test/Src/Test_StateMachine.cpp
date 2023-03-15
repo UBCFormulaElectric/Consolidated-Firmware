@@ -50,11 +50,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        can_tx_interface =
-            App_CanTx_Create(send_non_periodic_msg_PDM_STARTUP, send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-
-        can_rx_interface = App_CanRx_Create();
-
         vbat_voltage_in_range_check = App_InRangeCheck_Create(GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
         _24v_aux_voltage_in_range_check =
@@ -92,11 +87,10 @@ class PdmStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_PdmWorld_Create(
-            can_tx_interface, can_rx_interface, vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check,
-            _24v_acc_voltage_in_range_check, aux1_current_in_range_check, aux2_current_in_range_check,
-            left_inverter_current_in_range_check, right_inverter_current_in_range_check,
-            energy_meter_current_in_range_check, can_current_in_range_check, air_shutdown_current_in_range_check,
-            heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
+            vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
+            aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
+            right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
+            air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -128,8 +122,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
     void TearDown() override
     {
         TearDownObject(world, App_PdmWorld_Destroy);
-        TearDownObject(can_tx_interface, App_CanTx_Destroy);
-        TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(vbat_voltage_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(_24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(_24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
@@ -539,10 +531,8 @@ TEST_F(PdmStateMachineTest, exit_air_open_state_when_air_positive_and_air_negati
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirClosedState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -553,8 +543,8 @@ TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_positive_is_close
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -565,8 +555,8 @@ TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_negative_is_close
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -577,7 +567,9 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
 {
     SetInitialState(App_GetAirClosedState());
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
+    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
+
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -588,7 +580,8 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 {
     SetInitialState(App_GetAirClosedState());
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
+    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
