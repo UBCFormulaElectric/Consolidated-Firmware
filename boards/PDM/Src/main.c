@@ -248,7 +248,7 @@ int main(void)
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     App_CanAlerts_SetAlert(PDM_ALERT_STARTUP, true);
-    
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

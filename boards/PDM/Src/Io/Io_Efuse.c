@@ -6,7 +6,7 @@
 #include "Io_Adc.h"
 
 // TODO: Test ADC voltage -> output current transfer function
-#define ADC_VOLTAGE_TO_CURRENT_A 1.720f 
+#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 typedef struct
 {
