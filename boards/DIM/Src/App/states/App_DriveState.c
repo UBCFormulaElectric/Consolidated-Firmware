@@ -97,8 +97,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO: Show something on these LEDs now that error table is gone
     if (!App_SharedHeartbeatMonitor_Tick(heartbeat_monitor))
     {
-        int i = 0;
-        //App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
 
