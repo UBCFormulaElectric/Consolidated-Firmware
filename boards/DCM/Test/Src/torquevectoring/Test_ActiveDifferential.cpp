@@ -10,8 +10,8 @@
 
 extern "C"
 {
-#include "App_PowerLimiting.h"
-#include "App_Active.h"
-#include "App_TorqueVectoringConstants.h"
+#include "torquevectoring/App_PowerLimiting.h"
+#include "torquevectoring/App_ActiveDifferential.h"
+#include "torquevectoring/App_TorqueVectoringConstants.h"
 #include "math.h"
 }
