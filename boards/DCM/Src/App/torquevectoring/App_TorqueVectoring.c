@@ -7,6 +7,7 @@
 #include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
+#include "torquevectoring/App_TorqueVectoringUtils.h"
 
 TimerChannel pid_timeout;
 
@@ -95,6 +96,7 @@ void App_TorqueVectoring_Run(void)
         float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
         pid_power_correction_factor -=
             App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
+        pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
     }
     else
     {
