@@ -164,38 +164,116 @@
             }
         }
     },
-    "DCM_Debug": {
+    "DCM_DebugPIDPowerEstimate": {
         "msg_id": 205,
-        "cycle_time": 1000, //send msg on
-        "description": "Debug Messages for the DCM",
+        "cycle_time": 10,
+        "description": "Debug Messages for the PID Power Estimate Loop",
         "signals": {
-            "PID_alpha_val": {
-                "bits": 8
+            "PIDPowerEstimateVal": {
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01
             },
-            "RxOverflowCount": {
-                "bits": 8
+            "PIDPowerError": {
+                "signed": true,
+                "min": -80,
+                "max": 80,
+                "resolution": 0.1
             },
-            "StackWatermarkAboveThresholdTask1Hz": {
+            "PIDPowerDerivative": {
+                "signed": true,
+                "min": -160,
+                "max": 160,
+                "resolution": 0.1
+            },
+            "PIDPowerIntegral": {
+                "signed": true,
+                "min": -21474836,
+                "max": 21474836,
+                "resolution": 0.1
+            },
+            "PIDSlipCorrectionVal": {
                 "bits": 1
             },
-            "StackWatermarkAboveThresholdTask1kHz": {
+            "PIDSlipDerivative": {
                 "bits": 1
             },
-            "StackWatermarkAboveThresholdTaskCanRx": {
+            "PIDSlipIntegral": {
                 "bits": 1
             },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            },
-            "WatchdogTimeoutTaskName": {
-                "enum": "RtosTaskName"
-            },
-            "MissingHeartbeat": {
+            "PIDSlipError": {
                 "bits": 1
             }
+        }
+    },
+
+    "DCM_DebugPIDSlipCorrection": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Debug Messages for the PID Slip Correction Loop",
+        "signals": {
+            "PIDSlipCorrectionVal": {
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01
+            },
+            "PIDSlipError": {
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01
+            },
+            "PIDSlipDerivative": {
+                "signed": true,
+                "min": -2,
+                "max": 2,
+                "resolution": 0.01
+            },
+            "PIDSlipIntegral": {
+                "signed": true,
+                "min": -10000,
+                "max": 10000,
+                "resolution": 0.01
+            }
+        }
+    },
+    "DCM_DebugActiveDiff": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Active Differential component of Torque Vectoring",
+        "signals": {
+            "ActiveDiffOutputTorqueLeft": {
+                "min": 0,
+                "max": 90,
+                "resolution": 0.1
+            },
+            "ActiveDiffOutputTorqueRight": {
+                "min": 0,
+                "max": 90,
+                "resolution": 0.1
+            }
+        }
+    },
+    "DCM_DebugTractionControl": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Traction Control component of Torque Vectoring",
+        "signals": {
+            "TCSlipRatioLeft": {
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01
+            },
+            "TCSlipRatioRight": {
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01
+            }
+
         }
     }
 }
