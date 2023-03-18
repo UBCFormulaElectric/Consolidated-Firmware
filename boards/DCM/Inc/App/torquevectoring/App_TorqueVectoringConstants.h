@@ -7,14 +7,15 @@
 #define SLIP_RATIO_IDEAL 0.05f // TODO(akoen) Calculate a more correct value
 #define WHEELBASE_mm 1550
 #define TRACK_WIDTH_mm 1100
-#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550            // as specified in the manual for the emrax 188 motors
-#define POWER_LIMIT_CAR_kW 80.0f                          // max power we can use as specifiec by FSAE rules
+#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
+#define POWER_LIMIT_CAR_kW 80.0f               // max power we can use as specifiec by FSAE rules
 #define MOTOR_TORQUE_LIMIT_Nm 90.0f
-#define MOTOR_TEMP_CUTOFF_c 90.0f                         // in degrees celsius
-#define MOTOR_TEMP_POWER_DECREMENTING_RATIO 80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number by looking at the emrax 188 manual)
-#define REGEN_TORQUE_REQUEST_Nm -10.0f //FIXME(akoen): Decide on appropriate value
-#define PID_TIMEOUT_ms 1000 // Time after witch PID values
-
+#define MOTOR_TEMP_CUTOFF_c 90.0f // in degrees celsius
+#define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
+    80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number
+                  // by looking at the emrax 188 manual)
+#define REGEN_TORQUE_REQUEST_Nm -10.0f // FIXME(akoen): Decide on appropriate value
+#define PID_TIMEOUT_ms 1000            // Time after witch PID values
 
 // Tunable parameters
 extern const PID_Config PID_POWER_CORRECTION_CONFIG;

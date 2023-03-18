@@ -11,7 +11,8 @@ typedef struct
     float out_max;
 } PID;
 
-typedef struct {
+typedef struct
+{
     const float Kp;
     const float Ki;
     const float Kd;

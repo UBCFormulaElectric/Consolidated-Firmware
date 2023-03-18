@@ -31,7 +31,7 @@ typedef struct TractionControl_Inputs
     float motor_speed_right_rpm;
     float front_wheel_speed_left_rpm;
     float front_wheel_speed_right_rpm;
-    PID *pid;
+    PID * pid;
 } TractionControl_Inputs;
 
 typedef struct TractionControl_Outputs
@@ -39,7 +39,6 @@ typedef struct TractionControl_Outputs
     float torque_left_final_Nm;
     float torque_right_final_Nm;
 } TractionControl_Outputs;
-
 
 void App_TorqueVectoring_Setup(void);
 void App_TorqueVectoring_Run(void);
