@@ -9,7 +9,7 @@ const PID_Config PID_POWER_CORRECTION_CONFIG = {
         .out_min = 0.0f
 };
 
-const PID_Config PID_TRACTION_CONTROl_CONFIG = {
+const PID_Config PID_TRACTION_CONTROL_CONFIG = {
         .Kp = 1.0f,
         .Ki = 0.0f,
         .Kd = 0.0f,

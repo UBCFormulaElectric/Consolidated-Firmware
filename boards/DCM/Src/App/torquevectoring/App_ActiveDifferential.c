@@ -24,7 +24,7 @@ void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Act
     outputs->torque_right_Nm = torque_right_Nm * scale;
 }
 
-float App_ActiveDifferential_SteeringAngleToSpeedDelta(float wheel_angle) {
+float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle) {
     // FIXME(akoen): Current implementation assumes
     // angle > 0 = right
     // angle < = left
