@@ -61,7 +61,6 @@ bool DriveFaultDetection(
         return false; // No Error
     return true;      // Error
 }
-}
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
