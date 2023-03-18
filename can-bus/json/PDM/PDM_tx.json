@@ -59,7 +59,7 @@
             }
         }
     },
-  "PDM_Efuse1_Currents": {
+  "PDM_Efuse1_Current": {
     "msg_id": 405,
     "cycle_time": 100,
     "signals": {

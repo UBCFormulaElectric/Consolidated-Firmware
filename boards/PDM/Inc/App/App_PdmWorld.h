@@ -10,7 +10,6 @@
 #include "App_RailMonitoring.h"
 #include "App_SharedClock.h"
 #include "App_Efuse.h"
-#include "App_RailMonitoring.h"
 
 struct PdmWorld;
 
