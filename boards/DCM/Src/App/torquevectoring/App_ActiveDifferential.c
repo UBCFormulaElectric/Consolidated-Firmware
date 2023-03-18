@@ -1,6 +1,7 @@
 #include "torquevectoring/App_ActiveDifferential.h"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
 #include <math.h>
+#include "App_SharedMacros.h"
 #include <stdlib.h>
 
 void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
@@ -26,13 +27,13 @@ void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Act
     outputs->torque_right_Nm = torque_right_Nm * scale;
 }
 
-float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle)
+float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
 {
     // TODO(akoen): Current implementation assumes
     // angle > 0 = right
     // angle < = left
 
-    return (TRACK_WIDTH_mm * tanf(wheel_angle * ((float)M_PI / 180.0f))) / (2 * WHEELBASE_mm);
+    return TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_deg)) / (2 * WHEELBASE_mm);
 }
 
 float App_ActiveDifferential_PowerToTorque(
