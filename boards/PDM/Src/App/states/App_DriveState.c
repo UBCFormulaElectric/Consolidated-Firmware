@@ -34,7 +34,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_PDM_Vitals_State_Set(PDM_DRIVE_STATE);
 }
 
-void DriveErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct LowVoltageBattery *LVB)
+void DriveErrorsWarningsCANTX(
+    struct Efuse *            efuse1,
+    struct Efuse *            efuse2,
+    struct Efuse *            efuse3,
+    struct Efuse *            efuse4,
+    struct LowVoltageBattery *LVB)
 {
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultCheckChannel0(efuse1));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultCheckChannel1(efuse1));
@@ -50,12 +55,12 @@ void DriveErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct
 }
 
 bool DriveFaultDetection(
-    struct RailMonitoring *rail_monitor,
-    struct Efuse *         efuse1,
-    struct Efuse *         efuse2,
-    struct Efuse *         efuse3,
-    struct Efuse *         efuse4,
-    struct LowVoltageBattery * LVB)
+    struct RailMonitoring *   rail_monitor,
+    struct Efuse *            efuse1,
+    struct Efuse *            efuse2,
+    struct Efuse *            efuse3,
+    struct Efuse *            efuse4,
+    struct LowVoltageBattery *LVB)
 {
     if (App_Efuse_FaultCheckChannel0(efuse1) == false && // AIR
         App_Efuse_FaultCheckChannel0(efuse2) == false && // EMETER
@@ -63,8 +68,7 @@ bool DriveFaultDetection(
         App_Efuse_FaultCheckChannel1(efuse3) == false && // RIGHT INVERTER
         !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
-        !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor) &&
-        !App_LowVoltageBattery_HasChargeFault(LVB) &&
+        !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor) && !App_LowVoltageBattery_HasChargeFault(LVB) &&
         !App_LowVoltageBattery_HasBoostControllerFault(LVB))
         return false; // No Error
     return true;      // Error
@@ -78,14 +82,14 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
-    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
-    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
-    struct LowVoltageBattery *LVB       = App_PdmWorld_GetLowVoltageBattery(world);
-    bool                   has_fault;
+    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
+    struct LowVoltageBattery *LVB          = App_PdmWorld_GetLowVoltageBattery(world);
+    bool                      has_fault;
 
     DriveErrorsWarningsCANTX(efuse1, efuse2, efuse3, efuse4, LVB);
     has_fault = DriveFaultDetection(rail_monitor, efuse1, efuse2, efuse3, efuse4, LVB);
