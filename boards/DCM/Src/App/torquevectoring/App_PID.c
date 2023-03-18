@@ -1,4 +1,5 @@
 #include "torquevectoring/App_PID.h"
+#include "torquevectoring/App_TorqueVectoringUtils.h"
 
 void App_PID_Init(PID *pid, const PID_Config *conf)
 {
@@ -26,15 +27,7 @@ float App_PID_Compute(PID *pid, float setpoint, float input)
     pid->prev_input  = input;
     float output     = pid->Kp * error + pid->Ki * pid->integral - pid->Kd * derivative;
 
-    if (output < pid->out_min)
-    {
-        output = pid->out_min;
-    }
-    else if (output > pid->out_max)
-    {
-        output = pid->out_max;
-    }
-
+    output = CLAMP(output, pid->out_min, pid->out_max);
     return output;
 }
 
