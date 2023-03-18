@@ -20,7 +20,7 @@
                   // by looking at the emrax 188 manual)
 #define REGEN_TORQUE_REQUEST_Nm -10.0f // TODO(akoen): Decide on appropriate value
 #define PID_TIMEOUT_ms 1000            // Time after witch PID values
-//TODO(akoen): Power factors limits may need to be adjusted
+// TODO(akoen): Power factors limits may need to be adjusted
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 

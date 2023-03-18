@@ -8,17 +8,25 @@
  * the battery power limit (calculated by BMS), and accelerator pedal position.
  * @return A float for the maximum power allowed from the motor,
  */
-float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *power_limiting_inputs)
+float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
 {
-    float max_motor_temp = fmaxf(power_limiting_inputs->left_motor_temp_C, power_limiting_inputs->right_motor_temp_C);
+    float max_motor_temp = fmaxf(inputs->left_motor_temp_C, inputs->right_motor_temp_C);
+
     // ============== Calculate max powers =================
-    float P_max_motor_temps =
-        max_motor_temp > MOTOR_TEMP_CUTOFF_c
-            ? POWER_LIMIT_CAR_kW
-            : POWER_LIMIT_CAR_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
-    float P_max_accelerator = power_limiting_inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
+    // 1. Motor Temps
+    float P_max_motor_temps = POWER_LIMIT_CAR_kW;
+    if (max_motor_temp > MOTOR_TEMP_CUTOFF_c)
+    {
+        P_max_motor_temps =
+            POWER_LIMIT_CAR_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
+    }
+
+    // 2. Battery state of charge
+    float P_max_battery = inputs->available_battery_power_kW;
+
+    // 3. Pedal percentage
+    float P_max_accelerator = inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
+
     // =========== Take min of max powers ==================
-    return fminf(
-        P_max_motor_temps,
-        fminf(power_limiting_inputs->available_battery_power_kW, P_max_accelerator)); // triple min function
+    return fminf(P_max_motor_temps, fminf(P_max_battery, P_max_accelerator));
 }
