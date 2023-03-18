@@ -18,11 +18,10 @@ TractionControl_Outputs    traction_control_outputs;
 Regen_Inputs               regen_inputs;
 Regen_Outputs              regen_outputs;
 
-PID   pid_power_correction;
+PID pid_power_correction;
 // NOTE: Correction factor centered about 0.0f
 float pid_power_correction_factor = 0.0f;
-PID pid_traction_control;
-
+PID   pid_traction_control;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -40,8 +39,8 @@ void App_TorqueVectoring_Run(void)
     float accelerator_pedal_percent   = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
     float wheel_speed_front_left_kph  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     float wheel_speed_front_right_kph = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
-    float motor_speed_left_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-    float motor_speed_right_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
+    float motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
+    float motor_speed_right_rpm       = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
 
     if (accelerator_pedal_percent > 1.0f)
     {
@@ -53,7 +52,6 @@ void App_TorqueVectoring_Run(void)
             App_PID_RequestReset(&pid_traction_control);
         }
         App_Timer_Restart(&pid_timeout);
-
 
         // Power Limiting
         power_limiting_inputs.left_motor_temp_C  = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
