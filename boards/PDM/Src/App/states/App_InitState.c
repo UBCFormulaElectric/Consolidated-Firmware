@@ -7,10 +7,10 @@
 #include "states/App_DriveState.h"
 
 void Efuse_Enable_Channels_18650Startup(
-        struct Efuse *efuse1,
-        struct Efuse *efuse2,
-        struct Efuse *efuse3,
-        struct Efuse *efuse4)
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    struct Efuse *efuse4)
 {
     App_Efuse_EnableChannel0(efuse1);
     App_Efuse_EnableChannel1(efuse1);
@@ -24,11 +24,11 @@ void Efuse_Enable_Channels_18650Startup(
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
+    struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct Efuse *   efuse1 = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *   efuse2 = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *   efuse3 = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
     Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
 }
 
