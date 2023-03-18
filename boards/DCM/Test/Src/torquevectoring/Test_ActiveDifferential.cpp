@@ -18,7 +18,7 @@ extern "C"
 /**
  * Define SetUp and TearDown to be called before every TEST_F call
 */
-class PowerLimitingTest : public testing::Test
+class ActiveDifferentialTest: public testing::Test
 {
 protected:
     //TODO: Find out if this is necessary if no IO functions are called.
@@ -31,3 +31,7 @@ protected:
         return;
     }
 };
+
+TEST_F(ActiveDifferentialTest, test_1){
+
+}
