@@ -10,8 +10,24 @@
 
 extern "C"
 {
-#include "App_PowerLimiting.h"
-#include "App_Active.h"
-#include "App_TorqueVectoringConstants.h"
+#include "torquevectoring/App_PowerLimiting.h"
+#include "torquevectoring/App_ActiveDifferential.h"
+#include "torquevectoring/App_TorqueVectoringConstants.h"
 #include "math.h"
 }
+/**
+ * Define SetUp and TearDown to be called before every TEST_F call
+*/
+class PowerLimitingTest : public testing::Test
+{
+protected:
+    //TODO: Find out if this is necessary if no IO functions are called.
+    void SetUp() override
+    {
+        return;
+    }
+    void TearDown() override
+    {
+        return;
+    }
+};
