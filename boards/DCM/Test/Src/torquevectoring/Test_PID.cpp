@@ -27,3 +27,5 @@ pid_config_test1->Ki = 0.0;
 pid_config_test1->Kd = 0.0;
 pid_config_test1->out_min = 10.0;
 pid_config_test1->out_min = 0.0;
+
+TEST_F(PIDTest, pid_config_test1)
