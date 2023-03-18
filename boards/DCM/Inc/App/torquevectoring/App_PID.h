@@ -5,7 +5,7 @@ typedef struct
     float Kp;
     float Ki;
     float Kd;
-    float prev_error;
+    float prev_input;
     float integral;
     float out_min;
     float out_max;

@@ -16,15 +16,14 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
     float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
     float k              = App_PID_Compute(inputs->pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
-    outputs->torque_left_final_Nm  = k * inputs->torque_left_Nm;
-    outputs->torque_right_final_Nm = k * inputs->torque_right_Nm;
+    // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
+    outputs->torque_left_final_Nm  = (1.0f + k) * inputs->torque_left_Nm;
+    outputs->torque_right_final_Nm = (1.0f + k) * inputs->torque_right_Nm;
 }
 
 float App_TractionControl_ComputeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
-    // TODO(akoen): Should be relative error not absolute
-    // TODO(akoen): Wheel speed in kph not rpm
-    return (front_wheel_speed_rpm - PLANETARY_GEAR_RATIO * motor_speed_rpm) / (motor_speed_rpm + SMALL_EPSILON);
+    return (PLANETARY_GEAR_RATIO * motor_speed_rpm - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
 }
 
 float App_TractionControl_WheelSpeedKPHToRPM(float speed_kph)

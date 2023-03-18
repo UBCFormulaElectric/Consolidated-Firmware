@@ -19,13 +19,14 @@ Regen_Inputs               regen_inputs;
 Regen_Outputs              regen_outputs;
 
 PID   pid_power_correction;
-float pid_power_correction_factor = 1.0f;
+// NOTE: Correction factor centered about 0.0f
+float pid_power_correction_factor = 0.0f;
+PID pid_traction_control;
+
 
 void App_TorqueVectoring_Setup(void)
 {
     App_PID_Init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
-
-    PID pid_traction_control;
     App_PID_Init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
     traction_control_inputs.pid = &pid_traction_control;
 
@@ -35,10 +36,12 @@ void App_TorqueVectoring_Setup(void)
 void App_TorqueVectoring_Run(void)
 {
     // Shared CAN inputs
-    // Pedal percent is in range 0.0-100.0%
+    // NOTE: Pedal percent is in range 0.0-100.0%
     float accelerator_pedal_percent   = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
     float wheel_speed_front_left_kph  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     float wheel_speed_front_right_kph = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
+    float motor_speed_left_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
+    float motor_speed_right_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
 
     if (accelerator_pedal_percent > 1.0f)
     {
@@ -47,14 +50,10 @@ void App_TorqueVectoring_Run(void)
         if (timeout == TIMER_STATE_EXPIRED)
         {
             App_PID_RequestReset(&pid_power_correction);
-            pid_power_correction_factor = 1.0f;
-            App_PID_RequestReset(traction_control_inputs.pid);
+            App_PID_RequestReset(&pid_traction_control);
         }
         App_Timer_Restart(&pid_timeout);
 
-        // Get CAN messages re-used by multiple modules
-        float motor_speed_left_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-        float motor_speed_right_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
 
         // Power Limiting
         power_limiting_inputs.left_motor_temp_C  = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
@@ -65,7 +64,7 @@ void App_TorqueVectoring_Run(void)
         float estimated_power_limit                      = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
         // Power limit correction
-        float power_limit = estimated_power_limit * pid_power_correction_factor;
+        float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
         // Active Differential
         active_differential_inputs.power_max_kW          = power_limit;
@@ -95,8 +94,8 @@ void App_TorqueVectoring_Run(void)
         float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
                                       motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
                                      POWER_TO_TORQUE_CONVERSION_FACTOR;
-        float power_consumed_estimate = power_consumed_ideal / pid_power_correction_factor;
-        pid_power_correction_factor =
+        float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
+        pid_power_correction_factor -=
             App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
     }
     else
