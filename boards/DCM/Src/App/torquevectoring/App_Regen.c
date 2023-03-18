@@ -1,6 +1,4 @@
 #include "torquevectoring/App_Regen.h"
-#include "torquevectoring/App_TorqueVectoringConstants.h"
-#include "math.h"
 
 void App_Regen_ComputeTorque(struct Regen_Inputs *inputs, struct Regen_Outputs *outputs)
 {

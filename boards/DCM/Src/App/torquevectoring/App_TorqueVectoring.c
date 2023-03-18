@@ -101,7 +101,7 @@ void App_TorqueVectoring_Run(void)
     }
     else
     {
-        regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_right_kph;
+        regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
         regen_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
         App_Regen_ComputeTorque(&regen_inputs, &regen_outputs);
 
