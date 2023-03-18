@@ -70,6 +70,7 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
     struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
     struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
     struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
