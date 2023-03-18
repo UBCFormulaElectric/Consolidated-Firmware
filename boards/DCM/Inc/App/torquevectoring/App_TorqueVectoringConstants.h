@@ -14,7 +14,7 @@
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
     80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number
                   // by looking at the emrax 188 manual)
-#define REGEN_TORQUE_REQUEST_Nm -10.0f // FIXME(akoen): Decide on appropriate value
+#define REGEN_TORQUE_REQUEST_Nm -10.0f // TODO(akoen): Decide on appropriate value
 #define PID_TIMEOUT_ms 1000            // Time after witch PID values
 
 // Tunable parameters

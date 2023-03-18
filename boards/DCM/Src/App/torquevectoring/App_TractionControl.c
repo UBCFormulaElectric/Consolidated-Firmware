@@ -18,5 +18,6 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
 
 float ComputeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
+    // TODO(akoen): Should be relative error not absolute
     return (front_wheel_speed_rpm - PLANETARY_GEAR_RATIO * motor_speed_rpm) / (motor_speed_rpm + SMALL_EPSILON);
 }

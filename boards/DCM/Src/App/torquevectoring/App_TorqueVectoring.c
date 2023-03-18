@@ -7,6 +7,7 @@
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 
+
 TimerChannel pid_timeout;
 
 PowerLimiting_Inputs       power_limiting_inputs;
@@ -31,11 +32,10 @@ void App_TorqueVectoring_Setup(void)
 
 void App_TorqueVectoring_Run(void)
 {
-    // FIXME: Replace with CAN messages
-    float accelerator_pedal_percent = 2.0;
-    bool  regen_engaged             = true;
+    // Pedal percent is in range 0.0-100.0%
+    float accelerator_pedal_percent = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
-    if (accelerator_pedal_percent > 0.0f)
+    if (accelerator_pedal_percent > 1.0f)
     {
         // Reset control loops if timeout elapsed
         TimerState timeout = App_Timer_UpdateAndGetState(&pid_timeout);
@@ -54,9 +54,9 @@ void App_TorqueVectoring_Run(void)
         // Power Limiting
         power_limiting_inputs.left_motor_temp_C  = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
         power_limiting_inputs.right_motor_temp_C = App_CanRx_INVR_Temperatures3_MotorTemperature_Get();
-        // TODO: Available power will at some point be replaced by current + voltage messages
+        // TODO(akoen): Available power will soon be replaced by current + voltage messages
         power_limiting_inputs.available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
-        // power_limiting_inputs.accelerator_pedal_percent = App_CanRx_
+        power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
         float estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
         // Power limit correction
@@ -66,6 +66,7 @@ void App_TorqueVectoring_Run(void)
         active_differential_inputs.power_max_kW          = power_limit;
         active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
         active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
+        // TODO(akoen): Steering angle to wheel angle
         // active_differential_inputs.wheel_angle_deg = App_Can
         App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
 
@@ -81,24 +82,23 @@ void App_TorqueVectoring_Run(void)
         App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(traction_control_outputs.torque_right_final_Nm);
 
         // Calculate power correction PID
-        // FIXME: Verify that these are correct CAN messages
         float battery_voltage         = App_CanRx_BMS_TractiveSystem_TsVoltage_Get();
         float current_consumption     = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
-        float power_consumed          = battery_voltage * current_consumption;
-        float power_consumed_estimate = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
+        float power_consumed_measured          = battery_voltage * current_consumption;
+        float power_consumed_ideal = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
                                          motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
                                         POWER_TO_TORQUE_CONVERSION_FACTOR;
-        pid_power_correction_factor = App_PID_Compute(&pid_power_correction, power_consumed_estimate, power_consumed);
-    }
-    else if (regen_engaged)
+        float power_consumed_estimate = power_consumed_ideal / pid_power_correction_factor;
+        pid_power_correction_factor = App_PID_Compute(&pid_power_correction, power_consumed_measured,  power_consumed_estimate);
+    } else
     {
-        // FIXME: Need power limiting from BMS
-        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(REGEN_TORQUE_REQUEST_Nm);
-        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(REGEN_TORQUE_REQUEST_Nm);
-    }
-    else
-    {
+        // TODO(akoen): Power limiting CAN messages not yet defined by BMS for regen
         App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0);
         App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0);
+//        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(REGEN_TORQUE_REQUEST_Nm);
+//        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(REGEN_TORQUE_REQUEST_Nm);
+
     }
 }
+
+

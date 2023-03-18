@@ -3,8 +3,6 @@
 #include "torquevectoring/App_TorqueVectoring.h"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
 
-// TODO: Remove typecasting and fix the constants in App_TorqueVectoringConstants.h
-
 /**
  * @note Computes the max allowable power draw from the battery based on motor temps,
  * the battery power limit (calculated by BMS), and accelerator pedal position.

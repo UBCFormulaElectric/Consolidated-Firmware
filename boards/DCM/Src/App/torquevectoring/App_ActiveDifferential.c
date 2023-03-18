@@ -28,7 +28,7 @@ void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Act
 
 float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle)
 {
-    // FIXME(akoen): Current implementation assumes
+    // TODO(akoen): Current implementation assumes
     // angle > 0 = right
     // angle < = left
 
