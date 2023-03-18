@@ -7,12 +7,12 @@ BU_: DIM BMS DCM GSM INVL INVR FSM PDM DEBUG
 
 
 BO_ 502 DIM_Vitals: 1 DIM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
-SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS,DCM
 
 BO_ 503 DIM_Switches: 1 DIM
-SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AuxSwitch : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ AuxSwitch : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM
 
 BO_ 504 DIM_Errors: 2 DIM
 SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
@@ -470,10 +470,13 @@ SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 BO_ 99 INVR_Alerts: 0 INVR
 
 BO_ 303 FSM_Vitals: 1 FSM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
 
 BO_ 300 FSM_Alerts: 1 FSM
 SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 404 PDM_Vitals: 1 PDM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 
 BO_ 403 PDM_Errors: 4 PDM
 SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
@@ -485,9 +488,6 @@ SG_ StackWatermarkAboveThresholdTaskCanTx : 19|1@1+ (1,0) [0|1] "" DEBUG
 SG_ StackWatermarkAboveThresholdTaskCanRx : 20|1@1+ (1,0) [0|1] "" DEBUG
 SG_ WatchdogTimeout : 21|1@1+ (1,0) [0|1] "" DEBUG
 SG_ WatchdogTimeoutTaskName : 22|3@1+ (1,0) [0|4] "" DEBUG
-
-BO_ 404 PDM_Vitals: 1 PDM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 
 BO_ 405 PDM_Efuse1_Current: 8 PDM
 SG_ AIR : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "A" DEBUG
@@ -634,6 +634,18 @@ BA_ "GenSigStartValue" SG_ 82 DirectionCommand 0;
 BA_ "GenSigStartValue" SG_ 82 EnableInverter 0;
 BA_ "GenSigStartValue" SG_ 82 EnableDischarge 0;
 BA_ "GenSigStartValue" SG_ 82 EnableSpeedMode 0;
+BA_ "GenSigStartValue" SG_ 82 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 204 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 204 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 204 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 204 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 204 MissingHeartbeat 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_STARTUP 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_ALERT_WATCHDOG_TIMEOUT 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 0 ModuleATemperature -3276.8;
@@ -880,6 +892,7 @@ BA_ "GenSigStartValue" SG_ 84 WriteSuccess 0;
 BA_ "GenSigStartValue" SG_ 84 Data 0;
 BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 404 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 403 TxOverflowCount 0;
 BA_ "GenSigStartValue" SG_ 403 RxOverflowCount 0;
 BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTask1Hz 0;
@@ -889,7 +902,6 @@ BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTaskCanTx 0;
 BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTaskCanRx 0;
 BA_ "GenSigStartValue" SG_ 403 WatchdogTimeout 0;
 BA_ "GenSigStartValue" SG_ 403 WatchdogTimeoutTaskName 0;
-BA_ "GenSigStartValue" SG_ 404 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 405 AIR 10000;
 BA_ "GenSigStartValue" SG_ 405 LVPWR 10000;
 BA_ "GenSigStartValue" SG_ 406 EMETER 10000;
@@ -945,6 +957,7 @@ BA_ "GenMsgCycleTime" BO_ 120  100;
 BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 32  10;
 BA_ "GenMsgCycleTime" BO_ 82  10;
+BA_ "GenMsgCycleTime" BO_ 204  1000;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 0  100;
 BA_ "GenMsgCycleTime" BO_ 1  100;
@@ -969,8 +982,8 @@ BA_ "GenMsgCycleTime" BO_ 61  10;
 BA_ "GenMsgCycleTime" BO_ 62  10;
 BA_ "GenMsgCycleTime" BO_ 66  3;
 BA_ "GenMsgCycleTime" BO_ 303  1000;
-BA_ "GenMsgCycleTime" BO_ 403  1000;
 BA_ "GenMsgCycleTime" BO_ 404  1000;
+BA_ "GenMsgCycleTime" BO_ 403  1000;
 BA_ "GenMsgCycleTime" BO_ 405  100;
 BA_ "GenMsgCycleTime" BO_ 406  100;
 BA_ "GenMsgCycleTime" BO_ 407  100;
@@ -995,6 +1008,7 @@ VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 203 CurrentState 0 "DCM_INIT_STATE" 1 "DCM_FAULT_STATE" 2 "DCM_DRIVE_STATE";
 VAL_ 32 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
 VAL_ 82 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
+VAL_ 204 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 10 VsmState 0 "INVERTER_VSM_START_STATE" 1 "INVERTER_VSM_PRECHARGE_INIT_STATE" 2 "INVERTER_VSM_PRECHARGE_ACTIVE_STATE" 3 "INVERTER_VSM_PRECHARGE_COMPLETE_STATE" 4 "INVERTER_VSM_WAIT_STATE" 5 "INVERTER_VSM_READY_STATE" 6 "INVERTER_VSM_MOTOR_RUNNING_STATE" 7 "INVERTER_VSM_BLINK_FAULT_CODE_STATE" 14 "INVERTER_VSM_SHUTDOWN_IN_PROCESS" 15 "INVERTER_VSM_RECYCLE_POWER_STATE";
 VAL_ 10 InverterState 0 "INVERTER_POWER_ON_STATE" 1 "INVERTER_STOP_STATE" 2 "INVERTER_OPEN_LOOP_STATE" 3 "INVERTER_CLOSED_LOOP_STATE" 4 "INVERTER_WAIT_STATE" 8 "INVERTER_IDLE_RUN_STATE" 9 "INVERTER_IDLE_STOP_STATE";
 VAL_ 10 InverterActiveDischargeState 0 "INVERTER_ACTIVE_DISCHARGE_DISABLED" 1 "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING" 2 "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK" 3 "INVERTER_ACTIVE_DISCHARGE_OCCURING" 4 "INVERTER_ACTIVE_DISCHARGE_COMPLETED";
