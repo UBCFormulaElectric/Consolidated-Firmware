@@ -29,6 +29,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Efuse *   efuse2 = App_PdmWorld_GetEfuse2(world);
     struct Efuse *   efuse3 = App_PdmWorld_GetEfuse3(world);
     struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
+
     Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
 }
 
@@ -69,6 +70,8 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick100Hz(state_machine);
+
     struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
     struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
     struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
@@ -76,10 +79,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
     bool                   has_fault;
-
-    App_AllStatesRunOnTick100Hz(state_machine);
-
-    Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
 
     has_fault = InitFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
     Efuse_ErrorsWarnings_CANTX(efuse1, efuse2, efuse3, efuse4);
