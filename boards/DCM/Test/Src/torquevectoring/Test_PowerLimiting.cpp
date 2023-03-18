@@ -34,7 +34,7 @@ class PowerLimitingTest : public testing::Test
 };
 
 
-// Test 1: Limit on max motor temps
+// Test1: Limit on max motor temps
 PowerLimiting_Inputs* power_limiting_inputs_test1;
 power_limiting_inputs_test1->left_motor_temp_C = 100.0;
 power_limiting_inputs_test1->right_motor_temp_C =  100.0;
@@ -49,12 +49,12 @@ TEST_F(PowerLimitingTest, power_limiting_inputs_test1)
 }
 
 
-// Test 2: Limit on BMS available power
+// Test2: Limit on BMS available power
 PowerLimiting_Inputs* power_limiting_inputs_test2;
-power_limiting_inputs_test1->left_motor_temp_C = 10.0;
-power_limiting_inputs_test1->right_motor_temp_C =  10.0;
-power_limiting_inputs_test1->available_power_kW = 50.0;
-power_limiting_inputs_test1->accelerator_pedal_percent = 1.00; 
+power_limiting_inputs_test2->left_motor_temp_C = 10.0;
+power_limiting_inputs_test2->right_motor_temp_C =  10.0;
+power_limiting_inputs_test2->available_power_kW = 50.0;
+power_limiting_inputs_test2->accelerator_pedal_percent = 1.00; 
 
 
 TEST_F(PowerLimitingTest, power_limiting_inputs_test2)
@@ -65,7 +65,7 @@ TEST_F(PowerLimitingTest, power_limiting_inputs_test2)
 }
 
 
-// Test 3: Limit on pedal percentage
+// Test3: Limit on pedal percentage
 PowerLimiting_Inputs* power_limiting_inputs_test3;
 power_limiting_inputs_test3->left_motor_temp_C = 10.0;
 power_limiting_inputs_test3->right_motor_temp_C =  10.0;
@@ -80,7 +80,7 @@ TEST_F(PowerLimitingTest, power_limiting_inputs_test3)
 }
 
 
-// Test 4 Pedal not pressed
+// Test4 Pedal not pressed
 PowerLimiting_Inputs* power_limiting_inputs_test4;
 power_limiting_inputs_test4->left_motor_temp_C = 10.0;
 power_limiting_inputs_test4->right_motor_temp_C =  10.0;
