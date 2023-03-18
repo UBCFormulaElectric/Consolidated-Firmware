@@ -6,9 +6,30 @@
 #include "states/App_FaultState.h"
 #include "states/App_DriveState.h"
 
+void Efuse_Enable_Channels_18650Startup(
+        struct Efuse *efuse1,
+        struct Efuse *efuse2,
+        struct Efuse *efuse3,
+        struct Efuse *efuse4)
+{
+    App_Efuse_EnableChannel0(efuse1);
+    App_Efuse_EnableChannel1(efuse1);
+    App_Efuse_EnableChannel0(efuse2);
+    App_Efuse_DisableChannel1(efuse2);
+    App_Efuse_EnableChannel0(efuse3);
+    App_Efuse_EnableChannel1(efuse3);
+    App_Efuse_DisableChannel0(efuse4);
+    App_Efuse_DisableChannel1(efuse4);
+}
+
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
+    Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
 }
 
 void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
@@ -21,22 +42,6 @@ void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, stru
     App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultCheckChannel1(efuse3));
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultCheckChannel0(efuse4));
     App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultCheckChannel1(efuse4));
-}
-
-void Efuse_Enable_Channels_18650Startup(
-    struct Efuse *efuse1,
-    struct Efuse *efuse2,
-    struct Efuse *efuse3,
-    struct Efuse *efuse4)
-{
-    App_Efuse_EnableChannel0(efuse1);
-    App_Efuse_EnableChannel1(efuse1);
-    App_Efuse_EnableChannel0(efuse2);
-    App_Efuse_DisableChannel1(efuse2);
-    App_Efuse_EnableChannel0(efuse3);
-    App_Efuse_EnableChannel1(efuse3);
-    App_Efuse_DisableChannel0(efuse4);
-    App_Efuse_DisableChannel1(efuse4);
 }
 
 bool InitFaultDetection(
