@@ -6,8 +6,12 @@
 
 void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)
 {
-    float slip_ratio_left  = ComputeSlip(inputs->motor_speed_left_rpm, inputs->front_wheel_speed_left_rpm);
-    float slip_ratio_right = ComputeSlip(inputs->motor_speed_right_rpm, inputs->front_wheel_speed_right_rpm);
+    float wheel_speed_front_left_rpm  = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
+    float wheel_speed_front_right_rpm = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
+
+    float slip_ratio_left = App_TractionControl_ComputeSlip(inputs->motor_speed_left_rpm, wheel_speed_front_left_rpm);
+    float slip_ratio_right =
+        App_TractionControl_ComputeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
 
     float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
     float k              = App_PID_Compute(inputs->pid, SLIP_RATIO_IDEAL, slip_ratio_max);
@@ -16,8 +20,20 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
     outputs->torque_right_final_Nm = k * inputs->torque_right_Nm;
 }
 
-float ComputeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
+float App_TractionControl_ComputeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
     // TODO(akoen): Should be relative error not absolute
+    // TODO(akoen): Wheel speed in kph not rpm
     return (front_wheel_speed_rpm - PLANETARY_GEAR_RATIO * motor_speed_rpm) / (motor_speed_rpm + SMALL_EPSILON);
+}
+
+float App_TractionControl_WheelSpeedKPHToRPM(float speed_kph)
+{
+    float tire_diameter_m, speed_mpm, speed_rpm;
+
+    tire_diameter_m = TIRE_DIAMETER_in * IN_TO_M;
+    speed_mpm       = speed_kph * 1000 / 60;
+    speed_rpm       = speed_mpm / ((float)M_PI * tire_diameter_m);
+
+    return speed_rpm;
 }
