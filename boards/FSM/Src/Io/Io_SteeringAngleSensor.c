@@ -1,8 +1,8 @@
 #include "Io_Adc.h"
 #include "Io_SteeringAngleSensor.h"
 
-#define MIN_STEERING_VOLTAGE (0.0f)
-#define MAX_STEERING_VOLTAGE (1.0f)
+#define MIN_STEERING_VOLTAGE (0.2f)
+#define MAX_STEERING_VOLTAGE (3.5f)
 
 float Io_SteeringSensorVoltage(void)
 {
