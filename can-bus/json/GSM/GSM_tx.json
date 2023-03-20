@@ -1,10 +1,10 @@
 {
-    "GSM_Test1": {
+    "GSM_Vitals": {
         "msg_id": 603,
         "cycle_time": 1000,
-        "description": "Test message for the GSM.",
+        "description": "Vitals message for the GSM.",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
             }
         }
