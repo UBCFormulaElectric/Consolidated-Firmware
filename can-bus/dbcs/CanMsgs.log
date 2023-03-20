@@ -1,8 +1,0 @@
-Conversion Warnings Log
-
-
-MSG_ID: 502 	MSG_TYPE: S 	MSG_NAME: DIM_Vitals
-	SIG_NAME: State, STATUS: Invalid Max or Min value., ACTION: Value Set to default
-
-MSG_ID: 402 	MSG_TYPE: S 	MSG_NAME: PDM_Vitals
-	SIG_NAME: State, STATUS: Invalid Max or Min value., ACTION: Value Set to default
