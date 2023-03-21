@@ -1,11 +1,45 @@
 {
-    "GSM_Test1": {
+    "GSM_Vitals": {
         "msg_id": 603,
         "cycle_time": 1000,
-        "description": "Test message for the GSM.",
+        "description": "Vitals message for the GSM.",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
+            }
+        }
+    },
+    "GSM_Warnings": {
+        "msg_id": 604,
+        "cycle_time": 1000,
+        "description": "Warning flags for the GSM.",
+        "signals": {
+            "StackWatermarkAboveThresholdTask1Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask100Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask1kHz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanTx": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanRx": {
+                "bits": 1
+            },
+            "WatchdogTimeout": {
+                "bits": 1
+            },
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
             }
         }
     }
