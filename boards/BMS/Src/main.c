@@ -84,6 +84,7 @@ IWDG_HandleTypeDef hiwdg;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim13;
 
 osThreadId          Task100HzHandle;
@@ -129,6 +130,7 @@ static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM13_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_TIM3_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
@@ -192,11 +194,11 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM13_Init();
     MX_IWDG_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
-    //    HAL_ADC_Start_DMA(&hadc2, (uint32_t *)Io_Adc_GetRawAdc2Values(), hadc2.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);
 
     Io_SharedHardFaultHandler_Init();
@@ -616,6 +618,49 @@ static void MX_TIM1_Init(void)
     }
     /* USER CODE BEGIN TIM1_Init 2 */
     /* USER CODE END TIM1_Init 2 */
+}
+
+/**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
 }
 
 /**
