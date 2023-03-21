@@ -153,11 +153,9 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Actuate brake pedal
-    // TODO JSONCAN need FSM
-    // App_CanRx_FSM_BRAKE_FLAGS_SetSignal_BRAKE_IS_ACTUATED(
-    //     can_rx_interface, CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE);
-    // LetTimePass(state_machine, 10);
-    // EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    App_CanRx_FSM_Brake_IsActuated_Update(true);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Pull start switch down and back up, expect init->drive transition
     App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_OFF);
