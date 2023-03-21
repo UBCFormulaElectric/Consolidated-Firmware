@@ -1,6 +1,6 @@
 {
     "msg_id": 600,
     "alerts": [
-        "GSM_ALERT_DUMMY"
+        "GSM_ALERT_STARTUP"
     ]
 }
