@@ -9,6 +9,8 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
+#define MAX_SAFE_TORQUE_REQUEST_NM 5U
+
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
     //       const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
@@ -29,11 +31,14 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     //    const float max_torque_request = MIN(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit
-    const float torque_request = 0;
+    // const float torque_request = 0;
     // TODO: JSONCAN waiting for FSM
     // const float torque_request =
     // MIN(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
     //     fsm_torque_limit);
+
+    const float pedal_pos_percent = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get() / 100.0;
+    const float torque_request    = MIN(pedal_pos_percent * MAX_TORQUE_REQUEST_NM, MAX_SAFE_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(torque_request);

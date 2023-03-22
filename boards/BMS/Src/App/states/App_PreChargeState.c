@@ -1,4 +1,5 @@
 #include "states/App_PreChargeState.h"
+#include "App_Timer.h"
 
 // clang-format off
 #define NUM_OF_INVERTERS        (2U)
@@ -17,6 +18,9 @@
 
 // clang-format on
 
+#define PRECHARGE_TIMER_DURATION_MS 5000U
+static TimerChannel precharge_timer;
+
 static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
@@ -27,6 +31,9 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_PrechargeRelay_Close(precharge_relay);
+
+    App_Timer_InitTimer(&precharge_timer, PRECHARGE_TIMER_DURATION_MS);
+    App_Timer_Restart(&precharge_timer);
 }
 
 static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -62,13 +69,18 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
             &precharge_fault_limit_exceeded);
 
-        if (has_precharge_fault)
-        {
-            const struct State *next_state =
-                (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
-            App_SharedStateMachine_SetNextState(state_machine, next_state);
-        }
-        else if (ts_voltage >= threshold_voltage)
+        // TODO: Fix precharge fault and precharge end check
+
+        // if (has_precharge_fault)
+        // {
+        //     const struct State *next_state =
+        //         (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
+        //     App_SharedStateMachine_SetNextState(state_machine, next_state);
+        // }
+        // else if (ts_voltage >= threshold_voltage)
+
+        const bool precharge_done = App_Timer_UpdateAndGetState(&precharge_timer) == TIMER_STATE_EXPIRED;
+        if (precharge_done)
         {
             const struct State *next_state = (is_charger_connected) ? App_GetChargeState() : App_GetDriveState();
             App_Airs_CloseAirPositive(airs);

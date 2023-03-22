@@ -237,8 +237,7 @@ int main(void)
         Io_LTC6813Shared_DisableDischarge);
 
     ts = App_TractiveSystem_Create(
-        Io_Adc_GetAdcChannel10Voltage, Io_VoltageSense_GetTractiveSystemVoltage, Io_Adc_GetAdcChannel8Voltage,
-        Io_CurrentSense_GetHighResolutionMainCurrent, Io_Adc_GetAdcChannel9Voltage,
+        Io_VoltageSense_GetTractiveSystemVoltage, Io_CurrentSense_GetHighResolutionMainCurrent,
         Io_CurrentSense_GetLowResolutionMainCurrent);
 
     airs = App_Airs_Create(

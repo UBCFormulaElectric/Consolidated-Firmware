@@ -34,9 +34,11 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
         struct Airs *          airs  = App_BmsWorld_GetAirs(world);
 
+        // TODO: Re-enable tractive system vsense check
+
 #ifndef BSPD_DEMO_MODE
         // don't allow pre_charge if in BSPD_DEMO_MODE
-        if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
+        if (App_Airs_IsAirNegativeClosed(airs))
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
         }
