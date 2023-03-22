@@ -164,116 +164,147 @@
             }
         }
     },
-    "DCM_DebugPIDPowerEstimate": {
+    "DCM_DEBUG_Power": {
         "msg_id": 205,
         "cycle_time": 10,
-        "description": "Debug Messages for the PID Power Estimate Loop",
+        "description": "Debug Power Messages",
         "signals": {
-            "PIDPowerEstimateVal": {
+            "PowerEstimate": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            },
+            "PowerMeasured": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            }
+        }
+    },
+    "DCM_DEBUG_PIDPowerEstimate": {
+        "msg_id": 206,
+        "cycle_time": 10,
+        "description": "Debug messages for the PID power estimate controller",
+        "signals": {
+            "Output": {
+                "start_bit": 0,
+                "bits": 8,
+                "offset": 0,
                 "signed": true,
                 "min": -1,
                 "max": 1,
-                "resolution": 0.01
+                "scale": 0.01
             },
-            "PIDPowerError": {
+            "Error": {
+                "start_bit": 8,
+                "bits": 16,
+                "offset": 0,
                 "signed": true,
                 "min": -80,
                 "max": 80,
-                "resolution": 0.1
+                "scale": 0.1
             },
-            "PIDPowerDerivative": {
+            "Derivative": {
+                "start_bit": 24,
+                "bits" : 16,
+                "offset": 0,
                 "signed": true,
                 "min": -160,
                 "max": 160,
-                "resolution": 0.1
+                "scale": 0.1
             },
-            "PIDPowerIntegral": {
+            "Integral": {
+                "start_bit": 40,
+                "bits" : 24,
+                "offset": 0,
                 "signed": true,
                 "min": -21474836,
                 "max": 21474836,
-                "resolution": 0.1
-            },
-            "PIDSlipCorrectionVal": {
-                "bits": 1
-            },
-            "PIDSlipDerivative": {
-                "bits": 1
-            },
-            "PIDSlipIntegral": {
-                "bits": 1
-            },
-            "PIDSlipError": {
-                "bits": 1
+                "scale": 0.1
             }
         }
     },
-
-    "DCM_DebugPIDSlipCorrection": {
-        "msg_id": 205,
+    "DCM_DEBUG_PIDSlipRatio": {
+        "msg_id": 207,
         "cycle_time": 10,
-        "description": "Debug Messages for the PID Slip Correction Loop",
+        "description": "Debug messages for the PID slip ratio controller",
         "signals": {
-            "PIDSlipCorrectionVal": {
+            "Output": {
+                "start_bit": 0,
+                "bits": 8,
+                "offset": 0,
                 "signed": true,
                 "min": -1,
                 "max": 1,
-                "resolution": 0.01
+                "scale": 0.01
             },
-            "PIDSlipError": {
+            "Error": {
+                "start_bit": 8,
+                "bits": 16,
+                "offset": 0,
                 "signed": true,
-                "min": -1,
-                "max": 1,
-                "resolution": 0.01
+                "min": -80,
+                "max": 80,
+                "scale": 0.1
             },
-            "PIDSlipDerivative": {
+            "Derivative": {
+                "start_bit": 24,
+                "bits" : 16,
+                "offset": 0,
                 "signed": true,
-                "min": -2,
-                "max": 2,
-                "resolution": 0.01
+                "min": -160,
+                "max": 160,
+                "scale": 0.1
             },
-            "PIDSlipIntegral": {
+            "Integral": {
+                "start_bit": 40,
+                "bits" : 24,
+                "offset": 0,
                 "signed": true,
-                "min": -10000,
-                "max": 10000,
-                "resolution": 0.01
+                "min": -21474836,
+                "max": 21474836,
+                "scale": 0.1
             }
         }
     },
-    "DCM_DebugActiveDiff": {
-        "msg_id": 205,
-        "cycle_time": 10,
-        "description": "Debug Messages for the Active Differential component of Torque Vectoring",
-        "signals": {
-            "ActiveDiffOutputTorqueLeft": {
-                "min": 0,
-                "max": 90,
-                "resolution": 0.1
-            },
-            "ActiveDiffOutputTorqueRight": {
-                "min": 0,
-                "max": 90,
-                "resolution": 0.1
-            }
-        }
-    },
-    "DCM_DebugTractionControl": {
-        "msg_id": 205,
+    "DCM_DEBUG_WheelTraction": {
+        "msg_id": 208,
         "cycle_time": 10,
         "description": "Debug Messages for the Traction Control component of Torque Vectoring",
         "signals": {
-            "TCSlipRatioLeft": {
+            "SlipRatioLeft": {
+                "bits": 8,
+                "offset": 0,
                 "signed": true,
                 "min": -1,
                 "max": 1,
-                "resolution": 0.01
+                "scale": 0.01
             },
-            "TCSlipRatioRight": {
+            "SlipRatioRight": {
+                "bits": 8,
+                "offset": 0,
                 "signed": true,
                 "min": -1,
                 "max": 1,
-                "resolution": 0.01
+                "scale": 0.01
             }
-
+        }
+    },
+    "DCM_DEBUG_ActiveDiff": {
+        "msg_id": 209,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Active Differential component of Torque Vectoring",
+        "signals": {
+            "TorqueLeft": {
+                "min": 0,
+                "max": 90,
+                "resolution": 0.1
+            },
+            "TorqueRight": {
+                "min": 0,
+                "max": 90,
+                "resolution": 0.1
+            }
         }
     }
 }

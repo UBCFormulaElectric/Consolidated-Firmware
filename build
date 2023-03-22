@@ -12,6 +12,6 @@ case "$1" in
         cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -DPLATFORM=arm -S ./boards -B ./boards/cmake-build-embedded
         ;;
     be)
-        cd ./boards/cmake-build-embedded && make "$2"
+        make -C ./boards/cmake-build-embedded "$2"
         ;;
 esac

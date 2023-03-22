@@ -98,6 +98,8 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // TODO(akoen): Steering angle to wheel angle
     // active_differential_inputs.wheel_angle_deg = App_Can
     App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
+    App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(active_differential_outputs.torque_left_Nm);
+    App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(active_differential_outputs.torque_right_Nm);
 
     // Traction Control
     traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
@@ -126,6 +128,12 @@ void App_TorqueVectoring_HandleAcceleration(void)
     pid_power_correction_factor -=
         App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
     pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
+    App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set(power_consumed_measured);
+    App_CanTx_DCM_DEBUG_Power_PowerEstimate_Set(power_consumed_estimate);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Output_Set(pid_power_correction_factor);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
 }
 
 void App_TorqueVectoring_HandleRegen(void)
