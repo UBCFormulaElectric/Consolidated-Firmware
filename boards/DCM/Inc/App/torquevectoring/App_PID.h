@@ -5,8 +5,10 @@ typedef struct
     float Kp;
     float Ki;
     float Kd;
-    float prev_input;
+    float error;
+    float derivative;
     float integral;
+    float prev_input;
     float out_min;
     float out_max;
 } PID;
