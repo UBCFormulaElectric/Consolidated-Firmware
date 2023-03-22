@@ -23,6 +23,7 @@
 // TODO(akoen): Power factors limits may need to be adjusted
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
+#define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
 
 // Tunable parameters
 extern const PID_Config PID_POWER_CORRECTION_CONFIG;
