@@ -9,5 +9,6 @@ bool Io_Switches_StartSwitchIsTurnedOn(void)
 
 bool Io_Switches_AuxSwitchIsTurnedOn(void)
 {
-    return HAL_GPIO_ReadPin(AUX_IN_GPIO_Port, AUX_IN_Pin) == GPIO_PIN_SET;
+    const bool status = HAL_GPIO_ReadPin(AUX_IN_GPIO_Port, AUX_IN_Pin) == GPIO_PIN_SET;
+    return status;
 }

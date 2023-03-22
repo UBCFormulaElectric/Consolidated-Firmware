@@ -37,7 +37,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     // MIN(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
     //     fsm_torque_limit);
 
-    const float pedal_pos_percent = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get() / 100.0;
+    const float pedal_pos_percent = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get() / 100.0f;
     const float torque_request    = MIN(pedal_pos_percent * MAX_TORQUE_REQUEST_NM, MAX_SAFE_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters

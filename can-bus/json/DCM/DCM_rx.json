@@ -3,6 +3,7 @@
         "BMS_Vitals",
         "FSM_Vitals",
         "FSM_Brake",
+        "FSM_Apps",
         "DIM_Vitals",
         "DIM_Switches",
         "INVL_InternalStates",
