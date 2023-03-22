@@ -2,6 +2,7 @@
 #include "Io_Hal.h"
 #include "Io_SharedAdc.h"
 #include "Io_Adc.h"
+#include "Io_SharedMacros.h"
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
 static float    adc_voltages[NUM_ADC_CHANNELS];
