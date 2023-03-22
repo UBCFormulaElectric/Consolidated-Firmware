@@ -24,8 +24,8 @@ float App_PID_Compute(PID *pid, float setpoint, float input)
     pid->error = setpoint - input;
     pid->integral += pid->error;
     pid->derivative = (input - pid->prev_input);
-    pid->prev_input  = input;
-    float output     = pid->Kp * pid->error + pid->Ki * pid->integral - pid->Kd * pid->derivative;
+    pid->prev_input = input;
+    float output    = pid->Kp * pid->error + pid->Ki * pid->integral - pid->Kd * pid->derivative;
 
     output = CLAMP(output, pid->out_min, pid->out_max);
     return output;
