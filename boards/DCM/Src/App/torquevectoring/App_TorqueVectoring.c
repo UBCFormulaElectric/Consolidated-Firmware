@@ -34,6 +34,7 @@ float current_consumption;
 float left_motor_temp_C;
 float right_motor_temp_C;
 float available_battery_power_kW;
+float steering_angle_deg;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -59,6 +60,7 @@ void App_TorqueVectoring_Run(void)
     right_motor_temp_C          = App_CanRx_INVR_Temperatures3_MotorTemperature_Get();
     // TODO(akoen): Available power will soon be replaced by current + voltage messages
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    steering_angle_deg = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
     if (accelerator_pedal_percent > 1.0f)
     {
@@ -95,8 +97,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     active_differential_inputs.power_max_kW          = power_limit;
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
-    // TODO(akoen): Steering angle to wheel angle
-    // active_differential_inputs.wheel_angle_deg = App_Can
+    active_differential_inputs.wheel_angle_deg = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
     App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
     App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(active_differential_outputs.torque_left_Nm);
     App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(active_differential_outputs.torque_right_Nm);

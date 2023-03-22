@@ -3,6 +3,7 @@
         "BMS_Vitals",
         "FSM_Vitals",
         "FSM_Apps",
+        "FSM_Steering",
         "FSM_Wheels",
         "DIM_Vitals",
         "DIM_Switches",
