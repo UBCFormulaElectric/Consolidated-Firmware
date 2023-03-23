@@ -5,6 +5,7 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "App_Soc.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -112,6 +113,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *        bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Airs *            airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
+    struct SocStats *        soc_stats   = App_BmsWorld_GetSocStats(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
@@ -124,6 +126,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
+
+    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), TASK_100HZ_PERIOD_S);
 
     App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));

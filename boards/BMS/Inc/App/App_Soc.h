@@ -1,6 +1,24 @@
 #pragma once
 
 #include "App_SharedExitCode.h"
+#include "App_Accumulator.h"
+
+typedef struct
+{
+    // Charge loss at time t
+    float current_charge_c;
+
+    // Charge loss at time t-1
+    float prev_change_c;
+
+    // Accumulated charge change (C)
+    float change_integral_c;
+} CellSocStats;
+
+struct SocStats
+{
+    CellSocStats cell_stats[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+};
 
 /**
  * Given three state-of-charge (SoCs), check whether the absolute difference
@@ -37,3 +55,18 @@
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+/**
+ * Given the current status of a cell, update its state of charge using coulomb counting.
+ *
+ * @param cell_stats The charge stats of the cell to be updated
+ * @param current The current from the cell to be updated (- is out of the cell, + is into the cell)
+ * @param time_step_s The time elapsed since the last update in seconds.
+ */
+void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
+
+struct SocStats *App_SocStats_Create(void);
+
+void App_SocStats_Destroy(struct SocStats *soc_stats);
+
+void App_SocStats_ResetSoc(struct SocStats *soc_stats);

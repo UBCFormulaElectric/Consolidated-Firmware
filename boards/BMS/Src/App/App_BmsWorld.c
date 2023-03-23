@@ -13,6 +13,7 @@ struct BmsWorld
     struct OkStatus *        imd_ok;
     struct OkStatus *        bspd_ok;
     struct Accumulator *     accumulator;
+    struct SocStats *        soc_stats;
     struct Airs *            airs;
     struct PrechargeRelay *  precharge_relay;
     struct TractiveSystem *  ts;
@@ -28,6 +29,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const         imd_ok,
     struct OkStatus *const         bspd_ok,
     struct Accumulator *const      accumulator,
+    struct SocStats *const         soc_stats,
     struct Airs *const             airs,
     struct PrechargeRelay *const   precharge_relay,
     struct TractiveSystem *const   tractive_system,
@@ -95,6 +97,11 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *const world
 struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
+}
+
+struct SocStats *App_BmsWorld_GetSocStats(const struct BmsWorld *const world)
+{
+    return world->soc_stats;
 }
 
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)

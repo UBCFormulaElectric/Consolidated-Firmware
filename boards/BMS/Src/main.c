@@ -112,6 +112,7 @@ struct OkStatus *        bms_ok;
 struct OkStatus *        imd_ok;
 struct OkStatus *        bspd_ok;
 struct Accumulator *     accumulator;
+struct SocStats *        soc_stats;
 struct CellMonitors *    cell_monitors;
 struct Airs *            airs;
 struct PrechargeRelay *  precharge_relay;
@@ -240,13 +241,15 @@ int main(void)
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
+    soc_stats = App_SocStats_Create();
+
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
-        imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
-        ts, clock);
+        imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
+        precharge_relay, ts, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
