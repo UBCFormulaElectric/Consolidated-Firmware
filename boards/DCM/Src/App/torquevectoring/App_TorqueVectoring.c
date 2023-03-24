@@ -48,8 +48,8 @@ void App_TorqueVectoring_Setup(void)
 void App_TorqueVectoring_Run(void)
 {
     // Read data from CAN
-    // NOTE: Pedal percent is in range 0.0-100.0%
-    accelerator_pedal_percent   = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
+    // NOTE: Pedal percent CAN is in range 0.0-100.0%
+    accelerator_pedal_percent   = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get() * 0.01f;
     wheel_speed_front_left_kph  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     wheel_speed_front_right_kph = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
@@ -62,7 +62,7 @@ void App_TorqueVectoring_Run(void)
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     steering_angle_deg = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
-    if (accelerator_pedal_percent > 1.0f)
+    if (accelerator_pedal_percent > 0.01f)
     {
         App_TorqueVectoring_HandleAcceleration();
     }
