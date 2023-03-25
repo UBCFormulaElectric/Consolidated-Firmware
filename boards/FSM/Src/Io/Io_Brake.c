@@ -19,7 +19,8 @@ bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
     return !(BRAKE_PRESSURE_OC_THRESHOLD_V <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD_V);
 }
 
-float BrakePressureFromVoltage(float voltage){
+float BrakePressureFromVoltage(float voltage)
+{
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
     // input pin is 0.33V while the maximum voltage seen is 3V
@@ -69,9 +70,9 @@ float Io_Brake_GetPedalSensorVoltage(void)
 }
 float Io_Brake_GetPedalPercentTravel(void)
 {
-    float pedal_voltage = Io_Brake_GetPedalSensorVoltage();
+    float       pedal_voltage    = Io_Brake_GetPedalSensorVoltage();
     const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
-    return  (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
+    return (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
 }
 bool Io_Brake_PedalSensorOCSC(void)
 {

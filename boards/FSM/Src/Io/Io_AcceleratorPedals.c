@@ -54,8 +54,8 @@ float Io_AcceleratorPedals_GetSapps(void)
 
     // Compute the angle relative to the y-axis with cosine law
     const float pedal_travel_angle =
-            ((float)M_PI_2 -
-             (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
+        ((float)M_PI_2 -
+         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
 
     float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
     return secondary_angle / 30.0f * 100.0f;

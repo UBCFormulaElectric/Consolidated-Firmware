@@ -38,7 +38,8 @@ void Io_FlowMeter_CheckIfFlowMeterIsActive(void)
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
 
-float voltageToTemperature(float v){
+float voltageToTemperature(float v)
+{
     // TODO calculate the temperature
     return v;
 }
@@ -61,7 +62,8 @@ float Io_Coolant_GetTemperatureB(void)
     return voltageToTemperature(temperature_voltage);
 }
 
-float voltageToPressure(float v){
+float voltageToPressure(float v)
+{
     // TODO calculate the pressure
     return v;
 }
