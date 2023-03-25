@@ -117,8 +117,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
-        ts = App_TractiveSystem_Create(
-            get_ts_voltage, get_high_res_current, get_low_res_current);
+        ts = App_TractiveSystem_Create(get_ts_voltage, get_high_res_current, get_low_res_current);
 
         airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
