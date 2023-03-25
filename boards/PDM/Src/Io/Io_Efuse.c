@@ -101,7 +101,7 @@ float Io_Efuse_GetChannelCurrent(EfuseChannel channel)
     return Io_Adc_GetChannelVoltage(config[channel].cur_sns_adc_channel) * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
-void Io_Efuse_DelatchChannelFaults(EfuseChannel channel)
+void Io_Efuse_StandbyReset(EfuseChannel channel)
 {
     assert(channel < NUM_EFUSE_CHANNELS);
 

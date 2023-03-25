@@ -50,4 +50,4 @@ float Io_Efuse_GetChannelCurrent(EfuseChannel channel);
  *
  * @param channel Channel to delatch faults for
  */
-void Io_Efuse_DelatchChannelFaults(EfuseChannel channel);
+void Io_Efuse_StandbyReset(EfuseChannel channel);
