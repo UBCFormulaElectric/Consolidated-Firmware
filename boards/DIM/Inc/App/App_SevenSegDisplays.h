@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include "App_SharedExitCode.h"
 
+#define NUM_IN_GROUP 3
+
 struct SevenSegDisplay;
 
 enum
@@ -20,7 +22,6 @@ enum
     NUM_SEVEN_SEG_DISPLAYS,
 };
 
-uint8_t NUM_IN_GROUP = 3;
 
 /**
  * Allocate and initialize a group of three 7-segment displays
@@ -71,6 +72,7 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
  *         is not in the range of [0x0-0xF]
  */
 ExitCode App_SevenSegDisplays_SetHexDigits(
+        const struct SevenSegDisplays *seven_seg_displays,
         const uint8_t  hex_digits[]);
 
 /**
@@ -85,11 +87,11 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
  */
 //ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *seven_seg_displays, uint32_t value);
 
+void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index);
 
-void App_SevenSegDisplays_SetGroupL(uint32_t value);
+void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
-void App_SevenSegDisplays_SetGroupM(uint32_t value);
+void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
-void App_SevenSegDisplays_SetGroupR(uint32_t value);
+void App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
-void App_Set_Digits(uint8_t digits[]);

@@ -32,6 +32,6 @@ void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
  * @param seven_seg_display The 7-segment display to set hexadecimal digit for
  * @param hex_digit The hexadecimal digit to set
  */
-//void App_SevenSegDisplay_SetHexDigit(
-//    const struct SevenSegDisplay *seven_seg_display,
-//    struct SevenSegHexDigit       hex_digit);
+void App_SevenSegDisplay_SetHexDigit(
+    const struct SevenSegDisplay *seven_seg_display,
+    struct SevenSegHexDigit       hex_digit);

@@ -49,7 +49,7 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displ
     free(seven_seg_displays);
 }
 
-ExitCode App_SevenSegDisplays_SetHexDigits(const uint8_t  hex_digits[])
+ExitCode App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t  hex_digits[])
 {
     size_t len_hex_digits = 9;
 
@@ -121,7 +121,23 @@ ExitCode App_SevenSegDisplays_SetHexDigits(const uint8_t  hex_digits[])
 //}
 //
 
-void App_SevenSegDisplays_SetGroupL(uint32_t value)
+void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index)
+{
+    for (size_t i = index; i < NUM_IN_GROUP + index; i++){
+        struct SevenSegHexDigit hex_digit;
+        //TODO: put some sort of check in first
+        hex_digit.enabled = true;
+        hex_digit.value   = digits[i];
+
+        App_SevenSegDisplay_SetHexDigit(seven_seg_displays->displays[i], hex_digit);
+    }
+
+    seven_seg_displays->display_value_callback();
+}
+
+
+
+void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -139,7 +155,7 @@ void App_SevenSegDisplays_SetGroupL(uint32_t value)
 
         if (value == 0)
         {
-            App_Set_Digits(digits);
+            App_Set_Digits(seven_seg_displays, digits, 0);
             break;
         }
     }
@@ -147,7 +163,7 @@ void App_SevenSegDisplays_SetGroupL(uint32_t value)
     return;
 }
 
-void App_SevenSegDisplays_SetGroupM(uint32_t value)
+void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -165,7 +181,7 @@ void App_SevenSegDisplays_SetGroupM(uint32_t value)
 
         if (value == 0)
         {
-            App_Set_Digits(digits);
+            App_Set_Digits(seven_seg_displays, digits, 3);
             break;
         }
     }
@@ -173,7 +189,7 @@ void App_SevenSegDisplays_SetGroupM(uint32_t value)
     return;
 }
 
-void App_SevenSegDisplays_SetGroupR(uint32_t value)
+void App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -191,7 +207,7 @@ void App_SevenSegDisplays_SetGroupR(uint32_t value)
 
         if (value == 0)
         {
-            App_Set_Digits(digits);
+            App_Set_Digits(seven_seg_displays, digits, 6);
             break;
         }
     }
