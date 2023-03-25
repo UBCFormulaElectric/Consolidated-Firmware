@@ -20,7 +20,12 @@ void Io_SevenSegDisplays_WriteCommands(void);
  * @param hex_digit The hexadecimal digit to display
  * @param DIGIT The enum of the 7-segment display to write too
  */
-
 void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGIT);
 
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * specified 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * @param *seven_displays A pointer to the group of seven segment displays
+ * @param DIGITS[] The enum of the 7-segment display to write too
+ */
 void Io_SevenSegDisplays_Populate_Commands(struct SevenSegDisplays *seven_displays, int DIGITS[]);

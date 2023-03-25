@@ -21,9 +21,6 @@
 #define DIGIT_A 0x7D << 1
 #define DIGIT_E 0x4F << 1
 
-static uint8_t formula_e_commands[] = { DIGIT_O, DIGIT_O, DIGIT_O, DIGIT_M1, DIGIT_M2,
-                                        DIGIT_O, DIGIT_O, DIGIT_O, DIGIT_E };
-
 typedef struct
 {
     uint8_t disable;
@@ -112,7 +109,8 @@ void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGI
     }
 }
 
-void Io_SevenSegDisplays_Populate_Commands(struct SevenSegDisplays *seven_displays, int DIGITS[]){
+void Io_SevenSegDisplays_Populate_Commands(struct SevenSegDisplays *seven_displays, int DIGITS[])
+{
     Io_SevenSegDisplays_SetHexDigit(seven_displays->left_l_seven_seg_display, DIGITS[0]);
     Io_SevenSegDisplays_SetHexDigit(seven_displays->left_m_seven_seg_display, DIGITS[1]);
     Io_SevenSegDisplays_SetHexDigit(seven_displays->left_r_seven_seg_display, DIGITS[2]);

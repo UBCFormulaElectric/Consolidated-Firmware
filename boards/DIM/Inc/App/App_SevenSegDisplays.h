@@ -22,7 +22,6 @@ enum
     NUM_SEVEN_SEG_DISPLAYS,
 };
 
-
 /**
  * Allocate and initialize a group of three 7-segment displays
  * @param left_l_seven_seg_display The leftmost of the left trio 7-segment display
@@ -71,27 +70,45 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
  *         requested, or if any of the requested digits contains a value that
  *         is not in the range of [0x0-0xF]
  */
-ExitCode App_SevenSegDisplays_SetHexDigits(
-        const struct SevenSegDisplays *seven_seg_displays,
-        const uint8_t  hex_digits[]);
+ExitCode
+    App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t hex_digits[]);
 
 /**
- * Display an unsigned base-10 value on the given group of 7-segment displays
- * @note The value that can be displayed is constrained by the number of
- *       7-segment displays. Use the return code to see if the requested value
- *       is valid.
- * @param seven_seg_displays The group of 7-segment displays to display base-10
- *                           value on
- * @param value The unsigned base-10 value to display
- * @return EXIT_CODE_INVALID_ARGS if the given value is out-of-bound
+ * Populate the digits array with the for the given index of 3 for the given group.
+ *
+ * @param seven_seg_displays The group of 7-segment displays to display that are currently
+ *                           being worked on.
+ * @param digits[] The array of the full 9 7-segment displays values
+ * @param index The index to indicate which
  */
-//ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *seven_seg_displays, uint32_t value);
-
 void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index);
 
+/**
+ * Take in a base 10 value and populate it to the left most group of 7-segment displays
+ *
+ * @param seven_seg_displays The group of 7-segment displays to display that are currently
+ *                           being worked on.
+ * @param digits[] The array of the full 9 7-segment displays values to populate
+ * @param value The base 10 value to be written to the specified group of 7-segments
+ */
 void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
+/**
+ * Take in a base 10 value and populate it to the middle group of 7-segment displays
+ *
+ * @param seven_seg_displays The group of 7-segment displays to display that are currently
+ *                           being worked on.
+ * @param digits[] The array of the full 9 7-segment displays values to populate
+ * @param value The base 10 value to be written to the specified group of 7-segments
+ */
 void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
+/**
+ * Take in a base 10 value and populate it to the right most group of 7-segment displays
+ *
+ * @param seven_seg_displays The group of 7-segment displays to display that are currently
+ *                           being worked on.
+ * @param digits[] The array of the full 9 7-segment displays values to populate
+ * @param value The base 10 value to be written to the specified group of 7-segments
+ */
 void App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
-

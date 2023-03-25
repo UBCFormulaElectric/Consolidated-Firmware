@@ -17,7 +17,7 @@ FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(display_value_callback);
 
-//class SevenSegDisplaysTest : public testing::Test
+// class SevenSegDisplaysTest : public testing::Test
 //{
 //  protected:
 //    void SetUp() override
@@ -75,7 +75,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    struct SevenSegDisplays *seven_seg_displays;
 //};
 //
-//TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
+// TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
 //{
 //    // Counter used as index for the argument history and call count of fake
 //    // functions
@@ -119,7 +119,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
+// TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
 //{
 //    // Counter used as index for the argument history and call count of fake
 //    // functions
@@ -170,7 +170,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
+// TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
 //{
 //    // Counter used as index for the argument history and call count of fake
 //    // functions
@@ -234,7 +234,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
+// TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
 //{
 //    constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
 //    uint8_t          input[num_inputs];
@@ -263,7 +263,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
+// TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
 //{
 //    constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
 //    uint8_t          input[num_inputs];
@@ -311,7 +311,7 @@ FAKE_VOID_FUNC(display_value_callback);
 ////    ASSERT_EQ(9, set_right_l_hex_digit_fake.arg0_history[2].value);
 ////}
 //
-//TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
+// TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
 //{
 //    ExitCode exit_code = EXIT_CODE_OK;
 //    exit_code          = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000000000);
@@ -328,7 +328,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    ASSERT_EQ(0, set_right_r_hex_digit_fake.call_count);
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
+// TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
 //{
 //    const uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { 1, 2, 3 };
 //
@@ -340,7 +340,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_invalid_hex_digits_does_not_invoke_callback_function)
+// TEST_F(SevenSegDisplaysTest, set_invalid_hex_digits_does_not_invoke_callback_function)
 //{
 //    uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { NUM_HEX_DIGITS, NUM_HEX_DIGITS, NUM_HEX_DIGITS };
 //
@@ -352,7 +352,7 @@ FAKE_VOID_FUNC(display_value_callback);
 //    }
 //}
 //
-//TEST_F(SevenSegDisplaysTest, invalid_num_digits_for_set_hex_digits_does_not_invoke_callback_function)
+// TEST_F(SevenSegDisplaysTest, invalid_num_digits_for_set_hex_digits_does_not_invoke_callback_function)
 //{
 //    uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { 0 };
 //
@@ -361,14 +361,14 @@ FAKE_VOID_FUNC(display_value_callback);
 //    ASSERT_EQ(0, display_value_callback_fake.call_count);
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_value_invokes_callback_function)
+// TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_value_invokes_callback_function)
 //{
 //    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1);
 //    ASSERT_EQ(EXIT_CODE_OK, exit_code);
 //    ASSERT_EQ(1, display_value_callback_fake.call_count);
 //}
 //
-//TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
+// TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
 //{
 //    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000000000);
 //    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);

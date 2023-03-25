@@ -3,7 +3,7 @@ NS_:
 BS_:
 
 
-BU_: BMS DCM DIM FSM GSM INVL INVR PDM DEBUG
+BU_: DIM BMS DCM GSM INVL INVR FSM PDM DEBUG
 
 
 BO_ 502 DIM_Vitals: 1 DIM
@@ -131,7 +131,7 @@ SG_ BMS_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
 BO_ 203 DCM_Vitals: 1 DCM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 
-BO_ 32 DCM_LeftInverterCommand: 7 DCM
+BO_ 32 DCM_LeftInverterCommand: 8 DCM
 SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
 SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVL
 SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVL
@@ -140,7 +140,7 @@ SG_ EnableDischarge : 41|1@1+ (1,0) [0|1] "" DEBUG,INVL
 SG_ EnableSpeedMode : 42|1@1+ (1,0) [0|1] "" DEBUG,INVL
 SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
 
-BO_ 82 DCM_RightInverterCommand: 7 DCM
+BO_ 82 DCM_RightInverterCommand: 8 DCM
 SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
 SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVR
 SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVR
@@ -151,18 +151,6 @@ SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
 
 BO_ 200 DCM_Alerts: 1 DCM
 SG_ DCM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 603 GSM_Test1: 1 GSM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 600 GSM_Alerts: 1 GSM
-SG_ GSM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 303 FSM_Vitals: 1 FSM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
-
-BO_ 300 FSM_Alerts: 1 FSM
-SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -212,7 +200,7 @@ SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 
-BO_ 10 INVL_InternalStates: 6 INVL
+BO_ 10 INVL_InternalStates: 8 INVL
 SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG
 SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
 SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG
@@ -307,12 +295,12 @@ SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 
-BO_ 33 INVL_DebugReadWriteParamCommand: 5 INVL
+BO_ 33 INVL_DebugReadWriteParamCommand: 6 INVL
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 34 INVL_DebugReadWriteParamResponse: 5 INVL
+BO_ 34 INVL_DebugReadWriteParamResponse: 6 INVL
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
@@ -361,7 +349,7 @@ SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 
-BO_ 60 INVR_InternalStates: 6 INVR
+BO_ 60 INVR_InternalStates: 8 INVR
 SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG
 SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
 SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG
@@ -456,17 +444,24 @@ SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 
-BO_ 83 INVR_DebugReadWriteParamCommand: 5 INVR
+BO_ 83 INVR_DebugReadWriteParamCommand: 6 INVR
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 84 INVR_DebugReadWriteParamResponse: 5 INVR
+BO_ 84 INVR_DebugReadWriteParamResponse: 6 INVR
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
 BO_ 99 INVR_Alerts: 0 INVR
+
+BO_ 303 FSM_Vitals: 1 FSM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+
+BO_ 300 FSM_Alerts: 1 FSM
+SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
 BO_ 402 PDM_Vitals: 1 PDM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
@@ -827,6 +822,8 @@ BA_ "GenSigStartValue" SG_ 83 Data 0;
 BA_ "GenSigStartValue" SG_ 84 ParameterAddress 0;
 BA_ "GenSigStartValue" SG_ 84 WriteSuccess 0;
 BA_ "GenSigStartValue" SG_ 84 Data 0;
+BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 402 State 0;
 BA_ "GenSigStartValue" SG_ 403 TxOverflowCount 0;
@@ -866,10 +863,6 @@ BA_ "GenMsgCycleTime" BO_ 120  100;
 BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 32  10;
 BA_ "GenMsgCycleTime" BO_ 82  10;
-BA_ "GenMsgCycleTime" BO_ 502  1000;
-BA_ "GenMsgCycleTime" BO_ 503  1000;
-BA_ "GenMsgCycleTime" BO_ 504  1000;
-BA_ "GenMsgCycleTime" BO_ 303  1000;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 0  100;
 BA_ "GenMsgCycleTime" BO_ 1  100;
@@ -893,6 +886,7 @@ BA_ "GenMsgCycleTime" BO_ 60  10;
 BA_ "GenMsgCycleTime" BO_ 61  10;
 BA_ "GenMsgCycleTime" BO_ 62  10;
 BA_ "GenMsgCycleTime" BO_ 66  3;
+BA_ "GenMsgCycleTime" BO_ 303  1000;
 BA_ "GenMsgCycleTime" BO_ 402  1000;
 BA_ "GenMsgCycleTime" BO_ 403  1000;
 
@@ -909,10 +903,6 @@ VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 32 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
 VAL_ 82 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
-VAL_ 502 State 0 "DIM_STATE_DRIVE";
-VAL_ 503 StartSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
-VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
-VAL_ 505 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 10 VsmState 0 "INVERTER_VSM_START_STATE" 1 "INVERTER_VSM_PRECHARGE_INIT_STATE" 2 "INVERTER_VSM_PRECHARGE_ACTIVE_STATE" 3 "INVERTER_VSM_PRECHARGE_COMPLETE_STATE" 4 "INVERTER_VSM_WAIT_STATE" 5 "INVERTER_VSM_READY_STATE" 6 "INVERTER_VSM_MOTOR_RUNNING_STATE" 7 "INVERTER_VSM_BLINK_FAULT_CODE_STATE" 14 "INVERTER_VSM_SHUTDOWN_IN_PROCESS" 15 "INVERTER_VSM_RECYCLE_POWER_STATE";
 VAL_ 10 InverterState 0 "INVERTER_POWER_ON_STATE" 1 "INVERTER_STOP_STATE" 2 "INVERTER_OPEN_LOOP_STATE" 3 "INVERTER_CLOSED_LOOP_STATE" 4 "INVERTER_WAIT_STATE" 8 "INVERTER_IDLE_RUN_STATE" 9 "INVERTER_IDLE_STOP_STATE";
 VAL_ 10 InverterActiveDischargeState 0 "INVERTER_ACTIVE_DISCHARGE_DISABLED" 1 "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING" 2 "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK" 3 "INVERTER_ACTIVE_DISCHARGE_OCCURING" 4 "INVERTER_ACTIVE_DISCHARGE_COMPLETED";
