@@ -5,14 +5,14 @@
 
 typedef struct
 {
-    // Charge loss at time t
-    float current_charge_c;
+    // charge in cell in coulombs
+    float charge_c;
 
     // Charge loss at time t-1
-    float prev_change_c;
+    float prev_current_A;
 
     // Accumulated charge change (C)
-    float change_integral_c;
+    float charge_integral_c;
 } CellSocStats;
 
 struct SocStats
@@ -55,6 +55,8 @@ struct SocStats
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+float App_Soc_GetCell_Soc(CellSocStats *cell_stats);
 
 /**
  * Given the current status of a cell, update its state of charge using coulomb counting.

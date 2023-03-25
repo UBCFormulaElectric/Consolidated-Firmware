@@ -23,13 +23,3 @@ static inline void App_SharedProcessing_TrapezoidalRule(float *integral, float *
  * @return Linearly derated value
  */
 float App_SharedProcessing_LinearDerating(float x, float max_y, float roll_off_x, float max_x);
-
-/**
- * Inverse Linear derating algorithm
- * @param x Value on x axis
- * @param max_y Value corresponding to 100% of the y value
- * @param roll_off_x The value to begin derating the power
- * @param min_x The x value where you want y to be 0%
- * @return Inversely Linearly derated value
- */
-float App_SharedProcessing_InverseLinearDerating(float x, float max_y, float roll_off_x, float min_x);
