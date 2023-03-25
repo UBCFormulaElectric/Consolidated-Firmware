@@ -81,7 +81,7 @@ ExitCode
  * @param digits[] The array of the full 9 7-segment displays values
  * @param index The index to indicate which
  */
-void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index);
+void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index);
 
 /**
  * Take in a base 10 value and populate it to the left most group of 7-segment displays
@@ -91,7 +91,7 @@ void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uin
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
+ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
 /**
  * Take in a base 10 value and populate it to the middle group of 7-segment displays
@@ -101,7 +101,7 @@ void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_s
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
+ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
 
 /**
  * Take in a base 10 value and populate it to the right most group of 7-segment displays
@@ -111,4 +111,4 @@ void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_s
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-void App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
+ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value);
