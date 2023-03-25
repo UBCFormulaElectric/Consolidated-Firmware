@@ -14,6 +14,11 @@ struct RailMonitoring *App_RailMonitoring_Create(
     float (*get__22V_AUX_voltage)(void));
 
 /**
+ * Destroys the structure.
+ * @param rail_monitor
+ */
+void App_RailMonitoring_Destroy(struct RailMonitoring *rail_monitor);
+/**
  * Gets the VBAT Voltage from the PDM in Volts
  * @param rail_monitor
  * @return VBAT Voltage Value from the PDM

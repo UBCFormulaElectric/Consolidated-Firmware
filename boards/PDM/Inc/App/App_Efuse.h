@@ -8,20 +8,13 @@ struct Efuse;
 
 /**
  *
- * @param io_efuse              Full Io_Efuse structure extraction
- * @param enable_channel_0      A function that calls IO_function to enable channel_0
- * @param disable_channel_0     A function that calls IO_function to disable channel_0
- * @param enable_channel_1      A function that calls IO_function to enable channel_1
- * @param disable_channel_1     A function that calls IO_function to enable channel_0
- * @param is_channel_0_enabled  Bool checking if channel 0 is enabled
- * @param is_channel_1_enabled  Bool checking if channel 1 is enabled
- * @param get_channel_0_current A function that calls IO_function to retrieve channel_0 current
- * @param get_channel_1_current A function that calls IO_function to retrieve channel_1 current
- * @param channel_0_min_current Minimum current channel 0 can drop to.
- * @param channel_0_max_current Maximum current channel 0 can reach.
- * @param channel_1_min_current Minimum current channel 1 can drop to.
- * @param channel_1_max_current Maximum current channel 1 can reach.
- * @param max_reset_attempts    Maximum Standby Resets before the channel has "failed"
+ * @param io_efuse_channel0 Io_Efuse Enum value for channel 0
+ * @param io_efuse_channel1 Io_Efuse Enum value for channel 1
+ * @param channel_0_min_current Minimum acceptable current for channel 0
+ * @param channel_0_max_current Maximum acceptable current for channel 0
+ * @param channel_1_min_current Minimum acceptable current for channel 1
+ * @param channel_1_max_current Maximum acceptable current for channel 1
+ * @param max_reset_attempts Maximum attempts allowed for fault checks for this efuse
  * @return
  */
 struct Efuse *App_Efuse_Create(
@@ -36,14 +29,16 @@ struct Efuse *App_Efuse_Create(
 void App_Efuse_Destroy(struct Efuse *efuse);
 
 /**
- * Function to enable channel_0 of the PDM Efuse
- * @param efuse App_Efuse structure
+ * Function to enable or disable channel 0 for the PDM Efuse
+ * @param efuse
+ * @param status true to enable, false to disable
  */
 void App_Efuse_EnableChannel0(struct Efuse *efuse, bool status);
 
 /**
- * Function to enable channel_1 of the PDM Efuse
- * @param efuse App_Efuse structure
+ * Function to enable or disable channel 1 for the PDM Efuse
+ * @param efuse
+ * @param status true to enable, false to disable
  */
 void App_Efuse_EnableChannel1(struct Efuse *efuse, bool status);
 
