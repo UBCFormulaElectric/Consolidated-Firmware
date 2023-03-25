@@ -9,7 +9,7 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
-#define MAX_SAFE_TORQUE_REQUEST_NM 5U
+#define MAX_SAFE_TORQUE_REQUEST_NM 20U
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
@@ -43,6 +43,10 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(torque_request);
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_request);
+
+    // Set motor direction
+    App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+    App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
 }
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
