@@ -222,6 +222,39 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_history[1].value);
     ASSERT_EQ(2, set_left_m_hex_digit_fake.arg0_history[1].value);
     ASSERT_EQ(9, set_left_r_hex_digit_fake.arg0_history[1].value);
+
+    ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[1].enabled);
+
+    ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[1].enabled);
+
+
+    App_SevenSegDisplays_SetGroupR(seven_seg_displays, 308);
+
+    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[2].enabled);//this should be enabled, did not turn it off
+    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(2, set_left_m_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(9, set_left_r_hex_digit_fake.arg0_history[2].value);
+
+    ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[2].enabled);
+
+    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[2].enabled);
+
+    ASSERT_EQ(3, set_right_l_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(0, set_right_m_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[2].value);
+
+
+
 }
 
 
