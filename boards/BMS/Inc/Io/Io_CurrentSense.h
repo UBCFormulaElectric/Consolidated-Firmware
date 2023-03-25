@@ -8,7 +8,7 @@
  * @param adc_voltage The ADC voltage to convert
  * @return high_res_main_current
  */
-float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage);
+float Io_CurrentSense_GetHighResolutionMainCurrent(void);
 
 /**
  * Convert the given ADC voltage to high resolution main current
@@ -16,7 +16,7 @@ float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage);
  * @param adc_voltage The ADC voltage to convert
  * @return low_res_main_current
  */
-float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage);
+float Io_CurrentSense_GetLowResolutionMainCurrent(void);
 
 /**
  * Convert the given ADC voltage to AIR loop current
@@ -24,4 +24,4 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage);
  * @param air_loop_current This will be set to AIR loop current, in amps
  * @return air_loop_current This is the current flowing through the shutdown loop to power the AIRs
  */
-float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage);
+float Io_CurrentSense_GetAirLoopCurrent(void);

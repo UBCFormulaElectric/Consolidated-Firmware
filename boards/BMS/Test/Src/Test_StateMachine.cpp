@@ -42,12 +42,9 @@ FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegment);
 FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
-FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
-FAKE_VALUE_FUNC(float, get_ts_voltage, float);
-FAKE_VALUE_FUNC(float, get_raw_low_res_current);
-FAKE_VALUE_FUNC(float, get_low_res_current, float);
-FAKE_VALUE_FUNC(float, get_raw_high_res_current);
-FAKE_VALUE_FUNC(float, get_high_res_current, float);
+FAKE_VALUE_FUNC(float, get_ts_voltage);
+FAKE_VALUE_FUNC(float, get_low_res_current);
+FAKE_VALUE_FUNC(float, get_high_res_current);
 FAKE_VALUE_FUNC(bool, start_temp_conv);
 FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
@@ -120,9 +117,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
-        ts = App_TractiveSystem_Create(
-            get_raw_ts_voltage, get_ts_voltage, get_raw_high_res_current, get_high_res_current, get_raw_low_res_current,
-            get_low_res_current);
+        ts = App_TractiveSystem_Create(get_ts_voltage, get_high_res_current, get_low_res_current);
 
         airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
@@ -173,9 +168,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_min_cell_voltage);
         RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_low_res_current);
-        RESET_FAKE(get_raw_low_res_current);
         RESET_FAKE(get_high_res_current);
-        RESET_FAKE(get_raw_high_res_current);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
