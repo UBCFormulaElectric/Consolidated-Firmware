@@ -6,6 +6,8 @@
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
 
+static uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
+
 struct SevenSegDisplays
 {
     struct SevenSegDisplay *displays[NUM_SEVEN_SEG_DISPLAYS];
@@ -65,12 +67,11 @@ ExitCode
     return EXIT_CODE_OK;
 }
 
-void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index)
+void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index)
 {
     for (int i = index; i < NUM_IN_GROUP + index; i++)
     {
         struct SevenSegHexDigit hex_digit;
-        // TODO: put some sort of check in first
         hex_digit.enabled = true;
         hex_digit.value   = digits[i];
 
@@ -80,80 +81,89 @@ void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uin
     seven_seg_displays->display_value_callback();
 }
 
-void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
-        return;
+        return EXIT_CODE_INVALID_ARGS;
     }
+    digits[0] = 0;
+    digits[1] = 0;
+    digits[2] = 0;
 
-    uint8_t digits[NUM_IN_GROUP];
-
-    // Turn the base-10 value into individual digits. We treat a value of 0
-    // as having 1 digit, which is why num_digits starts counting from 1.
-    for (uint8_t digits_index = 1; digits_index <= NUM_IN_GROUP; digits_index++)
+    // Turn the base-10 value into individual digits. Have to write backwards with how the
+    // displays are initialized and how they are passed to the IO function.
+    int shift = 3;
+    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index - 1] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, digits, 0);
+            App_Set_Digits(seven_seg_displays, 0);
             break;
         }
     }
 
-    return;
+    return EXIT_CODE_OK;
 }
 
-void App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
-        return;
+        return EXIT_CODE_INVALID_ARGS;
     }
+    digits[3] = 0;
+    digits[4] = 0;
+    digits[5] = 0;
 
-    uint8_t digits[NUM_IN_GROUP];
-
-    // Turn the base-10 value into individual digits. We treat a value of 0
-    // as having 1 digit, which is why num_digits starts counting from 1.
-    for (uint8_t digits_index = 4; digits_index <= NUM_IN_GROUP; digits_index++)
+    // Turn the base-10 value into individual digits. Have to write backwards with how the
+    // displays are initialized and how they are passed to the IO function
+    int shift = 6;
+    for (int digits_index = shift; digits_index + shift> NUM_IN_GROUP ; digits_index--)
     {
-        digits[digits_index - 1] = (uint8_t)(value % 10);
+        digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, digits, 3);
+            App_Set_Digits(seven_seg_displays, 3);
             break;
         }
     }
 
-    return;
+    return EXIT_CODE_OK;
 }
 
-void App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
-        return;
+        return EXIT_CODE_INVALID_ARGS;
     }
 
-    uint8_t digits[NUM_IN_GROUP];
+    // 'wiping' this section of the array
 
-    // Turn the base-10 value into individual digits. We treat a value of 0
-    // as having 1 digit, which is why num_digits starts counting from 1.
-    for (uint8_t digits_index = 7; digits_index <= NUM_IN_GROUP; digits_index++)
+    digits[6] = 0;
+    digits[7] = 0;
+    digits[8] = 0;
+
+    // Turn the base-10 value into individual digits. Have to write backwards with how the
+    // displays are initialized and how they are passed to the IO function
+    int shift = 8;
+    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP ; digits_index--)
     {
-        digits[digits_index - 1] = (uint8_t)(value % 10);
+        digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, digits, 6);
+            App_Set_Digits(seven_seg_displays, 6);
             break;
         }
     }
 
-    return;
+    return EXIT_CODE_OK;
 }
