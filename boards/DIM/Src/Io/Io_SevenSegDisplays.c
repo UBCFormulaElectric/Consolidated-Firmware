@@ -109,15 +109,3 @@ void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGI
     }
 }
 
-void Io_SevenSegDisplays_Populate_Commands(struct SevenSegDisplays *seven_displays, int DIGITS[])
-{
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->left_l_seven_seg_display, DIGITS[0]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->left_m_seven_seg_display, DIGITS[1]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->left_r_seven_seg_display, DIGITS[2]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->middle_l_seven_seg_display, DIGITS[3]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->middle_m_seven_seg_display, DIGITS[4]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->middle_r_seven_seg_display, DIGITS[5]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->right_l_seven_seg_display, DIGITS[6]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->right_m_seven_seg_display, DIGITS[7]);
-    Io_SevenSegDisplays_SetHexDigit(seven_displays->right_r_seven_seg_display, DIGITS[8]);
-}
