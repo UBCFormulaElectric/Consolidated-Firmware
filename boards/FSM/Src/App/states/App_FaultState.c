@@ -4,6 +4,7 @@
 
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
+    UNUSED(state_machine);
     App_CanTx_FSM_Vitals_State_Set(FSM_STATE_FAULT);
 }
 
@@ -14,6 +15,8 @@ void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
 void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    //SUPRESS CERTAIN MESSAGES
     App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
 }
 void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
