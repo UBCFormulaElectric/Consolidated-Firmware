@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <math.h>
 #include "Io_CurrentSense.h"
+#include "Io_Adc.h"
 
 // Offset voltage of output 1. Found to be 2.45V through testing
 #define OUTPUT_1_OFFSET (2.45f)
@@ -21,10 +22,14 @@
 // Value of shunt resistor
 #define AIR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
+float Io_CurrentSense_GetHighResolutionMainCurrent()
 {
+    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_8);
+
     if (adc_voltage < 0.0f)
+    {
         return NAN;
+    }
 
     // HSNBV-D06 Output 1 (+/- 50A):
     //
@@ -54,10 +59,14 @@ float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
     return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
 }
 
-float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
+float Io_CurrentSense_GetLowResolutionMainCurrent()
 {
+    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_9);
+
     if (adc_voltage < 0.0f)
+    {
         return NAN;
+    }
 
     // HSNBV-D06 Output 2 (+/- 300A):
     //
@@ -87,10 +96,14 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
     return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
 }
 
-float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
+float Io_CurrentSense_GetAirLoopCurrent()
 {
+    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_3);
+
     if (adc_voltage < 0.0f)
+    {
         return NAN;
+    }
 
     //   +-------<0.075>-------+
     //   |                     |
