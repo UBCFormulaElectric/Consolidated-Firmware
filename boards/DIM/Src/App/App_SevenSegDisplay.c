@@ -8,7 +8,8 @@ struct SevenSegDisplay
     void (*set_hex_digit)(struct SevenSegHexDigit, int DIGIT);
 };
 
-struct SevenSegDisplay *App_SevenSegDisplay_Create(void (*const set_hex_digit)(struct SevenSegHexDigit, int DIGIT)) //this is where the werid pointer to the IO is
+struct SevenSegDisplay *App_SevenSegDisplay_Create(
+    void (*const set_hex_digit)(struct SevenSegHexDigit, int DIGIT)) // this is where the werid pointer to the IO is
 {
     struct SevenSegDisplay *seven_seg_display = malloc(sizeof(struct SevenSegDisplay));
 
@@ -28,5 +29,5 @@ void App_SevenSegDisplay_SetHexDigit(
     const struct SevenSegDisplay *const seven_seg_display,
     const struct SevenSegHexDigit       hex_digit)
 {
-    seven_seg_display->set_hex_digit(hex_digit, 0);//TODO: place holder for build
+    seven_seg_display->set_hex_digit(hex_digit, 0); // TODO: place holder for build
 }

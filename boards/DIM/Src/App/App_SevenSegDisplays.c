@@ -49,17 +49,11 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displ
     free(seven_seg_displays);
 }
 
-ExitCode App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t  hex_digits[])
+ExitCode
+    App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t hex_digits[])
 {
-    size_t len_hex_digits = 9;
+    size_t len_hex_digits = 9; // TODO: This is bad, should get from somewhere else
 
-//    if (len_hex_digits) > NUM_SEVEN_SEG_DISPLAYS)
-//    {
-//        return EXIT_CODE_INVALID_ARGS; //possible better error message (?)
-//    }
-
-    // If any of the input digits is invalid, we don't write anything to the
-    // 7-segment displays at all.
     for (size_t i = 0; i < len_hex_digits; i++)
     {
         if (hex_digits[i] >= NUM_HEX_DIGITS)
@@ -68,64 +62,15 @@ ExitCode App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_
         }
     }
 
-//    for (size_t i = 0; i < NUM_SEVEN_SEG_DISPLAYS; i++)
-//    {
-//        struct SevenSegHexDigit hex_digit;
-//
-//        if (i < len_hex_digits)
-//        {
-//            hex_digit.enabled = true;
-//            hex_digit.value   = hex_digits[i];
-//        }
-//        else
-//        {
-//            // We turn off the 7-segment displays with unspecified values. For
-//            // example, if the callers wants to write 0xF, we would turn off the
-//            // right and middle 7-segment displays.
-//            hex_digit.enabled = false;
-//        }{
-//
-//       // App_SevenSegDisplay_SetHexDigit(seven_seg_displays->displays[i], hex_digit);
-//    }
-
-//    seven_seg_displays->display_value_callback();
-
     return EXIT_CODE_OK;
 }
-//
-//ExitCode //thsi is also a place to re-write
-//    App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
-//{
-//    if (value > pow(10, NUM_SEVEN_SEG_DISPLAYS) - 1) //leave the enum, but clean up the Io so it is just one function that then gets passed to t
-//    {
-//        return EXIT_CODE_INVALID_ARGS;
-//    }
-//
-//    uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
-//
-//    // Turn the base-10 value into individual digits. We treat a value of 0
-//    // as having 1 digit, which is why num_digits starts counting from 1.
-//    for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS; num_digits++)
-//    {
-//        digits[num_digits - 1] = (uint8_t)(value % 10);
-//        value /= 10;
-//
-//        if (value == 0)
-//        {
-//            App_SevenSegDisplays_SetHexDigits(seven_seg_displays, digits, num_digits);
-//            break;
-//        }
-//    }
-//
-//    return EXIT_CODE_OK;
-//}
-//
 
 void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t digits[], uint8_t index)
 {
-    for (size_t i = index; i < NUM_IN_GROUP + index; i++){
+    for (int i = index; i < NUM_IN_GROUP + index; i++)
+    {
         struct SevenSegHexDigit hex_digit;
-        //TODO: put some sort of check in first
+        // TODO: put some sort of check in first
         hex_digit.enabled = true;
         hex_digit.value   = digits[i];
 
@@ -134,8 +79,6 @@ void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, const uin
 
     seven_seg_displays->display_value_callback();
 }
-
-
 
 void App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {

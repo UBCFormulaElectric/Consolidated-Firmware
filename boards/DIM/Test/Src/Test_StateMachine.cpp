@@ -16,66 +16,66 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 }
 //
-//namespace StateMachineTest
+// namespace StateMachineTest
 //{
-//FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
-//FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
+// FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
+// FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
 //
-//FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit);
-//FAKE_VOID_FUNC(display_value_callback);
+// FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit);
+// FAKE_VOID_FUNC(display_value_callback);
 //
-//FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-//FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
+// FAKE_VALUE_FUNC(uint32_t, get_current_ms);
+// FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 //
-//FAKE_VOID_FUNC(turn_on_red_led);
-//FAKE_VOID_FUNC(turn_on_green_led);
-//FAKE_VOID_FUNC(turn_on_blue_led);
+// FAKE_VOID_FUNC(turn_on_red_led);
+// FAKE_VOID_FUNC(turn_on_green_led);
+// FAKE_VOID_FUNC(turn_on_blue_led);
 //
-//FAKE_VALUE_FUNC(uint32_t, get_drive_mode_switch_position);
+// FAKE_VALUE_FUNC(uint32_t, get_drive_mode_switch_position);
 //
-//FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
-//FAKE_VALUE_FUNC(bool, aux_switch_is_turned_on);
-//FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
+// FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
+// FAKE_VALUE_FUNC(bool, aux_switch_is_turned_on);
+// FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
 //
-//FAKE_VOID_FUNC(turn_on_imd_led);
-//FAKE_VOID_FUNC(turn_off_imd_led);
-//FAKE_VOID_FUNC(turn_on_bspd_led);
-//FAKE_VOID_FUNC(turn_off_bspd_led);
+// FAKE_VOID_FUNC(turn_on_imd_led);
+// FAKE_VOID_FUNC(turn_off_imd_led);
+// FAKE_VOID_FUNC(turn_on_bspd_led);
+// FAKE_VOID_FUNC(turn_off_bspd_led);
 //
-//FAKE_VOID_FUNC(turn_bms_status_led_red);
-//FAKE_VOID_FUNC(turn_bms_status_led_green);
-//FAKE_VOID_FUNC(turn_bms_status_led_blue);
-//FAKE_VOID_FUNC(turn_off_bms_status_led);
+// FAKE_VOID_FUNC(turn_bms_status_led_red);
+// FAKE_VOID_FUNC(turn_bms_status_led_green);
+// FAKE_VOID_FUNC(turn_bms_status_led_blue);
+// FAKE_VOID_FUNC(turn_off_bms_status_led);
 //
-//FAKE_VOID_FUNC(turn_dcm_status_led_red);
-//FAKE_VOID_FUNC(turn_dcm_status_led_green);
-//FAKE_VOID_FUNC(turn_dcm_status_led_blue);
-//FAKE_VOID_FUNC(turn_off_dcm_status_led);
+// FAKE_VOID_FUNC(turn_dcm_status_led_red);
+// FAKE_VOID_FUNC(turn_dcm_status_led_green);
+// FAKE_VOID_FUNC(turn_dcm_status_led_blue);
+// FAKE_VOID_FUNC(turn_off_dcm_status_led);
 //
-//FAKE_VOID_FUNC(turn_dim_status_led_red);
-//FAKE_VOID_FUNC(turn_dim_status_led_green);
-//FAKE_VOID_FUNC(turn_dim_status_led_blue);
-//FAKE_VOID_FUNC(turn_off_dim_status_led);
+// FAKE_VOID_FUNC(turn_dim_status_led_red);
+// FAKE_VOID_FUNC(turn_dim_status_led_green);
+// FAKE_VOID_FUNC(turn_dim_status_led_blue);
+// FAKE_VOID_FUNC(turn_off_dim_status_led);
 //
-//FAKE_VOID_FUNC(turn_fsm_status_led_red);
-//FAKE_VOID_FUNC(turn_fsm_status_led_green);
-//FAKE_VOID_FUNC(turn_fsm_status_led_blue);
-//FAKE_VOID_FUNC(turn_off_fsm_status_led);
+// FAKE_VOID_FUNC(turn_fsm_status_led_red);
+// FAKE_VOID_FUNC(turn_fsm_status_led_green);
+// FAKE_VOID_FUNC(turn_fsm_status_led_blue);
+// FAKE_VOID_FUNC(turn_off_fsm_status_led);
 //
-//FAKE_VOID_FUNC(turn_pdm_status_led_red);
-//FAKE_VOID_FUNC(turn_pdm_status_led_green);
-//FAKE_VOID_FUNC(turn_pdm_status_led_blue);
-//FAKE_VOID_FUNC(turn_off_pdm_status_led);
+// FAKE_VOID_FUNC(turn_pdm_status_led_red);
+// FAKE_VOID_FUNC(turn_pdm_status_led_green);
+// FAKE_VOID_FUNC(turn_pdm_status_led_blue);
+// FAKE_VOID_FUNC(turn_off_pdm_status_led);
 //
-//class DimStateMachineTest : public BaseStateMachineTest
+// class DimStateMachineTest : public BaseStateMachineTest
 //{
 //  protected:
 //    void SetUp() override
@@ -132,8 +132,9 @@ extern "C"
 //        clock = App_SharedClock_Create();
 //
 //        world = App_DimWorld_Create(
-//            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-//            aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
+//            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led,
+//            start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led,
+//            clock);
 //
 //        // Default to starting the state machine in the `Drive` state
 //        state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
@@ -266,15 +267,16 @@ extern "C"
 //};
 //
 //// DIM-12
-//TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
+// TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 //{
 //    SetInitialState(App_GetDriveState());
 //
-//    //    EXPECT_EQ(CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+//    //    EXPECT_EQ(CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+//    App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 //}
 //
 //// DIM-9
-//TEST_F(DimStateMachineTest, check_7_seg_displays_show_error_id_in_drive_state_if_there_is_any_error)
+// TEST_F(DimStateMachineTest, check_7_seg_displays_show_error_id_in_drive_state_if_there_is_any_error)
 //{
 //    // Set error for some made-up error ID, the value 10 was chosen because
 //    // it will be value as valid as we have more than 10 errors, which should
@@ -297,7 +299,7 @@ extern "C"
 //}
 //
 //// DIM-9
-//TEST_F(DimStateMachineTest, check_7_seg_displays_cycle_through_two_error_ids_in_drive_state)
+// TEST_F(DimStateMachineTest, check_7_seg_displays_cycle_through_two_error_ids_in_drive_state)
 //{
 //    // Set errors for some made-up error IDs, the value 10 and 11 were chosen
 //    // because it will be valid as long as we have more than 11 errors, which
@@ -320,7 +322,7 @@ extern "C"
 //}
 //
 //// DIM-4
-//TEST_F(DimStateMachineTest, check_start_switch_is_broadcasted_over_can_in_drive_state)
+// TEST_F(DimStateMachineTest, check_start_switch_is_broadcasted_over_can_in_drive_state)
 //{
 //    start_switch_is_turned_on_fake.return_val = false;
 //    LetTimePass(state_machine, 10);
@@ -334,7 +336,7 @@ extern "C"
 //}
 //
 //// DIM-4
-//TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_state)
+// TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_state)
 //{
 //    aux_switch_is_turned_on_fake.return_val = false;
 //    LetTimePass(state_machine, 10);
