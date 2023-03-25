@@ -1,7 +1,8 @@
 #include <math.h>
 #include "Io_VoltageSense.h"
+#include "Io_Adc.h"
 
-float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
+float Io_VoltageSense_GetTractiveSystemVoltage()
 {
     // The tractive system voltage is divided down by several resistors, then
     // fed through an amplifier.
@@ -30,6 +31,8 @@ float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
     //                          ADC voltage
     // TS_Voltage = ---------------------------------- * Measurement Error %
     //                Voltage Ratio x Amplifier Gain
+
+    const float adc_voltage = 0; // TODO: Single-ended TS voltage
 
     if (adc_voltage < 0.0f)
     {
