@@ -4,9 +4,7 @@
 
 static void DefaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct GsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_GSM_STATE_MACHINE_STATE_DEFAULT_CHOICE);
+    UNUSED(state_machine);
 }
 
 static void DefaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
