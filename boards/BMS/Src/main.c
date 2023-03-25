@@ -237,8 +237,7 @@ int main(void)
         Io_LTC6813Shared_DisableDischarge);
 
     ts = App_TractiveSystem_Create(
-        Io_Adc_GetAdcChannel10Voltage, Io_VoltageSense_GetTractiveSystemVoltage, Io_Adc_GetAdcChannel8Voltage,
-        Io_CurrentSense_GetHighResolutionMainCurrent, Io_Adc_GetAdcChannel9Voltage,
+        Io_VoltageSense_GetTractiveSystemVoltage, Io_CurrentSense_GetHighResolutionMainCurrent,
         Io_CurrentSense_GetLowResolutionMainCurrent);
 
     airs = App_Airs_Create(
@@ -388,8 +387,8 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ScanConvMode          = ENABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 7;
     hadc1.Init.DMAContinuousRequests = ENABLE;
@@ -911,11 +910,15 @@ void RunTask1kHz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
+        // ADC wasn't reading any voltages when triggered by TIM3 like on other boards
+        // But worked fine when starting the conversion via software as below
+        // TODO: Figure out why
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
+
         // Check in for timeouts for all RTOS tasks
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
