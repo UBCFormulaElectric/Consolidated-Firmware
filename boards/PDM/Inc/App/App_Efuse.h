@@ -5,7 +5,6 @@
 #include "Io_Efuse.h"
 
 struct Efuse;
-struct Io_Efuse;
 
 /**
  *
@@ -26,21 +25,13 @@ struct Io_Efuse;
  * @return
  */
 struct Efuse *App_Efuse_Create(
-    struct Io_Efuse(*io_efuse),
-    void (*enable_channel_0)(struct Io_Efuse *),
-    void (*disable_channel_0)(struct Io_Efuse *),
-    void (*enable_channel_1)(struct Io_Efuse *),
-    void (*disable_channel_1)(struct Io_Efuse *),
-    bool (*is_channel_0_enabled)(struct Io_Efuse *),
-    bool (*is_channel_1_enabled)(struct Io_Efuse *),
-    void (*stdby_reset)(struct Io_Efuse *),
-    float (*get_channel_0_current)(struct Io_Efuse *),
-    float (*get_channel_1_current)(struct Io_Efuse *),
-    float channel_0_min_current,
-    float channel_0_max_current,
-    float channel_1_min_current,
-    float channel_1_max_current,
-    int   max_reset_attempts);
+        EfuseChannel io_efuse_channel0,
+        EfuseChannel io_efuse_channel1,
+        float channel_0_min_current,
+        float channel_0_max_current,
+        float channel_1_min_current,
+        float channel_1_max_current,
+        int   max_reset_attempts);
 
 void App_Efuse_Destroy(struct Efuse *efuse);
 
@@ -48,25 +39,13 @@ void App_Efuse_Destroy(struct Efuse *efuse);
  * Function to enable channel_0 of the PDM Efuse
  * @param efuse App_Efuse structure
  */
-void App_Efuse_EnableChannel0(struct Efuse *efuse);
-
-/**
- * Function to disable channel_0 of the PDM Efuse
- * @param efuse App_Efuse structure
- */
-void App_Efuse_DisableChannel0(struct Efuse *efuse);
+void App_Efuse_EnableChannel0(struct Efuse *efuse, bool status);
 
 /**
  * Function to enable channel_1 of the PDM Efuse
  * @param efuse App_Efuse structure
  */
-void App_Efuse_EnableChannel1(struct Efuse *efuse);
-
-/**
- * Function to disable channel_1 of the PDM Efuse
- * @param efuse App_Efuse structure
- */
-void App_Efuse_DisableChannel1(struct Efuse *efuse);
+void App_Efuse_EnableChannel1(struct Efuse *efuse, bool status);
 
 /**
  * Function that checks if channel_0 is enabled of the PDM Efuse

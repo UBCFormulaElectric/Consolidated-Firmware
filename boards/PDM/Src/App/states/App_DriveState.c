@@ -12,14 +12,14 @@ void Efuse_EnableChannelsPcmRunning(
     struct Efuse *efuse3,
     struct Efuse *efuse4)
 {
-    App_Efuse_EnableChannel0(efuse1);
-    App_Efuse_EnableChannel1(efuse1);
-    App_Efuse_EnableChannel0(efuse2);
-    App_Efuse_DisableChannel1(efuse2);
-    App_Efuse_EnableChannel0(efuse3);
-    App_Efuse_EnableChannel1(efuse3);
-    App_Efuse_EnableChannel0(efuse4);
-    App_Efuse_EnableChannel1(efuse4);
+    App_Efuse_EnableChannel0(efuse1, true);
+    App_Efuse_EnableChannel1(efuse1, true);
+    App_Efuse_EnableChannel0(efuse2, true);
+    App_Efuse_EnableChannel1(efuse2, false);
+    App_Efuse_EnableChannel0(efuse3, true);
+    App_Efuse_EnableChannel1(efuse3, true);
+    App_Efuse_EnableChannel0(efuse4, true);
+    App_Efuse_EnableChannel1(efuse4, true);
 }
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)

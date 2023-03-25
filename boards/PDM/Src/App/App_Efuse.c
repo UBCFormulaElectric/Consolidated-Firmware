@@ -3,16 +3,8 @@
 
 struct Efuse
 {
-    struct Io_Efuse *io_efuse;
-    void (*enable_channel_0)(struct Io_Efuse *);
-    void (*disable_channel_0)(struct Io_Efuse *);
-    void (*enable_channel_1)(struct Io_Efuse *);
-    void (*disable_channel_1)(struct Io_Efuse *);
-    bool (*is_channel_0_enabled)(struct Io_Efuse *);
-    bool (*is_channel_1_enabled)(struct Io_Efuse *);
-    void (*stdby_reset)(struct Io_Efuse *);
-    float (*get_channel_0_current)(struct Io_Efuse *);
-    float (*get_channel_1_current)(struct Io_Efuse *);
+    EfuseChannel io_efuse_channel0;
+    EfuseChannel io_efuse_channel1;
     float        channel_0_min_current;
     float        channel_0_max_current;
     float        channel_1_min_current;
@@ -27,16 +19,8 @@ struct Efuse
 };
 
 struct Efuse *App_Efuse_Create(
-    struct Io_Efuse(*io_efuse),
-    void (*enable_channel_0)(struct Io_Efuse *),
-    void (*disable_channel_0)(struct Io_Efuse *),
-    void (*enable_channel_1)(struct Io_Efuse *),
-    void (*disable_channel_1)(struct Io_Efuse *),
-    bool (*is_channel_0_enabled)(struct Io_Efuse *),
-    bool (*is_channel_1_enabled)(struct Io_Efuse *),
-    void (*stdby_reset)(struct Io_Efuse *),
-    float (*get_channel_0_current)(struct Io_Efuse *),
-    float (*get_channel_1_current)(struct Io_Efuse *),
+    EfuseChannel io_efuse_channel0,
+    EfuseChannel io_efuse_channel1,
     float channel_0_min_current,
     float channel_0_max_current,
     float channel_1_min_current,
@@ -46,16 +30,8 @@ struct Efuse *App_Efuse_Create(
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
 
-    efuse->io_efuse              = io_efuse;
-    efuse->enable_channel_0      = enable_channel_0;
-    efuse->disable_channel_0     = disable_channel_0;
-    efuse->enable_channel_1      = enable_channel_1;
-    efuse->disable_channel_1     = disable_channel_1;
-    efuse->is_channel_0_enabled  = is_channel_0_enabled;
-    efuse->is_channel_1_enabled  = is_channel_1_enabled;
-    efuse->stdby_reset           = stdby_reset;
-    efuse->get_channel_0_current = get_channel_0_current;
-    efuse->get_channel_1_current = get_channel_1_current;
+    efuse->io_efuse_channel0     = io_efuse_channel0;
+    efuse->io_efuse_channel1     = io_efuse_channel1;
     efuse->channel_0_min_current = channel_0_min_current;
     efuse->channel_0_max_current = channel_0_max_current;
     efuse->channel_1_min_current = channel_1_min_current;
@@ -78,69 +54,59 @@ void App_Efuse_Destroy(struct Efuse *efuse)
     free(efuse);
 }
 
-void App_Efuse_EnableChannel0(struct Efuse *efuse)
+void App_Efuse_EnableChannel0(struct Efuse *efuse, bool status)
 {
-    efuse->enable_channel_0(efuse->io_efuse);
+    Io_Efuse_SetChannel(efuse->io_efuse_channel0, status);
 }
 
-void App_Efuse_DisableChannel0(struct Efuse *efuse)
+void App_Efuse_EnableChannel1(struct Efuse *efuse, bool status)
 {
-    efuse->disable_channel_0(efuse->io_efuse);
-}
-
-void App_Efuse_EnableChannel1(struct Efuse *efuse)
-{
-    efuse->enable_channel_1(efuse->io_efuse);
-}
-
-void App_Efuse_DisableChannel1(struct Efuse *efuse)
-{
-    efuse->disable_channel_1(efuse->io_efuse);
+    Io_Efuse_SetChannel(efuse->io_efuse_channel1, status);
 }
 
 bool App_Efuse_IsChannel0Enabled(struct Efuse *efuse)
 {
-    return efuse->is_channel_0_enabled(efuse->io_efuse);
+    return Io_Efuse_IsChannelEnabled(efuse->io_efuse_channel0);
 }
 
 bool App_Efuse_IsChannel1Enabled(struct Efuse *efuse)
 {
-    return efuse->is_channel_1_enabled(efuse->io_efuse);
+    return Io_Efuse_IsChannelEnabled(efuse->io_efuse_channel1);
 }
 
 void App_Efuse_StandbyReset(struct Efuse *efuse)
 {
-    efuse->stdby_reset(efuse->io_efuse);
+    Io_Efuse_StandbyReset(efuse->io_efuse_channel0);
 }
 
 float App_Efuse_GetChannel0Current(struct Efuse *efuse)
 {
-    return efuse->get_channel_0_current(efuse->io_efuse);
+    return Io_Efuse_GetChannelCurrent(efuse->io_efuse_channel0);
 }
 
 float App_Efuse_GetChannel1Current(struct Efuse *efuse)
 {
-    return efuse->get_channel_1_current(efuse->io_efuse);
+    return Io_Efuse_GetChannelCurrent(efuse->io_efuse_channel1);
 }
 
 bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse)
 {
-    return efuse->get_channel_0_current(efuse->io_efuse) < efuse->channel_0_min_current;
+    return App_Efuse_GetChannel0Current(efuse) < efuse->channel_0_min_current;
 }
 
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse)
 {
-    return efuse->get_channel_0_current(efuse->io_efuse) > efuse->channel_0_max_current;
+    return App_Efuse_GetChannel0Current(efuse) > efuse->channel_0_max_current;
 }
 
 bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse)
 {
-    return efuse->get_channel_1_current(efuse->io_efuse) < efuse->channel_1_min_current;
+    return App_Efuse_GetChannel1Current(efuse) < efuse->channel_1_min_current;
 }
 
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse)
 {
-    return efuse->get_channel_1_current(efuse->io_efuse) > efuse->channel_1_max_current;
+    return App_Efuse_GetChannel1Current(efuse) > efuse->channel_1_max_current;
 }
 
 bool App_Efuse_FaultCheckChannel0(struct Efuse *efuse)
@@ -210,3 +176,10 @@ bool App_Efuse_FaultCheckChannel1(struct Efuse *efuse)
 
     return false; // fine
 }
+/*
+ efuse1 = App_Efuse_Create(EFUSE_CHANNEL_AIR, EFUSE_CHANNEL_LVPWR, EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT, EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT, 3);
+    efuse2 = App_Efuse_Create(EFUSE_CHANNEL_EMETER, EFUSE_CHANNEL_AUX, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, EFUSE2_EMETER_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, 0);
+    efuse3 = App_Efuse_Create(EFUSE_CHANNEL_DI_LHS, EFUSE_CHANNEL_DI_RHS, EFUSE3_LEFT_INVERTER_MIN_CURRENT, EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT, 0);
+    efuse4 = App_Efuse_Create(EFUSE_CHANNEL_DRS, EFUSE_CHANNEL_FAN, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT, EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT, 3);
+    world = App_PdmWorld_Create(heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock, efuse1, efuse2, efuse3, efuse4, rail_monitor);
+ */

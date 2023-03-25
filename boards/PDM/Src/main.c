@@ -44,6 +44,7 @@
 
 #include "App_CanAlerts.h"
 #include "App_PdmWorld.h"
+#include "App_Efuse.h"
 #include "App_SharedMacros.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
@@ -101,6 +102,11 @@ struct StateMachine *     state_machine;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
+struct Efuse             *efuse1;
+struct Efuse             *efuse2;
+struct Efuse             *efuse3;
+struct Efuse             *efuse4;
+struct RailMonitoring    *rail_monitor;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -200,6 +206,15 @@ int main(void)
     clock = App_SharedClock_Create();
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
+    efuse1 = App_Efuse_Create(EFUSE_CHANNEL_AIR, EFUSE_CHANNEL_LVPWR, EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT, EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT, 3);
+    efuse2 = App_Efuse_Create(EFUSE_CHANNEL_EMETER, EFUSE_CHANNEL_AUX, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, EFUSE2_EMETER_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, 0);
+    efuse3 = App_Efuse_Create(EFUSE_CHANNEL_DI_LHS, EFUSE_CHANNEL_DI_RHS, EFUSE3_LEFT_INVERTER_MIN_CURRENT, EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT, 0);
+    efuse4 = App_Efuse_Create(EFUSE_CHANNEL_DRS, EFUSE_CHANNEL_FAN, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT, EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT, 3);
+
+    rail_monitor = App_RailMonitoring_Create(Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage, Io_VoltageSense_Get22vAuxVoltage);
+
+    world = App_PdmWorld_Create(heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock, efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
     App_CanAlerts_SetAlert(PDM_ALERT_STARTUP, true);
 
