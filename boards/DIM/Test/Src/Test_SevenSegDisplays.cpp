@@ -6,118 +6,118 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 }
 
-FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit, int);
 FAKE_VOID_FUNC(display_value_callback);
 
-// class SevenSegDisplaysTest : public testing::Test
-//{
-//  protected:
-//    void SetUp() override
-//    {
-//        left_l_seven_seg_display   = App_SevenSegDisplay_Create(set_left_l_hex_digit);
-//        left_m_seven_seg_display   = App_SevenSegDisplay_Create(set_left_m_hex_digit);
-//        left_r_seven_seg_display   = App_SevenSegDisplay_Create(set_left_r_hex_digit);
-//        middle_l_seven_seg_display = App_SevenSegDisplay_Create(set_middle_l_hex_digit);
-//        middle_m_seven_seg_display = App_SevenSegDisplay_Create(set_middle_m_hex_digit);
-//        middle_r_seven_seg_display = App_SevenSegDisplay_Create(set_middle_r_hex_digit);
-//        right_l_seven_seg_display  = App_SevenSegDisplay_Create(set_right_l_hex_digit);
-//        right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
-//        right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
-//
-//        seven_seg_displays = App_SevenSegDisplays_Create(
-//            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
-//            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
-//            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
-//
-//        RESET_FAKE(set_left_l_hex_digit);
-//        RESET_FAKE(set_left_m_hex_digit);
-//        RESET_FAKE(set_left_r_hex_digit);
-//        RESET_FAKE(set_middle_l_hex_digit);
-//        RESET_FAKE(set_middle_m_hex_digit);
-//        RESET_FAKE(set_middle_r_hex_digit);
-//        RESET_FAKE(set_right_l_hex_digit);
-//        RESET_FAKE(set_right_m_hex_digit);
-//        RESET_FAKE(set_right_r_hex_digit);
-//        RESET_FAKE(display_value_callback);
-//    }
-//
-//    void TearDown() override
-//    {
-//        TearDownObject(left_l_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(left_m_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(left_r_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(middle_l_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(middle_m_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(middle_r_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(right_l_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(right_m_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(right_r_seven_seg_display, App_SevenSegDisplay_Destroy);
-//        TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
-//    }
-//
-//    struct SevenSegDisplay * left_l_seven_seg_display;
-//    struct SevenSegDisplay * left_m_seven_seg_display;
-//    struct SevenSegDisplay * left_r_seven_seg_display;
-//    struct SevenSegDisplay * middle_l_seven_seg_display;
-//    struct SevenSegDisplay * middle_m_seven_seg_display;
-//    struct SevenSegDisplay * middle_r_seven_seg_display;
-//    struct SevenSegDisplay * right_l_seven_seg_display;
-//    struct SevenSegDisplay * right_m_seven_seg_display;
-//    struct SevenSegDisplay * right_r_seven_seg_display;
-//    struct SevenSegDisplays *seven_seg_displays;
-//};
-//
-// TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
-//{
-//    // Counter used as index for the argument history and call count of fake
-//    // functions
-//    size_t count = 1;
-//
-//    constexpr size_t num_inputs        = 3;
-//    uint8_t          input[num_inputs] = { 0, 0, 0 };
-//
-//    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
-//    {
-//        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
-//        ASSERT_EQ(EXIT_CODE_OK, exit_code);
-//
-//        ASSERT_EQ(count, set_left_l_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_left_m_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_left_r_hex_digit_fake.call_count);
-//
-//        ASSERT_EQ(count, set_middle_l_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_middle_m_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_middle_r_hex_digit_fake.call_count);
-//
-//        ASSERT_EQ(count, set_right_l_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_right_m_hex_digit_fake.call_count);
-//        ASSERT_EQ(count, set_right_r_hex_digit_fake.call_count);
-//
-//        ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[count - 1].enabled);
-//
-//        ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[count - 1].enabled);
-//
-//        ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[count - 1].enabled);
-//        ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[count - 1].enabled);
-//
-//        // The value for the middle and right digits are not asserted because we
-//        // are only writing one digit
-//        ASSERT_EQ(input[LEFT_L_SEVEN_SEG_DISPLAY], set_left_l_hex_digit_fake.arg0_history[count - 1].value);
-//    }
-//}
+ class SevenSegDisplaysTest : public testing::Test
+{
+  protected:
+    void SetUp() override
+    {
+        left_l_seven_seg_display   = App_SevenSegDisplay_Create(set_left_l_hex_digit);
+        left_m_seven_seg_display   = App_SevenSegDisplay_Create(set_left_m_hex_digit);
+        left_r_seven_seg_display   = App_SevenSegDisplay_Create(set_left_r_hex_digit);
+        middle_l_seven_seg_display = App_SevenSegDisplay_Create(set_middle_l_hex_digit);
+        middle_m_seven_seg_display = App_SevenSegDisplay_Create(set_middle_m_hex_digit);
+        middle_r_seven_seg_display = App_SevenSegDisplay_Create(set_middle_r_hex_digit);
+        right_l_seven_seg_display  = App_SevenSegDisplay_Create(set_right_l_hex_digit);
+        right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
+        right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
+
+        seven_seg_displays = App_SevenSegDisplays_Create(
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
+
+        RESET_FAKE(set_left_l_hex_digit);
+        RESET_FAKE(set_left_m_hex_digit);
+        RESET_FAKE(set_left_r_hex_digit);
+        RESET_FAKE(set_middle_l_hex_digit);
+        RESET_FAKE(set_middle_m_hex_digit);
+        RESET_FAKE(set_middle_r_hex_digit);
+        RESET_FAKE(set_right_l_hex_digit);
+        RESET_FAKE(set_right_m_hex_digit);
+        RESET_FAKE(set_right_r_hex_digit);
+        RESET_FAKE(display_value_callback);
+    }
+
+    void TearDown() override
+    {
+        TearDownObject(left_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
+    }
+
+    struct SevenSegDisplay * left_l_seven_seg_display;
+    struct SevenSegDisplay * left_m_seven_seg_display;
+    struct SevenSegDisplay * left_r_seven_seg_display;
+    struct SevenSegDisplay * middle_l_seven_seg_display;
+    struct SevenSegDisplay * middle_m_seven_seg_display;
+    struct SevenSegDisplay * middle_r_seven_seg_display;
+    struct SevenSegDisplay * right_l_seven_seg_display;
+    struct SevenSegDisplay * right_m_seven_seg_display;
+    struct SevenSegDisplay * right_r_seven_seg_display;
+    struct SevenSegDisplays *seven_seg_displays;
+};
+
+ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
+{
+    // Counter used as index for the argument history and call count of fake
+    // functions
+    size_t count = 1;
+
+    constexpr size_t num_inputs        = 3;
+    uint8_t          input[num_inputs] = { 0, 0, 0 };
+
+    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
+    {
+        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
+        ASSERT_EQ(EXIT_CODE_OK, exit_code);
+
+        ASSERT_EQ(count, set_left_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_left_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_left_r_hex_digit_fake.call_count);
+
+        ASSERT_EQ(count, set_middle_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_middle_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_middle_r_hex_digit_fake.call_count);
+
+        ASSERT_EQ(count, set_right_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_right_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_right_r_hex_digit_fake.call_count);
+
+        ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[count - 1].enabled);
+
+        ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[count - 1].enabled);
+
+        ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[count - 1].enabled);
+
+        // The value for the middle and right digits are not asserted because we
+        // are only writing one digit
+        ASSERT_EQ(input[LEFT_L_SEVEN_SEG_DISPLAY], set_left_l_hex_digit_fake.arg0_history[count - 1].value);
+    }
+}
 //
 // TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
 //{
