@@ -6,14 +6,14 @@
 
 void Efuse_DisableChannels(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
-    App_Efuse_DisableChannel0(efuse1);
-    App_Efuse_DisableChannel1(efuse1);
-    App_Efuse_DisableChannel0(efuse2);
-    App_Efuse_DisableChannel1(efuse2);
-    App_Efuse_DisableChannel0(efuse3);
-    App_Efuse_DisableChannel1(efuse3);
-    App_Efuse_DisableChannel0(efuse4);
-    App_Efuse_DisableChannel1(efuse4);
+    App_Efuse_EnableChannel0(efuse1, false);
+    App_Efuse_EnableChannel1(efuse1, false);
+    App_Efuse_EnableChannel0(efuse2, false);
+    App_Efuse_EnableChannel1(efuse2, false);
+    App_Efuse_EnableChannel0(efuse3, false);
+    App_Efuse_EnableChannel1(efuse3, false);
+    App_Efuse_EnableChannel0(efuse4, false);
+    App_Efuse_EnableChannel1(efuse4, false);
 }
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
