@@ -166,5 +166,27 @@
                 "bits": 1
             }
         }
+    },
+    "DCM_SbgEllipseSensor": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Message for data from the SBG Ellipse N IMU/GPS sensor.",
+        "signals": {
+            "Roll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1
+            },
+            "Pitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1
+            },
+            "Yaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1
+            }
+        }
     }
 }

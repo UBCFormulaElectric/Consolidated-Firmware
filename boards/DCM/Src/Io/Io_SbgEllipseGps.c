@@ -6,23 +6,9 @@
 
 /* ------------------------------------ Defines ------------------------------------- */
 
-#define UART_RX_PACKET_SIZE 8 // Size of each received UART packet, in bytes
+#define UART_RX_PACKET_SIZE 512 // Size of each received UART packet, in bytes
 
 /* ------------------------------------ Typedefs ------------------------------------- */
-
-typedef struct
-{
-    float x;
-    float y;
-    float z;
-} Vector3;
-
-typedef struct
-{
-    float roll;
-    float pitch;
-    float yaw;
-} Attitude;
 
 typedef struct
 {
@@ -49,6 +35,7 @@ static SbgInterface  sbg_interface;
 static SbgEComHandle com_handle;
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE];
 static GpsData       gps_data;
+static bool data_available;
 
 /* ------------------------- Static Function Prototypes -------------------------- */
 
@@ -84,10 +71,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 static void Io_SbgEllipseGps_UartRxCallback()
 {
-    // Handle a single log. Calls the pReadFunc set in sbgInterfaceSerialCreate to get new data and attempts to parse
-    // the log. If successful, the the receive log callback function set in init is triggered. If the log is incomplete,
-    // the data will be saved to a buffer to be once more data is received.
-    sbgEComHandleOneLog(&com_handle);
+    data_available = true;
 
     // Start waiting for UART packets again
     Io_SbgEllipseGps_ReceiveUartPacket();
@@ -130,14 +114,20 @@ static SbgErrorCode
 {
     UNUSED(interface);
 
-    if (bytes_to_read < UART_RX_PACKET_SIZE)
+    if(!data_available)
     {
-        // I'm pretty sure if it doesn't read a full packet this will break (should confirm this and log over CAN if so)
+        *read_bytes = 0;
         return SBG_ERROR;
     }
 
-    memcpy(uart_rx_buffer, buffer, sizeof(uint8_t) * UART_RX_PACKET_SIZE);
+    if (bytes_to_read < UART_RX_PACKET_SIZE)
+    {
+        return SBG_ERROR;
+    }
+
+    memcpy(buffer, uart_rx_buffer, sizeof(uint8_t) * UART_RX_PACKET_SIZE);
     *read_bytes = UART_RX_PACKET_SIZE;
+    data_available = false;
     return SBG_NO_ERROR;
 }
 
@@ -265,4 +255,21 @@ bool Io_SbgEllipseGps_Init()
     Io_SbgEllipseGps_ReceiveUartPacket();
 
     return true;
+}
+
+void Io_SbgEllipseGps_Process()
+{
+    // Handle a single log. Calls the pReadFunc set in sbgInterfaceSerialCreate to get new data and attempts to parse
+    // the log. If successful, the the receive log callback function set in init is triggered. If the log is incomplete,
+    // the data will be saved to a buffer to be once more data is received.
+    sbgEComHandleOneLog(&com_handle);
+
+    // TODO: In interrupt, save to circular buffer
+    // Change read function to read all from circular buffer
+    // Call this in 100Hz or something
+}
+
+void Io_SbgEllipseGps_GetAttitude(Attitude *attitude)
+{
+    *attitude = gps_data.euler_data.euler_angles;
 }
