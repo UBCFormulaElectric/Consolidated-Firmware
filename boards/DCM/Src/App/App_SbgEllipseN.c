@@ -1,16 +1,16 @@
-#include "App_SbgEllipse.h"
+#include "App_SbgEllipseN.h"
 #include "App_CanTx.h"
-#include "Io_SbgEllipseGps.h"
+#include "Io_SbgEllipseN.h"
 
-void App_SbgEllipse_Process()
+void App_SbgEllipseN_HandleLogs()
 {
-    Io_SbgEllipseGps_Process();
+    Io_SbgEllipseN_HandleLogs();
 }
 
-void App_SbgEllipse_Broadcast()
+void App_SbgEllipseN_Broadcast()
 {
     Attitude attitude;
-    Io_SbgEllipseGps_GetAttitude(&attitude);
+    Io_SbgEllipseN_GetAttitude(&attitude);
 
     App_CanTx_DCM_SbgEllipseSensor_Roll_Set(attitude.roll);
     App_CanTx_DCM_SbgEllipseSensor_Pitch_Set(attitude.pitch);

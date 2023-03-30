@@ -2,11 +2,12 @@
 #include <assert.h>
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
-#include "Io_SbgEllipseGps.h"
+#include "Io_SbgEllipseN.h"
+#include "App_RingQueue.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
-#define UART_RX_PACKET_SIZE 512 // Size of each received UART packet, in bytes
+#define UART_RX_PACKET_SIZE 32 // Size of each received UART packet, in bytes
 
 /* ------------------------------------ Typedefs ------------------------------------- */
 
@@ -34,28 +35,26 @@ extern UART_HandleTypeDef huart1;
 static SbgInterface  sbg_interface;
 static SbgEComHandle com_handle;
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE];
+static RingQueue     rx_queue;
 static GpsData       gps_data;
-static bool data_available;
 
 /* ------------------------- Static Function Prototypes -------------------------- */
 
-static void Io_SbgEllipseGps_UartRxCallback(void);
-static void Io_SbgEllipseGps_ReceiveUartPacket(void);
-static void Io_SbgEllipseGps_CreateSerialInterface(SbgInterface *interface);
+static void Io_SbgEllipseN_UartRxCallback(void);
+static void Io_SbgEllipseN_WaitForUartPacket(void);
+static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface);
 static SbgErrorCode
-                    Io_SbgEllipseGps_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
-static SbgErrorCode Io_SbgEllipseGps_Write(SbgInterface *interface, const void *buffer, size_t bytes_to_write);
-static SbgErrorCode Io_SbgEllipseGps_LogReceivedCallback(
+                    Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
+static SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
     SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
     void *                  user_arg);
-static void Io_SbgEllipseGps_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+static void Io_SbgEllipseN_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
 static void
-    Io_SbgEllipseGps_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
-static void
-    Io_SbgEllipseGps_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+            Io_SbgEllipseN_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+static void Io_SbgEllipseN_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
@@ -65,22 +64,25 @@ static void
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     assert(huart == &huart1);
-
-    Io_SbgEllipseGps_UartRxCallback();
+    Io_SbgEllipseN_UartRxCallback();
 }
 
-static void Io_SbgEllipseGps_UartRxCallback()
+static void Io_SbgEllipseN_UartRxCallback()
 {
-    data_available = true;
+    // Add newly received data to queue
+    for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
+    {
+        App_RingQueue_Push(&rx_queue, uart_rx_buffer[i]);
+    }
 
     // Start waiting for UART packets again
-    Io_SbgEllipseGps_ReceiveUartPacket();
+    Io_SbgEllipseN_WaitForUartPacket();
 }
 
 /*
  * Start receiving the next UART packet. HAL_UART_RxCpltCallback will be triggered when a full packet is received.
  */
-static void Io_SbgEllipseGps_ReceiveUartPacket(void)
+static void Io_SbgEllipseN_WaitForUartPacket(void)
 {
     HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
 }
@@ -90,17 +92,18 @@ static void Io_SbgEllipseGps_ReceiveUartPacket(void)
  * operations, such as reading, writing, flushing, etc. These I/O operations will use STM32's HAL drivers to communicate
  * to the sensor.
  */
-static void Io_SbgEllipseGps_CreateSerialInterface(SbgInterface *interface)
+static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface)
 {
     sbgInterfaceNameSet(interface, "SBG Ellipse N Sensor");
 
+    // TODO: Do we need more of these? Is this why it's faulting?
     interface->handle        = NULL;
     interface->handle        = NULL;
     interface->type          = SBG_IF_TYPE_UNKNOW;
     interface->pDestroyFunc  = NULL;
-    interface->pWriteFunc    = Io_SbgEllipseGps_Write;
-    interface->pReadFunc     = Io_SbgEllipseGps_Read;
-    interface->pFlushFunc    = NULL; // TODO: Do we need this?
+    interface->pWriteFunc    = NULL;
+    interface->pReadFunc     = Io_SbgEllipseN_Read;
+    interface->pFlushFunc    = NULL;
     interface->pSetSpeedFunc = NULL;
     interface->pGetSpeedFunc = NULL;
     interface->pDelayFunc    = NULL;
@@ -109,41 +112,36 @@ static void Io_SbgEllipseGps_CreateSerialInterface(SbgInterface *interface)
 /*
  * Read some data from the GPS sensor via UART.
  */
-static SbgErrorCode
-    Io_SbgEllipseGps_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read)
+static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read)
 {
     UNUSED(interface);
 
-    if(!data_available)
+    *read_bytes = 0;
+
+    // Read all available data from the RX queue, up to the requested amount
+    int i = 0;
+    while (i < bytes_to_read)
     {
-        *read_bytes = 0;
-        return SBG_ERROR;
+        uint8_t data;
+        bool    data_available = App_RingQueue_Pop(&rx_queue, &data);
+
+        if (!data_available)
+        {
+            break;
+        }
+
+        ((uint8_t *)buffer)[i] = data;
+        *read_bytes = *read_bytes + 1;
+        i++;
     }
 
-    if (bytes_to_read < UART_RX_PACKET_SIZE)
-    {
-        return SBG_ERROR;
-    }
-
-    memcpy(buffer, uart_rx_buffer, sizeof(uint8_t) * UART_RX_PACKET_SIZE);
-    *read_bytes = UART_RX_PACKET_SIZE;
-    data_available = false;
-    return SBG_NO_ERROR;
-}
-
-/*
- * Write some data to the GPS sensor via UART.
- */
-static SbgErrorCode Io_SbgEllipseGps_Write(SbgInterface *interface, const void *buffer, size_t bytes_to_write)
-{
-    // TODO: Is this necessary?
     return SBG_NO_ERROR;
 }
 
 /*
  * Callback called when a full log is successfully received and parsed.
  */
-SbgErrorCode Io_SbgEllipseGps_LogReceivedCallback(
+SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
     SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
@@ -161,17 +159,17 @@ SbgErrorCode Io_SbgEllipseGps_LogReceivedCallback(
         {
             case SBG_ECOM_LOG_IMU_DATA:
             {
-                Io_SbgEllipseGps_ProcessImuMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessImuMsg(msg_class, msg_id, log_data);
                 break;
             }
             case SBG_ECOM_LOG_EKF_EULER:
             {
-                Io_SbgEllipseGps_ProcessEulerAnglesMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessEulerAnglesMsg(msg_class, msg_id, log_data);
                 break;
             }
             case SBG_ECOM_LOG_STATUS:
             {
-                Io_SbgEllipseGps_ProcessStatusMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessStatusMsg(msg_class, msg_id, log_data);
                 break;
             }
             default:
@@ -188,7 +186,7 @@ SbgErrorCode Io_SbgEllipseGps_LogReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void Io_SbgEllipseGps_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+static void Io_SbgEllipseN_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_IMU_DATA);
@@ -208,7 +206,7 @@ static void Io_SbgEllipseGps_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId 
  * Process and save a new euler angles msg.
  */
 static void
-    Io_SbgEllipseGps_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+    Io_SbgEllipseN_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_EKF_EULER);
@@ -222,54 +220,50 @@ static void
 /*
  * Process and save a new status msg.
  */
-static void
-    Io_SbgEllipseGps_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+static void Io_SbgEllipseN_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_STATUS);
 
-    // TODO
+    // TODO: Finish this message
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool Io_SbgEllipseGps_Init()
+bool Io_SbgEllipseN_Init()
 {
     memset(&gps_data, 0, sizeof(GpsData));
 
     // Initialize the SBG serial interface handle
-    Io_SbgEllipseGps_CreateSerialInterface(&sbg_interface);
+    Io_SbgEllipseN_CreateSerialInterface(&sbg_interface);
 
     // Init SBG's communication protocol handle
-    const SbgErrorCode com_init_err = sbgEComInit(&com_handle, &sbg_interface);
-
-    if (com_init_err != SBG_NO_ERROR)
+    if (sbgEComInit(&com_handle, &sbg_interface) != SBG_NO_ERROR)
     {
         return false;
     }
 
     // Set the callback function (callback is called when a new log is successfully received and parsed)
-    sbgEComSetReceiveLogCallback(&com_handle, Io_SbgEllipseGps_LogReceivedCallback, NULL);
+    sbgEComSetReceiveLogCallback(&com_handle, Io_SbgEllipseN_LogReceivedCallback, NULL);
+
+    // Init UART RX queue
+    App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
 
     // Start waiting for UART packets
-    Io_SbgEllipseGps_ReceiveUartPacket();
+    Io_SbgEllipseN_WaitForUartPacket();
 
     return true;
 }
 
-void Io_SbgEllipseGps_Process()
+void Io_SbgEllipseN_HandleLogs()
 {
     // Handle a single log. Calls the pReadFunc set in sbgInterfaceSerialCreate to get new data and attempts to parse
     // the log. If successful, the the receive log callback function set in init is triggered. If the log is incomplete,
     // the data will be saved to a buffer to be once more data is received.
-    sbgEComHandleOneLog(&com_handle);
-
-    // TODO: In interrupt, save to circular buffer
-    // Change read function to read all from circular buffer
-    // Call this in 100Hz or something
+    sbgEComHandle(&com_handle);
 }
 
-void Io_SbgEllipseGps_GetAttitude(Attitude *attitude)
+void Io_SbgEllipseN_GetAttitude(Attitude *attitude)
 {
     *attitude = gps_data.euler_data.euler_angles;
 }

@@ -19,8 +19,8 @@ typedef struct
 /*
  * Initialize the interface to the SBG Ellipse N GPS sensor.
  */
-bool Io_SbgEllipseGps_Init(void);
+bool Io_SbgEllipseN_Init(void);
 
-void Io_SbgEllipseGps_Process(void);
+void Io_SbgEllipseN_HandleLogs(void);
 
-void Io_SbgEllipseGps_GetAttitude(Attitude *attitude);
+void Io_SbgEllipseN_GetAttitude(Attitude *attitude);

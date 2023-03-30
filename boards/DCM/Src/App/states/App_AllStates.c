@@ -2,7 +2,7 @@
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
 #include "sbgECom.h"
-#include "App_SbgEllipse.h"
+#include "App_SbgEllipseN.h"
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
@@ -51,8 +51,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 
-    App_SbgEllipse_Process();
-    App_SbgEllipse_Broadcast();
+    App_SbgEllipseN_HandleLogs();
+    App_SbgEllipseN_Broadcast();
 
     return status;
 }

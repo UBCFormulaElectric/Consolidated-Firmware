@@ -37,7 +37,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
-#include "Io_SbgEllipseGps.h"
+#include "Io_SbgEllipseN.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -163,7 +163,7 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_SbgEllipseGps_Init();
+    Io_SbgEllipseN_Init();
 
     App_CanTx_Init();
     App_CanRx_Init();
