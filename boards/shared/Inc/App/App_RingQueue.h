@@ -4,16 +4,16 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define RING_QUEUE_MAX_SIZE 4096
+#define RING_QUEUE_MAX_SIZE 4096 // 4kB
 
 // Data struct for a ring queue: Do not interact with member vars directly!
 typedef struct
 {
     uint8_t elements[RING_QUEUE_MAX_SIZE];
-    int  size;
-    int  head;
-    int  tail;
-    int  count;
+    int     size;
+    int     head;
+    int     tail;
+    int     count;
 } RingQueue;
 
 /**

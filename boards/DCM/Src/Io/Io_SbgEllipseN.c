@@ -119,7 +119,7 @@ static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, s
     *read_bytes = 0;
 
     // Read all available data from the RX queue, up to the requested amount
-    int i = 0;
+    size_t i = 0;
     while (i < bytes_to_read)
     {
         uint8_t data;
@@ -131,7 +131,7 @@ static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, s
         }
 
         ((uint8_t *)buffer)[i] = data;
-        *read_bytes = *read_bytes + 1;
+        *read_bytes            = *read_bytes + 1;
         i++;
     }
 
