@@ -364,6 +364,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
+
     /* USER CODE END IWDG_Init 2 */
 }
 
