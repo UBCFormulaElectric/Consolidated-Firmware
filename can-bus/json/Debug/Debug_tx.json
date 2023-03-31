@@ -1,0 +1,11 @@
+{
+    "Debug_CanModes": {
+        "msg_id": 701,
+        "description": "Signals related to CAN modes.",
+        "signals": {
+            "EnableDebugMode": {
+                "bits": 1
+            }
+        }
+    }
+}

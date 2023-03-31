@@ -1,4 +1,10 @@
 {
     "default_receiver": "DEBUG",
-    "bus_speed": 500
+    "bus_speed": 500,
+    "modes": [
+        "default",
+        "debug",
+        "race"
+    ],
+    "default_mode": "default"
 }
