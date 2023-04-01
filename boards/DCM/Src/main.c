@@ -510,7 +510,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        // Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
