@@ -11,11 +11,13 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
-    if (App_CanRx_FSM_Vitals_Heartbeat_Get()){
+    if (App_CanRx_FSM_Vitals_Heartbeat_Get())
+    {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
         App_CanRx_FSM_Vitals_Heartbeat_Update(false);
     }
-    if (App_CanRx_DIM_Vitals_Heartbeat_Get()){
+    if (App_CanRx_DIM_Vitals_Heartbeat_Get())
+    {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DIM_HEARTBEAT_ONE_HOT);
         App_CanRx_DIM_Vitals_Heartbeat_Update(false);
     }

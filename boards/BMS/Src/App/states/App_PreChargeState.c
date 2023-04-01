@@ -62,8 +62,8 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
             &precharge_fault_limit_exceeded);
 
-        struct HeartbeatMonitor * hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+        struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
+        const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
         App_CanTx_BMS_Warnings_MissingHeartBeat_Set(missing_hb);
 
         if (has_precharge_fault)
@@ -72,7 +72,8 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
                 (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
-        else if (missing_hb){
+        else if (missing_hb)
+        {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
         else if (ts_voltage >= threshold_voltage)
