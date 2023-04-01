@@ -24,3 +24,5 @@ bool Io_SbgEllipseN_Init(void);
 void Io_SbgEllipseN_HandleLogs(void);
 
 void Io_SbgEllipseN_GetAttitude(Attitude *attitude);
+
+uint32_t Io_SbgEllipseN_GetTimestamp(void);

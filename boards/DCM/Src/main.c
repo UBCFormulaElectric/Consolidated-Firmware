@@ -70,19 +70,19 @@ DMA_HandleTypeDef  hdma_usart1_rx;
 DMA_HandleTypeDef  hdma_usart1_tx;
 
 osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[512];
+uint32_t            Task1HzBuffer[4096];
 osStaticThreadDef_t Task1HzControlBlock;
 osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[512];
+uint32_t            Task1kHzBuffer[4096];
 osStaticThreadDef_t Task1kHzControlBlock;
 osThreadId          TaskCanRxHandle;
-uint32_t            TaskCanRxBuffer[512];
+uint32_t            TaskCanRxBuffer[4096];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
-uint32_t            TaskCanTxBuffer[512];
+uint32_t            TaskCanTxBuffer[4096];
 osStaticThreadDef_t TaskCanTxControlBlock;
 osThreadId          Task100HzHandle;
-uint32_t            Task100HzBuffer[512];
+uint32_t            Task100HzBuffer[4096];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
 struct DcmWorld *        world;
@@ -209,23 +209,23 @@ int main(void)
 
     /* Create the thread(s) */
     /* definition and creation of Task1Hz */
-    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
+    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 4096, Task1HzBuffer, &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
-    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 512, Task1kHzBuffer, &Task1kHzControlBlock);
+    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 4096, Task1kHzBuffer, &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of TaskCanRx */
-    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 512, TaskCanRxBuffer, &TaskCanRxControlBlock);
+    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 4096, TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
-    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 512, TaskCanTxBuffer, &TaskCanTxControlBlock);
+    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 4096, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* definition and creation of Task100Hz */
-    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512, Task100HzBuffer, &Task100HzControlBlock);
+    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 4096, Task100HzBuffer, &Task100HzControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */

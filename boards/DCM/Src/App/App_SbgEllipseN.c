@@ -12,7 +12,8 @@ void App_SbgEllipseN_Broadcast()
     Attitude attitude;
     Io_SbgEllipseN_GetAttitude(&attitude);
 
-    App_CanTx_DCM_SbgEllipseSensor_Roll_Set(attitude.roll);
-    App_CanTx_DCM_SbgEllipseSensor_Pitch_Set(attitude.pitch);
-    App_CanTx_DCM_SbgEllipseSensor_Yaw_Set(attitude.yaw);
+    App_CanTx_DCM_SbgEllipseSensor_Timestamp_Set(Io_SbgEllipseN_GetTimestamp());
+    App_CanTx_DCM_SbgEllipseSensor_Roll_Set((int)attitude.roll);
+    App_CanTx_DCM_SbgEllipseSensor_Pitch_Set((int)attitude.pitch);
+    App_CanTx_DCM_SbgEllipseSensor_Yaw_Set((int)attitude.yaw);
 }

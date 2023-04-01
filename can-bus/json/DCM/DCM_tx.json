@@ -172,20 +172,23 @@
         "cycle_time": 10,
         "description": "Message for data from the SBG Ellipse N IMU/GPS sensor.",
         "signals": {
+            "Timestamp": {
+                "bits": 32
+            },
             "Roll": {
                 "min": -180,
                 "max": 180,
-                "resolution": 0.1
+                "resolution": 1
             },
             "Pitch": {
                 "min": -180,
                 "max": 180,
-                "resolution": 0.1
+                "resolution": 1
             },
             "Yaw": {
                 "min": -180,
                 "max": 180,
-                "resolution": 0.1
+                "resolution": 1
             }
         }
     }

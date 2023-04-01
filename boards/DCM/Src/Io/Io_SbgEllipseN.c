@@ -4,10 +4,11 @@
 #include "interfaces/sbgInterfaceSerial.h"
 #include "Io_SbgEllipseN.h"
 #include "App_RingQueue.h"
+#include "App_SharedMacros.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
-#define UART_RX_PACKET_SIZE 32 // Size of each received UART packet, in bytes
+#define UART_RX_PACKET_SIZE 128 // Size of each received UART packet, in bytes
 
 /* ------------------------------------ Typedefs ------------------------------------- */
 
@@ -24,8 +25,14 @@ typedef struct
 
 typedef struct
 {
-    ImuPacketData   imu_data;
-    EulerPacketData euler_data;
+    uint32_t timestamp_us;
+} UtcTimePacketData;
+
+typedef struct
+{
+    ImuPacketData     imu_data;
+    EulerPacketData   euler_data;
+    UtcTimePacketData utc_data;
 } GpsData;
 
 /* --------------------------------- Variables ---------------------------------- */
@@ -40,8 +47,6 @@ static GpsData       gps_data;
 
 /* ------------------------- Static Function Prototypes -------------------------- */
 
-static void Io_SbgEllipseN_UartRxCallback(void);
-static void Io_SbgEllipseN_WaitForUartPacket(void);
 static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface);
 static SbgErrorCode
                     Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
@@ -51,10 +56,13 @@ static SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
     void *                  user_arg);
-static void Io_SbgEllipseN_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+static void Io_SbgEllipseN_ProcessMsg_Imu(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
 static void
-            Io_SbgEllipseN_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
-static void Io_SbgEllipseN_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+    Io_SbgEllipseN_ProcessMsg_EulerAngles(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+static void
+    Io_SbgEllipseN_ProcessMsg_Status(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
+static void
+    Io_SbgEllipseN_ProcessMsg_UtcTime(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
@@ -64,27 +72,12 @@ static void Io_SbgEllipseN_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     assert(huart == &huart1);
-    Io_SbgEllipseN_UartRxCallback();
-}
 
-static void Io_SbgEllipseN_UartRxCallback()
-{
-    // Add newly received data to queue
+    // Push newly received data to queue
     for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
     {
         App_RingQueue_Push(&rx_queue, uart_rx_buffer[i]);
     }
-
-    // Start waiting for UART packets again
-    Io_SbgEllipseN_WaitForUartPacket();
-}
-
-/*
- * Start receiving the next UART packet. HAL_UART_RxCpltCallback will be triggered when a full packet is received.
- */
-static void Io_SbgEllipseN_WaitForUartPacket(void)
-{
-    HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
 }
 
 /*
@@ -96,9 +89,6 @@ static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface)
 {
     sbgInterfaceNameSet(interface, "SBG Ellipse N Sensor");
 
-    // TODO: Do we need more of these? Is this why it's faulting?
-    interface->handle        = NULL;
-    interface->handle        = NULL;
     interface->type          = SBG_IF_TYPE_UNKNOW;
     interface->pDestroyFunc  = NULL;
     interface->pWriteFunc    = NULL;
@@ -116,6 +106,7 @@ static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, s
 {
     UNUSED(interface);
 
+    vPortEnterCritical(); // Disable interrupts so UART RX callback won't push data while we're popping
     *read_bytes = 0;
 
     // Read all available data from the RX queue, up to the requested amount
@@ -131,10 +122,11 @@ static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, s
         }
 
         ((uint8_t *)buffer)[i] = data;
-        *read_bytes            = *read_bytes + 1;
+        *read_bytes += 1;
         i++;
     }
 
+    vPortExitCritical();
     return SBG_NO_ERROR;
 }
 
@@ -159,17 +151,22 @@ SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
         {
             case SBG_ECOM_LOG_IMU_DATA:
             {
-                Io_SbgEllipseN_ProcessImuMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessMsg_Imu(msg_class, msg_id, log_data);
                 break;
             }
             case SBG_ECOM_LOG_EKF_EULER:
             {
-                Io_SbgEllipseN_ProcessEulerAnglesMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessMsg_EulerAngles(msg_class, msg_id, log_data);
                 break;
             }
             case SBG_ECOM_LOG_STATUS:
             {
-                Io_SbgEllipseN_ProcessStatusMsg(msg_class, msg_id, log_data);
+                Io_SbgEllipseN_ProcessMsg_Status(msg_class, msg_id, log_data);
+                break;
+            }
+            case SBG_ECOM_LOG_UTC_TIME:
+            {
+                Io_SbgEllipseN_ProcessMsg_UtcTime(msg_class, msg_id, log_data);
                 break;
             }
             default:
@@ -186,7 +183,7 @@ SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void Io_SbgEllipseN_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+static void Io_SbgEllipseN_ProcessMsg_Imu(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_IMU_DATA);
@@ -206,26 +203,38 @@ static void Io_SbgEllipseN_ProcessImuMsg(SbgEComClass msg_class, SbgEComMsgId ms
  * Process and save a new euler angles msg.
  */
 static void
-    Io_SbgEllipseN_ProcessEulerAnglesMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+    Io_SbgEllipseN_ProcessMsg_EulerAngles(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_EKF_EULER);
 
     // Save euler angle data, in rad
-    gps_data.euler_data.euler_angles.roll  = log_data->ekfEulerData.euler[0];
-    gps_data.euler_data.euler_angles.pitch = log_data->ekfEulerData.euler[1];
-    gps_data.euler_data.euler_angles.yaw   = log_data->ekfEulerData.euler[2];
+    gps_data.euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
+    gps_data.euler_data.euler_angles.pitch = RAD_TO_DEG(log_data->ekfEulerData.euler[1]);
+    gps_data.euler_data.euler_angles.yaw   = RAD_TO_DEG(log_data->ekfEulerData.euler[2]);
 }
 
 /*
  * Process and save a new status msg.
  */
-static void Io_SbgEllipseN_ProcessStatusMsg(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+static void Io_SbgEllipseN_ProcessMsg_Status(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
 {
     assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
     assert(msg == SBG_ECOM_LOG_STATUS);
 
     // TODO: Finish this message
+}
+
+/*
+ * Process and save a UTC time msg.
+ */
+static void
+    Io_SbgEllipseN_ProcessMsg_UtcTime(SbgEComClass msg_class, SbgEComMsgId msg, const SbgBinaryLogData *log_data)
+{
+    assert(msg_class == SBG_ECOM_CLASS_LOG_ECOM_0);
+    assert(msg == SBG_ECOM_LOG_UTC_TIME);
+
+    gps_data.utc_data.timestamp_us = log_data->utcData.timeStamp;
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
@@ -250,7 +259,7 @@ bool Io_SbgEllipseN_Init()
     App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
 
     // Start waiting for UART packets
-    Io_SbgEllipseN_WaitForUartPacket();
+    HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }
@@ -258,12 +267,19 @@ bool Io_SbgEllipseN_Init()
 void Io_SbgEllipseN_HandleLogs()
 {
     // Handle a single log. Calls the pReadFunc set in sbgInterfaceSerialCreate to get new data and attempts to parse
-    // the log. If successful, the the receive log callback function set in init is triggered. If the log is incomplete,
-    // the data will be saved to a buffer to be once more data is received.
+    // the log. If successful, the the receive log callback function set in init is triggered for each log. If the log
+    // is incomplete, the data will be saved to a buffer to be used once more data is received.
     sbgEComHandle(&com_handle);
 }
 
 void Io_SbgEllipseN_GetAttitude(Attitude *attitude)
 {
-    *attitude = gps_data.euler_data.euler_angles;
+    attitude->roll  = gps_data.euler_data.euler_angles.roll;
+    attitude->pitch = gps_data.euler_data.euler_angles.pitch;
+    attitude->yaw   = gps_data.euler_data.euler_angles.yaw;
+}
+
+uint32_t Io_SbgEllipseN_GetTimestamp()
+{
+    return gps_data.utc_data.timestamp_us;
 }
