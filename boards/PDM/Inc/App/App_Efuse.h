@@ -8,8 +8,12 @@ struct Efuse;
 
 /**
  *
- * @param io_efuse_channel0 Io_Efuse Enum value for channel 0
- * @param io_efuse_channel1 Io_Efuse Enum value for channel 1
+ * @param io_efuse_channel0 IO enum constant to know which efuse channel is referenced
+ * @param io_efuse_channel1 IO enum constant to know which efuse channel is referenced
+ * @param set_channel IO Function pointer to enable channel
+ * @param is_channel_enabled IO Function pointer to see if efuse channel is enabled
+ * @param get_channel_current IO Function pointer to get efuse channel current
+ * @param standby_reset IO Function pointer to standby reset an efuse
  * @param channel_0_min_current Minimum acceptable current for channel 0
  * @param channel_0_max_current Maximum acceptable current for channel 0
  * @param channel_1_min_current Minimum acceptable current for channel 1
@@ -18,13 +22,17 @@ struct Efuse;
  * @return
  */
 struct Efuse *App_Efuse_Create(
-    EfuseChannel io_efuse_channel0,
-    EfuseChannel io_efuse_channel1,
-    float        channel_0_min_current,
-    float        channel_0_max_current,
-    float        channel_1_min_current,
-    float        channel_1_max_current,
-    int          max_reset_attempts);
+        EfuseChannel io_efuse_channel0,
+        EfuseChannel io_efuse_channel1,
+        void        (*set_channel)(EfuseChannel, bool),
+        bool        (*is_channel_enabled)(EfuseChannel),
+        float       (*get_channel_current)(EfuseChannel),
+        void        (*standby_reset)(EfuseChannel),
+        float        channel_0_min_current,
+        float        channel_0_max_current,
+        float        channel_1_min_current,
+        float        channel_1_max_current,
+        int          max_reset_attempts);
 
 /**
  * Destroys the Efuse structure.

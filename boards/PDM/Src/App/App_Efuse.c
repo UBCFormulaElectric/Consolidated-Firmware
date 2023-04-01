@@ -5,6 +5,10 @@ struct Efuse
 {
     EfuseChannel io_efuse_channel0;
     EfuseChannel io_efuse_channel1;
+    void        (*set_channel)(EfuseChannel, bool);
+    bool        (*is_channel_enabled)(EfuseChannel);
+    float       (*get_channel_current)(EfuseChannel);
+    void        (*standby_reset)(EfuseChannel);
     float        channel_0_min_current;
     float        channel_0_max_current;
     float        channel_1_min_current;
@@ -21,6 +25,10 @@ struct Efuse
 struct Efuse *App_Efuse_Create(
     EfuseChannel io_efuse_channel0,
     EfuseChannel io_efuse_channel1,
+    void        (*set_channel)(EfuseChannel, bool),
+    bool        (*is_channel_enabled)(EfuseChannel),
+    float       (*get_channel_current)(EfuseChannel),
+    void        (*standby_reset)(EfuseChannel),
     float        channel_0_min_current,
     float        channel_0_max_current,
     float        channel_1_min_current,
@@ -32,12 +40,16 @@ struct Efuse *App_Efuse_Create(
 
     efuse->io_efuse_channel0     = io_efuse_channel0;
     efuse->io_efuse_channel1     = io_efuse_channel1;
+    efuse->set_channel           = set_channel;
+    efuse->is_channel_enabled    = is_channel_enabled;
+    efuse->get_channel_current   = get_channel_current;
+    efuse->standby_reset         = standby_reset;
     efuse->channel_0_min_current = channel_0_min_current;
     efuse->channel_0_max_current = channel_0_max_current;
     efuse->channel_1_min_current = channel_1_min_current;
     efuse->channel_1_max_current = channel_1_max_current;
-    efuse->max_reset_attempts    = max_reset_attempts;
 
+    efuse->max_reset_attempts    = max_reset_attempts;
     efuse->num_attempts_channel_0      = 0;
     efuse->num_attempts_channel_1      = 0;
     efuse->has_timer_started_channel_0 = false;
@@ -56,37 +68,37 @@ void App_Efuse_Destroy(struct Efuse *efuse)
 
 void App_Efuse_EnableChannel0(struct Efuse *efuse, bool status)
 {
-    Io_Efuse_SetChannel(efuse->io_efuse_channel0, status);
+    efuse->set_channel(efuse->io_efuse_channel0, status);
 }
 
 void App_Efuse_EnableChannel1(struct Efuse *efuse, bool status)
 {
-    Io_Efuse_SetChannel(efuse->io_efuse_channel1, status);
+    efuse->set_channel(efuse->io_efuse_channel1, status);
 }
 
 bool App_Efuse_IsChannel0Enabled(struct Efuse *efuse)
 {
-    return Io_Efuse_IsChannelEnabled(efuse->io_efuse_channel0);
+    return efuse->is_channel_enabled(efuse->io_efuse_channel0);
 }
 
 bool App_Efuse_IsChannel1Enabled(struct Efuse *efuse)
 {
-    return Io_Efuse_IsChannelEnabled(efuse->io_efuse_channel1);
+    return efuse->is_channel_enabled(efuse->io_efuse_channel1);
 }
 
 void App_Efuse_StandbyReset(struct Efuse *efuse)
 {
-    Io_Efuse_StandbyReset(efuse->io_efuse_channel0);
+    efuse->standby_reset(efuse->io_efuse_channel0);
 }
 
 float App_Efuse_GetChannel0Current(struct Efuse *efuse)
 {
-    return Io_Efuse_GetChannelCurrent(efuse->io_efuse_channel0);
+    return efuse->get_channel_current(efuse->io_efuse_channel0);
 }
 
 float App_Efuse_GetChannel1Current(struct Efuse *efuse)
 {
-    return Io_Efuse_GetChannelCurrent(efuse->io_efuse_channel1);
+    return efuse->get_channel_current(efuse->io_efuse_channel1);
 }
 
 bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse)
