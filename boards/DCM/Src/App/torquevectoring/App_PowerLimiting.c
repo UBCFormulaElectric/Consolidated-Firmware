@@ -15,7 +15,7 @@ float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
     // ============== Calculate max powers =================
     // 1. Motor Temps
     float P_max_motor_temps = POWER_LIMIT_CAR_kW;
-    if (max_motor_temp >= 130.0)
+    if (max_motor_temp >= 120.0)
     {
         P_max_motor_temps = 0.0;
     } else if (max_motor_temp > MOTOR_TEMP_CUTOFF_c)
