@@ -29,10 +29,10 @@ FAKE_VALUE_FUNC(float, GetVbatVoltage);
 FAKE_VALUE_FUNC(float, Get22vAuxVoltage);
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
 
-FAKE_VOID_FUNC(EfuseSetChannelPointer);
-FAKE_VALUE_FUNC(bool, EfuseIsChannelEnabledPointer);
-FAKE_VALUE_FUNC(float, EfuseGetChannelCurrentPointer);
-FAKE_VOID_FUNC(EfuseStandbyResetPointer)
+FAKE_VOID_FUNC(EfuseSetChannelPointer, EfuseChannel, bool);
+FAKE_VALUE_FUNC(bool, EfuseIsChannelEnabledPointer, EfuseChannel);
+FAKE_VALUE_FUNC(float, EfuseGetChannelCurrentPointer, EfuseChannel);
+FAKE_VOID_FUNC(EfuseStandbyResetPointer, EfuseChannel);
 
 FAKE_VALUE_FUNC(int, Efuse1MaxAttempts);
 FAKE_VALUE_FUNC(int, Efuse2MaxAttempts);
@@ -111,6 +111,10 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(Efuse2MaxAttempts);
         RESET_FAKE(Efuse3MaxAttempts);
         RESET_FAKE(Efuse4MaxAttempts);
+        RESET_FAKE(EfuseSetChannelPointer);
+        RESET_FAKE(EfuseIsChannelEnabledPointer);
+        RESET_FAKE(EfuseGetChannelCurrentPointer);
+        RESET_FAKE(EfuseStandbyResetPointer);
     }
 
     void TearDown() override
