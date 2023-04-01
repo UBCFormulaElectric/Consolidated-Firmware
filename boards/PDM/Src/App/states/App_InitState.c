@@ -31,9 +31,10 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
 
     Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
+    App_CanTx_PDM_Vitals_State_Set(PDM_STATE_INIT);
 }
 
-void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+void InitErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct LowVoltageBattery *LVB)
 {
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultCheckChannel0(efuse1));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultCheckChannel1(efuse1));
@@ -43,22 +44,28 @@ void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, stru
     App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultCheckChannel1(efuse3));
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultCheckChannel0(efuse4));
     App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultCheckChannel1(efuse4));
+
+    App_CanTx_PDM_LowVoltageBattery_Faults_Charge_Fault_Set(App_LowVoltageBattery_HasChargeFault(LVB));
+    App_CanTx_PDM_LowVoltageBattery_Faults_Boost_Fault_Set(App_LowVoltageBattery_HasBoostControllerFault(LVB));
 }
 
 bool InitFaultDetection(
-    struct Efuse *         efuse1,
-    struct Efuse *         efuse2,
-    struct Efuse *         efuse3,
-    struct Efuse *         efuse4,
-    struct RailMonitoring *rail_monitor)
+        struct Efuse *         efuse1,
+        struct Efuse *         efuse2,
+        struct Efuse *         efuse3,
+        struct Efuse *         efuse4,
+        struct RailMonitoring *rail_monitor,
+        struct LowVoltageBattery *LVB)
 {
     if (App_Efuse_FaultCheckChannel0(efuse1) == false && // AIR
         App_Efuse_FaultCheckChannel0(efuse2) == false && // EMETER
         App_Efuse_FaultCheckChannel0(efuse3) == false && // LEFT INVERTER
         App_Efuse_FaultCheckChannel1(efuse3) == false && // RIGHT INVERTER
-        !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
-        !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
-        !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor))
+        !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) && // VBAT LOW
+        !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) && // ACC LOW
+        !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor) && // AUX LOW
+        !App_LowVoltageBattery_HasChargeFault(LVB) && // CHARGE FAULT
+        !App_LowVoltageBattery_HasBoostControllerFault(LVB)) // BOOST FAULT
         return false; // No Error
     return true;      // Error
 }
@@ -74,14 +81,15 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
     struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct LowVoltageBattery *LVB       = App_PdmWorld_GetLowVoltageBattery(world);
     struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
     struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
     struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
     bool                   has_fault;
 
-    has_fault = InitFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
-    Efuse_ErrorsWarnings_CANTX(efuse1, efuse2, efuse3, efuse4);
+    has_fault = InitFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor, LVB);
+    InitErrorsWarningsCANTX(efuse1, efuse2, efuse3, efuse4, LVB);
 
     if (has_fault)
     {
