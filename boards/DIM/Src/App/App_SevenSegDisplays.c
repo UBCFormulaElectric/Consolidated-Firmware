@@ -75,7 +75,7 @@ void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, uint8_t i
         hex_digit.enabled = true;
         hex_digit.value   = digits[i];
 
-        App_SevenSegDisplay_SetHexDigit(seven_seg_displays->displays[i], hex_digit);
+        App_SevenSegDisplay_SetHexDigit(seven_seg_displays->displays[i], hex_digit, i);
     }
 
     seven_seg_displays->display_value_callback();
@@ -121,8 +121,8 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = 6;
-    for (int digits_index = shift; digits_index + shift> NUM_IN_GROUP ; digits_index--)
+    int shift = 5;
+    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;
@@ -153,7 +153,7 @@ ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const sev
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
     int shift = 8;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP ; digits_index--)
+    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;

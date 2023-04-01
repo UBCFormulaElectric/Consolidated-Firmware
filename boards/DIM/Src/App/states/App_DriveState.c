@@ -103,9 +103,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, 0x5F5E100);
-        App_SevenSegDisplays_SetGroupM(seven_seg_displays, 0x0);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, 0x0);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, 323);
+        App_SevenSegDisplays_SetGroupM(seven_seg_displays, 456);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, 789);
     }
 }
 
