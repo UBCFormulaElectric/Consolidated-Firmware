@@ -50,8 +50,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 
-    App_SbgEllipseN_HandleLogs();
-    App_SbgEllipseN_Broadcast();
+    //    App_SbgEllipseN_HandleLogs();
+    //    App_SbgEllipseN_Broadcast();
 
     return status;
 }

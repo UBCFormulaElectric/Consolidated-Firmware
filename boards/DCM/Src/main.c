@@ -65,6 +65,8 @@
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
 
+IWDG_HandleTypeDef hiwdg;
+
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef  hdma_usart1_rx;
 DMA_HandleTypeDef  hdma_usart1_tx;
@@ -99,6 +101,7 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_CAN1_Init(void);
+static void MX_IWDG_Init(void);
 static void MX_USART1_UART_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
@@ -156,6 +159,7 @@ int main(void)
     MX_GPIO_Init();
     MX_DMA_Init();
     MX_CAN1_Init();
+    MX_IWDG_Init();
     MX_USART1_UART_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -268,8 +272,9 @@ void SystemClock_Config(void)
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -327,6 +332,32 @@ static void MX_CAN1_Init(void)
     }
     /* USER CODE BEGIN CAN1_Init 2 */
     /* USER CODE END CAN1_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
