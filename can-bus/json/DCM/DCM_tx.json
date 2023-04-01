@@ -1,7 +1,7 @@
 {
     "DCM_Vitals": {
         "msg_id": 203,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "DCM Heartbeat signal",
         "signals": {
             "Heartbeat": {
