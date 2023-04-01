@@ -28,13 +28,11 @@ FAKE_VOID_FUNC(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT, const struct CanMsgs_
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
 FAKE_VALUE_FUNC(float, Get22vAuxVoltage);
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
-FAKE_VALUE_FUNC(float, GetAux1Current);
-FAKE_VALUE_FUNC(float, GetAux2Current);
-FAKE_VALUE_FUNC(float, GetLeftInverterCurrent);
-FAKE_VALUE_FUNC(float, GetRightInverterCurrent);
-FAKE_VALUE_FUNC(float, GetEnergyMeterCurrent);
-FAKE_VALUE_FUNC(float, GetCanCurrent);
-FAKE_VALUE_FUNC(float, GetAirShutdownCurrent);
+
+FAKE_VOID_FUNC(EfuseSetChannelPointer);
+FAKE_VALUE_FUNC(bool, EfuseIsChannelEnabledPointer);
+FAKE_VALUE_FUNC(float, EfuseGetChannelCurrentPointer);
+FAKE_VOID_FUNC(EfuseStandbyResetPointer)
 
 FAKE_VALUE_FUNC(int, Efuse1MaxAttempts);
 FAKE_VALUE_FUNC(int, Efuse2MaxAttempts);
@@ -71,17 +69,18 @@ class PdmStateMachineTest : public BaseStateMachineTest
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
         efuse1 = App_Efuse_Create(
-            EFUSE_CHANNEL_AIR, EFUSE_CHANNEL_LVPWR, EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT,
-            EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT, Efuse1MaxAttempts());
+                EFUSE_CHANNEL_AIR, EFUSE_CHANNEL_LVPWR,
+                EfuseSetChannelPointer, EfuseIsChannelEnabledPointer, EfuseGetChannelCurrentPointer, EfuseStandbyResetPointer,
+                EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT, EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT, Efuse1MaxAttempts());
         efuse2 = App_Efuse_Create(
-            EFUSE_CHANNEL_EMETER, EFUSE_CHANNEL_AUX, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT,
+            EFUSE_CHANNEL_EMETER, EFUSE_CHANNEL_AUX, EfuseSetChannelPointer, EfuseIsChannelEnabledPointer, EfuseGetChannelCurrentPointer, EfuseStandbyResetPointer, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT,
             EFUSE2_EMETER_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, Efuse2MaxAttempts());
         efuse3 = App_Efuse_Create(
-            EFUSE_CHANNEL_DI_LHS, EFUSE_CHANNEL_DI_RHS, EFUSE3_LEFT_INVERTER_MIN_CURRENT,
+            EFUSE_CHANNEL_DI_LHS, EFUSE_CHANNEL_DI_RHS, EfuseSetChannelPointer, EfuseIsChannelEnabledPointer, EfuseGetChannelCurrentPointer, EfuseStandbyResetPointer, EFUSE3_LEFT_INVERTER_MIN_CURRENT,
             EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT,
             Efuse3MaxAttempts());
         efuse4 = App_Efuse_Create(
-            EFUSE_CHANNEL_DRS, EFUSE_CHANNEL_FAN, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT,
+            EFUSE_CHANNEL_DRS, EFUSE_CHANNEL_FAN, EfuseSetChannelPointer, EfuseIsChannelEnabledPointer, EfuseGetChannelCurrentPointer, EfuseStandbyResetPointer, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT,
             EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT, Efuse4MaxAttempts());
 
         rail_monitor = App_RailMonitoring_Create(GetVbatVoltage, Get24vAccVoltage, Get22vAuxVoltage);
@@ -101,13 +100,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(GetVbatVoltage);
         RESET_FAKE(Get22vAuxVoltage);
         RESET_FAKE(Get24vAccVoltage);
-        RESET_FAKE(GetAux1Current);
-        RESET_FAKE(GetAux2Current);
-        RESET_FAKE(GetLeftInverterCurrent);
-        RESET_FAKE(GetRightInverterCurrent);
-        RESET_FAKE(GetEnergyMeterCurrent);
-        RESET_FAKE(GetCanCurrent);
-        RESET_FAKE(GetAirShutdownCurrent);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
