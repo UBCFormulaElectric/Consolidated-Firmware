@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "states/App_DriveState.h"
 #include "App_SharedConstants.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
@@ -18,14 +19,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct FsmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
     struct HeartbeatMonitor *hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
     static uint8_t           error_count = 0;
-
-    App_CanTx_FSM_Vitals_Heartbeat_Set(true);
-
-    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
-    }
 
     // Check for torque plausibility
     // TODO: JSONCAN
@@ -59,6 +52,14 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set((uint16_t)
     // App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set((uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
+
+    // Heartbeat Communication
+    App_CanTx_FSM_Vitals_Heartbeat_Set(true);
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+    }
 
     const bool hb_monitor_status_ok = App_SharedHeartbeatMonitor_Tick(hb_monitor);
     App_CanTx_FSM_Warnings_MissingHeartbeat_Set(!hb_monitor_status_ok);

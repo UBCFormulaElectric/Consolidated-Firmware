@@ -31,16 +31,22 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
         struct BmsWorld *      world = App_SharedStateMachine_GetWorld(state_machine);
+#ifndef BSPD_DEMO_MODE
         struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
         struct Airs *          airs  = App_BmsWorld_GetAirs(world);
-
-#ifndef BSPD_DEMO_MODE
         // don't allow pre_charge if in BSPD_DEMO_MODE
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
         }
 #endif
+//      #else?
+        struct HeartbeatMonitor * hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
+        const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
+        if( is_missing_hb ){
+            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        }
     }
 }
 
