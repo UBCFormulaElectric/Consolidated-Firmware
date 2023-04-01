@@ -306,5 +306,19 @@
                 "resolution": 0.1
             }
         }
+    },
+    "DCM_DEBUG_PowerLimiting": {
+        "msg_id": 210,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Power Limiting component of Torque Vectoring",
+        "signals":{
+            "PowerLimit":{
+                "min": 0,
+                "max": 90,
+                "resolution": 0.1
+            }
+        }
+
     }
+
 }
