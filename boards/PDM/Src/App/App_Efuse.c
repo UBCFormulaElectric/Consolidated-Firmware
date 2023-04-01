@@ -5,10 +5,10 @@ struct Efuse
 {
     EfuseChannel io_efuse_channel0;
     EfuseChannel io_efuse_channel1;
-    void        (*set_channel)(EfuseChannel, bool);
-    bool        (*is_channel_enabled)(EfuseChannel);
-    float       (*get_channel_current)(EfuseChannel);
-    void        (*standby_reset)(EfuseChannel);
+    void (*set_channel)(EfuseChannel, bool);
+    bool (*is_channel_enabled)(EfuseChannel);
+    float (*get_channel_current)(EfuseChannel);
+    void (*standby_reset)(EfuseChannel);
     float        channel_0_min_current;
     float        channel_0_max_current;
     float        channel_1_min_current;
@@ -25,15 +25,15 @@ struct Efuse
 struct Efuse *App_Efuse_Create(
     EfuseChannel io_efuse_channel0,
     EfuseChannel io_efuse_channel1,
-    void        (*set_channel)(EfuseChannel, bool),
-    bool        (*is_channel_enabled)(EfuseChannel),
-    float       (*get_channel_current)(EfuseChannel),
-    void        (*standby_reset)(EfuseChannel),
-    float        channel_0_min_current,
-    float        channel_0_max_current,
-    float        channel_1_min_current,
-    float        channel_1_max_current,
-    int          max_reset_attempts)
+    void (*set_channel)(EfuseChannel, bool),
+    bool (*is_channel_enabled)(EfuseChannel),
+    float (*get_channel_current)(EfuseChannel),
+    void (*standby_reset)(EfuseChannel),
+    float channel_0_min_current,
+    float channel_0_max_current,
+    float channel_1_min_current,
+    float channel_1_max_current,
+    int   max_reset_attempts)
 {
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
@@ -49,7 +49,7 @@ struct Efuse *App_Efuse_Create(
     efuse->channel_1_min_current = channel_1_min_current;
     efuse->channel_1_max_current = channel_1_max_current;
 
-    efuse->max_reset_attempts    = max_reset_attempts;
+    efuse->max_reset_attempts          = max_reset_attempts;
     efuse->num_attempts_channel_0      = 0;
     efuse->num_attempts_channel_1      = 0;
     efuse->has_timer_started_channel_0 = false;

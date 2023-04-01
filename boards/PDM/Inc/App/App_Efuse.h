@@ -22,17 +22,17 @@ struct Efuse;
  * @return
  */
 struct Efuse *App_Efuse_Create(
-        EfuseChannel io_efuse_channel0,
-        EfuseChannel io_efuse_channel1,
-        void        (*set_channel)(EfuseChannel, bool),
-        bool        (*is_channel_enabled)(EfuseChannel),
-        float       (*get_channel_current)(EfuseChannel),
-        void        (*standby_reset)(EfuseChannel),
-        float        channel_0_min_current,
-        float        channel_0_max_current,
-        float        channel_1_min_current,
-        float        channel_1_max_current,
-        int          max_reset_attempts);
+    EfuseChannel io_efuse_channel0,
+    EfuseChannel io_efuse_channel1,
+    void (*set_channel)(EfuseChannel, bool),
+    bool (*is_channel_enabled)(EfuseChannel),
+    float (*get_channel_current)(EfuseChannel),
+    void (*standby_reset)(EfuseChannel),
+    float channel_0_min_current,
+    float channel_0_max_current,
+    float channel_1_min_current,
+    float channel_1_max_current,
+    int   max_reset_attempts);
 
 /**
  * Destroys the Efuse structure.
