@@ -7,7 +7,9 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_LowVoltageBattery.h"
+#include "App_RailMonitoring.h"
 #include "App_SharedClock.h"
+#include "App_Efuse.h"
 
 struct PdmWorld;
 
@@ -21,93 +23,21 @@ struct PdmWorld;
  *         caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct InRangeCheck *     vbat_voltage_in_range_check,
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check,
-    struct InRangeCheck *     _24v_acc_voltage_in_range_check,
-    struct InRangeCheck *     aux1_current_in_range_check,
-    struct InRangeCheck *     aux2_current_in_range_check,
-    struct InRangeCheck *     left_inverter_current_in_range_check,
-    struct InRangeCheck *     right_inverter_current_in_range_check,
-    struct InRangeCheck *     energy_meter_current_in_range_check,
-    struct InRangeCheck *     can_current_in_range_check,
-    struct InRangeCheck *     air_shutdown_current_in_range_check,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct LowVoltageBattery *low_voltage_battery,
-    struct Clock *            clock);
+    struct Clock *            clock,
+    struct Efuse *            efuse1,
+    struct Efuse *            efuse2,
+    struct Efuse *            efuse3,
+    struct Efuse *            efuse4,
+    struct RailMonitoring *   rail_monitor);
 
 /**
  * Deallocate the memory used by the given world
  * @param world The world to deallocate
  */
 void App_PdmWorld_Destroy(struct PdmWorld *world);
-
-/**
- * Get the VBAT voltage in-range check for the given world
- * @param world The world to get VBAT voltage in-range check for
- * @return The VBAT voltage in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetVbatVoltageInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the 24V AUX voltage in-range check for the given world
- * @param world The world to get 24V AUX voltage in-range check for
- * @return The 24V AUX voltage in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_Get24vAuxVoltageInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the 24V ACC voltage in-range check for the given world
- * @param world The world to get 24V ACC voltage in-range check for
- * @return The 24V ACC voltage in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_Get24vAccVoltageInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the auxiliary 1 current in-range check for the given world
- * @param world The world to get auxiliary 1 current in-range check for
- * @return The auxiliary 1 current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetAux1CurrentInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the auxiliary 2 current in-range check for the given world
- * @param world The world to get auxiliary 2 current in-range check for
- * @return The auxiliary 2 current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetAux2CurrentInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the left inverter current in-range check for the given world
- * @param world The world to get left inverter current in-range check for
- * @return The left inverter current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetLeftInverterCurrentInRangeCheck(const struct PdmWorld *world);
-/**
- * Get the right inverter current in-range check for the given world
- * @param world The world to get right inverter current in-range check for
- * @return The right inverter current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetRightInverterCurrentInRangeCheck(const struct PdmWorld *world);
-/**
- * Get the energy meter current in-range check for the given world
- * @param world The world to get energy meter current in-range check for
- * @return The energy meter current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetEnergyMeterCurrentInRangeCheck(const struct PdmWorld *world);
-/**
- * Get the CAN current in-range check for the given world
- * @param world The world to get CAN current in-range check for
- * @return The CAN current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetCanCurrentInRangeCheck(const struct PdmWorld *world);
-
-/**
- * Get the AIR shutdown current in-range check for the given world
- * @param world The world to get AIR shutdown current in-range check for
- * @return The AIR shutdown current in-range check for the given world
- */
-struct InRangeCheck *App_PdmWorld_GetAirShutdownCurrentInRangeCheck(const struct PdmWorld *world);
 
 /**
  * Get the heartbeat monitor for the given world
@@ -136,3 +66,38 @@ struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorl
  * @return The clock for the given world
  */
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *world);
+
+/**
+ * Gets Efuse1 for the given world
+ * @param world The world to get Efuse1 for
+ * @return The Efuse1 for the given world
+ */
+struct Efuse *App_PdmWorld_GetEfuse1(const struct PdmWorld *world);
+
+/**
+ * Gets Efuse2 for the given world
+ * @param world The world to get Efuse2 for
+ * @return The Efuse2 for the given world
+ */
+struct Efuse *App_PdmWorld_GetEfuse2(const struct PdmWorld *world);
+
+/**
+ * Gets Efuse3 for the given world
+ * @param world The world to get Efuse3 for
+ * @return The Efuse3 for the given world
+ */
+struct Efuse *App_PdmWorld_GetEfuse3(const struct PdmWorld *world);
+
+/**
+ * Gets Efuse4 for the given world
+ * @param world The world to get Efuse4 for
+ * @return The Efuse4 for the given world
+ */
+struct Efuse *App_PdmWorld_GetEfuse4(const struct PdmWorld *world);
+
+/**
+ * Rail Monitoring for the given world
+ * @param world The world to get Rail Monitoring for
+ * @return The Rail Monitoring for the given world
+ */
+struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *world);

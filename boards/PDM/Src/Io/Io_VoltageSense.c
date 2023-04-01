@@ -7,7 +7,7 @@ float Io_VoltageSense_GetVbatVoltage(void)
     return 7.0f;
 }
 
-float Io_VoltageSense_Get24vAuxVoltage(void)
+float Io_VoltageSense_Get22vAuxVoltage(void)
 {
     return 23.0f;
 }
