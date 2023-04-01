@@ -90,6 +90,15 @@ TEST(PowerLimitingTest, motor_temps_allow_no_power)
 }
 
 
+TEST(PowerLimitingTest, motor_temps_past_no_power_limit)
+{
+    PowerLimiting_Inputs test4_inputs = {130.0, 130.0, POWER_LIMIT_CAR_kW, 1.00};
+   float expected_power_limit_test4 = 0.0;
+   float actual_power_limit_test4 = App_PowerLimiting_ComputeMaxPower(&test4_inputs);
+   ASSERT_FLOAT_EQ(actual_power_limit_test4, expected_power_limit_test4);
+}
+
+
 TEST(PowerLimitingTest, motor_temps_allow_50kW)
 {
     PowerLimiting_Inputs test4_inputs = {101.25, 101.25, POWER_LIMIT_CAR_kW, 1.00};
