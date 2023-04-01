@@ -18,14 +18,18 @@ struct Efuse;
  * @return
  */
 struct Efuse *App_Efuse_Create(
-        EfuseChannel io_efuse_channel0,
-        EfuseChannel io_efuse_channel1,
-        float channel_0_min_current,
-        float channel_0_max_current,
-        float channel_1_min_current,
-        float channel_1_max_current,
-        int   max_reset_attempts);
+    EfuseChannel io_efuse_channel0,
+    EfuseChannel io_efuse_channel1,
+    float        channel_0_min_current,
+    float        channel_0_max_current,
+    float        channel_1_min_current,
+    float        channel_1_max_current,
+    int          max_reset_attempts);
 
+/**
+ * Destroys the Efuse structure.
+ * @param efuse
+ */
 void App_Efuse_Destroy(struct Efuse *efuse);
 
 /**
