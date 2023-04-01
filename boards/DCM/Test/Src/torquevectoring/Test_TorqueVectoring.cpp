@@ -10,9 +10,6 @@
 */
 
 #include "Test_Dcm.h"
-#include "App_SharedMacros.h"
-#include "App_CanRx.h"
-#include "App_CanTx.h"
 
 extern "C"
 {
@@ -21,6 +18,9 @@ extern "C"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
 #include "torquevectoring/App_TorqueVectoring.h"
 #include "math.h"
+#include "App_SharedMacros.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 }
 /**
  * Define SetUp and TearDown to be called before every TEST_F call
@@ -28,10 +28,13 @@ extern "C"
 class TorqueVectoringTest: public testing::Test
 {
 protected:
-    //TODO: Find out if this is necessary if no IO functions are called.
+
     void SetUp() override
     {
-        return;
+        App_CanTx_Init();
+        App_CanRx_Init();
+        App_TorqueVectoring_Setup();
+
     }
     void TearDown() override
     {
@@ -130,4 +133,51 @@ TEST_F(TorqueVectoringTest, right_motor_too_hot){
 
 //check the IO functions are being called the proper amount of times
 
+}
+TEST_F(TorqueVectoringTest, torque_lessthan_90_nM){
+    App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Update(100.0);
+    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(50.0);
+    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(50.0);
+    App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Update(135);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(135);
+    App_CanRx_BMS_TractiveSystem_TsCurrent_Update(100);
+    App_CanRx_BMS_TractiveSystem_TsVoltage_Update(390);
+    App_CanRx_INVL_Temperatures3_MotorTemperature_Update(60);
+    App_CanRx_INVR_Temperatures3_MotorTemperature_Update(60);
+    App_CanRx_BMS_AvailablePower_AvailablePower_Update(80);
+    App_CanRx_FSM_Steering_SteeringAngle_Update(30);
+    App_TorqueVectoring_Run();
+    float actual_torque_left_nM = App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get();
+    float actual_torque_right_nM = App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get();
+    ASSERT_TRUE(actual_torque_left_nM <= MOTOR_TORQUE_LIMIT_Nm);
+    ASSERT_TRUE(actual_torque_right_nM <= MOTOR_TORQUE_LIMIT_Nm);
+    ASSERT_TRUE(actual_torque_right_nM > 0);
+    ASSERT_TRUE(actual_torque_left_nM > 0);
+//check the IO functions are being called the proper amount of times
+
+}
+TEST_F(TorqueVectoringTest, torque_ratio_preserved){
+    float steering_angle = 30.0;
+    App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Update(100.0);
+    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(50.0);
+    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(50.0);
+    App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Update(135);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(135);
+    App_CanRx_BMS_TractiveSystem_TsCurrent_Update(100);
+    App_CanRx_BMS_TractiveSystem_TsVoltage_Update(390);
+    App_CanRx_INVL_Temperatures3_MotorTemperature_Update(60);
+    App_CanRx_INVR_Temperatures3_MotorTemperature_Update(60);
+    App_CanRx_BMS_AvailablePower_AvailablePower_Update(50);
+    App_CanRx_FSM_Steering_SteeringAngle_Update(steering_angle);
+    App_TorqueVectoring_Run();
+    float wheel_angle = steering_angle*APPROX_STEERING_TO_WHEEL_ANGLE;
+    float delta = TRACK_WIDTH_mm* tanf(DEG_TO_RAD(wheel_angle))/(2 * WHEELBASE_mm);
+    float cl = 1 + delta;
+    float cr = 1 - delta;
+    float expected_torque_ratio = cl/cr;
+    float actual_torque_left_nM = App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get();
+    float actual_torque_right_nM = App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get();
+    float actual_torque_ratio = actual_torque_left_nM/actual_torque_right_nM;
+    ASSERT_FLOAT_EQ(expected_torque_ratio, actual_torque_ratio);
+//check the IO functions are being called the proper amount of times
 }
