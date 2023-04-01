@@ -1,6 +1,9 @@
+
 #include <math.h>
 #include "Test_Pdm.h"
 #include "Test_BaseStateMachineTest.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
 
 extern "C"
 {
@@ -8,8 +11,8 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
 #include "states/App_InitState.h"
-#include "states/App_AirOpenState.h"
-#include "states/App_AirClosedState.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
 #include "configs/App_VoltageLimits.h"
 #include "configs/App_CurrentLimits.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -23,7 +26,7 @@ FAKE_VOID_FUNC(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN, const struct CanMsgs_pd
 FAKE_VOID_FUNC(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT, const struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
-FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
+FAKE_VALUE_FUNC(float, Get22vAuxVoltage);
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
 FAKE_VALUE_FUNC(float, GetAux1Current);
 FAKE_VALUE_FUNC(float, GetAux2Current);
@@ -32,6 +35,11 @@ FAKE_VALUE_FUNC(float, GetRightInverterCurrent);
 FAKE_VALUE_FUNC(float, GetEnergyMeterCurrent);
 FAKE_VALUE_FUNC(float, GetCanCurrent);
 FAKE_VALUE_FUNC(float, GetAirShutdownCurrent);
+
+FAKE_VALUE_FUNC(int, Efuse1MaxAttempts);
+FAKE_VALUE_FUNC(int, Efuse2MaxAttempts);
+FAKE_VALUE_FUNC(int, Efuse3MaxAttempts);
+FAKE_VALUE_FUNC(int, Efuse4MaxAttempts);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
@@ -50,32 +58,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        vbat_voltage_in_range_check = App_InRangeCheck_Create(GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
-
-        _24v_aux_voltage_in_range_check =
-            App_InRangeCheck_Create(Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
-
-        _24v_acc_voltage_in_range_check =
-            App_InRangeCheck_Create(Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
-
-        aux1_current_in_range_check = App_InRangeCheck_Create(GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
-
-        aux2_current_in_range_check = App_InRangeCheck_Create(GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
-
-        left_inverter_current_in_range_check =
-            App_InRangeCheck_Create(GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT);
-
-        right_inverter_current_in_range_check =
-            App_InRangeCheck_Create(GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT);
-
-        energy_meter_current_in_range_check =
-            App_InRangeCheck_Create(GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT);
-
-        can_current_in_range_check = App_InRangeCheck_Create(GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
-
-        air_shutdown_current_in_range_check =
-            App_InRangeCheck_Create(GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
@@ -86,11 +68,26 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
+        state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
+        efuse1 = App_Efuse_Create(
+                EFUSE_CHANNEL_AIR, EFUSE_CHANNEL_LVPWR, EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT,
+                EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT, Efuse1MaxAttempts);
+        efuse2 = App_Efuse_Create(
+                EFUSE_CHANNEL_EMETER, EFUSE_CHANNEL_AUX, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT,
+                EFUSE2_EMETER_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT, 0);
+        efuse3 = App_Efuse_Create(
+            EFUSE_CHANNEL_DI_LHS, EFUSE_CHANNEL_DI_RHS, EFUSE3_LEFT_INVERTER_MIN_CURRENT,
+            EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT, 0);
+        efuse4 = App_Efuse_Create(
+            EFUSE_CHANNEL_DRS, EFUSE_CHANNEL_FAN, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT,
+            EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT, 0);
+
+        rail_monitor = App_RailMonitoring_Create(GetVbatVoltage, Get24vAccVoltage, Get22vAuxVoltage);
+
         world = App_PdmWorld_Create(
-            vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
-            aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
-            right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
-            air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
+            heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock, efuse1, efuse2, efuse3, efuse4,
+            rail_monitor);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -101,7 +98,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN);
         RESET_FAKE(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
         RESET_FAKE(GetVbatVoltage);
-        RESET_FAKE(Get24vAuxVoltage);
+        RESET_FAKE(Get22vAuxVoltage);
         RESET_FAKE(Get24vAccVoltage);
         RESET_FAKE(GetAux1Current);
         RESET_FAKE(GetAux2Current);
@@ -117,26 +114,25 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_on_blue_led);
         RESET_FAKE(do_low_voltage_battery_have_charge_fault);
         RESET_FAKE(do_low_voltage_battery_have_boost_controller_fault);
+        RESET_FAKE(Efuse1MaxAttempts);
+        RESET_FAKE(Efuse2MaxAttempts);
+        RESET_FAKE(Efuse3MaxAttempts);
+        RESET_FAKE(Efuse4MaxAttempts);
     }
 
     void TearDown() override
     {
         TearDownObject(world, App_PdmWorld_Destroy);
-        TearDownObject(vbat_voltage_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux1_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux2_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(left_inverter_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(energy_meter_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(can_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(air_shutdown_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(efuse1, App_Efuse_Destroy);
+        TearDownObject(efuse2, App_Efuse_Destroy);
+        TearDownObject(efuse3, App_Efuse_Destroy);
+        TearDownObject(efuse4, App_Efuse_Destroy);
+        TearDownObject(rail_monitor, App_RailMonitoring_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -148,11 +144,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
     std::vector<const struct State *> GetAllStates(void)
     {
-        return std::vector<const struct State *>{
-            App_GetInitState(),
-            App_GetAirClosedState(),
-            App_GetAirOpenState(),
-        };
+        return std::vector<const struct State *>{ App_GetInitState(), App_GetDriveState(), App_GetFaultState() };
     }
 
     std::vector<const struct State *> GetAllStatesExceptForInit(void)
@@ -280,20 +272,15 @@ class PdmStateMachineTest : public BaseStateMachineTest
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
-    struct InRangeCheck *     vbat_voltage_in_range_check;
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-    struct InRangeCheck *     aux1_current_in_range_check;
-    struct InRangeCheck *     aux2_current_in_range_check;
-    struct InRangeCheck *     left_inverter_current_in_range_check;
-    struct InRangeCheck *     right_inverter_current_in_range_check;
-    struct InRangeCheck *     energy_meter_current_in_range_check;
-    struct InRangeCheck *     can_current_in_range_check;
-    struct InRangeCheck *     air_shutdown_current_in_range_check;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
     struct Clock *            clock;
+    struct Efuse *            efuse1;
+    struct Efuse *            efuse2;
+    struct Efuse *            efuse3;
+    struct Efuse *            efuse4;
+    struct RailMonitoring *   rail_monitor;
 };
 
 // PDM-21
@@ -307,7 +294,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
 //// PDM-21
 // TEST_F(PdmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
 //{
-//    SetInitialState(App_GetAirOpenState());
+//    SetInitialState(App_GetInitState());
 //
 //    EXPECT_EQ(CANMSGS_PDM_STATE_MACHINE_STATE_AIR_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 //}
@@ -315,7 +302,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
 //// PDM-21
 // TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 //{
-//    SetInitialState(App_GetAirClosedState());
+//    SetInitialState(App_GetDriveState());
 //
 //    EXPECT_EQ(CANMSGS_PDM_STATE_MACHINE_STATE_AIR_CLOSED_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 //}
@@ -529,62 +516,62 @@ TEST_F(PdmStateMachineTest, rgb_led_sequence_in_all_states)
 // PDM-17
 TEST_F(PdmStateMachineTest, exit_air_open_state_when_air_positive_and_air_negative_are_closed)
 {
-    SetInitialState(App_GetAirOpenState());
+    SetInitialState(App_GetInitState());
 
     App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
     App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(App_GetAirClosedState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // PDM-17
 TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_positive_is_closed)
 {
-    SetInitialState(App_GetAirOpenState());
+    SetInitialState(App_GetInitState());
 
     App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
     App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // PDM-17
 TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_negative_is_closed)
 {
-    SetInitialState(App_GetAirOpenState());
+    SetInitialState(App_GetInitState());
 
     App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
     App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // PDM-20
 TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
 {
-    SetInitialState(App_GetAirClosedState());
+    SetInitialState(App_GetDriveState());
 
     App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
 
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // PDM-20
 TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 {
-    SetInitialState(App_GetAirClosedState());
+    SetInitialState(App_GetDriveState());
 
     App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
     App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 //// PDM-4
