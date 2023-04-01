@@ -29,7 +29,13 @@ uint32_t Io_SbgEllipseN_GetTimestampUs(void);
 float Io_SbgEllipseN_GetSensorOutput(SbgSensorOutput output);
 
 /*
- * Whether or not sensor's status is OK.
- * @return True if OK, false if not
+ * Get general status from the sensor.
+ * @return Bitmask of faults, 1 indiciates a fault
  */
-bool Io_SbgEllipseN_StatusOk(void);
+uint16_t Io_SbgEllipseN_GetGeneralStatus(void);
+
+/*
+ * Get communication status from the sensor.
+ * @return Bitmask of faults, 0 indiciates a fault
+ */
+uint32_t Io_SbgEllipseN_GetComStatus(void);

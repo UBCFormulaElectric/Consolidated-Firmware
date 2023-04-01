@@ -167,28 +167,102 @@
             }
         }
     },
-    "DCM_SbgEllipseSensor": {
-        "msg_id": 205,
-        "cycle_time": 10,
-        "description": "Message for data from the SBG Ellipse N IMU/GPS sensor.",
+    "DCM_SbgEllipseStatus": {
+        "msg_id": 208,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N IMU/GPS sensor.",
+        "signals": {
+            "GeneralStatusBitmask": {
+                "bits": 16
+            },
+            "ComStatusBitmask": {
+                "bits": 32
+            }
+        }
+    },
+    "DCM_SbgEllipseTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N IMU/GPS sensor.",
         "signals": {
             "Timestamp": {
-                "bits": 32
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
+    "DCM_SbgEllipseAcceleration": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Acceleration from the SBG Ellipse N IMU/GPS sensor.",
+        "signals": {
+            "Forward": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
             },
+            "Lateral": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "Vertical": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "DCM_SbgEllipseAngularVelocity": {
+        "msg_id": 206,
+        "cycle_time": 10,
+        "description": "Angular velocity from the SBG Ellipse N IMU/GPS sensor.",
+        "signals": {
+            "Roll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Pitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Yaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "DCM_SbgEllipseEulerAngles": {
+        "msg_id": 207,
+        "cycle_time": 10,
+        "description": "Euler angles from the SBG Ellipse N IMU/GPS sensor.",
+        "signals": {
             "Roll": {
                 "min": -180,
                 "max": 180,
-                "resolution": 1
+                "resolution": 0.1,
+                "unit": "deg"
             },
             "Pitch": {
                 "min": -180,
                 "max": 180,
-                "resolution": 1
+                "resolution": 0.1,
+                "unit": "deg"
             },
             "Yaw": {
                 "min": -180,
                 "max": 180,
-                "resolution": 1
+                "resolution": 0.1,
+                "unit": "deg"
             }
         }
     }

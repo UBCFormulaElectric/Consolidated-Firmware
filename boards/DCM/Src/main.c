@@ -69,7 +69,6 @@ IWDG_HandleTypeDef hiwdg;
 
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef  hdma_usart1_rx;
-DMA_HandleTypeDef  hdma_usart1_tx;
 
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[4096];
@@ -187,6 +186,10 @@ int main(void)
     imu = App_Imu_Create(
         Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
         MAX_ACCELERATION_MS2);
+
+    App_SbgEllipseN_Init(
+        Io_SbgEllipseN_HandleLogs, Io_SbgEllipseN_GetTimestampUs, Io_SbgEllipseN_GetGeneralStatus,
+        Io_SbgEllipseN_GetComStatus, Io_SbgEllipseN_GetSensorOutput);
 
     clock = App_SharedClock_Create();
 
@@ -407,9 +410,6 @@ static void MX_DMA_Init(void)
     /* DMA2_Stream2_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
-    /* DMA2_Stream7_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 }
 
 /**

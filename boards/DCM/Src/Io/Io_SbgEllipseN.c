@@ -71,9 +71,9 @@ float *sensor_output_map[NUM_SBG_OUTPUTS] = {
     [SBG_OUTPUT_ANGULAR_VELOCITY_PITCH] = &sensor_data.imu_data.angular_velocity.pitch,
     [SBG_OUTPUT_ANGULAR_VELOCITY_YAW]   = &sensor_data.imu_data.angular_velocity.yaw,
 
-    [SBG_OUTPUT_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
-    [SBG_OUTPUT_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
-    [SBG_OUTPUT_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
+    [SBG_OUTPUT_EULER_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
+    [SBG_OUTPUT_EULER_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
+    [SBG_OUTPUT_EULER_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
 };
 
 /* ------------------------- Static Function Prototypes -------------------------- */
@@ -286,9 +286,12 @@ float Io_SbgEllipseN_GetSensorOutput(SbgSensorOutput output)
     return *(sensor_output_map[output]);
 }
 
-bool Io_SbgEllipseN_StatusOk()
+uint16_t Io_SbgEllipseN_GetGeneralStatus()
 {
-    const bool general_status_ok = sensor_data.status_data.general_status != 0;
-    const bool com_status_ok     = sensor_data.status_data.com_status == 0; // This is wrong
-    return general_status_ok && com_status_ok;
+    return sensor_data.status_data.general_status;
+}
+
+uint32_t Io_SbgEllipseN_GetComStatus()
+{
+    return sensor_data.status_data.com_status;
 }

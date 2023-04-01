@@ -58,7 +58,6 @@ extern "C"
     void CAN1_RX1_IRQHandler(void);
     void TIM2_IRQHandler(void);
     void DMA2_Stream2_IRQHandler(void);
-    void DMA2_Stream7_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */
