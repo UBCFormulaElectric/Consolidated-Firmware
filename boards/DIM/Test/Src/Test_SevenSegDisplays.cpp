@@ -17,7 +17,7 @@ FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit, int);
 FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit, int);
 FAKE_VOID_FUNC(display_value_callback);
 
- class SevenSegDisplaysTest : public testing::Test
+class SevenSegDisplaysTest : public testing::Test
 {
   protected:
     void SetUp() override
@@ -75,11 +75,11 @@ FAKE_VOID_FUNC(display_value_callback);
     struct SevenSegDisplays *seven_seg_displays;
 };
 
- TEST_F(SevenSegDisplaysTest, set_left_hexadecimal_group)
+TEST_F(SevenSegDisplaysTest, set_left_hexadecimal_group)
 {
     // Ensuring that the SetGroupL function only touches the left group of displays
 
-    ExitCode exit_code  = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 100);
+    ExitCode exit_code = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 100);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
     ASSERT_EQ(1, set_left_l_hex_digit_fake.call_count);
@@ -105,14 +105,13 @@ FAKE_VOID_FUNC(display_value_callback);
     ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[0].enabled);
-
 }
 
 TEST_F(SevenSegDisplaysTest, set_middle_hexadecimal_group)
 {
     // ensuring that the SetGroupM function only touches the middle group of displays
 
-    ExitCode exit_code  = App_SevenSegDisplays_SetGroupM(seven_seg_displays, 100);
+    ExitCode exit_code = App_SevenSegDisplays_SetGroupM(seven_seg_displays, 100);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
     ASSERT_EQ(0, set_left_l_hex_digit_fake.call_count);
@@ -138,14 +137,13 @@ TEST_F(SevenSegDisplaysTest, set_middle_hexadecimal_group)
     ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[0].enabled);
-
 }
 
 TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
 {
     // ensuring that the SetGroupR function only touches the right group of displays
 
-    ExitCode exit_code  = App_SevenSegDisplays_SetGroupR(seven_seg_displays, 100);
+    ExitCode exit_code = App_SevenSegDisplays_SetGroupR(seven_seg_displays, 100);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
     ASSERT_EQ(0, set_left_l_hex_digit_fake.call_count);
@@ -171,28 +169,27 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[0].enabled);
-
 }
 
-//TODO: Make a test for underflow (?) unsure if that makes much sense
+// TODO: Make a test for underflow (?) unsure if that makes much sense
 
- TEST_F(SevenSegDisplaysTest, set_overflow_to_each_group)
+TEST_F(SevenSegDisplaysTest, set_overflow_to_each_group)
 {
     uint32_t over_flow_val = pow(10, NUM_IN_GROUP);
 
-    ExitCode exit_code_L  = App_SevenSegDisplays_SetGroupL(seven_seg_displays, over_flow_val);
+    ExitCode exit_code_L = App_SevenSegDisplays_SetGroupL(seven_seg_displays, over_flow_val);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_L);
 
-    ExitCode exit_code_M  = App_SevenSegDisplays_SetGroupM(seven_seg_displays, over_flow_val);
+    ExitCode exit_code_M = App_SevenSegDisplays_SetGroupM(seven_seg_displays, over_flow_val);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_M);
 
-    ExitCode exit_code_R  = App_SevenSegDisplays_SetGroupR(seven_seg_displays, over_flow_val);
+    ExitCode exit_code_R = App_SevenSegDisplays_SetGroupR(seven_seg_displays, over_flow_val);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_R);
 }
 
- TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
+TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
 {
-    ExitCode exit_code  = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 0);
+    ExitCode exit_code = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 0);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
     ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[0].enabled);
@@ -231,12 +228,11 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[1].enabled);
 
-
     App_SevenSegDisplays_SetGroupR(seven_seg_displays, 308);
 
     ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[2].enabled);//this should be enabled, did not turn it off
+    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[2].enabled); // this should be enabled, did not turn it off
     ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(2, set_left_m_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(9, set_left_r_hex_digit_fake.arg0_history[2].value);
@@ -252,11 +248,7 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(3, set_right_l_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(0, set_right_m_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[2].value);
-
-
-
 }
-
 
 // TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
 //{

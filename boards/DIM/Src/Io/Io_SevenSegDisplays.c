@@ -33,22 +33,16 @@ static const CommandLookupTable command_lookup_table =
     .disable = 0x0,
     .values  =
     {
-        0x3F, // 0x0
-        0x06, // 0x1
-        0x5B, // 0x2
-        0x4F, // 0x3
+        0xFC, // 0x0
+        0x60, // 0x1
+        0xDA, // 0x2
+        0xF2, // 0x3
         0x66, // 0x4
-        0x6D, // 0x5
-        0x7D, // 0x6
-        0x07, // 0x7
-        0x7F, // 0x8
-        0x67, // 0x9
-        0x77, // 0xA
-        0x7C, // 0xB
-        0x39, // 0xC
-        0x5E, // 0xD
-        0x79, // 0xE
-        0x71, // 0xF
+        0xB6, // 0x5
+        0xBE, // 0x6
+        0xE0, // 0x7
+        0xFE, // 0x8
+        0xE6, // 0x9
     }
 };
 // clang-format on
@@ -71,9 +65,9 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
-    for (int display = 0; display < TEMP_NUM_DISPLAYS; display++)
+    for (int display = 0; display < 9; display++)
     {
-        const uint8_t display_data = commands[TEMP_NUM_DISPLAYS - display - 1]; // invert order
+        const uint8_t display_data = commands[9 - display - 1]; // invert order
 
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
@@ -108,4 +102,3 @@ void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGI
         commands[DIGIT] = command_lookup_table.values[hex_digit.value];
     }
 }
-
