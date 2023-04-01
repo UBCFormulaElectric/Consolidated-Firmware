@@ -4,12 +4,7 @@
 #include "App_SetPeriodicCanSignals.h"
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
-#include "App_SharedProcessing.h"
 #include "App_Soc.h"
-
-#define MAX_POWER_LIMIT_W (78e3f)
-#define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
-#define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
@@ -84,7 +79,7 @@ static void
 
     float availible_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
 
-    App_CanTx_BMS_AvailableCurrent_DischargeCurrent_Set(availible_current);
+    App_CanTx_BMS_PackStatus_DischargeCurrent_Set(availible_current);
 }
 
 void App_AllStates_Init(void)
@@ -130,7 +125,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), TASK_100HZ_PERIOD_S);
 
-    App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
+    App_CanTx_BMS_PackStatus_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_Contactors_AirNegative_Set(

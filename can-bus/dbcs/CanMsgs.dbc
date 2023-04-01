@@ -119,11 +119,9 @@ BO_ 117 BMS_TractiveSystem: 5 BMS
 SG_ TsVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
 SG_ TsCurrent : 23|13@1+ (0.1,-300) [-300|300] "A" DEBUG
 
-BO_ 118 BMS_PackVoltage: 3 BMS
+BO_ 118 BMS_PackStatus: 6 BMS
 SG_ PackVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
-
-BO_ 120 BMS_AvailableCurrent: 3 BMS
-SG_ DischargeCurrent : 0|20@1+ (0.1,0) [0|100000] "A" DEBUG
+SG_ DischargeCurrent : 23|20@1+ (0.1,0) [0|100000] "A" DEBUG
 
 BO_ 150 BMS_Alerts: 1 BMS
 SG_ BMS_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -560,7 +558,7 @@ BA_ "GenSigStartValue" SG_ 116 MaxTempIdx 0;
 BA_ "GenSigStartValue" SG_ 117 TsVoltage 0;
 BA_ "GenSigStartValue" SG_ 117 TsCurrent -300;
 BA_ "GenSigStartValue" SG_ 118 PackVoltage 0;
-BA_ "GenSigStartValue" SG_ 120 DischargeCurrent 0;
+BA_ "GenSigStartValue" SG_ 118 DischargeCurrent 0;
 BA_ "GenSigStartValue" SG_ 150 BMS_ALERT_STARTUP 0;
 BA_ "GenSigStartValue" SG_ 203 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 32 TorqueCommand -3276.8;
@@ -859,7 +857,6 @@ BA_ "GenMsgCycleTime" BO_ 115  100;
 BA_ "GenMsgCycleTime" BO_ 116  100;
 BA_ "GenMsgCycleTime" BO_ 117  100;
 BA_ "GenMsgCycleTime" BO_ 118  100;
-BA_ "GenMsgCycleTime" BO_ 120  100;
 BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 32  10;
 BA_ "GenMsgCycleTime" BO_ 82  10;

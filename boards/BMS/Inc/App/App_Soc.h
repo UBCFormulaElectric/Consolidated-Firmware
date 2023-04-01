@@ -17,11 +17,14 @@ typedef struct
 
 struct SocStats
 {
+    // Contains the current charge of each series element
     CellSocStats cell_stats[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
-    uint8_t      minSocSegment;
-    uint8_t      minSocSE;
-    uint8_t      maxSocSegment;
-    uint8_t      maxSocSE;
+
+    // Keeps track of the indexes for the series elements with the lowest and highest charge respectively
+    uint8_t minSocSegment;
+    uint8_t minSocSE;
+    uint8_t maxSocSegment;
+    uint8_t maxSocSE;
 };
 
 /**
@@ -60,23 +63,40 @@ struct SocStats
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
 
-float App_Soc_GetCell_Soc(CellSocStats *cell_stats);
+/**
+ * Create the SocStats object
+ * @return struct SocStats pointer to object
+ */
+struct SocStats *App_SocStats_Create(void);
 
 /**
- * Given the current status of a cell, update its state of charge using coulomb counting.
- *
- * @param cell_stats The charge stats of the cell to be updated
+ * Destroy the SocStats object
+ */
+void App_SocStats_Destroy(struct SocStats *soc_stats);
+
+/**
+ * Reset SocStats Object
+ */
+void App_SocStats_ResetSoc(struct SocStats *soc_stats);
+
+/**
+ * Update the state of charge of all series elements using coulomb counting.
+ * @param soc_stats The charge stats of the pack
  * @param current The current from the cell to be updated (- is out of the cell, + is into the cell)
  * @param time_step_s The time elapsed since the last update in seconds.
  */
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
 
-struct SocStats *App_SocStats_Create(void);
-
-void App_SocStats_Destroy(struct SocStats *soc_stats);
-
-void App_SocStats_ResetSoc(struct SocStats *soc_stats);
-
+/**
+ * Get the minimum series element open circuit voltage approximation given current pack SOC status
+ * @param soc_stats current SOC of each series element in pack
+ * @return float minimum series element open circuit voltage approximation
+ */
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
 
+/**
+ * Get the maximum series element open circuit voltage approximation given current pack SOC status
+ * @param soc_stats current SOC of each series element in pack
+ * @return float maximum series element open circuit voltage approximation
+ */
 float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats);

@@ -12,7 +12,7 @@
 #define SOC_WARNING_THRESHOLD_DC 10.0f
 #define NUM_PARALLEL_CELLS (3U)
 #define INTERNAL_R_PER_CELL_OHMS (2.5e-3f)
-#define SERIES_ELEMENT_RESISTANCE (INTERNAL_R_PER_CELL_OHMS / (float)NUM_PARALLEL_CELLS)
+#define SERIES_ELEMENT_RESISTANCE (INTERNAL_R_PER_CELL_OHMS / NUM_PARALLEL_CELLS)
 
 float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct SocStats *soc_stats)
 {
@@ -23,11 +23,8 @@ float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct
     const float min_cell_voltage  = App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc);
 
     // Calculate Current Limits
-    float currentLimits[3] = {
-        App_CurrentLimit_CalculateTempBasedDischargeLimit(max_cell_temp),
-        //                               App_CurrentLimit_CalculateSOCBasedDischargeLimit(min_cell_soc),
-        App_CurrentLimit_CalculateLowCellVoltageClampDischargeLimit(soc_stats)
-    };
+    float currentLimits[2] = { App_CurrentLimit_CalculateTempBasedDischargeLimit(max_cell_temp),
+                               App_CurrentLimit_CalculateLowCellVoltageClampDischargeLimit(soc_stats) };
 
     // Return the minimum limit
     float current_limit = currentLimits[0];

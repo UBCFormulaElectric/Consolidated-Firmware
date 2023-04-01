@@ -338,24 +338,17 @@
             }
         }
     },
-    "BMS_PackVoltage": {
+    "BMS_PackStatus": {
         "msg_id": 118,
         "cycle_time": 100,
-        "description": "BMS Pack Voltage",
+        "description": "BMS Pack Status",
         "signals": {
             "PackVoltage": {
                 "resolution": 0.0001,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
-            }
-        }
-    },
-    "BMS_AvailableCurrent": {
-        "msg_id": 120,
-        "cycle_time": 100,
-        "description": "BMS Available Current",
-        "signals": {
+            },
             "DischargeCurrent": {
                 "resolution": 0.1,
                 "min": 0,
