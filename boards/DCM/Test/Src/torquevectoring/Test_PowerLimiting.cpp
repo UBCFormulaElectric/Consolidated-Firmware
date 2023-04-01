@@ -63,6 +63,42 @@ TEST(PowerLimitingTest, pedal_limits_power)
 }
 
 
+TEST(PowerLimitingTest, max_pedal_position)
+{
+    PowerLimiting_Inputs test4_inputs = {10.0, 10.0, POWER_LIMIT_CAR_kW, 1.00};
+   float expected_power_limit_test4 = POWER_LIMIT_CAR_kW;
+   float actual_power_limit_test4 = App_PowerLimiting_ComputeMaxPower(&test4_inputs);
+   ASSERT_FLOAT_EQ(actual_power_limit_test4, expected_power_limit_test4);
+}
+
+
+TEST(PowerLimitingTest, bms_allows_no_power)
+{
+    PowerLimiting_Inputs test4_inputs = {10.0, 10.0, 0.0, 1.00};
+   float expected_power_limit_test4 = 0.0;
+   float actual_power_limit_test4 = App_PowerLimiting_ComputeMaxPower(&test4_inputs);
+   ASSERT_FLOAT_EQ(actual_power_limit_test4, expected_power_limit_test4);
+}
+
+
+TEST(PowerLimitingTest, motor_temps_allow_no_power)
+{
+    PowerLimiting_Inputs test4_inputs = {120.0, 120.0, POWER_LIMIT_CAR_kW, 1.00};
+   float expected_power_limit_test4 = 0.0;
+   float actual_power_limit_test4 = App_PowerLimiting_ComputeMaxPower(&test4_inputs);
+   ASSERT_FLOAT_EQ(actual_power_limit_test4, expected_power_limit_test4);
+}
+
+
+TEST(PowerLimitingTest, motor_temps_allow_50kW)
+{
+    PowerLimiting_Inputs test4_inputs = {101.25, 101.25, POWER_LIMIT_CAR_kW, 1.00};
+   float expected_power_limit_test4 = 50.0;
+   float actual_power_limit_test4 = App_PowerLimiting_ComputeMaxPower(&test4_inputs);
+   ASSERT_FLOAT_EQ(actual_power_limit_test4, expected_power_limit_test4);
+}
+
+
 TEST(PowerLimitingTest, no_power_when_pedal_not_pressed)
 {
     PowerLimiting_Inputs test4_inputs = {10.0, 10.0, POWER_LIMIT_CAR_kW, 0.00};
