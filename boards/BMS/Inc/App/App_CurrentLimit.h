@@ -1,5 +1,6 @@
 #pragma once
 
+#include "App_Soc.h"
 #include "App_BmsWorld.h"
 #include "App_Accumulator.h"
 #include "App_SharedProcessing.h"
@@ -9,7 +10,7 @@
  * @param none
  * @return the discharge current limit
  */
-float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator);
+float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct SocStats *soc_stats);
 
 /**
  * Gets the the minimum charge current limit
@@ -37,4 +38,4 @@ float App_CurrentLimit_CalculateSOCBasedDischargeLimit(float min_cell_soc);
  * @param min_cell_voltage
  * @return the charge current limit
  */
-float App_CurrentLimit_CalculateVoltageBasedDischargeLimit(float min_cell_voltage);
+float App_CurrentLimit_CalculateLowCellVoltageClampDischargeLimit(struct SocStats *soc_stats)

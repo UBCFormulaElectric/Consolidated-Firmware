@@ -76,12 +76,13 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     App_CanTx_BMS_CellStats_MaxTempIdx_Set(max_loc);
 }
 
-static void App_AdvertisePackCurrent(struct Accumulator *accumulator, struct TractiveSystem *ts)
+static void
+    App_AdvertisePackCurrent(struct Accumulator *accumulator, struct TractiveSystem *ts, struct SocStats *soc_stats)
 {
     uint8_t segment = 0;
     UNUSED(segment);
 
-    float availible_current = App_CurrentLimit_GetDischargeLimit(accumulator);
+    float availible_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
 
     App_CanTx_BMS_AvailableCurrent_DischargeCurrent_Set(availible_current);
 }
@@ -138,7 +139,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
 
-    App_AdvertisePackCurrent(accumulator, ts);
+    App_AdvertisePackCurrent(accumulator, ts, soc_stats);
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));

@@ -18,6 +18,10 @@ typedef struct
 struct SocStats
 {
     CellSocStats cell_stats[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    uint8_t      minSocSegment;
+    uint8_t      minSocSE;
+    uint8_t      maxSocSegment;
+    uint8_t      maxSocSE;
 };
 
 /**
@@ -72,3 +76,7 @@ struct SocStats *App_SocStats_Create(void);
 void App_SocStats_Destroy(struct SocStats *soc_stats);
 
 void App_SocStats_ResetSoc(struct SocStats *soc_stats);
+
+float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
+
+float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats);
