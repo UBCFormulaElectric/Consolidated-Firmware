@@ -12,8 +12,8 @@
 #define TRACK_WIDTH_mm 1100
 #define TIRE_DIAMETER_in 18.0f
 #define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
-#define POWER_LIMIT_CAR_kW 80.0f               // max power we can use by FSAE rules
-#define MOTOR_TORQUE_LIMIT_Nm 90.0f
+#define POWER_LIMIT_CAR_kW 10.0f               // max power we can use by FSAE rules redefined to 10 kw for testing purposes
+#define MOTOR_TORQUE_LIMIT_Nm 11.0f            //max torque redefined form 90 to 11 for testing purposes
 #define MOTOR_TEMP_CUTOFF_c 90.0f
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO \
     80.0f / 30.0f // amount to decrease max power by for every degree celsius over motor cutoff temp (we got this number
