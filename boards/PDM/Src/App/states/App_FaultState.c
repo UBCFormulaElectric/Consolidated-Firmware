@@ -25,6 +25,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
 
     Efuse_DisableChannels(efuse1, efuse2, efuse3, efuse4);
+    App_CanTx_PDM_Vitals_State_Set(PDM_STATE_FAULT);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
