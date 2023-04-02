@@ -6,13 +6,13 @@
 
 static bool App_DriveState_HasBMSFault()
 {
-    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_FAULT_STATE;
+    return App_CanRx_BMS_Warnings_MissingHeartbeat_Get() || App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_FAULT_STATE;
 }
 
 static bool App_DriveState_HasDCMFault()
 {
     // No DCM Faults yet
-    return App_CanRx_DCM_Warnings_MissingHeartbeat_Get();
+    return App_CanRx_DCM_Warnings_MissingHeartbeat_Get() || App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_FAULT_STATE;
 }
 
 static bool App_DriveState_HasDIMFault()
@@ -24,7 +24,7 @@ static bool App_DriveState_HasDIMFault()
 static bool App_DriveState_HasFSMFault()
 {
     // TODO: Promote this message to fault
-    return App_CanRx_FSM_Warnings_MissingHeartbeat_Get();
+    return App_CanRx_FSM_Warnings_MissingHeartbeat_Get() || App_CanRx_FSM_Vitals_CurrentState_Get() == FSM_FAULT_STATE;
 }
 
 static bool App_DriveState_HasPDMFault()

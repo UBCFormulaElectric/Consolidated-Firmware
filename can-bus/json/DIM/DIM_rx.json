@@ -6,6 +6,7 @@
         "PDM_Warnings",
         "DCM_Warnings",
         "FSM_Warnings",
-        "DCM_Vitals"
+        "DCM_Vitals",
+        "FSM_Vitals"
     ]
 }

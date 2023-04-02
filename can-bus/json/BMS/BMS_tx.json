@@ -49,7 +49,7 @@
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
             },
-            "MissingHeartBeat": {
+            "MissingHeartbeat": {
                 "bits": 1
             }
         }
