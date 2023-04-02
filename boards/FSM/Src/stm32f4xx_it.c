@@ -59,7 +59,10 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim12;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -163,6 +166,34 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles CAN1 RX0 interrupts.
+ */
+void CAN1_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
+
+    /* USER CODE END CAN1_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
+
+    /* USER CODE END CAN1_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN1 RX1 interrupt.
+ */
+void CAN1_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+
+    /* USER CODE END CAN1_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+
+    /* USER CODE END CAN1_RX1_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM3 global interrupt.
  */
 void TIM3_IRQHandler(void)
@@ -174,6 +205,35 @@ void TIM3_IRQHandler(void)
     /* USER CODE BEGIN TIM3_IRQn 1 */
 
     /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM8 break interrupt and TIM12 global interrupt.
+ */
+void TIM8_BRK_TIM12_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 0 */
+
+    /* USER CODE END TIM8_BRK_TIM12_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim8);
+    HAL_TIM_IRQHandler(&htim12);
+    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
+
+    /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM8 capture compare interrupt.
+ */
+void TIM8_CC_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM8_CC_IRQn 0 */
+
+    /* USER CODE END TIM8_CC_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim8);
+    /* USER CODE BEGIN TIM8_CC_IRQn 1 */
+
+    /* USER CODE END TIM8_CC_IRQn 1 */
 }
 
 /**
