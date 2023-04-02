@@ -33,7 +33,7 @@ void App_RingQueue_Push(RingQueue *queue, uint8_t value)
     const bool queue_overflowed = (queue->tail == queue->head) && queue->count > 0;
     if (queue_overflowed)
     {
-        // Count doesn't if overflowed, since new element replaced an old element
+        // Count doesn't change if overflowed, since a new element replaced an old element
         queue->head += 1;
         queue->head %= queue->size;
     }
