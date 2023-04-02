@@ -33,7 +33,11 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
 
-    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open)
+    struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
+    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    App_CanTx_BMS_Warnings_MissingHeartBeat_Set(hb_ok);
+
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
