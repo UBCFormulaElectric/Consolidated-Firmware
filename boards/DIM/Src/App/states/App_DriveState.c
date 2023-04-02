@@ -186,9 +186,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     // TODO: Show something on these LEDs now that error table is gone
-    if (!App_SharedHeartbeatMonitor_Tick(heartbeat_monitor))
+    if (missing_hb)
     {
+        App_CanTx_DIM_Warnings_MissingHeartbeat_Set(missing_hb);
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else

@@ -1,7 +1,7 @@
 {
     "GSM_Vitals": {
         "msg_id": 603,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "Vitals message for the GSM.",
         "signals": {
             "Heartbeat": {

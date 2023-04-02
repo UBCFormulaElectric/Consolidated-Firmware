@@ -1,7 +1,7 @@
 {
     "DIM_Vitals": {
         "msg_id": 502,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "DIM vitals message.",
         "signals": {
             "Heartbeat": {
@@ -63,6 +63,9 @@
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
+            },
+            "MissingHeartbeat": {
+                "bits": 1
             }
         }
     }

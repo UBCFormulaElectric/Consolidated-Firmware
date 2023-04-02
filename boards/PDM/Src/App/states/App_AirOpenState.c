@@ -21,7 +21,12 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const bool air_positive_closed = App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_CLOSED;
     const bool air_negative_closed = App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_CLOSED;
-    if (air_positive_closed && air_negative_closed)
+
+    struct PdmWorld *        world      = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
+    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
+
+    if (air_positive_closed && air_negative_closed && hb_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetAirClosedState());
     }
