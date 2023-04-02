@@ -6,7 +6,7 @@
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-    App_CanTx_FSM_Vitals_State_Set(FSM_STATE_FAULT);
+    App_CanTx_FSM_Vitals_CurrentState_Set(FSM_FAULT_STATE);
 }
 
 void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
