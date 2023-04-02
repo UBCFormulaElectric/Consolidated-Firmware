@@ -167,10 +167,10 @@
             }
         }
     },
-    "DCM_SbgEllipseStatus": {
+    "DCM_EllipseImuStatus": {
         "msg_id": 208,
         "cycle_time": 100,
-        "description": "Status of the SBG Ellipse N IMU/GPS sensor.",
+        "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
             "GeneralStatusBitmask": {
                 "bits": 16
@@ -180,10 +180,10 @@
             }
         }
     },
-    "DCM_SbgEllipseTime": {
+    "DCM_EllipseImuTime": {
         "msg_id": 209,
         "cycle_time": 100,
-        "description": "Timestamp from the SBG Ellipse N IMU/GPS sensor.",
+        "description": "Timestamp from the SBG Ellipse N sensor.",
         "signals": {
             "Timestamp": {
                 "bits": 32,
@@ -191,10 +191,10 @@
             }
         }
     },
-    "DCM_SbgEllipseAcceleration": {
+    "DCM_EllipseImuAcceleration": {
         "msg_id": 205,
         "cycle_time": 10,
-        "description": "Acceleration from the SBG Ellipse N IMU/GPS sensor.",
+        "description": "Acceleration from the SBG Ellipse N sensor.",
         "signals": {
             "Forward": {
                 "min": -30,
@@ -216,10 +216,10 @@
             }
         }
     },
-    "DCM_SbgEllipseAngularVelocity": {
+    "DCM_EllipseImuAngularVelocity": {
         "msg_id": 206,
         "cycle_time": 10,
-        "description": "Angular velocity from the SBG Ellipse N IMU/GPS sensor.",
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
         "signals": {
             "Roll": {
                 "min": -360,
@@ -241,10 +241,10 @@
             }
         }
     },
-    "DCM_SbgEllipseEulerAngles": {
+    "DCM_EllipseImuEulerAngles": {
         "msg_id": 207,
         "cycle_time": 10,
-        "description": "Euler angles from the SBG Ellipse N IMU/GPS sensor.",
+        "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {
             "Roll": {
                 "min": -180,

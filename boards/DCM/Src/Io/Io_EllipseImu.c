@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
-#include "Io_SbgEllipseN.h"
+#include "Io_EllipseImu.h"
 #include "App_RingQueue.h"
 #include "App_SharedMacros.h"
 
@@ -78,18 +78,17 @@ float *sensor_output_map[NUM_SBG_OUTPUTS] = {
 
 /* ------------------------- Static Function Prototypes -------------------------- */
 
-static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface);
-static SbgErrorCode
-                    Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
-static SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
+static void         Io_EllipseImu_CreateSerialInterface(SbgInterface *interface);
+static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
+static SbgErrorCode Io_EllipseImu_LogReceivedCallback(
     SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
     void *                  user_arg);
-static void Io_SbgEllipseN_ProcessMsg_Imu(const SbgBinaryLogData *log_data);
-static void Io_SbgEllipseN_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data);
-static void Io_SbgEllipseN_ProcessMsg_Status(const SbgBinaryLogData *log_data);
+static void Io_EllipseImu_ProcessMsg_Imu(const SbgBinaryLogData *log_data);
+static void Io_EllipseImu_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data);
+static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
@@ -112,14 +111,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
  * operations, such as reading, writing, flushing, etc. These I/O operations will use STM32's HAL drivers to communicate
  * to the sensor. We only need read operations, so that's all we provide here.
  */
-static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface)
+static void Io_EllipseImu_CreateSerialInterface(SbgInterface *interface)
 {
     sbgInterfaceNameSet(interface, "SBG Ellipse N Sensor");
 
     interface->type          = SBG_IF_TYPE_UNKNOW;
     interface->pDestroyFunc  = NULL;
     interface->pWriteFunc    = NULL;
-    interface->pReadFunc     = Io_SbgEllipseN_Read;
+    interface->pReadFunc     = Io_EllipseImu_Read;
     interface->pFlushFunc    = NULL;
     interface->pSetSpeedFunc = NULL;
     interface->pGetSpeedFunc = NULL;
@@ -129,7 +128,7 @@ static void Io_SbgEllipseN_CreateSerialInterface(SbgInterface *interface)
 /*
  * Function called by SBG's library to read some amount of data.
  */
-static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read)
+static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read)
 {
     UNUSED(interface);
 
@@ -161,7 +160,7 @@ static SbgErrorCode Io_SbgEllipseN_Read(SbgInterface *interface, void *buffer, s
 /*
  * Callback called when a log is successfully received and parsed.
  */
-SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
+SbgErrorCode Io_EllipseImu_LogReceivedCallback(
     SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
@@ -179,17 +178,17 @@ SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
         {
             case SBG_ECOM_LOG_IMU_DATA:
             {
-                Io_SbgEllipseN_ProcessMsg_Imu(log_data);
+                Io_EllipseImu_ProcessMsg_Imu(log_data);
                 break;
             }
             case SBG_ECOM_LOG_EKF_EULER:
             {
-                Io_SbgEllipseN_ProcessMsg_EulerAngles(log_data);
+                Io_EllipseImu_ProcessMsg_EulerAngles(log_data);
                 break;
             }
             case SBG_ECOM_LOG_STATUS:
             {
-                Io_SbgEllipseN_ProcessMsg_Status(log_data);
+                Io_EllipseImu_ProcessMsg_Status(log_data);
                 break;
             }
             default:
@@ -206,7 +205,7 @@ SbgErrorCode Io_SbgEllipseN_LogReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void Io_SbgEllipseN_ProcessMsg_Imu(const SbgBinaryLogData *log_data)
+static void Io_EllipseImu_ProcessMsg_Imu(const SbgBinaryLogData *log_data)
 {
     // Save acceleration, in m/s^2
     sensor_data.imu_data.acceleration.x = log_data->imuData.accelerometers[0];
@@ -222,7 +221,7 @@ static void Io_SbgEllipseN_ProcessMsg_Imu(const SbgBinaryLogData *log_data)
 /*
  * Process and save a new euler angles msg.
  */
-static void Io_SbgEllipseN_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data)
+static void Io_EllipseImu_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data)
 {
     // Save euler angles, in deg
     sensor_data.euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
@@ -233,7 +232,7 @@ static void Io_SbgEllipseN_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_da
 /*
  * Process and save a new status msg.
  */
-static void Io_SbgEllipseN_ProcessMsg_Status(const SbgBinaryLogData *log_data)
+static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data)
 {
     sensor_data.status_data.timestamp_us   = log_data->statusData.timeStamp;
     sensor_data.status_data.general_status = log_data->statusData.generalStatus;
@@ -242,12 +241,12 @@ static void Io_SbgEllipseN_ProcessMsg_Status(const SbgBinaryLogData *log_data)
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool Io_SbgEllipseN_Init()
+bool Io_EllipseImu_Init()
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 
     // Initialize the SBG serial interface handle
-    Io_SbgEllipseN_CreateSerialInterface(&sbg_interface);
+    Io_EllipseImu_CreateSerialInterface(&sbg_interface);
 
     // Init SBG's communication protocol handle
     if (sbgEComInit(&com_handle, &sbg_interface) != SBG_NO_ERROR)
@@ -256,7 +255,7 @@ bool Io_SbgEllipseN_Init()
     }
 
     // Set the callback function (callback is called when a new log is successfully received and parsed)
-    sbgEComSetReceiveLogCallback(&com_handle, Io_SbgEllipseN_LogReceivedCallback, NULL);
+    sbgEComSetReceiveLogCallback(&com_handle, Io_EllipseImu_LogReceivedCallback, NULL);
 
     // Init RX queue for UART data
     App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
@@ -267,7 +266,7 @@ bool Io_SbgEllipseN_Init()
     return true;
 }
 
-void Io_SbgEllipseN_HandleLogs()
+void Io_EllipseImu_HandleLogs()
 {
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
@@ -275,23 +274,23 @@ void Io_SbgEllipseN_HandleLogs()
     sbgEComHandle(&com_handle);
 }
 
-uint32_t Io_SbgEllipseN_GetTimestampUs(void)
+uint32_t Io_EllipseImu_GetTimestampUs(void)
 {
     return sensor_data.status_data.timestamp_us;
 }
 
-float Io_SbgEllipseN_GetSensorOutput(SbgSensorOutput output)
+float Io_EllipseImu_GetSensorOutput(SbgSensorOutput output)
 {
     assert(output < NUM_SBG_OUTPUTS);
     return *(sensor_output_map[output]);
 }
 
-uint16_t Io_SbgEllipseN_GetGeneralStatus()
+uint16_t Io_EllipseImu_GetGeneralStatus()
 {
     return sensor_data.status_data.general_status;
 }
 
-uint32_t Io_SbgEllipseN_GetComStatus()
+uint32_t Io_EllipseImu_GetComStatus()
 {
     return sensor_data.status_data.com_status;
 }

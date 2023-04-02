@@ -26,7 +26,7 @@ typedef enum
 /*
  * Initialize the SBG Ellipse N sensor app module.
  */
-void App_SbgEllipseN_Init(
+void App_EllipseImu_Init(
     void (*handle_logs)(void),
     uint32_t (*get_timestamp)(void),
     uint16_t (*get_general_status)(void),
@@ -36,22 +36,22 @@ void App_SbgEllipseN_Init(
 /*
  * Parse and save all received logs.
  */
-void App_SbgEllipseN_HandleLogs(void);
+void App_EllipseImu_HandleLogs(void);
 
 /*
  * Broadcast sensor outputs over CAN.
  */
-void App_SbgEllipseN_Broadcast(void);
+void App_EllipseImu_Broadcast(void);
 
 /*
  * Get the last received timestamp.
  * @return Timestamp in us
  */
-uint32_t App_SbgEllipseN_GetTimestampUs();
+uint32_t App_EllipseImu_GetTimestampUs();
 
 /*
  * Get an output from the SBG Ellipse N sensor.
  * @param output Which sensor value to read
  * @return Last read sensor output, in the cooresponding units
  */
-float App_SbgEllipseN_GetSensorOutput(SbgSensorOutput output);
+float App_EllipseImu_GetSensorOutput(SbgSensorOutput output);

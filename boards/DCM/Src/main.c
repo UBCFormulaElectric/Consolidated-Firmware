@@ -37,7 +37,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
-#include "Io_SbgEllipseN.h"
+#include "Io_EllipseImu.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -167,7 +167,7 @@ int main(void)
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
 
-    if (!Io_SbgEllipseN_Init())
+    if (!Io_EllipseImu_Init())
     {
         Error_Handler();
     }
@@ -187,9 +187,9 @@ int main(void)
         Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
         MAX_ACCELERATION_MS2);
 
-    App_SbgEllipseN_Init(
-        Io_SbgEllipseN_HandleLogs, Io_SbgEllipseN_GetTimestampUs, Io_SbgEllipseN_GetGeneralStatus,
-        Io_SbgEllipseN_GetComStatus, Io_SbgEllipseN_GetSensorOutput);
+    App_EllipseImu_Init(
+        Io_EllipseImu_HandleLogs, Io_EllipseImu_GetTimestampUs, Io_EllipseImu_GetGeneralStatus,
+        Io_EllipseImu_GetComStatus, Io_EllipseImu_GetSensorOutput);
 
     clock = App_SharedClock_Create();
 

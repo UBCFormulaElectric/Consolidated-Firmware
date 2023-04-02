@@ -39,15 +39,6 @@ void App_RingQueue_Push(RingQueue *queue, uint8_t value);
  */
 bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value);
 
-// /**
-//  * Copy the queue's contents to an array, ordered from oldest to most
-//  *        recent element. Writes all the elements currently in the queue.
-//  * @param queue: Queue to read from
-//  * @param array: Array to write to, must have enough space to receive all of the
-//  *               queue's elements!
-//  */
-// void App_RingQueue_CopyToArray(RingQueue *queue, float *array);
-
 /**
  * Get the number of elements in a queue.
  * @param queue: Queue to read from

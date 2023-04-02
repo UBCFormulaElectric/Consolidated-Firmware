@@ -65,28 +65,6 @@ bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value)
     return true;
 }
 
-// void App_RingQueue_CopyToArray(RingQueue* queue, float* array) {
-//   assert(queue);
-
-//   int queue_idx = queue->head;
-//   int arr_idx = 0;
-
-//   while(true) {
-//     // Write to array
-//     array[arr_idx] = queue->elements[queue_idx];
-
-//     // If we're at the tail, break out of the loop
-//     if(queue_idx == queue->tail) {
-//         break;
-//     }
-
-//     // Incremement queue and array idxs
-//     queue_idx += 1;
-//     queue_idx %= queue->size;
-//     arr_idx += 1;
-//   }
-// }
-
 int App_RingQueue_Count(RingQueue *queue)
 {
     assert(queue);
