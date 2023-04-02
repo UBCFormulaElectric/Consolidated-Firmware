@@ -164,13 +164,13 @@
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
-				"unit": "°C"
+				"unit": "degC"
 			},
 			"TemperatureB": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
-				"unit": "°C"
+				"unit": "degC"
 			},
 			"PressureA": {
 				"resolution": 0.1,
