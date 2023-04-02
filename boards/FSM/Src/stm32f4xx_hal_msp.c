@@ -218,6 +218,11 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_CAN1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* CAN1 interrupt Init */
+        HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+        HAL_NVIC_SetPriority(CAN1_RX1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(CAN1_RX1_IRQn);
         /* USER CODE BEGIN CAN1_MspInit 1 */
 
         /* USER CODE END CAN1_MspInit 1 */
@@ -246,6 +251,9 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
         */
         HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11 | GPIO_PIN_12);
 
+        /* CAN1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(CAN1_RX0_IRQn);
+        HAL_NVIC_DisableIRQ(CAN1_RX1_IRQn);
         /* USER CODE BEGIN CAN1_MspDeInit 1 */
 
         /* USER CODE END CAN1_MspDeInit 1 */
@@ -304,6 +312,11 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
         GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
         HAL_GPIO_Init(FLOWMETER_5V_GPIO_Port, &GPIO_InitStruct);
 
+        /* TIM8 interrupt Init */
+        HAL_NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+        HAL_NVIC_SetPriority(TIM8_CC_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM8_CC_IRQn);
         /* USER CODE BEGIN TIM8_MspInit 1 */
 
         /* USER CODE END TIM8_MspInit 1 */
@@ -328,6 +341,9 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
         GPIO_InitStruct.Alternate = GPIO_AF9_TIM12;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* TIM12 interrupt Init */
+        HAL_NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
         /* USER CODE BEGIN TIM12_MspInit 1 */
 
         /* USER CODE END TIM12_MspInit 1 */
@@ -379,6 +395,16 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
         */
         HAL_GPIO_DeInit(FLOWMETER_5V_GPIO_Port, FLOWMETER_5V_Pin);
 
+        /* TIM8 interrupt DeInit */
+        /* USER CODE BEGIN TIM8:TIM8_BRK_TIM12_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "TIM8_BRK_TIM12_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn); */
+        /* USER CODE END TIM8:TIM8_BRK_TIM12_IRQn disable */
+
+        HAL_NVIC_DisableIRQ(TIM8_CC_IRQn);
         /* USER CODE BEGIN TIM8_MspDeInit 1 */
 
         /* USER CODE END TIM8_MspDeInit 1 */
@@ -396,6 +422,15 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
         PB15     ------> TIM12_CH2
         */
         HAL_GPIO_DeInit(GPIOB, WHEELSPEED_R_5V_Pin | WHEELSPEED_L_5V_Pin);
+
+        /* TIM12 interrupt DeInit */
+        /* USER CODE BEGIN TIM12:TIM8_BRK_TIM12_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "TIM8_BRK_TIM12_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(TIM8_BRK_TIM12_IRQn); */
+        /* USER CODE END TIM12:TIM8_BRK_TIM12_IRQn disable */
 
         /* USER CODE BEGIN TIM12_MspDeInit 1 */
 
