@@ -72,7 +72,7 @@ float Io_Brake_GetPedalPercentTravel(void)
 {
     float       pedal_voltage    = Io_Brake_GetPedalSensorVoltage();
     const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
-    const float pedal_percent = (BRAKE_PEDAL_MAX_VOLTAGE - pedal_voltage) * percent_per_volt;
+    const float pedal_percent    = (BRAKE_PEDAL_MAX_VOLTAGE - pedal_voltage) * percent_per_volt;
     return pedal_percent;
 }
 bool Io_Brake_PedalSensorOCSC(void)
