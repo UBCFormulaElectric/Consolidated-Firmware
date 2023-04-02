@@ -97,6 +97,11 @@ static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data);
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+    // NOTE: I previously tried handling logs within the interrupt itself, but this was throwing errors.
+    // Not sure why but the error msg was related to mallocing within an ISR, although I couldn't figure out where in
+    // SBG's library anything was actually being malloced. This is why I push to a queue here and handle the logs later
+    // in the 100Hz task.
+
     assert(huart == &huart1);
 
     // Push newly received data to queue
