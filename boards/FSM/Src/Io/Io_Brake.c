@@ -3,8 +3,8 @@
 #include "Io_Adc.h"
 
 // TODO set these values
-#define BRAKE_PEDAL_MIN_VOLTAGE (0.0f)
-#define BRAKE_PEDAL_MAX_VOLTAGE (1.0f)
+#define BRAKE_PEDAL_MIN_VOLTAGE (0.5f)
+#define BRAKE_PEDAL_MAX_VOLTAGE (4.5f)
 
 #define BRAKE_PRESSURE_OC_THRESHOLD_V (0.33f)
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
@@ -19,11 +19,7 @@ bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
     return !(BRAKE_PRESSURE_OC_THRESHOLD_V <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD_V);
 }
 
-float Io_Brake_GetFrontPressureSensorVoltage(void)
-{
-    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_7);
-}
-float Io_Brake_GetFrontPressurePsi(void)
+float BrakePressureFromVoltage(float voltage)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
@@ -31,13 +27,21 @@ float Io_Brake_GetFrontPressurePsi(void)
     const float min_input_voltage = BRAKE_PRESSURE_OC_THRESHOLD_V;
     const float max_input_voltage = BRAKE_PRESSURE_SC_THRESHOLD_V;
 
-    // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min
-    // Input Voltage)
+    // https://www.mouser.ca/datasheet/2/418/8/ENG_DS_MSP300_B1-1130121.pdf
+    // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
     const float psi_per_volt = 2500.0f / (max_input_voltage - min_input_voltage);
 
     // Brake pressure = (ADC Voltage - Min Input Voltage) * Psi Per Volt
-    float front_pressure_voltage = Io_Brake_GetFrontPressureSensorVoltage();
-    return psi_per_volt * (front_pressure_voltage - min_input_voltage);
+    return psi_per_volt * (voltage - min_input_voltage);
+}
+
+float Io_Brake_GetFrontPressureSensorVoltage(void)
+{
+    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_7);
+}
+float Io_Brake_GetFrontPressurePsi(void)
+{
+    return BrakePressureFromVoltage(Io_Brake_GetFrontPressureSensorVoltage());
 }
 bool Io_Brake_FrontPressureSensorOCSC(void)
 {
@@ -47,13 +51,11 @@ bool Io_Brake_FrontPressureSensorOCSC(void)
 
 float Io_Brake_GetRearPressureSensorVoltage(void)
 {
-    return 0.5f;
+    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_8);
 }
 float Io_Brake_GetRearPressurePsi(void)
 {
-    float rear_pressure_voltage = Io_Brake_GetRearPressureSensorVoltage();
-    // TODO calculate and return the pedal percentage travel
-    return 0;
+    return BrakePressureFromVoltage(Io_Brake_GetRearPressureSensorVoltage());
 }
 bool Io_Brake_RearPressureSensorOCSC(void)
 {
@@ -64,13 +66,13 @@ bool Io_Brake_RearPressureSensorOCSC(void)
 // pedal travel
 float Io_Brake_GetPedalSensorVoltage(void)
 {
-    return 0.0f;
+    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_9);
 }
 float Io_Brake_GetPedalPercentTravel(void)
 {
-    float pedal_voltage = Io_Brake_GetPedalSensorVoltage();
-    // TODO calculate and return the pedal percentage travel, in percent
-    return 0;
+    float       pedal_voltage    = Io_Brake_GetPedalSensorVoltage();
+    const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
+    return (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
 }
 bool Io_Brake_PedalSensorOCSC(void)
 {
