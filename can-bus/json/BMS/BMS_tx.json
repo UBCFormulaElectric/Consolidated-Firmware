@@ -48,6 +48,9 @@
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
+            },
+            "MissingHeartBeat": {
+                "bits": 1
             }
         }
     },

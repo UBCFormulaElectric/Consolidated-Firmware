@@ -1,7 +1,7 @@
 {
 	"FSM_Vitals": {
 		"msg_id": 304,
-		"cycle_time": 1000,
+		"cycle_time": 100,
 		"description": "FSM Heartbeat signal",
 		"signals": {
 			"Heartbeat": {
