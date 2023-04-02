@@ -48,8 +48,16 @@ bool Io_AcceleratorPedals_PappsOCSC(void)
 float Io_AcceleratorPedals_GetSapps(void)
 {
     // TODO implement IO functionality
-    float pedal_voltage   = 0.5f;
-    float secondary_angle = (float)M_PI;
+    // Length calculated via voltage
+    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+    const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+
+    // Compute the angle relative to the y-axis with cosine law
+    const float pedal_travel_angle =
+        ((float)M_PI_2 -
+         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
+
+    float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
     return secondary_angle / 30.0f * 100.0f;
 }
 bool Io_AcceleratorPedals_SappsOCSC(void)
