@@ -104,6 +104,7 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
 struct Led *              bspd_led;
+struct Led *              drive_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     aux_switch;
 struct RgbLed *           bms_status_led;
@@ -207,6 +208,8 @@ int main(void)
 
     bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
 
+    drive_led = App_Led_Create(Io_Leds_TurnOnAuxLed, Io_Leds_TurnOffAuxLed);
+
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
     aux_switch = App_BinarySwitch_Create(Io_Switches_AuxSwitchIsTurnedOn);
@@ -234,8 +237,9 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
+        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, drive_led,
+        start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led,
+        clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

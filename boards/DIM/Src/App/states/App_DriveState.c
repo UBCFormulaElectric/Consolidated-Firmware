@@ -1,5 +1,6 @@
 #include <string.h>
 #include "states/App_DriveState.h"
+#include "main.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
@@ -112,6 +113,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
     struct Led *             imd_led            = App_DimWorld_GetImdLed(world);
     struct Led *             bspd_led           = App_DimWorld_GetBspdLed(world);
+    struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
@@ -184,6 +186,16 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedRgbLed_TurnGreen(board_status_led);
         }
+    }
+
+    const bool dcm_in_drive_state = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
+    if (dcm_in_drive_state)
+    {
+        App_Led_TurnOn(drive_led);
+    }
+    else
+    {
+        App_Led_TurnOff(drive_led);
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);

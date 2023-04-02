@@ -21,3 +21,13 @@ void Io_Leds_TurnOffBspdLed(void)
 {
     HAL_GPIO_WritePin(BSPD_LED_GPIO_Port, BSPD_LED_Pin, GPIO_PIN_RESET);
 }
+
+void Io_Leds_TurnOnAuxLed()
+{
+    HAL_GPIO_WritePin(AUX_LED_GPIO_Port, AUX_LED_Pin, GPIO_PIN_SET);
+}
+
+void Io_Leds_TurnOffAuxLed()
+{
+    HAL_GPIO_WritePin(AUX_LED_GPIO_Port, AUX_LED_Pin, GPIO_PIN_RESET);
+}

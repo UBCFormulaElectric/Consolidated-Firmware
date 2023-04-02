@@ -11,3 +11,9 @@ void Io_Leds_TurnOnBspdLed(void);
 
 // Turn off the BSPD LED
 void Io_Leds_TurnOffBspdLed(void);
+
+// Turn on the AUX LED
+void Io_Leds_TurnOnAuxLed(void);
+
+// Turn off the AUX LED
+void Io_Leds_TurnOffAuxLed(void);

@@ -12,6 +12,7 @@ struct DimWorld
     struct RotarySwitch *    drive_mode_switch;
     struct Led *             imd_led;
     struct Led *             bspd_led;
+    struct Led *             drive_led;
     struct BinarySwitch *    start_switch;
     struct BinarySwitch *    aux_switch;
     struct RgbLed *          bms_status_led;
@@ -29,6 +30,7 @@ struct DimWorld *App_DimWorld_Create(
     struct RotarySwitch *const     drive_mode_switch,
     struct Led *const              imd_led,
     struct Led *const              bspd_led,
+    struct Led *const              drive_led,
     struct BinarySwitch *const     start_switch,
     struct BinarySwitch *const     aux_switch,
     struct RgbLed *const           bms_status_led,
@@ -47,6 +49,7 @@ struct DimWorld *App_DimWorld_Create(
     world->drive_mode_switch  = drive_mode_switch;
     world->imd_led            = imd_led;
     world->bspd_led           = bspd_led;
+    world->drive_led           = drive_led;
     world->start_switch       = start_switch;
     world->aux_switch         = aux_switch;
     world->bms_status_led     = bms_status_led;
@@ -92,6 +95,10 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *const world)
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world)
 {
     return world->bspd_led;
+}
+struct Led *App_DimWorld_GetDriveLed(const struct DimWorld *world)
+{
+    return world->drive_led;
 }
 
 struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *const world)

@@ -30,6 +30,7 @@ struct DimWorld *App_DimWorld_Create(
     struct RotarySwitch *    drive_mode_switch,
     struct Led *             imd_led,
     struct Led *             bspd_led,
+    struct Led *             drive_led,
     struct BinarySwitch *    start_switch,
     struct BinarySwitch *    aux_switch,
     struct RgbLed *          bms_status_led,
@@ -99,6 +100,13 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
  * @return The BSPD LED for the given world
  */
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
+
+/**
+ * Get the drive LED for the given world
+ * @param world The world to get drive LED for
+ * @return The drive LED for the given world
+ */
+struct Led *App_DimWorld_GetDriveLed(const struct DimWorld *world);
 
 /**
  * Get the BMS status LED for the given world
