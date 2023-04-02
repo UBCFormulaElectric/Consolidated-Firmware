@@ -26,7 +26,7 @@ uint32_t Io_EllipseImu_GetTimestampUs(void);
  * @param output Which sensor value to read
  * @return Last read sensor output, in the cooresponding units
  */
-float Io_EllipseImu_GetSensorOutput(SbgSensorOutput output);
+float Io_EllipseImu_GetSensorOutput(EllipseImuOutput output);
 
 /*
  * Get general status from the sensor.

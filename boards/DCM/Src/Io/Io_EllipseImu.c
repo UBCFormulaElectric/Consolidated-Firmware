@@ -63,17 +63,17 @@ static SensorData    sensor_data;                         // Struct of all senso
 
 // Map each sensor output enum to a ptr to the actual value
 float *sensor_output_map[NUM_SBG_OUTPUTS] = {
-    [SBG_OUTPUT_ACCELERATION_X] = &sensor_data.imu_data.acceleration.x,
-    [SBG_OUTPUT_ACCELERATION_Y] = &sensor_data.imu_data.acceleration.y,
-    [SBG_OUTPUT_ACCELERATION_Z] = &sensor_data.imu_data.acceleration.z,
+    [ELLIPSE_OUTPUT_ACCELERATION_X] = &sensor_data.imu_data.acceleration.x,
+    [ELLIPSE_OUTPUT_ACCELERATION_Y] = &sensor_data.imu_data.acceleration.y,
+    [ELLIPSE_OUTPUT_ACCELERATION_Z] = &sensor_data.imu_data.acceleration.z,
 
-    [SBG_OUTPUT_ANGULAR_VELOCITY_ROLL]  = &sensor_data.imu_data.angular_velocity.roll,
-    [SBG_OUTPUT_ANGULAR_VELOCITY_PITCH] = &sensor_data.imu_data.angular_velocity.pitch,
-    [SBG_OUTPUT_ANGULAR_VELOCITY_YAW]   = &sensor_data.imu_data.angular_velocity.yaw,
+    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_ROLL]  = &sensor_data.imu_data.angular_velocity.roll,
+    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_PITCH] = &sensor_data.imu_data.angular_velocity.pitch,
+    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_YAW]   = &sensor_data.imu_data.angular_velocity.yaw,
 
-    [SBG_OUTPUT_EULER_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
-    [SBG_OUTPUT_EULER_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
-    [SBG_OUTPUT_EULER_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
+    [ELLIPSE_OUTPUT_EULER_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
+    [ELLIPSE_OUTPUT_EULER_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
+    [ELLIPSE_OUTPUT_EULER_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
 };
 
 /* ------------------------- Static Function Prototypes -------------------------- */
@@ -284,7 +284,7 @@ uint32_t Io_EllipseImu_GetTimestampUs(void)
     return sensor_data.status_data.timestamp_us;
 }
 
-float Io_EllipseImu_GetSensorOutput(SbgSensorOutput output)
+float Io_EllipseImu_GetSensorOutput(EllipseImuOutput output)
 {
     assert(output < NUM_SBG_OUTPUTS);
     return *(sensor_output_map[output]);
