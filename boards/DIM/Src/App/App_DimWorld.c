@@ -49,7 +49,7 @@ struct DimWorld *App_DimWorld_Create(
     world->drive_mode_switch  = drive_mode_switch;
     world->imd_led            = imd_led;
     world->bspd_led           = bspd_led;
-    world->drive_led           = drive_led;
+    world->drive_led          = drive_led;
     world->start_switch       = start_switch;
     world->aux_switch         = aux_switch;
     world->bms_status_led     = bms_status_led;

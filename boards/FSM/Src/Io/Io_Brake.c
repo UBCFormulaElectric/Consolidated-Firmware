@@ -3,8 +3,8 @@
 #include "Io_Adc.h"
 
 // TODO set these values
-#define BRAKE_PEDAL_MIN_VOLTAGE (0.5f)
-#define BRAKE_PEDAL_MAX_VOLTAGE (4.5f)
+#define BRAKE_PEDAL_MIN_VOLTAGE (2.80f)
+#define BRAKE_PEDAL_MAX_VOLTAGE (3.10f)
 
 #define BRAKE_PRESSURE_OC_THRESHOLD_V (0.33f)
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
@@ -72,7 +72,8 @@ float Io_Brake_GetPedalPercentTravel(void)
 {
     float       pedal_voltage    = Io_Brake_GetPedalSensorVoltage();
     const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
-    return (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
+    const float pedal_percent = (BRAKE_PEDAL_MAX_VOLTAGE - pedal_voltage) * percent_per_volt;
+    return pedal_percent;
 }
 bool Io_Brake_PedalSensorOCSC(void)
 {
