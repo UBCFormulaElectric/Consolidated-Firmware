@@ -37,3 +37,6 @@
 #define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))
 
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
+
+#define PI (3.1415926f)
+#define RAD_TO_DEG(r) (r * 180.0f / PI)

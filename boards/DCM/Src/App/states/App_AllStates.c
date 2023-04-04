@@ -1,6 +1,7 @@
 #include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
+#include "App_EllipseImu.h"
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
@@ -48,6 +49,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+
+    App_EllipseImu_HandleLogs();
+    App_EllipseImu_Broadcast();
 
     return status;
 }

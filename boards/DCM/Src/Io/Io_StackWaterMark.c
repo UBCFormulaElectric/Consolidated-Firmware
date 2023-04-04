@@ -45,31 +45,31 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 static struct stack_watermark stack_watermarks[] = {
     {
         .handle              = &Task1HzHandle,
-        .stack_size          = 512,
+        .stack_size          = 4096,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1Hz,
     },
     {
         .handle              = &Task100HzHandle,
-        .stack_size          = 512,
+        .stack_size          = 4096,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask100Hz,
     },
     {
         .handle              = &Task1kHzHandle,
-        .stack_size          = 512,
+        .stack_size          = 4096,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1kHz,
     },
     {
         .handle              = &TaskCanRxHandle,
-        .stack_size          = 512,
+        .stack_size          = 4096,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanRx,
     },
     {
         .handle              = &TaskCanTxHandle,
-        .stack_size          = 512,
+        .stack_size          = 4096,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
     },
