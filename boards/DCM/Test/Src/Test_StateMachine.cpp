@@ -39,6 +39,11 @@ FAKE_VOID_FUNC(turn_on_left_inverter);
 FAKE_VOID_FUNC(turn_off_left_inverter);
 FAKE_VALUE_FUNC(bool, is_right_inverter_on);
 FAKE_VALUE_FUNC(bool, is_left_inverter_on);
+FAKE_VOID_FUNC(handle_imu_logs);
+FAKE_VALUE_FUNC(uint32_t, get_imu_timestamp);
+FAKE_VALUE_FUNC(uint16_t, get_imu_general_status);
+FAKE_VALUE_FUNC(uint32_t, get_imu_com_status);
+FAKE_VALUE_FUNC(float, get_imu_output, EllipseImuOutput);
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {
@@ -60,6 +65,9 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         imu = App_Imu_Create(
             get_acceleration_x, get_acceleration_y, get_acceleration_z, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+
+        App_EllipseImu_Init(
+            handle_imu_logs, get_imu_timestamp, get_imu_general_status, get_imu_com_status, get_imu_output);
 
         clock = App_SharedClock_Create();
 
