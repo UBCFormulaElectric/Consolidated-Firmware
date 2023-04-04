@@ -8,6 +8,7 @@
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
 #include "App_Imu.h"
+#include "App_EllipseImu.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
 
