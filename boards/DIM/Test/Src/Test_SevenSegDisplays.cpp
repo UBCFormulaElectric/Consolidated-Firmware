@@ -171,7 +171,6 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[0].enabled);
 }
 
-// TODO: Make a test for underflow (?) unsure if that makes much sense
 
 TEST_F(SevenSegDisplaysTest, set_overflow_to_each_group)
 {
@@ -230,69 +229,37 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
 
     App_SevenSegDisplays_SetGroupR(seven_seg_displays, 308);
 
-    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[2].enabled); // this should be enabled, did not turn it off
-    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(2, set_left_m_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(9, set_left_r_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(2, set_left_m_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(9, set_left_r_hex_digit_fake.arg0_history[1].value);
 
-    ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[1].enabled);
 
-    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[1].enabled);
 
-    ASSERT_EQ(3, set_right_l_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(0, set_right_m_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(3, set_right_l_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(0, set_right_m_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[1].value);
 }
 
-// TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
-//{
-//    const uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { 1, 2, 3 };
-//
-//    for (size_t i = 1; i <= NUM_SEVEN_SEG_DISPLAYS; i++)
-//    {
-//        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, hex_digits, i);
-//        ASSERT_EQ(EXIT_CODE_OK, exit_code);
-//        ASSERT_EQ(i, display_value_callback_fake.call_count);
-//    }
-//}
-//
-// TEST_F(SevenSegDisplaysTest, set_invalid_hex_digits_does_not_invoke_callback_function)
-//{
-//    uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { NUM_HEX_DIGITS, NUM_HEX_DIGITS, NUM_HEX_DIGITS };
-//
-//    for (size_t i = 1; i <= NUM_SEVEN_SEG_DISPLAYS; i++)
-//    {
-//        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, hex_digits, i);
-//        ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-//        ASSERT_EQ(0, display_value_callback_fake.call_count);
-//    }
-//}
-//
-// TEST_F(SevenSegDisplaysTest, invalid_num_digits_for_set_hex_digits_does_not_invoke_callback_function)
-//{
-//    uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { 0 };
-//
-//    ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, hex_digits, 0);
-//    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-//    ASSERT_EQ(0, display_value_callback_fake.call_count);
-//}
-//
-// TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_value_invokes_callback_function)
-//{
-//    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1);
-//    ASSERT_EQ(EXIT_CODE_OK, exit_code);
-//    ASSERT_EQ(1, display_value_callback_fake.call_count);
-//}
-//
-// TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
-//{
-//    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000000000);
-//    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-//    ASSERT_EQ(0, display_value_callback_fake.call_count);
-//}
+ TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
+{
+    ExitCode exit_code_L = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 100000000);
+    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_L);
+    ASSERT_EQ(0, display_value_callback_fake.call_count);
+
+    ExitCode exit_code_M = App_SevenSegDisplays_SetGroupM(seven_seg_displays, 100000000);
+    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_M);
+    ASSERT_EQ(0, display_value_callback_fake.call_count);
+
+    ExitCode exit_code_R = App_SevenSegDisplays_SetGroupR(seven_seg_displays, 100000000);
+    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_R);
+    ASSERT_EQ(0, display_value_callback_fake.call_count);
+}
