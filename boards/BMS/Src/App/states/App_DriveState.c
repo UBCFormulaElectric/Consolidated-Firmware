@@ -26,7 +26,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
+        App_CanTx_BMS_Warnings_MissingHeartbeat_Set(is_missing_hb);
 
         // if AIR- opens, go back to fault state (AIR+ will be opened there)
         const bool air_negative_opened = !App_Airs_IsAirNegativeClosed(airs);

@@ -64,7 +64,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 
         struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(missing_hb);
+        App_CanTx_BMS_Warnings_MissingHeartbeat_Set(missing_hb);
 
         if (has_precharge_fault)
         {

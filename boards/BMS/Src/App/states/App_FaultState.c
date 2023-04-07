@@ -35,7 +35,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
     const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanTx_BMS_Warnings_MissingHeartBeat_Set(hb_ok);
+    App_CanTx_BMS_Warnings_MissingHeartbeat_Set(hb_ok);
 
     if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok)
     {

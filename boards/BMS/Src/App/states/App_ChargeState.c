@@ -55,7 +55,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
+        App_CanTx_BMS_Warnings_MissingHeartbeat_Set(is_missing_hb);
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred ||
             is_missing_hb)
