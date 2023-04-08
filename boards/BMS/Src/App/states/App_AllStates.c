@@ -118,6 +118,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
+    struct Charger     * charger          = App_BmsWorld_GetCharger(world);
 
     bool status = true;
     App_SendAndReceiveHeartbeat(hb_monitor);
@@ -153,6 +154,22 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     else if (acc_fault || ts_fault)
     {
         status = false;
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
+    // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
+    if (App_Charger_IsConnected(charger))
+    {
+        if (App_Charger_HasFaulted(charger))
+        {
+            status = false;
+            App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx,false);
+            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        }
+    }
+    else if(App_SharedStateMachine_GetCurrentState(state_machine)==App_GetChargeState()){
+        status = false;
+        App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx,true);
+        App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx,false);
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 

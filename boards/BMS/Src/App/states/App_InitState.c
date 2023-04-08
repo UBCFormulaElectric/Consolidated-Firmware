@@ -14,11 +14,13 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
+    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);
+    App_Airs_OpenAirPositive(airs);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -30,14 +32,30 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct TractiveSystem *   ts      = App_BmsWorld_GetTractiveSystem(world);
+        struct Airs *             airs    = App_BmsWorld_GetAirs(world);
+        struct Charger *          charger = App_BmsWorld_GetCharger(world);
+
+        bool is_charger_connected = App_Charger_IsConnected(charger);
+
 #ifndef BSPD_DEMO_MODE
         struct TractiveSystem *ts   = App_BmsWorld_GetTractiveSystem(world);
         struct Airs *          airs = App_BmsWorld_GetAirs(world);
         // don't allow pre_charge if in BSPD_DEMO_MODE
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            // If the charger is connected, the CAN message must also be set
+            // to continue into Pre-Charge State, then Charge State
+            if (is_charger_connected && App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH())
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
+            // If charger isn't connected, go into Pre-Charge State, then Drive State
+            else if (!is_charger_connected)
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
         }
 #endif
         //      #else?
