@@ -48,13 +48,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
 
-        struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(external_shutdown_occurred);
 
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (charging_completed || !charging_enabled||is_missing_hb)
+        if (charging_completed || !charging_enabled)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
