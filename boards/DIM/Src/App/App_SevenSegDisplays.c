@@ -7,6 +7,7 @@
 #include "App_SevenSegDisplay.h"
 
 static uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
+static void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t group_index); // protype
 
 struct SevenSegDisplays
 {
@@ -51,25 +52,9 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displ
     free(seven_seg_displays);
 }
 
-ExitCode
-    App_SevenSegDisplays_SetHexDigits(const struct SevenSegDisplays *seven_seg_displays, const uint8_t hex_digits[])
+void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t group_index)
 {
-    size_t len_hex_digits = 9; // TODO: This is bad, should get from somewhere else
-
-    for (size_t i = 0; i < len_hex_digits; i++)
-    {
-        if (hex_digits[i] >= NUM_HEX_DIGITS)
-        {
-            return EXIT_CODE_INVALID_ARGS;
-        }
-    }
-
-    return EXIT_CODE_OK;
-}
-
-void App_Set_Digits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index)
-{
-    for (int i = index; i < NUM_IN_GROUP + index; i++)
+    for (int i = group_index; i < NUM_IN_GROUP + group_index; i++)
     {
         struct SevenSegHexDigit hex_digit;
         hex_digit.enabled = true;
@@ -87,21 +72,21 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
     {
         return EXIT_CODE_INVALID_ARGS;
     }
-    digits[0] = 0;
-    digits[1] = 0;
-    digits[2] = 0;
+    digits[LEFT_L_SEVEN_SEG_DISPLAY] = 0;
+    digits[LEFT_M_SEVEN_SEG_DISPLAY] = 0;
+    digits[LEFT_R_SEVEN_SEG_DISPLAY] = 0;
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function.
-    int shift = 3;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = LEFT_R_SEVEN_SEG_DISPLAY; digits_index + LEFT_R_SEVEN_SEG_DISPLAY > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index - 1] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, 0);
+            // initializing from the first place it needs to edit, due to the inverse nature of the daisy chain in the IO
+            App_SevenSegDisplays_SetDigits(seven_seg_displays, 0);
             break;
         }
     }
@@ -115,21 +100,21 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
     {
         return EXIT_CODE_INVALID_ARGS;
     }
-    digits[3] = 0;
-    digits[4] = 0;
-    digits[5] = 0;
+    digits[MIDDLE_L_SEVEN_SEG_DISPLAY] = 0;
+    digits[MIDDLE_M_SEVEN_SEG_DISPLAY] = 0;
+    digits[MIDDLE_R_SEVEN_SEG_DISPLAY] = 0;
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = 5;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = MIDDLE_R_SEVEN_SEG_DISPLAY; digits_index + MIDDLE_R_SEVEN_SEG_DISPLAY > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, 3);
+            // initializing from the first place it needs to edit, due to the inverse nature of the daisy chain in the IO
+            App_SevenSegDisplays_SetDigits(seven_seg_displays, 3);
             break;
         }
     }
@@ -146,21 +131,21 @@ ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const sev
 
     // 'wiping' this section of the array
 
-    digits[6] = 0;
-    digits[7] = 0;
-    digits[8] = 0;
+    digits[RIGHT_L_SEVEN_SEG_DISPLAY] = 0;
+    digits[RIGHT_M_SEVEN_SEG_DISPLAY] = 0;
+    digits[RIGHT_R_SEVEN_SEG_DISPLAY] = 0;
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = 8;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = RIGHT_R_SEVEN_SEG_DISPLAY; digits_index + RIGHT_R_SEVEN_SEG_DISPLAY > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_Set_Digits(seven_seg_displays, 6);
+            // initializing from the first place it needs to edit, due to the inverse nature of the daisy chain in the IO
+            App_SevenSegDisplays_SetDigits(seven_seg_displays, 6);
             break;
         }
     }

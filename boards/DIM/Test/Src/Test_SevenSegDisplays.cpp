@@ -171,7 +171,6 @@ TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group)
     ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[0].enabled);
 }
 
-
 TEST_F(SevenSegDisplaysTest, set_overflow_to_each_group)
 {
     uint32_t over_flow_val = pow(10, NUM_IN_GROUP);
@@ -249,7 +248,7 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
     ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[1].value);
 }
 
- TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
+TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
 {
     ExitCode exit_code_L = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 100000000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code_L);

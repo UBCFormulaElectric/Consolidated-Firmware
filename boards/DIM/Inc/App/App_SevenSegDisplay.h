@@ -15,15 +15,15 @@ struct SevenSegHexDigit
  * Allocate and initialize a 7-segment display
  * @param set_hex_digit A function that can be called to set the underlying
  *                      hardware to display a given hexadecimal digit
+ * @param digit A digit indicating which of the 7-seg displays to be edited
  * @return A pointer to the created 7-segment display, whose ownership is given
  *         to the caller
  */
-struct SevenSegDisplay *App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit, int DIGIT));
+struct SevenSegDisplay *App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit, int Digit));
 
 /**
  * Deallocate the memory used by the given 7-segment display
  * @param seven_seg_display The 7-segment display to deallocate
- * @param digit
  */
 void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 
@@ -35,4 +35,4 @@ void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 void App_SevenSegDisplay_SetHexDigit(
     const struct SevenSegDisplay *const seven_seg_display,
     const struct SevenSegHexDigit       hex_digit,
-    int digit_location);
+    int                                 digit_location);
