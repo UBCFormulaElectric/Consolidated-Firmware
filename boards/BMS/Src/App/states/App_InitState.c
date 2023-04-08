@@ -14,7 +14,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
-    struct Airs *       airs          = App_BmsWorld_GetAirs(world);
+    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));

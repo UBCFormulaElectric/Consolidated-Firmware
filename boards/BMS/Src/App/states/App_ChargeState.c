@@ -2,6 +2,7 @@
 #include "states/App_FaultState.h"
 #include "states/App_InitState.h"
 #include "states/App_ChargeState.h"
+#include "App_CanAlerts.h"
 
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
@@ -52,7 +53,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(!is_charger_connected);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (!charging_enabled)
+        if (!charging_enabled || charging_completed)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }

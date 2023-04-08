@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "_meta": {
         "hash": {
@@ -446,3 +447,5 @@
         }
     }
 }
+=======
+>>>>>>> 9f61e18d (First Rebase fix Still have to do: Ask Will about the error tables, clarify what can and can't be deleted in Charge_State, Init_State)
