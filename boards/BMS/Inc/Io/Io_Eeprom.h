@@ -12,7 +12,7 @@
  * @param data the pointer to the data to write in bytes
  * @param size the size of the data to be written in bytes
  */
-void EEPROM_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size);
+void Io_Eeprom_WriteBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Read from EEPROM
@@ -21,7 +21,7 @@ void EEPROM_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size);
  * @param data the pointer to the data to read in bytes
  * @param size the size of the data to be read in bytes
  */
-void Io_Eeprom_Read(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size);
+void Io_Eeprom_ReadBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Erase page in EEPROM
@@ -35,7 +35,7 @@ void Io_Eeprom_PageErase(uint16_t page);
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1
  * @param data the float value to write to EEPROM
  */
-void Io_Eeprom_WriteFloat(uint16_t page, uint16_t offset, float data);
+void Io_Eeprom_WriteFloat(uint16_t page, uint8_t offset, float data);
 
 /**
  * Read float value to EEPROM
@@ -43,4 +43,4 @@ void Io_Eeprom_WriteFloat(uint16_t page, uint16_t offset, float data);
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1
  * @param data the float value to read from EEPROM
  */
-float Io_Eeprom_ReadFloat(uint16_t page, uint16_t offset);
+float Io_Eeprom_ReadFloat(uint16_t page, uint8_t offset);

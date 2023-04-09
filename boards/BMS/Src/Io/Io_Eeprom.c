@@ -9,7 +9,8 @@ extern I2C_HandleTypeDef hi2c1;
 
 // Define the Page Size and number of pages
 #define PAGE_SIZE ((uint16_t)16U)                                 // in Bytes
-#define NUM_PAGES ((uint16_t)1024U)                               // number of pages
+#define NUM_PAGES (128U)                                          // number of pages
+#define NUM_BYTES (2048U)                                         // total number of bytes on EEPROM
 #define PAGE_ADDR_START_BIT ((uint16_t)(log(PAGE_SIZE) / log(2))) // number of bit where addressing starts
 #define MEM_ACCESS_TIMEOUT (1000U)
 
@@ -64,11 +65,11 @@ static float convert_bytes_to_float(uint8_t *bytes)
     return u.float_val;
 }
 
-void Io_Eeprom_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size)
+void Io_Eeprom_WriteBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
 {
     // determine the start page and ending page
     uint16_t startPage = page;
-    uint16_t endPage   = (uint16_t)(page + ((size + offset) / PAGE_SIZE));
+    uint16_t endPage   = (uint16_t)(page + ((size + offset - 1) / PAGE_SIZE));
 
     // determine the number of pages to be written
     uint16_t num_pages = (uint16_t)(endPage - startPage + 1);
@@ -79,6 +80,11 @@ void Io_Eeprom_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t siz
         // determine the memory address location
         uint16_t mem_address = (uint16_t)(startPage << PAGE_ADDR_START_BIT | offset);
 
+        // if address beyond EEPROM address space, return
+        if (mem_address >= NUM_BYTES)
+        {
+            return;
+        }
         // Determine the number of bytes to write to page
         uint16_t bytes_to_write = Bytes_To_Process(size, offset);
 
@@ -86,7 +92,7 @@ void Io_Eeprom_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t siz
             EEPROM_I2C, EEPROM_ADDR, mem_address, I2C_MEMADD_SIZE_8BIT, &data[pos], bytes_to_write, MEM_ACCESS_TIMEOUT);
 
         startPage++;                                // Increment the page for next write
-        offset = 0;                                 // writing to new page, offset will be zero for next write.
+        offset = 0U;                                // writing to new page, offset will be zero for next write.
         size   = (uint16_t)(size - bytes_to_write); // reduce size by the amount of bytes written to page
         pos    = (uint16_t)(pos + bytes_to_write);  // increase starting position by number of bytes written
 
@@ -94,11 +100,11 @@ void Io_Eeprom_Write(uint16_t page, uint16_t offset, uint8_t *data, uint16_t siz
     }
 }
 
-void Io_Eeprom_Read(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size)
+void Io_Eeprom_ReadBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
 {
     // determine the start page and ending page
     uint16_t startPage = page;
-    uint16_t endPage   = (uint16_t)(page + ((size + offset) / PAGE_SIZE));
+    uint16_t endPage = (uint16_t)(page + ((size + offset - 1) / PAGE_SIZE));
 
     // determine the number of pages to be written
     uint16_t num_pages = (uint16_t)(endPage - startPage + 1);
@@ -109,6 +115,12 @@ void Io_Eeprom_Read(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size
         // determine the memory address location
         uint16_t mem_address = (uint16_t)(startPage << PAGE_ADDR_START_BIT | offset);
 
+        // if address beyond EEPROM address space, return
+        if (mem_address >= NUM_BYTES)
+        {
+            return;
+        }
+
         // Determine the number of bytes to read from page
         uint16_t bytes_to_read = Bytes_To_Process(size, offset);
 
@@ -116,7 +128,7 @@ void Io_Eeprom_Read(uint16_t page, uint16_t offset, uint8_t *data, uint16_t size
             EEPROM_I2C, EEPROM_ADDR, mem_address, I2C_MEMADD_SIZE_8BIT, &data[pos], bytes_to_read, MEM_ACCESS_TIMEOUT);
 
         startPage++;                               // Increment the page for next read
-        offset = 0;                                // reading from new page, offset will be zero for next read.
+        offset = 0U;                               // reading from new page, offset will be zero for next read.
         size   = (uint16_t)(size - bytes_to_read); // reduce size by the amount of bytes read
         pos    = (uint16_t)(pos + bytes_to_read);  // increase starting position by number of bytes read
     }
@@ -138,20 +150,20 @@ void Io_Eeprom_PageErase(uint16_t page)
     HAL_Delay(5);
 }
 
-void Io_Eeprom_WriteFloat(uint16_t page, uint16_t offset, float data_float)
+void Io_Eeprom_WriteFloat(uint16_t page, uint8_t offset, float data_float)
 {
     // convert float to bytes array
     uint8_t data_bytes[sizeof(float)];
     convert_float_to_bytes(data_bytes, data_float);
 
     // write bytes array to EEPROM
-    Io_Eeprom_Write(page, offset, data_bytes, sizeof(float));
+    Io_Eeprom_WriteBytes(page, offset, data_bytes, sizeof(float));
 }
 
-float Io_Eeprom_ReadFloat(uint16_t page, uint16_t offset)
+float Io_Eeprom_ReadFloat(uint16_t page, uint8_t offset)
 {
     uint8_t data[4];
 
-    Io_Eeprom_Read(page, offset, data, sizeof(float));
+    Io_Eeprom_ReadBytes(page, offset, data, sizeof(float));
     return convert_bytes_to_float(data);
 }
