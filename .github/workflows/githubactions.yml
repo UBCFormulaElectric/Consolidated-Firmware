@@ -14,7 +14,7 @@ on:
 jobs:
   format:
     name: Check Formatting
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
 
@@ -29,7 +29,9 @@ jobs:
           cache-dependency-path: Pipfile.lock
         
       - name: Install dependencies
-        run: pipenv install --deploy
+        run: |
+          pipenv install --deploy
+          sudo apt install -y libtinfo5
       
       - name: Format code
         run: python clang-format/fix_formatting.py
@@ -39,7 +41,7 @@ jobs:
 
   codegen:
     name: Check CubeMX Code Gen
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -66,7 +68,9 @@ jobs:
           cache-dependency-path: Pipfile.lock
 
       - name: Install dependencies
-        run: pipenv install --deploy
+        run: |
+          pipenv install --deploy
+          sudo apt install -y libtinfo5
 
       - name: Setup XVFB
         run: |
@@ -96,7 +100,7 @@ jobs:
 
   tests:
     name: Build and Run x86 Tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       BUILD_DIR: boards/x86_build_release
@@ -152,7 +156,7 @@ jobs:
 
   build:
     name: Build ARM Executables
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -191,6 +195,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ccache valgrind
           pipenv install --deploy
+          sudo apt install -y libtinfo5
 
       - name: Setup XVFB
         run: |
