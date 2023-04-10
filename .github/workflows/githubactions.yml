@@ -29,7 +29,9 @@ jobs:
           cache-dependency-path: Pipfile.lock
         
       - name: Install dependencies
-        run: pipenv install --deploy
+        run: |
+          pipenv install --deploy
+          sudo apt install -y libtinfo5
       
       - name: Format code
         run: python clang-format/fix_formatting.py
