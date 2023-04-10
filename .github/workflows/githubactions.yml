@@ -68,7 +68,9 @@ jobs:
           cache-dependency-path: Pipfile.lock
 
       - name: Install dependencies
-        run: pipenv install --deploy
+        run: |
+          pipenv install --deploy
+          sudo apt install -y libtinfo5
 
       - name: Setup XVFB
         run: |
