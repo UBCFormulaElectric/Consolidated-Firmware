@@ -195,6 +195,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ccache valgrind
           pipenv install --deploy
+          sudo apt install -y libtinfo5
 
       - name: Setup XVFB
         run: |
