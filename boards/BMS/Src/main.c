@@ -243,11 +243,11 @@ int main(void)
     Io_LTC6813Shared_InitSpiHandle(&hspi1);
     accumulator = App_Accumulator_Create(
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
-        Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_ReadVoltages,
-        Io_LTC6813CellTemperatures_StartAdcConversion, Io_LTC6813CellTemperatures_ReadTemperatures,
-        Io_LTC6813CellTemperatures_GetMinTempDegC, Io_LTC6813CellTemperatures_GetMaxTempDegC,
-        Io_LTC6813CellTemperatures_GetAverageTempDegC, Io_LTC6813Shared_EnableDischarge,
-        Io_LTC6813Shared_DisableDischarge);
+        Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_StartOpenWireCheck,
+        Io_LTC6813CellVoltages_ReadVoltages, Io_LTC6813CellTemperatures_StartAdcConversion,
+        Io_LTC6813CellTemperatures_ReadTemperatures, Io_LTC6813CellTemperatures_GetMinTempDegC,
+        Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
+        Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
 
     ts = App_TractiveSystem_Create(
         Io_VoltageSense_GetTractiveSystemVoltage, Io_CurrentSense_GetHighResolutionMainCurrent,

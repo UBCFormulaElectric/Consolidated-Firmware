@@ -1,10 +1,30 @@
 #include <string.h>
 #include <float.h>
+#include "App_SharedMacros.h"
 #include "App_Accumulator.h"
 #include "App_CanAlerts.h"
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
+
+// Number of open wire check commands (ADOW) to send before open wire check
+#define OPEN_WIRE_CHECK_NUM_ADOW_CMDS (2U)
+
+// Time interval between running open wire check, in MS
+#define OPEN_WIRE_CHECK_PERIOD_S (1U) // 5 second interval
+#define TICK_RATE_HZ (100U)           // Accumulator ticked in 100Hz task
+#define OPEN_WIRE_CHECK_PERIOD_TICKS (OPEN_WIRE_CHECK_PERIOD_S * TICK_RATE_HZ)
+
+// For cell 0, cell 0 is open if V_PU(0) = 0V
+#define OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V (0.1f) // 100mV
+
+// For cell N in 1-15, cell N is open if V_PU(N+1) - V_PD(N+1) < -400mV
+// * V_PU(N) is pull-up voltage of cell N, i.e. result of ADOW with PUP set to 1
+// * V_PD(N) is pull-down voltage of cell N, i.e. result of ADOW with PUP set to 0
+#define OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V (-0.4f) // -400mV
+
+// Open wire check algorithm requires a 17th voltage reading to check if cell 16 is open wire
+#define NUM_OPEN_WIRE_CHECK_READINGS_PER_SEGMENT (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT + 1U)
 
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
@@ -19,9 +39,21 @@
 
 typedef enum
 {
-    GET_CELL_VOLTAGE_STATE = 0U,
-    GET_CELL_TEMP_STATE,
+    MONITOR_STATE_MACHINE,
+    OPEN_WIRE_CHECK_STATE_MACHINE,
+} AccumulatorStateMachine;
+
+typedef enum
+{
+    MONITOR_CELL_VOLTAGES_STATE,
+    MONITOR_CELL_TEMPS_STATE,
 } AccumulatorMonitorState;
+
+typedef enum
+{
+    OPEN_WIRE_CHECK_PU_STATE,
+    OPEN_WIRE_CHECK_PD_STATE,
+} AccumulatorOpenWireCheckState;
 
 typedef struct
 {
@@ -48,12 +80,26 @@ struct Accumulator
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
-    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+    bool (*start_open_wire_check)(bool);
+    bool (*read_cell_voltages)(float *, uint8_t);
+
+    // State machine information
+    AccumulatorStateMachine       state_machine;
+    AccumulatorMonitorState       monitor_state;
+    AccumulatorOpenWireCheckState open_wire_check_state;
+    uint32_t                      tick_count;
 
     // Voltage information
-    VoltageStats            voltage_stats;
-    AccumulatorMonitorState state;
-    float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    VoltageStats voltage_stats;
+    float        cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+
+    // Open wire check information
+    uint8_t open_wire_num_pu_readings;
+    uint8_t open_wire_num_pd_readings;
+    float   open_wire_pu_voltages[ACCUMULATOR_NUM_SEGMENTS][NUM_OPEN_WIRE_CHECK_READINGS_PER_SEGMENT];
+    float   open_wire_pd_voltages[ACCUMULATOR_NUM_SEGMENTS][NUM_OPEN_WIRE_CHECK_READINGS_PER_SEGMENT];
+    bool    open_wire_cells[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    bool    open_wire_fault;
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -112,11 +158,199 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
     accumulator->voltage_stats = temp_voltage_stats;
 }
 
+/**
+ * Check for open wires between LTC and cell voltage taps.
+ * @param accumulator The accumulator to check open wires for
+ */
+static void App_Accumulator_InterpretOpenWireCheck(struct Accumulator *accumulator)
+{
+    bool open_wire_fault = false;
+
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        // For cell 0, cell 0 is open if V_PU(0) = 0V
+        const bool cell_0_open = accumulator->open_wire_pu_voltages[segment][0U] < OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V;
+        accumulator->open_wire_cells[segment][0] = cell_0_open;
+        accumulator->open_wire_fault |= cell_0_open;
+
+        for (uint8_t cell = 1U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            // For cell N in 1-15, cell N is open if V_PU(N+1) - V_PD(N+1) < -400mV
+            // * V_PU(N) is pull-up voltage of cell N, i.e. voltages read back after ADOW with PUP set to 1
+            // * V_PD(N) is pull-down voltage of cell N, i.e. voltages read back after ADOW with PUP set to 0
+            const float n_plus_1_pu_voltage = accumulator->open_wire_pu_voltages[segment][cell + 1];
+            const float n_plus_1_pd_voltage = accumulator->open_wire_pd_voltages[segment][cell + 1];
+            const bool  cell_open = (n_plus_1_pu_voltage - n_plus_1_pd_voltage) < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
+            accumulator->open_wire_cells[segment][cell] = cell_open;
+            accumulator->open_wire_fault |= cell_open;
+        }
+    }
+}
+
+/**
+ * Run the cell voltage and temperature monitoring state machine
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_RunMonitorStateMachine(struct Accumulator *accumulator)
+{
+    switch (accumulator->monitor_state)
+    {
+        case MONITOR_CELL_VOLTAGES_STATE:
+        {
+            // Attempt to read voltages from the LTCs, write output to cell voltages array
+            UPDATE_PEC15_ERROR_COUNT(
+                accumulator->read_cell_voltages(
+                    &accumulator->cell_voltages[0][0], ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT),
+                accumulator->num_comm_tries);
+
+            // Calculate min/max/segment voltages
+            App_Accumulator_CalculateVoltageStats(accumulator);
+
+            // Write to configuration register to configure cell discharging
+            accumulator->write_cfg_registers();
+            accumulator->disable_discharge();
+
+            // Read cell temps next
+            accumulator->monitor_state = MONITOR_CELL_TEMPS_STATE;
+            break;
+        }
+        case MONITOR_CELL_TEMPS_STATE:
+        {
+            // TODO: Correct number of readings: 17 for monitor, 16 for open wire
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
+            accumulator->disable_discharge();
+
+            // Read cell voltages next
+            accumulator->monitor_state = MONITOR_CELL_VOLTAGES_STATE;
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+/**
+ * Run the open wire check state machine
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_RunOpenWireCheckStateMachine(struct Accumulator *accumulator, bool *finished)
+{
+    *finished = false;
+
+    switch (accumulator->open_wire_check_state)
+    {
+        case OPEN_WIRE_CHECK_PU_STATE:
+        {
+            accumulator->open_wire_num_pu_readings++;
+
+            if (accumulator->open_wire_num_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
+                // If required number of open wire check commands have been run, read voltages
+                UPDATE_PEC15_ERROR_COUNT(
+                    accumulator->read_cell_voltages(
+                        &accumulator->open_wire_pu_voltages[0][0], NUM_OPEN_WIRE_CHECK_READINGS_PER_SEGMENT),
+                    accumulator->num_comm_tries);
+
+                // Run with pull-down current next
+                accumulator->open_wire_check_state = OPEN_WIRE_CHECK_PD_STATE;
+            }
+            break;
+        }
+        case OPEN_WIRE_CHECK_PD_STATE:
+        {
+            accumulator->open_wire_num_pd_readings++;
+
+            if (accumulator->open_wire_num_pd_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
+                // If required number of open wire check commands have been run, read voltages
+                UPDATE_PEC15_ERROR_COUNT(
+                    accumulator->read_cell_voltages(
+                        &accumulator->open_wire_pd_voltages[0][0], NUM_OPEN_WIRE_CHECK_READINGS_PER_SEGMENT),
+                    accumulator->num_comm_tries);
+
+                // Check has completed, interpret results
+                App_Accumulator_InterpretOpenWireCheck(accumulator);
+
+                // Reset open wire check process
+                accumulator->open_wire_num_pu_readings = 0;
+                accumulator->open_wire_num_pd_readings = 0;
+                accumulator->open_wire_check_state     = OPEN_WIRE_CHECK_PU_STATE;
+                *finished                              = true;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+/**
+ * Start the ADC voltage conversion for the next state.
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_StartNextConversion(struct Accumulator *accumulator)
+{
+    switch (accumulator->state_machine)
+    {
+        case MONITOR_STATE_MACHINE:
+        {
+            switch (accumulator->monitor_state)
+            {
+                case MONITOR_CELL_VOLTAGES_STATE:
+                {
+                    accumulator->start_cell_voltage_conv();
+                    break;
+                }
+                case MONITOR_CELL_TEMPS_STATE:
+                {
+                    accumulator->start_cell_temp_conv();
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        case OPEN_WIRE_CHECK_STATE_MACHINE:
+        {
+            switch (accumulator->open_wire_check_state)
+            {
+                case OPEN_WIRE_CHECK_PU_STATE:
+                {
+                    accumulator->start_open_wire_check(true);
+                    break;
+                }
+                case OPEN_WIRE_CHECK_PD_STATE:
+                {
+                    accumulator->start_open_wire_check(false);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
+    bool (*start_open_wire_check)(bool),
+    bool (*read_cell_voltages)(float *, uint8_t),
     bool (*start_cell_temp_conv)(void),
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
@@ -127,6 +361,7 @@ struct Accumulator *App_Accumulator_Create(
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
+    memset(accumulator, 0U, sizeof(struct Accumulator));
 
     accumulator->config_monitoring_chip = config_monitoring_chip;
     accumulator->write_cfg_registers    = write_cfg_registers;
@@ -135,10 +370,15 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->num_comm_tries          = 0U;
     accumulator->read_cell_voltages      = read_cell_voltages;
     accumulator->start_cell_voltage_conv = start_voltage_conv;
+    accumulator->start_open_wire_check   = start_open_wire_check;
+
+    // State machine information
+    accumulator->state_machine         = MONITOR_STATE_MACHINE;
+    accumulator->monitor_state         = MONITOR_CELL_VOLTAGES_STATE;
+    accumulator->open_wire_check_state = OPEN_WIRE_CHECK_PU_STATE;
 
     // Voltage information
     memset(&accumulator->voltage_stats, 0U, sizeof(VoltageStats));
-    accumulator->state = GET_CELL_VOLTAGE_STATE;
 
     // Cell temperature monitoring functions
     accumulator->start_cell_temp_conv   = start_cell_temp_conv;
@@ -259,35 +499,42 @@ bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulato
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
-    switch (accumulator->state)
+    switch (accumulator->state_machine)
     {
-        case GET_CELL_VOLTAGE_STATE:
+        case MONITOR_STATE_MACHINE:
         {
-            // Attempt to read voltages from the LTCs, write output to cell voltages array
-            UPDATE_PEC15_ERROR_COUNT(
-                accumulator->read_cell_voltages(accumulator->cell_voltages), accumulator->num_comm_tries);
+            // Run cell voltage/temperature monitoring state machine
+            App_Accumulator_RunMonitorStateMachine(accumulator);
 
-            // Calculate min/max/segment voltages
-            App_Accumulator_CalculateVoltageStats(accumulator);
+            // If open wire check period has elapsed, switch state machines
+            if (accumulator->tick_count >= OPEN_WIRE_CHECK_PERIOD_TICKS)
+            {
+                accumulator->tick_count    = 0U;
+                accumulator->state_machine = OPEN_WIRE_CHECK_STATE_MACHINE;
+            }
+            else
+            {
+                accumulator->tick_count++;
+            }
 
-            // Write to configuration register to configure cell discharging
-            accumulator->write_cfg_registers();
-            accumulator->disable_discharge();
-
-            // Start cell voltage conversions for the next cycle
-            accumulator->start_cell_temp_conv();
-            accumulator->state = GET_CELL_TEMP_STATE;
+            // Start conversion for next state
+            App_Accumulator_StartNextConversion(accumulator);
             break;
         }
-        case GET_CELL_TEMP_STATE:
+        case OPEN_WIRE_CHECK_STATE_MACHINE:
         {
-            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
+            // Run open wire check state machine
+            bool check_finished = false;
+            App_Accumulator_RunOpenWireCheckStateMachine(accumulator, &check_finished);
 
-            // Start cell voltage conversions for the next cycle
-            accumulator->start_cell_voltage_conv();
-            accumulator->disable_discharge();
+            if (check_finished)
+            {
+                // Back to cell monitoring once check has completed
+                accumulator->state_machine = MONITOR_STATE_MACHINE;
+            }
 
-            accumulator->state = GET_CELL_VOLTAGE_STATE;
+            // Start conversion for next state
+            App_Accumulator_StartNextConversion(accumulator);
             break;
         }
         default:
@@ -321,12 +568,14 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     bool undervoltage_fault =
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
+    bool open_wire_fault = accumulator->open_wire_fault;
 
     App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERVOLTAGE, undervoltage_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERVOLTAGE, overvoltage_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERTEMP, undertemp_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_OPEN_WIRE_CELL, open_wire_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault || open_wire_fault);
 }

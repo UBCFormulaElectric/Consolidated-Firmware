@@ -9,6 +9,12 @@
 // Command used to start ADC conversions
 #define ADCV ((uint16_t)(((0x0060U + (MD << 7U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
 
+// Command used to start open wire check with pull-up current
+#define ADOW_PU ((uint16_t)(((0x0028U + (MD << 7U) + (PUP_PU << 6U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
+
+// Command used to start open wire check with pull-down current
+#define ADOW_PD ((uint16_t)(((0x0028U + (MD << 7U) + (PUP_PD << 6U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
+
 // Commands used to read back cell voltages
 #define RDCVA (0x0400U)
 #define RDCVB (0x0600U)
@@ -44,12 +50,14 @@ static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
  * @param curr_reg_group The current register group to read cell voltages from
  * @param rx_buffer The buffer containing data read from the LTC6813 chips
  * @param cell_voltages Buffer to write out the read voltages to
+ * @param num_readings_per_segment num_readings_per_segment
  * @return True if the data is read back successfully. Else, false
  */
 static bool Io_ParseCellVoltageFromAllSegments(
     uint8_t  curr_reg_group,
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
-    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+    float *  cell_voltages,
+    uint8_t  num_readings_per_segment);
 
 /**
  * Note: call this function after Io_UpdateVoltages is called to get the most
@@ -61,7 +69,8 @@ static void Io_SetDischargeBits(void);
 static bool Io_ParseCellVoltageFromAllSegments(
     uint8_t  curr_reg_group,
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
-    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+    float *  cell_voltages,
+    uint8_t  num_readings_per_segment)
 {
     bool status = true;
 
@@ -79,14 +88,14 @@ static bool Io_ParseCellVoltageFromAllSegments(
 
         if (recv_pec15 == calc_pec15)
         {
-            // Ignore cells 17 and 18 if reading back from group F. Only read
-            // single word. Otherwise read all bytes stored in rx_buffer
-            const uint8_t num_bytes_to_copy =
-                (curr_reg_group == CELL_V_REG_GROUP_F) ? sizeof(*rx_buffer) : NUM_REG_GROUP_PAYLOAD_BYTES;
+            // // Ignore cells 17 and 18 if reading back from group F. Only read
+            // // single word. Otherwise read all bytes stored in rx_buffer
+            // const uint8_t num_bytes_to_copy =
+            //     (curr_reg_group == CELL_V_REG_GROUP_F) ? sizeof(*rx_buffer) : NUM_REG_GROUP_PAYLOAD_BYTES;
 
             // Store register group data into a temporary array reg_group_data
             uint16_t reg_group_data[NUM_OF_READINGS_PER_REG_GROUP] = { 0 };
-            memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], num_bytes_to_copy);
+            memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], NUM_REG_GROUP_PAYLOAD_BYTES);
 
             // Write out voltage readings
             const float reading_0_voltage = CONVERT_100UV_TO_VOLTAGE(reg_group_data[REG_GROUP_READING_0]);
@@ -97,19 +106,22 @@ static bool Io_ParseCellVoltageFromAllSegments(
             const int reading_1_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_1;
             const int reading_2_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_2;
 
-            if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            // Reshape input buffer to 2D array
+            float(*cell_voltages_arr)[num_readings_per_segment] = (float(*)[num_readings_per_segment])cell_voltages;
+
+            if (reading_0_cell_idx < num_readings_per_segment)
             {
-                cell_voltages[curr_segment][reading_0_cell_idx] = reading_0_voltage;
+                cell_voltages_arr[curr_segment][reading_0_cell_idx] = reading_0_voltage;
             }
 
-            if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            if (reading_1_cell_idx < num_readings_per_segment)
             {
-                cell_voltages[curr_segment][reading_1_cell_idx] = reading_1_voltage;
+                cell_voltages_arr[curr_segment][reading_1_cell_idx] = reading_1_voltage;
             }
 
-            if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            if (reading_2_cell_idx < num_readings_per_segment)
             {
-                cell_voltages[curr_segment][reading_2_cell_idx] = reading_2_voltage;
+                cell_voltages_arr[curr_segment][reading_2_cell_idx] = reading_2_voltage;
             }
         }
         else
@@ -148,8 +160,7 @@ static void Io_SetDischargeBits(void)
      */
 }
 
-bool Io_LTC6813CellVoltages_ReadVoltages(
-    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+bool Io_LTC6813CellVoltages_ReadVoltages(float *cell_voltages, uint8_t num_readings_per_segment)
 {
     // Exit early if ADC conversion fails
     if (!Io_LTC6813Shared_PollAdcConversions())
@@ -172,7 +183,8 @@ bool Io_LTC6813CellVoltages_ReadVoltages(
         // Transmit the command and receive data stored in register group.
         bool voltage_read_success = Io_SharedSpi_TransmitAndReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
-        voltage_read_success &= Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer, cell_voltages);
+        voltage_read_success &=
+            Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer, cell_voltages, num_readings_per_segment);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register
         // groups
@@ -193,4 +205,16 @@ uint16_t Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegment segment)
 bool Io_LTC6813CellVoltages_StartAdcConversion(void)
 {
     return Io_LTC6813Shared_SendCommand(ADCV);
+}
+
+bool Io_LTC6813CellVoltages_StartOpenWireCheck(bool pull_up)
+{
+    if (pull_up)
+    {
+        return Io_LTC6813Shared_SendCommand(ADOW_PU);
+    }
+    else
+    {
+        return Io_LTC6813Shared_SendCommand(ADOW_PD);
+    }
 }

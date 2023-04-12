@@ -34,6 +34,7 @@ FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
 FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
+FAKE_VALUE_FUNC(bool, start_open_wire_check, bool);
 FAKE_VALUE_FUNC(float, get_ts_voltage);
 FAKE_VALUE_FUNC(float, get_low_res_current);
 FAKE_VALUE_FUNC(float, get_high_res_current);
@@ -109,9 +110,9 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
-            disable_discharge);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, start_open_wire_check, read_cell_voltages,
+            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
+            enable_discharge, disable_discharge);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 

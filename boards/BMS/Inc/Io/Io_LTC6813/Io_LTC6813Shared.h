@@ -49,6 +49,10 @@ enum RegGroupByteFormat
 // ADC mode selection
 #define MD  (1U)
 
+// ADOW mode selection
+#define PUP_PU (1U) // Pull-up current
+#define PUP_PD (0U) // Pull-down current
+
 // clang-format on
 
 // Each command sent includes: 1 cmd word + 1 PEC15 word, which is
