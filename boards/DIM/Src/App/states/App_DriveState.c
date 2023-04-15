@@ -4,58 +4,6 @@
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
-static bool App_DriveState_HasBMSFault()
-{
-    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_FAULT_STATE;
-}
-
-static bool App_DriveState_HasDCMFault()
-{
-    return App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasDIMFault()
-{
-    return App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasFSMFault()
-{
-    return App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasPDMFault()
-{
-    return App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasBMSWarning()
-{
-    return App_CanAlerts_BoardHasWarning(BMS_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasDCMWarning()
-{
-    return App_CanAlerts_BoardHasWarning(DCM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasDIMWarning()
-{
-    return App_CanAlerts_BoardHasWarning(DIM_ALERT_BOARD);
-}
-
-static bool App_DriveState_HasFSMWarning()
-{
-    return App_CanAlerts_BoardHasWarning(FSM_ALERT_BOARD);
-    ;
-}
-
-static bool App_DriveState_HasPDMWarning()
-{
-    return App_CanAlerts_BoardHasWarning(PDM_ALERT_BOARD);
-    ;
-}
-
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_Vitals_State_Set(DIM_STATE_DRIVE);
@@ -79,17 +27,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
-
-    bool (*has_fault_funcs[NUM_BOARD_LEDS])(void) = {
-        [BMS_LED] = App_DriveState_HasBMSFault, [DCM_LED] = App_DriveState_HasDCMFault,
-        [DIM_LED] = App_DriveState_HasDIMFault, [FSM_LED] = App_DriveState_HasFSMFault,
-        [PDM_LED] = App_DriveState_HasPDMFault,
-    };
-    bool (*has_warning_funcs[NUM_BOARD_LEDS])(void) = {
-        [BMS_LED] = App_DriveState_HasBMSWarning, [DCM_LED] = App_DriveState_HasDCMWarning,
-        [DIM_LED] = App_DriveState_HasDIMWarning, [FSM_LED] = App_DriveState_HasFSMWarning,
-        [PDM_LED] = App_DriveState_HasPDMWarning,
-    };
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
@@ -132,15 +69,20 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                                                          [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
                                                          [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
 
+    CanAlertBoard alert_board_ids[NUM_BOARD_LEDS] = {
+        [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
+        [FSM_LED] = FSM_ALERT_BOARD, [PDM_LED] = PDM_ALERT_BOARD,
+    };
+
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        if (has_fault_funcs[i]())
+        if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             App_SharedRgbLed_TurnRed(board_status_led);
         }
-        else if (has_warning_funcs[i]())
+        else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }

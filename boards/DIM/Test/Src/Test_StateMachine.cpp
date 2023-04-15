@@ -76,6 +76,9 @@ class DimStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
+        App_CanTx_Init();
+        App_CanRx_Init();
+
         left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
         middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
         right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
@@ -422,9 +425,6 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
     App_CanAlerts_SetWarning(DIM_WARNING_WATCHDOG_TIMEOUT, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_blue_fake.call_count);
-
-    // Reset warning for subsequent tests
-    App_CanAlerts_SetWarning(DIM_WARNING_WATCHDOG_TIMEOUT, false);
 }
 
 // DIM-2
@@ -442,8 +442,6 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
     App_CanRx_DCM_Faults_DCM_FAULT_MISSING_HEARTBEAT_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
-
-    App_CanRx_DCM_Faults_DCM_FAULT_MISSING_HEARTBEAT_Update(false);
 }
 
 // DIM-2
@@ -453,9 +451,6 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_warning)
     App_CanRx_DCM_Warnings_DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_blue_fake.call_count);
-
-    // Reset warning for next test
-    App_CanRx_DCM_Warnings_DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(false);
 }
 
 // DIM-2
@@ -477,9 +472,6 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dcm_status_led_blue_fake.call_count);
-
-    App_CanRx_DCM_Warnings_DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(false);
-    App_CanRx_DCM_Faults_DCM_FAULT_MISSING_HEARTBEAT_Update(false);
 }
 
 // DIM-2
@@ -489,8 +481,6 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
     App_CanRx_FSM_Faults_FSM_FAULT_MISSING_HEARTBEAT_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
-
-    App_CanRx_FSM_Faults_FSM_FAULT_MISSING_HEARTBEAT_Update(false);
 }
 
 // DIM-2
@@ -500,8 +490,6 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
     App_CanRx_FSM_Warnings_FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_blue_fake.call_count);
-
-    App_CanRx_FSM_Warnings_FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(false);
 }
 
 // DIM-2
@@ -524,9 +512,6 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_fsm_status_led_blue_fake.call_count);
-
-    App_CanRx_FSM_Warnings_FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(false);
-    App_CanRx_FSM_Faults_FSM_FAULT_MISSING_HEARTBEAT_Update(false);
 }
 
 // DIM-2
@@ -538,7 +523,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_fault)
     App_CanRx_BMS_OkStatuses_BmsOk_Update(true);
 
     // Set any critical error and check that the BMS LED turns red
-    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_FAULT_STATE);
+    App_CanRx_BMS_Faults_BMS_FAULT_CELL_OVERTEMP_Update(true);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
@@ -551,9 +536,6 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_warning)
     App_CanRx_PDM_Warnings_PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_blue_fake.call_count);
-
-    // Reset warning for subsequent tests
-    App_CanRx_PDM_Warnings_PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ_Update(false);
 }
 
 // DIM-2
