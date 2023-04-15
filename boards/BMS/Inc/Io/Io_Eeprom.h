@@ -11,8 +11,9 @@
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1
  * @param data the pointer to the data to write in bytes
  * @param size the size of the data to be written in bytes
+ * @return status of the write. 0: success 1: memory address violation 2: I2C communication error
  */
-void Io_Eeprom_WriteBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+uint8_t Io_Eeprom_WriteBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Read from EEPROM
@@ -20,14 +21,16 @@ void Io_Eeprom_WriteBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1
  * @param data the pointer to the data to read in bytes
  * @param size the size of the data to be read in bytes
+ * @return status of the write. 0: success 1: memory address violation 2: I2C communication error
  */
-void Io_Eeprom_ReadBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+uint8_t Io_Eeprom_ReadBytes(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Erase page in EEPROM
  * @param page the number of the start page to set to all zeroes
+ * @return status of the write. 0: success 1: memory address violation 2: I2C communication error
  */
-void Io_Eeprom_PageErase(uint16_t page);
+uint8_t Io_Eeprom_PageErase(uint16_t page);
 
 /**
  * Write float value to EEPROM

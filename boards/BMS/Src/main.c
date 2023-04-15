@@ -65,6 +65,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define I2C_RECOVER_NUM_CLOCKS 10U    /* # clock cycles for recovery  */
+#define I2C_RECOVER_CLOCK_FREQ 50000U /* clock frequency for recovery */
+#define I2C_RECOVER_CLOCK_DELAY_MS (1000U / (2U * I2C_RECOVER_CLOCK_FREQ))
+#define I2C1_SCL_PIN GPIO_PIN_6
+#define I2C1_SCL_PORT GPIOB
 
 /* USER CODE END PD */
 
@@ -509,6 +514,41 @@ static void MX_I2C1_Init(void)
     /* USER CODE END I2C1_Init 0 */
 
     /* USER CODE BEGIN I2C1_Init 1 */
+
+    // Manually pulse the I2C clock signal 10 times, this can recover the I2C bus from a locked state after a reflash or
+    // reset
+
+    // To manually pulse must first set I2C pins to GPIO General Purpose Output Open-Drain
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+
+    GPIO_InitStruct.Pin = I2C1_SCL_PIN;
+    HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct);
+
+    for (uint8_t i = 0U; i < I2C_RECOVER_NUM_CLOCKS; ++i)
+    {
+        HAL_Delay(I2C_RECOVER_CLOCK_DELAY_MS);
+
+        HAL_GPIO_WritePin(I2C1_SCL_PORT, I2C1_SCL_PIN, GPIO_PIN_RESET);
+
+        HAL_Delay(I2C_RECOVER_CLOCK_DELAY_MS);
+
+        HAL_GPIO_WritePin(I2C1_SCL_PORT, I2C1_SCL_PIN, GPIO_PIN_RESET);
+    }
+
+    // Set pins back to GPIO Alternate Function
+
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+
+    GPIO_InitStruct.Pin = I2C1_SCL_PIN;
+    HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct);
 
     /* USER CODE END I2C1_Init 1 */
     hi2c1.Instance             = I2C1;
@@ -988,7 +1028,6 @@ void RunTask1Hz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1Hz */
 }
