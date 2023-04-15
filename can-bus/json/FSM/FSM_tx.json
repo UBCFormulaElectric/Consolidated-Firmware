@@ -12,75 +12,12 @@
 			}
 		}
 	},
-	"FSM_Warnings": {
+	"FSM_AlertsContext": {
 		"msg_id": 301,
 		"cycle_time": 1000,
 		"signals": {
-			"PappsOutOfRange": {
-				"bits": 1
-			},
-			"SappsOutOfRange": {
-				"bits": 1
-			},
-			"StackWatermarkAboveThresholdTask1Hz": {
-				"bits": 1
-			},
-			"StackWatermarkAboveThresholdTask100Hz": {
-				"bits": 1
-			},
-			"StackWatermarkAboveThresholdTask1kHz": {
-				"bits": 1
-			},
-			"StackWatermarkAboveThresholdTaskCanTx": {
-				"bits": 1
-			},
-			"StackWatermarkAboveThresholdTaskCanRx": {
-				"bits": 1
-			},
-			"WatchdogTimeout": {
-				"bits": 1
-			},
-			"MissingHeartbeat": {
-				"bits": 1
-			},
 			"WatchdogTimeoutTaskName": {
 				"enum": "RtosTaskName"
-			},
-			"BrakeAccDisagreement": {
-				"bits": 1
-			},
-			"SteeringAngleSensorOCSC": {
-				"bits": 1
-			},
-			"LeftWheelSpeedOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"RightWheelSpeedOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"SteeringAngleOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"FrontBrakePressureOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"RearBrakePressureOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"FlowRateOutOfRange": {
-				"enum": "RangeCheck"
-			},
-			"PappsOCSCIsActive": {
-				"bits": 1
-			},
-			"SappsOCSCIsActive": {
-				"bits": 1
-			},
-			"AppsDisagreementIsActive": {
-				"bits": 1
-			},
-			"FlowMeterHasUnderflow": {
-				"bits": 1
 			},
 			"TxOverflowCount": {
 				"bits": 8
@@ -91,7 +28,7 @@
 		}
 	},
 	"FSM_Apps": {
-		"msg_id": 151,
+		"msg_id": 300,
 		"cycle_time": 100,
 		"signals": {
 			"PappsMappedPedalPercentage": {
