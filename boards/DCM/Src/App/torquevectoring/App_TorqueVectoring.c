@@ -9,32 +9,33 @@
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
-TimerChannel pid_timeout;
+static TimerChannel pid_timeout;
 
-PowerLimiting_Inputs       power_limiting_inputs;
-ActiveDifferential_Inputs  active_differential_inputs;
-ActiveDifferential_Outputs active_differential_outputs;
-TractionControl_Inputs     traction_control_inputs;
-TractionControl_Outputs    traction_control_outputs;
-Regen_Inputs               regen_inputs;
-Regen_Outputs              regen_outputs;
+static PowerLimiting_Inputs       power_limiting_inputs;
+static ActiveDifferential_Inputs  active_differential_inputs;
+static ActiveDifferential_Outputs active_differential_outputs;
+static TractionControl_Inputs     traction_control_inputs;
+static TractionControl_Outputs    traction_control_outputs;
+static Regen_Inputs               regen_inputs;
+static Regen_Outputs              regen_outputs;
 
-PID pid_power_correction;
 // NOTE: Correction factor centered about 0.0f
-float pid_power_correction_factor = 0.0f;
-PID   pid_traction_control;
+static PID   pid_power_correction;
+static float pid_power_correction_factor = 0.0f;
+static PID   pid_traction_control;
 
-float accelerator_pedal_percent;
-float wheel_speed_front_left_kph;
-float wheel_speed_front_right_kph;
-float motor_speed_left_rpm;
-float motor_speed_right_rpm;
-float battery_voltage;
-float current_consumption;
-float left_motor_temp_C;
-float right_motor_temp_C;
-float available_battery_power_kW;
-float steering_angle_deg;
+static float accelerator_pedal_percent;
+static float accelerator_pedal_percent;
+static float wheel_speed_front_left_kph;
+static float wheel_speed_front_right_kph;
+static float motor_speed_left_rpm;
+static float motor_speed_right_rpm;
+static float battery_voltage;
+static float current_consumption;
+static float left_motor_temp_C;
+static float right_motor_temp_C;
+static float available_battery_power_kW;
+static float steering_angle_deg;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -62,7 +63,7 @@ void App_TorqueVectoring_Run(void)
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     steering_angle_deg = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
-    if (accelerator_pedal_percent > 0.01f)
+    if (accelerator_pedal_percent > 0.1f)
     {
         App_TorqueVectoring_HandleAcceleration();
     }
