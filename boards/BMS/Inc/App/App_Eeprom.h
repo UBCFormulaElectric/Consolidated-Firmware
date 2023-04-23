@@ -1,22 +1,50 @@
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#define PAGE_SIZE ((uint16_t)16U) // in Bytes
+
+struct Eeprom;
 
 /**
- * Increment return the page where the SOC can currently be found, used for wear-leveling reasons.
- * @param none
- * @return uint8_t page number for active SOC data storage
+ * Allocate and initialize a EEPROM
+ * @param write_page A function that can be called to get write to a page on the eeprom
+ * @param read_page A function that can be called to get read from a page on the eeprom
+ * @param page_erase A function that can be called to erase a page on the eeprom
+ * system voltage
  */
-uint8_t App_Eeprom_InitializeSocAddr(void);
+struct Eeprom *App_Eeprom_Create(
+    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    uint8_t (*page_erase)(uint16_t));
 
 /**
- * Save the newly incremented SOC page to page 0
- * @param uint8_t Page number for active SOC data storage
- * @return none
+ * Deallocate the memory used by the given Eeprom
+ * @param eeprom The EEPROM status to deallocate
  */
-void App_Eeprom_SaveActiveSocAddr(uint8_t soc_addr);
+void App_Eeprom_Destroy(struct Eeprom *eeprom);
 
 /**
- * reset the active SOC page to page 1
- * @param none
- * @return uint8_t page number for active SOC data storage
+ * Write float values to EEPROM
+ * @param page the number of the start page. Range from 0 to NUM_PAGES-1
+ * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, should ideally be 0 or multiple of 4 to
+ * align with 4-byte size of float values
+ * @param input_data pointer to array of floats to write to EEPROM
+ * @param num_floats number of floats to write
+ * @return uint8_t returns success status for debug
  */
-uint8_t App_Eeprom_ResetSocAddr(void);
+uint8_t
+    App_Eeprom_WriteFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats);
+
+/**
+ * Read float values to EEPROM
+ * @param page the number of the start page. Range from 0 to NUM_PAGES-1
+ * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, should ideally be 0 or multiple of 4 to
+ * align with 4-byte size of float values
+ * @param input_data pointer to array of floats to read from EEPROM
+ * @param num_floats number of floats to read
+ * @return uint8_t returns success status for debug
+ */
+uint8_t
+    App_Eeprom_ReadFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats);

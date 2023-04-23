@@ -46,6 +46,7 @@
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
+#include "Io_Eeprom.h"
 
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
@@ -125,6 +126,7 @@ struct Airs *            airs;
 struct PrechargeRelay *  precharge_relay;
 struct TractiveSystem *  ts;
 struct Clock *           clock;
+struct Eeprom *          eeprom;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -256,9 +258,11 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
+    eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
+
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
-        ts, clock);
+        ts, clock, eeprom);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();

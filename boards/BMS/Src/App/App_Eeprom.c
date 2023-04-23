@@ -1,5 +1,4 @@
 #include "App_Eeprom.h"
-#include "Io_Eeprom.h"
 
 #define SOC_ADDR_PAGE (0U)
 #define SOC_ADDR_OFFSET (0U)
@@ -7,42 +6,123 @@
 
 #define NUM_PAGES (128U)
 
-uint8_t App_Eeprom_InitializeSocAddr(void)
+/**
+ * @brief  EEPROM Status structures definition
+ */
+typedef enum
 {
-    // retrieve address where SOC can be found
-    uint8_t soc_page;
-    Io_Eeprom_ReadPage(SOC_ADDR_PAGE, SOC_ADDR_OFFSET, &soc_page, SOC_ADDR_SIZE_BYTES);
+    EEPROM_OK         = 0x00U,
+    EEPROM_ADDR_ERROR = 0x01U,
+    EEPROM_I2C_ERROR  = 0x02U,
+    EEPROM_SIZE_ERROR = 0x03U
+} EEPROM_StatusTypeDef;
 
-    // read last saved soc value from EEPROM
-    uint8_t soc_data[PAGE_SIZE];
-    Io_Eeprom_ReadPage(soc_page, SOC_ADDR_OFFSET, soc_data, PAGE_SIZE);
+struct Eeprom
+{
+    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
+    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
+    uint8_t (*page_erase)(uint16_t);
+};
 
-    // re-write last soc to incremented address
-
-    soc_page++;
-
-    if (soc_page > NUM_PAGES)
+static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
+{
+    // Create union that stores float and byte array in same memory location.
+    // This allows you to access 8-bit segments of the float value using array indexing
+    union
     {
-        soc_page = 1U;
+        float   float_val;
+        uint8_t bytes[4];
+    } u;
+
+    // place float input into union
+    u.float_val = float_to_convert;
+
+    for (int i = 0; i < 4; i++)
+    {
+        // convert to array of bytes by accessing float value in union in byte-size increments (pun-intended)
+        bytes[i] = u.bytes[i];
+    }
+}
+
+static float convert_bytes_to_float(uint8_t *bytes)
+{
+    // Create union that stores float and byte array in same memory location.
+    // This allows you to access 8-bit segments of the float value using array indexing
+    union
+    {
+        float   float_val;
+        uint8_t bytes[4];
+    } u;
+
+    for (int i = 0; i < 4; i++)
+    {
+        u.bytes[i] = bytes[i];
     }
 
-    Io_Eeprom_WritePage(soc_page, SOC_ADDR_OFFSET, soc_data, PAGE_SIZE);
-
-    // return new address
-    return soc_page;
+    return u.float_val;
 }
 
-void App_Eeprom_SaveActiveSocAddr(uint8_t soc_addr)
+struct Eeprom *App_Eeprom_Create(
+    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    uint8_t (*page_erase)(uint16_t))
 {
-    // write new active address to page 0
-    Io_Eeprom_WritePage(SOC_ADDR_PAGE, SOC_ADDR_OFFSET, &soc_addr, SOC_ADDR_SIZE_BYTES);
+    struct Eeprom *eeprom = malloc(sizeof(struct Eeprom));
+    assert(eeprom != NULL);
+
+    eeprom->write_page = write_page;
+    eeprom->read_page  = read_page;
+    eeprom->page_erase = page_erase;
+
+    return eeprom;
 }
 
-uint8_t App_Eeprom_ResetSocAddr(void)
+void App_Eeprom_Destroy(struct Eeprom *eeprom)
 {
-    // reset contents of SOC address page
-    uint8_t soc_addr = 1U;
-    Io_Eeprom_WritePage(SOC_ADDR_PAGE, SOC_ADDR_OFFSET, &soc_addr, SOC_ADDR_SIZE_BYTES);
+    free(eeprom);
+}
 
-    return soc_addr;
+uint8_t
+    App_Eeprom_WriteFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats)
+{
+    // Check if data to write fits into single page
+    if (num_floats * sizeof(float) + offset > PAGE_SIZE)
+    {
+        return EEPROM_SIZE_ERROR;
+    }
+
+    // convert float data to bytes array
+    uint8_t data_bytes[num_floats * sizeof(float)];
+
+    for (uint8_t i = 0; i < num_floats; i++)
+    {
+        convert_float_to_bytes(&data_bytes[i * sizeof(float)], input_data[i]);
+    }
+
+    // write bytes array to EEPROM
+    //    return Io_Eeprom_WritePage(page, offset, data_bytes, sizeof(float));
+    return eeprom->write_page(page, offset, data_bytes, (uint16_t)(num_floats * sizeof(float)));
+}
+
+uint8_t
+    App_Eeprom_ReadFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats)
+{
+    // Check if data to read fits into single page
+    if (num_floats * sizeof(float) + offset > PAGE_SIZE)
+    {
+        return EEPROM_SIZE_ERROR;
+    }
+
+    uint8_t data[num_floats * sizeof(float)];
+    uint8_t read_status;
+
+    //    read_status = Io_Eeprom_ReadPage(page, offset, data, num_floats * sizeof(float));
+    read_status = eeprom->read_page(page, offset, data, (uint16_t)(num_floats * sizeof(float)));
+
+    for (uint8_t i = 0; i < num_floats; i++)
+    {
+        output_data[i] = convert_bytes_to_float(&data[i * sizeof(float)]);
+    }
+
+    return read_status;
 }
