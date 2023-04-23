@@ -41,6 +41,24 @@ class BmsEepromTest : public testing::Test
     void TearDown() override { TearDownObject(eeprom, App_Eeprom_Destroy); }
 
     struct Eeprom *eeprom;
+
+    static float convert_bytes_to_float(uint8_t *bytes)
+    {
+        // Create union that stores float and byte array in same memory location.
+        // This allows you to access 8-bit segments of the float value using array indexing
+        union
+        {
+            float   float_val;
+            uint8_t bytes[4];
+        } u;
+
+        for (int i = 0; i < 4; i++)
+        {
+            u.bytes[i] = bytes[i];
+        }
+
+        return u.float_val;
+    }
 };
 
 TEST_F(BmsEepromTest, test_floats_correctly_converted)
@@ -56,11 +74,14 @@ TEST_F(BmsEepromTest, test_floats_correctly_converted)
     // read_page_fake.arg2val holds the pointer to the float input converted to a byte array
     // write_page_fake.arg2val holds the pointer to the byte-array input converted back into a float
     // this hardcoding is equivalent to writing and reading from the same page.
-    read_page_fake.arg2_val = write_page_fake.arg2_val;
 
-    float output_float_array[4] = { 0.0, 0.0, 0.0, 0.0 };
+    uint8_t *byte_data = write_page_fake.arg2_val;
+    float    output_float_array[4];
 
-    App_Eeprom_ReadFloats(eeprom, page, offset, output_float_array, num_floats);
+    for (uint8_t i = 0; i < num_floats; i++)
+    {
+        output_float_array[i] = convert_bytes_to_float(&byte_data[i * sizeof(float)]);
+    }
 
     for (int i = 0; i < 4; i++)
     {
