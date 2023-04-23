@@ -27,6 +27,7 @@ void App_Eeprom_Destroy(struct Eeprom *eeprom);
 
 /**
  * Write float values to EEPROM
+ * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param page the number of the start page. Range from 0 to NUM_PAGES-1
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, should ideally be 0 or multiple of 4 to
  * align with 4-byte size of float values
