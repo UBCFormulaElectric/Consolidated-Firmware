@@ -4,6 +4,7 @@
 #include "Io_Hal.h"
 #include "math.h"
 #include <string.h>
+#include "App_EepromExitCode.h"
 
 /**
  * Write to EEPROM
@@ -13,7 +14,7 @@
  * @param size the size of the data to be written in bytes
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-uint8_t Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+EEPROM_StatusTypeDef Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Read from EEPROM
@@ -23,11 +24,11 @@ uint8_t Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16
  * @param size the size of the data to be read in bytes
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-uint8_t Io_Eeprom_ReadPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+EEPROM_StatusTypeDef Io_Eeprom_ReadPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
 
 /**
  * Erase page in EEPROM
  * @param page the number of the start page to set to all zeroes
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-uint8_t Io_Eeprom_PageErase(uint16_t page);
+EEPROM_StatusTypeDef Io_Eeprom_PageErase(uint16_t page);

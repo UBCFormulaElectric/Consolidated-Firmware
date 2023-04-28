@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "App_EepromExitCode.h"
 
 #define PAGE_SIZE ((uint16_t)16U) // in Bytes
 
@@ -15,37 +16,48 @@ struct Eeprom;
  * system voltage
  */
 struct Eeprom *App_Eeprom_Create(
-    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
-    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
-    uint8_t (*page_erase)(uint16_t));
+    EEPROM_StatusTypeDef (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    EEPROM_StatusTypeDef (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    EEPROM_StatusTypeDef (*page_erase)(uint16_t));
 
 /**
  * Deallocate the memory used by the given Eeprom
- * @param eeprom The EEPROM status to deallocate
+ * @param eeprom The EEPROM to deallocate
  */
 void App_Eeprom_Destroy(struct Eeprom *eeprom);
 
 /**
  * Write float values to EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
+ * @param eeprom Eeprom to write to
  * @param page the number of the start page. Range from 0 to NUM_PAGES-1
- * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, should ideally be 0 or multiple of 4 to
+ * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, must be 0 or multiple of 4 to
  * align with 4-byte size of float values
  * @param input_data pointer to array of floats to write to EEPROM
  * @param num_floats number of floats to write
- * @return uint8_t returns success status for debug
+ * @return EEPROM_StatusTypeDef returns success status for debug
  */
-uint8_t
+EEPROM_StatusTypeDef
     App_Eeprom_WriteFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats);
 
 /**
  * Read float values to EEPROM
+ * @param eeprom Eeprom to read from
  * @param page the number of the start page. Range from 0 to NUM_PAGES-1
- * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, should ideally be 0 or multiple of 4 to
+ * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, must be 0 or multiple of 4 to
  * align with 4-byte size of float values
- * @param input_data pointer to array of floats to read from EEPROM
+ * @param ouput_data pointer to array of floats to store data from EEPROM
  * @param num_floats number of floats to read
- * @return uint8_t returns success status for debug
+ * @return EEPROM_StatusTypeDef returns success status for debug
  */
-uint8_t
+EEPROM_StatusTypeDef
     App_Eeprom_ReadFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats);
+
+/**
+ * Erase page in EEPROM
+ * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
+ * @param eeprom Eeprom to erase a page from
+ * @param page the number of the start page to set to all zeroes
+ * @return EEPROM_StatusTypeDef returns success status for debug
+ */
+EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);

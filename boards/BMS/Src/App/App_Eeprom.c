@@ -3,26 +3,7 @@
 #define SOC_ADDR_PAGE (0U)
 #define SOC_ADDR_OFFSET (0U)
 #define SOC_ADDR_SIZE_BYTES (1U)
-
 #define NUM_PAGES (128U)
-
-/**
- * @brief  EEPROM Status structures definition
- */
-typedef enum
-{
-    EEPROM_OK         = 0x00U,
-    EEPROM_ADDR_ERROR = 0x01U,
-    EEPROM_I2C_ERROR  = 0x02U,
-    EEPROM_SIZE_ERROR = 0x03U
-} EEPROM_StatusTypeDef;
-
-struct Eeprom
-{
-    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
-    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
-    uint8_t (*page_erase)(uint16_t);
-};
 
 static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
 {
@@ -62,10 +43,17 @@ static float convert_bytes_to_float(uint8_t *bytes)
     return u.float_val;
 }
 
+struct Eeprom
+{
+    EEPROM_StatusTypeDef (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
+    EEPROM_StatusTypeDef (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t);
+    EEPROM_StatusTypeDef (*page_erase)(uint16_t);
+};
+
 struct Eeprom *App_Eeprom_Create(
-    uint8_t (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
-    uint8_t (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
-    uint8_t (*page_erase)(uint16_t))
+    EEPROM_StatusTypeDef (*write_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    EEPROM_StatusTypeDef (*read_page)(uint16_t, uint8_t, uint8_t *, uint16_t),
+    EEPROM_StatusTypeDef (*page_erase)(uint16_t))
 {
     struct Eeprom *eeprom = malloc(sizeof(struct Eeprom));
     assert(eeprom != NULL);
@@ -82,13 +70,18 @@ void App_Eeprom_Destroy(struct Eeprom *eeprom)
     free(eeprom);
 }
 
-uint8_t
+EEPROM_StatusTypeDef
     App_Eeprom_WriteFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats)
 {
     // Check if data to write fits into single page
     if (num_floats * sizeof(float) + offset > PAGE_SIZE)
     {
         return EEPROM_SIZE_ERROR;
+    }
+    // for floats, offset should be aligned to multiple of 4
+    else if (offset % 4 != 0)
+    {
+        return EEPROM_ADDR_ERROR;
     }
 
     // convert float data to bytes array
@@ -100,11 +93,10 @@ uint8_t
     }
 
     // write bytes array to EEPROM
-    //    return Io_Eeprom_WritePage(page, offset, data_bytes, sizeof(float));
     return eeprom->write_page(page, offset, data_bytes, (uint16_t)(num_floats * sizeof(float)));
 }
 
-uint8_t
+EEPROM_StatusTypeDef
     App_Eeprom_ReadFloats(struct Eeprom *eeprom, uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats)
 {
     // Check if data to read fits into single page
@@ -114,9 +106,12 @@ uint8_t
     }
 
     uint8_t data[num_floats * sizeof(float)];
+    for (int i = 0; i < num_floats; i++)
+    {
+        data[i] = 0;
+    }
     uint8_t read_status;
 
-    //    read_status = Io_Eeprom_ReadPage(page, offset, data, num_floats * sizeof(float));
     read_status = eeprom->read_page(page, offset, data, (uint16_t)(num_floats * sizeof(float)));
 
     for (uint8_t i = 0; i < num_floats; i++)
@@ -125,4 +120,9 @@ uint8_t
     }
 
     return read_status;
+}
+
+EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page)
+{
+    return eeprom->page_erase(page);
 }

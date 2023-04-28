@@ -44,9 +44,9 @@ FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 FAKE_VALUE_FUNC(bool, enable_discharge);
 FAKE_VALUE_FUNC(bool, disable_discharge);
-FAKE_VALUE_FUNC(uint8_t, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
-FAKE_VALUE_FUNC(uint8_t, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
-FAKE_VALUE_FUNC(uint8_t, page_erase, uint16_t);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 

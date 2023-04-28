@@ -13,18 +13,7 @@ extern I2C_HandleTypeDef hi2c1;
 #define PAGE_ADDR_START_BIT ((uint16_t)(log(PAGE_SIZE) / log(2))) // number of bit where addressing starts
 #define MEM_ACCESS_TIMEOUT (1000U)
 
-/**
- * @brief  EEPROM Status structures definition
- */
-typedef enum
-{
-    EEPROM_OK         = 0x00U,
-    EEPROM_ADDR_ERROR = 0x01U,
-    EEPROM_I2C_ERROR  = 0x02U,
-    EEPROM_SIZE_ERROR = 0x03U
-} EEPROM_StatusTypeDef;
-
-uint8_t Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
+EEPROM_StatusTypeDef Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
 {
     HAL_StatusTypeDef i2c_status;
 
@@ -54,7 +43,7 @@ uint8_t Io_Eeprom_WritePage(uint16_t page, uint8_t offset, uint8_t *data, uint16
     return EEPROM_OK;
 }
 
-uint8_t Io_Eeprom_ReadPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
+EEPROM_StatusTypeDef Io_Eeprom_ReadPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
 {
     HAL_StatusTypeDef i2c_status;
 
