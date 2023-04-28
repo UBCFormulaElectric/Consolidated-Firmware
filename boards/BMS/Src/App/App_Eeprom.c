@@ -7,7 +7,7 @@
 #define SAVED_COPIES 3U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
-#define SHORT_SIZE ((uint8_t)(sizeof(uint16_t)))
+#define SHORT_SIZE ((uint8_t)sizeof(uint16_t))
 
 static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
 {
