@@ -95,7 +95,7 @@ def runClangFormat():
             if filename.endswith(INCLUDE_FILE_EXTENSIONS) and \
                filename not in EXCLUDE_FILES:
 
-                sourceFile = os.path.join(root, filename)
+                sourceFile = f'"{os.path.join(root, filename)}"'
 
                 if _isWindows():
                     command = _wrapStringInQuotes(CLANG_FORMAT_BINARY + CLANG_FORMAT_OPTIONS + sourceFile)
