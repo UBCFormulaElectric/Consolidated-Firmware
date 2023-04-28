@@ -61,3 +61,23 @@ EEPROM_StatusTypeDef
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
 EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
+
+/**
+ * Write an address 3 times to EEPROM
+ * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
+ * @param eeprom Eeprom to erase a page from
+ * @param page the number of the start page to set to all zeroes
+ * @param address the address to store on the EEPROM
+ * @return EEPROM_StatusTypeDef returns success status for debug
+ */
+EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address);
+
+/**
+ * Write an address 3 times to EEPROM
+ * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
+ * @param eeprom Eeprom to erase a page from
+ * @param page the number of the start page to set to all zeroes
+ * @param address the address to read from the EEPROM
+ * @return EEPROM_StatusTypeDef returns success status for debug
+ */
+EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *address);

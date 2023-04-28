@@ -35,7 +35,7 @@ class BmsEepromTest : public testing::Test
 
     // This function is a carbon copy of 'convert_bytes_to_float' located in App_Eeprom.c, however because it is static,
     // in order to test it, it had to be copied here
-    static float convert_bytes_to_float(uint8_t *bytes)
+    static float convert_bytes_to_float(uint8_t *bytes_to_convert)
     {
         // Create union that stores float and byte array in same memory location.
         // This allows you to access 8-bit segments of the float value using array indexing
@@ -47,7 +47,7 @@ class BmsEepromTest : public testing::Test
 
         for (int i = 0; i < 4; i++)
         {
-            u.bytes[i] = bytes[i];
+            u.bytes[i] = bytes_to_convert[i];
         }
 
         return u.float_val;
