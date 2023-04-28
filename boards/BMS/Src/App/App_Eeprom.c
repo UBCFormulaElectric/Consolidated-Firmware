@@ -176,7 +176,7 @@ EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t pag
     uint8_t  byte_array[num_bytes];
     uint8_t  offset = 0;
 
-    for (uint8_t i = 0; i < num_bytes; i += SHORT_SIZE)
+    for (uint8_t i = 0; i < num_bytes; i = i + SHORT_SIZE)
     {
         convert_short_to_bytes(&byte_array[i], address);
     }
