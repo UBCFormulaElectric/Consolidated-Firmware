@@ -1,9 +1,15 @@
-#include "Test_Eeprom.h"
+#include <gtest/gtest.h>
+#include <Test_Utils.h>
 
 extern "C"
 {
 #include "App_Eeprom.h"
+#include <fff.h>
 }
+
+#ifndef DEFINE_FFF_GLOBALS
+DEFINE_FFF_GLOBALS;
+#endif
 
 #define MAX_FLOATS_PER_PAGE 4
 
