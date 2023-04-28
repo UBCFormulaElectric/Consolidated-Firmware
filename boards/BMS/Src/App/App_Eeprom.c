@@ -7,6 +7,7 @@
 #define SAVED_COPIES 3U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
+#define SHORT_SIZE ((uint8_t) (sizeof(uint16_t)) )
 
 static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
 {
@@ -21,7 +22,7 @@ static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
     // place float input into union
     u.float_val = float_to_convert;
 
-    for (int i = 0; i < BYTES_PER_FLOAT; i++)
+    for (uint8_t i = 0; i < BYTES_PER_FLOAT; i++)
     {
         // convert to array of bytes by accessing float value in union in byte-size increments (pun-intended)
         bytes[i] = u.bytes[i];
@@ -39,7 +40,7 @@ static float convert_bytes_to_float(uint8_t *bytes_to_convert)
         uint8_t bytes[BYTES_PER_FLOAT];
     } u;
 
-    for (int i = 0; i < BYTES_PER_FLOAT; i++)
+    for (uint8_t i = 0; i < BYTES_PER_FLOAT; i++)
     {
         u.bytes[i] = bytes_to_convert[i];
     }
@@ -60,7 +61,7 @@ static void convert_short_to_bytes(uint8_t *bytes, uint16_t short_to_convert)
     // place float input into union
     u.short_val = short_to_convert;
 
-    for (int i = 0; i < BYTES_PER_SHORT; i++)
+    for (uint8_t i = 0; i < BYTES_PER_SHORT; i++)
     {
         // convert to array of bytes by accessing float value in union in byte-size increments (pun-intended)
         bytes[i] = u.bytes[i];
@@ -77,7 +78,7 @@ static uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
         uint8_t  bytes[BYTES_PER_SHORT];
     } u;
 
-    for (int i = 0; i < BYTES_PER_SHORT; i++)
+    for (uint8_t i = 0; i < BYTES_PER_SHORT; i++)
     {
         u.bytes[i] = bytes_to_convert[i];
     }
@@ -175,7 +176,7 @@ EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t pag
     uint8_t  byte_array[num_bytes];
     uint8_t  offset = 0;
 
-    for (int i = 0; i < sizeof(byte_array); i += sizeof(short))
+    for (uint8_t i = 0; i < num_bytes; i += SHORT_SIZE)
     {
         convert_short_to_bytes(&byte_array[i], address);
     }
@@ -194,7 +195,7 @@ EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page
 
     uint16_t short_array[SAVED_COPIES];
 
-    for (int i = 0; i < SAVED_COPIES; i++)
+    for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
         short_array[i] = convert_bytes_to_short(&byte_array[i * 2]);
     }
