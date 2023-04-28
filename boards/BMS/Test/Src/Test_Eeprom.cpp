@@ -33,6 +33,8 @@ class BmsEepromTest : public testing::Test
 
     struct Eeprom *eeprom;
 
+    // This function is a carbon copy of 'convert_bytes_to_float' located in App_Eeprom.c, however because it is static,
+    // in order to test it, it had to be copied here
     static float convert_bytes_to_float(uint8_t *bytes)
     {
         // Create union that stores float and byte array in same memory location.

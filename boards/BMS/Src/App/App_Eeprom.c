@@ -25,6 +25,7 @@ static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
     }
 }
 
+// IF THIS FUNCTION IS MODIFIED, UPDATE VERSION LOCATED IN Test_Eeprom.cpp, THEY ARE MEANT TO BE THE SAME
 static float convert_bytes_to_float(uint8_t *bytes)
 {
     // Create union that stores float and byte array in same memory location.
