@@ -1,4 +1,5 @@
 #include "App_Eeprom.h"
+#include "string.h"
 
 #define SOC_ADDR_PAGE (0U)
 #define SOC_ADDR_OFFSET (0U)
@@ -9,81 +10,35 @@
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
 #define SHORT_SIZE ((uint8_t)sizeof(uint16_t))
 
-static void convert_float_to_bytes(uint8_t *bytes, float float_to_convert)
+// expose static functions for testing
+#ifdef TESTING
+#define STATIC
+#else
+#define STATIC static
+#endif
+
+STATIC void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 {
-    // Create union that stores float and byte array in same memory location.
-    // This allows you to access 8-bit segments of the float value using array indexing
-    union
-    {
-        float   float_val;
-        uint8_t bytes[BYTES_PER_FLOAT];
-    } u;
-
-    // place float input into union
-    u.float_val = float_to_convert;
-
-    for (uint8_t i = 0; i < BYTES_PER_FLOAT; i++)
-    {
-        // convert to array of bytes by accessing float value in union in byte-size increments (pun-intended)
-        bytes[i] = u.bytes[i];
-    }
+    memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
 }
 
-// IF THIS FUNCTION IS MODIFIED, UPDATE VERSION LOCATED IN Test_Eeprom.cpp, THEY ARE MEANT TO BE THE SAME
-static float convert_bytes_to_float(uint8_t *bytes_to_convert)
+STATIC float convert_bytes_to_float(uint8_t *byte_array)
 {
-    // Create union that stores float and byte array in same memory location.
-    // This allows you to access 8-bit segments of the float value using array indexing
-    union
-    {
-        float   float_val;
-        uint8_t bytes[BYTES_PER_FLOAT];
-    } u;
-
-    for (uint8_t i = 0; i < BYTES_PER_FLOAT; i++)
-    {
-        u.bytes[i] = bytes_to_convert[i];
-    }
-
-    return u.float_val;
+    float converted_float;
+    memcpy(&converted_float, byte_array, sizeof(converted_float));
+    return converted_float;
 }
 
-static void convert_short_to_bytes(uint8_t *bytes, uint16_t short_to_convert)
+STATIC void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert)
 {
-    // Create union that stores float and byte array in same memory location.
-    // This allows you to access 8-bit segments of the float value using array indexing
-    union
-    {
-        uint16_t short_val;
-        uint8_t  bytes[BYTES_PER_SHORT];
-    } u;
-
-    // place float input into union
-    u.short_val = short_to_convert;
-
-    for (uint8_t i = 0; i < BYTES_PER_SHORT; i++)
-    {
-        // convert to array of bytes by accessing float value in union in byte-size increments (pun-intended)
-        bytes[i] = u.bytes[i];
-    }
+    memcpy(byte_array, (uint8_t *)(&short_to_convert), sizeof(uint16_t));
 }
 
-static uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
+STATIC uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
 {
-    // Create union that stores float and byte array in same memory location.
-    // This allows you to access 8-bit segments of the float value using array indexing
-    union
-    {
-        uint16_t short_val;
-        uint8_t  bytes[BYTES_PER_SHORT];
-    } u;
-
-    for (uint8_t i = 0; i < BYTES_PER_SHORT; i++)
-    {
-        u.bytes[i] = bytes_to_convert[i];
-    }
-
-    return u.short_val;
+    uint16_t converted_short;
+    memcpy(&converted_short, bytes_to_convert, sizeof(converted_short));
+    return converted_short;
 }
 
 struct Eeprom
@@ -121,8 +76,8 @@ EEPROM_StatusTypeDef
     {
         return EEPROM_SIZE_ERROR;
     }
-    // for floats, offset should be aligned to multiple of 4
-    else if (offset % 4 != 0)
+    // for floats, offset should be aligned to multiple of float size
+    else if (offset % sizeof(float) != 0)
     {
         return EEPROM_ADDR_ERROR;
     }
@@ -184,24 +139,19 @@ EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t pag
     return eeprom->write_page(page, offset, byte_array, num_bytes);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *address)
+EEPROM_StatusTypeDef App_Eeprom_ReadAddresses(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses)
 {
-    uint16_t num_bytes = SAVED_COPIES * 2; // saving 3 copies of address, each 2 bytes
+    uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
     uint8_t  offset = 0;
     uint8_t  read_status;
 
     read_status = eeprom->read_page(page, offset, byte_array, num_bytes);
 
-    uint16_t short_array[SAVED_COPIES];
-
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        short_array[i] = convert_bytes_to_short(&byte_array[i * 2]);
+        addresses[i] = convert_bytes_to_short(&byte_array[i * 2]);
     }
-
-    // TODO: Implement error checking using 3 copies of address stored in short_array
-    *address = short_array[0];
 
     return read_status;
 }

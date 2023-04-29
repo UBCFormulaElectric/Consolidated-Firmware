@@ -313,6 +313,7 @@ function(compile_googletest_executable
             -g3
             )
     target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    target_compile_definitions(${TEST_EXECUTABLE_NAME} PRIVATE TESTING)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
              COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()

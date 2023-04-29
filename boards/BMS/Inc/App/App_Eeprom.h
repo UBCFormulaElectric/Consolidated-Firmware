@@ -77,7 +77,39 @@ EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t pag
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param eeprom Eeprom to erase a page from
  * @param page the number of the start page to set to all zeroes
- * @param address the address to read from the EEPROM
+ * @param addresses array of 3 addresses to be chosen from. Should all contain same value but may not due to
+ * data-corruption in EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *address);
+EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses);
+
+// Expose static functions for tests
+#ifdef TESTING
+/**
+ * Convert a float value to array of 4 bytes
+ * @param byte_array pointer to output byte array
+ * @param float_to_convert the float to convert
+ */
+void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert);
+
+/**
+ * Convert array of 4 bytes into a float
+ * @param byte_array byte array input
+ * @return float output
+ */
+float convert_bytes_to_float(uint8_t *byte_array);
+
+/**
+ * Convert a unsigned short value to array of 2 bytes
+ * @param byte_array pointer to output byte array
+ * @param short_to_convert the float to convert
+ */
+void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert);
+
+/**
+ * Convert array of 2 bytes into a unsigned short
+ * @param byte_array byte array input
+ * @return uint16_t output
+ */
+uint16_t convert_bytes_to_short(uint8_t *byte_array);
+#endif
