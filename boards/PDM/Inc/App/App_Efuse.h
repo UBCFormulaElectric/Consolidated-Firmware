@@ -1,36 +1,127 @@
-#pragma once
-
+#include <assert.h>
+#include <stdlib.h>
 #include <stdbool.h>
-#include "App_SharedExitCode.h"
 
-// clang-format off
-// Enumeration for the status types
-enum Efuse_Status
-{
-    EFUSE_NO_FAULTS           = (0 << 0), // No faults on either channel
-    EFUSE_OUT0_ENABLED        = (1 << 0), // Channel 0 output is enabled
-    EFUSE_OUT1_ENABLED        = (1 << 1), // Channel 1 output is enabled
-    EFUSE_CHANNEL0_FAULT      = (1 << 2), // Fault on channel 0
-    EFUSE_CHANNEL1_FAULT      = (1 << 3), // Fault on channel 1
-    EFUSE_CHANNEL0_RETRY_FULL = (1 << 4), // Channel 0 auto-retry counter full
-    EFUSE_CHANNEL1_RETRY_FULL = (1 << 5), // Channel 1 auto-retry counter full
-    EFUSE_POWER_ON_RESET      = (1 << 6), // Power-on reset has occurred
-    EFUSE_UNDERVOLTAGE        = (1 << 7), // Under voltage fault
-    EFUSE_OVERVOLTAGE         = (1 << 8)  // Over voltage fault
-};
-
-// Enumeration for the fault types
-enum Efuse_Fault
-{
-    EFUSE_NO_FAULT            = (0 << 0), // No fault
-    EFUSE_OVERCURRENT         = (1 << 0), // Over current fault
-    EFUSE_SHORT_CIRCUIT       = (1 << 1), // Severe short circuit fault
-    EFUSE_OVERTEMP            = (1 << 2), // Over temperature fault
-    EFUSE_OUTPUT_SHORTED      = (1 << 3), // Output shorted to Vpwr fault
-    EFUSE_OPEN_LOAD_OFF_STATE = (1 << 4), // Open load detected in off state fault
-    EFUSE_OPEN_LOAD_ON_STATE  = (1 << 5), // Open load detected in on state fault
-    EFUSE_OVERTEMP_WARNING    = (1 << 8)  // Over temperature warning fault
-};
-// clang-format on
+#include "Io_Efuse.h"
 
 struct Efuse;
+
+/**
+ *
+ * @param io_efuse_channel0 Io_Efuse Enum value for channel 0
+ * @param io_efuse_channel1 Io_Efuse Enum value for channel 1
+ * @param channel_0_min_current Minimum acceptable current for channel 0
+ * @param channel_0_max_current Maximum acceptable current for channel 0
+ * @param channel_1_min_current Minimum acceptable current for channel 1
+ * @param channel_1_max_current Maximum acceptable current for channel 1
+ * @param max_reset_attempts Maximum attempts allowed for fault checks for this efuse
+ * @return
+ */
+struct Efuse *App_Efuse_Create(
+    EfuseChannel io_efuse_channel0,
+    EfuseChannel io_efuse_channel1,
+    float        channel_0_min_current,
+    float        channel_0_max_current,
+    float        channel_1_min_current,
+    float        channel_1_max_current,
+    int          max_reset_attempts);
+
+/**
+ * Destroys the Efuse structure.
+ * @param efuse
+ */
+void App_Efuse_Destroy(struct Efuse *efuse);
+
+/**
+ * Function to enable or disable channel 0 for the PDM Efuse
+ * @param efuse
+ * @param status true to enable, false to disable
+ */
+void App_Efuse_EnableChannel0(struct Efuse *efuse, bool status);
+
+/**
+ * Function to enable or disable channel 1 for the PDM Efuse
+ * @param efuse
+ * @param status true to enable, false to disable
+ */
+void App_Efuse_EnableChannel1(struct Efuse *efuse, bool status);
+
+/**
+ * Function that checks if channel_0 is enabled of the PDM Efuse
+ * @param efuse
+ * @return true if channel_0 is enabled, false otherwise
+ */
+bool App_Efuse_IsChannel0Enabled(struct Efuse *efuse);
+
+/**
+ * Function that checks if channel_1 is enabled of the PDM Efuse
+ * @param efuse
+ * @return true if channel_1 is enabled, false otherwise
+ */
+bool App_Efuse_IsChannel1Enabled(struct Efuse *efuse);
+
+/**
+ * Function to attempt to reset the Efuse
+ * @param efuse
+ */
+void App_Efuse_StandbyReset(struct Efuse *efuse);
+
+/**
+ * Gets the current value of channel_0 of the PDM Efuse in Amps
+ * @param efuse
+ * @return The current value of channel_0
+ */
+float App_Efuse_GetChannel0Current(struct Efuse *efuse);
+
+/**
+ * Gets the current value of channel_1 of the PDM Efuse in Amps
+ * @param efuse App_Efuse structure
+ * @return The current value of channel_1
+ */
+float App_Efuse_GetChannel1Current(struct Efuse *efuse);
+
+/**
+ * Checks if the current of the channel_0 Efuse is too low
+ * @param efuse
+ * @return true if current too low, false if good (channel0)
+ */
+bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ * Checks if the current of the channel_0 Efuse is too high
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
+bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
+
+/**
+ * Checks if the current of the channel_1 Efuse is too low
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
+bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ * Checks if the current of the channel_1 Efuse is too high
+ * @param efuse
+ * @return true if current too high, false if good (channel1)
+ */
+bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
+
+/**
+ * If current too low & enabled or current > max current, then it will go through this fault procedure function
+ * (channel0)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return true if fault, false if fine
+ */
+bool App_Efuse_FaultCheckChannel0(struct Efuse *efuse);
+
+/**
+ * If current too low & enabled or current > max current, then it will go through this fault procedure function
+ * (channel1)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return true if fault, false if fine
+ */
+bool App_Efuse_FaultCheckChannel1(struct Efuse *efuse);

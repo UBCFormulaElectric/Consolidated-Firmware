@@ -1,7 +1,20 @@
 {
-    "PDM_Vitals": {
+  "PDM_Vitals": {
         "msg_id": 402,
         "cycle_time": 100,
+        "description": "PDM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "PDM_State"
+            }
+        }
+    },
+  "PDM_Errors": {
+        "msg_id": 403, 
+        "cycle_time": 1000,
         "description": "PDM vitals message.",
         "signals": {
             "Heartbeat": {
@@ -45,5 +58,101 @@
                 "enum": "RtosTaskName"
             }
         }
+    },
+  "PDM_Efuse1_Current": {
+    "msg_id": 405,
+    "cycle_time": 100,
+    "signals": {
+      "AIR": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 },
+      "LVPWR": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 }
     }
+  },
+  "PDM_Efuse2_Current": {
+    "msg_id": 406,
+    "cycle_time": 100,
+    "signals": {
+      "EMETER": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 },
+      "AUX": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 }
+    }
+  },
+  "PDM_Efuse3_Current": {
+    "msg_id": 407,
+    "cycle_time": 100,
+    "signals": {
+      "LEFT_INVERTER": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 },
+      "RIGHT_INVERTER": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 }
+    }
+  },
+  "PDM_Efuse4_Current": {
+    "msg_id": 408,
+    "cycle_time": 100,
+    "signals": {
+      "DRS": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 },
+      "FAN": { "bits": 32, "unit": "A", "max" : 0, "min": 10000 }
+    }
+  },
+  "PDM_EfuseFaultCheck": {
+    "msg_id": 409,
+    "cycle_time": 100,
+    "signals": {
+      "AIR": {"bits": 1},
+      "LVPWR": {"bits": 1},
+      "EMETER": {"bits": 1},
+      "AUX": {"bits": 1},
+      "LEFT_INVERTER": {"bits": 1},
+      "RIGHT_INVERTER": {"bits": 1},
+      "DRS": {"bits": 1},
+      "FAN": {"bits": 1}
+    }
+  },
+  "PDM_VBAT": {
+    "msg_id": 410,
+    "cycle_time": 100,
+    "signals": {
+      "Voltage": {
+        "max": 600,
+        "min": -600,
+        "bits": 32,
+        "unit": "V"},
+      "LowCheck": {"bits": 1},
+      "HighCheck": {"bits": 1}
+    }
+  },
+  "PDM_24V_ACC": {
+    "msg_id": 411,
+    "cycle_time": 100,
+    "signals": {
+      "Voltage": {
+        "max": 600,
+        "min": -600,
+        "bits": 32,
+        "unit": "V"},
+      "LowCheck": {"bits": 1},
+      "HighCheck": {"bits": 1}
+    }
+  },
+  "PDM_22V_AUX": {
+    "msg_id": 412,
+    "cycle_time": 100,
+    "signals": {
+      "Voltage": {
+        "max": 600,
+        "min": -600,
+        "bits": 32,
+        "unit": "V"},
+      "LowCheck": {"bits": 1},
+      "HighCheck": {"bits": 1}
+      
+    }
+  },
+  "PDM_LowVoltageBattery_Faults":{
+    "msg_id": 414,
+    "cycle_time": 100,
+    "signals": {
+    "Boost_Fault": {"bits" : 1},
+    "Charge_Fault": {"bits" : 1}
+    }
+  } 
 }
+
+

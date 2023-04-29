@@ -1,12 +1,12 @@
+
 #include "states/App_AllStates.h"
-#include "states/App_InitState.h"
-
-#include "App_SharedMacros.h"
-#include "App_SetPeriodicCanSignals.h"
-#include "states/App_FaultState.h"
 #include "states/App_DriveState.h"
+#include "App_SharedMacros.h"
+#include "states/App_FaultState.h"
 
-void Efuse_Enable_Channels_18650Startup(
+#define NUM_CYCLES_TO_SETTLE 0U
+
+void Efuse_EnableChannelsPcmRunning(
     struct Efuse *efuse1,
     struct Efuse *efuse2,
     struct Efuse *efuse3,
@@ -18,11 +18,11 @@ void Efuse_Enable_Channels_18650Startup(
     App_Efuse_EnableChannel1(efuse2, false);
     App_Efuse_EnableChannel0(efuse3, true);
     App_Efuse_EnableChannel1(efuse3, true);
-    App_Efuse_EnableChannel0(efuse4, false);
-    App_Efuse_EnableChannel1(efuse4, false);
+    App_Efuse_EnableChannel0(efuse4, true);
+    App_Efuse_EnableChannel1(efuse4, true);
 }
 
-static void InitStateRunOnEntry(struct StateMachine *const state_machine)
+static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
     struct Efuse *   efuse1 = App_PdmWorld_GetEfuse1(world);
@@ -30,10 +30,10 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Efuse *   efuse3 = App_PdmWorld_GetEfuse3(world);
     struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
 
-    Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
+    Efuse_EnableChannelsPcmRunning(efuse1, efuse2, efuse3, efuse4);
 }
 
-void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+void Efuse_ErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultCheckChannel0(efuse1));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultCheckChannel1(efuse1));
@@ -44,8 +44,7 @@ void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, stru
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultCheckChannel0(efuse4));
     App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultCheckChannel1(efuse4));
 }
-
-bool InitFaultDetection(
+bool DriveFaultDetection(
     struct Efuse *         efuse1,
     struct Efuse *         efuse2,
     struct Efuse *         efuse3,
@@ -63,12 +62,12 @@ bool InitFaultDetection(
     return true;      // Error
 }
 
-static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
 }
 
-static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
@@ -80,33 +79,29 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
     bool                   has_fault;
 
-    has_fault = InitFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
-    Efuse_ErrorsWarnings_CANTX(efuse1, efuse2, efuse3, efuse4);
+    Efuse_ErrorsWarningsCANTX(efuse1, efuse2, efuse3, efuse4);
+    has_fault = DriveFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
     if (has_fault)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-    else if (App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE)
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
-    }
 }
 
-static void InitStateRunOnExit(struct StateMachine *const state_machine)
+static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State *App_GetInitState(void)
+const struct State *App_GetDriveState(void)
 {
-    static struct State init_state = {
-        .name              = "INIT",
-        .run_on_entry      = InitStateRunOnEntry,
-        .run_on_tick_1Hz   = InitStateRunOnTick1Hz,
-        .run_on_tick_100Hz = InitStateRunOnTick100Hz,
-        .run_on_exit       = InitStateRunOnExit,
+    static struct State drive_state = {
+        .name              = "DRIVE",
+        .run_on_entry      = DriveStateRunOnEntry,
+        .run_on_tick_1Hz   = DriveStateRunOnTick1Hz,
+        .run_on_tick_100Hz = DriveStateRunOnTick100Hz,
+        .run_on_exit       = DriveStateRunOnExit,
     };
 
-    return &init_state;
+    return &drive_state;
 }
