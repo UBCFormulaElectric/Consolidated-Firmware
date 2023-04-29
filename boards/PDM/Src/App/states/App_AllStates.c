@@ -2,10 +2,9 @@
 #include "App_CanTx.h"
 #include "App_Timer.h"
 #include "App_PdmWorld.h"
-#include "../../../../cmake-build-embedded/BMS/Inc/App/App_CanRx.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
-
+/*
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_PDM_Vitals_Heartbeat_Set(true);
@@ -28,7 +27,7 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
 }
-
+*/
 void Rail_Voltages_CANTX(struct RailMonitoring *rail_monitor)
 {
     // Main Rail CAN_TX:
@@ -76,7 +75,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
 
-    App_SendAndReceiveHeartbeat(hb);
+    //App_SendAndReceiveHeartbeat(hb);
     Efuse_Currents_CANTX(efuse1, efuse2, efuse3, efuse4);
     Rail_Voltages_CANTX(rail_monitor);
 }
