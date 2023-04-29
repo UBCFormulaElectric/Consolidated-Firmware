@@ -13,6 +13,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
+    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, true);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -32,12 +33,10 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
+    const bool hb_ok = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
+    const bool precharge_ok = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
 
-    struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, hb_ok);
-
-    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok)
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && precharge_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
@@ -46,6 +45,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
+    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, false);
 }
 
 const struct State *App_GetFaultState()

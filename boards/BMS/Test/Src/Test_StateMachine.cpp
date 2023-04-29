@@ -8,7 +8,6 @@ FAKE_VALUE_FUNC(float, get_pwm_frequency);
 FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
 FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
@@ -137,7 +136,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_pwm_duty_cycle);
         RESET_FAKE(get_seconds_since_power_on);
         RESET_FAKE(get_current_ms);
-        RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);

@@ -15,7 +15,7 @@
 
 static uint8_t acc_meas_settle_count = 0U;
 
-static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Vitals_Heartbeat_Set(true);
 
@@ -36,6 +36,9 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
         App_CanRx_PDM_Vitals_Heartbeat_Update(false);
     }
+    
+    const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    return missing_hb;
 }
 
 static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
@@ -120,7 +123,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
     bool status = true;
-    App_SendAndReceiveHeartbeat(hb_monitor);
+    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
+    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
@@ -150,7 +154,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault)
+    else if (acc_fault || ts_fault || missing_hb)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

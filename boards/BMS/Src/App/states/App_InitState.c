@@ -41,14 +41,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
         }
 #endif
-
-        struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, is_missing_hb);
-        if (is_missing_hb)
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
     }
 }
 
