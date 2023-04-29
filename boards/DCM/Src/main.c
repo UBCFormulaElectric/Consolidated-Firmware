@@ -364,10 +364,6 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-<<<<<<< HEAD
-
-=======
->>>>>>> 32ea25d7 (integrate CAN modes)
     /* USER CODE END IWDG_Init 2 */
 }
 
