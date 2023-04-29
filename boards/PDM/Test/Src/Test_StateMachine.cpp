@@ -2,8 +2,6 @@
 #include <math.h>
 #include "Test_Pdm.h"
 #include "Test_BaseStateMachineTest.h"
-#include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
 
 extern "C"
 {

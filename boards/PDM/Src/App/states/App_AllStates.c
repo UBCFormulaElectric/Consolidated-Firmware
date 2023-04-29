@@ -2,8 +2,32 @@
 #include "App_CanTx.h"
 #include "App_Timer.h"
 #include "App_PdmWorld.h"
+#include "../../../../cmake-build-embedded/BMS/Inc/App/App_CanRx.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
+
+static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+{
+    App_CanTx_PDM_Vitals_Heartbeat_Set(true);
+
+    if (App_CanRx_FSM_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
+        App_CanRx_FSM_Vitals_Heartbeat_Update(false);
+    }
+
+    if (App_CanRx_DCM_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DCM_HEARTBEAT_ONE_HOT);
+        App_CanRx_DCM_Vitals_Heartbeat_Update(false);
+    }
+
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+    }
+}
 
 void Rail_Voltages_CANTX(struct RailMonitoring *rail_monitor)
 {
@@ -34,22 +58,6 @@ void Efuse_Currents_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efu
     App_CanTx_PDM_Efuse4_Current_FAN_Set(App_Efuse_GetChannel1Current(efuse4));
 }
 
-void HeartbeatCheck(struct HeartbeatMonitor *hb_monitor)
-{
-    //    if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
-    if (false)
-    {
-        // JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
-    }
-
-    else
-    {
-        // TODO: JSONCAN -> (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
-        // App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        //        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
-    }
-}
-
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
@@ -61,12 +69,14 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *hb         = App_PdmWorld_GetHeartbeatMonitor(world);
     struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
     struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
     struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
     struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
 
+    App_SendAndReceiveHeartbeat(hb);
     Efuse_Currents_CANTX(efuse1, efuse2, efuse3, efuse4);
     Rail_Voltages_CANTX(rail_monitor);
 }
