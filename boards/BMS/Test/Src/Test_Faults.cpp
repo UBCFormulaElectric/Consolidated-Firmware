@@ -676,4 +676,23 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
     }
 }
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
+{
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(enable_bms_ok_fake.call_count, 0);
+    ASSERT_EQ(disable_bms_ok_fake.call_count, 0);
+
+    // Set cell voltage critically high and confirm fault is set
+    set_cell_voltage((AccumulatorSegment)0U, 0U, MAX_CELL_VOLTAGE + 0.1f);
+    LetTimePass(state_machine, 20);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // BMS OK status should be disabled upon entering fault state, which is latched in hardware
+    ASSERT_EQ(enable_bms_ok_fake.call_count, 0);
+    ASSERT_EQ(disable_bms_ok_fake.call_count, 1);
+}
+
 } // namespace FaultTest
