@@ -25,6 +25,19 @@
             }
         }
     },
+  "PDM_Errors": {
+        "msg_id": 403, 
+        "cycle_time": 1000,
+        "description": "PDM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "PDM_State"
+            }
+        }
+    },
     "PDM_Warnings": {
         "msg_id": 404,
         "cycle_time": 1000,
