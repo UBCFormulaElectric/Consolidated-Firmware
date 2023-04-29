@@ -25,7 +25,7 @@ STATIC void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 STATIC float convert_bytes_to_float(uint8_t *byte_array)
 {
     float converted_float;
-    memcpy(&converted_float, byte_array, sizeof(converted_float));
+    memcpy(&converted_float, byte_array, sizeof(float));
     return converted_float;
 }
 
@@ -37,7 +37,7 @@ STATIC void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_conver
 STATIC uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
 {
     uint16_t converted_short;
-    memcpy(&converted_short, bytes_to_convert, sizeof(converted_short));
+    memcpy(&converted_short, bytes_to_convert, sizeof(uint16_t));
     return converted_short;
 }
 
