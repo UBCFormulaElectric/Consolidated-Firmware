@@ -19,23 +19,23 @@ FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, u
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
-static uint8_t static_byte_array [PAGE_SIZE];
+static uint8_t static_byte_array[PAGE_SIZE];
 
-//callback stores byte_array input into Io_Eeprom_WriteByte in static_byte_array to mimic writing to memory
-static EEPROM_StatusTypeDef write_byte_callback (uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+// callback stores byte_array input into Io_Eeprom_WriteByte in static_byte_array to mimic writing to memory
+static EEPROM_StatusTypeDef write_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
 {
-    for(int i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         static_byte_array[i] = byte_arr[i];
     }
     return EEPROM_OK;
 }
 
-//callback stores copies stored static_byte_array into array pointed to in argument list of Io_Eeprom_ReadByte
+// callback stores copies stored static_byte_array into array pointed to in argument list of Io_Eeprom_ReadByte
 // to mimic reading from memory
-static EEPROM_StatusTypeDef read_byte_callback (uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+static EEPROM_StatusTypeDef read_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
 {
-    for(int i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
         byte_arr[i] = static_byte_array[i];
     }
@@ -65,18 +65,18 @@ class BmsEepromTest : public testing::Test
 
 TEST_F(BmsEepromTest, test_float_converted_to_bytes_full_page)
 {
-    uint16_t page   = 1; // arbitrary value
-    uint8_t  offset = 0; // arbitrary value
-    uint8_t num_floats = MAX_FLOATS_PER_PAGE;
+    uint16_t page       = 1; // arbitrary value
+    uint8_t  offset     = 0; // arbitrary value
+    uint8_t  num_floats = MAX_FLOATS_PER_PAGE;
 
     // Fill float array with random numbers so that they are not garbage values
     float input_float_array[MAX_FLOATS_PER_PAGE] = { 1.0f, 2.0f, 3.0f, 4.0f };
-    write_page_fake.custom_fake = write_byte_callback;
+    write_page_fake.custom_fake                  = write_byte_callback;
 
     App_Eeprom_WriteFloats(eeprom, page, offset, input_float_array, num_floats);
 
     // convert bytes-array back into floats
-    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0};
+    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0 };
 
     read_page_fake.custom_fake = read_byte_callback;
     App_Eeprom_ReadFloats(eeprom, page, offset, output_float_array, num_floats);
@@ -90,9 +90,9 @@ TEST_F(BmsEepromTest, test_float_converted_to_bytes_full_page)
 
 TEST_F(BmsEepromTest, test_float_converted_to_bytes_half_page)
 {
-    uint16_t page   = 1; // arbitrary value
-    uint8_t  offset = 0; // arbitrary value
-    uint8_t num_floats = MAX_FLOATS_PER_PAGE / 2;
+    uint16_t page       = 1; // arbitrary value
+    uint8_t  offset     = 0; // arbitrary value
+    uint8_t  num_floats = MAX_FLOATS_PER_PAGE / 2;
 
     // Fill float array with random numbers so that they are not garbage values
     float input_float_array[MAX_FLOATS_PER_PAGE] = { 1.0f, 2.0f, 3.0f, 4.0f };
@@ -100,7 +100,7 @@ TEST_F(BmsEepromTest, test_float_converted_to_bytes_half_page)
     write_page_fake.custom_fake = write_byte_callback;
     App_Eeprom_WriteFloats(eeprom, page, offset, input_float_array, num_floats);
 
-    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0};
+    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0 };
 
     read_page_fake.custom_fake = read_byte_callback;
     App_Eeprom_ReadFloats(eeprom, page, offset, output_float_array, num_floats);
@@ -114,17 +114,17 @@ TEST_F(BmsEepromTest, test_float_converted_to_bytes_half_page)
 
 TEST_F(BmsEepromTest, test_float_converted_to_bytes_half_page_with_offset)
 {
-    uint16_t page   = 1; // arbitrary value
-    uint8_t  offset = 4; // arbitrary value
-    uint8_t num_floats = MAX_FLOATS_PER_PAGE / 2;
+    uint16_t page       = 1; // arbitrary value
+    uint8_t  offset     = 4; // arbitrary value
+    uint8_t  num_floats = MAX_FLOATS_PER_PAGE / 2;
 
     // Fill float array with random numbers so that they are not garbage values
     float input_float_array[MAX_FLOATS_PER_PAGE] = { 1.0f, 2.0f, 3.0f, 4.0f };
 
     write_page_fake.custom_fake = write_byte_callback;
-    App_Eeprom_WriteFloats(eeprom, page, offset, input_float_array, num_floats);\
+    App_Eeprom_WriteFloats(eeprom, page, offset, input_float_array, num_floats);
 
-    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0};
+    float output_float_array[MAX_FLOATS_PER_PAGE] = { 0 };
 
     read_page_fake.custom_fake = read_byte_callback;
     App_Eeprom_ReadFloats(eeprom, page, offset, output_float_array, num_floats);
@@ -138,8 +138,8 @@ TEST_F(BmsEepromTest, test_float_converted_to_bytes_half_page_with_offset)
 
 TEST_F(BmsEepromTest, test_size_error)
 {
-    uint16_t page   = 1;
-    uint8_t  offset = 0;
+    uint16_t page       = 1;
+    uint8_t  offset     = 0;
     uint8_t  num_floats = MAX_FLOATS_PER_PAGE + 1;
 
     float input_data[num_floats];
