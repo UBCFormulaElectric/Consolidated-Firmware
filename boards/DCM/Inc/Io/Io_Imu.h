@@ -8,10 +8,18 @@
  */
 
 #include <stdint.h>
-#include <stm32f4xx_hal.h>
+#include <stm32f4xx_hal_i2c.h>
 #include <stdbool.h>
 #include "App_SharedExitCode.h"
-
+#define RXBUFFERSIZE 12
+static const uint8_t LSM6DSLTR_ADDR = 0x6B << 1; // slave address and SDO high, bit shift to make into 8 bit
+#define LSM6DSLTR_AccelX_LSB 0x28
+#define LSM6DSLTR_AccelX_MSB  0x29
+#define LSM6DSLTR_AccelY_LSB 0x2A
+#define LSM6DSLTR_AccelY_MSB 0x2B
+#define LSM6DSLTR_AccelZ_LSB 0x2C
+#define LSM6DSLTR_AccelZ_MSB 0x2D
+// Read 1 write 0
 /**
  * Get x acceleration from Imu
  * @return The acceleration (m/s^2) measured on the x-axis.

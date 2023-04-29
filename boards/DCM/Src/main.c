@@ -66,6 +66,7 @@
 CAN_HandleTypeDef hcan1;
 
 I2C_HandleTypeDef hi2c1;
+DMA_HandleTypeDef hdma_i2c1_rx;
 
 IWDG_HandleTypeDef hiwdg;
 
@@ -99,6 +100,7 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
@@ -157,6 +159,7 @@ int main(void)
     MX_GPIO_Init();
     MX_CAN1_Init();
     MX_IWDG_Init();
+    MX_DMA_Init();
     MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -173,6 +176,8 @@ int main(void)
     brake_light = App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
 
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
+
+    Io_Imu_InitI2cHandle(hi2c1);
 
     imu = App_Imu_Create(
         Io_Imu_GetAccelerationX, Io_Imu_GetAccelerationY, Io_Imu_GetAccelerationZ, MIN_ACCELERATION_MS2,
@@ -344,7 +349,7 @@ static void MX_I2C1_Init(void)
 
     /* USER CODE END I2C1_Init 1 */
     hi2c1.Instance             = I2C1;
-    hi2c1.Init.ClockSpeed      = 100000;
+    hi2c1.Init.ClockSpeed      = 400000;
     hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c1.Init.OwnAddress1     = 0;
     hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -385,6 +390,20 @@ static void MX_IWDG_Init(void)
     /* USER CODE BEGIN IWDG_Init 2 */
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
 }
 
 /**
