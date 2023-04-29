@@ -55,10 +55,10 @@ void InitErrorsWarningsCANTX(
 }
 
 bool InitFaultDetection(
-    struct Efuse *            efuse1,
-    struct Efuse *            efuse2,
-    struct Efuse *            efuse3,
-    struct Efuse *            efuse4,
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    // struct Efuse *            efuse4,
     struct RailMonitoring *   rail_monitor,
     struct LowVoltageBattery *LVB)
 {
@@ -93,7 +93,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
     bool                      has_fault;
 
-    has_fault = InitFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor, LVB);
+    has_fault = InitFaultDetection(efuse1, efuse2, efuse3, rail_monitor, LVB);
     InitErrorsWarningsCANTX(efuse1, efuse2, efuse3, efuse4, LVB);
 
     if (has_fault)

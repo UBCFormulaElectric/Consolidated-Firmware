@@ -55,10 +55,10 @@ void DriveErrorsWarningsCANTX(
 }
 
 bool DriveFaultDetection(
-    struct Efuse *            efuse1,
-    struct Efuse *            efuse2,
-    struct Efuse *            efuse3,
-    struct Efuse *            efuse4,
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    // struct Efuse *            efuse4,
     struct RailMonitoring *   rail_monitor,
     struct LowVoltageBattery *LVB)
 {
@@ -94,7 +94,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool                      has_fault;
 
     DriveErrorsWarningsCANTX(efuse1, efuse2, efuse3, efuse4, LVB);
-    has_fault = DriveFaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor, LVB);
+    has_fault = DriveFaultDetection(efuse1, efuse2, efuse3, rail_monitor, LVB);
 
     if (has_fault)
     {
