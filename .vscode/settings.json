@@ -6,5 +6,11 @@
 			],
 			"url": "/can-bus/json/schema_tx.json"
 		}
-	]
+	],
+	"files.associations": {
+		"io_ltc6813shared.h": "c",
+		"stm32f4xx_hal_i2c.h": "c",
+		"app_sharedexitcode.h": "c",
+		"stdbool.h": "c"
+	}
 }
