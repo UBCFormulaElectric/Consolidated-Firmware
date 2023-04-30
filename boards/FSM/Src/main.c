@@ -144,12 +144,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_Warnings_RxOverflowCount_Set(overflow_count);
+    App_CanTx_FSM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(FSM_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_Warnings_TxOverflowCount_Set(overflow_count);
+    App_CanTx_FSM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(FSM_WARNING_TX_OVERFLOW, true);
 }
 
 /* USER CODE END 0 */
@@ -202,7 +204,6 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_FSM_Alerts_SendAperiodic);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -228,8 +229,6 @@ int main(void)
     world = App_FsmWorld_Create(heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-
-    App_CanAlerts_SetAlert(FSM_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

@@ -42,7 +42,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanTx_DCM_Warnings_MissingHeartbeat_Set(is_missing_hb);
+    App_CanAlerts_SetFault(DCM_FAULT_MISSING_HEARTBEAT, is_missing_hb);
 
     if (App_HasInverterFault() || is_missing_hb)
     {

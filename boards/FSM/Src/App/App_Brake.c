@@ -95,21 +95,24 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
 {
     struct Brake *brake = App_FsmWorld_GetBrake(world);
 
-    // Brake Pedal Value
     App_CanTx_FSM_Brake_BrakePedalPercentage_Set(brake->get_pedal_travel());
-
     App_CanTx_FSM_Brake_IsActuated_Set(brake->is_brake_actuated());
 
-    App_SetPeriodicCanSignals_InRangeCheck_long(
-        brake->front_pressure_in_range_check, App_CanTx_FSM_Brake_FrontBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warnings_FrontBrakePressureOutOfRange_Set);
-    App_SetPeriodicCanSignals_InRangeCheck_long(
-        brake->rear_pressure_in_range_check, App_CanTx_FSM_Brake_RearBrakePressure_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warnings_RearBrakePressureOutOfRange_Set);
+    float                    front_pressure;
+    enum InRangeCheck_Status front_pressure_status =
+        App_InRangeCheck_GetValue(brake->front_pressure_in_range_check, &front_pressure);
+    App_CanTx_FSM_Brake_FrontBrakePressure_Set((uint32_t)front_pressure);
+    App_CanAlerts_SetWarning(FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE, front_pressure_status != VALUE_IN_RANGE);
+
+    float                    rear_pressure;
+    enum InRangeCheck_Status rear_pressure_status =
+        App_InRangeCheck_GetValue(brake->rear_pressure_in_range_check, &rear_pressure);
+    App_CanTx_FSM_Brake_RearBrakePressure_Set((uint32_t)rear_pressure);
+    App_CanAlerts_SetWarning(FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE, rear_pressure_status != VALUE_IN_RANGE);
 
     App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
-
     App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(brake->pedal_travel_sensor_ocsc());
+
     if (brake->pedal_travel_sensor_ocsc())
     {
         App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);
