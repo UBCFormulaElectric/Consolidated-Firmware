@@ -62,7 +62,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool hb_monitor_status_ok = App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanTx_FSM_Warnings_MissingHeartbeat_Set(!hb_monitor_status_ok);
+    App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, !hb_monitor_status_ok);
     if (!hb_monitor_status_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

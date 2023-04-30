@@ -544,7 +544,7 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(true, App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Get());
+    ASSERT_EQ(true, App_CanAlerts_GetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE));
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 

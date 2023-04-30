@@ -135,12 +135,14 @@ void        RunTask1Hz(void const *argument);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_Errors_RxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DIM_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_Errors_TxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DIM_WARNING_TX_OVERFLOW, true);
 }
 /* USER CODE END 0 */
 
@@ -189,7 +191,6 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_DIM_Alerts_SendAperiodic);
 
     left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
     middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
@@ -241,8 +242,6 @@ int main(void)
         aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-
-    App_CanAlerts_SetAlert(DIM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
