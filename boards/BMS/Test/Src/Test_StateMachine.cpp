@@ -52,7 +52,6 @@ FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 FAKE_VALUE_FUNC(bool, enable_discharge);
 FAKE_VALUE_FUNC(bool, disable_discharge);
-FAKE_VALUE_FUNC(uint16_t, App_Charger_GetCounterVal);
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -170,7 +169,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_high_res_current);
-        RESET_FAKE(App_Charger_GetCounterVal);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
@@ -553,8 +551,9 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnect)
     App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(true);
 
     LetTimePass(state_machine, 10);
+
     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
-    ASSERT_EQ(true, App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Get());
+    ASSERT_EQ(true, App_CanAlerts_GetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE));
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 

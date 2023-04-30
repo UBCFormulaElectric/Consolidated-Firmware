@@ -36,10 +36,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool charger_fault_cleared = !App_Charger_HasFaulted(charger);
 
     struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-
-    // ignore heartbeat status if charger connected
-    const bool hb_ok = App_Charger_IsConnected(charger) ? true : App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanTx_BMS_Warnings_MissingHeartBeat_Set(hb_ok);
+    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, hb_ok);
 
     if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && charger_fault_cleared)
     {

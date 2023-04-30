@@ -130,10 +130,10 @@
             }
         }
     },
-    "DCM_Warnings": {
+    "DCM_AlertsContext": {
         "msg_id": 204,
         "cycle_time": 1000,
-        "description": "Warning flags for DCM",
+        "description": "Context info for DCM alerts",
         "signals": {
             "TxOverflowCount": {
                 "bits": 8
@@ -141,29 +141,8 @@
             "RxOverflowCount": {
                 "bits": 8
             },
-            "StackWatermarkAboveThresholdTask1Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask100Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask1kHz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanRx": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
-            },
-            "MissingHeartbeat": {
-                "bits": 1
             }
         }
     },

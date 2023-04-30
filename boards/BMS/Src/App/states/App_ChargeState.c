@@ -45,7 +45,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(external_shutdown_occurred);
 
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
-        if (!is_charger_connected || external_shutdown_occurred)
+        if (!is_charger_connected || external_shutdown_occurred || external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
             App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
