@@ -161,13 +161,10 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_GSM_Alerts_SendAperiodic);
 
     clock         = App_SharedClock_Create();
     world         = App_GsmWorld_Create(clock);
     state_machine = App_SharedStateMachine_Create(world, App_GetDefaultState());
-
-    App_CanAlerts_SetAlert(GSM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
