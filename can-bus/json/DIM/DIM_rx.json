@@ -5,6 +5,7 @@
         "BMS_Warnings",
         "PDM_Warnings",
         "DCM_Warnings",
-        "FSM_Warnings"
+        "FSM_Warnings",
+        "Debug_CanModes"
     ]
 }
