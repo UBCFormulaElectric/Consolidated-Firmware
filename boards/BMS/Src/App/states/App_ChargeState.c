@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "App_CanAlerts.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
@@ -48,14 +49,14 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
 
-        App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
-        App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
         App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
-        App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
+        App_CanAlerts_SetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE, is_charger_disconnected);
+        App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
+        App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, has_external_shutdown_occurred);
 
         struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
+        App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, is_missing_hb);
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred ||
             is_missing_hb)

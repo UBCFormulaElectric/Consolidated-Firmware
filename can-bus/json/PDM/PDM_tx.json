@@ -12,10 +12,10 @@
             }
         }
     },
-    "PDM_Warnings": {
+    "PDM_AlertsContext": {
         "msg_id": 404,
         "cycle_time": 1000,
-        "description": "Warning flags for the PDM.",
+        "description": "Context info for PDM alerts",
         "signals": {
             "StackWatermarkAboveThresholdTask1Hz": {
                 "bits": 1

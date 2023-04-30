@@ -1,4 +1,5 @@
 #include "App_PreChargeRelay.h"
+#include "App_CanAlerts.h"
 
 #define MAX_PRECHARGE_ATTEMPTS 3U
 
@@ -66,8 +67,7 @@ bool App_PrechargeRelay_CheckFaults(
     }
 
     *precharge_limit_exceeded = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= MAX_PRECHARGE_ATTEMPTS;
-
-    App_CanTx_BMS_Faults_PreChargeFault_Set(*precharge_limit_exceeded);
+    App_CanAlerts_SetFault(BMS_FAULT_PRECHARGE_ERROR, *precharge_limit_exceeded);
 
     return has_precharge_fault;
 }

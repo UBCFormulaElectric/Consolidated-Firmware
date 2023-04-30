@@ -149,12 +149,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMS_Warnings_RxOverflowCount_Set(overflow_count);
+    App_CanTx_BMS_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(BMS_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMS_Warnings_TxOverflowCount_Set(overflow_count);
+    App_CanTx_BMS_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(BMS_WARNING_TX_OVERFLOW, true);
 }
 
 /* USER CODE END 0 */
@@ -208,7 +210,6 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_BMS_Alerts_SendAperiodic);
 
     Io_Imd_Init();
     imd = App_Imd_Create(Io_Imd_GetFrequency, IMD_FREQUENCY_TOLERANCE, Io_Imd_GetDutyCycle, Io_Imd_GetTimeSincePowerOn);
@@ -254,8 +255,6 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
-
-    App_CanAlerts_SetAlert(BMS_ALERT_STARTUP, true);
 
     /* USER CODE END 2 */
 
