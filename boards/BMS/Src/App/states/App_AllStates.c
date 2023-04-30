@@ -36,8 +36,8 @@ static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
         App_CanRx_PDM_Vitals_Heartbeat_Update(false);
     }
-    
-    const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
     return missing_hb;
 }
 
@@ -122,7 +122,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
-    bool status = true;
+    bool       status     = true;
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
     App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 

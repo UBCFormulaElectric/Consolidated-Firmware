@@ -53,7 +53,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanAlerts_SetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE, is_charger_disconnected);
         App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
         App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, has_external_shutdown_occurred);
-        
+
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

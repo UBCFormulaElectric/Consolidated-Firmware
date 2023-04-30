@@ -317,7 +317,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_UNDERVOLTAGE));
-            
+
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_UNDERVOLTAGE));
@@ -396,7 +396,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_OVERTEMP));
 
     // Clear fault, should transition back to init
-    get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC - 1.0f;
+    get_max_temp_degc_fake.return_val      = MAX_CELL_CHARGE_TEMP_DEGC - 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -471,7 +471,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_UNDERTEMP));
 
     // Clear fault, should transition back to init
-    get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC + 1.0f;
+    get_min_temp_degc_fake.return_val      = MIN_CELL_CHARGE_TEMP_DEGC + 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -543,8 +543,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
 
     // Clear fault, should transition back to init
-    get_high_res_current_fake.return_val = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
-    get_low_res_current_fake.return_val  = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
+    get_high_res_current_fake.return_val   = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
+    get_low_res_current_fake.return_val    = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -555,18 +555,19 @@ TEST_F(BmsFaultTest, check_precharge_fault_combinations)
 {
     // Possible combinations of is_charger_connected, is_ts_rising_slowly and is_ts_rising_quickly
     bool inputs[10][4] = { { false, false, false, false }, { false, true, false, false }, { false, false, true, false },
-                          { false, true, true, false },   { true, false, false, false }, { true, true, false, false },
-                          { true, false, true, false },   { true, true, true, false }, { false, false, false, true}, { true, false, false, true} };
+                           { false, true, true, false },   { true, false, false, false }, { true, true, false, false },
+                           { true, false, true, false },   { true, true, true, false },   { false, false, false, true },
+                           { true, false, false, true } };
     // Possible outputs based on above combinations of inputs
-    bool expected_output[10]             = { false, true, true, true, false, true, false, true, true, true };
+    bool expected_output[10]            = { false, true, true, true, false, true, false, true, true, true };
     bool precharge_fault_limit_exceeded = false;
 
     for (int i = 0; i < 10; i++)
     {
         ASSERT_EQ(
-            expected_output[i],
-            App_PrechargeRelay_CheckFaults(
-                precharge_relay, inputs[i][0], inputs[i][1], inputs[i][2], inputs[i][3], &precharge_fault_limit_exceeded));
+            expected_output[i], App_PrechargeRelay_CheckFaults(
+                                    precharge_relay, inputs[i][0], inputs[i][1], inputs[i][2], inputs[i][3],
+                                    &precharge_fault_limit_exceeded));
 
         const bool precharge_limit_geq_3 = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3;
         ASSERT_EQ(precharge_fault_limit_exceeded, precharge_limit_geq_3);
@@ -582,7 +583,7 @@ TEST_F(BmsFaultTest, check_precharge_fault_combinations)
 
 TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
 {
-    for(int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++)
     {
         // Close negative contactor, precharge should start
         is_air_negative_closed_fake.return_val = true;
@@ -594,13 +595,13 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         is_air_negative_closed_fake.return_val = false;
         LetTimePass(state_machine, 10U);
 
-        if(i < 3)
+        if (i < 3)
         {
             // 3x precharge attempts haven't been exceeded, so back to init
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR));
         }
-        else 
+        else
         {
             // 3x precharge attempts have failed, so back transition to fault state indefinitely
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -614,17 +615,18 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
 
 TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
 {
-    struct {
+    struct
+    {
         bool fsm_mia;
         bool dcm_mia;
         bool pdm_mia;
     } test_params[3] = {
-        {true, false, false},
-        {false, true, false},
-        {false, false, true},
+        { true, false, false },
+        { false, true, false },
+        { false, false, true },
     };
 
-    for(int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         TearDown();
         SetUp();
@@ -659,7 +661,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
 
-        // Stay faulted indefinitely 
+        // Stay faulted indefinitely
         get_current_ms_fake.return_val += 1000;
         LetTimePass(state_machine, 1000);
         ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
