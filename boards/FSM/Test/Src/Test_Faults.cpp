@@ -235,7 +235,7 @@ TEST_F(FsmFaultTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
     ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_PAPPS_IS_OCSC_IS_ACTIVE));
-    
+
     LetTimePass(state_machine, 1);
     ASSERT_NEAR(50, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
@@ -282,7 +282,7 @@ TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
     ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_SAPPS_IS_OCSC_IS_ACTIVE));
-    
+
     LetTimePass(state_machine, 1);
     ASSERT_NEAR(50, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
@@ -291,56 +291,57 @@ TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
 
 TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_sets_fault)
 {
-    struct {
+    struct
+    {
         float papps_percentage;
         float sapps_percentage;
-        bool expect_fault;
+        bool  expect_fault;
     } test_params[7] = {
         {
             // Papps not greater than sapps
             .papps_percentage = 10,
             .sapps_percentage = 0,
-            .expect_fault = false,
+            .expect_fault     = false,
         },
         {
             // Papps just greater than sapps
             .papps_percentage = 11,
             .sapps_percentage = 0,
-            .expect_fault = true,
+            .expect_fault     = true,
         },
         {
             // Papps much greater than sapps
             .papps_percentage = 75,
             .sapps_percentage = 25,
-            .expect_fault = true,
+            .expect_fault     = true,
         },
         {
             // Sapps not greater than papps
             .papps_percentage = 0,
             .sapps_percentage = 10,
-            .expect_fault = false,
+            .expect_fault     = false,
         },
         {
             // Sapps just greater than papps
             .papps_percentage = 0,
             .sapps_percentage = 11,
-            .expect_fault = true,
+            .expect_fault     = true,
         },
         {
             // Sapps much greater than sapps
             .papps_percentage = 25,
             .sapps_percentage = 75,
-            .expect_fault = true,
+            .expect_fault     = true,
         },
         {
             // Control: papps = sapps
             .papps_percentage = 50,
             .sapps_percentage = 50,
-            .expect_fault = false,
+            .expect_fault     = false,
         },
     };
 
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         TearDown();
         SetUp();
@@ -353,13 +354,13 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
         ASSERT_NEAR(test_params[i].sapps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
 
-        if(test_params[i].expect_fault)
+        if (test_params[i].expect_fault)
         {
             // Signal debounce has elapsed, expect fault
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));   
+            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
@@ -375,13 +376,14 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
             ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
-            
+
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
         }
-        else {
+        else
+        {
             // No fault condition, confirm no fault is set
             LetTimePass(state_machine, 1000);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
@@ -393,19 +395,20 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
 
 TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_sets_fault_if_papps_pressed)
 {
-    struct {
+    struct
+    {
         float apps_percentage;
-        bool brake_actuated;
-        bool expect_fault;
-    } test_params[5] = { 
-        { 0, false, false }, // Papps not pressed and brake not actuated, no fault
-        { 24, true, false }, // Papps not pressed enough, no fault
+        bool  brake_actuated;
+        bool  expect_fault;
+    } test_params[5] = {
+        { 0, false, false },  // Papps not pressed and brake not actuated, no fault
+        { 24, true, false },  // Papps not pressed enough, no fault
         { 26, false, false }, // Brake not actuated, no fault
-        { 26, true, true }, // Papps pressed enough + brake actuated, fault
-        { 75, true, true }, // Papps pressed significantly + brake actuated, fault
+        { 26, true, true },   // Papps pressed enough + brake actuated, fault
+        { 75, true, true },   // Papps pressed significantly + brake actuated, fault
     };
 
-    for(int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         TearDown();
         SetUp();
@@ -419,13 +422,13 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
         ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
 
-        if(test_params[i].expect_fault)
+        if (test_params[i].expect_fault)
         {
             // Signal debounce has elapsed, expect fault
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));   
+            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
@@ -441,13 +444,13 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
             ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
-            
+
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(4, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(4, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
         }
-        else 
+        else
         {
             // No fault condition, confirm no fault is set
             LetTimePass(state_machine, 1000);
@@ -461,7 +464,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
 TEST_F(FsmFaultTest, primary_flow_rate_underflow_sets_fault)
 {
     // Flow rate underflow threshold is 1.0 L/min
-    const float underflow_threshold = 1.0f;
+    const float underflow_threshold       = 1.0f;
     coolant_get_flow_rate_fake.return_val = std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest());
 
     LetTimePass(state_machine, 10 + FLOW_METER_TIME_TO_FAULT - 1);
@@ -489,8 +492,8 @@ TEST_F(FsmFaultTest, brake_pedal_ocsc_sets_warning_and_brake_travel_to_zero)
     ASSERT_NEAR(30, App_CanTx_FSM_Brake_BrakePedalPercentage_Get(), 0.5f);
     ASSERT_FALSE(App_CanTx_FSM_Brake_PedalOpenShortCircuit_Get());
 
-    // Set brake OCSC 
-    brake_pedal_ocsc_fake.return_val       = true;
+    // Set brake OCSC
+    brake_pedal_ocsc_fake.return_val = true;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, App_CanTx_FSM_Brake_BrakePedalPercentage_Get());
     ASSERT_TRUE(App_CanTx_FSM_Brake_PedalOpenShortCircuit_Get());
@@ -501,7 +504,7 @@ TEST_F(FsmFaultTest, brake_pedal_ocsc_sets_warning_and_brake_travel_to_zero)
     ASSERT_TRUE(App_CanTx_FSM_Brake_PedalOpenShortCircuit_Get());
 
     // Clear condition, confirm warning resets
-    brake_pedal_ocsc_fake.return_val       = false;
+    brake_pedal_ocsc_fake.return_val = false;
     LetTimePass(state_machine, 10);
     ASSERT_NEAR(30, App_CanTx_FSM_Brake_BrakePedalPercentage_Get(), 0.5f);
     ASSERT_FALSE(App_CanTx_FSM_Brake_PedalOpenShortCircuit_Get());
