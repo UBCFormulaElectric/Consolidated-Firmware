@@ -1,6 +1,7 @@
 {
     "Debug_CanModes": {
         "msg_id": 701,
+        "cycle_time": 1000,
         "description": "Signals related to CAN modes.",
         "signals": {
             "EnableDebugMode": {

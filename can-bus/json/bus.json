@@ -3,8 +3,7 @@
     "bus_speed": 500,
     "modes": [
         "default",
-        "debug",
-        "race"
+        "debug"
     ],
     "default_mode": "default"
 }
