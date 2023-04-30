@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "App_AcceleratorPedals.h"
 #include "App_SharedSignal.h"
@@ -202,7 +203,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
     const float papp_sapp_diff =
-        accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
+        fabs(accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent());
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
@@ -221,10 +222,11 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
         accelerator_pedals->get_primary_pedal_percent() < 5);
     const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT, brake_acc_disagreement);
+    App_CanAlerts_SetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT, brake_acc_disagreement);
 
     if (brake_acc_disagreement)
     {
         App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
     }
 }
