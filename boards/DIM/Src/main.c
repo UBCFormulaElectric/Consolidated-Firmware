@@ -182,6 +182,9 @@ int main(void)
     //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
 
     Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     Io_SevenSegDisplays_Init();
 
     App_CanTx_Init();
@@ -425,7 +428,6 @@ static void MX_CAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN1_Init 2 */
 }
 
@@ -451,7 +453,6 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -692,9 +693,12 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
-        Io_CanTx_Enqueue1HzMsgs();
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
