@@ -199,36 +199,6 @@ class BmsFaultTest : public BaseStateMachineTest
         };
     }
 
-    void CheckInRangeCanSignalsInGivenState(
-        const State *state,
-        float        min_value,
-        float        max_value,
-        float &      fake_value,
-        float (*value_can_signal_getter)(const struct BmsCanTxInterface *),
-        uint8_t (*out_of_range_can_signal_getter)(const struct BmsCanTxInterface *),
-        uint8_t ok_choice,
-        uint8_t underflow_choice,
-        uint8_t overflow_choice)
-    {
-        SetInitialState(state);
-
-        // Normal range
-        fake_value = (min_value + max_value) / 2;
-        LetTimePass(state_machine, 1000);
-        ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
-        ASSERT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
-
-        // Underflow range
-        fake_value = std::nextafter(min_value, std::numeric_limits<float>::lowest());
-        LetTimePass(state_machine, 1000);
-        ASSERT_EQ(underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
-
-        // Overflow range
-        fake_value = std::nextafter(max_value, std::numeric_limits<float>::max());
-        LetTimePass(state_machine, 1000);
-        ASSERT_EQ(overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
-    }
-
     void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -609,6 +579,8 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
             LetTimePass(state_machine, 1000U);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR));
+
+            // Can't transition out of fault state due to precharge failure!
         }
     }
 }
@@ -676,6 +648,42 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
         ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
+    }
+}
+
+TEST_F(BmsFaultTest, check_state_transition_fault_state_from_fault_over_can)
+{
+    void (*update_rx_fault[4])(bool) = {
+        App_CanRx_DCM_Faults_DCM_FAULT_STATE_FAULT_Update,
+        App_CanRx_FSM_Faults_FSM_FAULT_STATE_FAULT_Update,
+        App_CanRx_PDM_Faults_PDM_FAULT_DUMMY_Update,
+        App_CanRx_DIM_Faults_DIM_FAULT_MISSING_HEARTBEAT_Update,
+    };
+
+    for(int i = 0; i < 4; i++)
+    {
+        // Reset test
+        TearDown();
+        SetUp();
+
+        // Let accumulator startup count expire
+        LetTimePass(state_machine, 1000);
+        ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+        ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_CELL_OVERVOLTAGE));
+
+        // Set received fault
+        update_rx_fault[i](true);
+        LetTimePass(state_machine, 20);
+        ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+        // Confirm stays in fault indefinitely
+        LetTimePass(state_machine, 1000);
+        ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+        // Clear fault, should transition back to init
+        update_rx_fault[i](false);
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
     }
 }
 

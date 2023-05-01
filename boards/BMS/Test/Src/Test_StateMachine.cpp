@@ -2,8 +2,6 @@
 
 namespace StateMachineTest
 {
-FAKE_VOID_FUNC(send_non_periodic_msg_BMS_STARTUP, const struct CanMsgs_bms_startup_t *);
-FAKE_VOID_FUNC(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT, const struct CanMsgs_bms_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(float, get_pwm_frequency);
 FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
 FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
@@ -93,6 +91,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
+        App_CanTx_Init();
+        App_CanRx_Init();
+
         imd =
             App_Imd_Create(get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
@@ -130,8 +131,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
 
-        RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
-        RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
         RESET_FAKE(get_seconds_since_power_on);

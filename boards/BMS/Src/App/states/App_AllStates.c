@@ -140,13 +140,19 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
-    App_SetPeriodicCanSignals_Imd(imd);
 
+    App_SetPeriodicCanSignals_Imd(imd);
     App_AdvertisePackPower(accumulator, ts);
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_BMS_OkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
+
+    const bool dcm_fault = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool fault_over_can = dcm_fault || fsm_fault || pdm_fault || dim_fault;
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
@@ -154,7 +160,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault || missing_hb)
+    else if (acc_fault || ts_fault || missing_hb || fault_over_can)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
