@@ -63,7 +63,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SetPeriodicCanSignals_TorqueRequests();
 
-        if (!App_IsStartSwitchOn())
+        if (!App_IsStartSwitchOn() || !App_IsBmsInDriveState())
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
