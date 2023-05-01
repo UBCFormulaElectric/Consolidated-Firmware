@@ -7,33 +7,31 @@
 #include "App_SharedConstants.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-#define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
-    //       const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-    //    float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
-    //    float fsm_torque_limit = 0; // TODO: JSONCAN waiting for fsm->
-    //    App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
+    float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
-        //        bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
-        //                           (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
+        const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
+        const float combined_motor_speed_rads = RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm);
+        bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
     }
 
-    // Calculate the maximum torque request to scale pedal percentage off of
-    //    const float max_torque_request = MIN(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    // Calculate the maximum torque request, according to the BMS available power
+    const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
+    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+
+    // Get the maximum torque request, according to the FSM
+    const float max_fsm_torque_request = App_CanRx_FSM_Apps_TorqueLimit_Get();
 
     // Calculate the actual torque request to transmit
-    const float torque_request = 0;
-    // TODO: JSONCAN waiting for FSM
-    // const float torque_request =
-    // MIN(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
-    //     fsm_torque_limit);
+    const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(torque_request);

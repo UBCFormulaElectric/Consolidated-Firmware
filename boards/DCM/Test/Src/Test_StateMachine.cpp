@@ -6,6 +6,7 @@ extern "C"
 {
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
+#include "App_SharedConstants.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -556,4 +557,77 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
     LetTimePass(state_machine, 10);
     EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
+
+TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
+{
+    struct
+    {
+        float bms_available_power;
+        float motor_speed;
+        int   pedal_percentage;
+        float fsm_max_torque_request;
+        float expected_torque_request;
+    } test_params[4] = {
+        {
+            // Limited by FSM max torque request
+            .bms_available_power     = 78e3f,
+            .motor_speed             = 0.0f,
+            .pedal_percentage        = 100,
+            .fsm_max_torque_request  = 30,
+            .expected_torque_request = 30,
+        },
+        {
+            // Limited by BMS available power and motor speed
+            .bms_available_power     = 10e3f,
+            .motor_speed             = 1000.0f,
+            .pedal_percentage        = 100,
+            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
+            .expected_torque_request = 10e3f * 0.8 / (2 * RPM_TO_RADS(1000.0f)),
+        },
+        {
+            // Limited by accelerator pedal percentage
+            .bms_available_power     = 78e3f,
+            .motor_speed             = 0.0f,
+            .pedal_percentage        = 50,
+            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
+            .expected_torque_request = 0.5f * MAX_TORQUE_REQUEST_NM,
+        },
+        {
+            // Limited by max torque request (90Nm)
+            .bms_available_power     = 78e3f,
+            .motor_speed             = 1.0f, // Small motor speed allows for very high BMS torque limit (>>90Nm)
+            .pedal_percentage        = 100,
+            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM + 20, // Not allowed to happen nominally
+            .expected_torque_request = MAX_TORQUE_REQUEST_NM,
+        },
+    };
+
+    for (int i = 0; i < 4; i++)
+    {
+        TearDown();
+        SetUp();
+        SetInitialState(App_GetDriveState());
+
+        // Turn the DIM start switch on to prevent state transitions in
+        // the drive state.
+        App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+
+        // Set inital conditions
+        App_CanRx_BMS_AvailablePower_AvailablePower_Update(test_params[i].bms_available_power);
+        App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
+        App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
+        App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);
+        App_CanRx_FSM_Apps_TorqueLimit_Update(test_params[i].fsm_max_torque_request);
+
+        // Confirm expected torque request is set
+        LetTimePass(state_machine, 10);
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+
+        LetTimePass(state_machine, 1000);
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+    }
+}
+
 } // namespace StateMachineTest
