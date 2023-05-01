@@ -202,8 +202,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
-    const float papp_sapp_diff =
-        fabs(accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent());
+    const float papp_sapp_diff = (float)fabs(
+        accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent());
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
