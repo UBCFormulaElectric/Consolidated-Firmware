@@ -48,7 +48,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         error_count = 0;
     }
 
-    App_CanAlerts_SetAlert(FSM_FAULT_TORQUE_PLAUSABILITY_FAILED, error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
+    App_CanAlerts_SetFault(FSM_FAULT_TORQUE_PLAUSABILITY_FAILED, error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
 
     // Broadcast a new FSM torque limit based on pedal percentage
     fsm_torque_limit =
