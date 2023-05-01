@@ -660,7 +660,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_from_fault_over_can)
         App_CanRx_DIM_Faults_DIM_FAULT_MISSING_HEARTBEAT_Update,
     };
 
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         // Reset test
         TearDown();

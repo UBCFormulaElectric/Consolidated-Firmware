@@ -148,10 +148,10 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_BMS_OkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
 
-    const bool dcm_fault = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
-    const bool fsm_fault = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
-    const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
-    const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool dcm_fault      = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault      = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault      = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault      = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
     const bool fault_over_can = dcm_fault || fsm_fault || pdm_fault || dim_fault;
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
