@@ -6,11 +6,11 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_SharedMacros.h"
 
-extern IWDG_HandleTypeDef hiwdg;
+// extern IWDG_HandleTypeDef hiwdg;
 
 void Io_HardwareWatchdog_Refresh(void)
 {
-    HAL_IWDG_Refresh(&hiwdg);
+    //    HAL_IWDG_Refresh(&hiwdg);
 }
 
 void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
