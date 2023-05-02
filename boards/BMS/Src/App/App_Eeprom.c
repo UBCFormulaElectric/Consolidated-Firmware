@@ -1,40 +1,29 @@
 #include "App_Eeprom.h"
 #include "string.h"
 
-#define SOC_ADDR_PAGE (0U)
-#define SOC_ADDR_OFFSET (0U)
-#define SOC_ADDR_SIZE_BYTES (1U)
 #define NUM_PAGES (128U)
-#define SAVED_COPIES 3U
+#define SAVED_COPIES 4U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
-#define SHORT_SIZE ((uint8_t)sizeof(uint16_t))
 
-// expose static functions for testing
-#ifdef TESTING
-#define STATIC
-#else
-#define STATIC static
-#endif
-
-STATIC void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
+static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 {
     memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
 }
 
-STATIC float convert_bytes_to_float(uint8_t *byte_array)
+static float convert_bytes_to_float(uint8_t *byte_array)
 {
     float converted_float;
     memcpy(&converted_float, byte_array, sizeof(float));
     return converted_float;
 }
 
-STATIC void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert)
+static void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert)
 {
     memcpy(byte_array, (uint8_t *)(&short_to_convert), sizeof(uint16_t));
 }
 
-STATIC uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
+static uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
 {
     uint16_t converted_short;
     memcpy(&converted_short, bytes_to_convert, sizeof(uint16_t));
@@ -125,21 +114,21 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page)
     return eeprom->page_erase(page);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address)
+EEPROM_StatusTypeDef App_Eeprom_Write4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address)
 {
-    uint16_t num_bytes = SAVED_COPIES * 2; // saving 3 copies of address, each 2 bytes
+    uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
     uint8_t  offset = 0;
 
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        convert_short_to_bytes(&byte_array[i * 2], address);
+        convert_short_to_bytes(&byte_array[i * sizeof(uint16_t)], address);
     }
 
     return eeprom->write_page(page, offset, byte_array, num_bytes);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_ReadAddresses(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses)
+EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddresses(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses)
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
@@ -150,7 +139,7 @@ EEPROM_StatusTypeDef App_Eeprom_ReadAddresses(struct Eeprom *eeprom, uint16_t pa
 
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        addresses[i] = convert_bytes_to_short(&byte_array[i * 2]);
+        addresses[i] = convert_bytes_to_short(&byte_array[i * sizeof(uint16_t)]);
     }
 
     return read_status;

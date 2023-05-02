@@ -30,7 +30,7 @@ void App_Eeprom_Destroy(struct Eeprom *eeprom);
  * Write float values to EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param eeprom Eeprom to write to
- * @param page the number of the start page. Range from 0 to NUM_PAGES-1
+ * @param page the number of the page. Range from 0 to NUM_PAGES-1
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, must be 0 or multiple of 4 to
  * align with 4-byte size of float values
  * @param input_data pointer to array of floats to write to EEPROM
@@ -43,7 +43,7 @@ EEPROM_StatusTypeDef
 /**
  * Read float values to EEPROM
  * @param eeprom Eeprom to read from
- * @param page the number of the start page. Range from 0 to NUM_PAGES-1
+ * @param page the number of the page. Range from 0 to NUM_PAGES-1
  * @param offset the start byte offset in the page. Range from 0 to PAGE_SIZE-1, must be 0 or multiple of 4 to
  * align with 4-byte size of float values
  * @param ouput_data pointer to array of floats to store data from EEPROM
@@ -57,59 +57,27 @@ EEPROM_StatusTypeDef
  * Erase page in EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param eeprom Eeprom to erase a page from
- * @param page the number of the start page to set to all zeroes
+ * @param page the number of the page to set to all zeroes
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
 EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
 
 /**
- * Write an address 3 times to EEPROM
+ * Write an address 4 times to EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
- * @param eeprom Eeprom to erase a page from
- * @param page the number of the start page to set to all zeroes
+ * @param eeprom Eeprom to write address to
+ * @param page the number of the page to write to
  * @param address the address to store on the EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_WriteAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address);
+EEPROM_StatusTypeDef App_Eeprom_Write4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address);
 
 /**
- * Write an address 3 times to EEPROM
- * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
+ * Read the stored 4 copies of adress from EEPROM
  * @param eeprom Eeprom to erase a page from
- * @param page the number of the start page to set to all zeroes
- * @param addresses array of 3 addresses to be chosen from. Should all contain same value but may not due to
+ * @param page the number of the page to read from
+ * @param addresses array of 4 addresses to be chosen from. Should all contain same value but may not due to
  * data-corruption in EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses);
-
-// Expose static functions for tests
-#ifdef TESTING
-/**
- * Convert a float value to array of 4 bytes
- * @param byte_array pointer to output byte array
- * @param float_to_convert the float to convert
- */
-void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert);
-
-/**
- * Convert array of 4 bytes into a float
- * @param byte_array byte array input
- * @return float output
- */
-float convert_bytes_to_float(uint8_t *byte_array);
-
-/**
- * Convert a unsigned short value to array of 2 bytes
- * @param byte_array pointer to output byte array
- * @param short_to_convert the float to convert
- */
-void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert);
-
-/**
- * Convert array of 2 bytes into a unsigned short
- * @param byte_array byte array input
- * @return uint16_t output
- */
-uint16_t convert_bytes_to_short(uint8_t *byte_array);
-#endif
+EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses);

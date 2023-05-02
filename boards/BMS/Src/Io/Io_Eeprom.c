@@ -73,7 +73,7 @@ EEPROM_StatusTypeDef Io_Eeprom_ReadPage(uint16_t page, uint8_t offset, uint8_t *
     return EEPROM_OK;
 }
 
-uint8_t Io_Eeprom_PageErase(uint16_t page)
+EEPROM_StatusTypeDef Io_Eeprom_PageErase(uint16_t page)
 {
     // determine the memory address location
     uint16_t mem_address = (uint16_t)(page << PAGE_ADDR_START_BIT);
