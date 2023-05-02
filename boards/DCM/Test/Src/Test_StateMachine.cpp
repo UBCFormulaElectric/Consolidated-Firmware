@@ -283,11 +283,12 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
         if (DCM_DRIVE_STATE == App_CanTx_DCM_Vitals_CurrentState_Get())
         {
-            // Turn the DIM start switch on to prevent state transitions in
+            // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
             // the drive state.
-            EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
-
             App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+            App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+
+            EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
 
             LetTimePass(state_machine, BUZZER_ON_DURATION_MS - 1);
             EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
@@ -492,9 +493,10 @@ TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pre
 {
     SetInitialState(App_GetDriveState());
 
-    // Turn the DIM start switch on to prevent state transitions in
+    // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
 
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
@@ -518,9 +520,10 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
 {
     SetInitialState(App_GetDriveState());
 
-    // Turn the DIM start switch on to prevent state transitions in
+    // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
@@ -546,9 +549,10 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 {
     SetInitialState(App_GetDriveState());
 
-    // Turn the DIM start switch on to prevent state transitions in
+    // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
@@ -608,9 +612,10 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
         SetUp();
         SetInitialState(App_GetDriveState());
 
-        // Turn the DIM start switch on to prevent state transitions in
+        // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
         App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+        App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
 
         // Set inital conditions
         App_CanRx_BMS_AvailablePower_AvailablePower_Update(test_params[i].bms_available_power);
