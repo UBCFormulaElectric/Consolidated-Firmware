@@ -26,7 +26,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_SharedMacros.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,7 +90,6 @@ void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
     Io_SharedHardFaultHandler_HandleHardFault();
-    BREAK_IF_DEBUGGER_CONNECTED();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {

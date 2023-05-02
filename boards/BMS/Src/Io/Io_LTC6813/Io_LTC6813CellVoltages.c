@@ -97,17 +97,17 @@ static bool Io_ParseCellVoltageFromAllSegments(
             const int reading_1_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_1;
             const int reading_2_cell_idx = curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + REG_GROUP_READING_2;
 
-            if(reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            if (reading_0_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
             {
                 cell_voltages[curr_segment][reading_0_cell_idx] = reading_0_voltage;
             }
 
-            if(reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            if (reading_1_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
             {
                 cell_voltages[curr_segment][reading_1_cell_idx] = reading_1_voltage;
             }
 
-            if(reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+            if (reading_2_cell_idx < (int)ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
             {
                 cell_voltages[curr_segment][reading_2_cell_idx] = reading_2_voltage;
             }
