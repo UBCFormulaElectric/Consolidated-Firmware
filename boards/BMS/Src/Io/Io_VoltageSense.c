@@ -32,14 +32,16 @@ float Io_VoltageSense_GetTractiveSystemVoltage()
     // TS_Voltage = ---------------------------------- * Measurement Error %
     //                Voltage Ratio x Amplifier Gain
 
-    const float adc_voltage = 0; // TODO: Single-ended TS voltage
+    const float ts_vsense_p = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_10);
+    const float ts_vsense_n = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_11);
+    const float ts_vsense   = ts_vsense_p - ts_vsense_n;
 
-    if (adc_voltage < 0.0f)
+    if (ts_vsense < 0.0f)
     {
         return NAN;
     }
     else
     {
-        return adc_voltage * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        return ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
     }
 }

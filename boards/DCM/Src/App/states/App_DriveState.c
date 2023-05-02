@@ -50,6 +50,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     // Enable inverters upon entering drive state.
     App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(true);
     App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
+
+    // Set inverter directions.
+    App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
+    App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)

@@ -188,7 +188,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     const bool papps_ocsc_active = papp_signal_state == SIGNAL_STATE_ACTIVE;
     App_CanAlerts_SetFault(FSM_FAULT_PAPPS_IS_OCSC_IS_ACTIVE, papps_ocsc_active);
 
-    const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
+    const bool  secondary_pedal_ocsc = false; // accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
     const bool sapps_ocsc_active = sapp_signal_state == SIGNAL_STATE_ACTIVE;
@@ -202,8 +202,9 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
-    const float papp_sapp_diff = (float)fabs(
-        accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent());
+    const float papp_sapp_diff =
+        0; // (float)fabs(
+           // accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent());
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
@@ -221,7 +222,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         accelerator_pedals->app_brake_signal,
         App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
         accelerator_pedals->get_primary_pedal_percent() < 5);
-    const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
+    const bool brake_acc_disagreement = false; // app_brake_disagreement == SIGNAL_STATE_ACTIVE;
     App_CanAlerts_SetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT, brake_acc_disagreement);
 
     if (brake_acc_disagreement)
