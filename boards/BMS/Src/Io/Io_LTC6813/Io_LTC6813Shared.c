@@ -125,8 +125,10 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size);
  * register
  * @param curr_cfg_reg The current configuration register to configure
  */
-static void
-    Io_PrepareCfgRegBytes(uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg);
+static void Io_PrepareCfgRegBytes(
+    uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
+    bool    cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT],
+    uint8_t curr_cfg_reg);
 
 static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
 {
@@ -146,16 +148,11 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
     return (uint16_t)(remainder << 1);
 }
 
-static void
-    Io_PrepareCfgRegBytes(uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg)
+static void Io_PrepareCfgRegBytes(
+    uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
+    bool    cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT],
+    uint8_t curr_cfg_reg)
 {
-    /*
-    // TODO: Remove this when balancing is moved to App code
-    uint8_t min_cell_segment = 0U;
-    uint8_t min_cell_index   = 0U;
-    Io_LTC6813CellVoltages_GetMinCellVoltage(&min_cell_segment, &min_cell_index);
-    */
-
     // Write to the configuration registers of each segment
     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
@@ -168,7 +165,15 @@ static void
 
         // Get dcc bits to write for the current segment. If this is the lowest
         // cell, set DCC bits for the given segment
-        const uint16_t dcc_bits = Io_LTC6813CellVoltages_GetCellsToDischarge(curr_segment);
+        uint32_t dcc_bits = 0U;
+
+        if (cells_to_discharge != NULL)
+        {
+            for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+            {
+                dcc_bits |= (uint32_t)(cells_to_discharge[curr_segment][cell] << cell);
+            }
+        }
 
         // Write to configuration registers DCC bits
         if (curr_cfg_reg == CONFIG_REG_A)
@@ -246,7 +251,8 @@ bool Io_LTC6813Shared_PollAdcConversions(void)
     return true;
 }
 
-bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
+bool Io_LTC6813Shared_WriteConfigurationRegisters(
+    bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
     for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++)
     {
@@ -258,12 +264,11 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
         // Array containing bytes to write to the configuration register
         uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
 
-        // Prepare command to begin writing to the configuration
-        // register
-        Io_LTC6813Shared_PackCmdPec15(tx_cmd);
-
         // Prepare data to write to the configuration register
-        Io_PrepareCfgRegBytes(tx_cfg, curr_cfg_reg);
+        Io_PrepareCfgRegBytes(tx_cfg, cells_to_discharge, curr_cfg_reg);
+
+        // Pack PEC code
+        Io_LTC6813Shared_PackCmdPec15(tx_cmd);
 
         // Write to configuration registers
         Io_SharedSpi_SetNssLow(ltc6813_spi);
@@ -284,10 +289,10 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
 bool Io_LTC6813Shared_SetCfgRegsToDefaultSettings(void)
 {
     // Send command on the isoSpi line to wake up the chip
-    Io_LTC6813Shared_WriteConfigurationRegisters();
+    Io_LTC6813Shared_WriteConfigurationRegisters(NULL);
 
     // Write to the configuration registers
-    return Io_LTC6813Shared_WriteConfigurationRegisters();
+    return Io_LTC6813Shared_WriteConfigurationRegisters(NULL);
 }
 
 bool Io_LTC6813Shared_EnableDischarge(void)
