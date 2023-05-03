@@ -11,6 +11,7 @@
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *   world         = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *       airs          = App_BmsWorld_GetAirs(world);
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
@@ -19,6 +20,10 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);
+
+    // AIR+ opens upon entering init state
+    // Should never be open at this point, this is only for redundancy
+    App_Airs_OpenAirPositive(airs);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)

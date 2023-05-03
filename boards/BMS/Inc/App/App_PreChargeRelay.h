@@ -16,7 +16,7 @@
 // 2.7RC corresponds to time to reach ~93% charged
 #define PRECHARGE_COMPLETION_MS          ((float)PRECHARGE_RC_MS * 2.7f)
 #define PRECHARGE_COMPLETION_LOWER_BOUND ((uint32_t)(PRECHARGE_COMPLETION_MS * 0.5f))
-#define PRECHARGE_COMPLETION_UPPER_BOUND ((uint32_t)(PRECHARGE_COMPLETION_MS * 2.5f))
+#define PRECHARGE_COMPLETION_UPPER_BOUND ((uint32_t)(PRECHARGE_COMPLETION_MS * 3.0f))
 
 // clang-format on
 
