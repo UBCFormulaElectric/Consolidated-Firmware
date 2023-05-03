@@ -119,12 +119,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DCM_Warnings_RxOverflowCount_Set(overflow_count);
+    App_CanTx_DCM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DCM_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DCM_Warnings_TxOverflowCount_Set(overflow_count);
+    App_CanTx_DCM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DCM_WARNING_TX_OVERFLOW, true);
 }
 
 /* USER CODE END 0 */
@@ -166,6 +168,7 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     if (!Io_EllipseImu_Init())
     {
@@ -174,7 +177,6 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_DCM_Alerts_SendAperiodic);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -197,8 +199,6 @@ int main(void)
         heartbeat_monitor, brake_light, buzzer, imu, clock, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
-
-    App_CanAlerts_SetAlert(DCM_STARTUP, true);
 
     /* USER CODE END 2 */
 
@@ -486,6 +486,9 @@ void RunTask1Hz(void const *argument)
     {
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

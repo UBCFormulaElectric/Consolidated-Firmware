@@ -17,29 +17,11 @@
             }
         }
     },
-    "BMS_Warnings": {
+    "BMS_AlertsContext": {
         "msg_id": 104,
         "cycle_time": 1000,
-        "description": "Warning flags for BMS",
+        "description": "Context info for BMS alerts",
         "signals": {
-            "StackWatermarkAboveThresholdTask1Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask100Hz": {
-                "bits" : 1
-            },
-            "StackWatermarkAboveThresholdTask1kHz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanRx": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            },
             "TxOverflowCount": {
                 "bits": 8
             },
@@ -48,9 +30,6 @@
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
-            },
-            "MissingHeartBeat": {
-                "bits": 1
             }
         }
     },
@@ -122,46 +101,6 @@
                 "min": 0,
                 "max": 100,
                 "unit": "Hz"
-            }
-        }
-    },
-    "BMS_Faults": {
-        "msg_id": 109,
-        "cycle_time": 1000,
-        "description": "BMS Fault Flags",
-        "signals": {
-            "ChargerDisconnectedInChargeState": {
-                "bits": 1
-            },
-            "CellUnderVoltageFault": {
-                "bits": 1
-            },
-            "CellOverVoltageFault": {
-                "bits": 1
-            },
-            "ModuleCommFault": {
-                "bits": 1
-            },
-            "CellUnderTempFault": {
-                "bits": 1
-            },
-            "CellOverTempFault": {
-                "bits": 1
-            },
-            "ChargerFault": {
-                "bits": 1
-            },
-            "HasReachedMaxV": {
-                "bits": 1
-            },
-            "ChargingExtShutdownOccurred": {
-                "bits": 1
-            },
-            "TSOverCurrentFault": {
-                "bits": 1
-            },
-            "PreChargeFault": {
-                "bits": 1
             }
         }
     },
