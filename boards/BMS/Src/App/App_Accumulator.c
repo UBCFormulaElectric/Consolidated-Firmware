@@ -56,7 +56,7 @@ struct Accumulator
     float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Balancing information
-    bool                    cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -119,18 +119,19 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
  * Calculate which cells need discharging, for cell balancing.
  * @param accumulator The accumulator
  */
-static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator* accumulator)
+static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumulator)
 {
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
-            const bool needs_discharging = (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) < CELL_VOLTAGE_DISCHARGE_WINDOW_V;
+            const bool needs_discharging =
+                (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) <
+                CELL_VOLTAGE_DISCHARGE_WINDOW_V;
             accumulator->cells_to_discharge[segment][cell] = needs_discharging;
         }
     }
 }
-
 
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
