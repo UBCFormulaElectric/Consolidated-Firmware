@@ -44,7 +44,7 @@ struct Accumulator
 
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
-    bool (*write_cfg_registers)(void);
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
@@ -112,9 +112,38 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
     accumulator->voltage_stats = temp_voltage_stats;
 }
 
+/**
+ *
+// */
+// static void App_Accumulator_SetDischargeBits(void)
+// {
+
+//     memset(discharge_bits, 0U, sizeof(discharge_bits));
+
+//     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
+//     {
+//         for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+//         {
+//             for (uint8_t curr_cell = 0U; curr_cell < NUM_OF_READINGS_PER_REG_GROUP; curr_cell++)
+//             {
+//                 if ((curr_reg_group != CELL_V_REG_GROUP_F) || (curr_cell == 0U))
+//                 {
+//                     if (cell_voltages[curr_segment][curr_reg_group][curr_cell] >
+//                         (voltages.min.voltage + CELL_VOLTAGE_DISCHARGE_WINDOW_UV))
+//                     {
+//                         discharge_bits[curr_segment] |=
+//                             (uint16_t)(1U << (curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_cell));
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//      */
+// }
+
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
-    bool (*write_cfg_registers)(void),
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
@@ -271,7 +300,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             App_Accumulator_CalculateVoltageStats(accumulator);
 
             // Write to configuration register to configure cell discharging
-            accumulator->write_cfg_registers();
+            accumulator->write_cfg_registers(NULL);
             accumulator->disable_discharge();
 
             // Start cell voltage conversions for the next cycle

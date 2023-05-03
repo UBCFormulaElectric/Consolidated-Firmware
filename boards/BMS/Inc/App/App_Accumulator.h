@@ -36,7 +36,7 @@ struct Accumulator;
 
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
-    bool (*write_cfg_registers)(void),
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),

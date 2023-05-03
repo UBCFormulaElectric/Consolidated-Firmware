@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stm32f4xx_hal.h>
 #include "App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 // clang-format off
 
@@ -130,7 +131,8 @@ bool Io_LTC6813Shared_SetCfgRegsToDefaultSettings(void);
  * @return True if the commands used to write to the configuration registers can
  * be sent successfully. Else, false
  */
-bool Io_LTC6813Shared_WriteConfigurationRegisters(void);
+bool Io_LTC6813Shared_WriteConfigurationRegisters(
+    bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
 /**
  * Enable LTC6813 cell discharge
