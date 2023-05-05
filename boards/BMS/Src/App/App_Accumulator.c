@@ -6,6 +6,9 @@
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
+#define DISCHARGE_TICKS_ON (100U)
+#define DISCHARGE_TICKS_OFF (100U)
+
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
     if ((is_pec_ok))                                        \
@@ -57,6 +60,8 @@ struct Accumulator
 
     // Balancing information
     bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    uint32_t discharge_pwm_ticks;
+    bool mute_discharge;
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -126,7 +131,7 @@ static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumu
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             const bool needs_discharging =
-                (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) <
+                (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) >
                 CELL_VOLTAGE_DISCHARGE_WINDOW_V;
             accumulator->cells_to_discharge[segment][cell] = needs_discharging;
         }
@@ -167,6 +172,11 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_min_cell_temp      = get_min_cell_temp;
     accumulator->get_max_cell_temp      = get_max_cell_temp;
     accumulator->get_avg_cell_temp      = get_avg_cell_temp;
+
+    // Balancing information
+    memset(&accumulator->cells_to_discharge, 0U, sizeof(accumulator->cells_to_discharge));
+    accumulator->discharge_pwm_ticks = 0;
+    accumulator->mute_discharge = false;
 
     accumulator->enable_discharge  = enable_discharge;
     accumulator->disable_discharge = disable_discharge;
@@ -299,6 +309,32 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             // Write to configuration register to configure cell discharging
             accumulator->write_cfg_registers(accumulator->cells_to_discharge);
+
+            if(accumulator->mute_discharge)
+            {
+                // Disable cell discharging
+                accumulator->disable_discharge();
+                accumulator->discharge_pwm_ticks += 1;
+
+                if(accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
+                {
+                    // Cell discharging disabled duty cycle portion is finished
+                    accumulator->mute_discharge = false;
+                    accumulator->discharge_pwm_ticks = 0;
+                }
+            }
+            else {
+                // Enable cell discharging
+                accumulator->enable_discharge();
+                accumulator->discharge_pwm_ticks += 1;
+
+                if(accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
+                {
+                    // Cell discharging enabled duty cycle portion is finished
+                    accumulator->mute_discharge = true;
+                    accumulator->discharge_pwm_ticks = 0;
+                }
+            }
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
