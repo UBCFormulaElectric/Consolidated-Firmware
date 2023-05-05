@@ -264,11 +264,12 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(
         // Array containing bytes to write to the configuration register
         uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
 
+        // Prepare command to begin writing to the configuration
+        // register
+        Io_LTC6813Shared_PackCmdPec15(tx_cmd);
+
         // Prepare data to write to the configuration register
         Io_PrepareCfgRegBytes(tx_cfg, cells_to_discharge, curr_cfg_reg);
-
-        // Pack PEC code
-        Io_LTC6813Shared_PackCmdPec15(tx_cmd);
 
         // Write to configuration registers
         Io_SharedSpi_SetNssLow(ltc6813_spi);
