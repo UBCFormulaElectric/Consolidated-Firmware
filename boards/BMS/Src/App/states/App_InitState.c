@@ -32,8 +32,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world   = App_SharedStateMachine_GetWorld(state_machine);
-        struct Charger *       charger = App_BmsWorld_GetCharger(world);
+        struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct Charger * charger = App_BmsWorld_GetCharger(world);
 
         bool is_charger_connected = App_Charger_IsConnected(charger);
 
