@@ -130,9 +130,9 @@ static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumu
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
-            const bool needs_discharging =
-                (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) >
-                CELL_VOLTAGE_DISCHARGE_WINDOW_V;
+            const bool needs_discharging = true;
+                // (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) >
+                // CELL_VOLTAGE_DISCHARGE_WINDOW_V;
             accumulator->cells_to_discharge[segment][cell] = needs_discharging;
         }
     }
