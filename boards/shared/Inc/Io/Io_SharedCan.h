@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Io_Hal.h"
 #include "App_CanTx.h"
+#include "Io_Hal.h"
 #include "Io_SharedCanMsg.h"
 
-#define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
-#define CAN_ExtID_NULL 0            // Set CAN Extended ID to 0 because we are not using it
+#define CAN_PAYLOAD_MAX_NUM_BYTES 8  // Maximum number of bytes in a CAN payload
+#define CAN_ExtID_NULL \
+  0  // Set CAN Extended ID to 0 because we are not using it
 
 /**
  * Initialize CAN interrupts before starting the CAN module. After this, the
@@ -19,10 +20,9 @@
  * @param rx_overflow_callback A function that will be called with the current
  *                             overflow count when the rx queue overflows
  */
-void Io_SharedCan_Init(
-    CAN_HandleTypeDef *hcan,
-    void (*tx_overflow_callback)(size_t),
-    void (*rx_overflow_callback)(size_t));
+void Io_SharedCan_Init(CAN_HandleTypeDef *hcan,
+                       void (*tx_overflow_callback)(size_t),
+                       void (*rx_overflow_callback)(size_t));
 
 /**
  * Send a message to the back of the CAN TX queue

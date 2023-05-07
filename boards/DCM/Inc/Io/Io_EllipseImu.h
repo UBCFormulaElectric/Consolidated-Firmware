@@ -1,7 +1,8 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
 #include "App_EllipseImu.h"
 
 /*
@@ -22,7 +23,8 @@ uint32_t Io_EllipseImu_GetTimestampUs(void);
 
 /*
  * Get a last read output from the SBG Ellipse N sensor.
- * This is a single function to avoid faking a whole bunch of IO functions for each sensor output.
+ * This is a single function to avoid faking a whole bunch of IO functions for
+ * each sensor output.
  * @param output Which sensor value to read
  * @return Last read sensor output, in the cooresponding units
  */

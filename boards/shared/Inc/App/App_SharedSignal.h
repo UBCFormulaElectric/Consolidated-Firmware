@@ -2,24 +2,26 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "configs/App_SharedSignalConfig.h"
 
 #ifndef World
 #error "Please define the 'World' type"
 #endif
 
-typedef enum
-{
-    SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
-    SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
+typedef enum {
+  SIGNAL_STATE_CLEAR,   // Exit: Alert is not active.
+  SIGNAL_STATE_ACTIVE,  // Entry: Alert is now active.
 } SignalState;
 
 struct Signal;
 
 /**
  * Allocate and initialize a signal
- * @param entry_time Amount of time required for the enter condition to be true to enter it
- * @param exit_time Amount of time required for the exit condition to be true to enter it
+ * @param entry_time Amount of time required for the enter condition to be true
+ * to enter it
+ * @param exit_time Amount of time required for the exit condition to be true to
+ * enter it
  * @return The created signal, whose ownership is given to the caller
  */
 struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
@@ -36,7 +38,9 @@ struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high);
+SignalState App_SharedSignal_Update(struct Signal *signal,
+                                    bool entry_condition_high,
+                                    bool exit_condition_high);
 
 // Getters
 /**

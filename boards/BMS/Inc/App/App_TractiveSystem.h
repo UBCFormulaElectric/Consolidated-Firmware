@@ -1,8 +1,9 @@
 #pragma once
 
-#include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
@@ -18,8 +19,7 @@ struct TractiveSystem;
  * system voltage
  */
 struct TractiveSystem *App_TractiveSystem_Create(
-    float (*get_ts_voltage)(void),
-    float (*get_high_res_current)(void),
+    float (*get_ts_voltage)(void), float (*get_high_res_current)(void),
     float (*get_low_res_current)(void));
 
 /**
@@ -64,7 +64,8 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts);
 float App_TractiveSystem_GetPower(struct TractiveSystem *ts);
 
 /**
- * Check the status of Tractive System faults and Warnings, sends warning over CAN bus
+ * Check the status of Tractive System faults and Warnings, sends warning over
+ * CAN bus
  * @param can_tx CAN interface to send messages over
  * @param ts The Tractive System to check faults in
  * @return True if faults present, false otherwise

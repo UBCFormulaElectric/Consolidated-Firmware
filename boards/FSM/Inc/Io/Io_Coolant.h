@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Io_Hal.h"
 #include <stdbool.h>
+
+#include "Io_Hal.h"
 
 /**
  * Initializes a given timer handle for a flow meter

@@ -1,26 +1,27 @@
 #pragma once
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
-#include "App_SharedConstants.h"
+
 #include "App_CanTx.h"
+#include "App_SharedConstants.h"
 #include "App_TractiveSystem.h"
 
-typedef enum
-{
-    ACCUMULATOR_SEGMENT_0 = 0U,
-    ACCUMULATOR_SEGMENT_1,
-    ACCUMULATOR_SEGMENT_2,
-    ACCUMULATOR_SEGMENT_3,
-    ACCUMULATOR_SEGMENT_4,
-    ACCUMULATOR_SEGMENT_5,
-    ACCUMULATOR_NUM_SEGMENTS,
+typedef enum {
+  ACCUMULATOR_SEGMENT_0 = 0U,
+  ACCUMULATOR_SEGMENT_1,
+  ACCUMULATOR_SEGMENT_2,
+  ACCUMULATOR_SEGMENT_3,
+  ACCUMULATOR_SEGMENT_4,
+  ACCUMULATOR_SEGMENT_5,
+  ACCUMULATOR_NUM_SEGMENTS,
 } AccumulatorSegment;
 
 #define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
-#define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
+#define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL \
+  (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 // Min and Max cell temperatures depending on state
 #define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
@@ -36,16 +37,14 @@ typedef enum
 struct Accumulator;
 
 struct Accumulator *App_Accumulator_Create(
-    bool (*config_monitoring_chip)(void),
-    bool (*write_cfg_registers)(void),
+    bool (*config_monitoring_chip)(void), bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
-    bool (*start_cell_temp_conv)(void),
-    bool (*read_cell_temperatures)(void),
+    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS]
+                                    [ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
+    bool (*start_cell_temp_conv)(void), bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
-    float (*get_avg_cell_temp)(void),
-    bool (*enable_discharge)(void),
+    float (*get_avg_cell_temp)(void), bool (*enable_discharge)(void),
     bool (*disable_discharge)(void));
 
 /**
@@ -59,7 +58,8 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
  * @param accumulator The accumulator to monitor cell voltages and temperatures
  * @return True if a communication error has occured. Else, false
  */
-bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator);
+bool App_Accumulator_HasCommunicationError(
+    const struct Accumulator *accumulator);
 
 /**
  * Get a voltage for a specific cell
@@ -69,9 +69,8 @@ bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator
  * @return The voltage at the location given in V
  */
 float App_Accumulator_GetCellVoltage(
-    const struct Accumulator *const accumulator,
-    AccumulatorSegment              segment,
-    uint8_t                         cell);
+    const struct Accumulator *const accumulator, AccumulatorSegment segment,
+    uint8_t cell);
 
 /**
  * Get a voltage for a specific cell
@@ -80,9 +79,8 @@ float App_Accumulator_GetCellVoltage(
  * @return The voltage at the location given in V
  */
 float App_Accumulator_GetCellVoltage(
-    const struct Accumulator *const accumulator,
-    AccumulatorSegment              segment,
-    uint8_t                         cell);
+    const struct Accumulator *const accumulator, AccumulatorSegment segment,
+    uint8_t cell);
 
 /**
  * Get min voltage for the accumulator
@@ -91,7 +89,8 @@ float App_Accumulator_GetCellVoltage(
  * @param cell The cell location for the min voltage
  * @return The min voltage in V
  */
-float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell);
+float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator,
+                                    uint8_t *segment, uint8_t *cell);
 
 /**
  * Get max voltage for the accumulator
@@ -100,7 +99,8 @@ float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator,
  * @param cell The cell location for the max voltage
  * @return The max voltage in V
  */
-float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell);
+float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator,
+                                    uint8_t *segment, uint8_t *cell);
 
 /**
  * Get average cell voltage in a given segment
@@ -108,7 +108,8 @@ float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator,
  * @param segment The segment to get the average voltage for
  * @return The average voltage in V
  */
-float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accumulator, uint8_t segment);
+float App_Accumulator_GetAverageCellVoltage(
+    const struct Accumulator *const accumulator, uint8_t segment);
 
 /**
  * Get voltage for an entire segment in an accumulator
@@ -116,21 +117,24 @@ float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accu
  * @param segment The segment to get the voltage of
  * @return The segment voltage in V
  */
-float App_Accumulator_GetSegmentVoltage(const struct Accumulator *const accumulator, uint8_t segment);
+float App_Accumulator_GetSegmentVoltage(
+    const struct Accumulator *const accumulator, uint8_t segment);
 
 /**
  * Get average voltage of all segments
  * @param accumulator The accumulator to get the average voltage for
  * @return The average voltage in V
  */
-float App_Accumulator_GetAverageSegmentVoltage(const struct Accumulator *const accumulator);
+float App_Accumulator_GetAverageSegmentVoltage(
+    const struct Accumulator *const accumulator);
 
 /**
  * Get voltage for an entire accumulator
  * @param accumulator The accumulator to get the voltage of
  * @return The accumulator voltage in V
  */
-float App_Accumulator_GetAccumulatorVoltage(const struct Accumulator *const accumulator);
+float App_Accumulator_GetAccumulatorVoltage(
+    const struct Accumulator *const accumulator);
 
 /**
  * Get the min cell temp
@@ -140,9 +144,8 @@ float App_Accumulator_GetAccumulatorVoltage(const struct Accumulator *const accu
  * @return The min cell temp in degC
  */
 float App_Accumulator_GetMinCellTempDegC(
-    const struct Accumulator *const accumulator,
-    uint8_t *                       segment,
-    uint8_t *                       thermistor);
+    const struct Accumulator *const accumulator, uint8_t *segment,
+    uint8_t *thermistor);
 
 /**
  * Get the max cell temp
@@ -152,16 +155,16 @@ float App_Accumulator_GetMinCellTempDegC(
  * @return The max cell temp in degC
  */
 float App_Accumulator_GetMaxCellTempDegC(
-    const struct Accumulator *const accumulator,
-    uint8_t *                       segment,
-    uint8_t *                       thermistor);
+    const struct Accumulator *const accumulator, uint8_t *segment,
+    uint8_t *thermistor);
 
 /**
  * Get the average cell temp
  * @param accumulator The accumulator to get the average cell temp from
  * @return The average cell temp in degC
  */
-float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
+float App_Accumulator_GetAvgCellTempDegC(
+    const struct Accumulator *const accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
@@ -171,7 +174,9 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * Check the status of Accumulator faults, sends warning over CAN bus
  * @param can_tx CAN interface to send messages over
  * @param accumulator The accumulator to check faults
- * @param ts TractiveSystem used to check ts_current to check charge/discharge condition
+ * @param ts TractiveSystem used to check ts_current to check charge/discharge
+ * condition
  * @return True if faults present, false otherwise
  */
-bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts);
+bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator,
+                                 struct TractiveSystem *const ts);

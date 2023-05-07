@@ -1,6 +1,8 @@
-#include <stddef.h>
-#include <math.h>
 #include "Io_CurrentSense.h"
+
+#include <math.h>
+#include <stddef.h>
+
 #include "Io_Adc.h"
 
 // Offset voltage of output 1. Found to be 2.45V through testing
@@ -22,101 +24,95 @@
 // Value of shunt resistor
 #define AIR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-float Io_CurrentSense_GetHighResolutionMainCurrent()
-{
-    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_8);
+float Io_CurrentSense_GetHighResolutionMainCurrent() {
+  const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_8);
 
-    if (adc_voltage < 0.0f)
-    {
-        return NAN;
-    }
+  if (adc_voltage < 0.0f) {
+    return NAN;
+  }
 
-    // HSNBV-D06 Output 1 (+/- 50A):
-    //
-    // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
-    // | Output 1 Voltage |            |   +-------------+
-    // +------------------+            |
-    //                               <2.2k>
-    //                                 |
-    //                                ===
-    //                                GND
-    //
-    //                                                                 1
-    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
-    //                                                             Sensitivity
-    //                                              1k + 2.2k
-    // HSNBV-D06 Output 1 Voltage = ADC Voltage x --------------
-    //                                                 2.2k
-    // Offset Voltage = 2.5V
-    //
-    // Sensitivity = 40mV/A
+  // HSNBV-D06 Output 1 (+/- 50A):
+  //
+  // +------------------+                +-------------+
+  // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
+  // | Output 1 Voltage |            |   +-------------+
+  // +------------------+            |
+  //                               <2.2k>
+  //                                 |
+  //                                ===
+  //                                GND
+  //
+  //                                                                 1
+  // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+  //                                                             Sensitivity
+  //                                              1k + 2.2k
+  // HSNBV-D06 Output 1 Voltage = ADC Voltage x --------------
+  //                                                 2.2k
+  // Offset Voltage = 2.5V
+  //
+  // Sensitivity = 40mV/A
 
-    // Output from current sensor:
-    const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
+  // Output from current sensor:
+  const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
-    // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
+  // Return the current which corresponds to the output voltage
+  return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
 }
 
-float Io_CurrentSense_GetLowResolutionMainCurrent()
-{
-    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_9);
+float Io_CurrentSense_GetLowResolutionMainCurrent() {
+  const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_9);
 
-    if (adc_voltage < 0.0f)
-    {
-        return NAN;
-    }
+  if (adc_voltage < 0.0f) {
+    return NAN;
+  }
 
-    // HSNBV-D06 Output 2 (+/- 300A):
-    //
-    // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
-    // | Output 2 Voltage |            |   +-------------+
-    // +------------------+            |
-    //                               <2.2k>
-    //                                 |
-    //                                ===
-    //                                GND
-    //
-    //                                                                 1
-    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
-    //                                                             Sensitivity
-    //                                              1k + 2.2k
-    // HSNBV-D06 Output 2 Voltage = ADC Voltage x --------------
-    //                                                 2.2k
-    // Offset Voltage = 2.5V
-    //
-    // Sensitivity = 6.67mV/A
+  // HSNBV-D06 Output 2 (+/- 300A):
+  //
+  // +------------------+                +-------------+
+  // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
+  // | Output 2 Voltage |            |   +-------------+
+  // +------------------+            |
+  //                               <2.2k>
+  //                                 |
+  //                                ===
+  //                                GND
+  //
+  //                                                                 1
+  // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+  //                                                             Sensitivity
+  //                                              1k + 2.2k
+  // HSNBV-D06 Output 2 Voltage = ADC Voltage x --------------
+  //                                                 2.2k
+  // Offset Voltage = 2.5V
+  //
+  // Sensitivity = 6.67mV/A
 
-    // Output from current sensor:
-    const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
+  // Output from current sensor:
+  const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
-    // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
+  // Return the current which corresponds to the output voltage
+  return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
 }
 
-float Io_CurrentSense_GetAirLoopCurrent()
-{
-    const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_3);
+float Io_CurrentSense_GetAirLoopCurrent() {
+  const float adc_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_3);
 
-    if (adc_voltage < 0.0f)
-    {
-        return NAN;
-    }
+  if (adc_voltage < 0.0f) {
+    return NAN;
+  }
 
-    //   +-------<0.075>-------+
-    //   |                     |
-    //   |  +---------------+  |
-    //   +--| Current Sense |--+
-    //      |   Amplifier   |------
-    //      +---------------+
-    //
-    // Gain = 20V/V
-    //                   ADC Voltage
-    // Current = -----------------------------
-    //              Sense Resistance * Gain
+  //   +-------<0.075>-------+
+  //   |                     |
+  //   |  +---------------+  |
+  //   +--| Current Sense |--+
+  //      |   Amplifier   |------
+  //      +---------------+
+  //
+  // Gain = 20V/V
+  //                   ADC Voltage
+  // Current = -----------------------------
+  //              Sense Resistance * Gain
 
-    // return the current corresponding to the ADC voltage
-    return adc_voltage * AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN;
+  // return the current corresponding to the ADC voltage
+  return adc_voltage * AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN;
 }

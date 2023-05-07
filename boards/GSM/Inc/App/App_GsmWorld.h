@@ -1,8 +1,8 @@
 #pragma once
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 #include "App_CanAlerts.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 #include "App_SharedClock.h"
 
 struct GsmWorld;

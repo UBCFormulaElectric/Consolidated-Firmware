@@ -6,10 +6,9 @@
 #include "Io_Hal.h"
 
 // clang-format on
-struct GPIO_PinPort
-{
-    uint16_t      pin;
-    GPIO_TypeDef *port;
+struct GPIO_PinPort {
+  uint16_t pin;
+  GPIO_TypeDef *port;
 };
 
 /**
@@ -39,4 +38,5 @@ struct GPIO_PinPort
  * @param
  */
 
-void Io_SharedGpio_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32_t User_PinState);
+void Io_SharedGpio_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
+                                 uint32_t User_PinState);

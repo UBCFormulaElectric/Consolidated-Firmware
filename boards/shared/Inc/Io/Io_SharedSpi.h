@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+
 #include "Io_Hal.h"
 #include IO_HAL_SPI
 
@@ -20,8 +21,9 @@ struct SharedSpi;
  *
  * @return A pointer to the allocated and initialized SPI interface.
  */
-struct SharedSpi *
-    Io_SharedSpi_Create(SPI_HandleTypeDef *spi_handle, GPIO_TypeDef *nss_port, uint16_t nss_pin, uint32_t timeout_ms);
+struct SharedSpi *Io_SharedSpi_Create(SPI_HandleTypeDef *spi_handle,
+                                      GPIO_TypeDef *nss_port, uint16_t nss_pin,
+                                      uint32_t timeout_ms);
 
 /**
  * Set the NSS pin low for the given SPI interface.
@@ -49,12 +51,11 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi_interface);
  * @return True if data is transmitted and received successfully. Else return
  * false.
  */
-bool Io_SharedSpi_TransmitAndReceive(
-    const struct SharedSpi *spi_interface,
-    uint8_t *               tx_buffer,
-    uint16_t                tx_buffer_size,
-    uint8_t *               rx_buffer,
-    uint16_t                rx_buffer_size);
+bool Io_SharedSpi_TransmitAndReceive(const struct SharedSpi *spi_interface,
+                                     uint8_t *tx_buffer,
+                                     uint16_t tx_buffer_size,
+                                     uint8_t *rx_buffer,
+                                     uint16_t rx_buffer_size);
 
 /**
  * Transmit data to the device connected to the given SPI interface.
@@ -64,7 +65,8 @@ bool Io_SharedSpi_TransmitAndReceive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return True if data is transmitted successfully. Else, return false.
  */
-bool Io_SharedSpi_Transmit(const struct SharedSpi *spi_interface, uint8_t *tx_buffer, uint16_t tx_buffer_size);
+bool Io_SharedSpi_Transmit(const struct SharedSpi *spi_interface,
+                           uint8_t *tx_buffer, uint16_t tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
@@ -74,7 +76,8 @@ bool Io_SharedSpi_Transmit(const struct SharedSpi *spi_interface, uint8_t *tx_bu
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return True if data is received successfully. Else, return false.
  */
-bool Io_SharedSpi_Receive(const struct SharedSpi *spi_interface, uint8_t *rx_buffer, uint16_t rx_buffer_size);
+bool Io_SharedSpi_Receive(const struct SharedSpi *spi_interface,
+                          uint8_t *rx_buffer, uint16_t rx_buffer_size);
 
 /**
  * Transmit multiple copies of the a data packet to the device connected to the
@@ -88,10 +91,8 @@ bool Io_SharedSpi_Receive(const struct SharedSpi *spi_interface, uint8_t *rx_buf
  * @return True if data is transmitted successfully. Else, return false.
  */
 bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-    const struct SharedSpi *spi_interface,
-    uint8_t *               tx_buffer,
-    uint16_t                tx_buffer_size,
-    size_t                  num_tx_data_copies);
+    const struct SharedSpi *spi_interface, uint8_t *tx_buffer,
+    uint16_t tx_buffer_size, size_t num_tx_data_copies);
 
 /**
  * Transmit data to the device connected to the given SPI interface without
@@ -103,6 +104,5 @@ bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
  * @return True if data is transmitted successfully. Else, return false.
  */
 bool Io_SharedSpi_TransmitWithoutNssToggle(
-    const struct SharedSpi *spi_interface,
-    uint8_t *               tx_buffer,
-    uint16_t                tx_buffer_size);
+    const struct SharedSpi *spi_interface, uint8_t *tx_buffer,
+    uint16_t tx_buffer_size);

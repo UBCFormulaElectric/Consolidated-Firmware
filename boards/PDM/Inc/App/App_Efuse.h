@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+
 #include "App_SharedExitCode.h"
 
 // clang-format off

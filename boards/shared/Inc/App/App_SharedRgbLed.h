@@ -10,11 +10,10 @@ struct RgbLed;
  * @param turn_off Turn off the RGB LED
  * @return The created RGB LED, whose ownership is transferred to the caller
  */
-struct RgbLed *App_SharedRgbLed_Create(
-    void (*turn_red)(void),
-    void (*turn_green)(void),
-    void (*turn_blue)(void),
-    void (*turn_off)(void));
+struct RgbLed *App_SharedRgbLed_Create(void (*turn_red)(void),
+                                       void (*turn_green)(void),
+                                       void (*turn_blue)(void),
+                                       void (*turn_off)(void));
 
 /**
  * Deallocate the memory used by the given RGB LED

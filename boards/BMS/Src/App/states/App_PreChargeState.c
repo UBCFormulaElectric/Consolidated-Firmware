@@ -17,92 +17,95 @@
 
 // clang-format on
 
-static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
-{
-    struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
-    struct Clock *         clock           = App_BmsWorld_GetClock(world);
-    struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
+static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine) {
+  struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+  struct Clock *clock = App_BmsWorld_GetClock(world);
+  struct PrechargeRelay *precharge_relay =
+      App_BmsWorld_GetPrechargeRelay(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_PRECHARGE_STATE);
+  App_CanTx_BMS_Vitals_CurrentState_Set(BMS_PRECHARGE_STATE);
 
-    App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
-    App_PrechargeRelay_Close(precharge_relay);
+  App_SharedClock_SetPreviousTimeInMilliseconds(
+      clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
+  App_PrechargeRelay_Close(precharge_relay);
 }
 
-static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
-{
-    App_AllStatesRunOnTick1Hz(state_machine);
+static void PreChargeStateRunOnTick1Hz(
+    struct StateMachine *const state_machine) {
+  App_AllStatesRunOnTick1Hz(state_machine);
 }
 
-static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
-{
-    if (App_AllStatesRunOnTick100Hz(state_machine))
-    {
-        struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *         clock           = App_BmsWorld_GetClock(world);
-        struct Airs *          airs            = App_BmsWorld_GetAirs(world);
-        struct Accumulator *   accumulator     = App_BmsWorld_GetAccumulator(world);
-        struct Charger *       charger         = App_BmsWorld_GetCharger(world);
-        struct TractiveSystem *ts              = App_BmsWorld_GetTractiveSystem(world);
-        struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
+static void PreChargeStateRunOnTick100Hz(
+    struct StateMachine *const state_machine) {
+  if (App_AllStatesRunOnTick100Hz(state_machine)) {
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct Clock *clock = App_BmsWorld_GetClock(world);
+    struct Airs *airs = App_BmsWorld_GetAirs(world);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+    struct Charger *charger = App_BmsWorld_GetCharger(world);
+    struct TractiveSystem *ts = App_BmsWorld_GetTractiveSystem(world);
+    struct PrechargeRelay *precharge_relay =
+        App_BmsWorld_GetPrechargeRelay(world);
 
-        bool  precharge_fault_limit_exceeded = false;
-        float ts_voltage                     = App_TractiveSystem_GetVoltage(ts);
-        float threshold_voltage = App_Accumulator_GetAccumulatorVoltage(accumulator) * PRECHARGE_ACC_V_THRESHOLD;
+    bool precharge_fault_limit_exceeded = false;
+    float ts_voltage = App_TractiveSystem_GetVoltage(ts);
+    float threshold_voltage =
+        App_Accumulator_GetAccumulatorVoltage(accumulator) *
+        PRECHARGE_ACC_V_THRESHOLD;
 
-        uint32_t elapsed_time =
-            App_SharedClock_GetCurrentTimeInMilliseconds(clock) - App_SharedClock_GetPreviousTimeInMilliseconds(clock);
+    uint32_t elapsed_time =
+        App_SharedClock_GetCurrentTimeInMilliseconds(clock) -
+        App_SharedClock_GetPreviousTimeInMilliseconds(clock);
 
-        const bool is_ts_rising_slowly =
-            (ts_voltage < threshold_voltage) && (elapsed_time >= PRECHARGE_COMPLETION_UPPER_BOUND);
-        const bool is_ts_rising_quickly =
-            (ts_voltage > threshold_voltage) && (elapsed_time <= PRECHARGE_COMPLETION_LOWER_BOUND);
-        const bool is_charger_connected = App_Charger_IsConnected(charger);
-        const bool has_precharge_fault  = App_PrechargeRelay_CheckFaults(
-            precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
-            &precharge_fault_limit_exceeded);
+    const bool is_ts_rising_slowly =
+        (ts_voltage < threshold_voltage) &&
+        (elapsed_time >= PRECHARGE_COMPLETION_UPPER_BOUND);
+    const bool is_ts_rising_quickly =
+        (ts_voltage > threshold_voltage) &&
+        (elapsed_time <= PRECHARGE_COMPLETION_LOWER_BOUND);
+    const bool is_charger_connected = App_Charger_IsConnected(charger);
+    const bool has_precharge_fault = App_PrechargeRelay_CheckFaults(
+        precharge_relay, is_charger_connected, is_ts_rising_slowly,
+        is_ts_rising_quickly, &precharge_fault_limit_exceeded);
 
-        struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
+    struct HeartbeatMonitor *hb_monitor =
+        App_BmsWorld_GetHeartbeatMonitor(world);
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-        if (has_precharge_fault)
-        {
-            const struct State *next_state =
-                (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
-            App_SharedStateMachine_SetNextState(state_machine, next_state);
-        }
-        else if (missing_hb)
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
-        else if (ts_voltage >= threshold_voltage)
-        {
-            const struct State *next_state = (is_charger_connected) ? App_GetChargeState() : App_GetDriveState();
-            App_Airs_CloseAirPositive(airs);
-            App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
-            App_SharedStateMachine_SetNextState(state_machine, next_state);
-        }
+    if (has_precharge_fault) {
+      const struct State *next_state = (precharge_fault_limit_exceeded)
+                                           ? App_GetFaultState()
+                                           : App_GetInitState();
+      App_SharedStateMachine_SetNextState(state_machine, next_state);
+    } else if (missing_hb) {
+      App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    } else if (ts_voltage >= threshold_voltage) {
+      const struct State *next_state =
+          (is_charger_connected) ? App_GetChargeState() : App_GetDriveState();
+      App_Airs_CloseAirPositive(airs);
+      App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
+      App_SharedStateMachine_SetNextState(state_machine, next_state);
     }
+  }
 }
 
-static void PreChargeStateRunOnExit(struct StateMachine *const state_machine)
-{
-    struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
-    struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
+static void PreChargeStateRunOnExit(struct StateMachine *const state_machine) {
+  struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+  struct PrechargeRelay *precharge_relay =
+      App_BmsWorld_GetPrechargeRelay(world);
 
-    App_PrechargeRelay_Open(precharge_relay);
+  App_PrechargeRelay_Open(precharge_relay);
 }
 
-const struct State *App_GetPreChargeState(void)
-{
-    static struct State pre_charge_state = {
-        .name              = "PRE_CHARGE",
-        .run_on_entry      = PreChargeStateRunOnEntry,
-        .run_on_tick_1Hz   = PreChargeStateRunOnTick1Hz,
-        .run_on_tick_100Hz = PreChargeStateRunOnTick100Hz,
-        .run_on_exit       = PreChargeStateRunOnExit,
-    };
+const struct State *App_GetPreChargeState(void) {
+  static struct State pre_charge_state = {
+      .name = "PRE_CHARGE",
+      .run_on_entry = PreChargeStateRunOnEntry,
+      .run_on_tick_1Hz = PreChargeStateRunOnTick1Hz,
+      .run_on_tick_100Hz = PreChargeStateRunOnTick100Hz,
+      .run_on_exit = PreChargeStateRunOnExit,
+  };
 
-    return &pre_charge_state;
+  return &pre_charge_state;
 }

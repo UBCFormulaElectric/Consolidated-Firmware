@@ -17,13 +17,14 @@
 //
 // Note: The MSP/PSP architecture is specific to the Cortex-M microcontroller
 //       family.
-#define Io_SharedHardFaultHandler_HandleHardFault()                \
-    __asm volatile(" tst lr, #4                                \n" \
-                   " ite eq                                    \n" \
-                   " mrseq r0, msp                             \n" \
-                   " mrsne r0, psp                             \n" \
-                   " ldr r1, [r0, #24]                         \n" \
-                   " b Io_SharedHardFaultHandler_LogInformation   \n");
+#define Io_SharedHardFaultHandler_HandleHardFault()   \
+  __asm volatile(                                     \
+      " tst lr, #4                                \n" \
+      " ite eq                                    \n" \
+      " mrseq r0, msp                             \n" \
+      " mrsne r0, psp                             \n" \
+      " ldr r1, [r0, #24]                         \n" \
+      " b Io_SharedHardFaultHandler_LogInformation   \n");
 
 /**
  * @brief Add the naked attributes to HardFault_Handler function declaration.

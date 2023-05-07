@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+
 #include "App_SharedMacros.h"
 
 // clang-format off

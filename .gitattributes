@@ -1,4 +1,4 @@
 # Set the default behavior, in case people don't have core.autocrlf set.	
 * text=auto
 # The STM32CubeMX installer is >100MB and must be tracked by git lfs
-tools/en.STM32CubeMX_v5-3-0.zip filter=lfs diff=lfs merge=lfs -text
+environment/data/en.STM32CubeMX_v5-3-0.zip filter=lfs diff=lfs merge=lfs -text

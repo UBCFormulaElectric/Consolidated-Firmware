@@ -24,11 +24,10 @@ struct PwmInput;
  * the PWM input
  * @return Pointer to the allocated and initialized PWM input
  */
-struct PwmInput *Io_SharedPwmInput_Create(
-    TIM_HandleTypeDef *htim,
-    float              timer_frequency_hz,
-    uint32_t           rising_edge_tim_channel,
-    uint32_t           falling_edge_tim_channel);
+struct PwmInput *Io_SharedPwmInput_Create(TIM_HandleTypeDef *htim,
+                                          float timer_frequency_hz,
+                                          uint32_t rising_edge_tim_channel,
+                                          uint32_t falling_edge_tim_channel);
 
 /**
  * Update the frequency and duty cycle for the given PWM input

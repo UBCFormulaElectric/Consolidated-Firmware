@@ -24,8 +24,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -34,25 +33,25 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Io_SharedErrorHandlerOverride.h"
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -73,9 +72,11 @@ extern "C"
 #define TIMx_FREQUENCY 8000000
 #define TIM8_PWM_MINIMUM_FREQUENCY 1
 #define ADC_FREQUENCY 1000
-#define TIM8_PRESCALER (TIMx_FREQUENCY / TIM8_AUTO_RELOAD_REG / TIM8_PWM_MINIMUM_FREQUENCY)
+#define TIM8_PRESCALER \
+  (TIMx_FREQUENCY / TIM8_AUTO_RELOAD_REG / TIM8_PWM_MINIMUM_FREQUENCY)
 #define TIM12_AUTO_RELOAD_REG 0xFFFF
-#define TIM12_PRESCALER (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
+#define TIM12_PRESCALER \
+  (TIMx_FREQUENCY / TIM12_AUTO_RELOAD_REG / TIM12_PWM_MINIMUM_FREQUENCY)
 #define TIM12_PWM_MINIMUM_FREQUENCY 1
 #define TIM3_PRESCALER 8
 #define LED_Pin GPIO_PIN_13
@@ -110,9 +111,9 @@ extern "C"
 #define BSPD_BRAKE_PRESSED_5V_GPIO_Port GPIOC
 #define BRAKE_OCSC_OK_5V_Pin GPIO_PIN_8
 #define BRAKE_OCSC_OK_5V_GPIO_Port GPIOC
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
-    /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,8 @@ bool Io_LTC6813CellTemperatures_ReadTemperatures(void);
  * @param therm The thermistor measuring the min cell temperature
  * @return The min cell temperature in degC
  */
-float Io_LTC6813CellTemperatures_GetMinTempDegC(uint8_t *segment, uint8_t *therm);
+float Io_LTC6813CellTemperatures_GetMinTempDegC(uint8_t *segment,
+                                                uint8_t *therm);
 
 /**
  * Get the max cell temperature measured in the daisy chain
@@ -30,7 +31,8 @@ float Io_LTC6813CellTemperatures_GetMinTempDegC(uint8_t *segment, uint8_t *therm
  * @param therm The thermistor measuring the max cell temperature
  * @return The max cell temperature in degC
  */
-float Io_LTC6813CellTemperatures_GetMaxTempDegC(uint8_t *segment, uint8_t *therm);
+float Io_LTC6813CellTemperatures_GetMaxTempDegC(uint8_t *segment,
+                                                uint8_t *therm);
 
 /**
  * Get the average cell temperature

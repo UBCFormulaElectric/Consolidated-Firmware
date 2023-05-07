@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stm32f4xx_hal.h>
+
 #include "App_SharedConstants.h"
 
 // clang-format off
@@ -53,23 +54,21 @@ enum RegGroupByteFormat
 
 // Each command sent includes: 1 cmd word + 1 PEC15 word, which is
 // equal to: 2 cmd bytes + 2 PEC15 bytes
-enum CmdFormat
-{
-    CMD_WORD = 0U,
-    CMD_PEC15,
-    NUM_OF_CMD_WORDS,
+enum CmdFormat {
+  CMD_WORD = 0U,
+  CMD_PEC15,
+  NUM_OF_CMD_WORDS,
 };
 #define CMD_SIZE_BYTES (2U)
 #define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
 
 // Number of readings (cell voltages or temperatures) per each register group
 // Each register group consists of 48 bytes, 3x 16 bytes for each reading
-enum NumReadingsPerRegGroup
-{
-    REG_GROUP_READING_0 = 0U,
-    REG_GROUP_READING_1,
-    REG_GROUP_READING_2,
-    NUM_OF_READINGS_PER_REG_GROUP
+enum NumReadingsPerRegGroup {
+  REG_GROUP_READING_0 = 0U,
+  REG_GROUP_READING_1,
+  REG_GROUP_READING_2,
+  NUM_OF_READINGS_PER_REG_GROUP
 };
 
 /**

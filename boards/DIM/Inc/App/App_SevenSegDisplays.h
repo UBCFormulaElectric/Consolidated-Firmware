@@ -1,17 +1,17 @@
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+
 #include "App_SharedExitCode.h"
 
 struct SevenSegDisplay;
 
-enum
-{
-    LEFT_SEVEN_SEG_DISPLAY,
-    MIDDLE_SEVEN_SEG_DISPLAY,
-    RIGHT_SEVEN_SEG_DISPLAY,
-    NUM_SEVEN_SEG_DISPLAYS,
+enum {
+  LEFT_SEVEN_SEG_DISPLAY,
+  MIDDLE_SEVEN_SEG_DISPLAY,
+  RIGHT_SEVEN_SEG_DISPLAY,
+  NUM_SEVEN_SEG_DISPLAYS,
 };
 
 /**
@@ -52,8 +52,7 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
  */
 ExitCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *seven_seg_displays,
-    const uint8_t                  hex_digits[],
-    size_t                         num_hex_digits);
+    const uint8_t hex_digits[], size_t num_hex_digits);
 
 /**
  * Display an unsigned base-10 value on the given group of 7-segment displays
@@ -65,4 +64,5 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
  * @param value The unsigned base-10 value to display
  * @return EXIT_CODE_INVALID_ARGS if the given value is out-of-bound
  */
-ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *seven_seg_displays, uint32_t value);
+ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
+    const struct SevenSegDisplays *seven_seg_displays, uint32_t value);

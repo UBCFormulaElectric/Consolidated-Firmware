@@ -1,18 +1,17 @@
 #pragma once
 
-#include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedExitCode.h"
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
 
-typedef enum
-{
-    DCM_LED,
-    DIM_LED,
-    FSM_LED,
-    PDM_LED,
-    BMS_LED,
-    NUM_BOARD_LEDS,
+typedef enum {
+  DCM_LED,
+  DIM_LED,
+  FSM_LED,
+  PDM_LED,
+  BMS_LED,
+  NUM_BOARD_LEDS,
 } BoardLeds;
 
 /**

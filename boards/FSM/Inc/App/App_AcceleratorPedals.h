@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+
 #include "App_FsmWorld.h"
 
 #define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
@@ -21,11 +22,11 @@ struct AcceleratorPedals;
  * @param primary_pedal_OCSC
  * @param get_secondary_pedal_percent
  * @param secondary_pedal_OCSC
- * @return The created pair of accelerator pedals, whose ownership is given to the caller
+ * @return The created pair of accelerator pedals, whose ownership is given to
+ * the caller
  */
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
-    float (*get_primary_pedal_percent)(void),
-    bool (*primary_pedal_OCSC)(void),
+    float (*get_primary_pedal_percent)(void), bool (*primary_pedal_OCSC)(void),
     float (*get_secondary_pedal_percent)(void),
     bool (*secondary_pedal_OCSC)(void));
 
@@ -33,20 +34,26 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
  * Deallocate the memory used by the given pair of accelerator pedals
  * @param accelerator_pedals The pair of accelerator pedals to deallocate
  */
-void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals);
+void App_AcceleratorPedals_Destroy(
+    struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,100]
- * @param accelerator_pedals The pair of accelerator pedals to get the primary pedal percentage from
+ * @param accelerator_pedals The pair of accelerator pedals to get the primary
+ * pedal percentage from
  * @return The pedal percentage of the primary accelerator pedal
  */
-float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
+float App_AcceleratorPedals_GetPrimaryPedalPercentage(
+    const struct AcceleratorPedals *accelerator_pedals);
 /**
- * Get the pedal percentage of the secondary accelerator pedal, a value in [0,100]
- * @param accelerator_pedals The pair of accelerator pedals to get the secondary pedal percentage from
+ * Get the pedal percentage of the secondary accelerator pedal, a value in
+ * [0,100]
+ * @param accelerator_pedals The pair of accelerator pedals to get the secondary
+ * pedal percentage from
  * @return The pedal percentage of the secondary accelerator pedal
  */
-float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
+float App_AcceleratorPedals_GetSecondaryPedalPercentage(
+    const struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Primary Broadcast Function. Very important.

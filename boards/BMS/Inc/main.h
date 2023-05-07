@@ -24,8 +24,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -34,25 +33,25 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Io_SharedErrorHandlerOverride.h"
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -71,7 +70,8 @@ extern "C"
 #define TIM1_FREQUENCY 96000000
 #define TIM1_AUTO_RELOAD_REG 0xFFFF
 #define TIM1_PWM_MINIMUM_FREQUENCY 1
-#define TIM1_PRESCALER (TIM1_FREQUENCY / TIM1_AUTO_RELOAD_REG / TIM1_PWM_MINIMUM_FREQUENCY)
+#define TIM1_PRESCALER \
+  (TIM1_FREQUENCY / TIM1_AUTO_RELOAD_REG / TIM1_PWM_MINIMUM_FREQUENCY)
 #define TIMx_FREQUENCY 96000000
 #define TIM3_PRESCALER 96
 #define ADC_FREQUENCY 1000
@@ -140,9 +140,9 @@ extern "C"
 #define AUX_TSENSE_MUX3_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_8
 #define LED_GPIO_Port GPIOB
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
-    /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

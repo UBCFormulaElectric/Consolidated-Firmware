@@ -1,19 +1,18 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
-#define RING_QUEUE_MAX_SIZE 4096 // 4kB
+#define RING_QUEUE_MAX_SIZE 4096  // 4kB
 
 // Data struct for a ring queue: Do not interact with member vars directly!
-typedef struct
-{
-    uint8_t elements[RING_QUEUE_MAX_SIZE];
-    int     size;
-    int     head;
-    int     tail;
-    int     count;
+typedef struct {
+  uint8_t elements[RING_QUEUE_MAX_SIZE];
+  int size;
+  int head;
+  int tail;
+  int count;
 } RingQueue;
 
 /**
@@ -35,7 +34,8 @@ void App_RingQueue_Push(RingQueue *queue, uint8_t value);
  * Pop from queue.
  * @param queue: Queue to pop from
  * @param value: Pointer to the popped output
- * @return True if an item was popped off, false otherwise (i.e. if queue was empty)
+ * @return True if an item was popped off, false otherwise (i.e. if queue was
+ * empty)
  */
 bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value);
 

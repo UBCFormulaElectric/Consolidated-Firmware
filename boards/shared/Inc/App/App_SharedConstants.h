@@ -10,29 +10,28 @@
 #define MAX_16_BITS_VALUE (uint32_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
-#define MAX_TORQUE_REQUEST_NM (90.0f) // Max torque of EMRAX 188 HV CC motor
+#define MAX_TORQUE_REQUEST_NM (90.0f)  // Max torque of EMRAX 188 HV CC motor
 
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.
-enum HexDigit
-{
-    HEX_DIGIT_0,
-    HEX_DIGIT_1,
-    HEX_DIGIT_2,
-    HEX_DIGIT_3,
-    HEX_DIGIT_4,
-    HEX_DIGIT_5,
-    HEX_DIGIT_6,
-    HEX_DIGIT_7,
-    HEX_DIGIT_8,
-    HEX_DIGIT_9,
-    HEX_DIGIT_A,
-    HEX_DIGIT_B,
-    HEX_DIGIT_C,
-    HEX_DIGIT_D,
-    HEX_DIGIT_E,
-    HEX_DIGIT_F,
-    NUM_HEX_DIGITS,
+enum HexDigit {
+  HEX_DIGIT_0,
+  HEX_DIGIT_1,
+  HEX_DIGIT_2,
+  HEX_DIGIT_3,
+  HEX_DIGIT_4,
+  HEX_DIGIT_5,
+  HEX_DIGIT_6,
+  HEX_DIGIT_7,
+  HEX_DIGIT_8,
+  HEX_DIGIT_9,
+  HEX_DIGIT_A,
+  HEX_DIGIT_B,
+  HEX_DIGIT_C,
+  HEX_DIGIT_D,
+  HEX_DIGIT_E,
+  HEX_DIGIT_F,
+  NUM_HEX_DIGITS,
 };
 
 static_assert(HEX_DIGIT_0 == 0, "Hex enum must match its numeric value.");

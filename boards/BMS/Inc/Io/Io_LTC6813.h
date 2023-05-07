@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stm32f3xx_hal.h>
+
 #include "App_SharedExitCode.h"
 
 /**
@@ -9,7 +10,8 @@
  * @param nss_port The given GPIO port of the NSS pin.
  * @param nss_pin The given GPIO NSS pin.
  */
-void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle, GPIO_TypeDef *nss_port, uint16_t nss_pin);
+void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle, GPIO_TypeDef *nss_port,
+                     uint16_t nss_pin);
 
 /**
  * Calculate the 15-bit packet error code (PEC15) for the given data buffer.

@@ -1,5 +1,7 @@
-#include <tgmath.h>
 #include "Io_AcceleratorPedals.h"
+
+#include <tgmath.h>
+
 #include "Io_Adc.h"
 
 // TODO: Change these lengths
@@ -14,54 +16,58 @@
 #define PAPPS_UNPRESSED_POT_V (1.082f)
 // Denominator term for angle calculation using the cosine law
 #define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * PAPPS_LEN_B)
-#define PAPPS_COS_LAW_COEFFICIENT (PAPPS_LEN_A * PAPPS_LEN_A + PAPPS_LEN_B * PAPPS_LEN_B) / PAPPS_COS_LAW_DENOMINATOR
+#define PAPPS_COS_LAW_COEFFICIENT                           \
+  (PAPPS_LEN_A * PAPPS_LEN_A + PAPPS_LEN_B * PAPPS_LEN_B) / \
+      PAPPS_COS_LAW_DENOMINATOR
 // Calculate the distance of the pedal from the voltage
-#define PAPPS_LEN_PER_VOLTAGE \
-    ((PAPPS_LENGTH_FULL_PRESSED_MM - PAPPS_LENGTH_UNPRESSED_MM) / (PAPPS_FULL_PRESSED_POT_V - PAPPS_UNPRESSED_POT_V))
+#define PAPPS_LEN_PER_VOLTAGE                                   \
+  ((PAPPS_LENGTH_FULL_PRESSED_MM - PAPPS_LENGTH_UNPRESSED_MM) / \
+   (PAPPS_FULL_PRESSED_POT_V - PAPPS_UNPRESSED_POT_V))
 // PAPPS length offset in mm
 #define PAPPS_LEN_OFFSET_MM (227.6f)
-#define PAPPS_RAW_VOLTAGE_TO_LEN_MM(voltage) (voltage * PAPPS_LEN_PER_VOLTAGE + PAPPS_LEN_OFFSET_MM)
+#define PAPPS_RAW_VOLTAGE_TO_LEN_MM(voltage) \
+  (voltage * PAPPS_LEN_PER_VOLTAGE + PAPPS_LEN_OFFSET_MM)
 
 #define MIN_PEDAL_VOLTAGE (0.5f)
 #define MAX_PEDAL_VOLTAGE (3.1f)
 
-float Io_AcceleratorPedals_GetPapps(void)
-{
-    // Length calculated via voltage
-    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_2);
-    const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+float Io_AcceleratorPedals_GetPapps(void) {
+  // Length calculated via voltage
+  float pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_2);
+  const float pot_len = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
-    // Compute the angle relative to the y-axis with cosine law
-    const float pedal_travel_angle =
-        ((float)M_PI_2 -
-         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
+  // Compute the angle relative to the y-axis with cosine law
+  const float pedal_travel_angle =
+      ((float)M_PI_2 - (-(PAPPS_COS_LAW_COEFFICIENT -
+                          (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) +
+                        (float)M_PI_2));
 
-    float primary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
-    return primary_angle / 30.0f * 100.0f;
+  float primary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
+  return primary_angle / 30.0f * 100.0f;
 }
-bool Io_AcceleratorPedals_PappsOCSC(void)
-{
-    float pedal_voltage = 0.5f;
-    return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
+bool Io_AcceleratorPedals_PappsOCSC(void) {
+  float pedal_voltage = 0.5f;
+  return !(MIN_PEDAL_VOLTAGE <= pedal_voltage &&
+           pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }
 
-float Io_AcceleratorPedals_GetSapps(void)
-{
-    // TODO implement IO functionality
-    // Length calculated via voltage
-    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
-    const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+float Io_AcceleratorPedals_GetSapps(void) {
+  // TODO implement IO functionality
+  // Length calculated via voltage
+  float pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+  const float pot_len = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
-    // Compute the angle relative to the y-axis with cosine law
-    const float pedal_travel_angle =
-        ((float)M_PI_2 -
-         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
+  // Compute the angle relative to the y-axis with cosine law
+  const float pedal_travel_angle =
+      ((float)M_PI_2 - (-(PAPPS_COS_LAW_COEFFICIENT -
+                          (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) +
+                        (float)M_PI_2));
 
-    float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
-    return secondary_angle / 30.0f * 100.0f;
+  float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
+  return secondary_angle / 30.0f * 100.0f;
 }
-bool Io_AcceleratorPedals_SappsOCSC(void)
-{
-    float pedal_voltage = 0.5f;
-    return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
+bool Io_AcceleratorPedals_SappsOCSC(void) {
+  float pedal_voltage = 0.5f;
+  return !(MIN_PEDAL_VOLTAGE <= pedal_voltage &&
+           pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }

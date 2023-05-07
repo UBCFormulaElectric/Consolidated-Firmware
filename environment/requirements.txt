@@ -1,0 +1,4 @@
+schema
+cantools
+strenum
+pyocd

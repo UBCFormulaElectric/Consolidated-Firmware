@@ -16,9 +16,6 @@
  *                      in seconds
  * @param rc RC time constant
  */
-void Io_SharedFilters_LowPassFilter(
-    float *  input,
-    float *  output,
-    uint32_t num_of_samples,
-    float    sampling_time,
-    float    rc);
+void Io_SharedFilters_LowPassFilter(float *input, float *output,
+                                    uint32_t num_of_samples,
+                                    float sampling_time, float rc);

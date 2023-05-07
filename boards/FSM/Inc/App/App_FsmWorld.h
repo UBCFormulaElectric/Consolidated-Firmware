@@ -1,16 +1,16 @@
 #pragma once
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "App_AcceleratorPedals.h"
+#include "App_Brake.h"
 #include "App_CanAlerts.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
+#include "App_Coolant.h"
 #include "App_InRangeCheck.h"
+#include "App_SharedClock.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_SharedSignal.h"
-#include "App_SharedClock.h"
-#include "App_AcceleratorPedals.h"
-#include "App_Brake.h"
-#include "App_Coolant.h"
 #include "App_Steering.h"
 #include "App_Wheels.h"
 
@@ -30,13 +30,12 @@ struct Wheels;
  * @return A pointer to the created world, whose ownership is given to the
  * caller
  */
-struct FsmWorld *App_FsmWorld_Create(
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct AcceleratorPedals *papps_and_sapps,
-    struct Brake *            brake,
-    struct Coolant *          coolant,
-    struct Steering *         steering,
-    struct Wheels *           wheels);
+struct FsmWorld *App_FsmWorld_Create(struct HeartbeatMonitor *heartbeat_monitor,
+                                     struct AcceleratorPedals *papps_and_sapps,
+                                     struct Brake *brake,
+                                     struct Coolant *coolant,
+                                     struct Steering *steering,
+                                     struct Wheels *wheels);
 
 /**
  * Deallocate the memory used by the given world
@@ -49,14 +48,16 @@ void App_FsmWorld_Destroy(struct FsmWorld *world);
  * @param world The world to get heartbeat monitor for
  * @return The heartbeat monitor for the given world
  */
-struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
+struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(
+    const struct FsmWorld *world);
 
 /**
  * Get the secondary flow rate in-range check for the given world
  * @param world The world to get secondary flow rate in-range check for
  * @return The secondary flow rate in-range check for the given world
  */
-struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(
+    const struct FsmWorld *world);
 
 /**
  * Get the brake for the given world
@@ -91,4 +92,5 @@ struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world);
  * @param world The world to get the pair of primary and secondary APPS for
  * @return The primary and secondary APPS for the given world
  */
-struct AcceleratorPedals *App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *world);
+struct AcceleratorPedals *App_FsmWorld_GetPappsAndSapps(
+    const struct FsmWorld *world);

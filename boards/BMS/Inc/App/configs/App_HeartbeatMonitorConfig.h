@@ -1,5 +1,6 @@
 #pragma once
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-#define HEARTBEAT_MONITOR_BOARDS_TO_CHECK \
-    (enum HeartbeatOneHot)(FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT)
+#define HEARTBEAT_MONITOR_BOARDS_TO_CHECK                                \
+  (enum HeartbeatOneHot)(FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | \
+                         PDM_HEARTBEAT_ONE_HOT)

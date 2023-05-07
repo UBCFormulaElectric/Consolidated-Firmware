@@ -1,0 +1,1148 @@
+VERSION ""
+NS_:
+BS_:
+
+
+BU_: BMS DCM Debug DIM FSM GSM INVL INVR PDM DEBUG
+
+
+BO_ 100 BMS_Vitals: 1 BMS
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,DIM,FSM,PDM
+SG_ CurrentState : 1|3@1+ (1,0) [0|4] "" DEBUG,DCM,DIM,FSM,PDM
+SG_ StateOfCharge : 4|3@1+ (14.285714285714286,0) [0|100] "" DEBUG,DCM,DIM,FSM,PDM
+
+BO_ 104 BMS_AlertsContext: 3 BMS
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 16|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 105 BMS_ImdStatus: 2 BMS
+SG_ OkHs : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SecondsSincePowerOn : 1|8@1+ (1.0,0) [0|255] "Seconds" DEBUG
+SG_ ValidDutyCycle : 9|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Condition : 10|3@1+ (1,0) [0|7] "" DEBUG
+
+BO_ 106 BMS_ImdData: 8 BMS
+SG_ ActiveFrequency : 0|2@1+ (6.666666666666667,0) [0|20] "Hz" DEBUG
+SG_ InsulationMeasurementDcp10Hz : 2|20@1+ (0.1,0) [0|65535] "kOhm" DEBUG
+SG_ InsulationMeasurementDcp20Hz : 22|20@1+ (0.1,0) [0|65535] "kOhm" DEBUG
+SG_ SpeedStartStatus30Hz : 42|20@1+ (0.1,0) [0|65535] "" DEBUG
+
+BO_ 107 BMS_ImdPwmOutput: 1 BMS
+SG_ DutyCycle : 0|3@1+ (14.285714285714286,0) [0|100] "%" DEBUG
+SG_ Frequency : 3|4@1+ (6.666666666666667,0) [0|100] "Hz" DEBUG
+
+BO_ 110 BMS_Charger: 1 BMS
+SG_ IsConnected : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ IsChargingComplete : 1|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 111 BMS_OkStatuses: 1 BMS
+SG_ BmsOk : 0|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ ImdOk : 1|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ BspdOk : 2|1@1+ (1,0) [0|1] "" DEBUG,DIM
+
+BO_ 112 BMS_Contactors: 1 BMS
+SG_ AirPositive : 0|1@1+ (1,0) [0|1] "" DEBUG,PDM
+SG_ AirNegative : 1|1@1+ (1,0) [0|1] "" DEBUG,PDM
+SG_ PrechargeRelay : 2|1@1+ (1,0) [0|1] "" DEBUG,PDM
+
+BO_ 113 BMS_MotorShutdownErrors: 1 BMS
+SG_ BmsDummyMotorShutdown : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 114 BMS_CellTemperatures: 3 BMS
+SG_ MinCellTemperature : 0|10@1+ (0.1,0) [0|100] "degC" DEBUG
+SG_ MaxCellTemperature : 10|10@1+ (0.1,0) [0|100] "degC" DEBUG
+
+BO_ 115 BMS_CellVoltages: 4 BMS
+SG_ MinCellVoltage : 0|16@1+ (0.0001,0) [0|5] "V" DEBUG
+SG_ MaxCellVoltage : 16|16@1+ (0.0001,0) [0|5] "V" DEBUG
+
+BO_ 116 BMS_CellStats: 4 BMS
+SG_ MinCellVoltageSegment : 0|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MinCellVoltageIdx : 3|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MaxCellVoltageSegment : 7|3@1+ (1.0,0) [0|7] "" DEBUG
+SG_ MaxCellVoltageIdx : 10|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MinTempSegment : 14|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MinTempIdx : 17|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MaxTempSegment : 21|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MaxTempIdx : 24|4@1+ (1,0) [0|15] "" DEBUG
+
+BO_ 117 BMS_TractiveSystem: 5 BMS
+SG_ TsVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
+SG_ TsCurrent : 23|13@1+ (0.1,-300) [-300|300] "A" DEBUG
+
+BO_ 118 BMS_PackVoltage: 3 BMS
+SG_ PackVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
+
+BO_ 120 BMS_AvailablePower: 3 BMS
+SG_ AvailablePower : 0|20@1+ (0.1,0) [0|100000] "W" DEBUG,DCM
+
+BO_ 150 BMS_Warnings: 1 BMS
+SG_ BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 2|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 3|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_TX_OVERFLOW : 6|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ BMS_WARNING_RX_OVERFLOW : 7|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+
+BO_ 151 BMS_Faults: 2 BMS
+SG_ BMS_FAULT_MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_STATE_FAULT : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CELL_UNDERVOLTAGE : 2|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CELL_OVERVOLTAGE : 3|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_MODULE_COMM_ERROR : 4|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CELL_UNDERTEMP : 5|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CELL_OVERTEMP : 6|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CHARGER_FAULT : 7|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE : 8|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN : 9|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_HAS_REACHED_MAX_V : 10|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_TS_OVERCURRENT : 11|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ BMS_FAULT_PRECHARGE_ERROR : 12|1@1+ (1,0) [0|1] "" DEBUG,DCM,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+
+BO_ 203 DCM_Vitals: 1 DCM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ CurrentState : 1|2@1+ (1,0) [0|2] "" DEBUG,BMS
+
+BO_ 32 DCM_LeftInverterCommand: 8 DCM
+SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
+SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVL
+SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVL
+SG_ EnableInverter : 40|1@1+ (1,0) [0|1] "" DEBUG,INVL
+SG_ EnableDischarge : 41|1@1+ (1,0) [0|1] "" DEBUG,INVL
+SG_ EnableSpeedMode : 42|1@1+ (1,0) [0|1] "" DEBUG,INVL
+SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
+
+BO_ 82 DCM_RightInverterCommand: 8 DCM
+SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
+SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVR
+SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVR
+SG_ EnableInverter : 40|1@1+ (1,0) [0|1] "" DEBUG,INVR
+SG_ EnableDischarge : 41|1@1+ (1,0) [0|1] "" DEBUG,INVR
+SG_ EnableSpeedMode : 42|1@1+ (1,0) [0|1] "" DEBUG,INVR
+SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
+
+BO_ 204 DCM_AlertsContext: 3 DCM
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 16|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 208 DCM_EllipseImuStatus: 6 DCM
+SG_ GeneralStatusBitmask : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ ComStatusBitmask : 16|32@1+ (1,0) [0|4294967295] "" DEBUG
+
+BO_ 209 DCM_EllipseImuTime: 4 DCM
+SG_ Timestamp : 0|32@1+ (1,0) [0|4294967295] "us" DEBUG
+
+BO_ 205 DCM_EllipseImuAcceleration: 5 DCM
+SG_ Forward : 0|13@1+ (0.01,-30) [-30|30] "m/s^2" DEBUG
+SG_ Lateral : 13|13@1+ (0.01,-30) [-30|30] "m/s^2" DEBUG
+SG_ Vertical : 26|13@1+ (0.01,-30) [-30|30] "m/s^2" DEBUG
+
+BO_ 206 DCM_EllipseImuAngularVelocity: 4 DCM
+SG_ Roll : 0|10@1+ (1,-360) [-360|360] "deg/s" DEBUG
+SG_ Pitch : 10|10@1+ (1,-360) [-360|360] "deg/s" DEBUG
+SG_ Yaw : 20|10@1+ (1,-360) [-360|360] "deg/s" DEBUG
+
+BO_ 207 DCM_EllipseImuEulerAngles: 5 DCM
+SG_ Roll : 0|12@1+ (0.1,-180) [-180|180] "deg" DEBUG
+SG_ Pitch : 12|12@1+ (0.1,-180) [-180|180] "deg" DEBUG
+SG_ Yaw : 24|12@1+ (0.1,-180) [-180|180] "deg" DEBUG
+
+BO_ 200 DCM_Warnings: 1 DCM
+SG_ DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 2|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 3|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_TX_OVERFLOW : 6|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+SG_ DCM_WARNING_RX_OVERFLOW : 7|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM,DIM
+
+BO_ 201 DCM_Faults: 1 DCM
+SG_ DCM_FAULT_STATE_FAULT : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+SG_ DCM_FAULT_MISSING_HEARTBEAT : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,Debug,DIM,FSM,GSM,INVL,INVR,PDM
+
+BO_ 701 Debug_CanModes: 1 Debug
+SG_ EnableDebugMode : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,DIM,FSM,GSM,PDM
+
+BO_ 502 DIM_Vitals: 1 DIM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS,DCM
+
+BO_ 503 DIM_Switches: 1 DIM
+SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ AuxSwitch : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM
+
+BO_ 505 DIM_AlertsContext: 3 DIM
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 16|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 500 DIM_Warnings: 1 DIM
+SG_ DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 2|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 3|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_TX_OVERFLOW : 6|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+SG_ DIM_WARNING_RX_OVERFLOW : 7|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+
+BO_ 501 DIM_Faults: 1 DIM
+SG_ DIM_FAULT_MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,FSM,GSM,INVL,INVR,PDM
+
+BO_ 304 FSM_Vitals: 1 FSM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+SG_ State : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+
+BO_ 301 FSM_AlertsContext: 3 FSM
+SG_ WatchdogTimeoutTaskName : 0|3@1+ (1,0) [0|4] "" DEBUG
+SG_ TxOverflowCount : 3|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 11|8@1+ (1,0) [0|255] "" DEBUG
+
+BO_ 300 FSM_Apps: 4 FSM
+SG_ PappsMappedPedalPercentage : 0|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ SappsMappedPedalPercentage : 10|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ TorqueLimit : 20|11@1+ (0.1,0) [0|150] "Nm" DEBUG
+SG_ TorquePlausabilityFailed : 31|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 14 FSM_Brake: 5 FSM
+SG_ FrontBrakePressure : 0|12@1+ (1,0) [0|2500] "psi" DEBUG,DCM
+SG_ RearBrakePressure : 12|12@1+ (1,0) [0|2500] "psi" DEBUG,DCM
+SG_ BrakePedalPercentage : 24|10@1+ (0.1,0) [0|100] "%" DEBUG,DCM
+SG_ IsActuated : 34|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ PressureSensorOpenShortCircuit : 35|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ PedalOpenShortCircuit : 36|1@1+ (1,0) [0|1] "" DEBUG,DCM
+
+BO_ 307 FSM_Coolant: 7 FSM
+SG_ FlowRate : 0|10@1+ (0.1,0) [0|100] "L/min" DEBUG
+SG_ TemperatureA : 10|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ TemperatureB : 20|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ PressureA : 30|10@1+ (0.1,0) [0|100] "psi" DEBUG
+SG_ PressureB : 40|10@1+ (0.1,0) [0|100] "psi" DEBUG
+
+BO_ 318 FSM_Steering: 2 FSM
+SG_ SteeringAngle : 0|12@1+ (0.1,-110) [-110|110] "deg" DEBUG
+
+BO_ 317 FSM_Wheels: 3 FSM
+SG_ LeftWheelSpeed : 0|11@1+ (0.1,0) [0|150] "km/h" DEBUG
+SG_ RightWheelSpeed : 11|11@1+ (0.1,0) [0|150] "km/h" DEBUG
+
+BO_ 350 FSM_Warnings: 2 FSM
+SG_ FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 2|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 3|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_TX_OVERFLOW : 6|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_RX_OVERFLOW : 7|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_BRAKE_ACC_DISAGREEMENT : 8|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE : 9|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE : 10|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STEERING_ANGLE_SENSOR_OCSC : 11|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE : 12|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE : 13|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE : 14|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+SG_ FSM_WARNING_FLOW_RATE_OUT_OF_RANGE : 15|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM,DIM
+
+BO_ 351 FSM_Faults: 1 FSM
+SG_ FSM_FAULT_MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+SG_ FSM_FAULT_STATE_FAULT : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+SG_ FSM_FAULT_PAPPS_IS_OCSC_IS_ACTIVE : 2|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+SG_ FSM_FAULT_SAPPS_IS_OCSC_IS_ACTIVE : 3|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+SG_ FSM_FAULT_APPS_HAS_DISAGREEMENT : 4|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+SG_ FSM_FAULT_FLOW_METER_HAS_UNDERFLOW : 5|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,GSM,INVL,INVR,PDM
+
+BO_ 603 GSM_Vitals: 1 GSM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 604 GSM_Warnings: 4 GSM
+SG_ StackWatermarkAboveThresholdTask1Hz : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask100Hz : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ TxOverflowCount : 6|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 14|8@1+ (1,0) [0|255] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 22|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 0 INVL_Temperatures1: 8 INVL
+SG_ ModuleATemperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ ModuleBTemperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ ModuleCTemperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ GateDriverBoardTemperature : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 1 INVL_Temperatures2: 8 INVL
+SG_ ControlBoardTemperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd1Temperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd2Temperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd3Temperature : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 2 INVL_Temperatures3: 8 INVL
+SG_ Rtd4Temperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd5Temperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ MotorTemperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ TorqueShudder : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+
+BO_ 5 INVL_MotorPositionInfo: 8 INVL
+SG_ MotorAngle : 0|16@1- (0.1,0) [0.0|359.9] "deg" DEBUG,DCM
+SG_ MotorSpeed : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,DCM
+SG_ ElectricalOutputFrequency : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG,DCM
+SG_ DeltaResolverFiltered : 48|16@1- (0.1,0) [0.0|359.9] "deg" DEBUG,DCM
+
+BO_ 6 INVL_CurrentInfo: 8 INVL
+SG_ PhaseACurrent : 0|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ PhaseBCurrent : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ PhaseCCurrent : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ DcBusCurrent : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+
+BO_ 7 INVL_VoltageInfo: 8 INVL
+SG_ DcBusVoltage : 0|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ OutputVoltage : 16|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ VAB_Vd_Voltage : 32|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ VBC_Vq_Voltage : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+
+BO_ 9 INVL_InternalVoltages: 8 INVL
+SG_ 1V5_ReferenceVoltage : 0|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+
+BO_ 10 INVL_InternalStates: 8 INVL
+SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG,DCM
+SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG,DCM
+SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG,DCM
+SG_ Relay1State : 24|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay2State : 25|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay3State : 26|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay4State : 27|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay5State : 28|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay6State : 29|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterRunMode : 32|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterActiveDischargeState : 37|3@1+ (1,0) [0|4] "" DEBUG,DCM
+SG_ InverterCommandMode : 40|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ RollingCounter : 44|4@1+ (1,0) [0|15] "" DEBUG,DCM
+SG_ InverterEnableState : 48|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ StartModeActive : 54|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterLockoutEnabled : 55|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ DirectionCommand : 56|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ BmsActive : 57|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ BmsTorqueLimiting : 58|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ MaxSpeedLimiting : 59|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ HotSpotLimiting : 60|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ LowSpeedLimiting : 61|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ CoolantTemperatureLimiting : 62|1@1+ (1,0) [0|1] "" DEBUG,DCM
+
+BO_ 11 INVL_FaultCodes: 8 INVL
+SG_ Post_HardwareGateDesaturationFault : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_HwOverCurrentFault : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_AcceleratorShorted : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_AcceleratorOpen : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_CurrentSensorLow : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_CurrentSensorHigh : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ModuleTempreatureLow : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ModuleTemperatureHigh : 7|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ControlPcbTemperatureLow : 8|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ControlPcbTemperatureHigh : 9|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDrivePcbTemperatureLow : 10|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDrivePcbTemperatureHigh : 11|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_5VSenseVoltageLow : 12|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_5VSenseVoltageHigh : 13|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_12VSenseVoltageLow : 14|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_12VSenseVoltageHigh : 15|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_2V5SenseVoltageLow : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_2V5SenseVoltageHigh : 17|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_1V5SenseVoltageLow : 18|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_1V5SenseVoltageHigh : 19|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_DcBusVoltageHigh : 20|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_DcBusVoltageLow : 21|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_PrechargeTimeout : 22|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_PrechargeVoltageFailure : 23|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromChecksumInvalid : 24|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromDataOutOfRange : 25|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromUpdateRequired : 26|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_HardwareDcBusOverVoltageDuringInitialization : 27|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDriverInitialization : 28|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_BrakeShorted : 30|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_BrakeOpen : 31|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_MotorOverSpeedFault : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_OverCurrentFault : 33|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_OverVoltageFault : 34|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_InverterOverTemperatureFault : 35|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_AcceleratorInputShortedFault : 36|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_AcceleratorInputOpenFault : 37|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_DirectionCommandFault : 38|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_InverterResponseTimeoutFault : 39|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareGateDesaturationFault : 40|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareOverCurrentFault : 41|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_UnderVoltageFault : 42|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_CanCommandMessageLostFault : 43|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_MotorOverTemperature : 44|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_BrakeInputShortedFault : 48|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_BrakeInputOpenFault : 49|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleAOverTemperatureFault : 50|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleBOverTemperatureFault : 51|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleCOverTemperatureFault : 52|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_PcbOverTemperatureFault : 53|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard1OverTemperatureFault : 54|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard2OverTemperatureFault : 55|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard3OverTemperatureFault : 56|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_CurrentSensorFault : 57|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriverOverVoltage : 58|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareDcBusOverVoltageGen3 : 59|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareDcBusOverVoltageGen5 : 60|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ResolverNotConnected : 62|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 12 INVL_TorqueAndTimerInfo: 8 INVL
+SG_ CommandedTorque : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ PowerOnTimer : 32|32@1+ (0.003,0) [0|12884900] "sec" DEBUG
+
+BO_ 16 INVL_HighSpeedMessage: 6 INVL
+SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+
+BO_ 33 INVL_DebugReadWriteParamCommand: 6 INVL
+SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 34 INVL_DebugReadWriteParamResponse: 6 INVL
+SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 50 INVR_Temperatures1: 8 INVR
+SG_ ModuleATemperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ ModuleBTemperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ ModuleCTemperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ GateDriverBoardTemperature : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 51 INVR_Temperatures2: 8 INVR
+SG_ ControlBoardTemperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd1Temperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd2Temperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd3Temperature : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 52 INVR_Temperatures3: 8 INVR
+SG_ Rtd4Temperature : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ Rtd5Temperature : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ MotorTemperature : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ TorqueShudder : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+
+BO_ 55 INVR_MotorPositionInfo: 8 INVR
+SG_ MotorAngle : 0|16@1- (0.1,0) [0.0|359.9] "deg" DEBUG,DCM
+SG_ MotorSpeed : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,DCM
+SG_ ElectricalOutputFrequency : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG,DCM
+SG_ DeltaResolverFiltered : 48|16@1- (0.1,0) [0.0|359.9] "deg" DEBUG,DCM
+
+BO_ 56 INVR_CurrentInfo: 8 INVR
+SG_ PhaseACurrent : 0|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ PhaseBCurrent : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ PhaseCCurrent : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ DcBusCurrent : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+
+BO_ 57 INVR_VoltageInfo: 8 INVR
+SG_ DcBusVoltage : 0|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ OutputVoltage : 16|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ VAB_Vd_Voltage : 32|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ VBC_Vq_Voltage : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+
+BO_ 59 INVR_InternalVoltages: 8 INVR
+SG_ 1V5_ReferenceVoltage : 0|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+
+BO_ 60 INVR_InternalStates: 8 INVR
+SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG,DCM
+SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG,DCM
+SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG,DCM
+SG_ Relay1State : 24|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay2State : 25|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay3State : 26|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay4State : 27|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay5State : 28|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ Relay6State : 29|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterRunMode : 32|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterActiveDischargeState : 37|3@1+ (1,0) [0|4] "" DEBUG,DCM
+SG_ InverterCommandMode : 40|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ RollingCounter : 44|4@1+ (1,0) [0|15] "" DEBUG,DCM
+SG_ InverterEnableState : 48|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ StartModeActive : 54|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ InverterLockoutEnabled : 55|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ DirectionCommand : 56|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ BmsActive : 57|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ BmsTorqueLimiting : 58|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ MaxSpeedLimiting : 59|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ HotSpotLimiting : 60|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ LowSpeedLimiting : 61|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ CoolantTemperatureLimiting : 62|1@1+ (1,0) [0|1] "" DEBUG,DCM
+
+BO_ 61 INVR_FaultCodes: 8 INVR
+SG_ Post_HardwareGateDesaturationFault : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_HwOverCurrentFault : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_AcceleratorShorted : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_AcceleratorOpen : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_CurrentSensorLow : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_CurrentSensorHigh : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ModuleTempreatureLow : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ModuleTemperatureHigh : 7|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ControlPcbTemperatureLow : 8|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_ControlPcbTemperatureHigh : 9|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDrivePcbTemperatureLow : 10|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDrivePcbTemperatureHigh : 11|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_5VSenseVoltageLow : 12|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_5VSenseVoltageHigh : 13|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_12VSenseVoltageLow : 14|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_12VSenseVoltageHigh : 15|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_2V5SenseVoltageLow : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_2V5SenseVoltageHigh : 17|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_1V5SenseVoltageLow : 18|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_1V5SenseVoltageHigh : 19|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_DcBusVoltageHigh : 20|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_DcBusVoltageLow : 21|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_PrechargeTimeout : 22|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_PrechargeVoltageFailure : 23|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromChecksumInvalid : 24|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromDataOutOfRange : 25|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_EepromUpdateRequired : 26|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_HardwareDcBusOverVoltageDuringInitialization : 27|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_GateDriverInitialization : 28|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_BrakeShorted : 30|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Post_BrakeOpen : 31|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_MotorOverSpeedFault : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_OverCurrentFault : 33|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_OverVoltageFault : 34|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_InverterOverTemperatureFault : 35|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_AcceleratorInputShortedFault : 36|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_AcceleratorInputOpenFault : 37|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_DirectionCommandFault : 38|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_InverterResponseTimeoutFault : 39|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareGateDesaturationFault : 40|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareOverCurrentFault : 41|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_UnderVoltageFault : 42|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_CanCommandMessageLostFault : 43|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_MotorOverTemperature : 44|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_BrakeInputShortedFault : 48|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_BrakeInputOpenFault : 49|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleAOverTemperatureFault : 50|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleBOverTemperatureFault : 51|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ModuleCOverTemperatureFault : 52|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_PcbOverTemperatureFault : 53|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard1OverTemperatureFault : 54|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard2OverTemperatureFault : 55|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriveBoard3OverTemperatureFault : 56|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_CurrentSensorFault : 57|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_GateDriverOverVoltage : 58|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareDcBusOverVoltageGen3 : 59|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_HardwareDcBusOverVoltageGen5 : 60|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Run_ResolverNotConnected : 62|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 62 INVR_TorqueAndTimerInfo: 8 INVR
+SG_ CommandedTorque : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ PowerOnTimer : 32|32@1+ (0.003,0) [0|12884900] "sec" DEBUG
+
+BO_ 66 INVR_HighSpeedMessage: 6 INVR
+SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+
+BO_ 83 INVR_DebugReadWriteParamCommand: 6 INVR
+SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 84 INVR_DebugReadWriteParamResponse: 6 INVR
+SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 402 PDM_Vitals: 1 PDM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
+
+BO_ 404 PDM_AlertsContext: 4 PDM
+SG_ StackWatermarkAboveThresholdTask1Hz : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask100Hz : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ TxOverflowCount : 6|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 14|8@1+ (1,0) [0|255] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 22|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 400 PDM_Warnings: 1 PDM
+SG_ PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 1|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 2|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 3|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_TX_OVERFLOW : 6|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+SG_ PDM_WARNING_RX_OVERFLOW : 7|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR,DIM
+
+BO_ 401 PDM_Faults: 1 PDM
+SG_ PDM_FAULT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM,Debug,DIM,FSM,GSM,INVL,INVR
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_ "BusType" "CAN";
+
+
+BA_ "GenSigStartValue" SG_ 100 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 100 CurrentState 0;
+BA_ "GenSigStartValue" SG_ 100 StateOfCharge 0;
+BA_ "GenSigStartValue" SG_ 104 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 104 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 104 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 105 OkHs 0;
+BA_ "GenSigStartValue" SG_ 105 SecondsSincePowerOn 0;
+BA_ "GenSigStartValue" SG_ 105 ValidDutyCycle 0;
+BA_ "GenSigStartValue" SG_ 105 Condition 0;
+BA_ "GenSigStartValue" SG_ 106 ActiveFrequency 0;
+BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp10Hz 0;
+BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp20Hz 0;
+BA_ "GenSigStartValue" SG_ 106 SpeedStartStatus30Hz 0;
+BA_ "GenSigStartValue" SG_ 107 DutyCycle 0;
+BA_ "GenSigStartValue" SG_ 107 Frequency 0;
+BA_ "GenSigStartValue" SG_ 110 IsConnected 0;
+BA_ "GenSigStartValue" SG_ 110 IsChargingComplete 0;
+BA_ "GenSigStartValue" SG_ 111 BmsOk 0;
+BA_ "GenSigStartValue" SG_ 111 ImdOk 0;
+BA_ "GenSigStartValue" SG_ 111 BspdOk 0;
+BA_ "GenSigStartValue" SG_ 112 AirPositive 0;
+BA_ "GenSigStartValue" SG_ 112 AirNegative 0;
+BA_ "GenSigStartValue" SG_ 112 PrechargeRelay 0;
+BA_ "GenSigStartValue" SG_ 113 BmsDummyMotorShutdown 0;
+BA_ "GenSigStartValue" SG_ 114 MinCellTemperature 0;
+BA_ "GenSigStartValue" SG_ 114 MaxCellTemperature 0;
+BA_ "GenSigStartValue" SG_ 115 MinCellVoltage 0;
+BA_ "GenSigStartValue" SG_ 115 MaxCellVoltage 0;
+BA_ "GenSigStartValue" SG_ 116 MinCellVoltageSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MinCellVoltageIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MaxCellVoltageSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MaxCellVoltageIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MinTempSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MinTempIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MaxTempSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MaxTempIdx 0;
+BA_ "GenSigStartValue" SG_ 117 TsVoltage 0;
+BA_ "GenSigStartValue" SG_ 117 TsCurrent -300;
+BA_ "GenSigStartValue" SG_ 118 PackVoltage 0;
+BA_ "GenSigStartValue" SG_ 120 AvailablePower 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_TX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_WARNING_RX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_MISSING_HEARTBEAT 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_STATE_FAULT 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CELL_UNDERVOLTAGE 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CELL_OVERVOLTAGE 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_MODULE_COMM_ERROR 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CELL_UNDERTEMP 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CELL_OVERTEMP 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CHARGER_FAULT 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_HAS_REACHED_MAX_V 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_TS_OVERCURRENT 0;
+BA_ "GenSigStartValue" SG_ 151 BMS_FAULT_PRECHARGE_ERROR 0;
+BA_ "GenSigStartValue" SG_ 203 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 203 CurrentState 0;
+BA_ "GenSigStartValue" SG_ 32 TorqueCommand 0;
+BA_ "GenSigStartValue" SG_ 32 SpeedCommand 0;
+BA_ "GenSigStartValue" SG_ 32 DirectionCommand 0;
+BA_ "GenSigStartValue" SG_ 32 EnableInverter 0;
+BA_ "GenSigStartValue" SG_ 32 EnableDischarge 0;
+BA_ "GenSigStartValue" SG_ 32 EnableSpeedMode 0;
+BA_ "GenSigStartValue" SG_ 32 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 82 TorqueCommand 0;
+BA_ "GenSigStartValue" SG_ 82 SpeedCommand 0;
+BA_ "GenSigStartValue" SG_ 82 DirectionCommand 0;
+BA_ "GenSigStartValue" SG_ 82 EnableInverter 0;
+BA_ "GenSigStartValue" SG_ 82 EnableDischarge 0;
+BA_ "GenSigStartValue" SG_ 82 EnableSpeedMode 0;
+BA_ "GenSigStartValue" SG_ 82 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 204 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 204 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 204 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 208 GeneralStatusBitmask 0;
+BA_ "GenSigStartValue" SG_ 208 ComStatusBitmask 0;
+BA_ "GenSigStartValue" SG_ 209 Timestamp 0;
+BA_ "GenSigStartValue" SG_ 205 Forward -30;
+BA_ "GenSigStartValue" SG_ 205 Lateral -30;
+BA_ "GenSigStartValue" SG_ 205 Vertical -30;
+BA_ "GenSigStartValue" SG_ 206 Roll -360;
+BA_ "GenSigStartValue" SG_ 206 Pitch -360;
+BA_ "GenSigStartValue" SG_ 206 Yaw -360;
+BA_ "GenSigStartValue" SG_ 207 Roll -180;
+BA_ "GenSigStartValue" SG_ 207 Pitch -180;
+BA_ "GenSigStartValue" SG_ 207 Yaw -180;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_TX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_WARNING_RX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 201 DCM_FAULT_STATE_FAULT 0;
+BA_ "GenSigStartValue" SG_ 201 DCM_FAULT_MISSING_HEARTBEAT 0;
+BA_ "GenSigStartValue" SG_ 701 EnableDebugMode 0;
+BA_ "GenSigStartValue" SG_ 502 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 502 State 0;
+BA_ "GenSigStartValue" SG_ 503 StartSwitch 0;
+BA_ "GenSigStartValue" SG_ 503 AuxSwitch 0;
+BA_ "GenSigStartValue" SG_ 505 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 505 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 505 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_TX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_WARNING_RX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 501 DIM_FAULT_MISSING_HEARTBEAT 0;
+BA_ "GenSigStartValue" SG_ 304 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 304 State 0;
+BA_ "GenSigStartValue" SG_ 301 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 301 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 301 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 300 PappsMappedPedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 300 SappsMappedPedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 300 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 300 TorquePlausabilityFailed 0;
+BA_ "GenSigStartValue" SG_ 14 FrontBrakePressure 0;
+BA_ "GenSigStartValue" SG_ 14 RearBrakePressure 0;
+BA_ "GenSigStartValue" SG_ 14 BrakePedalPercentage 0;
+BA_ "GenSigStartValue" SG_ 14 IsActuated 0;
+BA_ "GenSigStartValue" SG_ 14 PressureSensorOpenShortCircuit 0;
+BA_ "GenSigStartValue" SG_ 14 PedalOpenShortCircuit 0;
+BA_ "GenSigStartValue" SG_ 307 FlowRate 0;
+BA_ "GenSigStartValue" SG_ 307 TemperatureA 0;
+BA_ "GenSigStartValue" SG_ 307 TemperatureB 0;
+BA_ "GenSigStartValue" SG_ 307 PressureA 0;
+BA_ "GenSigStartValue" SG_ 307 PressureB 0;
+BA_ "GenSigStartValue" SG_ 318 SteeringAngle -110;
+BA_ "GenSigStartValue" SG_ 317 LeftWheelSpeed 0;
+BA_ "GenSigStartValue" SG_ 317 RightWheelSpeed 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_TX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_RX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_BRAKE_ACC_DISAGREEMENT 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STEERING_ANGLE_SENSOR_OCSC 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 350 FSM_WARNING_FLOW_RATE_OUT_OF_RANGE 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_MISSING_HEARTBEAT 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_STATE_FAULT 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_PAPPS_IS_OCSC_IS_ACTIVE 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_SAPPS_IS_OCSC_IS_ACTIVE 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_APPS_HAS_DISAGREEMENT 0;
+BA_ "GenSigStartValue" SG_ 351 FSM_FAULT_FLOW_METER_HAS_UNDERFLOW 0;
+BA_ "GenSigStartValue" SG_ 603 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 604 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 604 StackWatermarkAboveThresholdTask100Hz 0;
+BA_ "GenSigStartValue" SG_ 604 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 604 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 604 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 604 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 604 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 604 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 604 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 0 ModuleATemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 0 ModuleBTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 0 ModuleCTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 0 GateDriverBoardTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 1 ControlBoardTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 1 Rtd1Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 1 Rtd2Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 1 Rtd3Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 2 Rtd4Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 2 Rtd5Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 2 MotorTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 2 TorqueShudder -3276.8;
+BA_ "GenSigStartValue" SG_ 5 MotorAngle 0.0;
+BA_ "GenSigStartValue" SG_ 5 MotorSpeed -32768;
+BA_ "GenSigStartValue" SG_ 5 ElectricalOutputFrequency -3276.8;
+BA_ "GenSigStartValue" SG_ 5 DeltaResolverFiltered 0.0;
+BA_ "GenSigStartValue" SG_ 6 PhaseACurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 6 PhaseBCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 6 PhaseCCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 6 DcBusCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 7 DcBusVoltage -3276.8;
+BA_ "GenSigStartValue" SG_ 7 OutputVoltage -3276.8;
+BA_ "GenSigStartValue" SG_ 7 VAB_Vd_Voltage -3276.8;
+BA_ "GenSigStartValue" SG_ 7 VBC_Vq_Voltage -3276.8;
+BA_ "GenSigStartValue" SG_ 9 1V5_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 9 2V5_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 9 5V_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 9 12V_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 10 VsmState 0;
+BA_ "GenSigStartValue" SG_ 10 PwmFrequency 0;
+BA_ "GenSigStartValue" SG_ 10 InverterState 0;
+BA_ "GenSigStartValue" SG_ 10 Relay1State 0;
+BA_ "GenSigStartValue" SG_ 10 Relay2State 0;
+BA_ "GenSigStartValue" SG_ 10 Relay3State 0;
+BA_ "GenSigStartValue" SG_ 10 Relay4State 0;
+BA_ "GenSigStartValue" SG_ 10 Relay5State 0;
+BA_ "GenSigStartValue" SG_ 10 Relay6State 0;
+BA_ "GenSigStartValue" SG_ 10 InverterRunMode 0;
+BA_ "GenSigStartValue" SG_ 10 InverterActiveDischargeState 0;
+BA_ "GenSigStartValue" SG_ 10 InverterCommandMode 0;
+BA_ "GenSigStartValue" SG_ 10 RollingCounter 0;
+BA_ "GenSigStartValue" SG_ 10 InverterEnableState 0;
+BA_ "GenSigStartValue" SG_ 10 StartModeActive 0;
+BA_ "GenSigStartValue" SG_ 10 InverterLockoutEnabled 0;
+BA_ "GenSigStartValue" SG_ 10 DirectionCommand 0;
+BA_ "GenSigStartValue" SG_ 10 BmsActive 0;
+BA_ "GenSigStartValue" SG_ 10 BmsTorqueLimiting 0;
+BA_ "GenSigStartValue" SG_ 10 MaxSpeedLimiting 0;
+BA_ "GenSigStartValue" SG_ 10 HotSpotLimiting 0;
+BA_ "GenSigStartValue" SG_ 10 LowSpeedLimiting 0;
+BA_ "GenSigStartValue" SG_ 10 CoolantTemperatureLimiting 0;
+BA_ "GenSigStartValue" SG_ 11 Post_HardwareGateDesaturationFault 0;
+BA_ "GenSigStartValue" SG_ 11 Post_HwOverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 11 Post_AcceleratorShorted 0;
+BA_ "GenSigStartValue" SG_ 11 Post_AcceleratorOpen 0;
+BA_ "GenSigStartValue" SG_ 11 Post_CurrentSensorLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_CurrentSensorHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_ModuleTempreatureLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_ModuleTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_ControlPcbTemperatureLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_ControlPcbTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_GateDrivePcbTemperatureLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_GateDrivePcbTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_5VSenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_5VSenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_12VSenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_12VSenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_2V5SenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_2V5SenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_1V5SenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_1V5SenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_DcBusVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 11 Post_DcBusVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 11 Post_PrechargeTimeout 0;
+BA_ "GenSigStartValue" SG_ 11 Post_PrechargeVoltageFailure 0;
+BA_ "GenSigStartValue" SG_ 11 Post_EepromChecksumInvalid 0;
+BA_ "GenSigStartValue" SG_ 11 Post_EepromDataOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 11 Post_EepromUpdateRequired 0;
+BA_ "GenSigStartValue" SG_ 11 Post_HardwareDcBusOverVoltageDuringInitialization 0;
+BA_ "GenSigStartValue" SG_ 11 Post_GateDriverInitialization 0;
+BA_ "GenSigStartValue" SG_ 11 Post_BrakeShorted 0;
+BA_ "GenSigStartValue" SG_ 11 Post_BrakeOpen 0;
+BA_ "GenSigStartValue" SG_ 11 Run_MotorOverSpeedFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_OverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_OverVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_InverterOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_AcceleratorInputShortedFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_AcceleratorInputOpenFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_DirectionCommandFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_InverterResponseTimeoutFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_HardwareGateDesaturationFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_HardwareOverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_UnderVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_CanCommandMessageLostFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_MotorOverTemperature 0;
+BA_ "GenSigStartValue" SG_ 11 Run_BrakeInputShortedFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_BrakeInputOpenFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_ModuleAOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_ModuleBOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_ModuleCOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_PcbOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_GateDriveBoard1OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_GateDriveBoard2OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_GateDriveBoard3OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_CurrentSensorFault 0;
+BA_ "GenSigStartValue" SG_ 11 Run_GateDriverOverVoltage 0;
+BA_ "GenSigStartValue" SG_ 11 Run_HardwareDcBusOverVoltageGen3 0;
+BA_ "GenSigStartValue" SG_ 11 Run_HardwareDcBusOverVoltageGen5 0;
+BA_ "GenSigStartValue" SG_ 11 Run_ResolverNotConnected 0;
+BA_ "GenSigStartValue" SG_ 12 CommandedTorque -3276.8;
+BA_ "GenSigStartValue" SG_ 12 TorqueFeedback -3276.8;
+BA_ "GenSigStartValue" SG_ 12 PowerOnTimer 0;
+BA_ "GenSigStartValue" SG_ 16 TorqueCommand -3276.8;
+BA_ "GenSigStartValue" SG_ 16 TorqueFeedback -3276.8;
+BA_ "GenSigStartValue" SG_ 16 MotorSpeed -32768;
+BA_ "GenSigStartValue" SG_ 33 ParameterAddress 0;
+BA_ "GenSigStartValue" SG_ 33 ReadWriteCommand 0;
+BA_ "GenSigStartValue" SG_ 33 Data 0;
+BA_ "GenSigStartValue" SG_ 34 ParameterAddress 0;
+BA_ "GenSigStartValue" SG_ 34 WriteSuccess 0;
+BA_ "GenSigStartValue" SG_ 34 Data 0;
+BA_ "GenSigStartValue" SG_ 50 ModuleATemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 50 ModuleBTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 50 ModuleCTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 50 GateDriverBoardTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 51 ControlBoardTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 51 Rtd1Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 51 Rtd2Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 51 Rtd3Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 52 Rtd4Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 52 Rtd5Temperature -3276.8;
+BA_ "GenSigStartValue" SG_ 52 MotorTemperature -3276.8;
+BA_ "GenSigStartValue" SG_ 52 TorqueShudder -3276.8;
+BA_ "GenSigStartValue" SG_ 55 MotorAngle 0.0;
+BA_ "GenSigStartValue" SG_ 55 MotorSpeed -32768;
+BA_ "GenSigStartValue" SG_ 55 ElectricalOutputFrequency -3276.8;
+BA_ "GenSigStartValue" SG_ 55 DeltaResolverFiltered 0.0;
+BA_ "GenSigStartValue" SG_ 56 PhaseACurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 56 PhaseBCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 56 PhaseCCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 56 DcBusCurrent -3276.8;
+BA_ "GenSigStartValue" SG_ 57 DcBusVoltage -3276.8;
+BA_ "GenSigStartValue" SG_ 57 OutputVoltage -3276.8;
+BA_ "GenSigStartValue" SG_ 57 VAB_Vd_Voltage -3276.8;
+BA_ "GenSigStartValue" SG_ 57 VBC_Vq_Voltage -3276.8;
+BA_ "GenSigStartValue" SG_ 59 1V5_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 59 2V5_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 59 5V_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 59 12V_ReferenceVoltage -327.68;
+BA_ "GenSigStartValue" SG_ 60 VsmState 0;
+BA_ "GenSigStartValue" SG_ 60 PwmFrequency 0;
+BA_ "GenSigStartValue" SG_ 60 InverterState 0;
+BA_ "GenSigStartValue" SG_ 60 Relay1State 0;
+BA_ "GenSigStartValue" SG_ 60 Relay2State 0;
+BA_ "GenSigStartValue" SG_ 60 Relay3State 0;
+BA_ "GenSigStartValue" SG_ 60 Relay4State 0;
+BA_ "GenSigStartValue" SG_ 60 Relay5State 0;
+BA_ "GenSigStartValue" SG_ 60 Relay6State 0;
+BA_ "GenSigStartValue" SG_ 60 InverterRunMode 0;
+BA_ "GenSigStartValue" SG_ 60 InverterActiveDischargeState 0;
+BA_ "GenSigStartValue" SG_ 60 InverterCommandMode 0;
+BA_ "GenSigStartValue" SG_ 60 RollingCounter 0;
+BA_ "GenSigStartValue" SG_ 60 InverterEnableState 0;
+BA_ "GenSigStartValue" SG_ 60 StartModeActive 0;
+BA_ "GenSigStartValue" SG_ 60 InverterLockoutEnabled 0;
+BA_ "GenSigStartValue" SG_ 60 DirectionCommand 0;
+BA_ "GenSigStartValue" SG_ 60 BmsActive 0;
+BA_ "GenSigStartValue" SG_ 60 BmsTorqueLimiting 0;
+BA_ "GenSigStartValue" SG_ 60 MaxSpeedLimiting 0;
+BA_ "GenSigStartValue" SG_ 60 HotSpotLimiting 0;
+BA_ "GenSigStartValue" SG_ 60 LowSpeedLimiting 0;
+BA_ "GenSigStartValue" SG_ 60 CoolantTemperatureLimiting 0;
+BA_ "GenSigStartValue" SG_ 61 Post_HardwareGateDesaturationFault 0;
+BA_ "GenSigStartValue" SG_ 61 Post_HwOverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 61 Post_AcceleratorShorted 0;
+BA_ "GenSigStartValue" SG_ 61 Post_AcceleratorOpen 0;
+BA_ "GenSigStartValue" SG_ 61 Post_CurrentSensorLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_CurrentSensorHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_ModuleTempreatureLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_ModuleTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_ControlPcbTemperatureLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_ControlPcbTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_GateDrivePcbTemperatureLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_GateDrivePcbTemperatureHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_5VSenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_5VSenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_12VSenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_12VSenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_2V5SenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_2V5SenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_1V5SenseVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_1V5SenseVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_DcBusVoltageHigh 0;
+BA_ "GenSigStartValue" SG_ 61 Post_DcBusVoltageLow 0;
+BA_ "GenSigStartValue" SG_ 61 Post_PrechargeTimeout 0;
+BA_ "GenSigStartValue" SG_ 61 Post_PrechargeVoltageFailure 0;
+BA_ "GenSigStartValue" SG_ 61 Post_EepromChecksumInvalid 0;
+BA_ "GenSigStartValue" SG_ 61 Post_EepromDataOutOfRange 0;
+BA_ "GenSigStartValue" SG_ 61 Post_EepromUpdateRequired 0;
+BA_ "GenSigStartValue" SG_ 61 Post_HardwareDcBusOverVoltageDuringInitialization 0;
+BA_ "GenSigStartValue" SG_ 61 Post_GateDriverInitialization 0;
+BA_ "GenSigStartValue" SG_ 61 Post_BrakeShorted 0;
+BA_ "GenSigStartValue" SG_ 61 Post_BrakeOpen 0;
+BA_ "GenSigStartValue" SG_ 61 Run_MotorOverSpeedFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_OverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_OverVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_InverterOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_AcceleratorInputShortedFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_AcceleratorInputOpenFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_DirectionCommandFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_InverterResponseTimeoutFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_HardwareGateDesaturationFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_HardwareOverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_UnderVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_CanCommandMessageLostFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_MotorOverTemperature 0;
+BA_ "GenSigStartValue" SG_ 61 Run_BrakeInputShortedFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_BrakeInputOpenFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_ModuleAOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_ModuleBOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_ModuleCOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_PcbOverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_GateDriveBoard1OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_GateDriveBoard2OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_GateDriveBoard3OverTemperatureFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_CurrentSensorFault 0;
+BA_ "GenSigStartValue" SG_ 61 Run_GateDriverOverVoltage 0;
+BA_ "GenSigStartValue" SG_ 61 Run_HardwareDcBusOverVoltageGen3 0;
+BA_ "GenSigStartValue" SG_ 61 Run_HardwareDcBusOverVoltageGen5 0;
+BA_ "GenSigStartValue" SG_ 61 Run_ResolverNotConnected 0;
+BA_ "GenSigStartValue" SG_ 62 CommandedTorque -3276.8;
+BA_ "GenSigStartValue" SG_ 62 TorqueFeedback -3276.8;
+BA_ "GenSigStartValue" SG_ 62 PowerOnTimer 0;
+BA_ "GenSigStartValue" SG_ 66 TorqueCommand -3276.8;
+BA_ "GenSigStartValue" SG_ 66 TorqueFeedback -3276.8;
+BA_ "GenSigStartValue" SG_ 66 MotorSpeed -32768;
+BA_ "GenSigStartValue" SG_ 83 ParameterAddress 0;
+BA_ "GenSigStartValue" SG_ 83 ReadWriteCommand 0;
+BA_ "GenSigStartValue" SG_ 83 Data 0;
+BA_ "GenSigStartValue" SG_ 84 ParameterAddress 0;
+BA_ "GenSigStartValue" SG_ 84 WriteSuccess 0;
+BA_ "GenSigStartValue" SG_ 84 Data 0;
+BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 402 State 0;
+BA_ "GenSigStartValue" SG_ 404 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 404 StackWatermarkAboveThresholdTask100Hz 0;
+BA_ "GenSigStartValue" SG_ 404 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 404 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 404 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 404 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 404 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 404 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 404 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_TX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_WARNING_RX_OVERFLOW 0;
+BA_ "GenSigStartValue" SG_ 401 PDM_FAULT_DUMMY 0;
+
+
+BA_ "GenMsgCycleTime" BO_ 100  100;
+BA_ "GenMsgCycleTime" BO_ 104  1000;
+BA_ "GenMsgCycleTime" BO_ 105  1000;
+BA_ "GenMsgCycleTime" BO_ 106  1000;
+BA_ "GenMsgCycleTime" BO_ 107  1000;
+BA_ "GenMsgCycleTime" BO_ 110  1000;
+BA_ "GenMsgCycleTime" BO_ 111  10;
+BA_ "GenMsgCycleTime" BO_ 112  10;
+BA_ "GenMsgCycleTime" BO_ 113  1000;
+BA_ "GenMsgCycleTime" BO_ 114  100;
+BA_ "GenMsgCycleTime" BO_ 115  100;
+BA_ "GenMsgCycleTime" BO_ 116  100;
+BA_ "GenMsgCycleTime" BO_ 117  100;
+BA_ "GenMsgCycleTime" BO_ 118  100;
+BA_ "GenMsgCycleTime" BO_ 120  100;
+BA_ "GenMsgCycleTime" BO_ 150  1000;
+BA_ "GenMsgCycleTime" BO_ 151  100;
+BA_ "GenMsgCycleTime" BO_ 203  100;
+BA_ "GenMsgCycleTime" BO_ 32  10;
+BA_ "GenMsgCycleTime" BO_ 82  10;
+BA_ "GenMsgCycleTime" BO_ 204  1000;
+BA_ "GenMsgCycleTime" BO_ 208  100;
+BA_ "GenMsgCycleTime" BO_ 209  100;
+BA_ "GenMsgCycleTime" BO_ 205  10;
+BA_ "GenMsgCycleTime" BO_ 206  10;
+BA_ "GenMsgCycleTime" BO_ 207  10;
+BA_ "GenMsgCycleTime" BO_ 200  1000;
+BA_ "GenMsgCycleTime" BO_ 201  100;
+BA_ "GenMsgCycleTime" BO_ 701  1000;
+BA_ "GenMsgCycleTime" BO_ 502  100;
+BA_ "GenMsgCycleTime" BO_ 503  1000;
+BA_ "GenMsgCycleTime" BO_ 505  1000;
+BA_ "GenMsgCycleTime" BO_ 500  1000;
+BA_ "GenMsgCycleTime" BO_ 501  100;
+BA_ "GenMsgCycleTime" BO_ 304  100;
+BA_ "GenMsgCycleTime" BO_ 301  1000;
+BA_ "GenMsgCycleTime" BO_ 300  100;
+BA_ "GenMsgCycleTime" BO_ 14  10;
+BA_ "GenMsgCycleTime" BO_ 307  1000;
+BA_ "GenMsgCycleTime" BO_ 318  100;
+BA_ "GenMsgCycleTime" BO_ 317  100;
+BA_ "GenMsgCycleTime" BO_ 350  1000;
+BA_ "GenMsgCycleTime" BO_ 351  100;
+BA_ "GenMsgCycleTime" BO_ 603  100;
+BA_ "GenMsgCycleTime" BO_ 604  1000;
+BA_ "GenMsgCycleTime" BO_ 0  100;
+BA_ "GenMsgCycleTime" BO_ 1  100;
+BA_ "GenMsgCycleTime" BO_ 2  100;
+BA_ "GenMsgCycleTime" BO_ 5  10;
+BA_ "GenMsgCycleTime" BO_ 6  10;
+BA_ "GenMsgCycleTime" BO_ 7  10;
+BA_ "GenMsgCycleTime" BO_ 9  100;
+BA_ "GenMsgCycleTime" BO_ 10  10;
+BA_ "GenMsgCycleTime" BO_ 11  10;
+BA_ "GenMsgCycleTime" BO_ 12  10;
+BA_ "GenMsgCycleTime" BO_ 16  3;
+BA_ "GenMsgCycleTime" BO_ 50  100;
+BA_ "GenMsgCycleTime" BO_ 51  100;
+BA_ "GenMsgCycleTime" BO_ 52  100;
+BA_ "GenMsgCycleTime" BO_ 55  10;
+BA_ "GenMsgCycleTime" BO_ 56  10;
+BA_ "GenMsgCycleTime" BO_ 57  10;
+BA_ "GenMsgCycleTime" BO_ 59  100;
+BA_ "GenMsgCycleTime" BO_ 60  10;
+BA_ "GenMsgCycleTime" BO_ 61  10;
+BA_ "GenMsgCycleTime" BO_ 62  10;
+BA_ "GenMsgCycleTime" BO_ 66  3;
+BA_ "GenMsgCycleTime" BO_ 402  100;
+BA_ "GenMsgCycleTime" BO_ 404  1000;
+BA_ "GenMsgCycleTime" BO_ 400  1000;
+BA_ "GenMsgCycleTime" BO_ 401  100;
+
+
+VAL_ 100 CurrentState 0 "BMS_INIT_STATE" 1 "BMS_PRECHARGE_STATE" 2 "BMS_CHARGE_STATE" 3 "BMS_DRIVE_STATE" 4 "BMS_FAULT_STATE";
+VAL_ 104 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 112 AirPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 203 CurrentState 0 "DCM_INIT_STATE" 1 "DCM_FAULT_STATE" 2 "DCM_DRIVE_STATE";
+VAL_ 32 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
+VAL_ 82 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
+VAL_ 204 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 502 State 0 "DIM_STATE_DRIVE";
+VAL_ 503 StartSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 505 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 304 State 0 "FSM_STATE_DRIVE" 1 "FSM_STATE_FAULT";
+VAL_ 301 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 604 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 10 VsmState 0 "INVERTER_VSM_START_STATE" 1 "INVERTER_VSM_PRECHARGE_INIT_STATE" 2 "INVERTER_VSM_PRECHARGE_ACTIVE_STATE" 3 "INVERTER_VSM_PRECHARGE_COMPLETE_STATE" 4 "INVERTER_VSM_WAIT_STATE" 5 "INVERTER_VSM_READY_STATE" 6 "INVERTER_VSM_MOTOR_RUNNING_STATE" 7 "INVERTER_VSM_BLINK_FAULT_CODE_STATE" 14 "INVERTER_VSM_SHUTDOWN_IN_PROCESS" 15 "INVERTER_VSM_RECYCLE_POWER_STATE";
+VAL_ 10 InverterState 0 "INVERTER_POWER_ON_STATE" 1 "INVERTER_STOP_STATE" 2 "INVERTER_OPEN_LOOP_STATE" 3 "INVERTER_CLOSED_LOOP_STATE" 4 "INVERTER_WAIT_STATE" 8 "INVERTER_IDLE_RUN_STATE" 9 "INVERTER_IDLE_STOP_STATE";
+VAL_ 10 InverterActiveDischargeState 0 "INVERTER_ACTIVE_DISCHARGE_DISABLED" 1 "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING" 2 "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK" 3 "INVERTER_ACTIVE_DISCHARGE_OCCURING" 4 "INVERTER_ACTIVE_DISCHARGE_COMPLETED";
+VAL_ 10 InverterCommandMode 0 "INVERTER_CAN_MODE" 1 "INVERTER_VSM_MODE";
+VAL_ 10 InverterLockoutEnabled 0 "INVERTER_LOCKOUT_UNLOCKED" 1 "INVERTER_LOCKOUT_LOCKED";
+VAL_ 10 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
+VAL_ 33 ReadWriteCommand 0 "INVERTER_READ_COMMAND" 1 "INVERTER_WRITE_COMMAND";
+VAL_ 60 VsmState 0 "INVERTER_VSM_START_STATE" 1 "INVERTER_VSM_PRECHARGE_INIT_STATE" 2 "INVERTER_VSM_PRECHARGE_ACTIVE_STATE" 3 "INVERTER_VSM_PRECHARGE_COMPLETE_STATE" 4 "INVERTER_VSM_WAIT_STATE" 5 "INVERTER_VSM_READY_STATE" 6 "INVERTER_VSM_MOTOR_RUNNING_STATE" 7 "INVERTER_VSM_BLINK_FAULT_CODE_STATE" 14 "INVERTER_VSM_SHUTDOWN_IN_PROCESS" 15 "INVERTER_VSM_RECYCLE_POWER_STATE";
+VAL_ 60 InverterState 0 "INVERTER_POWER_ON_STATE" 1 "INVERTER_STOP_STATE" 2 "INVERTER_OPEN_LOOP_STATE" 3 "INVERTER_CLOSED_LOOP_STATE" 4 "INVERTER_WAIT_STATE" 8 "INVERTER_IDLE_RUN_STATE" 9 "INVERTER_IDLE_STOP_STATE";
+VAL_ 60 InverterActiveDischargeState 0 "INVERTER_ACTIVE_DISCHARGE_DISABLED" 1 "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING" 2 "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK" 3 "INVERTER_ACTIVE_DISCHARGE_OCCURING" 4 "INVERTER_ACTIVE_DISCHARGE_COMPLETED";
+VAL_ 60 InverterCommandMode 0 "INVERTER_CAN_MODE" 1 "INVERTER_VSM_MODE";
+VAL_ 60 InverterLockoutEnabled 0 "INVERTER_LOCKOUT_UNLOCKED" 1 "INVERTER_LOCKOUT_LOCKED";
+VAL_ 60 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
+VAL_ 83 ReadWriteCommand 0 "INVERTER_READ_COMMAND" 1 "INVERTER_WRITE_COMMAND";
+VAL_ 402 State 0 "PDM_STATE_DRIVE";
+VAL_ 404 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+
+

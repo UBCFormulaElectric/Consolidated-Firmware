@@ -73,16 +73,16 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void);
  * @param period_in_ticks: Period of the task in OS ticks
  */
 void Io_SharedSoftwareWatchdog_InitWatchdog(
-    SoftwareWatchdogHandle_t sw_watchdog_handle,
-    uint8_t                  task_id,
-    Tick_t                   period_in_ticks);
+    SoftwareWatchdogHandle_t sw_watchdog_handle, uint8_t task_id,
+    Tick_t period_in_ticks);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
  * end of each period.
  * @param sw_watchdog_handle: Handle to the software watchdog
  */
-void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watchdog_handle);
+void Io_SharedSoftwareWatchdog_CheckInWatchdog(
+    SoftwareWatchdogHandle_t sw_watchdog_handle);
 
 /**
  * Check if any software watchdog has expired.
@@ -99,4 +99,5 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
  * @param sw_watchdog_handle: Handle to the software watchdog
  * @return ID of the software watchdog
  */
-uint8_t Io_SharedSoftwareWatchdog_GetTaskId(SoftwareWatchdogHandle_t sw_watchdog_handle);
+uint8_t Io_SharedSoftwareWatchdog_GetTaskId(
+    SoftwareWatchdogHandle_t sw_watchdog_handle);

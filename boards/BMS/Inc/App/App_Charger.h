@@ -22,11 +22,10 @@ struct Charger;
  * fault
  * @return The created charger, whose ownership is given to the caller
  */
-struct Charger *App_Charger_Create(
-    void (*enable_charger)(void),
-    void (*disable_charger)(void),
-    bool (*is_charger_connected)(void),
-    bool (*has_charger_faulted)(void));
+struct Charger *App_Charger_Create(void (*enable_charger)(void),
+                                   void (*disable_charger)(void),
+                                   bool (*is_charger_connected)(void),
+                                   bool (*has_charger_faulted)(void));
 
 /**
  * Deallocate the memory used by the given charger

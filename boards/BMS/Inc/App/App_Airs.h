@@ -12,11 +12,10 @@ struct Airs;
  * @param open_air_positive A function that can be called to open AIR+
  * @return The created pair of AIRs whose ownership is given to the caller
  */
-struct Airs *App_Airs_Create(
-    bool (*is_air_positive_closed)(void),
-    bool (*is_air_negative_closed)(void),
-    void (*close_air_positive)(void),
-    void (*open_air_positive)(void));
+struct Airs *App_Airs_Create(bool (*is_air_positive_closed)(void),
+                             bool (*is_air_negative_closed)(void),
+                             void (*close_air_positive)(void),
+                             void (*open_air_positive)(void));
 
 /**
  * Deallocate the memory used by the given pair of AIRs

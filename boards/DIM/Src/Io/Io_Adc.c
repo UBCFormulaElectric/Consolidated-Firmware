@@ -1,6 +1,8 @@
-#include <stm32f4xx.h>
-#include "Io_SharedAdc.h"
 #include "Io_Adc.h"
+
+#include <stm32f4xx.h>
+
+#include "Io_SharedAdc.h"
 
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC
@@ -24,26 +26,16 @@
 //     CHANNEL_2, // Rank 3
 //     NUM_ADC_CHANNELS,
 // };
-enum
-{
-    CHANNEL_5,
-    NUM_ADC_CHANNELS
-};
+enum { CHANNEL_5, NUM_ADC_CHANNELS };
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
-static float    adc_voltages[NUM_ADC_CHANNELS];
+static float adc_voltages[NUM_ADC_CHANNELS];
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    adc_voltages[CHANNEL_5] = Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[CHANNEL_5]);
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+  adc_voltages[CHANNEL_5] = Io_SharedAdc_ConvertRawAdcValueToVoltage(
+      hadc, false, raw_adc_values[CHANNEL_5]);
 }
 
-uint16_t *Io_Adc_GetRawAdcValues(void)
-{
-    return raw_adc_values;
-}
+uint16_t *Io_Adc_GetRawAdcValues(void) { return raw_adc_values; }
 
-float Io_Adc_GetChannel5Voltage(void)
-{
-    return adc_voltages[CHANNEL_5];
-}
+float Io_Adc_GetChannel5Voltage(void) { return adc_voltages[CHANNEL_5]; }

@@ -7,10 +7,11 @@
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
  * @return true if an inverter has faulted, false otherwise
  */
-static inline bool App_HasInverterFault(void)
-{
-    return App_CanRx_INVL_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE ||
-           App_CanRx_INVR_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+static inline bool App_HasInverterFault(void) {
+  return App_CanRx_INVL_InternalStates_VsmState_Get() ==
+             INVERTER_VSM_BLINK_FAULT_CODE_STATE ||
+         App_CanRx_INVR_InternalStates_VsmState_Get() ==
+             INVERTER_VSM_BLINK_FAULT_CODE_STATE;
 }
 
 /**
@@ -18,14 +19,12 @@ static inline bool App_HasInverterFault(void)
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
  * @return true if the start switch is on, false otherwise
  */
-static inline bool App_IsStartSwitchOn(void)
-{
-    return App_CanRx_DIM_Switches_StartSwitch_Get() == SWITCH_ON;
+static inline bool App_IsStartSwitchOn(void) {
+  return App_CanRx_DIM_Switches_StartSwitch_Get() == SWITCH_ON;
 }
 
-static inline bool App_IsBmsInDriveState(void)
-{
-    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE;
+static inline bool App_IsBmsInDriveState(void) {
+  return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE;
 }
 /**
  * On-tick 1Hz function for every state in the given state machine
