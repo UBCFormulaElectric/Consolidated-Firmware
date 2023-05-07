@@ -1,0 +1,1 @@
+cd /usr/local/STM32CubeMX && ./STM32CubeMX
