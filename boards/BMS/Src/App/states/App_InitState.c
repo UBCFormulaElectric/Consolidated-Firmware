@@ -45,12 +45,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             // If the charger is connected, the CAN message must also be set
             // to continue into Pre-Charge State, then Charge State
-            if (is_charger_connected && App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get())
-            {
-                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
-            }
             // If charger isn't connected, go into Pre-Charge State, then Drive State
-            else if (!is_charger_connected)
+            bool precharge_for_charging = is_charger_connected && App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
+
+            if (precharge_for_charging || !is_charger_connected)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }

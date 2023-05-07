@@ -71,13 +71,16 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         // Else go to Fault State, reset the pre-charge failed counter and set the CAN charging message to false
         if (has_precharge_fault)
         {
-            const struct State *next_state =
-                (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
-            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
-            if (next_state == App_GetFaultState())
-            {
+            const struct State *next_state;
+            if(precharge_fault_limit_exceeded){
+                next_state = App_GetFaultState();
                 App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
             }
+            else{
+                next_state = App_GetInitState();
+            }
+            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
         else if (missing_hb)
