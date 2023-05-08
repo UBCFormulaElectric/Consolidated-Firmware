@@ -162,10 +162,6 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(write_page);
         RESET_FAKE(page_erase);
 
-        // The charger is connected to prevent other tests from entering the
-        // fault state from the charge state
-        is_charger_connected_fake.return_val = true;
-
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
         start_voltage_conv_fake.return_val = true;

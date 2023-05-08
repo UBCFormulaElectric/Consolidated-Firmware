@@ -156,6 +156,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_bspd_ok_enabled);
         RESET_FAKE(is_air_negative_closed);
         RESET_FAKE(is_air_positive_closed);
+        RESET_FAKE(close_air_positive);
         RESET_FAKE(configure_cell_monitors);
         RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
@@ -174,10 +175,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(read_page);
         RESET_FAKE(write_page);
         RESET_FAKE(page_erase);
-
-        // The charger is connected to prevent other tests from entering the
-        // fault state from the charge state
-        is_charger_connected_fake.return_val = true;
 
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
@@ -289,14 +286,12 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct Eeprom *           eeprom;
 };
 
-// BMS-31
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
-// BMS-31
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
@@ -304,7 +299,6 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
-// BMS-31
 TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
@@ -312,7 +306,6 @@ TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
     EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
-// BMS-31
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
@@ -353,7 +346,6 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
     }
 }
 
-// BMS-36
 TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
@@ -377,7 +369,6 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
     }
 }
 
-// BMS-36
 TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
@@ -401,7 +392,6 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
     }
 }
 
-// BMS-36
 TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
@@ -431,7 +421,6 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
     }
 }
 
-// BMS-36
 TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
@@ -468,7 +457,6 @@ TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
     }
 }
 
-// BMS-9
 TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 {
     for (auto &state : GetAllStates())
@@ -485,7 +473,6 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
     }
 }
 
-// BMS-37
 TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
 {
     // Enable BMS_OK
@@ -504,7 +491,6 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-// BMS-37
 TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
 {
     // Enable IMD_OK
@@ -523,7 +509,6 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-// BMS-37
 TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
 {
     // Enable BSPD_OK
@@ -542,8 +527,7 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-// BMS-20
-TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnect)
+TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 {
     SetInitialState(App_GetChargeState());
 
@@ -564,7 +548,6 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnect)
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-// BMS-38
 TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
 {
     for (auto &state : GetAllStates())
@@ -597,7 +580,6 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
     }
 }
 
-// BMS-29
 TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
 {
     // Close AIR+ to avoid false positives
@@ -607,7 +589,6 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
     ASSERT_EQ(CONTACTOR_STATE_OPEN, App_CanTx_BMS_Contactors_AirPositive_Get());
 }
 
-// BMS-30
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
 {
     // Assume no AIR shutdown faults have been set
@@ -624,7 +605,6 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
-// BMS-30
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open)
 {
     SetInitialState(App_GetFaultState());
@@ -841,5 +821,118 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
+
+TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status)
+{
+    struct
+    {
+        bool  air_negative_closes;
+        float initial_ts_voltage;
+        float precharge_duration;
+        bool  expect_precharge_starts;
+        bool  expect_precharge_successful;
+    } test_params[5] = { {
+                             // Precharge doesn't start, AIR- doesn't close
+                             .air_negative_closes         = false,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = false,
+                             .expect_precharge_successful = false,
+                         },
+                         {
+                             // Precharge doesn't start, TS voltage too high
+                             .air_negative_closes         = false,
+                             .initial_ts_voltage          = 11.0, // 10V is threshold to precharge
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = false,
+                             .expect_precharge_successful = false,
+                         },
+                         {
+                             // Nominal precharge, success
+                             .air_negative_closes         = true,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = true,
+                             .expect_precharge_successful = true,
+                         },
+                         {
+                             // Fast precharge, fails
+                             .air_negative_closes         = true,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
+                             .expect_precharge_starts     = true,
+                             .expect_precharge_successful = false,
+                         },
+                         {
+                             // Slow precharge, fails
+                             .air_negative_closes         = true,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 30,
+                             .expect_precharge_starts     = true,
+                             .expect_precharge_successful = false,
+                         } };
+
+    for (int i = 0; i < 5; i++)
+    {
+        TearDown();
+        SetUp();
+
+        // Let accumulator startup count expire
+        LetTimePass(state_machine, 1000);
+
+        // Set initial conditions for precharge
+        is_air_negative_closed_fake.return_val = test_params[i].air_negative_closes;
+        get_ts_voltage_fake.return_val         = test_params[i].initial_ts_voltage;
+
+        if (test_params[i].expect_precharge_starts)
+        {
+            // Precharge should start
+            LetTimePass(state_machine, 10);
+            ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(close_air_positive_fake.call_count, 0);
+
+            // Let precharge duration elapse, confirm still in precharge state and AIR+ open
+            LetTimePass(state_machine, test_params[i].precharge_duration - 10);
+            ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(close_air_positive_fake.call_count, 0);
+
+            // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
+            get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
+            LetTimePass(state_machine, 10);
+
+            if (test_params[i].expect_precharge_successful)
+            {
+                // Precharge successful, enter drive
+                ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(close_air_positive_fake.call_count, 1);
+
+                LetTimePass(state_machine, 1000);
+                ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(close_air_positive_fake.call_count, 1);
+            }
+            else
+            {
+                // Precharge failed, back to init to try again
+                ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(close_air_positive_fake.call_count, 0);
+
+                LetTimePass(state_machine, 1000);
+                ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(close_air_positive_fake.call_count, 0);
+            }
+        }
+        else
+        {
+            // Precharge doesn't start, stay in init indefinitely
+            ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(close_air_positive_fake.call_count, 0);
+
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(close_air_positive_fake.call_count, 0);
+        }
+    }
+}
+
 
 } // namespace StateMachineTest
