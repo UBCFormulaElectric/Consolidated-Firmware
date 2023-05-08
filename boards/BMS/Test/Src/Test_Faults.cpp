@@ -44,6 +44,9 @@ FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 FAKE_VALUE_FUNC(bool, enable_discharge);
 FAKE_VALUE_FUNC(bool, disable_discharge);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
+FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -118,9 +121,11 @@ class BmsFaultTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
+        eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
+
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
-            precharge_relay, ts, clock);
+            precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -153,6 +158,9 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_high_res_current);
+        RESET_FAKE(read_page);
+        RESET_FAKE(write_page);
+        RESET_FAKE(page_erase);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
@@ -183,6 +191,7 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(eeprom, App_Eeprom_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -229,6 +238,7 @@ class BmsFaultTest : public BaseStateMachineTest
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
     struct Clock *            clock;
+    struct Eeprom *           eeprom;
 };
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
