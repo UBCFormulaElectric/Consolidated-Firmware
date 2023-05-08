@@ -42,7 +42,7 @@ bool App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *const heartbeat_mo
 
     if ((current_ms - heartbeat_monitor->previous_timeout_ms) >= heartbeat_monitor->timeout_period_ms)
     {
-        heartbeat_monitor->previous_timeout_ms += heartbeat_monitor->timeout_period_ms;
+        heartbeat_monitor->previous_timeout_ms = current_ms;
 
         // Check if the board received all the heartbeats it's listening for
         status = heartbeat_monitor->heartbeats_to_check == heartbeat_monitor->heartbeats_checked_in;

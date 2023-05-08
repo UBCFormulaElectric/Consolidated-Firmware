@@ -58,8 +58,9 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         const bool is_ts_rising_quickly =
             (ts_voltage > threshold_voltage) && (elapsed_time <= PRECHARGE_COMPLETION_LOWER_BOUND);
         const bool is_charger_connected = App_Charger_IsConnected(charger);
+        const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
         const bool has_precharge_fault  = App_PrechargeRelay_CheckFaults(
-            precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
+            precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly, is_air_negative_open,
             &precharge_fault_limit_exceeded);
 
         // If there is a pre-charge fault and there were no more than three previous pre-charge faults

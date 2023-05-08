@@ -13,6 +13,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
+    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, true);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -34,12 +35,16 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault_cleared      = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open  = !App_Airs_IsAirNegativeClosed(airs);
     const bool charger_fault_cleared = !App_Charger_HasFaulted(charger);
+    const bool hb_ok                = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
+    const bool precharge_ok         = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
 
-    struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, hb_ok);
+    const bool dcm_ok        = !App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_ok        = !App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_ok        = !App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_ok        = !App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool no_can_alerts = dcm_ok && fsm_ok && pdm_ok && dim_ok;
 
-    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && charger_fault_cleared)
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && precharge_ok && charger_fault_cleared && no_can_alerts)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
@@ -48,6 +53,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
+    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, false);
 }
 
 const struct State *App_GetFaultState()
