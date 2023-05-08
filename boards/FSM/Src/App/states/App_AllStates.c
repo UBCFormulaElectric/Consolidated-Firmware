@@ -6,6 +6,20 @@
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
+static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+{
+    App_CanTx_FSM_Vitals_Heartbeat_Set(true);
+
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+    }
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    return missing_hb;
+}
+
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -53,17 +67,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set((uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
 
-    // Heartbeat Communication
-    App_CanTx_FSM_Vitals_Heartbeat_Set(true);
-    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
-    }
+    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
+    App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    const bool hb_monitor_status_ok = App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, !hb_monitor_status_ok);
-    if (!hb_monitor_status_ok)
+    if (missing_hb)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
