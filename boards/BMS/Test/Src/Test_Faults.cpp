@@ -161,7 +161,7 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(read_page);
         RESET_FAKE(write_page);
         RESET_FAKE(page_erase);
-        
+
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
         start_voltage_conv_fake.return_val = true;
