@@ -59,6 +59,7 @@ void App_PrechargeRelay_ResetFaultCounterVal(struct PrechargeRelay *const precha
  * @param is_charger_connected True if charger connected, false otherwise
  * @param is_ts_rising_quickly True if tractive system voltage rising quickly, false otherwise
  * @param is_ts_rising_slowly True if tractive system voltage rising slowly, false otherwise
+ * @param is_air_negative_open True if negative contactor is open, false otherwise
  * @param precharge_limit_exceeded Acts as second return val, set to True if 3 precharge faults are detected
  * @return True if faults present, false otherwise
  */
@@ -67,4 +68,5 @@ bool App_PrechargeRelay_CheckFaults(
     bool                   is_charger_connected,
     bool                   is_ts_rising_slowly,
     bool                   is_ts_rising_quickly,
+    bool                   is_air_negative_open,
     bool *                 precharge_limit_exceeded);
