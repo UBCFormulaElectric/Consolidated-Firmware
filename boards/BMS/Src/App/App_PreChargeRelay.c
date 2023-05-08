@@ -56,10 +56,12 @@ bool App_PrechargeRelay_CheckFaults(
     bool                   is_charger_connected,
     bool                   is_ts_rising_slowly,
     bool                   is_ts_rising_quickly,
+    bool                   is_air_negative_open,
     bool *                 precharge_limit_exceeded)
 {
-    const bool has_precharge_fault =
+    bool has_precharge_fault =
         (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
+    has_precharge_fault |= is_air_negative_open;
 
     if (has_precharge_fault)
     {
