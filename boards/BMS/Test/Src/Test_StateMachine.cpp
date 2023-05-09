@@ -176,6 +176,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(write_page);
         RESET_FAKE(page_erase);
 
+        // The charger is connected to prevent other tests from entering the
+        // fault state from the charge state
+        is_charger_connected_fake.return_val = true;
+
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
         start_voltage_conv_fake.return_val = true;
@@ -753,10 +757,15 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     has_charger_faulted_fake.return_val = true;
 
+    App_Charger_GetCounterVal_fake.return_val = 500U;
+
     App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    // Charger faults are ignored for 5s upon charge state entry
+    LetTimePass(state_machine, 5010);
+    const struct State *currentState = App_SharedStateMachine_GetCurrentState(state_machine);
+
+    ASSERT_EQ(App_GetFaultState(), currentState);
 }
 
 TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
