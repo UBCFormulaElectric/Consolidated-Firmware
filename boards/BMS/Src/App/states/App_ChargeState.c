@@ -30,8 +30,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct Airs *                airs    = App_BmsWorld_GetAirs(world);
         struct TractiveSystem *const ts      = App_BmsWorld_GetTractiveSystem(world);
 
-        bool       external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        bool       charging_enabled           = App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
+        const bool external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        const bool charging_enabled           = App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
         const bool charging_completed         = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
         const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
@@ -42,17 +42,16 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
 
         App_CanTx_BMS_Charger_IsChargingComplete_Set(charging_completed);
-        App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(external_shutdown_occurred);
-
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (!is_charger_connected || external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
-            App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(!is_charger_connected);
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE, !is_charger_connected);
+            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, external_shutdown_occurred);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (!charging_enabled)
+        if (!charging_enabled || charging_completed)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
@@ -69,7 +68,7 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     // Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
     App_Airs_OpenAirPositive(airs);
-    App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
 }
 
 const struct State *App_GetChargeState(void)

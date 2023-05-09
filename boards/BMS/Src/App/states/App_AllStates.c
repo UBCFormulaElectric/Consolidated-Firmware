@@ -15,7 +15,7 @@
 
 static uint8_t acc_meas_settle_count = 0U;
 
-static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Vitals_Heartbeat_Set(true);
 
@@ -36,6 +36,9 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
         App_CanRx_PDM_Vitals_Heartbeat_Update(false);
     }
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    return missing_hb;
 }
 
 static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
@@ -120,8 +123,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
-    bool status = true;
-    App_SendAndReceiveHeartbeat(hb_monitor);
+    const bool charger_is_connected = App_Charger_IsConnected(charger);
+    bool       status               = true;
+
+    // ignore heartbeat when charging, other boards likely disconnected
+    bool missing_hb = charger_is_connected ? false : App_SendAndReceiveHeartbeat(hb_monitor);
+    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
@@ -138,12 +145,17 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
-
     App_AdvertisePackPower(accumulator, ts);
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_BMS_OkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
+
+    const bool dcm_fault              = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault              = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault              = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault              = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool fault_from_other_board = dcm_fault || fsm_fault || pdm_fault || dim_fault;
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
@@ -151,7 +163,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault)
+    else if (acc_fault || ts_fault || missing_hb || fault_from_other_board)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
@@ -169,9 +181,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (has_charger_faulted)
         {
-            App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
+            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
             status = false;
-            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
     }

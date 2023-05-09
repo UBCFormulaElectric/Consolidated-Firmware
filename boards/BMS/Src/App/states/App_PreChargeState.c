@@ -61,6 +61,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         const bool has_precharge_fault  = App_PrechargeRelay_CheckFaults(
             precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
             &precharge_fault_limit_exceeded);
+        const bool external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
 
         // If there is a pre-charge fault and there were no more than three previous pre-charge faults
         // Go back to Init State, add one to the pre-charge failed counter and set the CAN charging message to false
@@ -77,7 +78,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             {
                 next_state = App_GetInitState();
             }
-            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
 
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
@@ -90,6 +91,13 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             App_Airs_CloseAirPositive(airs);
             App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
             App_SharedStateMachine_SetNextState(state_machine, next_state);
+        }
+
+        if (external_shutdown_occurred)
+        {
+            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, !is_charger_connected);
         }
     }
 }
