@@ -2,6 +2,7 @@
 #include "states/App_FaultState.h"
 #include "states/App_InitState.h"
 #include "states/App_ChargeState.h"
+#include "App_CanAlerts.h"
 
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 

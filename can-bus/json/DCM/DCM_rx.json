@@ -3,12 +3,14 @@
         "BMS_Vitals",
         "FSM_Vitals",
         "FSM_Brake",
+        "FSM_Apps",
         "DIM_Vitals",
         "DIM_Switches",
         "INVL_InternalStates",
         "INVR_InternalStates",
         "INVL_MotorPositionInfo",
         "INVR_MotorPositionInfo",
-        "BMS_AvailablePower"
+        "BMS_AvailablePower",
+        "Debug_CanModes"
     ]
 }

@@ -145,6 +145,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
+
     App_AdvertisePackPower(accumulator, ts);
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));

@@ -1,6 +1,7 @@
 #include <string.h>
 #include <float.h>
 #include "App_Accumulator.h"
+#include "App_CanAlerts.h"
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
@@ -321,11 +322,11 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    App_CanTx_BMS_Faults_CellUnderVoltageFault_Set(undervoltage_fault);
-    App_CanTx_BMS_Faults_CellOverVoltageFault_Set(overvoltage_fault);
-    App_CanTx_BMS_Faults_CellUnderTempFault_Set(undertemp_fault);
-    App_CanTx_BMS_Faults_CellOverTempFault_Set(overtemp_fault);
-    App_CanTx_BMS_Faults_ModuleCommFault_Set(communication_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERVOLTAGE, undervoltage_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERVOLTAGE, overvoltage_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERTEMP, undertemp_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
+    App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

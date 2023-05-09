@@ -157,16 +157,14 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_GSM_Alerts_SendAperiodic);
 
     clock         = App_SharedClock_Create();
     world         = App_GsmWorld_Create(clock);
     state_machine = App_SharedStateMachine_Create(world, App_GetDefaultState());
-
-    App_CanAlerts_SetAlert(GSM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -521,8 +519,11 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
