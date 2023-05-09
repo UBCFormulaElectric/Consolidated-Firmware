@@ -35,8 +35,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault_cleared      = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open  = !App_Airs_IsAirNegativeClosed(airs);
     const bool charger_fault_cleared = !App_Charger_HasFaulted(charger);
-    const bool hb_ok                = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
-    const bool precharge_ok         = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
+    const bool hb_ok                 = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
+    const bool precharge_ok          = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
 
     const bool dcm_ok        = !App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
     const bool fsm_ok        = !App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
@@ -44,7 +44,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool dim_ok        = !App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
     const bool no_can_alerts = dcm_ok && fsm_ok && pdm_ok && dim_ok;
 
-    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && precharge_ok && charger_fault_cleared && no_can_alerts)
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && precharge_ok && no_can_alerts &&
+        charger_fault_cleared)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

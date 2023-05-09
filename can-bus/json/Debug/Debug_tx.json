@@ -8,5 +8,15 @@
                 "bits": 1
             }
         }
+    },
+    "Debug_ChargingSwitch": {
+        "msg_id": 702,
+        "cycle_time": 100,
+        "description": "Value set by user to start charging BMS.",
+        "signals": {
+            "StartCharging": {
+                "bits": 1
+            }
+        }
     }
 }

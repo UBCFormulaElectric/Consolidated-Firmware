@@ -123,8 +123,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
-    bool       status     = true;
-    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
+    const bool charger_is_connected = App_Charger_IsConnected(charger);
+    bool       status               = true;
+
+    // ignore heartbeat when charging, other boards likely disconnected
+    bool missing_hb = charger_is_connected ? false : App_SendAndReceiveHeartbeat(hb_monitor);
     App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
@@ -179,9 +182,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (has_charger_faulted)
         {
-            App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
+            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
             status = false;
-            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
     }
