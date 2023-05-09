@@ -4,6 +4,7 @@
         "FSM_Vitals",
         "PDM_Vitals",
         "DIM_Vitals",
+        "Debug_CanModes",
         "DEBUG_ChargingSwitch"
     ]
 }
