@@ -159,19 +159,21 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
     if (App_Charger_IsConnected(charger))
     {
-        if (App_Charger_HasFaulted(charger))
+        const uint16_t ignore_chgr_fault_counter = App_Charger_GetCounterVal(charger);
+        bool           has_charger_faulted       = false;
+
+        if (ignore_chgr_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
         {
+            has_charger_faulted = App_Charger_HasFaulted(charger);
+        }
+
+        if (has_charger_faulted)
+        {
+            App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
             status = false;
             App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
-    }
-    else if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
-    {
-        status = false;
-        App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(true);
-        App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 
     return status;

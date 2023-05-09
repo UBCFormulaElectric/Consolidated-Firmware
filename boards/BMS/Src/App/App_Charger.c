@@ -8,7 +8,8 @@ struct Charger
     void (*disable)(void);
     bool (*is_connected)(void);
     bool (*has_charger_faulted)(void);
-    bool is_enabled;
+    bool     is_enabled;
+    uint16_t ignore_chgr_fault_counter;
 };
 
 struct Charger *App_Charger_Create(
@@ -20,11 +21,12 @@ struct Charger *App_Charger_Create(
     struct Charger *charger = malloc(sizeof(struct Charger));
     assert(charger != NULL);
 
-    charger->enable              = enable_charger;
-    charger->disable             = disable_charger;
-    charger->is_connected        = is_charger_connected;
-    charger->has_charger_faulted = has_charger_faulted;
-    charger->is_enabled          = false;
+    charger->enable                    = enable_charger;
+    charger->disable                   = disable_charger;
+    charger->is_connected              = is_charger_connected;
+    charger->has_charger_faulted       = has_charger_faulted;
+    charger->is_enabled                = false;
+    charger->ignore_chgr_fault_counter = 0U;
 
     return charger;
 }
@@ -59,4 +61,19 @@ bool App_Charger_IsEnabled(const struct Charger *charger)
 bool App_Charger_HasFaulted(const struct Charger *charger)
 {
     return charger->has_charger_faulted();
+}
+
+void App_Charger_IncrementCounterVal(struct Charger *charger)
+{
+    charger->ignore_chgr_fault_counter++;
+}
+
+uint16_t App_Charger_GetCounterVal(const struct Charger *charger)
+{
+    return charger->ignore_chgr_fault_counter;
+}
+
+void App_Charger_ResetCounterVal(struct Charger *charger)
+{
+    charger->ignore_chgr_fault_counter = 0U;
 }

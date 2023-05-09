@@ -28,16 +28,20 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
     struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Airs *          airs        = App_BmsWorld_GetAirs(world);
+    struct Charger *       charger     = App_BmsWorld_GetCharger(world);
 
-    const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
-    const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
-    const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
+    const bool acc_fault_cleared     = !App_Accumulator_CheckFaults(accumulator, ts);
+    const bool ts_fault_cleared      = !App_TractveSystem_CheckFaults(ts);
+    const bool is_air_negative_open  = !App_Airs_IsAirNegativeClosed(airs);
+    const bool charger_fault_cleared = !App_Charger_HasFaulted(charger);
 
     struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
-    const bool               hb_ok      = App_SharedHeartbeatMonitor_Tick(hb_monitor);
+
+    // ignore heartbeat status if charger connected
+    const bool hb_ok = App_Charger_IsConnected(charger) ? true : App_SharedHeartbeatMonitor_Tick(hb_monitor);
     App_CanTx_BMS_Warnings_MissingHeartBeat_Set(hb_ok);
 
-    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok)
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && charger_fault_cleared)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

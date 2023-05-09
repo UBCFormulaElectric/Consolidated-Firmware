@@ -52,6 +52,7 @@ FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 FAKE_VALUE_FUNC(bool, enable_discharge);
 FAKE_VALUE_FUNC(bool, disable_discharge);
+FAKE_VALUE_FUNC(uint16_t, App_Charger_GetCounterVal);
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -169,6 +170,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_high_res_current);
+        RESET_FAKE(App_Charger_GetCounterVal);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
@@ -765,10 +767,15 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     has_charger_faulted_fake.return_val = true;
 
+    App_Charger_GetCounterVal_fake.return_val = 500U;
+
     App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    // Charger faults are ignored for 5s upon charge state entry
+    LetTimePass(state_machine, 5010);
+    const struct State *currentState = App_SharedStateMachine_GetCurrentState(state_machine);
+
+    ASSERT_EQ(App_GetFaultState(), currentState);
 }
 
 TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)

@@ -3,8 +3,6 @@
 #include "states/App_InitState.h"
 #include "states/App_ChargeState.h"
 
-// Ignore the charger fault signal for the first 500 cycles (5 seconds)
-#define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
@@ -15,6 +13,7 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_CHARGE_STATE);
     App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
+    App_Charger_ResetCounterVal(charger);
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -26,40 +25,34 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *            world       = App_SharedStateMachine_GetWorld(state_machine);
-        struct Charger *             charger     = App_BmsWorld_GetCharger(world);
-        struct Airs *                airs        = App_BmsWorld_GetAirs(world);
-        struct TractiveSystem *const ts          = App_BmsWorld_GetTractiveSystem(world);
+        struct BmsWorld *            world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct Charger *             charger = App_BmsWorld_GetCharger(world);
+        struct Airs *                airs    = App_BmsWorld_GetAirs(world);
+        struct TractiveSystem *const ts      = App_BmsWorld_GetTractiveSystem(world);
 
-        static uint16_t ignore_chgr_fault_counter  = 0U;
-        bool            has_charger_faulted        = false;
-        bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        bool            charging_enabled           = App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
+        bool       external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        bool       charging_enabled           = App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
+        const bool charging_completed         = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
+        const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
-        if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
+        // Increment charger fault ignore counter
+        if (App_Charger_GetCounterVal(charger) < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
-            ignore_chgr_fault_counter++;
-        }
-        else
-        {
-            has_charger_faulted = App_Charger_HasFaulted(charger);
+            App_Charger_IncrementCounterVal(charger);
         }
 
-        const bool charging_completed = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
-        App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
         App_CanTx_BMS_Charger_IsChargingComplete_Set(charging_completed);
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(external_shutdown_occurred);
 
-        struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
-
-        if (has_charger_faulted || external_shutdown_occurred || is_missing_hb)
+        // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
+        if (!is_charger_connected || external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+            App_CanRx_DEBUG_ChargingSwitch_StartCharging_Update(false);
+            App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(!is_charger_connected);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (charging_completed || !charging_enabled)
+        if (!charging_enabled)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }

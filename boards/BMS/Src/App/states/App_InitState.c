@@ -43,25 +43,16 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         // don't allow pre_charge if in BSPD_DEMO_MODE
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
-            // If the charger is connected, the CAN message must also be set
-            // to continue into Pre-Charge State, then Charge State
-            // If charger isn't connected, go into Pre-Charge State, then Drive State
+            // if charger connected, wait for CAN message to enter pre-charge state
             bool precharge_for_charging = is_charger_connected && App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
 
+            // or if charger disconnected, proceed directly to precharge state
             if (precharge_for_charging || !is_charger_connected)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
         }
 #endif
-        //      #else?
-        struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Warnings_MissingHeartBeat_Set(is_missing_hb);
-        if (is_missing_hb)
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
     }
 }
 
