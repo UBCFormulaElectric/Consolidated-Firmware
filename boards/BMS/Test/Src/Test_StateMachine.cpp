@@ -825,7 +825,6 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-
 TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status)
 {
     struct
