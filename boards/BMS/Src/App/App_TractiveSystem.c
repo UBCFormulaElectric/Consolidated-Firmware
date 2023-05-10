@@ -48,7 +48,7 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
     float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
     float high_res_current = App_TractiveSystem_GetHighResCurrent(ts);
 
-    if (low_res_current < HIGH_RES_MAX_CURRENT_READING)
+    if (low_res_current < HIGH_RES_MAX_CURRENT_READING && low_res_current > -HIGH_RES_MAX_CURRENT_READING)
     {
         return high_res_current;
     }
@@ -70,6 +70,11 @@ bool App_TractveSystem_CheckFaults(struct TractiveSystem *ts)
     bool ts_current_out_of_bounds =
         !IS_IN_RANGE(MAX_TS_CHARGE_CURRENT_AMPS, MAX_TS_DISCHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
     App_CanAlerts_SetFault(BMS_FAULT_TS_OVERCURRENT, ts_current_out_of_bounds);
+
+    if(ts_current_out_of_bounds)
+    {
+        App_CanTx_BMS_LatchedFaults_TsOverCurrent_Set(true);
+    }
 
     return ts_current_out_of_bounds;
 }

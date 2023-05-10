@@ -6,6 +6,8 @@
 
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
+static bool has_seen_current;
+
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
@@ -15,6 +17,7 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
     App_Charger_ResetCounterVal(charger);
+    has_seen_current = false;
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -36,6 +39,11 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool charging_completed         = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
         const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
+        if (App_TractiveSystem_GetCurrent(ts) > 1.0f)
+        {
+            has_seen_current = true;
+        }
+
         // Increment charger fault ignore counter
         if (App_Charger_GetCounterVal(charger) < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -46,15 +54,24 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (!is_charger_connected || external_shutdown_occurred)
         {
+            if(!is_charger_connected)
+            {
+                App_CanTx_BMS_LatchedFaults_ChargerDisconnectedDuringCharge_Set(true);
+            }
+            if(external_shutdown_occurred)
+            {
+                App_CanTx_BMS_LatchedFaults_ChargerExternalShutdown_Set(true);
+            }
+
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
             App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE, !is_charger_connected);
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, external_shutdown_occurred);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (!charging_enabled || charging_completed)
+        if (!charging_enabled || (charging_completed && has_seen_current))
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+//                        App_SharedStateMachine_SetNextState(state_machine, App_GetfState());
         }
     }
 }

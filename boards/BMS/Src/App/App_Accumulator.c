@@ -313,7 +313,9 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     }
 
     bool overtemp_fault =
-        App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
+            App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) >
+            max_allowable_cell_temp;
+    overtemp_fault = false;
     bool undertemp_fault =
         App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
     bool overvoltage_fault =
@@ -328,5 +330,27 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
+    if(undervoltage_fault)
+    {
+        App_CanTx_BMS_LatchedFaults_CellUnderVoltage_Set(true);
+    }
+    if(overvoltage_fault)
+    {
+        App_CanTx_BMS_LatchedFaults_CellOverVoltage_Set(true);
+    }
+    if(undertemp_fault)
+    {
+        App_CanTx_BMS_LatchedFaults_CellUnderTemp_Set(true);
+    }
+    if(overtemp_fault)
+    {
+        App_CanTx_BMS_LatchedFaults_CellOverTemp_Set(true);
+    }
+    if(communication_fault)
+    {
+        App_CanTx_BMS_LatchedFaults_ModuleCommErr_Set(true);
+    }
+
+    //    TODO: RE-IMPLEMENT OVERTEMP FAULT
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
