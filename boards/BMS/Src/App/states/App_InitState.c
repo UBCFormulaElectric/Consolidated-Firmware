@@ -22,7 +22,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_OkStatus_Enable(bms_ok_status);
 
     // AIR+ opens upon entering init state
-    // Should never be open at this point, this is only for redundancy
+    // Should always be opened at this point from other states, this is only for redundancy since we really don't want AIR+ closed in init
     App_Airs_OpenAirPositive(airs);
 }
 
