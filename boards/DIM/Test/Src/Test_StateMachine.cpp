@@ -153,6 +153,10 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_off_imd_led);
         RESET_FAKE(turn_on_bspd_led);
         RESET_FAKE(turn_off_bspd_led);
+        RESET_FAKE(turn_on_shdn_led);
+        RESET_FAKE(turn_off_shdn_led);
+        RESET_FAKE(turn_on_drive_led);
+        RESET_FAKE(turn_off_drive_led);
         RESET_FAKE(start_switch_is_turned_on);
         RESET_FAKE(traction_control_switch_is_turned_on);
         RESET_FAKE(torque_vectoring_switch_is_turned_on);
@@ -191,6 +195,8 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(drive_mode_switch, App_RotarySwitch_Destroy);
         TearDownObject(imd_led, App_Led_Destroy);
         TearDownObject(bspd_led, App_Led_Destroy);
+        TearDownObject(shdn_led, App_Led_Destroy);
+        TearDownObject(drive_led, App_Led_Destroy);
         TearDownObject(start_switch, App_BinarySwitch_Destroy);
         TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
         TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
