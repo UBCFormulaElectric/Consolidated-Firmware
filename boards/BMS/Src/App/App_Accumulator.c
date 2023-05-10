@@ -6,6 +6,11 @@
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
+// Discharging cells continuously generates too much heat.
+// So discharge cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
+// then disable discharge for the next 100 ticks to keep temperatures manageable.
+// Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
+// distracting.
 #define DISCHARGE_TICKS_ON (100U)
 #define DISCHARGE_TICKS_OFF (100U)
 
@@ -59,9 +64,9 @@ struct Accumulator
     float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Balancing information
-    bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    bool     cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
     uint32_t discharge_pwm_ticks;
-    bool mute_discharge;
+    bool     mute_discharge;
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -176,7 +181,7 @@ struct Accumulator *App_Accumulator_Create(
     // Balancing information
     memset(&accumulator->cells_to_discharge, 0U, sizeof(accumulator->cells_to_discharge));
     accumulator->discharge_pwm_ticks = 0;
-    accumulator->mute_discharge = false;
+    accumulator->mute_discharge      = false;
 
     accumulator->enable_discharge  = enable_discharge;
     accumulator->disable_discharge = disable_discharge;
@@ -310,28 +315,29 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             // Write to configuration register to configure cell discharging
             accumulator->write_cfg_registers(accumulator->cells_to_discharge);
 
-            if(accumulator->mute_discharge)
+            if (accumulator->mute_discharge)
             {
                 // Disable cell discharging
                 accumulator->disable_discharge();
                 accumulator->discharge_pwm_ticks += 1;
 
-                if(accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
+                if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
                 {
                     // Cell discharging disabled duty cycle portion is finished
-                    accumulator->mute_discharge = false;
+                    accumulator->mute_discharge      = false;
                     accumulator->discharge_pwm_ticks = 0;
                 }
             }
-            else {
+            else
+            {
                 // Enable cell discharging
                 accumulator->enable_discharge();
                 accumulator->discharge_pwm_ticks += 1;
 
-                if(accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
+                if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
                 {
                     // Cell discharging enabled duty cycle portion is finished
-                    accumulator->mute_discharge = true;
+                    accumulator->mute_discharge      = true;
                     accumulator->discharge_pwm_ticks = 0;
                 }
             }

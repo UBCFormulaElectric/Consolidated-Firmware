@@ -127,7 +127,9 @@ bool Io_LTC6813Shared_PollAdcConversions(void);
 bool Io_LTC6813Shared_SetCfgRegsToDefaultSettings(void);
 
 /**
- * Write to configuration registers, namely CFGRA and CFGRB
+ * Write to configuration registers, namely CFGRA and CFGRB to set which cells to discharge.
+ * @param cells_to_discharge Buffer of cells to discharge. True if cell should be discharged, false otherwise.
+ * Set to NULL to disable all cell discharging.
  * @return True if the commands used to write to the configuration registers can
  * be sent successfully. Else, false
  */

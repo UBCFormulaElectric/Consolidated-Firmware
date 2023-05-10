@@ -123,6 +123,8 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size);
  * A function called to prepare data written to configuration registers
  * @param tx_cfg Buffer containing data to write to the current configuration
  * register
+ * @param cells_to_discharge Buffer of cells to discharge. True if cell should be discharged, false otherwise.
+ * Set to NULL to disable all cell discharging.
  * @param curr_cfg_reg The current configuration register to configure
  */
 static void Io_PrepareCfgRegBytes(
@@ -163,8 +165,7 @@ static void Io_PrepareCfgRegBytes(
         // Set default tx_cfg for each segment
         memcpy(&tx_cfg[tx_cfg_idx], ltc6813_configs[curr_cfg_reg].default_cfg_reg, NUM_REG_GROUP_PAYLOAD_BYTES);
 
-        // Get dcc bits to write for the current segment. If this is the lowest
-        // cell, set DCC bits for the given segment
+        // Get dcc bits to write for the current segment (which cells to discharge)
         uint32_t dcc_bits = 0U;
 
         if (cells_to_discharge != NULL)
