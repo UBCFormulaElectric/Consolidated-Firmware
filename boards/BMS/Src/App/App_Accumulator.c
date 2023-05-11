@@ -178,6 +178,12 @@ static void App_Accumulator_InterpretOpenWireCheck(struct Accumulator *accumulat
             // For cell N in 1-15, cell N is open if V_PU(N+1) - V_PD(N+1) < -400mV
             // * V_PU(N) is pull-up voltage of cell N, i.e. voltages read back after ADOW with PUP set to 1
             // * V_PD(N) is pull-down voltage of cell N, i.e. voltages read back after ADOW with PUP set to 0
+
+            // TODO: THIS IS WRONG! The +1 is unnecessary
+            // In the LTC datasheet, where this algorithm is from, cell 1 (first cell) connects to C1 on positive terminal
+            // In our code, cell 1's voltage is read back at index 0
+            // Also this index "cell" shouldn't actually be the cell, it should be the pin index C0, C1, etc. since 
+            // that is what can actually go open wire.
             const float n_plus_1_pu_voltage = accumulator->open_wire_pu_voltages[segment][cell + 1];
             const float n_plus_1_pd_voltage = accumulator->open_wire_pd_voltages[segment][cell + 1];
             const bool  cell_open = (n_plus_1_pu_voltage - n_plus_1_pd_voltage) < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
@@ -216,7 +222,6 @@ static void App_Accumulator_RunMonitorStateMachine(struct Accumulator *accumulat
         }
         case MONITOR_CELL_TEMPS_STATE:
         {
-            // TODO: Correct number of readings: 17 for monitor, 16 for open wire
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
             accumulator->disable_discharge();
 
@@ -568,7 +573,7 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     bool undervoltage_fault =
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
-    bool open_wire_fault = accumulator->open_wire_fault;
+    bool open_wire_fault     = accumulator->open_wire_fault;
 
     App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERVOLTAGE, undervoltage_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERVOLTAGE, overvoltage_fault);
@@ -577,5 +582,7 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
     App_CanAlerts_SetFault(BMS_FAULT_OPEN_WIRE_CELL, open_wire_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault || open_wire_fault);
+    return (
+        overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault ||
+        open_wire_fault);
 }

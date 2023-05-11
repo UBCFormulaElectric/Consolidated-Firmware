@@ -88,11 +88,6 @@ static bool Io_ParseCellVoltageFromAllSegments(
 
         if (recv_pec15 == calc_pec15)
         {
-            // // Ignore cells 17 and 18 if reading back from group F. Only read
-            // // single word. Otherwise read all bytes stored in rx_buffer
-            // const uint8_t num_bytes_to_copy =
-            //     (curr_reg_group == CELL_V_REG_GROUP_F) ? sizeof(*rx_buffer) : NUM_REG_GROUP_PAYLOAD_BYTES;
-
             // Store register group data into a temporary array reg_group_data
             uint16_t reg_group_data[NUM_OF_READINGS_PER_REG_GROUP] = { 0 };
             memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], NUM_REG_GROUP_PAYLOAD_BYTES);
