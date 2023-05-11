@@ -59,7 +59,6 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             const struct State *next_state;
             if (precharge_fault_limit_exceeded)
             {
-                App_CanTx_BMS_LatchedFaults_PrechargeErr_Set(true);
                 next_state = App_GetFaultState();
                 App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
             }

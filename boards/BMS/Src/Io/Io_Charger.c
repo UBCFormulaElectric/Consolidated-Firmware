@@ -19,5 +19,5 @@ bool Io_Charger_IsConnected(void)
 
 bool Io_Charger_HasFaulted(void)
 {
-    return HAL_GPIO_ReadPin(CHRG_FLT_3V3_GPIO_Port, CHRG_FLT_3V3_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(CHRG_FLT_3V3_GPIO_Port, CHRG_FLT_3V3_Pin) == GPIO_PIN_RESET;
 }

@@ -5,7 +5,6 @@
         "PDM_Vitals",
         "DIM_Vitals",
         "Debug_ChargingSwitch",
-        "Debug_CanModes",
-        "Debug_ResetBmsLatchedFaultMsgs"
+        "Debug_CanModes"
     ]
 }

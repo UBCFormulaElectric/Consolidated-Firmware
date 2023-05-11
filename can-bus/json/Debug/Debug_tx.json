@@ -18,15 +18,5 @@
                 "bits": 1
             }
         }
-    },
-    "Debug_ResetBmsLatchedFaultMsgs": {
-        "msg_id": 703,
-        "cycle_time": 100,
-        "description": "Value set by user to reset latched fault messages from BMS.",
-        "signals": {
-            "ResetFaults": {
-                "bits": 1
-            }
-        }
     }
 }

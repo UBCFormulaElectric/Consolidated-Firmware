@@ -288,48 +288,5 @@
                 "unit": "W"
             }
         }
-    },
-    "BMS_LatchedFaults": {
-    "msg_id": 121,
-    "cycle_time": 100,
-    "description": "Latched Reason for BMS Faulting",
-    "signals": {
-        "MissingHeartbeat": {
-            "bits": 1
-        },
-        "CellUnderVoltage": {
-            "bits": 1
-        },
-        "CellOverVoltage": {
-            "bits": 1
-        },
-        "ModuleCommErr": {
-            "bits": 1
-        },
-        "CellUnderTemp": {
-            "bits": 1
-        },
-        "CellOverTemp": {
-            "bits": 1
-        },
-        "ChargerFault":{
-            "bits": 1
-        },
-        "ChargerDisconnectedDuringCharge":{
-            "bits": 1
-        },
-        "ChargerExternalShutdown": {
-            "bits": 1
-        },
-        "TsOverCurrent": {
-            "bits": 1
-        },
-        "PrechargeErr": {
-            "bits": 1
-        },
-        "FaultFromOtherBoard": {
-            "bits": 1
-        }
     }
-}
 }
