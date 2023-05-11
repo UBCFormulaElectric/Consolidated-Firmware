@@ -56,7 +56,7 @@
 	},
 	"FSM_Brake": {
 		"msg_id": 14,
-		"cycle_time": 10,
+		"cycle_time": 100,
 		"signals": {
 			"FrontBrakePressure": {
 				"resolution": 1,

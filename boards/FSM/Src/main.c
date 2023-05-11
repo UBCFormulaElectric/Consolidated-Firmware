@@ -306,10 +306,11 @@ void SystemClock_Config(void)
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -317,7 +318,7 @@ void SystemClock_Config(void)
     /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSE;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSI;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -463,7 +464,7 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 1;
+    hcan1.Init.Prescaler            = 2;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
     hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
     hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
@@ -712,6 +713,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
