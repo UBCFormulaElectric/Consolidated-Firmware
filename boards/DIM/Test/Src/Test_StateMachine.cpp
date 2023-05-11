@@ -43,6 +43,10 @@ FAKE_VOID_FUNC(turn_on_imd_led);
 FAKE_VOID_FUNC(turn_off_imd_led);
 FAKE_VOID_FUNC(turn_on_bspd_led);
 FAKE_VOID_FUNC(turn_off_bspd_led);
+FAKE_VOID_FUNC(turn_on_shdn_led);
+FAKE_VOID_FUNC(turn_off_shdn_led);
+FAKE_VOID_FUNC(turn_on_drive_led);
+FAKE_VOID_FUNC(turn_off_drive_led);
 
 FAKE_VOID_FUNC(turn_bms_status_led_red);
 FAKE_VOID_FUNC(turn_bms_status_led_green);
@@ -97,6 +101,10 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         bspd_led = App_Led_Create(turn_on_bspd_led, turn_off_bspd_led);
 
+        shdn_led = App_Led_Create(turn_on_shdn_led, turn_off_shdn_led);
+
+        drive_led = App_Led_Create(turn_on_drive_led, turn_off_drive_led);
+
         start_switch = App_BinarySwitch_Create(start_switch_is_turned_on);
 
         traction_control_switch = App_BinarySwitch_Create(traction_control_switch_is_turned_on);
@@ -121,9 +129,9 @@ class DimStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_DimWorld_Create(
-            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-            traction_control_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led,
-            clock);
+            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
+            drive_led, start_switch, traction_control_switch, bms_status_led, dcm_status_led, dim_status_led,
+            fsm_status_led, pdm_status_led, clock);
 
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
@@ -145,6 +153,10 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_off_imd_led);
         RESET_FAKE(turn_on_bspd_led);
         RESET_FAKE(turn_off_bspd_led);
+        RESET_FAKE(turn_on_shdn_led);
+        RESET_FAKE(turn_off_shdn_led);
+        RESET_FAKE(turn_on_drive_led);
+        RESET_FAKE(turn_off_drive_led);
         RESET_FAKE(start_switch_is_turned_on);
         RESET_FAKE(traction_control_switch_is_turned_on);
         RESET_FAKE(torque_vectoring_switch_is_turned_on);
@@ -183,6 +195,8 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(drive_mode_switch, App_RotarySwitch_Destroy);
         TearDownObject(imd_led, App_Led_Destroy);
         TearDownObject(bspd_led, App_Led_Destroy);
+        TearDownObject(shdn_led, App_Led_Destroy);
+        TearDownObject(drive_led, App_Led_Destroy);
         TearDownObject(start_switch, App_BinarySwitch_Destroy);
         TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
         TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
@@ -225,6 +239,8 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct RgbLedSequence *  rgb_led_sequence;
     struct Led *             imd_led;
     struct Led *             bspd_led;
+    struct Led *             shdn_led;
+    struct Led *             drive_led;
     struct BinarySwitch *    start_switch;
     struct BinarySwitch *    traction_control_switch;
     struct BinarySwitch *    torque_vectoring_switch;

@@ -51,7 +51,8 @@
                 "bits": 1
             },
             "Condition": {
-                "bits": 3
+                "signed": false,
+                "bits": 4
             }
         }
     },
@@ -61,10 +62,7 @@
         "description": "BMS IMD Measurement Data Values",
         "signals": {
             "ActiveFrequency": {
-                "bits": 2,
-                "min": 0,
-                "max": 20,
-                "unit": "Hz"
+                "enum": "ImdActiveFrequency"
             },
             "InsulationMeasurementDcp10Hz": {
                 "resolution": 0.1,
@@ -91,13 +89,13 @@
         "description": "BMS IMD PWM Output",
         "signals": {
             "DutyCycle": {
-                "bits": 3,
+                "bits": 8,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
             "Frequency": {
-                "bits": 4,
+                "bits": 8,
                 "min": 0,
                 "max": 100,
                 "unit": "Hz"

@@ -110,6 +110,8 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
 struct Led *              bspd_led;
+struct Led *              shdn_led;
+struct Led *              drive_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     aux_switch;
 struct RgbLed *           bms_status_led;
@@ -225,6 +227,10 @@ int main(void)
 
     bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
 
+    shdn_led = App_Led_Create(Io_Leds_TurnOnShdnLed, Io_Leds_TurnOffShdnLed);
+
+    drive_led = App_Led_Create(Io_Leds_TurnOnDriveLed, Io_Leds_TurnOffDriveLed);
+
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
     aux_switch = App_BinarySwitch_Create(Io_Switches_AuxSwitchIsTurnedOn);
@@ -252,8 +258,9 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
+        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
+        drive_led, start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
+        pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 2 */
@@ -516,7 +523,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : TEST_PIN_Pin BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin
                              DCM_BLUE_Pin DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin
@@ -551,9 +558,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(REGEN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMD_LED_Pin BSPD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
+    /*Configure GPIO pins : BSPD_LED_Pin IMD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
                              IGNTN_LED_Pin */
-    GPIO_InitStruct.Pin   = IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
+    GPIO_InitStruct.Pin   = BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
