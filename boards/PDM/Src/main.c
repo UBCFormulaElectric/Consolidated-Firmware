@@ -248,6 +248,15 @@ int main(void)
         air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_AIR, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_LVPWR, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_EMETER, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_AUX, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_DRS, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_FAN, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_LHS, true);
+    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_RHS, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
