@@ -204,6 +204,7 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -953,9 +954,12 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
-        Io_CanTx_Enqueue1HzMsgs();
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

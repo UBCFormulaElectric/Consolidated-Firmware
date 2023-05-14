@@ -13,6 +13,3 @@
 [submodule "list.h"]
 	path = boards/shared/third_party/list.h
 	url = https://github.com/UBCFormulaElectric/list.h.git
-[submodule "scripts/codegen/json2can"]
-	path = scripts/codegen/json2can
-	url = https://github.com/UBCFormulaElectric/json2can.git
