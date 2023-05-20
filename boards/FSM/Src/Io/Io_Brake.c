@@ -14,6 +14,7 @@ bool Io_Brake_IsActuated(void)
 {
     return HAL_GPIO_ReadPin(BSPD_BRAKE_PRESSED_5V_GPIO_Port, BSPD_BRAKE_PRESSED_5V_Pin) == GPIO_PIN_SET;
 }
+
 bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
 {
     return !(BRAKE_PRESSURE_OC_THRESHOLD_V <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD_V);

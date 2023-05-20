@@ -1,6 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
+#include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
@@ -24,19 +24,22 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         App_SetPeriodicCanSignals_Imd(imd);
 
-        // if AIR- opens, go back to fault state (AIR+ will be opened there)
+        // if AIR- opens, go back to init state
         const bool air_negative_opened = !App_Airs_IsAirNegativeClosed(airs);
-
         if (air_negative_opened)
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
     }
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *    airs  = App_BmsWorld_GetAirs(world);
+
+    // AIR+ opens upon exiting drive state
+    App_Airs_OpenAirPositive(airs);
 }
 
 const struct State *App_GetDriveState(void)

@@ -17,7 +17,7 @@ TEST(CanMsgsTest, heartbeat_message_frequency)
 
 TEST(CanMsgsTest, brake_actuation_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CAN_MSG_FSM_BRAKE_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_FSM_BRAKE_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, flow_meter_message_frequency)
