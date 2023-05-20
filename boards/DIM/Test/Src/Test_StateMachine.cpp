@@ -293,33 +293,33 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(DIM_STATE_DRIVE, App_CanTx_DIM_Vitals_State_Get());
 }
 
- // DIM-9
- // 
+// DIM-9
+// TODO: Redo 7-seg display tests
 // TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
 //{
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(0.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[0].value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
 //
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(50.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[1].value);
-//    ASSERT_EQ(5, set_middle_l_hex_digit_fake.arg0_history[1].value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
+//    ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[1].value);
 //
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(100.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[2].value);
-//    ASSERT_EQ(0, set_middle_l_hex_digit_fake.arg0_history[2].value);
-//    ASSERT_EQ(1, set_right_l_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[2].value);
 //}
 //
 //// DIM-9
@@ -335,12 +335,12 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 //    // When an error ID shows up on the 7-segment displays, it will have an
 //    // offset of 500 added to it. This is why we are asserting for the value
 //    // of 10 + 500 = 510 below.
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 //}
 //
 //// DIM-9
@@ -356,36 +356,36 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 //    // offset of 500 added to it. This is why we are asserting for the value
 //    // of 10 + 500 = 510 below. The same applies for the rest of this test case.
 //    LetTimePass(state_machine, 999);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 //}
 
 // DIM-4
