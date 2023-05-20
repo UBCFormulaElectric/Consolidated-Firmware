@@ -37,6 +37,13 @@ static float right_motor_temp_C;
 static float available_battery_power_kW;
 static float steering_angle_deg;
 
+
+/**
+ * NEW: parameters for enabling/disabling power limiting and active differential
+ */
+static bool run_power_limiting = true;
+static bool run_active_differential = true;
+
 void App_TorqueVectoring_Setup(void)
 {
     App_PID_Init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
@@ -59,7 +66,7 @@ void App_TorqueVectoring_Run(void)
     current_consumption         = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
     left_motor_temp_C           = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
     right_motor_temp_C          = App_CanRx_INVR_Temperatures3_MotorTemperature_Get();
-    // TODO(akoen): Available power will soon be replaced by current + voltage messages
+    // TODO (akoen): Available power will soon be replaced by current + voltage messages
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     steering_angle_deg = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
@@ -89,7 +96,12 @@ void App_TorqueVectoring_HandleAcceleration(void)
     power_limiting_inputs.right_motor_temp_C         = right_motor_temp_C;
     power_limiting_inputs.available_battery_power_kW = available_battery_power_kW;
     power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
-    float estimated_power_limit                      = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
+    float estimated_power_limit;
+    if (run_power_limiting) {
+        estimated_power_limit                  = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
+    } else {
+        estimated_power_limit                  = available_battery_power_kW;
+    }
 
     // Power limit correction
 
@@ -97,6 +109,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
      * SKIP POWER LIMIT CORRECTION FOR NOW
     */
     // float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    float power_limit = estimated_power_limit;
 
     // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
