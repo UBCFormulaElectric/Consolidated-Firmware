@@ -314,8 +314,6 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 
     bool overtemp_fault =
         App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
-    //    TODO: RE-IMPLEMENT OVERTEMP FAULT
-    overtemp_fault = false;
     bool undertemp_fault =
         App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
     bool overvoltage_fault =
