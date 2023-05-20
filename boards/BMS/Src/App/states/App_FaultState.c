@@ -29,7 +29,6 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
     struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Airs *          airs        = App_BmsWorld_GetAirs(world);
-    struct Charger *       charger     = App_BmsWorld_GetCharger(world);
 
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);

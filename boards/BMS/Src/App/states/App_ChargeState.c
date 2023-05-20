@@ -4,6 +4,8 @@
 #include "states/App_ChargeState.h"
 #include "App_CanAlerts.h"
 
+// 0.05C is standard for a boundary to consider full charge
+#define CURRENT_AT_MAX_CHARGE (0.05f * C_RATE_TO_AMPS);
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
@@ -45,6 +47,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             has_charger_faulted = App_Charger_HasFaulted(charger);
             timeout_passed      = true;
+            UNUSED(ts);
             // TODO: Re-implement charging_completed
             //            if(-App_TractiveSystem_GetCurrent(ts) <=  0.85f && (App_TractiveSystem_GetCurrent(ts) < 0)){
             //                charging_completed = true;
