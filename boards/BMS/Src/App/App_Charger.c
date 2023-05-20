@@ -10,6 +10,7 @@ struct Charger
     bool (*has_charger_faulted)(void);
     bool     is_enabled;
     uint16_t ignore_chgr_fault_counter;
+    uint16_t chrg_exit_counter;
 };
 
 struct Charger *App_Charger_Create(
@@ -27,6 +28,7 @@ struct Charger *App_Charger_Create(
     charger->has_charger_faulted       = has_charger_faulted;
     charger->is_enabled                = false;
     charger->ignore_chgr_fault_counter = 0U;
+    charger->chrg_exit_counter         = 0U;
 
     return charger;
 }
@@ -63,17 +65,32 @@ bool App_Charger_HasFaulted(const struct Charger *charger)
     return charger->has_charger_faulted();
 }
 
-void App_Charger_IncrementCounterVal(struct Charger *charger)
+void App_Charger_IncrementFaultCounterVal(struct Charger *charger)
 {
     charger->ignore_chgr_fault_counter++;
 }
 
-uint16_t App_Charger_GetCounterVal(const struct Charger *charger)
+uint16_t App_Charger_GetFaultCounterVal(const struct Charger *charger)
 {
     return charger->ignore_chgr_fault_counter;
 }
 
-void App_Charger_ResetCounterVal(struct Charger *charger)
+void App_Charger_ResetFaultCounterVal(struct Charger *charger)
 {
     charger->ignore_chgr_fault_counter = 0U;
+}
+
+void App_Charger_IncrementExitCounterVal(struct Charger *charger)
+{
+    charger->chrg_exit_counter++;
+}
+
+uint16_t App_Charger_GetExitCounterVal(const struct Charger *charger)
+{
+    return charger->chrg_exit_counter;
+}
+
+void App_Charger_ResetExitCounterVal(struct Charger *charger)
+{
+    charger->chrg_exit_counter = 0U;
 }

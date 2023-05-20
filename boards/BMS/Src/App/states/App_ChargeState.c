@@ -6,9 +6,6 @@
 
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
-// TODO: move value into struct
-static int exit_counter = 0;
-
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
@@ -17,8 +14,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_CHARGE_STATE);
     App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
-    App_Charger_ResetCounterVal(charger);
-    exit_counter = 0;
+    App_Charger_ResetFaultCounterVal(charger);
+    App_Charger_ResetExitCounterVal(charger);
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -40,7 +37,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         bool       charging_completed         = false;
         const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
-        const uint16_t ignore_chgr_fault_counter = App_Charger_GetCounterVal(charger);
+        const uint16_t ignore_chgr_fault_counter = App_Charger_GetFaultCounterVal(charger);
         bool           has_charger_faulted       = false;
         bool           timeout_passed            = false;
 
@@ -55,7 +52,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
         else
         {
-            App_Charger_IncrementCounterVal(charger);
+            App_Charger_IncrementFaultCounterVal(charger);
         }
 
         App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
@@ -80,8 +77,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             // Charger must be diabled and given time to shut down before air positive is opened
             App_Charger_Disable(charger);
-            exit_counter++;
-            if (exit_counter >= 100)
+            App_Charger_IncrementExitCounterVal(charger);
+            if (App_Charger_GetExitCounterVal(charger) >= 100)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
             }

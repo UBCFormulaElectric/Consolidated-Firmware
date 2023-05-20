@@ -72,19 +72,35 @@ bool App_Charger_IsEnabled(const struct Charger *charger);
 bool App_Charger_HasFaulted(const struct Charger *charger);
 
 /**
- * Increment the timer used to ignore charger faults on charge state entry
- * @param charger The charger to increment timer for
+ * Increment the timer used to ignore charger faults
  */
-void App_Charger_IncrementCounterVal(struct Charger *charger);
+void App_Charger_IncrementFaultCounterVal(struct Charger *charger);
 
 /**
  * Get current value of the timer used to ignore charger faults on charge state entry
  * @param charger The charger get timer value from
  */
-uint16_t App_Charger_GetCounterVal(const struct Charger *charger);
+uint16_t App_Charger_GetFaultCounterVal(const struct Charger *charger);
 
 /**
  * Reset the timer used to ignore charger faults on charge state entry
  * @param charger The charger to reset timer for
  */
-void App_Charger_ResetCounterVal(struct Charger *charger);
+void App_Charger_ResetFaultCounterVal(struct Charger *charger);
+
+/**
+ * Increment the timer used to allow charger to shut down before exiting charge state
+ */
+void App_Charger_IncrementExitCounterVal(struct Charger *charger);
+
+/**
+ * Get current value of the timer used to allow charger to shut down before exiting charge state
+ * @param charger The charger get timer value from
+ */
+uint16_t App_Charger_GetExitCounterVal(const struct Charger *charger);
+
+/**
+ * Reset the timer used to allow charger to shut down before exiting charge state
+ * @param charger The charger to reset timer for
+ */
+void App_Charger_ResetExitCounterVal(struct Charger *charger);

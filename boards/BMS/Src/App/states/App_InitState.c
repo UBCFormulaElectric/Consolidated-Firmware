@@ -36,10 +36,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world = App_SharedStateMachine_GetWorld(state_machine);
-        struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
-        struct Airs *          airs  = App_BmsWorld_GetAirs(world);
-        struct Charger * charger = App_BmsWorld_GetCharger(world);
+        struct BmsWorld *      world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct TractiveSystem *ts      = App_BmsWorld_GetTractiveSystem(world);
+        struct Airs *          airs    = App_BmsWorld_GetAirs(world);
+        struct Charger *       charger = App_BmsWorld_GetCharger(world);
 
         bool is_charger_connected = App_Charger_IsConnected(charger);
 
@@ -52,6 +52,17 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             if (precharge_for_charging || !is_charger_connected)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
+        }
+
+        if (!is_charger_connected)
+        {
+            struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
+            const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+            App_CanTx_BMS_Faults_BMS_FAULT_MISSING_HEARTBEAT_Set(is_missing_hb);
+            if (is_missing_hb)
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
             }
         }
     }
