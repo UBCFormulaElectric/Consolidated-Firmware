@@ -128,6 +128,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // ignore heartbeat when charging, other boards likely disconnected
     bool missing_hb = charger_is_connected ? false : App_SendAndReceiveHeartbeat(hb_monitor);
+    missing_hb      = false;
     App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
@@ -156,7 +157,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool fsm_fault              = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
     const bool pdm_fault              = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
     const bool dim_fault              = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
-    const bool fault_from_other_board = dcm_fault || fsm_fault || pdm_fault || dim_fault;
+    bool       fault_from_other_board = dcm_fault || fsm_fault || pdm_fault || dim_fault;
+    fault_from_other_board            = false;
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
@@ -168,25 +170,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
-    // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
-    if (App_Charger_IsConnected(charger))
-    {
-        const uint16_t ignore_chgr_fault_counter = App_Charger_GetCounterVal(charger);
-        bool           has_charger_faulted       = false;
-
-        if (ignore_chgr_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
-        {
-            has_charger_faulted = App_Charger_HasFaulted(charger);
-        }
-
-        if (has_charger_faulted)
-        {
-            App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
-            status = false;
-            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
     }
 
     return status;

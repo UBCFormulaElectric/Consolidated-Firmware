@@ -6,6 +6,9 @@
 
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
+// TODO: move value into struct
+static int exit_counter = 0;
+
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
@@ -15,6 +18,7 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
     App_Charger_ResetCounterVal(charger);
+    exit_counter = 0;
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -33,13 +37,33 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         const bool external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
         const bool charging_enabled           = App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
-        const bool charging_completed         = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
+        bool       charging_completed         = false;
         const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
-        // Increment charger fault ignore counter
-        if (App_Charger_GetCounterVal(charger) < CYCLES_TO_IGNORE_CHGR_FAULT)
+        const uint16_t ignore_chgr_fault_counter = App_Charger_GetCounterVal(charger);
+        bool           has_charger_faulted       = false;
+        bool           timeout_passed            = false;
+
+        if (ignore_chgr_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
+        {
+            has_charger_faulted = App_Charger_HasFaulted(charger);
+            timeout_passed      = true;
+            // TODO: Re-implement charging_completed
+            //            if(-App_TractiveSystem_GetCurrent(ts) <=  0.85f && (App_TractiveSystem_GetCurrent(ts) < 0)){
+            //                charging_completed = true;
+            //            }
+        }
+        else
         {
             App_Charger_IncrementCounterVal(charger);
+        }
+
+        App_CanAlerts_SetFault(BMS_FAULT_CHARGER_FAULT, has_charger_faulted);
+
+        if (has_charger_faulted)
+        {
+            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
 
         App_CanTx_BMS_Charger_IsChargingComplete_Set(charging_completed);
@@ -52,9 +76,15 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, external_shutdown_occurred);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
-        if (!charging_enabled || charging_completed)
+        if (!charging_enabled || (charging_completed && timeout_passed))
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+            // Charger must be diabled and given time to shut down before air positive is opened
+            App_Charger_Disable(charger);
+            exit_counter++;
+            if (exit_counter >= 100)
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+            }
         }
     }
 }
