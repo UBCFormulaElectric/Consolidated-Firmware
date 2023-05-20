@@ -115,12 +115,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO: Show something on these LEDs now that error table is gone
     if (missing_hb)
     {
-        App_CanTx_DIM_Warnings_MissingHeartbeat_Set(missing_hb);
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
-        App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
-        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
     {

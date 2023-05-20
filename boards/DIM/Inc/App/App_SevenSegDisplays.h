@@ -59,15 +59,15 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
  */
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 
-///**
-// * Populate the digits array with the for the given index of 3 for the given group.
-// *
-// * @param seven_seg_displays The group of 7-segment displays to display that are currently
-// *                           being worked on.
-// * @param digits[] The array of the full 9 7-segment displays values
-// * @param index The index to indicate which
-// */
-// void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index);
+/**
+ * Populate the digits array with the for the given index of 3 for the given group.
+ *
+ * @param seven_seg_displays The group of 7-segment displays to display that are currently
+ *                           being worked on.
+ * @param digits[] The array of the full 9 7-segment displays values
+ * @param index The index to indicate which
+ */
+ void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index);
 
 /**
  * Take in a base 10 value and populate it to the left most group of 7-segment displays

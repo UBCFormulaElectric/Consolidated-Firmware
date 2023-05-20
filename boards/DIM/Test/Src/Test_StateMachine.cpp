@@ -21,9 +21,15 @@ namespace StateMachineTest
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
 
-FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit, int);
 FAKE_VOID_FUNC(display_value_callback);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
@@ -83,12 +89,20 @@ class DimStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
-        middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
-        right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
+        left_l_seven_seg_display   = App_SevenSegDisplay_Create(set_left_l_hex_digit);
+        left_m_seven_seg_display   = App_SevenSegDisplay_Create(set_left_m_hex_digit);
+        left_r_seven_seg_display   = App_SevenSegDisplay_Create(set_left_r_hex_digit);
+        middle_l_seven_seg_display = App_SevenSegDisplay_Create(set_middle_l_hex_digit);
+        middle_m_seven_seg_display = App_SevenSegDisplay_Create(set_middle_m_hex_digit);
+        middle_r_seven_seg_display = App_SevenSegDisplay_Create(set_middle_r_hex_digit);
+        right_l_seven_seg_display  = App_SevenSegDisplay_Create(set_right_l_hex_digit);
+        right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
+        right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
 
         seven_seg_displays = App_SevenSegDisplays_Create(
-            left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, display_value_callback);
+                left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+                middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+                right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -139,9 +153,15 @@ class DimStateMachineTest : public BaseStateMachineTest
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_DIM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
-        RESET_FAKE(set_right_hex_digit);
-        RESET_FAKE(set_middle_hex_digit);
-        RESET_FAKE(set_left_hex_digit);
+        RESET_FAKE(set_left_l_hex_digit);
+        RESET_FAKE(set_left_m_hex_digit);
+        RESET_FAKE(set_left_r_hex_digit);
+        RESET_FAKE(set_middle_l_hex_digit);
+        RESET_FAKE(set_middle_m_hex_digit);
+        RESET_FAKE(set_middle_r_hex_digit);
+        RESET_FAKE(set_right_l_hex_digit);
+        RESET_FAKE(set_right_m_hex_digit);
+        RESET_FAKE(set_right_r_hex_digit);
         RESET_FAKE(display_value_callback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
@@ -186,9 +206,15 @@ class DimStateMachineTest : public BaseStateMachineTest
     {
         TearDownObject(world, App_DimWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(left_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(middle_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_r_seven_seg_display, App_SevenSegDisplay_Destroy);
         TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -231,9 +257,15 @@ class DimStateMachineTest : public BaseStateMachineTest
 
     struct World *           world;
     struct StateMachine *    state_machine;
-    struct SevenSegDisplay * left_seven_seg_display;
-    struct SevenSegDisplay * middle_seven_seg_display;
-    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplay * left_l_seven_seg_display;
+    struct SevenSegDisplay * left_m_seven_seg_display;
+    struct SevenSegDisplay * left_r_seven_seg_display;
+    struct SevenSegDisplay * middle_l_seven_seg_display;
+    struct SevenSegDisplay * middle_m_seven_seg_display;
+    struct SevenSegDisplay * middle_r_seven_seg_display;
+    struct SevenSegDisplay * right_l_seven_seg_display;
+    struct SevenSegDisplay * right_m_seven_seg_display;
+    struct SevenSegDisplay * right_r_seven_seg_display;
     struct SevenSegDisplays *seven_seg_displays;
     struct HeartbeatMonitor *heartbeat_monitor;
     struct RgbLedSequence *  rgb_led_sequence;
@@ -261,33 +293,33 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(DIM_STATE_DRIVE, App_CanTx_DIM_Vitals_State_Get());
 }
 
-// DIM-9
-// TODO: Redo 7-seg display tests
+ // DIM-9
+ // 
 // TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
 //{
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(0.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[0].enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[0].value);
 //
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(50.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[1].enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
-//    ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[1].value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[1].enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[1].value);
+//    ASSERT_EQ(5, set_middle_l_hex_digit_fake.arg0_history[1].value);
 //
 //    App_CanRx_BMS_Vitals_StateOfCharge_Update(100.0f);
 //    LetTimePass(state_machine, 10);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[2].value);
-//    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[2].value);
-//    ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[2].enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(0, set_middle_l_hex_digit_fake.arg0_history[2].value);
+//    ASSERT_EQ(1, set_right_l_hex_digit_fake.arg0_history[2].value);
 //}
 //
 //// DIM-9
@@ -303,12 +335,12 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 //    // When an error ID shows up on the 7-segment displays, it will have an
 //    // offset of 500 added to it. This is why we are asserting for the value
 //    // of 10 + 500 = 510 below.
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
 //}
 //
 //// DIM-9
@@ -324,36 +356,36 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 //    // offset of 500 added to it. This is why we are asserting for the value
 //    // of 10 + 500 = 510 below. The same applies for the rest of this test case.
 //    LetTimePass(state_machine, 999);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
 //
 //    LetTimePass(state_machine, 1000);
-//    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-//    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-//    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_val.enabled);
+//    ASSERT_EQ(1, set_left_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(1, set_middle_l_hex_digit_fake.arg0_val.value);
+//    ASSERT_EQ(5, set_right_l_hex_digit_fake.arg0_val.value);
 //}
 
 // DIM-4
