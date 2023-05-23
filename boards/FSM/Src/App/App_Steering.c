@@ -6,8 +6,6 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
-
 struct Steering
 {
     float (*get_steering_angle)(void);
@@ -37,25 +35,18 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
 {
     struct Steering *steering = App_FsmWorld_GetSteering(world);
 
-    // set value TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, steering->get_steering_angle());
+    App_CanTx_FSM_Steering_SteeringAngle_Set(steering->get_steering_angle());
 
     bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC =
-    //    steering_sensor_ocsc ? CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_TRUE_CHOICE
-    //                         : CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx, CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
+    App_CanAlerts_SetWarning(FSM_WARNING_STEERING_ANGLE_SENSOR_OCSC, steering_sensor_ocsc);
     if (steering_sensor_ocsc)
     {
-        // App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
+        App_CanTx_FSM_Steering_SteeringAngle_Set(0);
     }
 
-    struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
-    // App_SetPeriodicCanSignals_InRangeCheck(
-    //    can_tx, steering_angle_in_range_check, App_CanTx_SetPeriodicSignal_STEERING_ANGLE,
-    //    App_CanTx_SetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_WIDELEFT_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_WIDERIGHT_CHOICE);
+    float                    steering_angle;
+    enum InRangeCheck_Status steering_in_range =
+        App_InRangeCheck_GetValue(steering->steering_angle_in_range_check, &steering_angle);
+    App_CanTx_FSM_Steering_SteeringAngle_Set(steering_angle);
+    App_CanAlerts_SetWarning(FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE, steering_in_range != VALUE_IN_RANGE);
 }

@@ -4,9 +4,8 @@
 #include "App_InRangeCheck.h"
 #include "App_Brake.h"
 #include "App_SharedSetPeriodicCanSignals.h"
+#include "App_SharedSetPeriodicCanSignals.h"
 #include "configs/App_BrakePressureThresholds.h"
-
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 
 struct Brake
 {
@@ -96,43 +95,26 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
 {
     struct Brake *brake = App_FsmWorld_GetBrake(world);
 
-    // Brake Pedal Value
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PEDAL_PERCENTAGE(can_tx, brake->get_pedal_travel());
+    App_CanTx_FSM_Brake_BrakePedalPercentage_Set(brake->get_pedal_travel());
+    App_CanTx_FSM_Brake_IsActuated_Set(brake->is_brake_actuated());
 
-    // Brake Actuation Value TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED = brake->is_brake_actuated()
-    //                                                  ? CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE
-    //                                                  : CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED);
+    float                    front_pressure;
+    enum InRangeCheck_Status front_pressure_status =
+        App_InRangeCheck_GetValue(brake->front_pressure_in_range_check, &front_pressure);
+    App_CanTx_FSM_Brake_FrontBrakePressure_Set((uint32_t)front_pressure);
+    App_CanAlerts_SetWarning(FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE, front_pressure_status != VALUE_IN_RANGE);
 
-    // Pressure Values, with range check TODO: JSONCAN ->
-    // App_SetPeriodicCanSignals_InRangeCheck(
-    //    can_tx, brake->front_pressure_in_range_check, App_CanTx_SetPeriodicSignal_FRONT_BRAKE_PRESSURE,
-    //    App_CanTx_SetPeriodicSignal_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
-    // App_SetPeriodicCanSignals_InRangeCheck(
-    //    can_tx, brake->rear_pressure_in_range_check, App_CanTx_SetPeriodicSignal_REAR_BRAKE_PRESSURE,
-    //    App_CanTx_SetPeriodicSignal_BRAKE_REAR_PRESSURE_OUT_OF_RANGE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
+    float                    rear_pressure;
+    enum InRangeCheck_Status rear_pressure_status =
+        App_InRangeCheck_GetValue(brake->rear_pressure_in_range_check, &rear_pressure);
+    App_CanTx_FSM_Brake_RearBrakePressure_Set((uint32_t)rear_pressure);
+    App_CanAlerts_SetWarning(FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE, rear_pressure_status != VALUE_IN_RANGE);
 
-    // Brake Pressure OCSC TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT =
-    //    App_Brake_PressureElectricalFault(brake)
-    //        ? CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
-    //        : CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT(
-    //    can_tx, CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT);
+    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
+    App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(brake->pedal_travel_sensor_ocsc());
 
-    // Brake Pedal OCSC TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_BRAKE_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT =
-    //    brake->pedal_travel_sensor_ocsc() ? CANMSGS_FSM_BRAKE_FLAGS_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
-    //                                      : CANMSGS_FSM_BRAKE_FLAGS_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT(
-    //    can_tx, CANMSGS_FSM_BRAKE_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT);
-    // if (brake->pedal_travel_sensor_ocsc())
-    //    App_CanTx_SetPeriodicSignal_BRAKE_PEDAL_PERCENTAGE(can_tx, 0);
+    if (brake->pedal_travel_sensor_ocsc())
+    {
+        App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);
+    }
 }

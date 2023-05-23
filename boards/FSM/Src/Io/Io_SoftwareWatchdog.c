@@ -1,4 +1,4 @@
-#include <stm32f3xx.h>
+#include "Io_Hal.h"
 #include <string.h>
 #include "App_FsmWorld.h"
 #include "Io_SoftwareWatchdog.h"
@@ -13,11 +13,9 @@ void Io_HardwareWatchdog_Refresh(void)
 
 void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
-
-    //    struct CanMsgs_fsm_watchdog_timeout_t payload;
-    //    memcpy(&payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog), sizeof(payload.task_name));
-    // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT(_can_tx, &payload);
+    const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
+    App_CanAlerts_SetWarning(FSM_WARNING_WATCHDOG_TIMEOUT, true);
+    App_CanTx_FSM_AlertsContext_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }

@@ -11,7 +11,7 @@
 
 static uint8_t acc_meas_settle_count = 0U;
 
-static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Vitals_Heartbeat_Set(true);
 
@@ -32,6 +32,9 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
         App_CanRx_PDM_Vitals_Heartbeat_Update(false);
     }
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    return missing_hb;
 }
 
 static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
@@ -79,7 +82,7 @@ static void
 
     float availible_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
 
-    App_CanTx_BMS_PackStatus_DischargeCurrent_Set(availible_current);
+    App_CanTx_BMS_AvailablePower_AvailablePower_Set(available_power);
 }
 
 void App_AllStates_Init(void)
@@ -113,8 +116,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
-    bool status = true;
-    App_SendAndReceiveHeartbeat(hb_monitor);
+    bool       status     = true;
+    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
+    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
@@ -132,6 +136,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+
     App_SetPeriodicCanSignals_Imd(imd);
 
     App_AdvertisePackCurrent(accumulator, ts, soc_stats);
@@ -140,13 +145,19 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_BMS_OkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
 
+    const bool dcm_fault              = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault              = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault              = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault              = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool fault_from_other_board = dcm_fault || fsm_fault || pdm_fault || dim_fault;
+
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
     if (acc_meas_settle_count < NUM_CYCLES_TO_SETTLE)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault)
+    else if (acc_fault || ts_fault || missing_hb || fault_from_other_board)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

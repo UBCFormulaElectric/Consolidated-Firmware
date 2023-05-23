@@ -1,5 +1,6 @@
 #include <string.h>
 #include "states/App_DriveState.h"
+#include "App_CanAlerts.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
@@ -23,7 +24,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
     struct Led *             imd_led            = App_DimWorld_GetImdLed(world);
     struct Led *             bspd_led           = App_DimWorld_GetBspdLed(world);
-    struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
+    struct Led *             shdn_led           = App_DimWorld_GetShdnLed(world);
+    struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
 
@@ -47,20 +49,30 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(bspd_led);
     }
 
-    if (!App_CanRx_BMS_OkStatuses_BmsOk_Get())
+    if (App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
+        App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN)
     {
-        App_SharedRgbLed_TurnRed(bms_led);
+        App_Led_TurnOn(shdn_led);
     }
     else
     {
-        App_SharedRgbLed_TurnOff(bms_led);
+        App_Led_TurnOff(shdn_led);
+    }
+
+    if (App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE)
+    {
+        App_Led_TurnOn(drive_led);
+    }
+    else
+    {
+        App_Led_TurnOff(drive_led);
     }
 
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
     const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
-    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
@@ -68,25 +80,22 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                                                          [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
                                                          [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
 
-    // TODO: Update these LEDs to reflect board status, now that error table is gone
+    CanAlertBoard alert_board_ids[NUM_BOARD_LEDS] = {
+        [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
+        [FSM_LED] = FSM_ALERT_BOARD, [PDM_LED] = PDM_ALERT_BOARD,
+    };
+
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        if (i == BMS_LED)
+        if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
-            if (App_DriveState_HasBmsFault())
-            {
-                App_SharedRgbLed_TurnRed(board_status_led);
-            }
-            else if (App_DriveState_HasBmsWarning())
-            {
-                App_SharedRgbLed_TurnBlue(board_status_led);
-            }
-            else
-            {
-                App_SharedRgbLed_TurnGreen(board_status_led);
-            }
+            App_SharedRgbLed_TurnRed(board_status_led);
+        }
+        else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
+        {
+            App_SharedRgbLed_TurnBlue(board_status_led);
         }
         else
         {
@@ -94,8 +103,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+    }
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
+
     // TODO: Show something on these LEDs now that error table is gone
-    if (!App_SharedHeartbeatMonitor_Tick(heartbeat_monitor))
+    if (missing_hb)
     {
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
@@ -121,22 +139,4 @@ const struct State *App_GetDriveState(void)
     };
 
     return &drive_state;
-}
-
-bool App_DriveState_HasBmsFault()
-{
-    // return App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
-    return false;
-}
-
-bool App_DriveState_HasBmsWarning()
-{
-    // TODO: Confirm whether or not these should be aperiodic
-    // return App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
-    //        App_CanRx_BMS_WARNINGS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
-
-    return false;
 }

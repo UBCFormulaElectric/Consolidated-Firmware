@@ -109,12 +109,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_GSM_Warnings_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_GSM_Warnings_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -155,17 +155,16 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_GSM_Alerts_SendAperiodic);
 
     clock         = App_SharedClock_Create();
     world         = App_GsmWorld_Create(clock);
     state_machine = App_SharedStateMachine_Create(world, App_GetDefaultState());
-
-    // struct CanMsgs_gsm_startup_t payload = { .dummy = 0 };
-    // App_CanTx_SendNonPeriodicMsg_GSM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -361,7 +360,6 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -388,7 +386,6 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -494,6 +491,7 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick100Hz(state_machine);
+        Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -521,8 +519,12 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -553,7 +555,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        //        Io_CanTx_EnqueuePeriodicMsgs(task_start_ms); // TODO: JSONCAN
+        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or

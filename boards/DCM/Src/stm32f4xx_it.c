@@ -25,6 +25,7 @@
 #include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Io_SharedHardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +59,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern CAN_HandleTypeDef hcan1;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 extern TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN EV */
@@ -86,7 +89,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    Io_SharedHardFaultHandler_HandleHardFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -161,6 +164,34 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles CAN1 RX0 interrupts.
+ */
+void CAN1_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
+
+    /* USER CODE END CAN1_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
+
+    /* USER CODE END CAN1_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN1 RX1 interrupt.
+ */
+void CAN1_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+
+    /* USER CODE END CAN1_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+
+    /* USER CODE END CAN1_RX1_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM2 global interrupt.
  */
 void TIM2_IRQHandler(void)
@@ -172,6 +203,20 @@ void TIM2_IRQHandler(void)
     /* USER CODE BEGIN TIM2_IRQn 1 */
 
     /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA2 stream2 global interrupt.
+ */
+void DMA2_Stream2_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
+
+    /* USER CODE END DMA2_Stream2_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_usart1_rx);
+    /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
+
+    /* USER CODE END DMA2_Stream2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

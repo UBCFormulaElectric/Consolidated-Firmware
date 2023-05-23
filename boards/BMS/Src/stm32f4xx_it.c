@@ -25,6 +25,7 @@
 #include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Io_SharedHardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +60,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
-extern ADC_HandleTypeDef hadc1;
+extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -88,7 +89,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    Io_SharedHardFaultHandler_HandleHardFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -163,17 +164,31 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles ADC1 global interrupt.
+ * @brief This function handles CAN1 RX0 interrupts.
  */
-void ADC_IRQHandler(void)
+void CAN1_RX0_IRQHandler(void)
 {
-    /* USER CODE BEGIN ADC_IRQn 0 */
+    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
 
-    /* USER CODE END ADC_IRQn 0 */
-    HAL_ADC_IRQHandler(&hadc1);
-    /* USER CODE BEGIN ADC_IRQn 1 */
+    /* USER CODE END CAN1_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
 
-    /* USER CODE END ADC_IRQn 1 */
+    /* USER CODE END CAN1_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN1 RX1 interrupt.
+ */
+void CAN1_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+
+    /* USER CODE END CAN1_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan1);
+    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+
+    /* USER CODE END CAN1_RX1_IRQn 1 */
 }
 
 /**

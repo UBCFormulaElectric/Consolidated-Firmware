@@ -1,18 +1,27 @@
 #include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
+#include "App_EllipseImu.h"
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
-    if (false) // TODO: JSONCAN -> (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    App_CanTx_DCM_Vitals_Heartbeat_Set(true);
+
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        // App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
-
-    const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, is_missing_hb);
+    if (App_CanRx_FSM_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
+        App_CanRx_FSM_Vitals_Heartbeat_Update(false);
+    }
+    if (App_CanRx_DIM_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DIM_HEARTBEAT_ONE_HOT);
+        App_CanRx_DIM_Vitals_Heartbeat_Update(false);
+    }
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -29,17 +38,20 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SendAndReceiveHeartbeat(hb_monitor);
 
-    // TODO: JSONCAN -> App_BrakeLight_SetLightStatus(brake_light,
-    // App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx)); JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, App_InverterSwitches_IsRightOn(inverter_switches));
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
-    // App_InverterSwitches_IsLeftOn(inverter_switches));
+    const bool brake_actuated = App_CanRx_FSM_Brake_IsActuated_Get();
+    App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
 
-    if (App_HasInverterFault())
+    const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    App_CanAlerts_SetFault(DCM_FAULT_MISSING_HEARTBEAT, is_missing_hb);
+
+    if (App_HasInverterFault() || is_missing_hb)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+
+    App_EllipseImu_HandleLogs();
+    App_EllipseImu_Broadcast();
 
     return status;
 }

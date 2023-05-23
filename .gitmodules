@@ -7,6 +7,9 @@
 [submodule "boards/shared/third_party/fff"]
 	path = boards/shared/third_party/fff
 	url = https://github.com/UBCFormulaElectric/fff.git
+[submodule "boards/shared/third_party/sbgECom"]
+	path = boards/shared/third_party/sbgECom
+	url = https://github.com/UBCFormulaElectric/sbgECom.git
 [submodule "list.h"]
 	path = boards/shared/third_party/list.h
 	url = https://github.com/UBCFormulaElectric/list.h.git

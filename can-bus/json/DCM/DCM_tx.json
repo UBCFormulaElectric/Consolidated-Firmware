@@ -1,11 +1,14 @@
 {
     "DCM_Vitals": {
         "msg_id": 203,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "DCM Heartbeat signal",
         "signals": {
             "Heartbeat": {
                 "bits": 1
+            },
+            "CurrentState": {
+                "enum": "DcmState"
             }
         }
     },
@@ -21,7 +24,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             },
             "SpeedCommand": {
                 "start_bit": 16,
@@ -31,23 +35,28 @@
                 "offset": 0,
                 "min": -32768,
                 "max": 32767,
-                "unit": "rpm"
+                "unit": "rpm",
+                "start_value": 0
             },
             "DirectionCommand": {
                 "start_bit": 32,
-                "enum": "InverterDirection"
+                "enum": "InverterDirection",
+                "start_value": 0
             },
             "EnableInverter": {
                 "start_bit": 40,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableDischarge": {
                 "start_bit": 41,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableSpeedMode": {
                 "start_bit": 42,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "TorqueLimit": {
                 "start_bit": 48,
@@ -57,7 +66,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             }
         }
     },
@@ -73,7 +83,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             },
             "SpeedCommand": {
                 "start_bit": 16,
@@ -83,23 +94,28 @@
                 "offset": 0,
                 "min": -32768,
                 "max": 32767,
-                "unit": "rpm"
+                "unit": "rpm",
+                "start_value": 0
             },
             "DirectionCommand": {
                 "start_bit": 32,
-                "enum": "InverterDirection"
+                "enum": "InverterDirection",
+                "start_value": 0
             },
             "EnableInverter": {
                 "start_bit": 40,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableDischarge": {
                 "start_bit": 41,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableSpeedMode": {
                 "start_bit": 42,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "TorqueLimit": {
                 "start_bit": 48,
@@ -109,7 +125,123 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "DCM_AlertsContext": {
+        "msg_id": 204,
+        "cycle_time": 1000,
+        "description": "Context info for DCM alerts",
+        "signals": {
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
+            }
+        }
+    },
+    "DCM_EllipseImuStatus": {
+        "msg_id": 208,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "GeneralStatusBitmask": {
+                "bits": 16
+            },
+            "ComStatusBitmask": {
+                "bits": 32
+            }
+        }
+    },
+    "DCM_EllipseImuTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+            "Timestamp": {
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
+    "DCM_EllipseImuAcceleration": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Acceleration from the SBG Ellipse N sensor.",
+        "signals": {
+            "Forward": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "Lateral": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "Vertical": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "DCM_EllipseImuAngularVelocity": {
+        "msg_id": 206,
+        "cycle_time": 10,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+            "Roll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Pitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Yaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "DCM_EllipseImuEulerAngles": {
+        "msg_id": 207,
+        "cycle_time": 10,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "Roll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "Pitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "Yaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
             }
         }
     }

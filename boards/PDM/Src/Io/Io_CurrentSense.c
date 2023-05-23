@@ -7,7 +7,7 @@ float Io_CurrentSense_GetAux1Current(void)
     // Aux1 Current = ADC Voltage * Current Gain Ratio
 
     const float LOW_CURRENT_SENSE_GAIN_RATIO = 500.0f;
-    return (Io_Adc_GetChannel6Voltage() * LOW_CURRENT_SENSE_GAIN_RATIO);
+    return (Io_Adc_GetChannelVoltage(ADC1_CHANNEL_6) * LOW_CURRENT_SENSE_GAIN_RATIO);
 }
 
 float Io_CurrentSense_GetAux2Current(void)
@@ -15,7 +15,7 @@ float Io_CurrentSense_GetAux2Current(void)
     // Aux2 Current = ADC Voltage * Current Gain Ratio
 
     const float LOW_CURRENT_SENSE_GAIN_RATIO = 500.0f;
-    return (Io_Adc_GetChannel7Voltage() * LOW_CURRENT_SENSE_GAIN_RATIO);
+    return (Io_Adc_GetChannelVoltage(ADC1_CHANNEL_6) * LOW_CURRENT_SENSE_GAIN_RATIO);
 }
 
 float Io_CurrentSense_GetLeftInverterCurrent(void)

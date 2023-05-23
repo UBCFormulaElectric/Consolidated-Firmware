@@ -1,13 +1,10 @@
 #include "states/App_DriveState.h"
-
 #include "states/App_AllStates.h"
 #include "App_SharedMacros.h"
 
 void App_DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    // TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_FSM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_FSM_Vitals_State_Set(FSM_STATE_DRIVE);
 }
 
 void App_DriveStateRunOnTick1Hz(struct StateMachine *state_machine)

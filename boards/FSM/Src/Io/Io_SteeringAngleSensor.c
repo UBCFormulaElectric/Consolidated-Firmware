@@ -1,12 +1,12 @@
 #include "Io_Adc.h"
 #include "Io_SteeringAngleSensor.h"
 
-#define MIN_STEERING_VOLTAGE (0.0f)
-#define MAX_STEERING_VOLTAGE (1.0f)
+#define MIN_STEERING_VOLTAGE (0.2f)
+#define MAX_STEERING_VOLTAGE (3.5f)
 
 float Io_SteeringSensorVoltage(void)
 {
-    return Io_Adc_GetChannel1Voltage();
+    return Io_Adc_GetChannelVoltage(ADC1_CHANNEL_6);
 }
 float Io_SteeringAngleSensor_GetAngleDegree(void)
 {
@@ -20,5 +20,5 @@ float Io_SteeringAngleSensor_GetAngleDegree(void)
 bool Io_SteeringSensorOCSC(void)
 {
     float steering_voltage = Io_SteeringSensorVoltage();
-    return !(MIN_STEERING_VOLTAGE <= steering_voltage || steering_voltage <= MAX_STEERING_VOLTAGE);
+    return !(MIN_STEERING_VOLTAGE <= steering_voltage && steering_voltage <= MAX_STEERING_VOLTAGE);
 }
