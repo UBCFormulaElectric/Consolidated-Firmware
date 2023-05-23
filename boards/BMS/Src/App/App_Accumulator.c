@@ -325,8 +325,8 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERVOLTAGE, undervoltage_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERVOLTAGE, overvoltage_fault);
     App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERTEMP, undertemp_fault);
-    App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
+    //App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+    return (undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

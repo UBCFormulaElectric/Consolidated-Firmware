@@ -160,7 +160,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault || missing_hb || fault_from_other_board)
+    else if (acc_fault || ts_fault || missing_hb)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
