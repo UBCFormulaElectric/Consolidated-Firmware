@@ -15,9 +15,9 @@ static PowerLimiting_Inputs       power_limiting_inputs;
 static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
-//static TractionControl_Outputs    traction_control_outputs;
-static Regen_Inputs               regen_inputs;
-static Regen_Outputs              regen_outputs;
+// static TractionControl_Outputs    traction_control_outputs;
+static Regen_Inputs  regen_inputs;
+static Regen_Outputs regen_outputs;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -25,9 +25,9 @@ static Regen_Outputs              regen_outputs;
  * No PID for now.
  */
 
-static PID   pid_power_correction;
-//static float pid_power_correction_factor = 0.0f;
-static PID   pid_traction_control;
+static PID pid_power_correction;
+// static float pid_power_correction_factor = 0.0f;
+static PID pid_traction_control;
 
 static float accelerator_pedal_percent;
 static float accelerator_pedal_percent;
@@ -42,12 +42,11 @@ static float right_motor_temp_C;
 static float available_battery_power_kW;
 static float steering_angle_deg;
 
-
 /**
  * NEW: parameters for enabling/disabling power limiting and active differential
  */
-static bool run_power_limiting = true;
-static bool run_active_differential = true;
+static bool run_power_limiting      = true;
+static bool run_active_differential = false;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -73,7 +72,7 @@ void App_TorqueVectoring_Run(void)
     right_motor_temp_C          = App_CanRx_INVR_Temperatures3_MotorTemperature_Get();
     // TODO (akoen): Available power will soon be replaced by current + voltage messages
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
-    steering_angle_deg = App_CanRx_FSM_Steering_SteeringAngle_Get();
+    steering_angle_deg         = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
     if (accelerator_pedal_percent > 0.1f)
     {
@@ -102,40 +101,50 @@ void App_TorqueVectoring_HandleAcceleration(void)
     power_limiting_inputs.available_battery_power_kW = available_battery_power_kW;
     power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
     float estimated_power_limit;
-    if (run_power_limiting) {
-        estimated_power_limit                  = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
-    } else {
-        estimated_power_limit                  = available_battery_power_kW;
+    if (run_power_limiting)
+    {
+        estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
+    }
+    else
+    {
+        estimated_power_limit = available_battery_power_kW;
     }
 
     // Power limit correction
 
     /**
      * SKIP POWER LIMIT CORRECTION FOR NOW
-    */
+     */
     // float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
     float power_limit = estimated_power_limit;
 
     // Active Differential
-    if (run_active_differential) {
+    /**
+     * TORQUE REQUEST IN CASE OF NOT USING DIFFERENTIAL - OTHERWISE IS NOT SET AND NOT USED
+     */
+    float torque_request_no_differential = 0;
+
+    if (run_active_differential)
+    {
         active_differential_inputs.power_max_kW          = power_limit;
         active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
         active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
-        active_differential_inputs.wheel_angle_deg = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
+        active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
         App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
         App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(active_differential_outputs.torque_left_Nm);
         App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(active_differential_outputs.torque_right_Nm);
-    } else {
-        float no_differential_torque_request = MIN(available_battery_power_kW / (motor_speed_right_rpm + motor_speed_left_rpm), MOTOR_TORQUE_LIMIT_Nm);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(no_differential_torque_request);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(no_differential_torque_request);
     }
-
-
+    else
+    {
+        torque_request_no_differential =
+            MIN(available_battery_power_kW / (motor_speed_right_rpm + motor_speed_left_rpm), MOTOR_TORQUE_LIMIT_Nm);
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(torque_request_no_differential);
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(torque_request_no_differential);
+    }
 
     /**
      * SKIP TRACTION CONTROL FOR NOW
-    */
+     */
 
     // Traction Control
     // traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
@@ -147,8 +156,19 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // App_TractionControl_ComputeTorque(&traction_control_inputs, &traction_control_outputs);
 
     // Inverter Torque Requests
-    float torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
-    float torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+    /**
+     * FEED ACTIVE_DIFFERENTIAL_INPUTS TO INVERTERS, BYPASS TRACTION CONTROL
+     */
+
+    float torque_left_final_Nm;
+    float torque_right_final_Nm;
+    if (run_active_differential) {
+        torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
+        torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+    } else {
+        torque_left_final_Nm = torque_request_no_differential;
+        torque_right_final_Nm = torque_request_no_differential;
+    }
     // CLAMPS for safety only - should never exceed torque limit
     torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
     torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
