@@ -70,12 +70,7 @@ TEST(CanMsgsTest, tractive_system_message_frequency)
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_TRACTIVE_SYSTEM_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, pack_voltage_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_PACK_VOLTAGE_CYCLE_TIME_MS);
-}
-
 TEST(CanMsgsTest, availible_power_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_AVAILABLE_POWER_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_PACK_STATUS_CYCLE_TIME_MS);
 }

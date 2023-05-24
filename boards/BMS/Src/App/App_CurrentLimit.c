@@ -19,8 +19,9 @@ float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct
     uint8_t     throwaway_segment = 0U;
     uint8_t     throwaway_loc     = 0U;
     const float max_cell_temp     = App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc);
-    const float min_cell_soc      = 0.0f;
-    const float min_cell_voltage  = App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc);
+    //    const float min_cell_soc      = 0.0f;
+    //    const float min_cell_voltage  = App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment,
+    //    &throwaway_loc);
 
     // Calculate Current Limits
     float currentLimits[2] = { App_CurrentLimit_CalculateTempBasedDischargeLimit(max_cell_temp),
@@ -29,7 +30,7 @@ float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct
     // Return the minimum limit
     float current_limit = currentLimits[0];
 
-    for (unsigned int i = 1; i < sizeof(currentLimits); i++)
+    for (unsigned int i = 0; i < sizeof(currentLimits) / sizeof(float); i++)
     {
         if (currentLimits[i] < current_limit)
         {

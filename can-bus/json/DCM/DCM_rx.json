@@ -10,7 +10,7 @@
         "INVR_InternalStates",
         "INVL_MotorPositionInfo",
         "INVR_MotorPositionInfo",
-        "BMS_AvailablePower",
+        "BMS_PackStatus",
         "Debug_CanModes"
     ]
 }

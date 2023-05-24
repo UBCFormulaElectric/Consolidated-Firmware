@@ -70,7 +70,6 @@ void App_SocStats_Destroy(struct SocStats *soc_stats)
 {
     free(soc_stats);
 }
-
 void App_SocStats_ResetCellSoc(CellSocStats *cell_stats)
 {
     cell_stats->charge_c          = SERIES_ELEMENT_FULL_CHARGE_C;

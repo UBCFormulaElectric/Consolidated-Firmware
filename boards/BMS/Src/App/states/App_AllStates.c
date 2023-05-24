@@ -80,9 +80,9 @@ static void
     uint8_t segment = 0;
     UNUSED(segment);
 
-    float availible_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
+    float available_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
 
-    App_CanTx_BMS_AvailablePower_AvailablePower_Set(available_power);
+    App_CanTx_BMS_PackStatus_DischargeCurrent_Set(available_current);
 }
 
 void App_AllStates_Init(void)
