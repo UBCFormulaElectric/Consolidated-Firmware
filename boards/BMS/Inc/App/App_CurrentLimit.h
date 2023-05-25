@@ -18,7 +18,7 @@ float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct
  * @param none
  * @return the charge current limit
  */
-float App_CurrentLimit_GetChargeLimit(void);
+float App_CurrentLimit_GetChargeLimit(struct Accumulator *accumulator, struct SocStats *soc_stats);
 
 /**
  * Gets the the appropriate discharge current limit
@@ -33,3 +33,5 @@ float App_CurrentLimit_CalculateTempBasedDischargeLimit(float max_cell_temp);
  * @return the charge current limit
  */
 float App_CurrentLimit_CalculateLowCellVoltageClampDischargeLimit(struct SocStats *soc_stats);
+
+float App_CurrentLimit_CalculateHighCellVoltageClampChargeLimit(float Vmax, struct SocStats *soc_stats);

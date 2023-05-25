@@ -257,7 +257,26 @@ int main(void)
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
-    soc_stats = App_SocStats_Create();
+    uint16_t soc_address;
+    // a negative soc value will indicate to App_SocStats_Create that saved SOC value is corrupted
+    float saved_soc = -1.0f;
+    if (App_Eeprom_ReadAddress(eeprom, &soc_address) == EXIT_CODE_OK)
+    {
+        if (App_Eeprom_ReadMinSoc(eeprom, soc_address, &saved_soc) == EXIT_CODE_OK)
+            ;
+        else
+        {
+            saved_soc = -1.0f;
+        }
+    }
+    else
+    {
+        soc_address = DEFAULT_SOC_ADDRESS;
+    }
+
+    App_Eeprom_UpdateSavedAddress(eeprom, soc_address);
+
+    soc_stats = App_SocStats_Create(saved_soc, soc_address, accumulator);
 
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 

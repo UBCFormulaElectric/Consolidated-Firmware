@@ -43,15 +43,25 @@ ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float 
     *result = NAN;
     return EXIT_CODE_OK;
 }
-
-float App_Soc_GetCell_Soc(CellSocStats *cell_stats)
+void App_SocStats_SetCellSoc(CellSocStats *cell_stats, float charge_val)
 {
-    return cell_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C * 100.0f;
+    cell_stats->charge_c          = charge_val;
+    cell_stats->prev_current_A    = 0.0f;
+    cell_stats->charge_integral_c = 0.0f;
 }
 
-// TODO: Eventually this should take an input to read previous soc stats off of the eeprom instead of resetting SOC
-// every time.
-struct SocStats *App_SocStats_Create(void)
+void App_SocStats_SetPackSoc(struct SocStats *soc_stats, float_t charge_val)
+{
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            App_SocStats_SetCellSoc(&soc_stats->cell_stats[segment][cell], charge_val);
+        }
+    }
+}
+
+struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_address, struct Accumulator *accumulator)
 {
     struct SocStats *soc_stats = malloc(sizeof(struct SocStats));
     assert(soc_stats != NULL);
@@ -61,7 +71,17 @@ struct SocStats *App_SocStats_Create(void)
     soc_stats->minSocSE      = 0U;
     soc_stats->maxSocSegment = 0U;
     soc_stats->maxSocSE      = 0U;
-    App_SocStats_ResetSoc(soc_stats);
+    soc_stats->soc_address   = soc_address;
+
+    // input a negative initial value if EEPROM reading corrupted. Reset SOC values based on cell voltages.
+    if (initial_charge_value < 0)
+    {
+        App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
+    }
+    else
+    {
+        App_SocStats_SetPackSoc(soc_stats, initial_charge_value);
+    }
 
     return soc_stats;
 }
@@ -70,22 +90,10 @@ void App_SocStats_Destroy(struct SocStats *soc_stats)
 {
     free(soc_stats);
 }
-void App_SocStats_ResetCellSoc(CellSocStats *cell_stats)
-{
-    cell_stats->charge_c          = SERIES_ELEMENT_FULL_CHARGE_C;
-    cell_stats->prev_current_A    = 0.0f;
-    cell_stats->charge_integral_c = 0.0f;
-}
 
-void App_SocStats_ResetSoc(struct SocStats *soc_stats)
+uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats)
 {
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
-        for (uint8_t curr_cell = 0U; curr_cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; curr_cell++)
-        {
-            App_SocStats_ResetCellSoc(&soc_stats->cell_stats[curr_segment][curr_cell]);
-        }
-    }
+    return soc_stats->soc_address;
 }
 
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s)
@@ -127,6 +135,13 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, floa
     }
 }
 
+float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
+{
+    uint8_t min_segment        = soc_stats->minSocSegment;
+    uint8_t min_series_element = soc_stats->minSocSE;
+    return soc_stats->cell_stats[min_segment][min_series_element].charge_c;
+}
+
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
 {
     uint8_t min_seg  = soc_stats->minSocSegment;
@@ -134,9 +149,9 @@ float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
 
     float lowest_charge = soc_stats->cell_stats[min_seg][min_cell].charge_c;
 
-    // Find the index for the cell soc to look up the open-circuit voltage
     uint8_t lut_index;
 
+    // Find the index for the cell soc to look up the open-circuit voltage
     for (lut_index = 0U; lowest_charge < energy_lookup[lut_index]; lut_index++)
         ;
 
@@ -167,4 +182,27 @@ float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats)
     }
 
     return v_to_soc_lookup[lut_index];
+}
+
+void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator)
+{
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            const float cell_voltage = App_Accumulator_GetCellVoltage(accumulator, segment, cell);
+            uint8_t     lut_index;
+            for (lut_index = 0; cell_voltage < v_to_soc_lookup[lut_index]; lut_index++)
+                ;
+
+            if (lut_index == V_TO_SOC_LUT_SIZE)
+            {
+                // Ensures that the index is in the LUT range
+                lut_index--;
+            }
+
+            // Divide by 1000 for mA to A conversion
+            App_SocStats_SetCellSoc(&soc_stats->cell_stats[segment][cell], energy_lookup[lut_index] / 1000);
+        }
+    }
 }

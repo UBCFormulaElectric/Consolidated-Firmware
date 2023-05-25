@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "App_EepromExitCode.h"
+#include "App_SharedExitCode.h"
 
 #define PAGE_SIZE ((uint16_t)16U) // in Bytes
+#define DEFAULT_SOC_ADDRESS 1U
 
 struct Eeprom;
 
@@ -66,18 +68,20 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
  * Write an address 4 times to EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param eeprom Eeprom to write address to
- * @param page the number of the page to write to
  * @param address the address to store on the EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_Write4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address);
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t current_address);
 
 /**
  * Read the stored 4 copies of adress from EEPROM
  * @param eeprom Eeprom to erase a page from
- * @param page the number of the page to read from
  * @param addresses array of 4 addresses to be chosen from. Should all contain same value but may not due to
  * data-corruption in EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses);
+ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address);
+
+EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc, uint16_t address);
+
+ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *min_soc);

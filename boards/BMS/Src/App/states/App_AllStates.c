@@ -74,15 +74,10 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     App_CanTx_BMS_CellStats_MaxTempIdx_Set(max_loc);
 }
 
-static void
-    App_AdvertisePackCurrent(struct Accumulator *accumulator, struct TractiveSystem *ts, struct SocStats *soc_stats)
+static void App_AdvertisePackStatus(struct Accumulator *accumulator, struct SocStats *soc_stats)
 {
-    uint8_t segment = 0;
-    UNUSED(segment);
-
-    float available_current = App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats);
-
-    App_CanTx_BMS_PackStatus_DischargeCurrent_Set(available_current);
+    App_CanTx_BMS_PackStatus_DischargeCurrent_Set(App_CurrentLimit_GetDischargeLimit(accumulator, soc_stats));
+    App_CanTx_BMS_PackStatus_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
 }
 
 void App_AllStates_Init(void)
@@ -96,11 +91,17 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
     struct RgbLedSequence *rgb_led_sequence = App_BmsWorld_GetRgbLedSequence(world);
     struct Charger *       charger          = App_BmsWorld_GetCharger(world);
+    struct Eeprom *        eeprom           = App_BmsWorld_GetEeprom(world);
+    struct SocStats *      soc_stats        = App_BmsWorld_GetSocStats(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
+
+    const float    min_soc  = App_SocStats_GetMinSoc(soc_stats);
+    const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
+    App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -129,7 +130,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), TASK_100HZ_PERIOD_S);
 
-    App_CanTx_BMS_PackStatus_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_Contactors_AirNegative_Set(
@@ -139,7 +139,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SetPeriodicCanSignals_Imd(imd);
 
-    App_AdvertisePackCurrent(accumulator, ts, soc_stats);
+    App_AdvertisePackStatus(accumulator, soc_stats);
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));

@@ -21,10 +21,11 @@ struct SocStats
     CellSocStats cell_stats[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Keeps track of the indexes for the series elements with the lowest and highest charge respectively
-    uint8_t minSocSegment;
-    uint8_t minSocSE;
-    uint8_t maxSocSegment;
-    uint8_t maxSocSE;
+    uint8_t  minSocSegment;
+    uint8_t  minSocSE;
+    uint8_t  maxSocSegment;
+    uint8_t  maxSocSE;
+    uint16_t soc_address;
 };
 
 /**
@@ -67,18 +68,14 @@ ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float 
  * Create the SocStats object
  * @return struct SocStats pointer to object
  */
-struct SocStats *App_SocStats_Create(void);
+struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_address, struct Accumulator *accumulator);
 
 /**
  * Destroy the SocStats object
  */
 void App_SocStats_Destroy(struct SocStats *soc_stats);
 
-/**
- * Reset SocStats Object
- */
-void App_SocStats_ResetSoc(struct SocStats *soc_stats);
-
+uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
 /**
  * Update the state of charge of all series elements using coulomb counting.
  * @param soc_stats The charge stats of the pack
@@ -86,6 +83,13 @@ void App_SocStats_ResetSoc(struct SocStats *soc_stats);
  * @param time_step_s The time elapsed since the last update in seconds.
  */
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
+
+/**
+ * return the coulomb count of the SE with the lowest SOC
+ * @param soc_stats The charge stats of the pack
+ * @return coulomb count of the SE with the lowest SOC
+ */
+float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
 
 /**
  * Get the minimum series element open circuit voltage approximation given current pack SOC status
@@ -100,3 +104,5 @@ float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
  * @return float maximum series element open circuit voltage approximation
  */
 float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats);
+
+void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator);
