@@ -20,10 +20,11 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(true);
     App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
 
-    App_TorqueVectoring_Setup();
     // Set inverter directions.
     App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
     App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+
+    App_TorqueVectoring_Setup();
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)

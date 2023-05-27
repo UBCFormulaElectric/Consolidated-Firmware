@@ -46,7 +46,8 @@ static float steering_angle_deg;
  * NEW: parameters for enabling/disabling power limiting and active differential
  */
 static bool run_power_limiting      = true;
-static bool run_active_differential = false;
+static bool run_active_differential = true;
+static bool run_regen               = true;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -197,10 +198,14 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
 void App_TorqueVectoring_HandleRegen(void)
 {
-    regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
-    regen_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
-    App_Regen_ComputeTorque(&regen_inputs, &regen_outputs);
-
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_left_Nm);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_right_Nm);
+    if (run_regen) { // Run Regen
+        regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
+        regen_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
+        App_Regen_ComputeTorque(&regen_inputs, &regen_outputs);
+        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_left_Nm);
+        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_right_Nm);
+    } else { // No regen
+        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0);
+        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0);
+    }
 }
