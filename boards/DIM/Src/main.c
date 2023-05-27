@@ -104,6 +104,8 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
 struct Led *              bspd_led;
+struct Led *              shdn_led;
+struct Led *              drive_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     aux_switch;
 struct RgbLed *           bms_status_led;
@@ -135,12 +137,14 @@ void        RunTask1Hz(void const *argument);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_Errors_RxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DIM_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_Errors_TxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(DIM_WARNING_TX_OVERFLOW, true);
 }
 /* USER CODE END 0 */
 
@@ -182,11 +186,13 @@ int main(void)
     //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
 
     Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     Io_SevenSegDisplays_Init();
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_DIM_Alerts_SendAperiodic);
 
     left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
     middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
@@ -206,6 +212,10 @@ int main(void)
     imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
 
     bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
+
+    shdn_led = App_Led_Create(Io_Leds_TurnOnShdnLed, Io_Leds_TurnOffShdnLed);
+
+    drive_led = App_Led_Create(Io_Leds_TurnOnDriveLed, Io_Leds_TurnOffDriveLed);
 
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
@@ -234,12 +244,11 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
+        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
+        drive_led, start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
+        pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-
-    App_CanAlerts_SetAlert(DIM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -425,7 +434,6 @@ static void MX_CAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN1_Init 2 */
 }
 
@@ -451,7 +459,6 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -502,7 +509,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : TEST_PIN_Pin BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin
                              DCM_BLUE_Pin DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin
@@ -537,18 +544,22 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(REGEN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMD_LED_Pin BSPD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
+    /*Configure GPIO pins : BSPD_LED_Pin IMD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
                              IGNTN_LED_Pin */
-    GPIO_InitStruct.Pin   = IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
+    GPIO_InitStruct.Pin   = BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin
-                             DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
-    GPIO_InitStruct.Pin =
-        AUX_IN_Pin | IGNTN_IN_Pin | DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
+    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin */
+    GPIO_InitStruct.Pin  = AUX_IN_Pin | IGNTN_IN_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
+    GPIO_InitStruct.Pin  = DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -688,9 +699,12 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
-        Io_CanTx_Enqueue1HzMsgs();
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

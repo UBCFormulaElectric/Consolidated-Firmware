@@ -15,7 +15,9 @@
     (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define MIN3(x, y, z) (min(min((x),(y)),(z)))
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN3(x, y, z) (MIN(MIN((x),(y)),(z)))
+#define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 
 #define CLAMP(x, min, max) ((x) > (max) ? (max) : ((x) < (min) ? (min) : (x)))
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
@@ -43,3 +45,8 @@
 
 
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
+
+#define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
+
+#define PI (3.1415926f)
+#define RAD_TO_DEG(r) (r * 180.0f / PI)

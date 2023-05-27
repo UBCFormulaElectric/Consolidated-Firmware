@@ -9,7 +9,5 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct GsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    App_CanTx_GSM_Vitals_Heartbeat_Set(true);
 }

@@ -1,7 +1,7 @@
 {
     "DCM_Vitals": {
         "msg_id": 203,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "DCM Heartbeat signal",
         "signals": {
             "Heartbeat": {
@@ -130,10 +130,10 @@
             }
         }
     },
-    "DCM_Warnings": {
+    "DCM_AlertsContext": {
         "msg_id": 204,
         "cycle_time": 1000,
-        "description": "Warning flags for DCM",
+        "description": "Context info for DCM alerts",
         "signals": {
             "TxOverflowCount": {
                 "bits": 8
@@ -141,26 +141,107 @@
             "RxOverflowCount": {
                 "bits": 8
             },
-            "StackWatermarkAboveThresholdTask1Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask1kHz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanRx": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
+            }
+        }
+    },
+    "DCM_EllipseImuStatus": {
+        "msg_id": 208,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "GeneralStatusBitmask": {
+                "bits": 16
             },
-            "MissingHeartbeat": {
-                "bits": 1
+            "ComStatusBitmask": {
+                "bits": 32
+            }
+        }
+    },
+    "DCM_EllipseImuTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+            "Timestamp": {
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
+    "DCM_EllipseImuAcceleration": {
+        "msg_id": 205,
+        "cycle_time": 10,
+        "description": "Acceleration from the SBG Ellipse N sensor.",
+        "signals": {
+            "Forward": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "Lateral": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "Vertical": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "DCM_EllipseImuAngularVelocity": {
+        "msg_id": 206,
+        "cycle_time": 10,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+            "Roll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Pitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "Yaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "DCM_EllipseImuEulerAngles": {
+        "msg_id": 207,
+        "cycle_time": 10,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "Roll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "Pitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "Yaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
             }
         }
     },

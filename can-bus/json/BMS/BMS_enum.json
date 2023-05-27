@@ -15,6 +15,11 @@
     "IMD_CONDITION_GROUND_FAULT": 5,
     "IMD_CONDITION_INVALID": 6
   },
+  "ImdActiveFrequency":
+  {
+    "IMD_10Hz": 0,
+    "IMD_20Hz": 1
+  },
   "ContactorState": {
     "CONTACTOR_STATE_OPEN": 0,
     "CONTACTOR_STATE_CLOSED": 1

@@ -1,7 +1,7 @@
 {
     "DIM_Vitals": {
         "msg_id": 502,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "DIM vitals message.",
         "signals": {
             "Heartbeat": {
@@ -25,24 +25,18 @@
             }
         }
     },
-    "DIM_Errors": {
-        "msg_id": 504,
+    "DIM_AlertsContext": {
+        "msg_id": 505,
         "cycle_time": 1000,
-        "description": "Errors on the DIM.",
+        "description": "Context info for DIM alerts",
         "signals": {
             "TxOverflowCount": {
                 "bits": 8
             },
             "RxOverflowCount": {
                 "bits": 8
-            }
-        }
-    },
-    "DIM_WatchdogTimeout": {
-        "msg_id": 505,
-        "description": "Aperiodic message sent when watchdog is tripped.",
-        "signals": {
-            "TaskName": {
+            },
+            "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
             }
         }

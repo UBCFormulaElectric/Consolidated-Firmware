@@ -5,6 +5,7 @@
         "FSM_Apps",
         "FSM_Steering",
         "FSM_Wheels",
+        "FSM_Brake",
         "DIM_Vitals",
         "DIM_Switches",
         "INVL_InternalStates",
@@ -14,6 +15,7 @@
         "BMS_AvailablePower",
         "INVL_Temperatures3",
         "INVR_Temperatures3",
-        "BMS_TractiveSystem"
+        "BMS_TractiveSystem",
+        "Debug_CanModes"
     ]
 }

@@ -1,6 +1,7 @@
 #include <tgmath.h>
 #include "Io_AcceleratorPedals.h"
 #include "Io_Adc.h"
+#include "App_SharedMacros.h"
 
 // TODO: Change these lengths
 // Constant used to compute gamma (cosine law)
@@ -25,19 +26,20 @@
 #define MIN_PEDAL_VOLTAGE (0.5f)
 #define MAX_PEDAL_VOLTAGE (3.1f)
 
+// NONLINEAR APPROXIMATION
+#define FULLY_UNPRESSED_POT_LENGTH_MM (212.2f)
+#define FULLY_PRESSED_POT_LENGTH_MM (165.6f)
+
 float Io_AcceleratorPedals_GetPapps(void)
 {
     // Length calculated via voltage
     float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_2);
-    const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+    const float pot_len_mm    = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
-    // Compute the angle relative to the y-axis with cosine law
-    const float pedal_travel_angle =
-        ((float)M_PI_2 -
-         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
-
-    float primary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
-    return primary_angle / 30.0f * 100.0f;
+    // Calculate pedal percentage
+    float pedal_percentage = (pot_len_mm - FULLY_UNPRESSED_POT_LENGTH_MM) /
+                             (FULLY_PRESSED_POT_LENGTH_MM - FULLY_UNPRESSED_POT_LENGTH_MM) * 100.0f;
+    return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
 bool Io_AcceleratorPedals_PappsOCSC(void)
 {
@@ -48,8 +50,16 @@ bool Io_AcceleratorPedals_PappsOCSC(void)
 float Io_AcceleratorPedals_GetSapps(void)
 {
     // TODO implement IO functionality
-    float pedal_voltage   = 0.5f;
-    float secondary_angle = (float)M_PI;
+    // Length calculated via voltage
+    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+    const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+
+    // Compute the angle relative to the y-axis with cosine law
+    const float pedal_travel_angle =
+        ((float)M_PI_2 -
+         (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
+
+    float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
     return secondary_angle / 30.0f * 100.0f;
 }
 bool Io_AcceleratorPedals_SappsOCSC(void)

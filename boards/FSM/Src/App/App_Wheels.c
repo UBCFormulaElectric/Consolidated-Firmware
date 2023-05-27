@@ -48,16 +48,19 @@ struct InRangeCheck *App_Wheels_GetRightWheelSpeedInRange(const struct Wheels *w
 
 void App_Wheels_Broadcast(const struct FsmWorld *world)
 {
-    struct Wheels *wheels = App_FsmWorld_GetWheels(world);
-
+    struct Wheels *      wheels                           = App_FsmWorld_GetWheels(world);
     struct InRangeCheck *left_wheel_speed_in_range_check  = App_Wheels_GetLeftWheelSpeedInRange(wheels);
     struct InRangeCheck *right_wheel_speed_in_range_check = App_Wheels_GetRightWheelSpeedInRange(wheels);
 
-    App_SetPeriodicCanSignals_InRangeCheck_float(
-        left_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_LeftWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_LeftWheelSpeedOutOfRange_Set);
+    float                    left_wheel_speed;
+    enum InRangeCheck_Status left_wheel_status =
+        App_InRangeCheck_GetValue(left_wheel_speed_in_range_check, &left_wheel_speed);
+    App_CanTx_FSM_Wheels_LeftWheelSpeed_Set(left_wheel_speed);
+    App_CanAlerts_SetWarning(FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE, left_wheel_status != VALUE_IN_RANGE);
 
-    App_SetPeriodicCanSignals_InRangeCheck_float(
-        right_wheel_speed_in_range_check, App_CanTx_FSM_Wheels_RightWheelSpeed_Set,
-        (void (*)(uint8_t))App_CanTx_FSM_Warning_RightWheelSpeedOutOfRange_Set);
+    float                    right_wheel_speed;
+    enum InRangeCheck_Status right_wheel_status =
+        App_InRangeCheck_GetValue(right_wheel_speed_in_range_check, &right_wheel_speed);
+    App_CanTx_FSM_Wheels_RightWheelSpeed_Set(right_wheel_speed);
+    App_CanAlerts_SetWarning(FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE, right_wheel_status != VALUE_IN_RANGE);
 }

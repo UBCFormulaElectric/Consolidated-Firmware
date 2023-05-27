@@ -6,6 +6,7 @@
 #include "torquevectoring/App_TorqueVectoring.h"
 
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
+#define EFFICIENCY_ESTIMATE (0.80f)
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -20,6 +21,9 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
 
     App_TorqueVectoring_Setup();
+    // Set inverter directions.
+    App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
+    App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -33,7 +37,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_TorqueVectoring_Run();
 
-        if (!App_IsStartSwitchOn())
+        if (!App_IsStartSwitchOn() || !App_IsBmsInDriveState())
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
