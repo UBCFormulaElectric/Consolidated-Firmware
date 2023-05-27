@@ -9,6 +9,7 @@
             },
             "State": {
                 "enum": "DimState"
+
             }
         }
     },
@@ -40,5 +41,22 @@
                 "enum": "RtosTaskName"
             }
         }
+    },"DIM_RotarySwitch": {
+        "msg_id": 504,
+        "cycle_time": 100,
+        "description": "Set integer value to the switch position",
+        "signals": {
+            "Position": {
+                "bits": 4,
+                "min": 1,
+                "max": 12
+        },
+            "IsValid": {
+                "bits": 1,
+                "min": 0,
+                "max": 1
+            }
+
     }
+}
 }

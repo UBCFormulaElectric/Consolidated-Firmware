@@ -27,12 +27,13 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
-
+    struct RotarySwitch *    drive_mode_switch  = App_DimWorld_GetDriveModeSwitch(world);
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
     if (!App_CanRx_BMS_OkStatuses_ImdOk_Get())
     {
         App_Led_TurnOn(imd_led);
+
     }
     else
     {
@@ -60,8 +61,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
     const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
+    uint32_t pos;
+    pos = App_RotarySwitch_GetSwitchPosition(drive_mode_switch,&pos);
+    const bool is_valid  = App_RotarySwitch_IsValid(drive_mode_switch);
+
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
+
+    App_CanTx_DIM_RotarySwitch_Position_Set((float) pos);
+    App_CanTx_DIM_RotarySwitch_IsValid_Set(is_valid ? SWITCH_ON : SWITCH_OFF);
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
