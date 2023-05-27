@@ -46,8 +46,8 @@ static float steering_angle_deg;
  * NEW: parameters for enabling/disabling power limiting and active differential
  */
 static bool run_power_limiting      = true;
-static bool run_active_differential = true;
-static bool run_regen               = true;
+static bool run_active_differential = false;
+static bool run_regen               = false;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -75,7 +75,7 @@ void App_TorqueVectoring_Run(void)
     available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     steering_angle_deg         = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
-    if (accelerator_pedal_percent > 0.1f)
+    if (accelerator_pedal_percent > 0.0f)
     {
         App_TorqueVectoring_HandleAcceleration();
     }
@@ -110,6 +110,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     {
         estimated_power_limit = available_battery_power_kW;
     }
+    App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set((float)estimated_power_limit);
 
     // Power limit correction
 
@@ -138,7 +139,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     else
     {
         torque_request_no_differential =
-            MIN(available_battery_power_kW / (motor_speed_right_rpm + motor_speed_left_rpm), MOTOR_TORQUE_LIMIT_Nm);
+            MIN(accelerator_pedal_percent * available_battery_power_kW, MOTOR_TORQUE_LIMIT_Nm);
         App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(torque_request_no_differential);
         App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(torque_request_no_differential);
     }
@@ -156,7 +157,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // traction_control_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
     // App_TractionControl_ComputeTorque(&traction_control_inputs, &traction_control_outputs);
 
-    // Inverter Torque Requests
+    // Inverter Torque Request
     /**
      * FEED ACTIVE_DIFFERENTIAL_INPUTS TO INVERTERS, BYPASS TRACTION CONTROL
      */
@@ -198,13 +199,16 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
 void App_TorqueVectoring_HandleRegen(void)
 {
-    if (run_regen) { // Run Regen
+    if (run_regen)
+    { // Run Regen
         regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
         regen_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
         App_Regen_ComputeTorque(&regen_inputs, &regen_outputs);
         App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_left_Nm);
         App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_right_Nm);
-    } else { // No regen
+    }
+    else
+    { // No regen
         App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0);
         App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0);
     }
