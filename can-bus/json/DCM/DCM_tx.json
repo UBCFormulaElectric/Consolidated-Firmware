@@ -388,17 +388,17 @@
             }
         }
     },
-    "DCM_DEBUG_ComputedPowerLimit": {
+    "DCM_DEBUG_PowerLimit": {
         "msg_id": 215,
         "cycle_time": 10,
-        "description": "Debug Power Messages",
+        "description": "Debug Power Messages for Power Limit ",
         "signals": {
             "PowerLimit": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
             }, 
-            "PowerLimit_WhenPedalFullyPressed": {
+            "PowerLimit_AtFullThrottle": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1

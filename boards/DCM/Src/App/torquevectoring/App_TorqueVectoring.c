@@ -85,7 +85,7 @@ void App_TorqueVectoring_Run(void)
         App_TorqueVectoring_HandleRegen();
     }
 }
-
+    // Read data from CAN
 void App_TorqueVectoring_HandleAcceleration(void)
 {
     // Reset control loops if timeout elapsed
@@ -138,10 +138,15 @@ void App_TorqueVectoring_HandleAcceleration(void)
     }
     else
     {
-        torque_request_no_differential =
-            MIN(accelerator_pedal_percent * available_battery_power_kW, MOTOR_TORQUE_LIMIT_Nm);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(torque_request_no_differential);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(torque_request_no_differential);
+        torque_request_no_differential = App_ActiveDifferential_PowerToTorque( 
+            power_limit, 
+            motor_speed_left_rpm, 
+            motor_speed_right_rpm, 
+            0.5,
+            0.5
+        );
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(0.5*torque_request_no_differential);
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(0.5*torque_request_no_differential);
     }
 
     /**
