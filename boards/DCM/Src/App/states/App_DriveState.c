@@ -11,11 +11,11 @@
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
-    const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
+    const float right_motor_speed_rpm = -(float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
-    if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
+    if (false)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
         const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;

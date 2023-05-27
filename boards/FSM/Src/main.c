@@ -209,8 +209,8 @@ int main(void)
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetPapps,
-        Io_AcceleratorPedals_PappsOCSC);
+        Io_AcceleratorPedals_GetSapps, Io_AcceleratorPedals_SappsOCSC, Io_AcceleratorPedals_GetSapps,
+        Io_AcceleratorPedals_SappsOCSC);
 
     brake = App_Brake_Create(
         Io_Brake_GetFrontPressurePsi, Io_Brake_FrontPressureSensorOCSC, Io_Brake_GetRearPressurePsi,
