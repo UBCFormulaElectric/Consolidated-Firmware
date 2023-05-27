@@ -398,7 +398,7 @@
                 "max": 120,
                 "resolution": 0.1
             }, 
-            "PowerLimit_AtFullThrottle": {
+            "PowerLimitAtFullThrottle": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1

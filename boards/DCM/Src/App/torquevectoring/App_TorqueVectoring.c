@@ -114,11 +114,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
     }
 
     // Power limit correction
-
-    /**
-     * SKIP POWER LIMIT CORRECTION FOR NOW
-     */
-
     float power_limit = 0;
     if (run_power_limiting_feedback) {
         power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
@@ -127,11 +122,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     }
 
     // Active Differential
-    /**
-     * TORQUE REQUEST IN CASE OF NOT USING DIFFERENTIAL - OTHERWISE IS NOT SET AND NOT USED
-     */
     float torque_request_no_differential = 0;
-
     if (run_active_differential)
     {
         active_differential_inputs.power_max_kW          = power_limit;
@@ -145,20 +136,14 @@ void App_TorqueVectoring_HandleAcceleration(void)
     else
     {
         torque_request_no_differential = App_ActiveDifferential_PowerToTorque( 
-            power_limit, 
-            motor_speed_left_rpm, 
-            motor_speed_right_rpm, 
-            0.5,
-            0.5
-        );
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(0.5*torque_request_no_differential);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(0.5*torque_request_no_differential);
+            power_limit, motor_speed_left_rpm, motor_speed_right_rpm, 0.5, 0.5);
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set((float)(0.5*(double)torque_request_no_differential));
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set((float)(0.5*(double)torque_request_no_differential));
     }
 
     /**
      * SKIP TRACTION CONTROL FOR NOW
      */
-
     // Traction Control
     // traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
     // traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
@@ -169,10 +154,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // App_TractionControl_ComputeTorque(&traction_control_inputs, &traction_control_outputs);
 
     // Inverter Torque Request
-    /**
-     * FEED ACTIVE_DIFFERENTIAL_INPUTS TO INVERTERS, BYPASS TRACTION CONTROL
-     */
-
     float torque_left_final_Nm;
     float torque_right_final_Nm;
     if (run_active_differential)
@@ -194,8 +175,13 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Calculate power correction PID
     if (run_power_limiting_feedback) {
         float power_consumed_measured = battery_voltage * current_consumption;
-        float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
-                                    motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
+        // TODO: Change this to use the traction control outputs
+        
+        // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
+        //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
+        //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
+        float power_consumed_ideal    = (motor_speed_left_rpm * torque_left_final_Nm +
+                                    motor_speed_right_rpm * torque_right_final_Nm) /
                                     POWER_TO_TORQUE_CONVERSION_FACTOR;
         float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
         pid_power_correction_factor -=
@@ -208,8 +194,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
         App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
         App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
     }
-
-    }
+}
 
 void App_TorqueVectoring_HandleRegen(void)
 {

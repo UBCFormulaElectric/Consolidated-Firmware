@@ -2,6 +2,8 @@
 #include "torquevectoring/App_PowerLimiting.h"
 #include "torquevectoring/App_TorqueVectoring.h"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 
 /**
  * @note Computes the max allowable power draw from the battery based on motor temps,
@@ -33,10 +35,10 @@ float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
     float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);
-    App_CanTx_DCM_Debug_PowerLimit_PowerLimit_AtFullThrottle_Set(P_max_full_throttle);
+    App_CanTx_DCM_DEBUG_PowerLimit_PowerLimitAtFullThrottle_Set((float)P_max_full_throttle);
 
     float P_max = fminf(P_max_full_throttle, P_max_accelerator);
-    App_CanTx_DCM_Debug_PowerLimit_PowerLimit(P_max);
+    App_CanTx_DCM_DEBUG_PowerLimit_PowerLimit_Set((float)P_max);
 
     return P_max;
 }
