@@ -8,5 +8,15 @@
                 "bits": 1
             }
         }
+    },
+    "Debug_CellBalancing": {
+        "msg_id": 702,
+        "cycle_time": 1000,
+        "description": "Signals related to BMS cell balancing.",
+        "signals": {
+            "RequestCellBalancing": {
+                "bits": 1
+            }
+        }
     }
 }

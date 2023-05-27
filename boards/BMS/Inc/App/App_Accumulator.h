@@ -174,3 +174,10 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @return True if faults present, false otherwise
  */
 bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts);
+
+/**
+ * Enable or disable cell balancing.
+ * @param accumulator The accumulator to check faults
+ * @param enabled Whether or not to enable balancing
+ */
+void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled);

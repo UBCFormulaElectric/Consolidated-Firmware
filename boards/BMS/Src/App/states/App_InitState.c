@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
+#include "states/App_BalancingState.h"
 #include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
 
@@ -42,7 +43,13 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            if (App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get())
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
+            }
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
         }
     }
 }

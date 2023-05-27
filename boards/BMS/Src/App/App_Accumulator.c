@@ -397,3 +397,8 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
+
+void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)
+{
+
+}
