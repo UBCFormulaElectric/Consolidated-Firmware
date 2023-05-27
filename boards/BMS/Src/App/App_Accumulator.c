@@ -64,9 +64,10 @@ struct Accumulator
     float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Balancing information
+    bool     discharge_enabled;
     bool     cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
     uint32_t discharge_pwm_ticks;
-    bool     mute_discharge;
+    bool     discharge_pwm_high;
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -143,6 +144,50 @@ static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumu
     }
 }
 
+/**
+ * Balance cells.
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
+{
+    if (!accumulator->discharge_enabled)
+    {
+        accumulator->disable_discharge();
+        return;
+    }
+
+    // Write to configuration register to configure cell discharging
+    App_Accumulator_CalculateCellsToDischarge(accumulator);
+    accumulator->write_cfg_registers(accumulator->cells_to_discharge);
+
+    if (accumulator->discharge_pwm_high)
+    {
+        // Enable cell discharging
+        accumulator->enable_discharge();
+        accumulator->discharge_pwm_ticks += 1;
+
+        if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
+        {
+            // Cell discharging enabled duty cycle portion is finished
+            accumulator->discharge_pwm_high  = false;
+            accumulator->discharge_pwm_ticks = 0;
+        }
+    }
+    else
+    {
+        // Disable cell discharging
+        accumulator->disable_discharge();
+        accumulator->discharge_pwm_ticks += 1;
+
+        if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
+        {
+            // Cell discharging disabled duty cycle portion is finished
+            accumulator->discharge_pwm_high  = true;
+            accumulator->discharge_pwm_ticks = 0;
+        }
+    }
+}
+
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
@@ -181,7 +226,8 @@ struct Accumulator *App_Accumulator_Create(
     // Balancing information
     memset(&accumulator->cells_to_discharge, 0U, sizeof(accumulator->cells_to_discharge));
     accumulator->discharge_pwm_ticks = 0;
-    accumulator->mute_discharge      = false;
+    accumulator->discharge_enabled   = false;
+    accumulator->discharge_pwm_high  = false;
 
     accumulator->enable_discharge  = enable_discharge;
     accumulator->disable_discharge = disable_discharge;
@@ -309,38 +355,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             // Calculate min/max/segment voltages
             App_Accumulator_CalculateVoltageStats(accumulator);
 
-            // Find cells to discharge
-            App_Accumulator_CalculateCellsToDischarge(accumulator);
-
-            // Write to configuration register to configure cell discharging
-            accumulator->write_cfg_registers(accumulator->cells_to_discharge);
-
-            if (accumulator->mute_discharge)
-            {
-                // Disable cell discharging
-                accumulator->disable_discharge();
-                accumulator->discharge_pwm_ticks += 1;
-
-                if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
-                {
-                    // Cell discharging disabled duty cycle portion is finished
-                    accumulator->mute_discharge      = false;
-                    accumulator->discharge_pwm_ticks = 0;
-                }
-            }
-            else
-            {
-                // Enable cell discharging
-                accumulator->enable_discharge();
-                accumulator->discharge_pwm_ticks += 1;
-
-                if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
-                {
-                    // Cell discharging enabled duty cycle portion is finished
-                    accumulator->mute_discharge      = true;
-                    accumulator->discharge_pwm_ticks = 0;
-                }
-            }
+            // Configure cell balancing
+            App_Accumulator_BalanceCells(accumulator);
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
@@ -400,5 +416,5 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 
 void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)
 {
-
+    accumulator->discharge_enabled = enabled;
 }
