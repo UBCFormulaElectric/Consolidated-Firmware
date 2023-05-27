@@ -72,7 +72,8 @@ void App_TorqueVectoring_Run(void)
     left_motor_temp_C           = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
     right_motor_temp_C          = App_CanRx_INVR_Temperatures3_MotorTemperature_Get();
     // TODO (akoen): Available power will soon be replaced by current + voltage messages
-    available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    // available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    available_battery_power_kW = 44.0f; // Tentative
     steering_angle_deg         = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
     if (accelerator_pedal_percent > 0.0f)
