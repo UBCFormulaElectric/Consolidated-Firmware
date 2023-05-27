@@ -47,6 +47,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
             }
+            else
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }

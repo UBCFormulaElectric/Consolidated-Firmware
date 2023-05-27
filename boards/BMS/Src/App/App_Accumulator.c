@@ -418,3 +418,8 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
 {
     accumulator->discharge_enabled = enabled;
 }
+
+bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
+{
+    return accumulator->discharge_enabled;
+}
