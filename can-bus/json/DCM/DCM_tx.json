@@ -378,12 +378,29 @@
         "signals": {
             "TorqueLeft": {
                 "min": 0,
-                "max": 90,
+                "max": 100,
                 "resolution": 0.1
             },
             "TorqueRight": {
                 "min": 0,
-                "max": 90,
+                "max": 100,
+                "resolution": 0.1
+            }
+        }
+    },
+    "DCM_DEBUG_ComputedPowerLimit": {
+        "msg_id": 215,
+        "cycle_time": 10,
+        "description": "Debug Power Messages",
+        "signals": {
+            "PowerLimit": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            }, 
+            "PowerLimit_WhenPedalFullyPressed": {
+                "min": 0,
+                "max": 120,
                 "resolution": 0.1
             }
         }
