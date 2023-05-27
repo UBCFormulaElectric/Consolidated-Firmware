@@ -66,7 +66,7 @@ void App_TorqueVectoring_Run(void)
     wheel_speed_front_left_kph  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     wheel_speed_front_right_kph = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-    motor_speed_right_rpm       = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
+    motor_speed_right_rpm       = -1*(float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     battery_voltage             = App_CanRx_BMS_TractiveSystem_TsVoltage_Get();
     current_consumption         = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
     left_motor_temp_C           = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
