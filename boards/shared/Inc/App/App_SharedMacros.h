@@ -18,8 +18,6 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN3(x, y, z) (MIN(MIN((x),(y)),(z)))
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
-
-#define CLAMP(x, min, max) ((x) > (max) ? (max) : ((x) < (min) ? (min) : (x)))
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 
 #define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))

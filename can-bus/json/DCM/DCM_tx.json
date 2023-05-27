@@ -246,7 +246,7 @@
         }
     },
     "DCM_DEBUG_Power": {
-        "msg_id": 205,
+        "msg_id": 210,
         "cycle_time": 10,
         "description": "Debug Power Messages",
         "signals": {
@@ -263,7 +263,7 @@
         }
     },
     "DCM_DEBUG_PIDPowerEstimate": {
-        "msg_id": 206,
+        "msg_id": 211,
         "cycle_time": 10,
         "description": "Debug messages for the PID power estimate controller",
         "signals": {
@@ -306,7 +306,7 @@
         }
     },
     "DCM_DEBUG_PIDSlipRatio": {
-        "msg_id": 207,
+        "msg_id": 212,
         "cycle_time": 10,
         "description": "Debug messages for the PID slip ratio controller",
         "signals": {
@@ -349,7 +349,7 @@
         }
     },
     "DCM_DEBUG_WheelTraction": {
-        "msg_id": 208,
+        "msg_id": 213,
         "cycle_time": 10,
         "description": "Debug Messages for the Traction Control component of Torque Vectoring",
         "signals": {
@@ -372,7 +372,7 @@
         }
     },
     "DCM_DEBUG_ActiveDiff": {
-        "msg_id": 209,
+        "msg_id": 214,
         "cycle_time": 10,
         "description": "Debug Messages for the Active Differential component of Torque Vectoring",
         "signals": {

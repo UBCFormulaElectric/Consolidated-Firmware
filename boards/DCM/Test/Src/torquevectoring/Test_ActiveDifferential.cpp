@@ -33,7 +33,7 @@ TEST_F(ActiveDifferentialTest, max_power)
     struct ActiveDifferential_Inputs  active_diff_inputs_t1;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t1;
     float                             wheel_angle_t1 = 30.0;
-    float                             wheel_speed_left_rpm_t1 = 135, wheel_speed_right_rpm_t1 = 135; // 135 rpm corresponds to about 30 mph
+    float wheel_speed_left_rpm_t1 = 135, wheel_speed_right_rpm_t1 = 135; // 135 rpm corresponds to about 30 mph
     active_diff_inputs_t1 = { wheel_angle_t1, wheel_speed_left_rpm_t1, wheel_speed_right_rpm_t1, POWER_LIMIT_CAR_kW };
     App_ActiveDifferential_ComputeTorque(&active_diff_inputs_t1, &actual_active_diff_outputs_t1);
     float delta_t1  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t1)) / (2 * WHEELBASE_mm);
@@ -67,7 +67,7 @@ TEST_F(ActiveDifferentialTest, no_power)
     struct ActiveDifferential_Inputs  active_diff_inputs_t2;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t2;
     float                             wheel_angle_t2 = 30.0;
-    float                             wheel_speed_left_rpm_t2 = 135, wheel_speed_right_rpm_t2 = 135; // 135 rpm corresponds to about 30 mph
+    float wheel_speed_left_rpm_t2 = 135, wheel_speed_right_rpm_t2 = 135; // 135 rpm corresponds to about 30 mph
     active_diff_inputs_t2 = { wheel_angle_t2, wheel_speed_left_rpm_t2, wheel_speed_right_rpm_t2, 0.0 };
     App_ActiveDifferential_ComputeTorque(&active_diff_inputs_t2, &actual_active_diff_outputs_t2);
     float expected_torque_left_t2 = 0.0, expected_torque_right_t2 = 0.0;
@@ -80,8 +80,8 @@ TEST_F(ActiveDifferentialTest, turning_right)
     struct ActiveDifferential_Inputs  active_diff_inputs_t3;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t3;
     float                             wheel_angle_t3 = 30.0;
-    float                             wheel_speed_left_rpm_t3 = 135, wheel_speed_right_rpm_t3 = 135; // 135 rpm corresponds to about 30 mph
-    float                             power_lim_t3 = 60.0;
+    float wheel_speed_left_rpm_t3 = 135, wheel_speed_right_rpm_t3 = 135; // 135 rpm corresponds to about 30 mph
+    float power_lim_t3    = 60.0;
     active_diff_inputs_t3 = { wheel_angle_t3, wheel_speed_left_rpm_t3, wheel_speed_right_rpm_t3, power_lim_t3 };
     App_ActiveDifferential_ComputeTorque(&active_diff_inputs_t3, &actual_active_diff_outputs_t3);
     float delta_t3  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t3)) / (2 * WHEELBASE_mm);
@@ -110,8 +110,8 @@ TEST_F(ActiveDifferentialTest, turning_left)
     struct ActiveDifferential_Inputs  active_diff_inputs_t4;
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t4;
     float                             wheel_angle_t4 = -30.0;
-    float                             wheel_speed_left_rpm_t4 = 135, wheel_speed_right_rpm_t4 = 135; // 135 rpm corresponds to about 30 mph
-    float                             power_lim_t4 = 60.0;
+    float wheel_speed_left_rpm_t4 = 135, wheel_speed_right_rpm_t4 = 135; // 135 rpm corresponds to about 30 mph
+    float power_lim_t4    = 60.0;
     active_diff_inputs_t4 = { wheel_angle_t4, wheel_speed_left_rpm_t4, wheel_speed_right_rpm_t4, power_lim_t4 };
     App_ActiveDifferential_ComputeTorque(&active_diff_inputs_t4, &actual_active_diff_outputs_t4);
     float delta_t4  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t4)) / (2 * WHEELBASE_mm);

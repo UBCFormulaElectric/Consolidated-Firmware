@@ -162,11 +162,14 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    if (run_active_differential) {
+    if (run_active_differential)
+    {
         torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
         torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
-    } else {
-        torque_left_final_Nm = torque_request_no_differential;
+    }
+    else
+    {
+        torque_left_final_Nm  = torque_request_no_differential;
         torque_right_final_Nm = torque_request_no_differential;
     }
     // CLAMPS for safety only - should never exceed torque limit
