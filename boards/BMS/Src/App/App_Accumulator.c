@@ -180,10 +180,9 @@ static void App_Accumulator_InterpretOpenWireCheck(struct Accumulator *accumulat
             // * V_PD(N) is pull-down voltage of cell N, i.e. voltages read back after ADOW with PUP set to 0
 
             // TODO: THIS IS WRONG! The +1 is unnecessary
-            // In the LTC datasheet, where this algorithm is from, cell 1 (first cell) connects to C1 on positive terminal
-            // In our code, cell 1's voltage is read back at index 0
-            // Also this index "cell" shouldn't actually be the cell, it should be the pin index C0, C1, etc. since 
-            // that is what can actually go open wire.
+            // In the LTC datasheet, where this algorithm is from, cell 1 (first cell) connects to C1 on positive
+            // terminal In our code, cell 1's voltage is read back at index 0 Also this index "cell" shouldn't actually
+            // be the cell, it should be the pin index C0, C1, etc. since that is what can actually go open wire.
             const float n_plus_1_pu_voltage = accumulator->open_wire_pu_voltages[segment][cell + 1];
             const float n_plus_1_pd_voltage = accumulator->open_wire_pd_voltages[segment][cell + 1];
             const bool  cell_open = (n_plus_1_pu_voltage - n_plus_1_pd_voltage) < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
