@@ -111,8 +111,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
     {
         estimated_power_limit = available_battery_power_kW;
     }
-    App_CanTx_DCM_DEBUG_ComputedPowerLimit_PowerLimit_Set((float)estimated_power_limit);
-    App_CanTx_DCM_DEBUG_ComputedPowerLimit_PowerLimitWhenPedalFullyPressed_Set((float)estimated_power_limit);
 
     // Power limit correction
 

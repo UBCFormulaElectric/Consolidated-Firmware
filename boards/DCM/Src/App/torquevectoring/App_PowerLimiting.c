@@ -31,6 +31,12 @@ float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
     // 3. Pedal percentage
     float P_max_accelerator = inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
 
-    // =========== Take min of max powers ==================
-    return fminf(P_max_motor_temps, fminf(P_max_battery, P_max_accelerator));
+    // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
+    float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);
+    App_CanTx_DCM_Debug_PowerLimit_PowerLimit_AtFullThrottle_Set(P_max_full_throttle);
+
+    float P_max = fminf(P_max_full_throttle, P_max_accelerator);
+    App_CanTx_DCM_Debug_PowerLimit_PowerLimit(P_max);
+
+    return P_max;
 }
