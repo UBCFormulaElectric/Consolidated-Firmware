@@ -6,7 +6,9 @@
 
 static void BalancingStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+    App_Accumulator_EnableBalancing(accumulator, true);
 }
 
 static void BalancingStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -33,7 +35,9 @@ static void BalancingStateRunOnTick100Hz(struct StateMachine *const state_machin
 
 static void BalancingStateRunOnExit(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+    App_Accumulator_EnableBalancing(accumulator, false);
 }
 
 const struct State *App_GetBalancingState(void)
