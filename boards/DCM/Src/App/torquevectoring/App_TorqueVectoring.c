@@ -26,7 +26,7 @@ static Regen_Outputs regen_outputs;
  */
 
 static PID pid_power_correction;
-// static float pid_power_correction_factor = 0.0f;
+static float pid_power_correction_factor = 0.0f;
 static PID pid_traction_control;
 
 static float accelerator_pedal_percent;
@@ -45,9 +45,10 @@ static float steering_angle_deg;
 /**
  * NEW: parameters for enabling/disabling power limiting and active differential
  */
-static bool run_power_limiting      = true;
-static bool run_active_differential = false;
-static bool run_regen               = false;
+static bool run_power_limiting          = true;
+static bool run_power_limiting_feedback = true;
+static bool run_active_differential     = false;
+static bool run_regen                   = false;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -117,8 +118,13 @@ void App_TorqueVectoring_HandleAcceleration(void)
     /**
      * SKIP POWER LIMIT CORRECTION FOR NOW
      */
-    // float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
-    float power_limit = estimated_power_limit;
+
+    float power_limit = 0;
+    if (run_power_limiting_feedback) {
+        power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    } else {
+        power_limit = estimated_power_limit;
+    }
 
     // Active Differential
     /**
@@ -186,21 +192,24 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_right_final_Nm);
 
     // Calculate power correction PID
-    // float power_consumed_measured = battery_voltage * current_consumption;
-    // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
-    //                               motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
-    //                              POWER_TO_TORQUE_CONVERSION_FACTOR;
-    // float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
-    // pid_power_correction_factor -=
-    //     App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
-    // pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
-    // App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set(power_consumed_measured);
-    // App_CanTx_DCM_DEBUG_Power_PowerEstimate_Set(power_consumed_estimate);
-    // App_CanTx_DCM_DEBUG_PIDPowerEstimate_Output_Set(pid_power_correction_factor);
-    // App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
-    // App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
-    // App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
-}
+    if (run_power_limiting_feedback) {
+        float power_consumed_measured = battery_voltage * current_consumption;
+        float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
+                                    motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
+                                    POWER_TO_TORQUE_CONVERSION_FACTOR;
+        float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
+        pid_power_correction_factor -=
+            App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
+        pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
+        App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set(power_consumed_measured);
+        App_CanTx_DCM_DEBUG_Power_PowerEstimate_Set(power_consumed_estimate);
+        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Output_Set(pid_power_correction_factor);
+        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
+        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
+        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
+    }
+
+    }
 
 void App_TorqueVectoring_HandleRegen(void)
 {
