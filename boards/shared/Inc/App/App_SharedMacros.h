@@ -40,6 +40,8 @@
 
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
 
+#define MIN_TO_HOUR(m) ((m) * (1/60.0f))
+
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
 #define PI (3.1415926f)

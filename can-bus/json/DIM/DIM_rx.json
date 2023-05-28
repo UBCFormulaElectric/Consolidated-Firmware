@@ -8,6 +8,9 @@
         "DCM_Vitals",
         "FSM_Warnings",
         "BMS_Contactors",
+        "INVR_MotorPositionInfo",
+        "BMS_CellVoltages",
+        "INVR_Temperatures1",
         "Debug_CanModes"
     ]
 }

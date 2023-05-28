@@ -104,7 +104,7 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = MIDDLE_R_SEVEN_SEG_DISPLAY + 1;
+    int shift = MIDDLE_R_SEVEN_SEG_DISPLAY;
     for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
     {
         digits[digits_index] = (uint8_t)(value % 10);
