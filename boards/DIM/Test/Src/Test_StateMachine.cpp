@@ -100,9 +100,9 @@ class DimStateMachineTest : public BaseStateMachineTest
         right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
 
         seven_seg_displays = App_SevenSegDisplays_Create(
-                left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
-                middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
-                right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);

@@ -67,7 +67,7 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
  * @param digits[] The array of the full 9 7-segment displays values
  * @param index The index to indicate which
  */
- void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index);
+void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_displays, uint8_t index);
 
 /**
  * Take in a base 10 value and populate it to the left most group of 7-segment displays
