@@ -115,8 +115,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     // TODO: Show something on these LEDs now that error table is gone
-    float speed_kph = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
-    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+    float speed_kph        = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
+    float gate_temp        = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
     float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     if (missing_hb)
