@@ -40,9 +40,21 @@
 
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
 
-#define MIN_TO_HOUR(m) ((m) * (1/60.0f))
+// Grab current gear ratio
+#define GEAR_RATIO (4.3f)
+
+// Convert minutes to hours
+#define MIN_TO_HOUR (60.0f)
+
+// Grab wheel diameter
+#define WHEEL_DIAMETER (16.0f)
+
+// Convert inches to kilometers
+#define INCH_TO_KM (0.0000254f)
 
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
 #define PI (3.1415926f)
 #define RAD_TO_DEG(r) (r * 180.0f / PI)
+
+#define MOTOR_RPM_TO_KMH(kmh) ((kmh) * (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO) //take rpm of whell to kph

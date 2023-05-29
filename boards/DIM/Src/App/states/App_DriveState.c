@@ -1,5 +1,6 @@
 #include <string.h>
 #include "states/App_DriveState.h"
+#include <stdlib.h>
 #include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
 
@@ -114,16 +115,10 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     // TODO: Show something on these LEDs now that error table is gone
-    float diameter = 16;
-    float gear_ratio_inv = 0.232f; //gear ration 4.3 inverted == 1/4.3
-    float inch_km = 0.0000254f;
-    float speed_kpm = diameter*PI*gear_ratio_inv*inch_km*(float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get());
-    float speed_kph = 60*speed_kpm;
-
+    float speed_kph = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
     float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
-
-    float min_cell_voltage  = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
     if (missing_hb)
     {
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
@@ -132,7 +127,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, (uint32_t)(min_cell_voltage*100));
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, (uint32_t)(min_cell_voltage * 100));
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, (uint32_t)gate_temp);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, (uint32_t)speed_kph);
     }
