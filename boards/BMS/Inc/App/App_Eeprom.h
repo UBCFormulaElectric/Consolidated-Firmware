@@ -74,14 +74,27 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
 EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t current_address);
 
 /**
- * Read the stored 4 copies of adress from EEPROM
+ * Read stored copies of last SOC address and perform error checking
  * @param eeprom Eeprom to erase a page from
- * @param addresses array of 4 addresses to be chosen from. Should all contain same value but may not due to
- * data-corruption in EEPROM
- * @return EEPROM_StatusTypeDef returns success status for debug
+ * @param address address where stored SOC values can be found
+ * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
  */
 ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address);
 
+/**
+ * Write SOC value of cell with lowest voltage to EEPROM (writes 4 identical copies to protect against data corruption)
+ * @param eeprom EEPROM to write SOC to
+ * @param min_soc value of current min_soc to write
+ * @param address page on EEPROM to store soc
+ * @return EEPROM_StatusTypeDef returns status of write operation
+ */
 EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc, uint16_t address);
 
+/**
+ * Read previous SOC value of cell with lowest voltage to EEPROM and perform error checking
+ * @param eeprom
+ * @param address
+ * @param min_soc
+ * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
+ */
 ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *min_soc);

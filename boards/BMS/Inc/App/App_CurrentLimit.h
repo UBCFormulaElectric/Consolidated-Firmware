@@ -7,7 +7,7 @@
 
 /**
  * Gets the the minimum discharge current limit
- * @param accumulator the accumulator object
+ * @param accumulator accumulator object for retrieving cell information
  * @param soc_stats the soc status of each series element
  * @return the discharge current limit
  */
@@ -15,23 +15,30 @@ float App_CurrentLimit_GetDischargeLimit(struct Accumulator *accumulator, struct
 
 /**
  * Gets the the minimum charge current limit
- * @param none
+ * @param accumulator accumulator object for retrieving cell information
+ * @param soc_stats the soc status of each series element
  * @return the charge current limit
  */
 float App_CurrentLimit_GetChargeLimit(struct Accumulator *accumulator, struct SocStats *soc_stats);
 
 /**
- * Gets the the appropriate discharge current limit
- * @param max_cell_temp the max temp of all series elements
+ * Gets the the temperature based discharge limit
+ * @param max_cell_temp temp of hottest series element
  * @return the discharge current limit
  */
 float App_CurrentLimit_CalculateTempBasedDischargeLimit(float max_cell_temp);
 
 /**
- * Gets the the appropriate discharge current limit
+ * Gets the the SOC based discharge limit
  * @param soc_stats the soc status of each series element
- * @return the charge current limit
+ * @return the discharge current limit
  */
 float App_CurrentLimit_CalculateLowCellVoltageClampDischargeLimit(struct SocStats *soc_stats);
 
+/**
+ * Gets the SOC based charge current limit
+ * @param Vmax the max cell voltage of the accumulator
+ * @param soc_stats the soc status of each series element
+ * @return the charge current limit
+ */
 float App_CurrentLimit_CalculateHighCellVoltageClampChargeLimit(float Vmax, struct SocStats *soc_stats);

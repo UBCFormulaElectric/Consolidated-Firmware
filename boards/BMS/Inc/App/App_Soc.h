@@ -75,7 +75,13 @@ struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_ad
  */
 void App_SocStats_Destroy(struct SocStats *soc_stats);
 
+/**
+ * Return the active address on the EEPROM where SOC values are being stored
+ * @param soc_stats soc_stats object to retrieve address from
+ * @return page being used to store SOC values
+ */
 uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
+
 /**
  * Update the state of charge of all series elements using coulomb counting.
  * @param soc_stats The charge stats of the pack
@@ -105,4 +111,9 @@ float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
  */
 float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats);
 
+/**
+ * Compute a estimate SOC for each cell based on cell voltages
+ * @param soc_stats object to write SOC stats to
+ * @param accumulator accumulator cell information
+ */
 void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator);
