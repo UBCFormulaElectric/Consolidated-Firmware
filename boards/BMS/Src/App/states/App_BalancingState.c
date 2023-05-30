@@ -20,9 +20,8 @@ static void BalancingStateRunOnTick100Hz(struct StateMachine *const state_machin
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
-        struct Airs *       airs        = App_BmsWorld_GetAirs(world);
-        struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
         const bool air_negative_open          = !App_Airs_IsAirNegativeClosed(airs);
         const bool stopped_requesting_balance = !App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();

@@ -124,7 +124,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
-    const bool ignore_other_boards  = charger_is_connected || App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool balancing_enabled    = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
 
     bool status = true;
 
