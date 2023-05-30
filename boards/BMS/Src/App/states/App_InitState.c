@@ -56,7 +56,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
-            else if (!is_charger_connected && cell_balancing_enabled)
+            else if (cell_balancing_enabled)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
             }

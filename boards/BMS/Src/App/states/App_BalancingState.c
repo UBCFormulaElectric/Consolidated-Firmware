@@ -8,6 +8,7 @@ static void BalancingStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
     struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_BALANCING_STATE);
     App_Accumulator_EnableBalancing(accumulator, true);
 }
 
