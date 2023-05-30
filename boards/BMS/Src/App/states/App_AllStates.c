@@ -124,10 +124,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
-    bool       status               = true;
+    const bool ignore_other_boards  = charger_is_connected || App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+
+    bool status = true;
 
     // ignore heartbeat when charging, other boards likely disconnected
-    bool missing_hb = charger_is_connected ? false : App_SendAndReceiveHeartbeat(hb_monitor);
+    bool missing_hb = ignore_other_boards ? false : App_SendAndReceiveHeartbeat(hb_monitor);
 
     App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
@@ -158,7 +160,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
     const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
     // Ignore faults from other boards when charging, other boards likely disconnected.
-    bool fault_from_other_board = charger_is_connected ? false : (dcm_fault || fsm_fault || pdm_fault || dim_fault);
+    bool fault_from_other_board = ignore_other_boards ? false : (dcm_fault || fsm_fault || pdm_fault || dim_fault);
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles

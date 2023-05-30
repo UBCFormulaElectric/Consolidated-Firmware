@@ -30,6 +30,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Airs *          airs        = App_BmsWorld_GetAirs(world);
 
+    const bool ignore_other_boards = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
@@ -40,7 +42,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool fsm_ok        = !App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
     const bool pdm_ok        = !App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
     const bool dim_ok        = !App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
-    const bool no_can_alerts = dcm_ok && fsm_ok && pdm_ok && dim_ok;
+    const bool no_can_alerts = ignore_other_boards || (dcm_ok && fsm_ok && pdm_ok && dim_ok);
 
     if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open && hb_ok && precharge_ok && no_can_alerts)
     {
