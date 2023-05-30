@@ -52,7 +52,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
             if(!is_charger_connected && cell_balancing_enabled)
             {
-                App_SharedStateMachine_SetNextState(state_machine, App_GetBalanceState());
+                App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
             }
 
             // if charger disconnected, proceed directly to precharge state
