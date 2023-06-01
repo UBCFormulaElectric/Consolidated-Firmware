@@ -7,12 +7,12 @@
 #define MAX_NUM_COMM_TRIES (3U)
 
 // Discharging cells continuously generates too much heat.
-// So discharge cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
+// So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
 // Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
 // distracting.
-#define DISCHARGE_TICKS_ON (100U)
-#define DISCHARGE_TICKS_OFF (100U)
+#define BALANCE_TICKS_ON (100U)
+#define BALANCE_TICKS_OFF (100U)
 
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
@@ -64,10 +64,10 @@ struct Accumulator
     float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Balancing information
-    bool     discharge_enabled;
-    bool     cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
-    uint32_t discharge_pwm_ticks;
-    bool     discharge_pwm_high;
+    bool     balance_enabled;
+    bool     cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    uint32_t balance_pwm_ticks;
+    bool     balance_pwm_high;
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -76,8 +76,8 @@ struct Accumulator
     float (*get_max_cell_temp)(uint8_t *, uint8_t *);
     float (*get_avg_cell_temp)(void);
 
-    bool (*enable_discharge)(void);
-    bool (*disable_discharge)(void);
+    bool (*enable_balance)(void);
+    bool (*disable_balance)(void);
 };
 
 /**
@@ -130,7 +130,7 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
  * Calculate which cells need discharging, for cell balancing.
  * @param accumulator The accumulator
  */
-static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumulator)
+static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumulator)
 {
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
@@ -138,8 +138,8 @@ static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumu
         {
             const bool needs_discharging =
                 (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) >
-                CELL_VOLTAGE_DISCHARGE_WINDOW_V;
-            accumulator->cells_to_discharge[segment][cell] = needs_discharging;
+                CELL_VOLTAGE_BALANCE_WINDOW_V;
+            accumulator->cells_to_balance[segment][cell] = needs_discharging;
         }
     }
 }
@@ -150,40 +150,40 @@ static void App_Accumulator_CalculateCellsToDischarge(struct Accumulator *accumu
  */
 static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
 {
-    if (!accumulator->discharge_enabled)
+    if (!accumulator->balance_enabled)
     {
-        accumulator->disable_discharge();
+        accumulator->disable_balance();
         return;
     }
 
     // Write to configuration register to configure cell discharging
-    App_Accumulator_CalculateCellsToDischarge(accumulator);
-    accumulator->write_cfg_registers(accumulator->cells_to_discharge);
+    App_Accumulator_CalculateCellsToBalance(accumulator);
+    accumulator->write_cfg_registers(accumulator->cells_to_balance);
 
-    if (accumulator->discharge_pwm_high)
+    if (accumulator->balance_pwm_high)
     {
         // Enable cell discharging
-        accumulator->enable_discharge();
-        accumulator->discharge_pwm_ticks += 1;
+        accumulator->enable_balance();
+        accumulator->balance_pwm_ticks += 1;
 
-        if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_ON)
+        if (accumulator->balance_pwm_ticks >= BALANCE_TICKS_ON)
         {
             // Cell discharging enabled duty cycle portion is finished
-            accumulator->discharge_pwm_high  = false;
-            accumulator->discharge_pwm_ticks = 0;
+            accumulator->balance_pwm_high  = false;
+            accumulator->balance_pwm_ticks = 0;
         }
     }
     else
     {
         // Disable cell discharging
-        accumulator->disable_discharge();
-        accumulator->discharge_pwm_ticks += 1;
+        accumulator->disable_balance();
+        accumulator->balance_pwm_ticks += 1;
 
-        if (accumulator->discharge_pwm_ticks >= DISCHARGE_TICKS_OFF)
+        if (accumulator->balance_pwm_ticks >= BALANCE_TICKS_OFF)
         {
             // Cell discharging disabled duty cycle portion is finished
-            accumulator->discharge_pwm_high  = true;
-            accumulator->discharge_pwm_ticks = 0;
+            accumulator->balance_pwm_high  = true;
+            accumulator->balance_pwm_ticks = 0;
         }
     }
 }
@@ -198,8 +198,8 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
-    bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void))
+    bool (*enable_balance)(void),
+    bool (*disable_balance)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -224,13 +224,13 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_avg_cell_temp      = get_avg_cell_temp;
 
     // Balancing information
-    memset(&accumulator->cells_to_discharge, 0U, sizeof(accumulator->cells_to_discharge));
-    accumulator->discharge_pwm_ticks = 0;
-    accumulator->discharge_enabled   = false;
-    accumulator->discharge_pwm_high  = false;
+    memset(&accumulator->cells_to_balance, 0U, sizeof(accumulator->cells_to_balance));
+    accumulator->balance_pwm_ticks = 0;
+    accumulator->balance_enabled   = false;
+    accumulator->balance_pwm_high  = false;
 
-    accumulator->enable_discharge  = enable_discharge;
-    accumulator->disable_discharge = disable_discharge;
+    accumulator->enable_balance  = enable_balance;
+    accumulator->disable_balance = disable_balance;
 
     return accumulator;
 }
@@ -246,7 +246,7 @@ void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
     accumulator->config_monitoring_chip();
 
     // Enable cell discharging
-    accumulator->enable_discharge();
+    accumulator->enable_balance();
 }
 
 bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
@@ -334,12 +334,12 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
 
 bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
 {
-    return accumulator->enable_discharge();
+    return accumulator->enable_balance();
 }
 
 bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
 {
-    return accumulator->disable_discharge();
+    return accumulator->disable_balance();
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
@@ -416,10 +416,10 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 
 void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)
 {
-    accumulator->discharge_enabled = enabled;
+    accumulator->balance_enabled = enabled;
 }
 
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
 {
-    return accumulator->discharge_enabled;
+    return accumulator->balance_enabled;
 }

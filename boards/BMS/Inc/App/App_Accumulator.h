@@ -33,8 +33,8 @@ typedef enum
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
 
-// Discharge Parameters
-#define CELL_VOLTAGE_DISCHARGE_WINDOW_V (600e-6f) // 600uV
+// Cell Balancing Discharge Parameters
+#define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV
 
 struct Accumulator;
 

@@ -127,25 +127,25 @@ bool Io_LTC6813Shared_PollAdcConversions(void);
 bool Io_LTC6813Shared_SetCfgRegsToDefaultSettings(void);
 
 /**
- * Write to configuration registers, namely CFGRA and CFGRB to set which cells to discharge.
- * @param cells_to_discharge Buffer of cells to discharge. True if cell should be discharged, false otherwise.
+ * Write to configuration registers, namely CFGRA and CFGRB to set which cells to balance.
+ * @param cells_to_balance Buffer of cells to balance. True if cell should be balanced (dischargeed), false otherwise.
  * Set to NULL to disable all cell discharging.
  * @return True if the commands used to write to the configuration registers can
  * be sent successfully. Else, false
  */
 bool Io_LTC6813Shared_WriteConfigurationRegisters(
-    bool cells_to_discharge[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+    bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
 /**
- * Enable LTC6813 cell discharge
- * @return True if the command to enable cell discharge is sent successfully.
+ * Enable LTC6813 cell balancing (discharge)
+ * @return True if the command to enable cell balancing is sent successfully.
  * Else, false
  */
-bool Io_LTC6813Shared_EnableDischarge(void);
+bool Io_LTC6813Shared_EnableBalance(void);
 
 /**
- * Disable LTC6813 cell discharge
- * @return True if the command to enable cell discharge is sent successfully.
+ * Disable LTC6813 cell balancing (discharge)
+ * @return True if the command to enable cell balancing is sent successfully.
  * Else, false
  */
-bool Io_LTC6813Shared_DisableDischarge(void);
+bool Io_LTC6813Shared_DisableBalance(void);
