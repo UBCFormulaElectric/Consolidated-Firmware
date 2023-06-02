@@ -194,19 +194,19 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
     ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(0, set_left_r_hex_digit_fake.arg0_history[0].value);
     ASSERT_EQ(0, set_left_m_hex_digit_fake.arg0_history[0].value);
-    ASSERT_EQ(0, set_left_l_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(10, set_left_l_hex_digit_fake.arg0_history[0].value); //the 10 indicates the placeholder value to indicate a decimal point
 
     App_SevenSegDisplays_SetGroupM(seven_seg_displays, 0);
     ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_middle_m_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_middle_r_hex_digit_fake.arg0_history[0].enabled);
-    ASSERT_EQ(0, set_middle_l_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(10, set_middle_l_hex_digit_fake.arg0_history[0].value);
 
     App_SevenSegDisplays_SetGroupR(seven_seg_displays, 0);
     ASSERT_EQ(true, set_right_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_right_m_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_right_r_hex_digit_fake.arg0_history[0].enabled);
-    ASSERT_EQ(0, set_right_l_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(10, set_right_l_hex_digit_fake.arg0_history[0].value);
 
     // checking if we modify one group, the other groups should stay the same
 
@@ -246,6 +246,39 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
     ASSERT_EQ(3, set_right_l_hex_digit_fake.arg0_history[1].value);
     ASSERT_EQ(0, set_right_m_hex_digit_fake.arg0_history[1].value);
     ASSERT_EQ(8, set_right_r_hex_digit_fake.arg0_history[1].value);
+
+    App_SevenSegDisplays_SetGroupM(seven_seg_displays, 935);
+    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_middle_m_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_middle_r_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(9, set_middle_l_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(3, set_middle_m_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(5, set_middle_r_hex_digit_fake.arg0_history[1].value);
+}
+
+TEST_F(SevenSegDisplaysTest, set_valid_decimal_values)
+{
+    ExitCode exit_code = App_SevenSegDisplays_SetGroupL(seven_seg_displays, 0.01);
+    ASSERT_EQ(EXIT_CODE_OK, exit_code);
+    ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(1, set_left_r_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(0, set_left_m_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(10, set_left_l_hex_digit_fake.arg0_history[0].value); //the 10 indicates the placeholder value to indicate a decimal point
+
+    App_SevenSegDisplays_SetGroupM(seven_seg_displays, 42.2);
+    ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(true, set_middle_m_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(true, set_middle_r_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(2, set_middle_r_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(12, set_middle_m_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(4, set_middle_l_hex_digit_fake.arg0_history[0].value);
+
+    App_SevenSegDisplays_SetGroupR(seven_seg_displays, .308);
+    ASSERT_EQ(10, set_right_l_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(3, set_right_m_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(0, set_right_r_hex_digit_fake.arg0_history[0].value);
 }
 
 TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)

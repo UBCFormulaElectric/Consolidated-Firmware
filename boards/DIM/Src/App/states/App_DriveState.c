@@ -114,10 +114,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    // TODO: Show something on these LEDs now that error table is gone
-    float speed_kph        = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
-    float gate_temp        = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
-    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+    double speed_kph        = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
+    double gate_temp        = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+    double min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     if (missing_hb)
     {
@@ -127,9 +126,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, (uint32_t)(min_cell_voltage * 100));
-        App_SevenSegDisplays_SetGroupM(seven_seg_displays, (uint32_t)gate_temp);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, (uint32_t)speed_kph);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, min_cell_voltage * 100);
+        App_SevenSegDisplays_SetGroupM(seven_seg_displays, gate_temp);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, speed_kph);
     }
 }
 

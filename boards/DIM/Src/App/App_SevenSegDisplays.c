@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <math.h>
 
@@ -46,6 +47,13 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     return seven_seg_displays;
 }
 
+uint8_t App_SevenSegDisplays_AddDecimalIndicator(uint8_t value)
+{
+    uint8_t temp = (uint8_t)(value + (uint8_t)10); //help
+    return temp;
+}
+
+
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displays)
 {
     free(seven_seg_displays);
@@ -65,7 +73,7 @@ void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_dis
     seven_seg_displays->display_value_callback();
 }
 
-ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, double value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -75,24 +83,26 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
     digits[LEFT_M_SEVEN_SEG_DISPLAY] = 0;
     digits[LEFT_R_SEVEN_SEG_DISPLAY] = 0;
 
+    char str[20];
+    sprintf(str, "%f", value);
+    int i = 0;
+
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function.
-    int shift = LEFT_R_SEVEN_SEG_DISPLAY + 1;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = LEFT_L_SEVEN_SEG_DISPLAY; digits_index < NUM_IN_GROUP; digits_index ++)
     {
-        digits[digits_index - 1] = (uint8_t)(value % 10);
-        value /= 10;
-
-        if (value == 0)
-        {
-            App_SevenSegDisplays_SetDigits(seven_seg_displays, 0);
-            break;
+        if (str[i] == '.'){
+            digits[digits_index-1] = App_SevenSegDisplays_AddDecimalIndicator((uint8_t)digits[digits_index-1]);
+            i++;
         }
+        digits[digits_index] = (uint8_t)(str[i] - '0');
+        i++;
     }
+    App_SevenSegDisplays_SetDigits(seven_seg_displays, LEFT_L_SEVEN_SEG_DISPLAY);
     return EXIT_CODE_OK;
 }
 
-ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, double value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -102,25 +112,27 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
     digits[MIDDLE_M_SEVEN_SEG_DISPLAY] = 0;
     digits[MIDDLE_R_SEVEN_SEG_DISPLAY] = 0;
 
+    char str[20];
+    sprintf(str, "%f", value);
+    int i = 0;
+
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = MIDDLE_R_SEVEN_SEG_DISPLAY;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = MIDDLE_L_SEVEN_SEG_DISPLAY; digits_index < MIDDLE_L_SEVEN_SEG_DISPLAY+ NUM_IN_GROUP; digits_index++)
     {
-        digits[digits_index] = (uint8_t)(value % 10);
-        value /= 10;
-
-        if (value == 0)
-        {
-            App_SevenSegDisplays_SetDigits(seven_seg_displays, 3);
-            break;
+        if (str[i] == '.'){ //with how the seven segs work, the the previous digit has to hold the decimal value
+            digits[digits_index-1] = App_SevenSegDisplays_AddDecimalIndicator(digits[digits_index-1]);
+            i++;
         }
+        digits[digits_index] = (uint8_t)(str[i] - '0');
+        i++;
     }
+    App_SevenSegDisplays_SetDigits(seven_seg_displays, MIDDLE_L_SEVEN_SEG_DISPLAY);
 
     return EXIT_CODE_OK;
 }
 
-ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
+ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, double value)
 {
     if (value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -133,20 +145,21 @@ ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const sev
     digits[RIGHT_M_SEVEN_SEG_DISPLAY] = 0;
     digits[RIGHT_R_SEVEN_SEG_DISPLAY] = 0;
 
+    char str[20];
+    sprintf(str, "%f", value);
+    int i = 0;
+
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function
-    int shift = RIGHT_R_SEVEN_SEG_DISPLAY + 1;
-    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
+    for (int digits_index = RIGHT_L_SEVEN_SEG_DISPLAY; digits_index < RIGHT_L_SEVEN_SEG_DISPLAY + NUM_IN_GROUP; digits_index++)
     {
-        digits[digits_index - 1] = (uint8_t)(value % 10);
-        value /= 10;
-
-        if (value == 0)
-        {
-            App_SevenSegDisplays_SetDigits(seven_seg_displays, 6);
-            break;
+        if (str[i] == '.'){
+            digits[digits_index-1] = App_SevenSegDisplays_AddDecimalIndicator((uint8_t)digits[digits_index]);
+            i++;
         }
+        digits[digits_index] = (uint8_t)(str[i] - '0');
+        i++;
     }
-
+    App_SevenSegDisplays_SetDigits(seven_seg_displays, RIGHT_L_SEVEN_SEG_DISPLAY);
     return EXIT_CODE_OK;
 }

@@ -24,7 +24,7 @@
 typedef struct
 {
     uint8_t disable;
-    uint8_t values[NUM_HEX_DIGITS];
+    uint8_t values[NUM_HEX_DIGITS*2]; //two to account for the lookup values for the numbers with decimal points
 } CommandLookupTable;
 
 // clang-format off
@@ -43,6 +43,16 @@ static const CommandLookupTable command_lookup_table =
         0xE0, // 0x7
         0xFE, // 0x8
         0xE6, // 0x9
+        0xFD, // 0x10
+        0x61, // 0x11
+        0xDB, // 0x12
+        0xF2, // 0x13
+        0x67, // 0x14
+        0xB7, // 0x15
+        0xBF, // 0x16
+        0xE1, // 0x17
+        0xFF, // 0x18
+        0xE7, // 0x19
     }
 };
 // clang-format on
