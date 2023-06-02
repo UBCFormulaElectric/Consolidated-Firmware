@@ -127,6 +127,7 @@ struct PrechargeRelay *  precharge_relay;
 struct TractiveSystem *  ts;
 struct Clock *           clock;
 struct Eeprom *          eeprom;
+struct Odometer *        odometer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -262,9 +263,13 @@ int main(void)
 
     eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
 
+    odometer = App_Odometer_Create();
+
+    App_Odometer_ReadValFromEeprom(eeprom, ODOMETER_ADDRESS);
+
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
-        ts, clock, eeprom);
+        ts, clock, eeprom, odometer);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();

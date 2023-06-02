@@ -3,6 +3,7 @@
 
 #define NUM_PAGES (128U)
 #define SAVED_COPIES 4U
+#define DEFAULT_OFFSET 0U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
 
@@ -143,4 +144,60 @@ EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddresses(struct Eeprom *eeprom, ui
     }
 
     return read_status;
+}
+
+float App_Eeprom_ReadErrCheckedFloat(struct Eeprom *eeprom, uint16_t address)
+{
+    float floats_read[SAVED_COPIES];
+
+    EEPROM_StatusTypeDef read_status =
+        App_Eeprom_ReadFloats(eeprom, address, DEFAULT_OFFSET, floats_read, SAVED_COPIES);
+
+    // If read unsucessful, reset to 0
+    if (read_status != EEPROM_OK)
+    {
+        return 0;
+    }
+    // If any two read values are the same, return the shared value
+    else if (floats_read[0] == floats_read[1])
+    {
+        return floats_read[0];
+    }
+    else if (floats_read[1] == floats_read[2])
+    {
+        return floats_read[1];
+    }
+    else if (floats_read[0] == floats_read[2])
+    {
+        return floats_read[0];
+    }
+    else if (floats_read[0] == floats_read[3])
+    {
+        return floats_read[0];
+    }
+    else if (floats_read[1] == floats_read[3])
+    {
+        return floats_read[1];
+    }
+    else if (floats_read[2] == floats_read[3])
+    {
+        return floats_read[2];
+    }
+    // if there are no matching pairs, data likely corrupted, reset to 0
+    else
+    {
+        return 0;
+    }
+}
+
+EEPROM_StatusTypeDef App_Eeprom_WriteErrCheckedFloat(struct Eeprom *eeprom, uint16_t address, float float_to_write)
+{
+    float float_array[SAVED_COPIES];
+
+    for (uint8_t i = 0; i < SAVED_COPIES; i++)
+    {
+        float_array[i] = float_to_write;
+    }
+
+    return App_Eeprom_WriteFloats(eeprom, address, DEFAULT_OFFSET, float_array, SAVED_COPIES);
 }

@@ -18,5 +18,15 @@
                 "bits": 1
             }
         }
+    },
+    "Debug_ResetOdometer": {
+        "msg_id": 703,
+        "cycle_time": 100,
+        "description": "Value set by user to reset odometer value.",
+        "signals": {
+            "ResetOdometer": {
+                "bits": 1
+            }
+        }
     }
 }

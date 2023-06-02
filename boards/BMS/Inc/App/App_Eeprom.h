@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -81,3 +83,20 @@ EEPROM_StatusTypeDef App_Eeprom_Write4CopiesOfAddress(struct Eeprom *eeprom, uin
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
 EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses);
+
+/**
+ * Read array of 4 identical floats and check for data corruption (check if they do not match)
+ * @param eeprom to read floats from
+ * @param address address on EEPROm to read from
+ * @return float value (0 if error occurs)
+ */
+float App_Eeprom_ReadErrCheckedFloat(struct Eeprom *eeprom, uint16_t address);
+
+/**
+ * Write float 4 times to EEPROM to allow for corruption detection
+ * @param eeprom to write to
+ * @param address on eeprom to write to
+ * @param float_to_write float value to write to EEPROM
+ * @return status of write operation
+ */
+EEPROM_StatusTypeDef App_Eeprom_WriteErrCheckedFloat(struct Eeprom *eeprom, uint16_t address, float float_to_write);

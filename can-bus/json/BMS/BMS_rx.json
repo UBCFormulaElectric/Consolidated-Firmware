@@ -5,6 +5,8 @@
         "PDM_Vitals",
         "DIM_Vitals",
         "Debug_ChargingSwitch",
-        "Debug_CanModes"
+        "Debug_CanModes",
+        "Debug_ResetOdometer",
+        "FSM_Wheels"
     ]
 }

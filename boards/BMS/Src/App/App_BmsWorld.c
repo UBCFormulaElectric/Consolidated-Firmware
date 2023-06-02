@@ -18,6 +18,7 @@ struct BmsWorld
     struct TractiveSystem *  ts;
     struct Clock *           clock;
     struct Eeprom *          eeprom;
+    struct Odometer *        odometer;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
@@ -30,10 +31,12 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const         bspd_ok,
     struct Accumulator *const      accumulator,
     struct Airs *const             airs,
-    struct PrechargeRelay *const   precharge_relay,
-    struct TractiveSystem *const   tractive_system,
-    struct Clock *const            clock,
-    struct Eeprom *const           eeprom)
+
+    struct PrechargeRelay *const precharge_relay,
+    struct TractiveSystem *const tractive_system,
+    struct Clock *const          clock,
+    struct Eeprom *const         eeprom,
+    struct Odometer *const       odometer)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
@@ -51,6 +54,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->ts                = tractive_system;
     world->clock             = clock;
     world->eeprom            = eeprom;
+    world->odometer          = odometer;
 
     return world;
 }
@@ -123,4 +127,9 @@ struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)
 struct Eeprom *App_BmsWorld_GetEeprom(const struct BmsWorld *const world)
 {
     return world->eeprom;
+}
+
+struct Odometer *App_BmsWorld_GetOdometer(const struct BmsWorld *const world)
+{
+    return world->odometer;
 }

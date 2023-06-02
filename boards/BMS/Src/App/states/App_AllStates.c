@@ -108,6 +108,15 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
+    //
+    //    if (App_CanRx_Debug_ResetOdometer_ResetOdometer_Get())
+    //    {
+    //        struct Eeprom *  eeprom   = App_BmsWorld_GetEeprom(world);
+    //        struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
+    //
+    //        App_Odometer_ResetReading(odometer);
+    //        App_Odometer_WriteValToEeprom(odometer, eeprom, ODOMETER_ADDRESS);
+    //    }
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -122,6 +131,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
+    struct Odometer *        odometer    = App_BmsWorld_GetOdometer(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
     bool       status               = true;
@@ -146,6 +156,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
+
+    App_CanTx_BMS_OdometerReading_DistanceTravelled_Set(App_Odometer_GetReading(odometer));
 
     App_AdvertisePackPower(accumulator, ts);
 

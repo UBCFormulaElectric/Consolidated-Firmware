@@ -14,6 +14,7 @@
 #include "App_TractiveSystem.h"
 #include "App_SharedClock.h"
 #include "App_Eeprom.h"
+#include "App_Odometer.h"
 
 struct BmsWorld;
 
@@ -39,7 +40,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct PrechargeRelay *  precharge_relay,
     struct TractiveSystem *  tractive_system,
     struct Clock *           clock,
-    struct Eeprom *          eeprom);
+    struct Eeprom *          eeprom,
+    struct Odometer *        odometer);
 
 /**
  * Deallocate the memory used by the given world
@@ -137,3 +139,10 @@ struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *world);
  * @return The EEPROM for the given world
  */
 struct Eeprom *App_BmsWorld_GetEeprom(const struct BmsWorld *world);
+
+/**
+ * Get the Odometer for the given world
+ * @param world The world to get Odometer for
+ * @return The Odometer for the given world
+ */
+struct Odometer *App_BmsWorld_GetOdometer(const struct BmsWorld *const world);

@@ -128,9 +128,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        odometer = App_Odometer_Create();
+
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
-            precharge_relay, ts, clock, eeprom);
+            precharge_relay, ts, clock, eeprom, odometer);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -212,6 +214,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(ts, App_TractiveSystem_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
         TearDownObject(eeprom, App_Eeprom_Destroy);
+        TearDownObject(odometer, App_Odometer_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -289,6 +292,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct TractiveSystem *   ts;
     struct Clock *            clock;
     struct Eeprom *           eeprom;
+    struct Odometer *         odometer;
 };
 
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)

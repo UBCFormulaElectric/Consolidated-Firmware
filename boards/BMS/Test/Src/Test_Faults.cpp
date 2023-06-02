@@ -123,9 +123,11 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        odometer = App_Odometer_Create();
+
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
-            precharge_relay, ts, clock, eeprom);
+            precharge_relay, ts, clock, eeprom, odometer);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -169,6 +171,10 @@ class BmsFaultTest : public BaseStateMachineTest
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
         get_min_temp_degc_fake.return_val = 20.0f;
         get_max_temp_degc_fake.return_val = 20.0f;
+
+        read_page_fake.return_val  = EEPROM_OK;
+        write_page_fake.return_val = EEPROM_OK;
+        page_erase_fake.return_val = EEPROM_OK;
     }
 
     void TearDown() override
@@ -188,6 +194,7 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(ts, App_TractiveSystem_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
         TearDownObject(eeprom, App_Eeprom_Destroy);
+        TearDownObject(odometer, App_Odometer_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -235,6 +242,7 @@ class BmsFaultTest : public BaseStateMachineTest
     struct TractiveSystem *   ts;
     struct Clock *            clock;
     struct Eeprom *           eeprom;
+    struct Odometer *         odometer;
 };
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)

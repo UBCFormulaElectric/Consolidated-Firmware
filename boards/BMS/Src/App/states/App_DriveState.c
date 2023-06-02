@@ -11,18 +11,30 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    struct BmsWorld *world    = App_SharedStateMachine_GetWorld(state_machine);
+    struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
+
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    if (App_Odometer_TickCounter(odometer))
+    {
+        struct Eeprom *eeprom = App_BmsWorld_GetEeprom(world);
+        App_Odometer_WriteValToEeprom(odometer, eeprom, ODOMETER_ADDRESS);
+    }
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Imd *     imd   = App_BmsWorld_GetImd(world);
-        struct Airs *    airs  = App_BmsWorld_GetAirs(world);
+        struct BmsWorld *world    = App_SharedStateMachine_GetWorld(state_machine);
+        struct Imd *     imd      = App_BmsWorld_GetImd(world);
+        struct Airs *    airs     = App_BmsWorld_GetAirs(world);
+        struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
 
         App_SetPeriodicCanSignals_Imd(imd);
+
+        App_Odometer_UpdateReading(odometer);
 
         // if AIR- opens, go back to init state
         const bool air_negative_opened = !App_Airs_IsAirNegativeClosed(airs);
@@ -35,11 +47,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *    airs  = App_BmsWorld_GetAirs(world);
+    struct BmsWorld *world    = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *    airs     = App_BmsWorld_GetAirs(world);
+    struct Eeprom *  eeprom   = App_BmsWorld_GetEeprom(world);
+    struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
 
     // AIR+ opens upon exiting drive state
     App_Airs_OpenAirPositive(airs);
+
+    App_Odometer_WriteValToEeprom(odometer, eeprom, ODOMETER_ADDRESS);
 }
 
 const struct State *App_GetDriveState(void)
