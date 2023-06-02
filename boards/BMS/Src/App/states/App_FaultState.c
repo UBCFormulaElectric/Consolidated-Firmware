@@ -29,8 +29,11 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
     struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Airs *          airs        = App_BmsWorld_GetAirs(world);
+    struct Charger *       charger     = App_BmsWorld_GetCharger(world);
 
-    const bool ignore_other_boards = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool charger_is_connected = App_Charger_IsConnected(charger);
+    const bool balancing_enabled    = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
 
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
