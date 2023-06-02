@@ -15,6 +15,17 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
+    struct Eeprom *     eeprom        = App_BmsWorld_GetEeprom(world);
+    struct Odometer *   odometer      = App_BmsWorld_GetOdometer(world);
+
+    const float stored_odometer_reading  = App_Odometer_ReadValFromEeprom(eeprom, ODOMETER_ADDRESS);
+    const float current_odometer_reading = App_Odometer_GetReading(odometer);
+
+    // If odometer reading is currently blank, load stored value from EEPROM
+    if (current_odometer_reading == 0.0f && stored_odometer_reading > 0.0f)
+    {
+        App_Odometer_SetReading(odometer, stored_odometer_reading);
+    }
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));

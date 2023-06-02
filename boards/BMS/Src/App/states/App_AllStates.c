@@ -108,15 +108,15 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
-    //
-    //    if (App_CanRx_Debug_ResetOdometer_ResetOdometer_Get())
-    //    {
-    //        struct Eeprom *  eeprom   = App_BmsWorld_GetEeprom(world);
-    //        struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
-    //
-    //        App_Odometer_ResetReading(odometer);
-    //        App_Odometer_WriteValToEeprom(odometer, eeprom, ODOMETER_ADDRESS);
-    //    }
+
+    if (App_CanRx_Debug_ResetOdometer_ResetOdometer_Get())
+    {
+        struct Eeprom *  eeprom   = App_BmsWorld_GetEeprom(world);
+        struct Odometer *odometer = App_BmsWorld_GetOdometer(world);
+
+        App_Odometer_SetReading(odometer, 0.0f);
+        App_Odometer_WriteValToEeprom(odometer, eeprom, ODOMETER_ADDRESS);
+    }
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)

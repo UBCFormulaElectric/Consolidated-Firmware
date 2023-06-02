@@ -265,7 +265,7 @@ int main(void)
 
     odometer = App_Odometer_Create();
 
-    App_Odometer_ReadValFromEeprom(eeprom, ODOMETER_ADDRESS);
+    App_Odometer_SetReading(odometer, App_Odometer_ReadValFromEeprom(eeprom, ODOMETER_ADDRESS));
 
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,

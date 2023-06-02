@@ -3,7 +3,6 @@
 #include "App_SharedMacros.h"
 #include "App_CanRx.h"
 
-#define TIRE_CIRCUMFRANCE_KM 0.001276743f
 #define TIME_STEP = 0.01f
 #define SECONDS_BETWEEN_ODOMETER_WRITES 30
 
@@ -51,7 +50,11 @@ float App_Odometer_UpdateReading(struct Odometer *odometer)
         (App_CanRx_FSM_Wheels_LeftWheelSpeed_Get() + App_CanRx_FSM_Wheels_RightWheelSpeed_Get()) / 2.0f;
     const float delta_distance_travelled = avg_wheelspeed * TIRE_CIRCUMFRANCE_KM;
 
-    odometer->distance_travelled_km += delta_distance_travelled;
+    // Only increase odometer value if distance travelled is forwards
+    if (delta_distance_travelled > 0.0f)
+    {
+        odometer->distance_travelled_km += delta_distance_travelled;
+    }
 
     return odometer->distance_travelled_km;
 }
@@ -61,9 +64,9 @@ float App_Odometer_GetReading(struct Odometer *odometer)
     return odometer->distance_travelled_km;
 }
 
-void App_Odometer_ResetReading(struct Odometer *odometer)
+void App_Odometer_SetReading(struct Odometer *odometer, float odometer_value)
 {
-    odometer->distance_travelled_km = 0;
+    odometer->distance_travelled_km = odometer_value;
 }
 
 bool App_Odometer_TickCounter(struct Odometer *odometer)

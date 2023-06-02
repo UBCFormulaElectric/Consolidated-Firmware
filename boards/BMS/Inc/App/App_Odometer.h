@@ -4,6 +4,7 @@
 #include "App_Eeprom.h"
 
 #define ODOMETER_ADDRESS 0U
+#define TIRE_CIRCUMFRANCE_KM 0.001276743f
 
 struct Odometer;
 
@@ -51,10 +52,11 @@ float App_Odometer_UpdateReading(struct Odometer *odometer);
 float App_Odometer_GetReading(struct Odometer *odometer);
 
 /**
- * Reset odometer reading back to zero
- * @param odometer to reset
+ * Set odometer reading back to given value
+ * @param odometer to set reading of
+ * @param odometer_value new value to write to odometer
  */
-void App_Odometer_ResetReading(struct Odometer *odometer);
+void App_Odometer_SetReading(struct Odometer *odometer, float odometer_value);
 
 /**
  * Tick Odometer write counter, this allows the odometer to be written to the EEPROM less frequently, removing the need
