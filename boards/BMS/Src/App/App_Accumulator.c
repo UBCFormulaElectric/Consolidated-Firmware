@@ -12,6 +12,8 @@
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
 // Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
 // distracting.
+#define BALANCE_DEFAULT_FREQ (1)  // Hz
+#define BALANCE_DEFAULT_DUTY (50) // %
 #define BALANCE_TICKS_ON (100U)
 #define BALANCE_TICKS_OFF (100U)
 
@@ -135,13 +137,14 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
 {
     float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get() ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get() : target_voltage;
+    target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get()
+                         ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get()
+                         : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
-            const bool needs_discharging =
-                (accumulator->cell_voltages[segment][cell] > target_voltage);
+            const bool needs_discharging                 = (accumulator->cell_voltages[segment][cell] > target_voltage);
             accumulator->cells_to_balance[segment][cell] = needs_discharging;
         }
     }
@@ -163,13 +166,26 @@ static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
     App_Accumulator_CalculateCellsToBalance(accumulator);
     accumulator->write_cfg_registers(accumulator->cells_to_balance);
 
+    // Balance PWM settings
+    float balance_pwm_freq = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
+                                 ? App_CanRx_Debug_CellBalancing_OverridePWMFrequency_Get()
+                                 : BALANCE_DEFAULT_FREQ;
+    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
+                                    ? App_CanRx_Debug_CellBalancing_OverridePWMDuty_Get()
+                                    : BALANCE_DEFAULT_DUTY;
+
+    // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
+    // TODO: verify frequency calculation. Period seems to be about double what it should be.
+    uint32_t balance_ticks_on  = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
+    uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
+
     if (accumulator->balance_pwm_high)
     {
         // Enable cell discharging
         accumulator->enable_balance();
         accumulator->balance_pwm_ticks += 1;
 
-        if (accumulator->balance_pwm_ticks >= BALANCE_TICKS_ON)
+        if (accumulator->balance_pwm_ticks >= balance_ticks_on)
         {
             // Cell discharging enabled duty cycle portion is finished
             accumulator->balance_pwm_high  = false;
@@ -182,7 +198,7 @@ static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
         accumulator->disable_balance();
         accumulator->balance_pwm_ticks += 1;
 
-        if (accumulator->balance_pwm_ticks >= BALANCE_TICKS_OFF)
+        if (accumulator->balance_pwm_ticks >= balance_ticks_off)
         {
             // Cell discharging disabled duty cycle portion is finished
             accumulator->balance_pwm_high  = true;

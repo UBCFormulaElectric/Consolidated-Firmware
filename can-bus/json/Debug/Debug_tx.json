@@ -35,6 +35,21 @@
                 "min": 3,
                 "max": 4.2,
                 "unit": "V"
+            },
+            "OverridePWM": {
+                "bits": 1
+            },
+            "OverridePWMFrequency": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "Hz"
+            },
+            "OverridePWMDuty": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             }
         }
     }
