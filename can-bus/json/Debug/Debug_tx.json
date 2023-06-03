@@ -26,6 +26,15 @@
         "signals": {
             "RequestCellBalancing": {
                 "bits": 1
+            },
+            "OverrideTarget": {
+                "bits": 1
+            },
+            "OverrideTargetValue": {
+                "resolution": 0.0001,
+                "min": 3,
+                "max": 4.2,
+                "unit": "V"
             }
         }
     }

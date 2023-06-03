@@ -2,6 +2,7 @@
 #include <float.h>
 #include "App_Accumulator.h"
 #include "App_CanAlerts.h"
+#include "App_CanRx.h"
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
@@ -132,13 +133,15 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
  */
 static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumulator)
 {
+    float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
+
+    target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get() ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get() : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             const bool needs_discharging =
-                (accumulator->cell_voltages[segment][cell] - accumulator->voltage_stats.min_voltage.voltage) >
-                CELL_VOLTAGE_BALANCE_WINDOW_V;
+                (accumulator->cell_voltages[segment][cell] > target_voltage);
             accumulator->cells_to_balance[segment][cell] = needs_discharging;
         }
     }
@@ -411,7 +414,7 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+    return (undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
 
 void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)
