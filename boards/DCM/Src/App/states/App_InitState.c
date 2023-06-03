@@ -32,12 +32,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         const bool is_brake_actuated = App_CanRx_FSM_Brake_IsActuated_Get();
 
-        // TODO: JSONCAN
-        // #ifndef NDEBUG
-        //             || App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_FORCE_DCM_TO_DRIVE_FROM_INIT(can_rx_interface)
-        // #endif
-        //         )
-
         if (App_IsBmsInDriveState() && is_brake_actuated && was_start_switch_pulled_up)
         {
             // Transition to drive state when start-up conditions are passed (see

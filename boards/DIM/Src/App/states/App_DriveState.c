@@ -24,7 +24,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
     struct Led *             imd_led            = App_DimWorld_GetImdLed(world);
     struct Led *             bspd_led           = App_DimWorld_GetBspdLed(world);
-    struct RgbLed *          bms_led            = App_DimWorld_GetBmsStatusLed(world);
+    struct Led *             shdn_led           = App_DimWorld_GetShdnLed(world);
+    struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
     struct RotarySwitch *    drive_mode_switch  = App_DimWorld_GetDriveModeSwitch(world);
@@ -49,13 +50,23 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(bspd_led);
     }
 
-    if (!App_CanRx_BMS_OkStatuses_BmsOk_Get())
+    if (App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
+        App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN)
     {
-        App_SharedRgbLed_TurnRed(bms_led);
+        App_Led_TurnOn(shdn_led);
     }
     else
     {
-        App_SharedRgbLed_TurnOff(bms_led);
+        App_Led_TurnOff(shdn_led);
+    }
+
+    if (App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE)
+    {
+        App_Led_TurnOn(drive_led);
+    }
+    else
+    {
+        App_Led_TurnOff(drive_led);
     }
 
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
@@ -100,11 +111,18 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+    }
+
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
+
     // TODO: Show something on these LEDs now that error table is gone
     if (missing_hb)
     {
-        App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else

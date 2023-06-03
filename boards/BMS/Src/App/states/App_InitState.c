@@ -11,6 +11,7 @@
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *   world         = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *       airs          = App_BmsWorld_GetAirs(world);
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
@@ -19,6 +20,11 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);
+
+    // AIR+ opens upon entering init state
+    // Should always be opened at this point from other states, this is only for redundancy since we really don't want
+    // AIR+ closed in init
+    App_Airs_OpenAirPositive(airs);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -30,24 +36,13 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct BmsWorld *      world = App_SharedStateMachine_GetWorld(state_machine);
+        struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
+        struct Airs *          airs  = App_BmsWorld_GetAirs(world);
 
-#ifndef BSPD_DEMO_MODE
-        struct TractiveSystem *ts   = App_BmsWorld_GetTractiveSystem(world);
-        struct Airs *          airs = App_BmsWorld_GetAirs(world);
-        // don't allow pre_charge if in BSPD_DEMO_MODE
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
-        }
-#endif
-
-        struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-        const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, is_missing_hb);
-        if (is_missing_hb)
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
     }
 }

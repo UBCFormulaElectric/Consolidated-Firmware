@@ -595,6 +595,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
+
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -991,6 +992,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -1035,6 +1037,7 @@ void RunTask1Hz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1Hz */
 }

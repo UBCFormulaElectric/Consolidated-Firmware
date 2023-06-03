@@ -92,10 +92,10 @@ extern "C"
 #define DCM_GREEN_GPIO_Port GPIOC
 #define DCM_RED_Pin GPIO_PIN_5
 #define DCM_RED_GPIO_Port GPIOC
-#define IMD_LED_Pin GPIO_PIN_0
-#define IMD_LED_GPIO_Port GPIOB
-#define BSPD_LED_Pin GPIO_PIN_1
+#define BSPD_LED_Pin GPIO_PIN_0
 #define BSPD_LED_GPIO_Port GPIOB
+#define IMD_LED_Pin GPIO_PIN_1
+#define IMD_LED_GPIO_Port GPIOB
 #define SHDN_LED_Pin GPIO_PIN_2
 #define SHDN_LED_GPIO_Port GPIOB
 #define AUX_LED_Pin GPIO_PIN_10
