@@ -33,6 +33,7 @@ ExitCode
 /**
  * Check if the given rotary switch has a valid position
  * @param rotary_switch The rotary switch position to get switch position for
- * @return true if the given rotary switch is turned valid, else false (if App_RotarySwitch_GetSwitchPosition returns EXIT_CODE_OUT_OF_RANGE)
+ * @return true if the given rotary switch is turned valid, else false (if App_RotarySwitch_GetSwitchPosition returns
+ * EXIT_CODE_OUT_OF_RANGE)
  */
 bool App_RotarySwitch_IsValid(const struct RotarySwitch *rotary_switch);

@@ -102,7 +102,6 @@ extern "C"
 #define AUX_LED_GPIO_Port GPIOB
 #define AUX_IN_Pin GPIO_PIN_12
 #define AUX_IN_GPIO_Port GPIOB
-
 #define IGNTN_LED_Pin GPIO_PIN_13
 #define IGNTN_LED_GPIO_Port GPIOB
 #define IGNTN_IN_Pin GPIO_PIN_14

@@ -2,13 +2,13 @@
 #include "main.h"
 #include "Io_DriveModeSwitch.h"
 
-//decode the binary pins back to a value from 1-12
+// decode the binary pins back to a value from 1-12
 uint32_t Io_DriveModeSwitch_GetPosition(void)
 {
     // TODO: This is untested
     uint32_t position = UINT_MAX;
-    position = 0;
-    //drive mode gpio port is a 4 bit binary number
+    position          = 0;
+    // drive mode gpio port is a 4 bit binary number
     if (HAL_GPIO_ReadPin(DRIVE_MODE_0_GPIO_Port, DRIVE_MODE_0_Pin) == GPIO_PIN_RESET)
     {
         position += 8;
