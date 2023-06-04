@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
+#include "App_Accumulator.h"
 
 /**
  * Get a pointer to the Charge State.

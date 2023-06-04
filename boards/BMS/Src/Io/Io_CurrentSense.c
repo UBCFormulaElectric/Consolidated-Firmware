@@ -56,7 +56,8 @@ float Io_CurrentSense_GetHighResolutionMainCurrent()
     const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
     // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
+    // TODO: Tune OUTPUT_1_OFFSET Properly to avoid -2.5f offset at end
+    return -((hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY - 2.5f);
 }
 
 float Io_CurrentSense_GetLowResolutionMainCurrent()
@@ -93,7 +94,7 @@ float Io_CurrentSense_GetLowResolutionMainCurrent()
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
     // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
+    return -((hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY - 2.5f);
 }
 
 float Io_CurrentSense_GetAirLoopCurrent()

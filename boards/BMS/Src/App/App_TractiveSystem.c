@@ -48,7 +48,7 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
     float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
     float high_res_current = App_TractiveSystem_GetHighResCurrent(ts);
 
-    if (low_res_current < HIGH_RES_MAX_CURRENT_READING)
+    if (low_res_current < HIGH_RES_MAX_CURRENT_READING && low_res_current > -HIGH_RES_MAX_CURRENT_READING)
     {
         return high_res_current;
     }

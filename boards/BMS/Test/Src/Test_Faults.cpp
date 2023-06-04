@@ -309,7 +309,15 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_init_state)
 {
+    // Set TS current negative to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val   = -10.0f;
+    get_low_res_current_fake.return_val    = -10.0f;
+    is_air_negative_closed_fake.return_val = true;
+
     SetInitialState(App_GetInitState());
+
+    is_charger_connected_fake.return_val = true;
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
 
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
@@ -336,7 +344,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_OVERTEMP));
 
     // Clear fault, should transition back to init
-    get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC - 1.0f;
+    get_max_temp_degc_fake.return_val      = MAX_CELL_DISCHARGE_TEMP_DEGC - 1.0f;
+    has_charger_faulted_fake.return_val    = false;
+    is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_CELL_OVERTEMP));
@@ -349,11 +359,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
 
-    // Set TS current negative to trigger charging condition in temperature check
-    get_high_res_current_fake.return_val = -10.0f;
-    get_low_res_current_fake.return_val  = -10.0f;
+    // Set TS current positive to trigger charging condition in temperature check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetChargeState());
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
@@ -381,9 +392,10 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_init_state)
 {
-    // Set TS current positive to trigger discharging condition in tempertature check
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
+    // Set TS current negative to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val   = -10.0f;
+    get_low_res_current_fake.return_val    = -10.0f;
+    is_air_negative_closed_fake.return_val = true;
 
     SetInitialState(App_GetInitState());
 
@@ -411,7 +423,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_CELL_UNDERTEMP));
 
     // Clear fault, should transition back to init
-    get_min_temp_degc_fake.return_val = MIN_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
+    get_min_temp_degc_fake.return_val      = MIN_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
+    is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_CELL_UNDERTEMP));
@@ -423,10 +436,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
-    // Set TS current negative to trigger charging condition in tempertature check
-    get_high_res_current_fake.return_val = -10.0f;
-    get_low_res_current_fake.return_val  = -10.0f;
+    // Set TS current positive to trigger charging condition in tempertature check and above threshold to remain
+    // charging
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetChargeState());
 
@@ -456,9 +471,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
 {
-    // Set TS current positive to trigger discharging condition
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
+    // Set TS current negative to trigger discharging condition
+    get_high_res_current_fake.return_val = -10.0f;
+    get_low_res_current_fake.return_val  = -10.0f;
 
     SetInitialState(App_GetInitState());
 
@@ -493,10 +508,11 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
-    // Set TS current negative to trigger charging condition
-    get_high_res_current_fake.return_val = -10.0f;
-    get_low_res_current_fake.return_val  = -10.0f;
+    // Set TS current above cutoff threshold to keep state machine in charge state
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetChargeState());
 
@@ -559,16 +575,24 @@ TEST_F(BmsFaultTest, check_precharge_fault_combinations)
 
 TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
 {
+    SetInitialState(App_GetInitState());
+
+    // reset ts_voltage to 0 so state will transition from init to pre-charge
+    get_ts_voltage_fake.return_val = 0;
+
     for (int i = 1; i <= 3; i++)
     {
-        // Close negative contactor, precharge should start
+        // Close negative contactor with charger disconnected, precharge should start
         is_air_negative_closed_fake.return_val = true;
+        is_charger_connected_fake.return_val   = false;
+        App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
         LetTimePass(state_machine, 10U);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR));
 
-        // Open negative contactor
-        is_air_negative_closed_fake.return_val = false;
+        // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
+        // trying to fool precahrge into thinking that ts_voltage is rising too quickly
+        get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL;
         LetTimePass(state_machine, 10U);
 
         if (i < 3)
@@ -576,6 +600,9 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
             // 3x precharge attempts haven't been exceeded, so back to init
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR));
+
+            // reset ts_voltage to 0 so state will transition from init to pre-charge
+            get_ts_voltage_fake.return_val = 0;
         }
         else
         {
