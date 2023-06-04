@@ -98,9 +98,7 @@ EEPROM_StatusTypeDef
     {
         data[i] = 0;
     }
-    uint8_t read_status;
-
-    read_status = eeprom->read_page(page, offset, data, (uint16_t)(num_floats * sizeof(float)));
+    uint8_t read_status = eeprom->read_page(page, offset, data, (uint16_t)(num_floats * sizeof(float)));
 
     for (uint8_t i = 0; i < num_floats; i++)
     {
@@ -156,7 +154,7 @@ float App_Eeprom_ReadErrCheckedFloat(struct Eeprom *eeprom, uint16_t address)
     // If read unsucessful, reset to 0
     if (read_status != EEPROM_OK)
     {
-        return 0;
+        return 0.0f;
     }
     // If any two read values are the same, return the shared value
     else if (floats_read[0] == floats_read[1])
@@ -186,7 +184,7 @@ float App_Eeprom_ReadErrCheckedFloat(struct Eeprom *eeprom, uint16_t address)
     // if there are no matching pairs, data likely corrupted, reset to 0
     else
     {
-        return 0;
+        return 0.0f;
     }
 }
 

@@ -120,6 +120,13 @@ class BmsOdometerTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
+        RESET_FAKE(read_page);
+        RESET_FAKE(write_page);
+        RESET_FAKE(page_erase);
+
+        write_page_fake.custom_fake = write_byte_callback;
+        read_page_fake.custom_fake  = read_byte_callback;
+
         App_CanTx_Init();
         App_CanRx_Init();
 
@@ -200,9 +207,6 @@ class BmsOdometerTest : public BaseStateMachineTest
         RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_high_res_current);
-        RESET_FAKE(read_page);
-        RESET_FAKE(write_page);
-        RESET_FAKE(page_erase);
 
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
@@ -229,8 +233,6 @@ class BmsOdometerTest : public BaseStateMachineTest
         App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
         has_charger_faulted_fake.return_val = false;
 
-        write_page_fake.custom_fake = write_byte_callback;
-        read_page_fake.custom_fake  = read_byte_callback;
         App_Eeprom_WriteErrCheckedFloat(eeprom, ODOMETER_ADDRESS, STARTING_ODOMETER_READING);
     }
 

@@ -91,7 +91,7 @@ EEPROM_StatusTypeDef Io_Eeprom_PageErase(uint16_t page)
     HAL_StatusTypeDef i2c_status;
 
     // write the data to the EEPROM
-    i2c_status = HAL_I2C_Mem_Write(EEPROM_I2C, EEPROM_ADDR, mem_address, 2, data, PAGE_SIZE, 1000);
+    i2c_status = HAL_I2C_Mem_Write(EEPROM_I2C, EEPROM_ADDR, mem_address, I2C_MEMADD_SIZE_8BIT, data, PAGE_SIZE, 1000);
 
     // If mem write error detected, return error
     if (i2c_status != HAL_OK)

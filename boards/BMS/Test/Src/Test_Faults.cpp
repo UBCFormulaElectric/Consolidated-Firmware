@@ -1,6 +1,8 @@
 #include "Test_Faults.h"
 #include "App_Accumulator.h"
 
+#define STARTING_ODOMETER_READING 1000.0f
+
 namespace FaultTest
 {
 FAKE_VOID_FUNC(send_non_periodic_msg_BMS_STARTUP, const struct CanMsgs_bms_startup_t *);
@@ -82,12 +84,42 @@ static void set_all_cell_voltages(float voltage)
     }
 }
 
+static uint8_t static_byte_array[PAGE_SIZE];
+
+// callback stores byte_array input into Io_Eeprom_WriteByte in static_byte_array to mimic writing to memory
+static EEPROM_StatusTypeDef write_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        static_byte_array[i] = byte_arr[i];
+    }
+    return EEPROM_OK;
+}
+
+// callback stores copies stored static_byte_array into array pointed to in argument list of Io_Eeprom_ReadByte
+// to mimic reading from memory
+static EEPROM_StatusTypeDef read_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        byte_arr[i] = static_byte_array[i];
+    }
+    return EEPROM_OK;
+}
+
 class BmsFaultTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
     {
         BaseStateMachineTest::SetUp();
+
+        RESET_FAKE(read_page);
+        RESET_FAKE(write_page);
+        RESET_FAKE(page_erase);
+
+        write_page_fake.custom_fake = write_byte_callback;
+        read_page_fake.custom_fake  = read_byte_callback;
 
         App_CanTx_Init();
         App_CanRx_Init();
@@ -122,6 +154,8 @@ class BmsFaultTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
+
+        App_Eeprom_WriteErrCheckedFloat(eeprom, ODOMETER_ADDRESS, STARTING_ODOMETER_READING);
 
         odometer = App_Odometer_Create();
 
@@ -160,9 +194,7 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_high_res_current);
-        RESET_FAKE(read_page);
-        RESET_FAKE(write_page);
-        RESET_FAKE(page_erase);
+        RESET_FAKE(enable_bms_ok);
 
         // Set initial voltages to nominal value
         set_all_cell_voltages(3.8);
@@ -171,10 +203,6 @@ class BmsFaultTest : public BaseStateMachineTest
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
         get_min_temp_degc_fake.return_val = 20.0f;
         get_max_temp_degc_fake.return_val = 20.0f;
-
-        read_page_fake.return_val  = EEPROM_OK;
-        write_page_fake.return_val = EEPROM_OK;
-        page_erase_fake.return_val = EEPROM_OK;
     }
 
     void TearDown() override
