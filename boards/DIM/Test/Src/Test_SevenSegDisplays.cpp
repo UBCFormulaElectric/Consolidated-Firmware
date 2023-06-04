@@ -267,6 +267,11 @@ TEST_F(SevenSegDisplaysTest, set_valid_decimal_values)
     ASSERT_EQ(0, set_left_m_hex_digit_fake.arg0_history[0].value);
     ASSERT_EQ(10, set_left_l_hex_digit_fake.arg0_history[0].value); //the 10 indicates the placeholder value to indicate a decimal point
 
+    App_SevenSegDisplays_SetGroupL(seven_seg_displays, 9.67);
+    ASSERT_EQ(7, set_left_r_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(6, set_left_m_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(19, set_left_l_hex_digit_fake.arg0_history[1].value);
+
     App_SevenSegDisplays_SetGroupM(seven_seg_displays, 42.2);
     ASSERT_EQ(true, set_middle_l_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(true, set_middle_m_hex_digit_fake.arg0_history[0].enabled);

@@ -116,17 +116,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     double speed_kph        = MOTOR_RPM_TO_KMH((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()));
     double gate_temp        = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
-    double min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+    // double min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     if (missing_hb)
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, 1.67);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, min_cell_voltage * 100);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, 9.56);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, gate_temp);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, speed_kph);
     }

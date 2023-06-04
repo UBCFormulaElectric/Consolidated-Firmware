@@ -15,6 +15,25 @@ struct SevenSegDisplays
     void (*display_value_callback)(void);
 };
 
+typedef struct
+{
+    uint8_t disable;
+    uint8_t values[NUM_IN_GROUP]; //two to account for the lookup values for the numbers with decimal points
+} PowerLookupTable;
+// clang-format off
+static const PowerLookupTable power_lookup_table =
+        {
+                .disable = 0,
+                .values  =
+                        {
+                                100, // 0
+                                10, // 1
+                                1, // 2
+                        }
+        };
+
+//clang-format on
+
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *left_l_seven_seg_display,
     struct SevenSegDisplay *left_m_seven_seg_display,
@@ -82,20 +101,22 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
     digits[LEFT_L_SEVEN_SEG_DISPLAY] = 0;
     digits[LEFT_M_SEVEN_SEG_DISPLAY] = 0;
     digits[LEFT_R_SEVEN_SEG_DISPLAY] = 0;
+    uint8_t exponent = (uint8_t)log10(value);
 
-    char str[20];
-    sprintf(str, "%f", value);
-    int i = 0;
+    int temp_value = (int)(value * power_lookup_table.values[exponent]);
+    uint8_t display_value = (uint8_t)temp_value;
 
     // Turn the base-10 value into individual digits. Have to write backwards with how the
     // displays are initialized and how they are passed to the IO function.
-    for (int digits_index = LEFT_L_SEVEN_SEG_DISPLAY; digits_index < NUM_IN_GROUP; digits_index ++)
+    int i = 0;
+    int shift = LEFT_R_SEVEN_SEG_DISPLAY + 1;
+    for (int digits_index = shift; digits_index + shift > NUM_IN_GROUP; digits_index--)
     {
-        if (str[i] == '.'){
-            digits[digits_index-1] = App_SevenSegDisplays_AddDecimalIndicator((uint8_t)digits[digits_index-1]);
-            i++;
+        digits[digits_index - 1] = (display_value % 10);
+        display_value /= 10;
+        if (i == exponent){
+            digits[digits_index -1 ] = App_SevenSegDisplays_AddDecimalIndicator(digits[digits_index-1]);
         }
-        digits[digits_index] = (uint8_t)(str[i] - '0');
         i++;
     }
     App_SevenSegDisplays_SetDigits(seven_seg_displays, LEFT_L_SEVEN_SEG_DISPLAY);
