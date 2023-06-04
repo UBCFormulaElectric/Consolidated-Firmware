@@ -157,7 +157,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
 
-    App_CanTx_BMS_OdometerReading_DistanceTravelled_Set(App_Odometer_GetReading(odometer));
+    const float odometer_reading_km = App_Odometer_GetReading(odometer) / 1000.0f;
+    App_CanTx_BMS_OdometerReading_DistanceTravelled_Set(odometer_reading_km);
 
     App_AdvertisePackPower(accumulator, ts);
 

@@ -4,7 +4,7 @@
 #include "App_Eeprom.h"
 
 #define ODOMETER_ADDRESS 0U
-#define TIRE_CIRCUMFRANCE_KM 0.001276743f
+#define TIRE_CIRCUMFERENCE_M 1.276743f
 
 struct Odometer;
 
