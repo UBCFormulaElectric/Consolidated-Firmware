@@ -46,8 +46,10 @@ ExitCode App_Odometer_WriteValToEeprom(struct Odometer *odometer, struct Eeprom 
 
 float App_Odometer_UpdateReading(struct Odometer *odometer)
 {
-    const float avg_wheelspeed =
-        (App_CanRx_FSM_Wheels_LeftWheelSpeed_Get() + App_CanRx_FSM_Wheels_RightWheelSpeed_Get()) / 2.0f;
+    const float avg_wheelspeed = ((float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get() +
+                                  (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) /
+                                 2.0f;
+
     const float delta_distance_travelled = avg_wheelspeed * TIRE_CIRCUMFRANCE_KM;
 
     // Only increase odometer value if distance travelled is forwards

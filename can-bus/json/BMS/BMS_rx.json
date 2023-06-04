@@ -7,6 +7,7 @@
         "Debug_ChargingSwitch",
         "Debug_CanModes",
         "Debug_ResetOdometer",
-        "FSM_Wheels"
+        "INVL_MotorPositionInfo",
+        "INVR_MotorPositionInfo"
     ]
 }

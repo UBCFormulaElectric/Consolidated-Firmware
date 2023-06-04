@@ -346,10 +346,10 @@ TEST_F(BmsOdometerTest, test_odometer_val_read_from_eeprom)
 
 TEST_F(BmsOdometerTest, test_odometer_val_increases)
 {
-    float wheelspeed_km = 10.0f;
+    float wheelspeed = 10.0f;
 
-    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(wheelspeed_km);
-    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(wheelspeed_km);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(wheelspeed);
+    App_CanRx_INVL_MotorPositionInfo_MotorAngle_Update(wheelspeed);
 
     SetInitialState(App_GetInitState());
 
@@ -366,10 +366,10 @@ TEST_F(BmsOdometerTest, test_odometer_val_increases)
 
 TEST_F(BmsOdometerTest, test_odometer_val_constant_with_negative_wheelspin)
 {
-    float wheelspeed_km = -10.0f;
+    float wheelspeed = -10.0f;
 
-    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(wheelspeed_km);
-    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(wheelspeed_km);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(wheelspeed);
+    App_CanRx_INVL_MotorPositionInfo_MotorAngle_Update(wheelspeed);
 
     SetInitialState(App_GetInitState());
 
@@ -386,10 +386,10 @@ TEST_F(BmsOdometerTest, test_odometer_val_constant_with_negative_wheelspin)
 
 TEST_F(BmsOdometerTest, test_odometer_val_resets_with_can_message)
 {
-    float wheelspeed_km = 10.0f;
+    float wheelspeed = 10.0f;
 
-    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(wheelspeed_km);
-    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(wheelspeed_km);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(wheelspeed);
+    App_CanRx_INVL_MotorPositionInfo_MotorAngle_Update(wheelspeed);
 
     SetInitialState(App_GetInitState());
 
@@ -404,9 +404,11 @@ TEST_F(BmsOdometerTest, test_odometer_val_resets_with_can_message)
     ASSERT_GT(App_Odometer_GetReading(odometer), STARTING_ODOMETER_READING);
 
     App_CanRx_Debug_ResetOdometer_ResetOdometer_Update(true);
-    wheelspeed_km = 0.0f;
-    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(wheelspeed_km);
-    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(wheelspeed_km);
+
+    wheelspeed = 0.0f;
+
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(wheelspeed);
+    App_CanRx_INVL_MotorPositionInfo_MotorAngle_Update(wheelspeed);
 
     LetTimePass(state_machine, 1000);
 
@@ -415,11 +417,11 @@ TEST_F(BmsOdometerTest, test_odometer_val_resets_with_can_message)
 
 TEST_F(BmsOdometerTest, test_odometer_val_written_to_eeprom)
 {
-    float wheelspeed_km   = 10.0f;
+    float wheelspeed      = 10.0f;
     int   time_to_wait_ms = 31000; // 30s write interval + 1s to give time for write
 
-    App_CanRx_FSM_Wheels_LeftWheelSpeed_Update(wheelspeed_km);
-    App_CanRx_FSM_Wheels_RightWheelSpeed_Update(wheelspeed_km);
+    App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(wheelspeed);
+    App_CanRx_INVL_MotorPositionInfo_MotorAngle_Update(wheelspeed);
 
     SetInitialState(App_GetInitState());
 
