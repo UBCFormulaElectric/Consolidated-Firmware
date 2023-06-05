@@ -77,17 +77,6 @@ float App_Accumulator_GetCellVoltage(
     uint8_t                         cell);
 
 /**
- * Get a voltage for a specific cell
- * @param segment The segment containing the cell voltage
- * @param cell The cell location for the voltage
- * @return The voltage at the location given in V
- */
-float App_Accumulator_GetCellVoltage(
-    const struct Accumulator *const accumulator,
-    AccumulatorSegment              segment,
-    uint8_t                         cell);
-
-/**
  * Get min voltage for the accumulator
  * @param accumulator The accumulator to get the min voltage for
  * @param segment The segment containing the min cell voltage
