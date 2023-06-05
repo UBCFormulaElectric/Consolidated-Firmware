@@ -77,7 +77,7 @@ void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_dis
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, double value);
+ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, float value);
 
 /**
  * Take in a base 10 value and populate it to the middle group of 7-segment displays
@@ -87,7 +87,7 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, double value);
+ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, float value);
 
 /**
  * Take in a base 10 value and populate it to the right most group of 7-segment displays
@@ -97,4 +97,4 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
  * @param digits[] The array of the full 9 7-segment displays values to populate
  * @param value The base 10 value to be written to the specified group of 7-segments
  */
-ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, double value);
+ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, float value);

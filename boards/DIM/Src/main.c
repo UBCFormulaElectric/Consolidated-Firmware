@@ -120,6 +120,7 @@ struct RgbLed *           dim_status_led;
 struct RgbLed *           fsm_status_led;
 struct RgbLed *           pdm_status_led;
 struct Clock *            clock;
+struct AvgPowerCalc *     avg_power_calc;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -257,10 +258,12 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
+    avg_power_calc = App_AvgPowerCalc_Create();
+
     world = App_DimWorld_Create(
         seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
         drive_led, start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-        pdm_status_led, clock);
+        pdm_status_led, clock, avg_power_calc);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 2 */

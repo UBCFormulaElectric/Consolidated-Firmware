@@ -9,22 +9,12 @@
 // LEDs are controlled by clocking commands into an 8-bit shift register (TPIC6C596PWR), which drives the 7-segs
 #define SHIFT_REGISTER_SIZE 8
 #define TEMP_NUM_DISPLAYS 9
-
-// Digits for displaying "Formula E"
-#define DIGIT_F 0x8E
-#define DIGIT_O 0x3A
-#define DIGIT_R 0x0A
-#define DIGIT_M1 0x2A
-#define DIGIT_M2 0x2A
-#define DIGIT_U 0x1C << 1
-#define DIGIT_L 0x0E << 1
-#define DIGIT_A 0x7D << 1
-#define DIGIT_E 0x4F << 1
+#define MAX_HEX_VAL 20U
 
 typedef struct
 {
-    uint8_t disable;
-    uint8_t values[NUM_HEX_DIGITS*2]; //two to account for the lookup values for the numbers with decimal points
+    uint16_t disable;
+    uint16_t values[NUM_HEX_DIGITS * 2]; // two to account for the lookup values for the numbers with decimal points
 } CommandLookupTable;
 
 // clang-format off
@@ -46,7 +36,7 @@ static const CommandLookupTable command_lookup_table =
         0xFD, // 0x10
         0x61, // 0x11
         0xDB, // 0x12
-        0xF2, // 0x13
+        0xF3, // 0x13
         0x67, // 0x14
         0xB7, // 0x15
         0xBF, // 0x16
@@ -59,7 +49,7 @@ static const CommandLookupTable command_lookup_table =
 
 // The 7-segment displays are controlled by sending 8-bit command values to
 // shift registers via SPI
-static uint8_t commands[NUM_SEVEN_SEG_DISPLAYS];
+static uint16_t commands[NUM_SEVEN_SEG_DISPLAYS];
 
 void Io_SevenSegDisplays_Init()
 {
@@ -77,7 +67,7 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // displays all at once.
     for (int display = 0; display < 9; display++)
     {
-        const uint8_t display_data = commands[9 - display - 1]; // invert order
+        const uint16_t display_data = commands[9 - display - 1]; // invert order
 
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
@@ -107,7 +97,7 @@ void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGI
     }
     else
     {
-        assert(hex_digit.value < NUM_HEX_DIGITS);
+        assert(hex_digit.value < MAX_HEX_VAL);
 
         commands[DIGIT] = command_lookup_table.values[hex_digit.value];
     }

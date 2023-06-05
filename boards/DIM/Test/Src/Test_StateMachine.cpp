@@ -9,6 +9,7 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
+#include "App_AvgPower.h"
 #include "App_CanUtils.h"
 #include "App_SharedMacros.h"
 #include "states/App_DriveState.h"
@@ -142,10 +143,12 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
+        avg_power_calc = App_AvgPowerCalc_Create();
+
         world = App_DimWorld_Create(
             seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
             drive_led, start_switch, traction_control_switch, bms_status_led, dcm_status_led, dim_status_led,
-            fsm_status_led, pdm_status_led, clock);
+            fsm_status_led, pdm_status_led, clock, avg_power_calc);
 
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
@@ -232,6 +235,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(fsm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(pdm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(avg_power_calc, App_AvgPowerCalc_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -283,6 +287,7 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct RgbLed *          fsm_status_led;
     struct RgbLed *          pdm_status_led;
     struct Clock *           clock;
+    struct AvgPowerCalc *    avg_power_calc;
 };
 
 // DIM-12
@@ -592,6 +597,20 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
     // Don't set any error and check that the PDM LED turns green
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_green_fake.call_count);
+}
+
+TEST_F(DimStateMachineTest, avg_power_calc_resets_with_switch)
+{
+    traction_control_switch_is_turned_on_fake.return_val = true;
+    App_AvgPowerCalc_Enable(avg_power_calc, traction_control_switch_is_turned_on_fake.return_val);
+    float test_val = App_AvgPowerCalc_Update(avg_power_calc, 45.6);
+    float avg      = 45.6f;
+    ASSERT_EQ(test_val, avg);
+
+    traction_control_switch_is_turned_on_fake.return_val = false;
+    App_AvgPowerCalc_Enable(avg_power_calc, traction_control_switch_is_turned_on_fake.return_val);
+    test_val = App_AvgPowerCalc_Update(avg_power_calc, 78.9);
+    ASSERT_EQ(test_val, 0);
 }
 
 } // namespace StateMachineTest
