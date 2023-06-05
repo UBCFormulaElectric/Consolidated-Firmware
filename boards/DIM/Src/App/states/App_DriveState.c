@@ -140,9 +140,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     if (missing_hb)
     {
-                App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
-                App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
-                App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
     {
