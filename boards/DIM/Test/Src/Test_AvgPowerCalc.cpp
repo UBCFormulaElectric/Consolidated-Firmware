@@ -10,7 +10,7 @@ class AveragePowerCalcTest : public testing::Test
   protected:
     void SetUp() override { avg_power_calc = App_AvgPowerCalc_Create(); }
 
-    void TearDown() override { TearDownObject(avg_power_calc, App_AvgPowerCalc_Reset); }
+    void TearDown() override { TearDownObject(avg_power_calc, App_AvgPowerCalc_Destroy); }
 
     struct AvgPowerCalc *avg_power_calc;
 };
