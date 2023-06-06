@@ -164,30 +164,43 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
  */
 static void App_Accumulator_InterpretOpenWireCheck(struct Accumulator *accumulator)
 {
-    bool open_wire_fault = false;
+    accumulator->open_wire_fault = false;
 
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
-        // For cell 0, cell 0 is open if V_PU(0) = 0V
+        /*
+        For cell 1, cell 1 is open if V_PU(1) = 0V. Cell 1 is the first cell, i.e. the voltage at index 0.
+        See comment below for explanation.
+        */
         const bool cell_0_open = accumulator->open_wire_pu_voltages[segment][0U] < OPEN_WIRE_CHECK_CELL_0_THRESHOLD_V;
         accumulator->open_wire_cells[segment][0] = cell_0_open;
         accumulator->open_wire_fault |= cell_0_open;
 
         for (uint8_t cell = 1U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
-            // For cell N in 1-15, cell N is open if V_PU(N+1) - V_PD(N+1) < -400mV
-            // * V_PU(N) is pull-up voltage of cell N, i.e. voltages read back after ADOW with PUP set to 1
-            // * V_PD(N) is pull-down voltage of cell N, i.e. voltages read back after ADOW with PUP set to 0
+            /*
+            From LTC6813 datasheet:
+            For cell N in 1-15, pin C(N) is open if V_PU(N+1) - V_PD(N+1) < -400mV.
+            Cells are 1-indexed, so cell 1 is the first cell. C(N) pins are 0-indexed, i.e. C(0) is attached to the
+            negative terminal of cell 1, and C(1) to the positive terminal.
+            V_PU(N) is pull-up voltage of cell N, i.e. voltages read back after ADOW with PUP set to 1. V_PD(N) is
+            pull-down voltage of cell N, i.e. voltages read back after ADOW with PUP set to 0.
 
-            // TODO: THIS IS WRONG! The +1 is unnecessary
-            // In the LTC datasheet, where this algorithm is from, cell 1 (first cell) connects to C1 on positive
-            // terminal In our code, cell 1's voltage is read back at index 0 Also this index "cell" shouldn't actually
-            // be the cell, it should be the pin index C0, C1, etc. since that is what can actually go open wire.
-            const float n_plus_1_pu_voltage = accumulator->open_wire_pu_voltages[segment][cell + 1];
-            const float n_plus_1_pd_voltage = accumulator->open_wire_pd_voltages[segment][cell + 1];
-            const bool  cell_open = (n_plus_1_pu_voltage - n_plus_1_pd_voltage) < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
-            accumulator->open_wire_cells[segment][cell] = cell_open;
-            accumulator->open_wire_fault |= cell_open;
+            However for our implementation, cell voltages are read back as 0-indexed: The voltage of the first cell
+            lives in index 0. So, the +1 from the datasheet is unnecessary.
+
+            E.g. check if C(1) (i.e. the first cell) is open wire.
+            To check if C(1) is open, we need the pull-up and pull-down voltages of cell N+1, the second cell. This
+            cell's voltages live at index 1, thus observe we can disregard the +1 factor.
+
+            See "Open Wire Check (ADOW Command)" in
+            https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6813-1.pdf for more info.
+            */
+            const float pu_voltage    = accumulator->open_wire_pu_voltages[segment][cell];
+            const float pd_voltage    = accumulator->open_wire_pd_voltages[segment][cell];
+            const bool  cell_pin_open = (pu_voltage - pd_voltage) < OPEN_WIRE_CHECK_CELL_N_THRESHOLD_V;
+            accumulator->open_wire_cells[segment][cell] = cell_pin_open;
+            accumulator->open_wire_fault |= cell_pin_open;
         }
     }
 }
@@ -472,16 +485,16 @@ float App_Accumulator_GetAccumulatorVoltage(const struct Accumulator *accumulato
 
 float App_Accumulator_GetMinCellTempDegC(
     const struct Accumulator *const accumulator,
-    uint8_t *                       segment,
-    uint8_t *                       thermistor)
+    uint8_t                        *segment,
+    uint8_t                        *thermistor)
 {
     return accumulator->get_min_cell_temp(segment, thermistor);
 }
 
 float App_Accumulator_GetMaxCellTempDegC(
     const struct Accumulator *const accumulator,
-    uint8_t *                       segment,
-    uint8_t *                       thermistor)
+    uint8_t                        *segment,
+    uint8_t                        *thermistor)
 {
     return accumulator->get_max_cell_temp(segment, thermistor);
 }
