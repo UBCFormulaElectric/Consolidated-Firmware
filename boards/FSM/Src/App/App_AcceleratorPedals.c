@@ -207,7 +207,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT, apps_disagreement);
+    App_CanAlerts_SetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT, apps_disagreement);
 
     if (apps_disagreement)
     {
