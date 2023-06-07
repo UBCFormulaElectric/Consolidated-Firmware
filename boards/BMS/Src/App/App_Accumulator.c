@@ -263,9 +263,6 @@ void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     accumulator->config_monitoring_chip();
-
-    // Enable cell discharging
-    accumulator->enable_balance();
 }
 
 bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
@@ -351,12 +348,12 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
     return accumulator->get_avg_cell_temp();
 }
 
-bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
+bool App_Accumulator_EnableBalance(const struct Accumulator *const accumulator)
 {
     return accumulator->enable_balance();
 }
 
-bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
+bool App_Accumulator_DisableBalance(const struct Accumulator *const accumulator)
 {
     return accumulator->disable_balance();
 }
