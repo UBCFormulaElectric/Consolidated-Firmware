@@ -52,19 +52,19 @@
         "description": "PDM voltages.",
         "signals": {
             "BatVoltage": {
-                "resolution": 0.0001,
+                "resolution": 0.01,
                 "min": 0,
                 "max": 10,
                 "unit": "V"
             },
             "BoostVoltage": {
-                "resolution": 0.0001,
+                "resolution": 0.01,
                 "min": 0,
                 "max": 30,
                 "unit": "V"
             },
             "AccVoltage": {
-                "resolution": 0.0001,
+                "resolution": 0.01,
                 "min": 0,
                 "max": 30,
                 "unit": "V"

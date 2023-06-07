@@ -113,7 +113,6 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
 struct Clock *            clock;
-struct PdmVoltages *      pdm_voltages;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
