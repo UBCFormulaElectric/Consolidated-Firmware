@@ -16,7 +16,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_PDM_Vitals_Heartbeat_Set(true);
     App_CanTx_PDM_Voltages_BatVoltage_Set(App_LowVoltageBattery_GetBatVoltage(lv_battery));
-    App_CanTx_PDM_Voltages_AuxVoltage_Set(App_LowVoltageBattery_GetAuxVoltage(lv_battery));
+    App_CanTx_PDM_Voltages_AccVoltage_Set(App_LowVoltageBattery_GetAccVoltage(lv_battery));
     App_CanTx_PDM_Voltages_BoostVoltage_Set(App_LowVoltageBattery_GetBoostVoltage(lv_battery));
 
     if (App_CanRx_BMS_Vitals_Heartbeat_Get())

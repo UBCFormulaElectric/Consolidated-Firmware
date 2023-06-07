@@ -207,10 +207,10 @@ int main(void)
         App_InRangeCheck_Create(Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
     _24v_aux_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
+        App_InRangeCheck_Create(Io_VoltageSense_GetBoostVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
 
     _24v_acc_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
+        App_InRangeCheck_Create(Io_VoltageSense_GetAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
 
     aux1_current_in_range_check =
         App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
@@ -240,9 +240,8 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
     low_voltage_battery = App_LowVoltageBattery_Create(
-        Io_LT3650_HasFault, Io_LTC3786_HasFault, Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage,
-        Io_VoltageSense_Get24vAuxVoltage);
-
+        Io_LT3650_HasFault, Io_LTC3786_HasFault, Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_GetAccVoltage,
+        Io_VoltageSense_GetBoostVoltage);
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(

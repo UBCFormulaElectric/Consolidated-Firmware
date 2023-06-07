@@ -45,8 +45,23 @@ bool App_LowVoltageBattery_HasChargeFault(const struct LowVoltageBattery *low_vo
  */
 bool App_LowVoltageBattery_HasBoostControllerFault(const struct LowVoltageBattery *low_voltage_battery);
 
+/**
+ * Get the 18650 series cell voltage
+ * @param low_voltage_battery the low voltage battery to read
+ * @return 18650 series voltage
+ */
 float App_LowVoltageBattery_GetBatVoltage(struct LowVoltageBattery *low_voltage_battery);
 
+/**
+ * Get the Boost converter voltage
+ * @param low_voltage_battery the low voltage battery to get boost converter voltage for
+ * @return boost converter voltage
+ */
 float App_LowVoltageBattery_GetBoostVoltage(struct LowVoltageBattery *low_voltage_battery);
 
-float App_LowVoltageBattery_GetAuxVoltage(struct LowVoltageBattery *low_voltage_battery);
+/**
+ * Get the accumulator lv voltage
+ * @param low_voltage_battery the low voltage battery to get accumulator voltage for
+ * @return lv accumulator voltage
+ */
+float App_LowVoltageBattery_GetAccVoltage(struct LowVoltageBattery *low_voltage_battery);
