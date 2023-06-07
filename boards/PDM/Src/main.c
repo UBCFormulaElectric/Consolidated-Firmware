@@ -41,6 +41,7 @@
 #include "Io_LTC3786.h"
 #include "Io_Adc.h"
 #include "Io_Efuse.h"
+#include "Io_VoltageSense.h"
 
 #include "App_CanAlerts.h"
 #include "App_PdmWorld.h"
@@ -112,6 +113,7 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
 struct Clock *            clock;
+struct PdmVoltages *      pdm_voltages;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -237,7 +239,9 @@ int main(void)
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
-    low_voltage_battery = App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
+    low_voltage_battery = App_LowVoltageBattery_Create(
+        Io_LT3650_HasFault, Io_LTC3786_HasFault, Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage,
+        Io_VoltageSense_Get24vAuxVoltage);
 
     clock = App_SharedClock_Create();
 

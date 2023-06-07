@@ -45,5 +45,30 @@
                 "enum": "RtosTaskName"
             }
         }
+    },
+    "PDM_Voltages": {
+        "msg_id": 405,
+        "cycle_time": 100,
+        "description": "PDM voltages.",
+        "signals": {
+            "BatVoltage": {
+                "resolution": 0.0001,
+                "min": 0,
+                "max": 10,
+                "unit": "V"
+            },
+            "BoostVoltage": {
+                "resolution": 0.0001,
+                "min": 0,
+                "max": 30,
+                "unit": "V"
+            },
+            "AuxVoltage": {
+                "resolution": 0.0001,
+                "min": 0,
+                "max": 30,
+                "unit": "V"
+            }
+        }
     }
 }
