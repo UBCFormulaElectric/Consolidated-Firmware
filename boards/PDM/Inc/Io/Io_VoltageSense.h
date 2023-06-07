@@ -7,13 +7,13 @@
 float Io_VoltageSense_GetVbatVoltage(void);
 
 /**
- * Get the 24V AUX voltage, in volts
- * @return The 24V AUX voltage, in volts
+ * Get the 22V Boost voltage, in volts
+ * @return The 22V Boost voltage, in volts
  */
-float Io_VoltageSense_Get24vAuxVoltage(void);
+float Io_VoltageSense_GetBoostVoltage(void);
 
 /**
  * Get the 24V ACC voltage, in volts
  * @return The 24V ACC voltage, in volts
  */
-float Io_VoltageSense_Get24vAccVoltage(void);
+float Io_VoltageSense_GetAccVoltage(void);
