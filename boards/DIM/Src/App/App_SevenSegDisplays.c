@@ -67,6 +67,20 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     return seven_seg_displays;
 }
 
+static uint8_t App_SevenSegDisplays_Exponent(float value){
+    uint8_t exponent = 0;
+
+    if(value >= 100 ){
+        exponent = 2;
+    }
+    else if (value >= 10){
+        exponent = 1;
+    }
+
+    return exponent;
+}
+
+
 uint16_t App_SevenSegDisplays_AddDecimalIndicator(uint16_t value)
 {
     uint16_t temp = (uint16_t)(value + (uint16_t)10); //help
@@ -105,14 +119,7 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
     digits[LEFT_M_SEVEN_SEG_DISPLAY] = 0;
     digits[LEFT_R_SEVEN_SEG_DISPLAY] = 0;
 
-    uint8_t exponent = 0;
-
-    if(value >= 100 ){
-        exponent = 2;
-    }
-    else if (value >= 10){
-        exponent = 1;
-    }
+    uint8_t exponent = App_SevenSegDisplays_Exponent(value);
 
     uint16_t display_value = (uint16_t)(value * power_lookup_table.values[exponent]);;
 
@@ -143,14 +150,7 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
     digits[MIDDLE_M_SEVEN_SEG_DISPLAY] = 0;
     digits[MIDDLE_R_SEVEN_SEG_DISPLAY] = 0;
 
-    uint8_t exponent = 0;
-
-    if(value >= 100 ){
-        exponent = 2;
-    }
-    else if (value >= 10){
-        exponent = 1;
-    }
+    uint8_t exponent = App_SevenSegDisplays_Exponent(value);
 
     uint16_t display_value = (uint16_t)(value * power_lookup_table.values[exponent]);
 
@@ -187,14 +187,7 @@ ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const sev
     digits[RIGHT_M_SEVEN_SEG_DISPLAY] = 0;
     digits[RIGHT_R_SEVEN_SEG_DISPLAY] = 0;
 
-    uint8_t exponent = 0;
-
-    if(value >= 100 ){
-        exponent = 2;
-    }
-    else if (value >= 10){
-        exponent = 1;
-    }
+    uint8_t exponent = App_SevenSegDisplays_Exponent(value);
 
     uint16_t display_value = (uint16_t)(value * power_lookup_table.values[exponent]);
 
