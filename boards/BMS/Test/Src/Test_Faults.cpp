@@ -482,9 +482,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
 
-    // Max acceptable discharge current is 88.5A*3 = 265.5A
-    get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
-    get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
+    // Max acceptable discharge current is -88.5A*3 = -265.5A
+    get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS - 1.0f;
+    get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
@@ -495,8 +495,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
 
     // Clear fault, should transition back to init
-    get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + (-1.0f);
-    get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS + (-1.0f);
+    get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
+    get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
@@ -522,9 +522,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
-    // Charge current is negative
-    get_high_res_current_fake.return_val = MAX_TS_CHARGE_CURRENT_AMPS + (-1.0f);
-    get_low_res_current_fake.return_val  = MAX_TS_CHARGE_CURRENT_AMPS + (-1.0f);
+    get_high_res_current_fake.return_val = MAX_TS_CHARGE_CURRENT_AMPS + 1.0f;
+    get_low_res_current_fake.return_val  = MAX_TS_CHARGE_CURRENT_AMPS + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
@@ -535,8 +534,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_TS_OVERCURRENT));
 
     // Clear fault, should transition back to init
-    get_high_res_current_fake.return_val   = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
-    get_low_res_current_fake.return_val    = MAX_TS_CHARGE_CURRENT_AMPS + (1.0f);
+    get_high_res_current_fake.return_val   = MAX_TS_CHARGE_CURRENT_AMPS - 1.0f;
+    get_low_res_current_fake.return_val    = MAX_TS_CHARGE_CURRENT_AMPS - 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
