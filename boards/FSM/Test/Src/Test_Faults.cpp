@@ -420,7 +420,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
         LetTimePass(state_machine, 10 + APP_BRAKE_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-        ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+        ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
 
         if (test_params[i].expect_fault)
         {
@@ -428,13 +428,13 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
 
             // Clear condition, confirm fault resets
             get_papps_fake.return_val = 4; // Primary must be <5% to clear
@@ -443,12 +443,12 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 10 + APP_BRAKE_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
 
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(4, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(4, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+            ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
         }
         else
         {
@@ -456,7 +456,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 1000);
             ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_BRAKE_ACC_DISAGREEMENT));
+            ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT));
         }
     }
 }
