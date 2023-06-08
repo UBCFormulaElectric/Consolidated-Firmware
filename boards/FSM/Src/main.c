@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -24,6 +24,42 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+// shared
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
+#include "App_Timer.h"
+#include "App_CanAlerts.h"
+
+// IO functions exposing
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
+#include "Io_SharedSoftwareWatchdog.h"
+#include "Io_SharedCan.h"
+#include "Io_SharedHardFaultHandler.h"
+#include "Io_StackWaterMark.h"
+#include "Io_SoftwareWatchdog.h"
+#include "Io_Coolant.h"
+#include "Io_SharedHeartbeatMonitor.h"
+#include "Io_WheelSpeedSensors.h"
+#include "Io_SteeringAngleSensor.h"
+#include "Io_Adc.h"
+#include "Io_AcceleratorPedals.h"
+#include "Io_Brake.h"
+#include "Io_PrimaryScancon2RMHF.h"
+#include "Io_SecondaryScancon2RMHF.h"
+
+// world/state
+#include "App_FsmWorld.h"
+#include "states/App_DriveState.h"
+
+// Sensors
+#include "App_AcceleratorPedals.h"
+#include "App_Brake.h"
+#include "App_Coolant.h"
+#include "App_Steering.h"
+#include "App_Wheels.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 
 /* USER CODE END Includes */
 
@@ -70,7 +106,14 @@ osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
 /* USER CODE BEGIN PV */
-
+struct Brake *            brake;
+struct World *            world;
+struct StateMachine *     state_machine;
+struct HeartbeatMonitor * heartbeat_monitor;
+struct AcceleratorPedals *papps_and_sapps;
+struct Coolant *          coolant;
+struct Steering *         steering;
+struct Wheels *           wheels;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,10 +134,25 @@ void        RunTask1Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
+static void CanRxQueueOverflowCallBack(size_t overflow_count);
+static void CanTxQueueOverflowCallBack(size_t overflow_count);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+static void CanRxQueueOverflowCallBack(size_t overflow_count)
+{
+    App_CanTx_FSM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(FSM_WARNING_RX_OVERFLOW, true);
+}
+
+static void CanTxQueueOverflowCallBack(size_t overflow_count)
+{
+    App_CanTx_FSM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_SetWarning(FSM_WARNING_TX_OVERFLOW, true);
+}
 
 /* USER CODE END 0 */
 
@@ -121,7 +179,7 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    HAL_Delay(1000U);
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -134,7 +192,43 @@ int main(void)
     MX_TIM12_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
+    __HAL_DBGMCU_FREEZE_IWDG();
 
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
+
+    Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+
+    App_CanTx_Init();
+    App_CanRx_Init();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+            Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+
+    papps_and_sapps = App_AcceleratorPedals_Create(
+            Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetSapps,
+            Io_AcceleratorPedals_SappsOCSC);
+
+    brake = App_Brake_Create(
+            Io_Brake_GetFrontPressurePsi, Io_Brake_FrontPressureSensorOCSC, Io_Brake_GetRearPressurePsi,
+            Io_Brake_RearPressureSensorOCSC, Io_Brake_GetPedalPercentTravel, Io_Brake_PedalSensorOCSC, Io_Brake_IsActuated);
+
+    Io_FlowMeter_Init(&htim8);
+    coolant = App_Coolant_Create(
+            Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
+            Io_Coolant_GetPressureB);
+
+    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree, Io_SteeringSensorOCSC);
+
+    Io_WheelSpeedSensors_Init(&htim12, &htim12);
+    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
+
+    world = App_FsmWorld_Create(heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -176,6 +270,9 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
+#if (configUSE_TRACE_FACILITY == 1)
+    vTraceEnable(TRC_INIT);
+#endif
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
@@ -383,7 +480,6 @@ static void MX_CAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
-
     /* USER CODE END CAN1_Init 2 */
 }
 
@@ -598,18 +694,37 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN Header_RunTask1kHz */
 /**
- * @brief  Function implementing the Task1kHz thread.
- * @param  argument: Not used
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
  * @retval None
  */
 /* USER CODE END Header_RunTask1kHz */
 void RunTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1U;
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
     for (;;)
     {
-        osDelay(1);
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+
+        App_Timer_SetCurrentTimeMS(task_start_ms);
+        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        {
+            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        }
+
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -624,10 +739,22 @@ void RunTask1kHz(void const *argument)
 void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 10;
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        Io_CanTx_Enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask100Hz */
 }
@@ -642,10 +769,14 @@ void RunTask100Hz(void const *argument)
 void RunTaskCanRx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -660,28 +791,45 @@ void RunTaskCanRx(void const *argument)
 void RunTaskCanTx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
 }
 
 /* USER CODE BEGIN Header_RunTask1Hz */
 /**
- * @brief Function implementing the Task1Hz thread.
- * @param argument: Not used
+ * @brief  Function implementing the Task1Hz thread.
+ * @param  argument: Not used
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
 void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1000U;
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
     for (;;)
     {
-        osDelay(1);
+        Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        Io_CanTx_Enqueue1HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1Hz */
 }
@@ -697,7 +845,18 @@ void RunTask1Hz(void const *argument)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     /* USER CODE BEGIN Callback 0 */
-
+    if (htim->Instance == TIM4)
+    {
+        Io_FlowMeter_CheckIfFlowMeterIsActive();
+    }
+    else if (htim->Instance == TIM12)
+    {
+        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+    }
+    else if (htim->Instance == TIM12)
+    {
+        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
+    }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)
     {
@@ -715,8 +874,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
-
+    __assert_func(__FILE__, __LINE__, "Error_Handler", "Error_Handler");
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -731,8 +889,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-       tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    __assert_func(file, line, "assert_failed", "assert_failed");
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
