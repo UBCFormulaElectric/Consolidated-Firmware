@@ -9,6 +9,7 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
+#include "App_AvgPower.h"
 #include "App_CanUtils.h"
 #include "App_SharedMacros.h"
 #include "states/App_DriveState.h"
@@ -21,9 +22,15 @@ namespace StateMachineTest
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
 
-FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit, int);
+FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit, int);
 FAKE_VOID_FUNC(display_value_callback);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
@@ -83,12 +90,20 @@ class DimStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
-        middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
-        right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
+        left_l_seven_seg_display   = App_SevenSegDisplay_Create(set_left_l_hex_digit);
+        left_m_seven_seg_display   = App_SevenSegDisplay_Create(set_left_m_hex_digit);
+        left_r_seven_seg_display   = App_SevenSegDisplay_Create(set_left_r_hex_digit);
+        middle_l_seven_seg_display = App_SevenSegDisplay_Create(set_middle_l_hex_digit);
+        middle_m_seven_seg_display = App_SevenSegDisplay_Create(set_middle_m_hex_digit);
+        middle_r_seven_seg_display = App_SevenSegDisplay_Create(set_middle_r_hex_digit);
+        right_l_seven_seg_display  = App_SevenSegDisplay_Create(set_right_l_hex_digit);
+        right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
+        right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
 
         seven_seg_displays = App_SevenSegDisplays_Create(
-            left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, display_value_callback);
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+            middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display,
+            right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -128,10 +143,12 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
+        avg_power_calc = App_AvgPowerCalc_Create();
+
         world = App_DimWorld_Create(
             seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
             drive_led, start_switch, traction_control_switch, bms_status_led, dcm_status_led, dim_status_led,
-            fsm_status_led, pdm_status_led, clock);
+            fsm_status_led, pdm_status_led, clock, avg_power_calc);
 
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
@@ -139,9 +156,15 @@ class DimStateMachineTest : public BaseStateMachineTest
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_DIM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
-        RESET_FAKE(set_right_hex_digit);
-        RESET_FAKE(set_middle_hex_digit);
-        RESET_FAKE(set_left_hex_digit);
+        RESET_FAKE(set_left_l_hex_digit);
+        RESET_FAKE(set_left_m_hex_digit);
+        RESET_FAKE(set_left_r_hex_digit);
+        RESET_FAKE(set_middle_l_hex_digit);
+        RESET_FAKE(set_middle_m_hex_digit);
+        RESET_FAKE(set_middle_r_hex_digit);
+        RESET_FAKE(set_right_l_hex_digit);
+        RESET_FAKE(set_right_m_hex_digit);
+        RESET_FAKE(set_right_r_hex_digit);
         RESET_FAKE(display_value_callback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
@@ -186,9 +209,15 @@ class DimStateMachineTest : public BaseStateMachineTest
     {
         TearDownObject(world, App_DimWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(left_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(middle_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_r_seven_seg_display, App_SevenSegDisplay_Destroy);
         TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -206,6 +235,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(fsm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(pdm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(avg_power_calc, App_AvgPowerCalc_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -231,9 +261,15 @@ class DimStateMachineTest : public BaseStateMachineTest
 
     struct World *           world;
     struct StateMachine *    state_machine;
-    struct SevenSegDisplay * left_seven_seg_display;
-    struct SevenSegDisplay * middle_seven_seg_display;
-    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplay * left_l_seven_seg_display;
+    struct SevenSegDisplay * left_m_seven_seg_display;
+    struct SevenSegDisplay * left_r_seven_seg_display;
+    struct SevenSegDisplay * middle_l_seven_seg_display;
+    struct SevenSegDisplay * middle_m_seven_seg_display;
+    struct SevenSegDisplay * middle_r_seven_seg_display;
+    struct SevenSegDisplay * right_l_seven_seg_display;
+    struct SevenSegDisplay * right_m_seven_seg_display;
+    struct SevenSegDisplay * right_r_seven_seg_display;
     struct SevenSegDisplays *seven_seg_displays;
     struct HeartbeatMonitor *heartbeat_monitor;
     struct RgbLedSequence *  rgb_led_sequence;
@@ -251,6 +287,7 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct RgbLed *          fsm_status_led;
     struct RgbLed *          pdm_status_led;
     struct Clock *           clock;
+    struct AvgPowerCalc *    avg_power_calc;
 };
 
 // DIM-12
@@ -560,6 +597,20 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
     // Don't set any error and check that the PDM LED turns green
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_green_fake.call_count);
+}
+
+TEST_F(DimStateMachineTest, avg_power_calc_resets_with_switch)
+{
+    traction_control_switch_is_turned_on_fake.return_val = true;
+    App_AvgPowerCalc_Enable(avg_power_calc, traction_control_switch_is_turned_on_fake.return_val);
+    float test_val = App_AvgPowerCalc_Update(avg_power_calc, 45.6);
+    float avg      = 45.6f;
+    ASSERT_EQ(test_val, avg);
+
+    traction_control_switch_is_turned_on_fake.return_val = false;
+    App_AvgPowerCalc_Enable(avg_power_calc, traction_control_switch_is_turned_on_fake.return_val);
+    test_val = App_AvgPowerCalc_Update(avg_power_calc, 78.9);
+    ASSERT_EQ(test_val, 0);
 }
 
 } // namespace StateMachineTest

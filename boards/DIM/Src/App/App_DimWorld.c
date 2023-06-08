@@ -22,6 +22,7 @@ struct DimWorld
     struct RgbLed *          fsm_status_led;
     struct RgbLed *          pdm_status_led;
     struct Clock *           clock;
+    struct AvgPowerCalc *    avg_power_calc;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -40,7 +41,8 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *const           dim_status_led,
     struct RgbLed *const           fsm_status_led,
     struct RgbLed *const           pdm_status_led,
-    struct Clock *const            clock)
+    struct Clock *const            clock,
+    struct AvgPowerCalc *const     avg_power_calc)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -61,6 +63,7 @@ struct DimWorld *App_DimWorld_Create(
     world->fsm_status_led     = fsm_status_led;
     world->pdm_status_led     = pdm_status_led;
     world->clock              = clock;
+    world->avg_power_calc     = avg_power_calc;
 
     return world;
 }
@@ -148,4 +151,9 @@ struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world)
 struct Clock *App_DimWorld_GetClock(const struct DimWorld *world)
 {
     return world->clock;
+}
+
+struct AvgPowerCalc *App_DimWorld_GetAvgPowerCalc(const struct DimWorld *world)
+{
+    return world->avg_power_calc;
 }
