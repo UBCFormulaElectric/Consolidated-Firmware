@@ -11,6 +11,7 @@
 #include "App_BinarySwitch.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
+#include "App_AvgPower.h"
 
 struct DimWorld;
 
@@ -39,7 +40,8 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *          dim_status_led,
     struct RgbLed *          fsm_status_led,
     struct RgbLed *          pdm_status_led,
-    struct Clock *           clock);
+    struct Clock *           clock,
+    struct AvgPowerCalc *    avgPowerCalc);
 
 /**
  * Deallocate the memory used by the given world
@@ -157,3 +159,10 @@ struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world);
  * @return The clock for the given world
  */
 struct Clock *App_DimWorld_GetClock(const struct DimWorld *world);
+
+/**
+ * Get the average power for the given world
+ * @param world
+ * @return The struct with the running and average power
+ */
+struct AvgPowerCalc *App_DimWorld_GetAvgPowerCalc(const struct DimWorld *world);
