@@ -4,7 +4,8 @@
     "BMS_PRECHARGE_STATE": 1,
     "BMS_CHARGE_STATE": 2,
     "BMS_DRIVE_STATE": 3,
-    "BMS_FAULT_STATE": 4
+    "BMS_BALANCING_STATE": 4,
+    "BMS_FAULT_STATE": 5
   },
   "ImdCondition": {
     "IMD_CONDITION_SHORT_CIRCUIT": 0,
