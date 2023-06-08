@@ -45,11 +45,5 @@ ExitCode App_RotarySwitch_GetSwitchPosition(
 
 bool App_RotarySwitch_IsValid(const struct RotarySwitch *const rotary_switch)
 {
-    uint32_t position = rotary_switch->get_switch_position();
-
-    if (position >= rotary_switch->num_switch_positions)
-    {
-        return false;
-    }
-    return true;
+    return (rotary_switch->get_switch_position() < rotary_switch->num_switch_positions);
 }
