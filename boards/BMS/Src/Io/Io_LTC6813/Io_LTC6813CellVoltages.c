@@ -51,13 +51,6 @@ static bool Io_ParseCellVoltageFromAllSegments(
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
     float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
-/**
- * Note: call this function after Io_UpdateVoltages is called to get the most
- * recent value for the minimum voltage A function to enable the discharge bits
- * when their voltages are greater than 200uV from the minimum cell voltage
- */
-static void Io_SetDischargeBits(void);
-
 static bool Io_ParseCellVoltageFromAllSegments(
     uint8_t  curr_reg_group,
     uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
@@ -121,33 +114,6 @@ static bool Io_ParseCellVoltageFromAllSegments(
     return status;
 }
 
-static void Io_SetDischargeBits(void)
-{
-    /*
-     * TODO: move balancing stuff to App code
-    memset(discharge_bits, 0U, sizeof(discharge_bits));
-
-    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
-    {
-        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
-        {
-            for (uint8_t curr_cell = 0U; curr_cell < NUM_OF_READINGS_PER_REG_GROUP; curr_cell++)
-            {
-                if ((curr_reg_group != CELL_V_REG_GROUP_F) || (curr_cell == 0U))
-                {
-                    if (cell_voltages[curr_segment][curr_reg_group][curr_cell] >
-                        (voltages.min.voltage + CELL_VOLTAGE_DISCHARGE_WINDOW_UV))
-                    {
-                        discharge_bits[curr_segment] |=
-                            (uint16_t)(1U << (curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_cell));
-                    }
-                }
-            }
-        }
-    }
-     */
-}
-
 bool Io_LTC6813CellVoltages_ReadVoltages(
     float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
@@ -178,9 +144,6 @@ bool Io_LTC6813CellVoltages_ReadVoltages(
         // groups
         status &= voltage_read_success;
     }
-
-    // Set bits to discharge for a given segment
-    Io_SetDischargeBits();
 
     return status;
 }
