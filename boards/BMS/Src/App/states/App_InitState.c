@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
+#include "states/App_BalancingState.h"
 #include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
 
@@ -46,23 +47,18 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
             // if charger connected, wait for CAN message to enter pre-charge state
-            bool precharge_for_charging = is_charger_connected && App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
+            const bool precharge_for_charging =
+                is_charger_connected && App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
+            const bool cell_balancing_enabled = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
 
-            // or if charger disconnected, proceed directly to precharge state
-            if (precharge_for_charging || !is_charger_connected)
+            // if charger disconnected, proceed directly to precharge state
+            if (precharge_for_charging || (!is_charger_connected && !cell_balancing_enabled))
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
-        }
-
-        if (!is_charger_connected)
-        {
-            struct HeartbeatMonitor *hb_monitor    = App_BmsWorld_GetHeartbeatMonitor(world);
-            const bool               is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-            App_CanTx_BMS_Faults_BMS_FAULT_MISSING_HEARTBEAT_Set(is_missing_hb);
-            if (is_missing_hb)
+            else if (cell_balancing_enabled)
             {
-                App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+                App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
             }
         }
     }
