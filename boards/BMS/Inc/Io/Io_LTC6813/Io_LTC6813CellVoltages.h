@@ -18,11 +18,3 @@ bool Io_LTC6813CellVoltages_ReadVoltages(
  * false
  */
 bool Io_LTC6813CellVoltages_StartAdcConversion(void);
-
-/**
- * Get a one-hot coded number indicating cells to discharge
- * @param segment The segment containing cells to discharge
- * @return A one-hot coded number indicating cells to discharge. Within the
- * hot-coded number 1 indicates discharge, while 0 indicates no discharge
- */
-uint16_t Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegment segment);

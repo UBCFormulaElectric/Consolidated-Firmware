@@ -33,14 +33,14 @@ typedef enum
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
 
-// Discharge Parameters
-#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV (600U)
+// Cell Balancing Discharge Parameters
+#define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV
 
 struct Accumulator;
 
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
-    bool (*write_cfg_registers)(void),
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
@@ -67,17 +67,6 @@ bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator
 /**
  * Get a voltage for a specific cell
  * @param accumulator The accumulator to get the voltage from
- * @param segment The segment containing the cell voltage
- * @param cell The cell location for the voltage
- * @return The voltage at the location given in V
- */
-float App_Accumulator_GetCellVoltage(
-    const struct Accumulator *const accumulator,
-    AccumulatorSegment              segment,
-    uint8_t                         cell);
-
-/**
- * Get a voltage for a specific cell
  * @param segment The segment containing the cell voltage
  * @param cell The cell location for the voltage
  * @return The voltage at the location given in V
@@ -178,3 +167,17 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @return True if faults present, false otherwise
  */
 bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts);
+
+/**
+ * Enable or disable cell balancing.
+ * @param accumulator The accumulator to check faults
+ * @param enabled Whether or not to enable balancing
+ */
+void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled);
+
+/**
+ * Get if cells are currently balancing.
+ * @param accumulator The accumulator to check faults
+ * @return True if BMS is balancing cells, false otherwise
+ */
+bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator);

@@ -32,7 +32,6 @@ FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
-FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
@@ -47,11 +46,19 @@ FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
-FAKE_VALUE_FUNC(bool, enable_discharge);
-FAKE_VALUE_FUNC(bool, disable_discharge);
+FAKE_VALUE_FUNC(bool, enable_balance);
+FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
+
+static bool
+    write_cfg_registers(bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+{
+    // Couldn't figure out how to create a function with a 2D-array as a parameter using FFF
+    UNUSED(cells_to_balance);
+    return true;
+}
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -115,8 +122,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
-            disable_discharge);
+            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
+            disable_balance);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -158,7 +165,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(close_air_positive);
         RESET_FAKE(configure_cell_monitors);
-        RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_min_cell_voltage);
         RESET_FAKE(get_max_cell_voltage);
