@@ -22,9 +22,9 @@ FAKE_VOID_FUNC(send_non_periodic_msg_PDM_AIR_SHUTDOWN, const struct CanMsgs_pdm_
 FAKE_VOID_FUNC(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN, const struct CanMsgs_pdm_motor_shutdown_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT, const struct CanMsgs_pdm_watchdog_timeout_t *);
 
-FAKE_VALUE_FUNC(float, GetVbatVoltage);
-FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
-FAKE_VALUE_FUNC(float, Get24vAccVoltage);
+FAKE_VALUE_FUNC(float, get_bat_voltage);
+FAKE_VALUE_FUNC(float, get_acc_voltage);
+FAKE_VALUE_FUNC(float, get_boost_voltage);
 FAKE_VALUE_FUNC(float, GetAux1Current);
 FAKE_VALUE_FUNC(float, GetAux2Current);
 FAKE_VALUE_FUNC(float, GetLeftInverterCurrent);
@@ -40,8 +40,8 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_charge_fault);
-FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_boost_controller_fault);
+FAKE_VALUE_FUNC(bool, has_charge_fault);
+FAKE_VALUE_FUNC(bool, has_boost_fault);
 
 class PdmStateMachineTest : public BaseStateMachineTest
 {
@@ -50,13 +50,13 @@ class PdmStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        vbat_voltage_in_range_check = App_InRangeCheck_Create(GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
+        vbat_voltage_in_range_check = App_InRangeCheck_Create(get_bat_voltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
         _24v_aux_voltage_in_range_check =
-            App_InRangeCheck_Create(Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
+            App_InRangeCheck_Create(get_boost_voltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
 
         _24v_acc_voltage_in_range_check =
-            App_InRangeCheck_Create(Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
+            App_InRangeCheck_Create(get_acc_voltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
 
         aux1_current_in_range_check = App_InRangeCheck_Create(GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
 
@@ -82,7 +82,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         low_voltage_battery = App_LowVoltageBattery_Create(
-            do_low_voltage_battery_have_charge_fault, do_low_voltage_battery_have_boost_controller_fault);
+            has_charge_fault, has_boost_fault, get_bat_voltage, get_acc_voltage, get_boost_voltage);
 
         clock = App_SharedClock_Create();
 
@@ -100,9 +100,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_PDM_AIR_SHUTDOWN);
         RESET_FAKE(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN);
         RESET_FAKE(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-        RESET_FAKE(GetVbatVoltage);
-        RESET_FAKE(Get24vAuxVoltage);
-        RESET_FAKE(Get24vAccVoltage);
         RESET_FAKE(GetAux1Current);
         RESET_FAKE(GetAux2Current);
         RESET_FAKE(GetLeftInverterCurrent);
@@ -115,8 +112,18 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
-        RESET_FAKE(do_low_voltage_battery_have_charge_fault);
-        RESET_FAKE(do_low_voltage_battery_have_boost_controller_fault);
+        RESET_FAKE(get_bat_voltage);
+        RESET_FAKE(get_acc_voltage);
+        RESET_FAKE(get_boost_voltage);
+        RESET_FAKE(has_charge_fault);
+        RESET_FAKE(has_boost_fault);
+        RESET_FAKE(get_bat_voltage);
+        RESET_FAKE(get_acc_voltage);
+        RESET_FAKE(get_boost_voltage);
+
+        get_bat_voltage_fake.return_val   = 7.2;
+        get_boost_voltage_fake.return_val = 22.0;
+        get_acc_voltage_fake.return_val   = 24.0;
     }
 
     void TearDown() override
