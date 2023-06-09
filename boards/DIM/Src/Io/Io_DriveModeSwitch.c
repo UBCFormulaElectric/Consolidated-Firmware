@@ -4,6 +4,7 @@
 
 // decode the binary pins back to a value from 1-12
 uint32_t Io_DriveModeSwitch_GetPosition(void)
+
 {
     // Note: Only correctly reads values 0-3, 7-12, 4-6 all register as 0  (they are received this way from the switch,
     // not firmware issue)
