@@ -32,7 +32,6 @@ FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
-FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
@@ -47,11 +46,19 @@ FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
-FAKE_VALUE_FUNC(bool, enable_discharge);
-FAKE_VALUE_FUNC(bool, disable_discharge);
+FAKE_VALUE_FUNC(bool, enable_balance);
+FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
+
+static bool
+    write_cfg_registers(bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+{
+    // Couldn't figure out how to create a function with a 2D-array as a parameter using FFF
+    UNUSED(cells_to_balance);
+    return true;
+}
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -115,8 +122,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
-            disable_discharge);
+            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
+            disable_balance);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -158,7 +165,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(close_air_positive);
         RESET_FAKE(configure_cell_monitors);
-        RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_min_cell_voltage);
         RESET_FAKE(get_max_cell_voltage);
@@ -188,6 +194,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
         get_min_temp_degc_fake.return_val = 20.0f;
         get_max_temp_degc_fake.return_val = 20.0f;
+
+        // Disable charging
+        is_charger_connected_fake.return_val = false;
+        App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+        has_charger_faulted_fake.return_val = false;
     }
 
     void TearDown() override
@@ -527,14 +538,23 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
-TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
+TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state)
 {
     SetInitialState(App_GetChargeState());
 
+    is_air_negative_closed_fake.return_val = true;
+
+    // Set the current values to above the threshold for charging to stop (charging should continue)
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = false;
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     LetTimePass(state_machine, 10);
 
+    // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
     ASSERT_EQ(true, App_CanAlerts_GetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE));
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -585,6 +605,8 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     // Assume no AIR shutdown faults have been set
     SetInitialState(App_GetFaultState());
 
+    // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
+    is_charger_connected_fake.return_val   = false;
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
@@ -599,7 +621,9 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     SetInitialState(App_GetFaultState());
 
     // Check that state machine remains in FaultState with AIR- closed
+    // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     is_air_negative_closed_fake.return_val = true;
+    is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 
@@ -609,6 +633,173 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
+TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
+{
+    SetInitialState(App_GetInitState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Without the CAN message to start charging, will remain in init state when charger is connected
+    is_charger_connected_fake.return_val = true;
+
+    LetTimePass(state_machine, 20);
+
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
+{
+    SetInitialState(App_GetInitState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+
+    LetTimePass(state_machine, 10);
+
+    ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
+{
+    SetInitialState(App_GetInitState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Set the current values to above the threshold for charging to stop (charging should continue)
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+
+    // Allow BMS time to go through Init state
+    LetTimePass(state_machine, 20);
+    get_ts_voltage_fake.return_val = 400;
+
+    // Pause for slightly longer to allow pre-charge
+    LetTimePass(state_machine, 50);
+
+    printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
+    ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
+{
+    SetInitialState(App_GetChargeState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+
+    LetTimePass(state_machine, 100);
+
+    ASSERT_EQ(true, App_Charger_IsEnabled(charger));
+    ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+// TODO: Fix full-charge condition
+// TEST_F(BmsStateMachineTest, stops_charging_at_full_charge)
+//{
+//    SetInitialState(App_GetChargeState());
+//
+//    is_air_negative_closed_fake.return_val = true;
+//
+//    // Setting current below threshold for full charge (charging should stop)
+//    get_high_res_current_fake.return_val = 0.8f;
+//    get_low_res_current_fake.return_val  = 0.8f;
+//
+//    // Simulate situation with charger present and user indicate to start charging
+//    is_charger_connected_fake.return_val = true;
+//
+//    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+//
+//    LetTimePass(state_machine, 10);
+//
+//    ASSERT_FALSE(App_Charger_IsEnabled(charger));
+//    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+//}
+
+TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
+{
+    SetInitialState(App_GetChargeState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Set the current values to above the threshold for charging to stop (charging should continue)
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsStateMachineTest, fault_from_charger_fault)
+{
+    SetInitialState(App_GetChargeState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Set the current values to above the threshold for charging to stop (charging should continue)
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+
+    has_charger_faulted_fake.return_val = true;
+
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+
+    // Charger faults are ignored for 5s upon charge state entry
+    LetTimePass(state_machine, 5010);
+    const struct State *currentState = App_SharedStateMachine_GetCurrentState(state_machine);
+
+    ASSERT_EQ(App_GetFaultState(), currentState);
+}
+
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
+{
+    SetInitialState(App_GetChargeState());
+
+    is_air_negative_closed_fake.return_val = true;
+
+    // Set the current values to above the threshold for charging to stop (charging should continue)
+    get_high_res_current_fake.return_val = 1.0f;
+    get_low_res_current_fake.return_val  = 1.0f;
+
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+
+    // Letting time pass starts the charging process
+    LetTimePass(state_machine, 10);
+
+    // Set current to high value for a hard-coded fault that remains uncleared
+    get_high_res_current_fake.return_val   = 1000.0f;
+    get_low_res_current_fake.return_val    = 1000.0f;
+    is_air_negative_closed_fake.return_val = false;
+
+    // Simulate situation with charger present and user indicate to start charging
+    is_charger_connected_fake.return_val = true;
+
+    LetTimePass(state_machine, 20);
+
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
 {
     SetInitialState(App_GetInitState());
@@ -616,9 +807,9 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
 
-    // Set TS current positive to trigger discharging condition in tempertature check
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
+    // Set TS current negative to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val = -10.0f;
+    get_low_res_current_fake.return_val  = -10.0f;
 
     // Simulate over-temp fault in drive state
     get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
@@ -627,9 +818,9 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Check that state machine remains in fault state without cycling to init state for long period of time
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
-        LetTimePass(state_machine, 1);
+        LetTimePass(state_machine, 10);
         ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
     }
 

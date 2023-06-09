@@ -48,7 +48,7 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
     float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
     float high_res_current = App_TractiveSystem_GetHighResCurrent(ts);
 
-    if (low_res_current < HIGH_RES_MAX_CURRENT_READING)
+    if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
     {
         return high_res_current;
     }
@@ -65,10 +65,10 @@ float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
 
 bool App_TractveSystem_CheckFaults(struct TractiveSystem *ts)
 {
-    //    Charge current is negative, discharge current is positive
-    //    TS current should be in the range: (-70.8,265.5)
+    //    Charge current is positive, discharge current is negative
+    //    TS current should be in the range: (-265.5, 70.8)
     bool ts_current_out_of_bounds =
-        !IS_IN_RANGE(MAX_TS_CHARGE_CURRENT_AMPS, MAX_TS_DISCHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
+        !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
     App_CanAlerts_SetFault(BMS_FAULT_TS_OVERCURRENT, ts_current_out_of_bounds);
 
     return ts_current_out_of_bounds;

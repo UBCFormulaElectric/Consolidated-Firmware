@@ -1,6 +1,10 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
+
+// Ignore the charger fault signal for the first 500 cycles (5 seconds)
+#define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
 
 struct Charger;
 
@@ -66,3 +70,37 @@ bool App_Charger_IsEnabled(const struct Charger *charger);
  * @return true if the charger has faulted/idle, else false
  */
 bool App_Charger_HasFaulted(const struct Charger *charger);
+
+/**
+ * Increment the timer used to ignore charger faults
+ */
+void App_Charger_IncrementFaultCounterVal(struct Charger *charger);
+
+/**
+ * Get current value of the timer used to ignore charger faults on charge state entry
+ * @param charger The charger get timer value from
+ */
+uint16_t App_Charger_GetFaultCounterVal(const struct Charger *charger);
+
+/**
+ * Reset the timer used to ignore charger faults on charge state entry
+ * @param charger The charger to reset timer for
+ */
+void App_Charger_ResetFaultCounterVal(struct Charger *charger);
+
+/**
+ * Increment the timer used to allow charger to shut down before exiting charge state
+ */
+void App_Charger_IncrementExitCounterVal(struct Charger *charger);
+
+/**
+ * Get current value of the timer used to allow charger to shut down before exiting charge state
+ * @param charger The charger get timer value from
+ */
+uint16_t App_Charger_GetExitCounterVal(const struct Charger *charger);
+
+/**
+ * Reset the timer used to allow charger to shut down before exiting charge state
+ * @param charger The charger to reset timer for
+ */
+void App_Charger_ResetExitCounterVal(struct Charger *charger);

@@ -95,9 +95,15 @@ struct DimWorld *         world;
 struct StateMachine *     state_machine;
 struct DimCanTxInterface *can_tx;
 struct DimCanRxInterface *can_rx;
-struct SevenSegDisplay *  left_seven_seg_display;
-struct SevenSegDisplay *  middle_seven_seg_display;
-struct SevenSegDisplay *  right_seven_seg_display;
+struct SevenSegDisplay *  left_l_seven_seg_display;
+struct SevenSegDisplay *  left_m_seven_seg_display;
+struct SevenSegDisplay *  left_r_seven_seg_display;
+struct SevenSegDisplay *  middle_l_seven_seg_display;
+struct SevenSegDisplay *  middle_m_seven_seg_display;
+struct SevenSegDisplay *  middle_r_seven_seg_display;
+struct SevenSegDisplay *  right_l_seven_seg_display;
+struct SevenSegDisplay *  right_m_seven_seg_display;
+struct SevenSegDisplay *  right_r_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
@@ -114,6 +120,7 @@ struct RgbLed *           dim_status_led;
 struct RgbLed *           fsm_status_led;
 struct RgbLed *           pdm_status_led;
 struct Clock *            clock;
+struct AvgPowerCalc *     avg_power_calc;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -194,12 +201,20 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
-    middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
-    right_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
+    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
+    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
-        left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
+        left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
+        middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display, right_m_seven_seg_display,
+        right_r_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -243,10 +258,12 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
+    avg_power_calc = App_AvgPowerCalc_Create();
+
     world = App_DimWorld_Create(
         seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
         drive_led, start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-        pdm_status_led, clock);
+        pdm_status_led, clock, avg_power_calc);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 2 */

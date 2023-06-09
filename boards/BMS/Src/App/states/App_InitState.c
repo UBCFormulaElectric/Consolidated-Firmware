@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
+#include "states/App_BalancingState.h"
 #include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
 
@@ -36,13 +37,29 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world = App_SharedStateMachine_GetWorld(state_machine);
-        struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
-        struct Airs *          airs  = App_BmsWorld_GetAirs(world);
+        struct BmsWorld *      world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct TractiveSystem *ts      = App_BmsWorld_GetTractiveSystem(world);
+        struct Airs *          airs    = App_BmsWorld_GetAirs(world);
+        struct Charger *       charger = App_BmsWorld_GetCharger(world);
+
+        bool is_charger_connected = App_Charger_IsConnected(charger);
 
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            // if charger connected, wait for CAN message to enter pre-charge state
+            const bool precharge_for_charging =
+                is_charger_connected && App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
+            const bool cell_balancing_enabled = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+
+            // if charger disconnected, proceed directly to precharge state
+            if (precharge_for_charging || (!is_charger_connected && !cell_balancing_enabled))
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
+            else if (cell_balancing_enabled)
+            {
+                App_SharedStateMachine_SetNextState(state_machine, App_GetBalancingState());
+            }
         }
     }
 }
