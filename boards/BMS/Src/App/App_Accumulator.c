@@ -140,12 +140,18 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
     target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get()
                          ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get()
                          : target_voltage;
+
+    uint32_t target_segment = App_CanRx_Debug_CellBalancing_OverrideSegment_Get()? App_CanRx_Debug_CellBalancing_Segment_Get(): 0;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             const bool needs_discharging                 = (accumulator->cell_voltages[segment][cell] > target_voltage);
             accumulator->cells_to_balance[segment][cell] = needs_discharging;
+
+            if (App_CanRx_Debug_CellBalancing_OverrideSegment_Get() && segment != target_segment){
+                accumulator->cells_to_balance[segment][cell] = 0;
+            }
         }
     }
 }

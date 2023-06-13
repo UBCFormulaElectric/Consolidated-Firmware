@@ -50,6 +50,14 @@
                 "min": 0,
                 "max": 100,
                 "unit": "%"
+            },
+            "OverrideSegment": {
+                "bits": 1
+            },
+            "Segment": {
+                "resolution": 1,
+                "min": 0,
+                "max": 4
             }
         }
     }
