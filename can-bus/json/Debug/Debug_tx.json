@@ -58,6 +58,14 @@
                 "resolution": 1,
                 "min": 0,
                 "max": 4
+            },
+            "OverrideID":{
+                "bits": 1
+            },
+            "ID":{
+                "resolution": 1,
+                "min": 0,
+                "max": 15
             }
         }
     }

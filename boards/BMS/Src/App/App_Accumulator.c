@@ -141,7 +141,8 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
                          ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get()
                          : target_voltage;
 
-    uint32_t target_segment = App_CanRx_Debug_CellBalancing_OverrideSegment_Get()? App_CanRx_Debug_CellBalancing_Segment_Get(): 0;
+    uint32_t target_segment = App_CanRx_Debug_CellBalancing_OverrideSegment_Get() ? App_CanRx_Debug_CellBalancing_Segment_Get(): 0;
+    uint32_t target_cell = App_CanRx_Debug_CellBalancing_OverrideID_Get() ? App_CanRx_Debug_CellBalancing_ID_Get() : 0;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
@@ -150,6 +151,9 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
             accumulator->cells_to_balance[segment][cell] = needs_discharging;
 
             if (App_CanRx_Debug_CellBalancing_OverrideSegment_Get() && segment != target_segment){
+                accumulator->cells_to_balance[segment][cell] = 0;
+            }
+            if (App_CanRx_Debug_CellBalancing_OverrideID_Get() && cell != target_cell){
                 accumulator->cells_to_balance[segment][cell] = 0;
             }
         }
