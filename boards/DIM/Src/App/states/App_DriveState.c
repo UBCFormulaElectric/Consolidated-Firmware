@@ -34,7 +34,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
-    if (App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get())
+    // IMD LED = DIM fault
+    if (App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD))
     {
         App_Led_TurnOn(imd_led);
     }
@@ -43,7 +44,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get())
+    // BSPD LED = PDM fault
+    if (App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD))
     {
         App_Led_TurnOn(bspd_led);
     }
@@ -81,26 +83,36 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     float avg_power = 0.0f;
 
+    // DIM fault LED = IMD latched
+    // PDM fault LED = BSPD latched
+
+    bool board_has_faults[NUM_BOARD_LEDS] = { [BMS_LED] = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD),
+                                              [DCM_LED] = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD),
+                                              [DIM_LED] = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get(),
+                                              [FSM_LED] = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD),
+                                              [PDM_LED] = App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get() };
+
+    bool board_has_warnings[NUM_BOARD_LEDS] = { [BMS_LED] = App_CanAlerts_BoardHasWarning(BMS_ALERT_BOARD),
+                                                [DCM_LED] = App_CanAlerts_BoardHasWarning(DCM_ALERT_BOARD),
+                                                [DIM_LED] = false,
+                                                [FSM_LED] = App_CanAlerts_BoardHasWarning(FSM_ALERT_BOARD),
+                                                [PDM_LED] = false };
+
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
                                                          [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
                                                          [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
                                                          [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
 
-    CanAlertBoard alert_board_ids[NUM_BOARD_LEDS] = {
-        [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
-        [FSM_LED] = FSM_ALERT_BOARD, [PDM_LED] = PDM_ALERT_BOARD,
-    };
-
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
+        if (board_has_faults[i])
         {
             App_SharedRgbLed_TurnRed(board_status_led);
         }
-        else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
+        else if (board_has_warnings[i])
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }
