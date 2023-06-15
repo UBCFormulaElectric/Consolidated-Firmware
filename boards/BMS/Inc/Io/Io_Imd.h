@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "Io_Hal.h"
 
 /**
@@ -32,3 +33,21 @@ void Io_Imd_InputCaptureCallback(TIM_HandleTypeDef *htim);
  * @return The the time elapsed since the IMD was powered on, in seconds
  */
 uint16_t Io_Imd_GetTimeSincePowerOn(void);
+
+/**
+ * Get the latched fault status of the IMD
+ * @return The latched fault status of the IMD
+ */
+bool Io_Imd_CheckLatchedFault(void);
+
+/**
+ * Get the latched fault status of the BSPD
+ * @return The latched fault status of the BSPD
+ */
+bool Io_Bspd_CheckLatchedFault(void);
+
+/**
+ * Get the latched fault status of the BMS
+ * @return The latched fault status of the BMS
+ */
+bool Io_Bms_CheckLatchedFault(void);

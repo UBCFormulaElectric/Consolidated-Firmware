@@ -13,6 +13,7 @@
         "BMS_CellVoltages",
         "INVR_Temperatures1",
         "BMS_TractiveSystem",
-        "Debug_CanModes"
+        "Debug_CanModes",
+        "BMS_ImdStatus"
     ]
 }

@@ -34,7 +34,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
-    if (!App_CanRx_BMS_OkStatuses_ImdOk_Get())
+    if (App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get())
     {
         App_Led_TurnOn(imd_led);
     }
@@ -43,7 +43,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (!App_CanRx_BMS_OkStatuses_BspdOk_Get())
+    if (App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get())
     {
         App_Led_TurnOn(bspd_led);
     }

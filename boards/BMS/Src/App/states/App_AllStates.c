@@ -5,6 +5,7 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "Io_Imd.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -160,6 +161,18 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool fsm_fault = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
     const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
     const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+
+    // Check Latched fault pins for IMD and BSPD
+    const bool imd_latched_fault  = Io_Imd_CheckLatchedFault();
+    const bool bspd_latched_fault = Io_Bspd_CheckLatchedFault();
+    const bool bms_latched_fault  = Io_Bms_CheckLatchedFault();
+
+    // Send latched imd and bspd statuses over CAN
+    App_CanTx_BMS_OkStatuses_ImdLatchedFaultStatus_Set(imd_latched_fault);
+    App_CanTx_BMS_OkStatuses_BspdLatchedFaultStatus_Set(bspd_latched_fault);
+
+    // Set fault in table to latch BMS led until reset
+    App_CanAlerts_SetFault(BMS_FAULT_LATCHED_BMS_FAULT, bms_latched_fault);
 
     // Ignore faults from other boards when charging, other boards likely disconnected.
     bool fault_from_other_board = (dcm_fault || fsm_fault || pdm_fault || dim_fault) && !ignore_other_boards;
