@@ -514,8 +514,8 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOC,
-        BMS_BLUE_Pin | BMS_GREEN_Pin | BMS_RED_Pin | DCM_BLUE_Pin | DCM_GREEN_Pin | DCM_RED_Pin | DIM_BLUE_Pin |
-            DIM_GREEN_Pin | DIM_RED_Pin | PDM_BLUE_Pin | PDM_GREEN_Pin | PDM_RED_Pin,
+        BMS_BLUE_Pin | BMS_GREEN_Pin | BMS_RED_Pin | DCM_BLUE_Pin | DCM_GREEN_Pin | DCM_RED_Pin | PDM_BLUE_Pin |
+            PDM_GREEN_Pin | PDM_RED_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -529,12 +529,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOB, BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : TEST_PIN_Pin BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin
-                             DCM_BLUE_Pin DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin
-                             DIM_GREEN_Pin DIM_RED_Pin PDM_BLUE_Pin PDM_GREEN_Pin
-                             PDM_RED_Pin */
+                             DCM_BLUE_Pin DCM_GREEN_Pin DCM_RED_Pin PDM_BLUE_Pin
+                             PDM_GREEN_Pin PDM_RED_Pin */
     GPIO_InitStruct.Pin = TEST_PIN_Pin | BMS_BLUE_Pin | BMS_GREEN_Pin | BMS_RED_Pin | DCM_BLUE_Pin | DCM_GREEN_Pin |
-                          DCM_RED_Pin | DIM_BLUE_Pin | DIM_GREEN_Pin | DIM_RED_Pin | PDM_BLUE_Pin | PDM_GREEN_Pin |
-                          PDM_RED_Pin;
+                          DCM_RED_Pin | PDM_BLUE_Pin | PDM_GREEN_Pin | PDM_RED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

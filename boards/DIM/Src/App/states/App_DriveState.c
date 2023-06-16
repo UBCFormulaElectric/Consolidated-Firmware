@@ -83,20 +83,22 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     float avg_power = 0.0f;
 
-    // DIM fault LED = IMD latched
+    // DCM fault LED = IMD latched
     // PDM fault LED = BSPD latched
 
     bool board_has_faults[NUM_BOARD_LEDS] = { [BMS_LED] = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD),
-                                              [DCM_LED] = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD),
-                                              [DIM_LED] = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get(),
-                                              [FSM_LED] = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD),
+                                              [DCM_LED] = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get(),
+                                              [DIM_LED] = false,
+                                              [FSM_LED] = false,
                                               [PDM_LED] = App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get() };
 
-    bool board_has_warnings[NUM_BOARD_LEDS] = { [BMS_LED] = App_CanAlerts_BoardHasWarning(BMS_ALERT_BOARD),
-                                                [DCM_LED] = App_CanAlerts_BoardHasWarning(DCM_ALERT_BOARD),
-                                                [DIM_LED] = false,
-                                                [FSM_LED] = App_CanAlerts_BoardHasWarning(FSM_ALERT_BOARD),
-                                                [PDM_LED] = false };
+    bool board_has_warnings[NUM_BOARD_LEDS] = {
+        [BMS_LED] = false, [DCM_LED] = false, [DIM_LED] = false, [FSM_LED] = false, [PDM_LED] = false
+    };
+
+    bool board_has_ok[NUM_BOARD_LEDS] = {
+        [BMS_LED] = false, [DCM_LED] = false, [DIM_LED] = false, [FSM_LED] = false, [PDM_LED] = false
+    };
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
@@ -116,9 +118,13 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }
-        else
+        else if (board_has_ok[i])
         {
             App_SharedRgbLed_TurnGreen(board_status_led);
+        }
+        else
+        {
+            App_SharedRgbLed_TurnOff(board_status_led);
         }
     }
 

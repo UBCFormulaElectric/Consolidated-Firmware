@@ -45,15 +45,15 @@ uint16_t Io_Imd_GetTimeSincePowerOn(void)
 
 bool Io_Imd_CheckLatchedFault(void)
 {
-    return HAL_GPIO_ReadPin(IMD_LATCH_GPIO_Port, IMD_LATCH_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(IMD_LATCH_GPIO_Port, IMD_LATCH_Pin) == GPIO_PIN_RESET;
 }
 
 bool Io_Bspd_CheckLatchedFault(void)
 {
-    return HAL_GPIO_ReadPin(BSPD_LATCH_GPIO_Port, BSPD_LATCH_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(BSPD_LATCH_GPIO_Port, BSPD_LATCH_Pin) == GPIO_PIN_RESET;
 }
 
 bool Io_Bms_CheckLatchedFault(void)
 {
-    return HAL_GPIO_ReadPin(BMS_LATCH_GPIO_Port, BMS_LATCH_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(BMS_LATCH_GPIO_Port, BMS_LATCH_Pin) == GPIO_PIN_RESET;
 }

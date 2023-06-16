@@ -106,12 +106,6 @@ extern "C"
 #define IGNTN_LED_GPIO_Port GPIOB
 #define IGNTN_IN_Pin GPIO_PIN_14
 #define IGNTN_IN_GPIO_Port GPIOB
-#define DIM_BLUE_Pin GPIO_PIN_6
-#define DIM_BLUE_GPIO_Port GPIOC
-#define DIM_GREEN_Pin GPIO_PIN_7
-#define DIM_GREEN_GPIO_Port GPIOC
-#define DIM_RED_Pin GPIO_PIN_8
-#define DIM_RED_GPIO_Port GPIOC
 #define PDM_BLUE_Pin GPIO_PIN_9
 #define PDM_BLUE_GPIO_Port GPIOC
 #define FSM_RED_Pin GPIO_PIN_8
