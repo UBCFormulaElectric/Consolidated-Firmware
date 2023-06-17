@@ -12,7 +12,7 @@
 #define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
 
 // hardcoded default value
-static float coulombs_soc    = 0.55f * SERIES_ELEMENT_FULL_CHARGE_C;
+static float coulombs_soc    = 0.4800000001f * SERIES_ELEMENT_FULL_CHARGE_C;
 static float last_ts_current = 0.0f;
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
@@ -90,7 +90,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    float avg_power = 0.0f;
+    float third_seg_display = 0.0f;
 
     // DCM fault LED = IMD latched
     // PDM fault LED = BSPD latched
@@ -150,19 +150,19 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     //                     (float)abs(App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get())) /
     //                    2;
     //    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
-    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
-    //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+    //  gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() /
                           1000.0f; // instant kW
 
     if (aux_switch_on)
     {
-        avg_power = App_AvgPowerCalc_Update(avg_power_calc, instant_power);
+        third_seg_display = App_AvgPowerCalc_Update(avg_power_calc, instant_power);
     }
     else
     {
-        avg_power = SSEG_HB_NOT_RECEIVED_ERR;
+        third_seg_display = min_cell_voltage;
         App_AvgPowerCalc_Reset(avg_power_calc);
     }
 
@@ -183,7 +183,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, soc);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, avg_power);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, third_seg_display);
     }
 }
 

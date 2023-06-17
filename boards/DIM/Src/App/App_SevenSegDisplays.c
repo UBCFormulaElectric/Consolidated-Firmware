@@ -109,7 +109,7 @@ void App_SevenSegDisplays_SetDigits(const struct SevenSegDisplays *seven_seg_dis
 
 ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const seven_seg_displays, float value)
 {
-   // value = value + 0.00001; // to fix small rounding errors
+    value = value + 0.001f; // to fix small rounding errors
 
     if ((double)value > pow(10, NUM_IN_GROUP) - 1)
     {
@@ -141,7 +141,7 @@ ExitCode App_SevenSegDisplays_SetGroupL(const struct SevenSegDisplays *const sev
 
 ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const seven_seg_displays, float value)
 {
-//    value = value + 0.00001; // to fix small rounding errors
+    value = value + 0.001f; // to fix small rounding errors
     if ((double)value > pow(10, NUM_IN_GROUP) - 1)
     {
         return EXIT_CODE_INVALID_ARGS;
@@ -175,7 +175,7 @@ ExitCode App_SevenSegDisplays_SetGroupM(const struct SevenSegDisplays *const sev
 
 ExitCode App_SevenSegDisplays_SetGroupR(const struct SevenSegDisplays *const seven_seg_displays, float value)
 {
-    //value = value + 0.00001; // to fix small rounding errors
+    value = value + 0.001f; // to fix small rounding errors
     if ((double)value > pow(10, NUM_IN_GROUP) - 1)
     {
         return EXIT_CODE_INVALID_ARGS;
