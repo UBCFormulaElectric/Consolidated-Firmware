@@ -40,5 +40,19 @@
                 "enum": "RtosTaskName"
             }
         }
+    },
+    "DIM_RotarySwitch": {
+        "msg_id": 506,
+        "cycle_time": 100,
+        "description": "Set integer value to the switch position",
+        "signals": {
+            "Position": {
+                "bits": 4,
+                "signed": false
+            },
+            "IsValid": {
+                "bits": 1
+            }
+        }
     }
 }

@@ -39,7 +39,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
+    struct RotarySwitch *    drive_mode_switch  = App_DimWorld_GetDriveModeSwitch(world);
     struct AvgPowerCalc *    avg_power_calc     = App_DimWorld_GetAvgPowerCalc(world);
+
+    uint32_t drive_mode_switch_val;
+    ExitCode drive_mode_status =
+        App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &drive_mode_switch_val) == EXIT_CODE_OK;
+
+    App_CanTx_DIM_RotarySwitch_Position_Set(drive_mode_switch_val);
+    App_CanTx_DIM_RotarySwitch_IsValid_Set(drive_mode_status == EXIT_CODE_OK);
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
