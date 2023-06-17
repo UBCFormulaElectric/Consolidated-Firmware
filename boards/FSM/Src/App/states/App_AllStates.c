@@ -6,6 +6,8 @@
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
+static float battery_charge;
+
 static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_FSM_Vitals_Heartbeat_Set(true);

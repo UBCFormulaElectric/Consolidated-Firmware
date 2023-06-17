@@ -4,30 +4,30 @@
 
 void Io_RgbLeds_TurnDimStatusLedRed(void)
 {
-//    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_SET);
-//    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_SET);
+    //    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
 void Io_RgbLeds_TurnDimStatusLedGreen(void)
 {
-//    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_SET);
-//    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_SET);
+    //    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
 void Io_RgbLeds_TurnDimStatusLedBlue(void)
 {
-//    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_SET);
+    //    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_SET);
 }
 
 void Io_RgbLeds_TurnOffDimStatusLed(void)
 {
-//    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
+    //    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
 void Io_RgbLeds_TurnDcmStatusLedRed(void)

@@ -14,6 +14,8 @@
         "INVR_Temperatures1",
         "BMS_TractiveSystem",
         "Debug_CanModes",
-        "BMS_ImdStatus"
-    ]
+        "BMS_ImdStatus",
+        "BMS_TractiveSystem",
+        "Debug_ResetSoc"
+            ]
 }

@@ -3,8 +3,17 @@
 #include <stdlib.h>
 #include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
+#include "App_SharedProcessing.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
+
+#define TASK_100HZ_PERIOD_S (0.01f)
+#define STATE_OF_HEALTH (100.0f)
+#define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
+
+// hardcoded default value
+static float coulombs_soc    = 0.55f * SERIES_ELEMENT_FULL_CHARGE_C;
+static float last_ts_current = 0.0f;
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -156,6 +165,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         avg_power = SSEG_HB_NOT_RECEIVED_ERR;
         App_AvgPowerCalc_Reset(avg_power_calc);
     }
+
+    float       delta_soc;
+    float       ts_current  = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
+    const float time_step_s = TASK_100HZ_PERIOD_S;
+
+    App_SharedProcessing_TrapezoidalRule(&delta_soc, &last_ts_current, ts_current, time_step_s);
+    coulombs_soc += delta_soc;
+    float soc = coulombs_soc / ((float)SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+
     if (missing_hb)
     {
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
@@ -164,7 +182,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, gate_temp);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, soc);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, avg_power);
     }
