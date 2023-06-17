@@ -16,7 +16,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
-    float race_torque_limit = MAX_TORQUE_REQUEST_NM;
+    float       race_torque_limit     = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
@@ -27,7 +27,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
 
         // Race mode = hard ceiling on power consumed
         // P = T * w, so T = P/w
-        if(App_CanRx_DIM_Switches_AuxSwitch_Get() == SWITCH_ON)
+        if (App_CanRx_DIM_Switches_AuxSwitch_Get() == SWITCH_ON)
         {
             race_torque_limit = MIN(MAX_RACE_POWER_W / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
         }
@@ -41,7 +41,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float max_fsm_torque_request = App_CanRx_FSM_Apps_TorqueLimit_Get();
 
     // Calculate the actual torque request to transmit
-    const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
+    const float torque_request      = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
     const float race_torque_request = MIN(torque_request, race_torque_limit);
 
     // Transmit torque command to both inverters
