@@ -137,11 +137,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
-                     (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
-                    2;
-    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
-    //    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+//    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
+//                     (float)abs(App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get())) /
+//                    2;
+//    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
+    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
     //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() /
@@ -164,7 +164,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, speed_kph);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, gate_temp);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, avg_power);
     }
