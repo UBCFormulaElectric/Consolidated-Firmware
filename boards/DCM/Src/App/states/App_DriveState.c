@@ -8,12 +8,15 @@
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
+#define MAX_RACE_POWER_W (4.28e3f)
+
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
+    float race_torque_limit = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
@@ -21,6 +24,10 @@ void App_SetPeriodicCanSignals_TorqueRequests()
         const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
         const float combined_motor_speed_rads = RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm);
         bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+
+        // Race mode = hard ceiling on power consumed
+        // P = T * w, so T = P/w
+        race_torque_limit = MIN(MAX_RACE_POWER_W / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
     }
 
     // Calculate the maximum torque request, according to the BMS available power
@@ -32,10 +39,11 @@ void App_SetPeriodicCanSignals_TorqueRequests()
 
     // Calculate the actual torque request to transmit
     const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
+    const float race_torque_request = MIN(torque_request, race_torque_limit);
 
     // Transmit torque command to both inverters
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(torque_request);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_request);
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(race_torque_request);
+    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(race_torque_request);
 }
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
