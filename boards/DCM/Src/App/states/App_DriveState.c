@@ -27,7 +27,10 @@ void App_SetPeriodicCanSignals_TorqueRequests()
 
         // Race mode = hard ceiling on power consumed
         // P = T * w, so T = P/w
-        race_torque_limit = MIN(MAX_RACE_POWER_W / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+        if(App_CanRx_DIM_Switches_AuxSwitch_Get() == SWITCH_ON)
+        {
+            race_torque_limit = MIN(MAX_RACE_POWER_W / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+        }
     }
 
     // Calculate the maximum torque request, according to the BMS available power
