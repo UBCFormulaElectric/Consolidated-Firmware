@@ -146,10 +146,10 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-//    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
-//                     (float)abs(App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get())) /
-//                    2;
-//    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
+    //    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
+    //                     (float)abs(App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get())) /
+    //                    2;
+    //    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
     float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
     //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
@@ -170,8 +170,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     float       ts_current  = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
     const float time_step_s = TASK_100HZ_PERIOD_S;
 
-    App_SharedProcessing_TrapezoidalRule(&delta_soc, &last_ts_current, ts_current, time_step_s);
-    coulombs_soc += delta_soc;
+    App_SharedProcessing_TrapezoidalRule(&coulombs_soc, &last_ts_current, ts_current, time_step_s);
     float soc = coulombs_soc / ((float)SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
 
     if (missing_hb)
