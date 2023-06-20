@@ -8,7 +8,7 @@
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
-#define MAX_RACE_POWER_W (4.28e3f)
+#define MAX_RACE_POWER_W (20e3f)
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
