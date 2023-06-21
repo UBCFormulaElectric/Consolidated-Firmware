@@ -53,6 +53,8 @@ FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, u
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
+static float saved_soc = 100.0f;
+
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
 static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
@@ -128,7 +130,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
-        soc_stats = App_SocStats_Create();
+        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDRESS, accumulator);
 
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,

@@ -48,6 +48,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd_ok            = imd_ok;
     world->bspd_ok           = bspd_ok;
     world->accumulator       = accumulator;
+    world->soc_stats         = soc_stats;
     world->airs              = airs;
     world->precharge_relay   = precharge_relay;
     world->ts                = tractive_system;

@@ -128,8 +128,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
 
-    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), TASK_100HZ_PERIOD_S);
-
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_Contactors_AirNegative_Set(
@@ -168,5 +166,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct BmsWorld *      world     = App_SharedStateMachine_GetWorld(state_machine);
+    struct TractiveSystem *ts        = App_BmsWorld_GetTractiveSystem(world);
+    struct SocStats *      soc_stats = App_BmsWorld_GetSocStats(world);
+    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), TASK_1KHZ_PERIOD_S);
 }

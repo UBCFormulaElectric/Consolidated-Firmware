@@ -3,29 +3,17 @@
 #include "App_SharedExitCode.h"
 #include "App_Accumulator.h"
 
-typedef struct
+struct SocStats
 {
+    // Address in EEPROM where SOC is being stored (address changes for wear levelling reasons, address always stored in
+    // address 0 of EEPROM)
+    uint16_t soc_address;
+
     // charge in cell in coulombs
     float charge_c;
 
     // Charge loss at time t-1
     float prev_current_A;
-
-    // Accumulated charge change (C)
-    float charge_integral_c;
-} CellSocStats;
-
-struct SocStats
-{
-    // Contains the current charge of each series element
-    CellSocStats cell_stats[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
-
-    // Keeps track of the indexes for the series elements with the lowest and highest charge respectively
-    uint8_t  minSocSegment;
-    uint8_t  minSocSE;
-    uint8_t  maxSocSegment;
-    uint8_t  maxSocSE;
-    uint16_t soc_address;
 };
 
 /**
@@ -103,13 +91,6 @@ float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
  * @return float minimum series element open circuit voltage approximation
  */
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
-
-/**
- * Get the maximum series element open circuit voltage approximation given current pack SOC status
- * @param soc_stats current SOC of each series element in pack
- * @return float maximum series element open circuit voltage approximation
- */
-float App_SOC_GetMaxVocFromSoc(struct SocStats *soc_stats);
 
 /**
  * Compute a estimate SOC for each cell based on cell voltages
