@@ -566,7 +566,8 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
 {
     struct
     {
-        float bms_available_power;
+        float bms_pack_voltage;
+        float bms_available_current;
         float motor_speed;
         int   pedal_percentage;
         float fsm_max_torque_request;
@@ -574,7 +575,9 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
     } test_params[4] = {
         {
             // Limited by FSM max torque request
-            .bms_available_power     = 78e3f,
+            // available power = 300 * 260 = 78e3
+            .bms_pack_voltage        = 300.0f,
+            .bms_available_current   = 260.0f,
             .motor_speed             = 0.0f,
             .pedal_percentage        = 100,
             .fsm_max_torque_request  = 30,
@@ -582,15 +585,19 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
         },
         {
             // Limited by BMS available power and motor speed
-            .bms_available_power     = 10e3f,
+            // available power = 250 * 40 = 10e3
+            .bms_pack_voltage        = 250.0f,
+            .bms_available_current   = 40.0f,
             .motor_speed             = 1000.0f,
             .pedal_percentage        = 100,
             .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
-            .expected_torque_request = 10e3f * 0.8 / (2 * RPM_TO_RADS(1000.0f)),
+            .expected_torque_request = 250.0f * 40.0f * 0.8 / (2 * RPM_TO_RADS(1000.0f)),
         },
         {
             // Limited by accelerator pedal percentage
-            .bms_available_power     = 78e3f,
+            // available power = 300 * 260 = 78e3
+            .bms_pack_voltage        = 300.0f,
+            .bms_available_current   = 260.0f,
             .motor_speed             = 0.0f,
             .pedal_percentage        = 50,
             .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
@@ -598,7 +605,9 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
         },
         {
             // Limited by max torque request (90Nm)
-            .bms_available_power     = 78e3f,
+            // available power = 300 * 260 = 78e3
+            .bms_pack_voltage        = 300.0f,
+            .bms_available_current   = 260.0f,
             .motor_speed             = 1.0f, // Small motor speed allows for very high BMS torque limit (>>90Nm)
             .pedal_percentage        = 100,
             .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM + 20, // Not allowed to happen nominally
@@ -618,7 +627,8 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
         App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
 
         // Set inital conditions
-        App_CanRx_BMS_AvailablePower_AvailablePower_Update(test_params[i].bms_available_power);
+        App_CanRx_BMS_PackStatus_PackVoltage_Update(test_params[i].bms_pack_voltage);
+        App_CanRx_BMS_PackStatus_DischargeCurrent_Update(test_params[i].bms_available_current);
         App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
         App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
         App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);

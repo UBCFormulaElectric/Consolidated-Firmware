@@ -66,6 +66,11 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
     }
 }
 
+static void PreChargeStateRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1kHz(state_machine);
+}
+
 static void PreChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
     struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
@@ -81,6 +86,7 @@ const struct State *App_GetPreChargeState(void)
         .run_on_entry      = PreChargeStateRunOnEntry,
         .run_on_tick_1Hz   = PreChargeStateRunOnTick1Hz,
         .run_on_tick_100Hz = PreChargeStateRunOnTick100Hz,
+        .run_on_tick_1kHz  = PreChargeStateRunOnTick1kHz,
         .run_on_exit       = PreChargeStateRunOnExit,
     };
 

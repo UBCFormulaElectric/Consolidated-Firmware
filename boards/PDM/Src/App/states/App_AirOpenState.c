@@ -32,6 +32,11 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
+static void AirOpenStateRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1kHz(state_machine);
+}
+
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
@@ -44,6 +49,7 @@ const struct State *App_GetAirOpenState(void)
         .run_on_entry      = AirOpenStateRunOnEntry,
         .run_on_tick_1Hz   = AirOpenStateRunOnTick1Hz,
         .run_on_tick_100Hz = AirOpenStateRunOnTick100Hz,
+        .run_on_tick_1kHz  = AirOpenStateRunOnTick1kHz,
         .run_on_exit       = AirOpenStateRunOnExit,
     };
 

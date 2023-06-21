@@ -1,4 +1,5 @@
 #include "states/App_AllStates.h"
+#include "App_SharedMacros.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -20,4 +21,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
+}
+
+void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    UNUSED(state_machine);
 }

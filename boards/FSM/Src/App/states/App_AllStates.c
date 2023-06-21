@@ -2,6 +2,7 @@
 #include "states/App_FaultState.h"
 #include "states/App_DriveState.h"
 #include "App_SharedConstants.h"
+#include "App_SharedMacros.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
@@ -68,4 +69,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Coolant_Broadcast(world);
     App_Steering_Broadcast(world);
     App_Wheels_Broadcast(world);
+}
+
+void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    UNUSED(state_machine);
 }

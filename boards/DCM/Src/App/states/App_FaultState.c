@@ -28,6 +28,11 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
+static void FaultStateRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1kHz(state_machine);
+}
+
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
@@ -40,6 +45,7 @@ const struct State *App_GetFaultState(void)
         .run_on_entry      = FaultStateRunOnEntry,
         .run_on_tick_1Hz   = FaultStateRunOnTick1Hz,
         .run_on_tick_100Hz = FaultStateRunOnTick100Hz,
+        .run_on_tick_1kHz  = FaultStateRunOnTick1kHz,
         .run_on_exit       = FaultStateRunOnExit,
     };
 

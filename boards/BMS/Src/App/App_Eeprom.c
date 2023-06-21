@@ -120,7 +120,6 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
-    uint8_t  offset = 0;
 
     // Increment address for wear levelling purposes
     uint16_t new_address;

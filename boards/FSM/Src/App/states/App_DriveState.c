@@ -11,10 +11,17 @@ void App_DriveStateRunOnTick1Hz(struct StateMachine *state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
 }
+
 void App_DriveStateRunOnTick100Hz(struct StateMachine *state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 }
+
+void App_DriveStateRunOnTick1kHz(struct StateMachine *state_machine)
+{
+    App_AllStatesRunOnTick1kHz(state_machine);
+}
+
 void App_DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
@@ -27,6 +34,7 @@ const struct State *App_GetDriveState(void)
         .run_on_entry      = App_DriveStateRunOnEntry,
         .run_on_tick_1Hz   = App_DriveStateRunOnTick1Hz,
         .run_on_tick_100Hz = App_DriveStateRunOnTick100Hz,
+        .run_on_tick_1kHz  = App_DriveStateRunOnTick1kHz,
         .run_on_exit       = App_DriveStateRunOnExit,
     };
     return &drive_state;

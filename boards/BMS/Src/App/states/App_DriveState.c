@@ -33,6 +33,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
+static void DriveStateRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1kHz(state_machine);
+}
+
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -49,6 +54,7 @@ const struct State *App_GetDriveState(void)
         .run_on_entry      = DriveStateRunOnEntry,
         .run_on_tick_1Hz   = DriveStateRunOnTick1Hz,
         .run_on_tick_100Hz = DriveStateRunOnTick100Hz,
+        .run_on_tick_1kHz  = DriveStateRunOnTick1kHz,
         .run_on_exit       = DriveStateRunOnExit,
     };
 
