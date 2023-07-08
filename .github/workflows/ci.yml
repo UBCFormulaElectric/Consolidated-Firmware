@@ -1,0 +1,159 @@
+name: UBC Formula Electric CI
+on:
+  push:
+    branches:
+      - master
+      - development
+      - f4-port
+  pull_request:
+    branches:
+      - master
+      - development
+      - f4-port
+
+jobs:
+  clang-format:
+    name: Check C Formatting
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ubcformulaelectric/ci:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+        
+    steps:
+      # Fix to get git diff working, https://github.com/actions/checkout/issues/363
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Format code
+        run: python3 clang-format/fix_formatting.py
+
+      - name: Check for differences
+        run: git --no-pager diff --color --exit-code
+
+  codegen:
+    name: Check CubeMX Code Gen
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - GSM
+
+    container:
+      image: ubcformulaelectric/ci:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    steps:
+      # Fix to get git diff working, https://github.com/actions/checkout/issues/363
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Generate code
+        run: |
+          xvfb-run python3 scripts/utilities/generate_cube_code.py \
+            --board ${{ matrix.board }} \
+            --log4j_properties_output ~/.stm32cubemx/log4j.properties \
+            --ioc boards/${{ matrix.board }}/${{ matrix.board }}.ioc \
+            --codegen_output_dir boards/${{ matrix.board }} \
+            --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
+          
+      - name: Fix formatting
+        run: python3 clang-format/fix_formatting.py
+
+      - name: Check for differences
+        run: git --no-pager diff --color --exit-code
+
+  build-firmware:
+    name: Build ARM Binaries
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - GSM
+
+    container:
+      image: ubcformulaelectric/ci:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: boards/build_arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          cmake -S boards -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
+          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
+
+      - name: Save built artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/${{ matrix.board }}/${{ matrix.board }}.elf
+  
+  test:
+    name: Build and Run Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - GSM
+
+    container:
+      image: ubcformulaelectric/ci:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: boards/build_x86
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
+
+      - name: Run tests
+        run: |
+          cd $BUILD_DIR/${{ matrix.board }}
+          ./${{ matrix.board }}_test
