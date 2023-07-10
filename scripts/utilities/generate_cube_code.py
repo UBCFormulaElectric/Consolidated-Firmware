@@ -7,7 +7,7 @@ import os
 import subprocess
 import argparse
 
-from supported_boards import get_board_names
+from scripts.utilities.supported_boards import get_board_names
 
 CUBE_SCRIPT = '''\
 ###############################################################################

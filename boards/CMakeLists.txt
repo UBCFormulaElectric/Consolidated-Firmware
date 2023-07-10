@@ -64,6 +64,8 @@ endif()
 
 # Add option to disable invoking python from a virtual environment.
 # Used in CI where packages are installed system-wide in a Docker container at build time.
+# This was done as a workaround, since I couldn't figure out how to pre-install packages into 
+# a Pipenv virtual environment when building the container.
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 
 if(NO_VENV)

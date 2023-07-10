@@ -23,7 +23,8 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
         
     steps:
-      # Fix to get git diff working, https://github.com/actions/checkout/issues/363
+      # Fix to get git diff working in a Docker container
+      # https://github.com/actions/checkout/issues/363
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
 
@@ -57,13 +58,16 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
-      # Fix to get git diff working, https://github.com/actions/checkout/issues/363
+      # Fix to get git diff working in a Docker container
+      # https://github.com/actions/checkout/issues/363
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
 
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # xvfb-run is required to prefix any commands that run STM32CubeMX
+      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
       - name: Generate code
         run: |
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
@@ -108,11 +112,15 @@ jobs:
         with:
           submodules: recursive
 
+      # xvfb-run is required to prefix any commands that run STM32CubeMX
+      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
+      # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
       - name: Build
         run: |
           cmake -S boards -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
 
+      # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v2
         with:
