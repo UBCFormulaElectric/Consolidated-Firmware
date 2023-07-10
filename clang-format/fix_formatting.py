@@ -116,7 +116,6 @@ if __name__ == "__main__":
     pool.join()
 
     for i, result in enumerate([result for result in results if not result]):
-        # A clang-format command failed
         print(f"Encountered an error running clang-format against {source_files[i]}")
 
     if all(results):
