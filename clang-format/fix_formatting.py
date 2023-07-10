@@ -40,7 +40,7 @@ def find_all_files() -> bool:
     print("Current working directory: " + os.getcwd())
 
     # Prepare path to recursive traverse
-    SOURCE_DIR = os.path.join("..", "..", "boards")
+    SOURCE_DIR = os.path.join("..", "boards")
 
     # Recursively traverse through file tree and apply clang-format
     print(f"Apply clang-format to files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
