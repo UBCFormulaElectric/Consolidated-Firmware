@@ -140,7 +140,8 @@ jobs:
           - DCM
           - DIM
           - GSM
-
+          - SHARED
+          
     container:
       image: ubcformulaelectric/ci:latest
       credentials:
