@@ -165,4 +165,5 @@ jobs:
       - name: Run tests
         run: |
           cd $BUILD_DIR/${{ matrix.board }}
-          ./${{ matrix.board }}_test
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
+          

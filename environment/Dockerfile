@@ -7,9 +7,10 @@ FROM ubuntu:22.04
 # git: For pulling external repos, invoked via cmake
 # git-lfs: Large file storage, used for saving zipped STM32CubeMX installer
 # openjdk-11-jdk: Java, required to install and run STM32CubeMX
-# xvfb: Virtual frame buffer service, mocks out a display which doesn't exist in a docker container
-# (required to run STM32CubeMX)
+# xvfb: Virtual frame buffer service, mocks out a display which doesn't exist on the CI machines
+# (required to run STM32CubeMX without a GUI)
 # libncurses5: Library required by clang-format
+# valgrind: Used to check for memory leaks during x86 tests
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -18,7 +19,8 @@ RUN apt update -y && apt install -y \
     git-lfs \
     openjdk-11-jdk \
     xvfb \
-    libncurses5
+    libncurses5 \
+    valgrind 
 
 # Copy over environment directory for running installation scripts.
 COPY . /home/environment/
