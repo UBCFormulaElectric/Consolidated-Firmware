@@ -545,7 +545,7 @@ if ("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-add_subdirectory(shared __shared__)
+add_subdirectory(shared)
 add_subdirectory(DCM)
 add_subdirectory(PDM)
 add_subdirectory(FSM)
