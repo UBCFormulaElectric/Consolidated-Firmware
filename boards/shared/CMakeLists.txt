@@ -92,7 +92,7 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 # empty string.
 if ("${PLATFORM}" STREQUAL "x86")
     create_arm_binary_or_tests_for_board(
-            "SHARED"
+            "shared"
             ""
             ""
             ""
