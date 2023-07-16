@@ -33,8 +33,8 @@ Then, `cd` to the root directory of the repo and run the following commands:
 pipenv install
 pipenv shell
 git lfs pull
-scripts/environment_setup/install_gcc_arm_none_eabi.sh /usr/local
-python scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
+environment/scripts/install_gcc_arm_none_eabi.sh /usr/local
+python environment/scripts/install_stm32cubemx.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
 sudo apt-get install openocd
 ```
 ##### Windows
@@ -65,7 +65,7 @@ pipenv install
 pipenv shell
 git lfs pull
 ```
-Install cube: `python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
+Install cube: `python3 environment/scripts/install_stm32cubemx.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
