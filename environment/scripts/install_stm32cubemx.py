@@ -86,8 +86,8 @@ def install_stm32cubemx(install_dir, installer_zip):
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('install_dir', help='STM32CubeMX installation directory')
-    parser.add_argument('cube_zip', help='STM32CubeMX installer zip')
+    parser.add_argument('--install-dir', help='STM32CubeMX installation directory')
+    parser.add_argument('--cube-zip', help='STM32CubeMX installer zip')
     args = parser.parse_args()
 
     install_stm32cubemx(args.install_dir, args.cube_zip)
