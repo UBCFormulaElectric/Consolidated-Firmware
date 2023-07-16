@@ -1,8 +1,10 @@
 #include <string.h>
 #include "states/App_DriveState.h"
+#include <stdlib.h>
 #include "App_CanAlerts.h"
+#include "App_SharedMacros.h"
 
-#define SSEG_HB_NOT_RECEIVED_ERR (888U)
+#define SSEG_HB_NOT_RECEIVED_ERR (888)
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -28,6 +30,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
+    struct AvgPowerCalc *    avg_power_calc     = App_DimWorld_GetAvgPowerCalc(world);
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
@@ -71,8 +74,12 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
     const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
+    App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
+
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
+
+    float avg_power = 0.0f;
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
@@ -112,14 +119,36 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    // TODO: Show something on these LEDs now that error table is gone
-    if (missing_hb)
+    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
+                     (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
+                    2;
+    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
+    //    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
+    //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+
+    float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() /
+                          1000.0f; // instant kW
+
+    if (aux_switch_on)
     {
-        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        avg_power = App_AvgPowerCalc_Update(avg_power_calc, instant_power);
     }
     else
     {
-        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 0U);
+        avg_power = SSEG_HB_NOT_RECEIVED_ERR;
+        App_AvgPowerCalc_Reset(avg_power_calc);
+    }
+    if (missing_hb)
+    {
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+    }
+    else
+    {
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, speed_kph);
+        App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, avg_power);
     }
 }
 

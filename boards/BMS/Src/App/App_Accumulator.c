@@ -2,9 +2,20 @@
 #include <float.h>
 #include "App_Accumulator.h"
 #include "App_CanAlerts.h"
+#include "App_CanRx.h"
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
+
+// Discharging cells continuously generates too much heat.
+// So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
+// then disable discharge for the next 100 ticks to keep temperatures manageable.
+// Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
+// distracting.
+#define BALANCE_DEFAULT_FREQ (1)  // Hz
+#define BALANCE_DEFAULT_DUTY (50) // %
+#define BALANCE_TICKS_ON (100U)
+#define BALANCE_TICKS_OFF (100U)
 
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
@@ -44,7 +55,7 @@ struct Accumulator
 
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
-    bool (*write_cfg_registers)(void);
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
@@ -55,6 +66,12 @@ struct Accumulator
     AccumulatorMonitorState state;
     float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
+    // Balancing information
+    bool     balance_enabled;
+    bool     cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+    uint32_t balance_pwm_ticks;
+    bool     balance_pwm_high;
+
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
     bool (*read_cell_temperatures)(void);
@@ -62,8 +79,8 @@ struct Accumulator
     float (*get_max_cell_temp)(uint8_t *, uint8_t *);
     float (*get_avg_cell_temp)(void);
 
-    bool (*enable_discharge)(void);
-    bool (*disable_discharge)(void);
+    bool (*enable_balance)(void);
+    bool (*disable_balance)(void);
 };
 
 /**
@@ -112,9 +129,87 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
     accumulator->voltage_stats = temp_voltage_stats;
 }
 
+/**
+ * Calculate which cells need discharging, for cell balancing.
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumulator)
+{
+    float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
+
+    target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get()
+                         ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get()
+                         : target_voltage;
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            const bool needs_discharging                 = (accumulator->cell_voltages[segment][cell] > target_voltage);
+            accumulator->cells_to_balance[segment][cell] = needs_discharging;
+        }
+    }
+}
+
+/**
+ * Balance cells.
+ * @param accumulator The accumulator
+ */
+static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
+{
+    if (!accumulator->balance_enabled)
+    {
+        accumulator->disable_balance();
+        return;
+    }
+
+    // Write to configuration register to configure cell discharging
+    App_Accumulator_CalculateCellsToBalance(accumulator);
+    accumulator->write_cfg_registers(accumulator->cells_to_balance);
+
+    // Balance PWM settings
+    float balance_pwm_freq = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
+                                 ? App_CanRx_Debug_CellBalancing_OverridePWMFrequency_Get()
+                                 : BALANCE_DEFAULT_FREQ;
+    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
+                                    ? App_CanRx_Debug_CellBalancing_OverridePWMDuty_Get()
+                                    : BALANCE_DEFAULT_DUTY;
+
+    // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
+    // TODO: verify frequency calculation. Period seems to be about double what it should be.
+    uint32_t balance_ticks_on  = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
+    uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
+
+    if (accumulator->balance_pwm_high)
+    {
+        // Enable cell discharging
+        accumulator->enable_balance();
+        accumulator->balance_pwm_ticks += 1;
+
+        if (accumulator->balance_pwm_ticks >= balance_ticks_on)
+        {
+            // Cell discharging enabled duty cycle portion is finished
+            accumulator->balance_pwm_high  = false;
+            accumulator->balance_pwm_ticks = 0;
+        }
+    }
+    else
+    {
+        // Disable cell discharging
+        accumulator->disable_balance();
+        accumulator->balance_pwm_ticks += 1;
+
+        if (accumulator->balance_pwm_ticks >= balance_ticks_off)
+        {
+            // Cell discharging disabled duty cycle portion is finished
+            accumulator->balance_pwm_high  = true;
+            accumulator->balance_pwm_ticks = 0;
+        }
+    }
+}
+
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
-    bool (*write_cfg_registers)(void),
+    bool (*write_cfg_registers)(bool[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
@@ -122,8 +217,8 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
-    bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void))
+    bool (*enable_balance)(void),
+    bool (*disable_balance)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -147,8 +242,14 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_max_cell_temp      = get_max_cell_temp;
     accumulator->get_avg_cell_temp      = get_avg_cell_temp;
 
-    accumulator->enable_discharge  = enable_discharge;
-    accumulator->disable_discharge = disable_discharge;
+    // Balancing information
+    memset(&accumulator->cells_to_balance, 0U, sizeof(accumulator->cells_to_balance));
+    accumulator->balance_pwm_ticks = 0;
+    accumulator->balance_enabled   = false;
+    accumulator->balance_pwm_high  = false;
+
+    accumulator->enable_balance  = enable_balance;
+    accumulator->disable_balance = disable_balance;
 
     return accumulator;
 }
@@ -247,14 +348,14 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
     return accumulator->get_avg_cell_temp();
 }
 
-bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
+bool App_Accumulator_EnableBalance(const struct Accumulator *const accumulator)
 {
-    return accumulator->enable_discharge();
+    return accumulator->enable_balance();
 }
 
-bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
+bool App_Accumulator_DisableBalance(const struct Accumulator *const accumulator)
 {
-    return accumulator->disable_discharge();
+    return accumulator->disable_balance();
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
@@ -270,9 +371,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             // Calculate min/max/segment voltages
             App_Accumulator_CalculateVoltageStats(accumulator);
 
-            // Write to configuration register to configure cell discharging
-            accumulator->write_cfg_registers();
-            accumulator->disable_discharge();
+            // Configure cell balancing
+            App_Accumulator_BalanceCells(accumulator);
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
@@ -285,7 +385,6 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();
-            accumulator->disable_discharge();
 
             accumulator->state = GET_CELL_VOLTAGE_STATE;
             break;
@@ -306,7 +405,7 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (App_TractiveSystem_GetCurrent(ts) < -3.0f)
+    if (App_TractiveSystem_GetCurrent(ts) > 3.0f)
     {
         max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
@@ -329,4 +428,14 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+}
+
+void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)
+{
+    accumulator->balance_enabled = enabled;
+}
+
+bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
+{
+    return accumulator->balance_enabled;
 }

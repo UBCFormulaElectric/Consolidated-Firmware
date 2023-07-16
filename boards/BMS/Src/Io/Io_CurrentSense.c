@@ -8,14 +8,14 @@
 // Sensitivity of output 1: 40mV/A
 #define OUTPUT_1_SENSITIVITY (1.0f / 40e-3f)
 // Voltage divider from adc --> current sensor output
-#define OUTPUT_1_DIV ((1.1f + 2.155f) / (2.155f))
+#define OUTPUT_1_DIV ((1.0f + 2.2f) / (2.2f))
 
 // Offset voltage of output 2. Found to be 2.45V through testing
 #define OUTPUT_2_OFFSET (2.45f)
 // Sensitivity of output 2: 6.67mV/A
 #define OUTPUT_2_SENSITIVITY (1.0f / 6.67e-3f)
 // Voltage divider from adc --> current sensor output
-#define OUTPUT_2_DIV ((1.1f + 2.155f) / (2.155f))
+#define OUTPUT_2_DIV ((1.0f + 2.2f) / (2.2f))
 
 // Gain of the current sense amplifier
 #define AIR_LOOP_GAIN (1.0f / 20.0f)
@@ -34,7 +34,7 @@ float Io_CurrentSense_GetHighResolutionMainCurrent()
     // HSNBV-D06 Output 1 (+/- 50A):
     //
     // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
+    // | HSNBV-D06        |---<1k>---+---| ADC Channel |
     // | Output 1 Voltage |            |   +-------------+
     // +------------------+            |
     //                               <2.2k>
@@ -56,7 +56,7 @@ float Io_CurrentSense_GetHighResolutionMainCurrent()
     const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
     // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
+    return -((hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY);
 }
 
 float Io_CurrentSense_GetLowResolutionMainCurrent()
@@ -71,7 +71,7 @@ float Io_CurrentSense_GetLowResolutionMainCurrent()
     // HSNBV-D06 Output 2 (+/- 300A):
     //
     // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1.1k>---+---| ADC Channel |
+    // | HSNBV-D06        |---<1k>---+---| ADC Channel |
     // | Output 2 Voltage |            |   +-------------+
     // +------------------+            |
     //                               <2.2k>
@@ -93,7 +93,7 @@ float Io_CurrentSense_GetLowResolutionMainCurrent()
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
     // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
+    return -((hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY);
 }
 
 float Io_CurrentSense_GetAirLoopCurrent()

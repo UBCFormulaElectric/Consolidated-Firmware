@@ -8,5 +8,49 @@
                 "bits": 1
             }
         }
+    },
+    "Debug_ChargingSwitch": {
+        "msg_id": 702,
+        "cycle_time": 100,
+        "description": "Value set by user to start charging BMS.",
+        "signals": {
+            "StartCharging": {
+                "bits": 1
+            }
+        }
+    },
+    "Debug_CellBalancing": {
+        "msg_id": 703,
+        "cycle_time": 1000,
+        "description": "Signals related to BMS cell balancing.",
+        "signals": {
+            "RequestCellBalancing": {
+                "bits": 1
+            },
+            "OverrideTarget": {
+                "bits": 1
+            },
+            "OverrideTargetValue": {
+                "resolution": 0.0001,
+                "min": 3,
+                "max": 4.2,
+                "unit": "V"
+            },
+            "OverridePWM": {
+                "bits": 1
+            },
+            "OverridePWMFrequency": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "Hz"
+            },
+            "OverridePWMDuty": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
     }
 }
