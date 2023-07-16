@@ -1,121 +1,125 @@
 import os
-import platform
 import sys
+import multiprocessing
 
 # The path to the directory this python file is in
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
-def _isWindows():
+# Construct the command line input
+CLANG_FORMAT_VERSION = "10.0"
+CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
+CLANG_FORMAT_OPTIONS = " -i --style=file "
+
+# Format C/C++ files
+INCLUDE_FILE_EXTENSIONS = (".c", ".cc", ".cpp", ".h", ".hpp", ".hh")
+
+# Files ignored by clang-format
+EXCLUDE_FILES = [
+    # Everytime we format these 2 files, we get an unwanted '\' at the end.
+    # Ignore them from clang-format as a workaround.
+    "stm32f3xx_hal_conf.h",
+    "system_stm32f3xx.c",
+]
+
+# Directories ignored by clang-format
+EXCLUDE_DIRS = [
+    "Middlewares",  # STM32CubeMX generated libraries
+    "Drivers",  # STM32CubeMX generated libraries
+    "cmake-build-embedded",
+    "cmake-build-gtest",
+    "third_party",
+]
+
+
+def find_all_files() -> bool:
     """
-    Check if the operating system is Windows
+    Find and return all files to run formatting on.
 
-    :return: True if using Windows, false otherwise
     """
-    return os.name == 'nt'
-
-def _isMac():
-    """
-    Check if the operating system is Mac OS
-
-    :return: True if using Mac OS, false otherwise
-    """
-    return platform.system() == 'Darwin'
-def _wrapStringInQuotes(str):
-    """
-    Wrap strings in double quotations so paths don't get misinterpreted by bash
-
-    :return: Input string formatted with double quotations around it
-    """
-    return '"{}"'.format(str)
-
-def runClangFormat():
-    """
-    Run the clang-format executable over all C/C++ related files inside src
-    :return: Exit code 0 if success; any other number for an error code
-    """
-    # Construct the command line input
-    CLANG_FORMAT_VERSION = "10.0"
-    CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
-    CLANG_FORMAT_OPTIONS = " -i --style=file "
-
-    # Format C/C++ files
-    INCLUDE_FILE_EXTENSIONS = (
-        '.c',
-        '.cc',
-        '.cpp',
-        '.h',
-        '.hpp',
-        '.hh'
-    )
-
-    # Files ignored by clang-format
-    EXCLUDE_FILES = [
-        # Everytime we format these 2 files, we get an unwanted '\' at the end.
-        # Ignore them from clang-format as a workaround.
-        "stm32f3xx_hal_conf.h",
-        "system_stm32f3xx.c",
-    ]
-
-    # Directories ignored by clang-format
-    EXCLUDE_DIRS = [
-        "Middlewares",  # STM32CubeMX generated libraries
-        "Drivers",      # STM32CubeMX generated libraries
-        "cmake-build-debug",
-        "cmake-build-embedded",
-        "cmake-build-gtest",
-        "cmake-build-gtest-coverage",
-        "SEGGER_RTT",
-        "fff",
-        "TraceRecorder",
-        "auto_generated",
-        "profiler-cortex-m4",
-        "cmake-build-x86",
-        "list.h"
-    ]
-
     # Print the current working directory since the paths are relative
     print("Current working directory: " + os.getcwd())
-
-    # Append the requisite .exe file ending for Windows
-    if _isWindows():
-        CLANG_FORMAT_BINARY += ".exe"
-    elif _isMac():
-        CLANG_FORMAT_BINARY += "-mac"
 
     # Prepare path to recursive traverse
     SOURCE_DIR = os.path.join("..", "boards")
 
     # Recursively traverse through file tree and apply clang-format
-    print("Apply clang-format to files under {}:".format(os.path.join(os.getcwd(), SOURCE_DIR)))
+    print(f"Apply clang-format to files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
+
+    source_files = []
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
         # Remove directories that we don't want to format from search list
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
 
-        for filename in filenames:
-            if filename.endswith(INCLUDE_FILE_EXTENSIONS) and \
-               filename not in EXCLUDE_FILES:
+        # Add all found files, filtering out any that should be excluded
+        source_files += [
+            f'"{os.path.join(root, file)}"'
+            for file in filenames
+            if file.endswith(INCLUDE_FILE_EXTENSIONS) and file not in EXCLUDE_FILES
+        ]
 
-                sourceFile = f'"{os.path.join(root, filename)}"'
+    return source_files
 
-                if _isWindows():
-                    command = _wrapStringInQuotes(CLANG_FORMAT_BINARY + CLANG_FORMAT_OPTIONS + sourceFile)
-                else:
-                    command = (CLANG_FORMAT_BINARY + CLANG_FORMAT_OPTIONS + _wrapStringInQuotes(sourceFile))
 
-                print(command)
-                exitCode = os.system(command)
-                
-                if exitCode != 0:
-                    return exitCode
+def run_clang_format(source_file: str) -> str:
+    """
+    Run clang format against a C/C++ source file, returning True if successful.
 
-    return 0
+    """
+    # Append the requisite .exe file ending for Windows
+    platform = get_platform()
+    clang_format_binary = (
+        CLANG_FORMAT_BINARY + {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
+    )
+    clang_format_cmd = clang_format_binary + CLANG_FORMAT_OPTIONS
 
-if __name__ == '__main__':
+    # Construct and invoke clang-format
+    if platform == "windows":
+        command = wrap_in_quotes(clang_format_cmd + source_file)
+    else:
+        command = clang_format_cmd + wrap_in_quotes(source_file)
+
+    return os.system(command) == 0
+
+
+def get_platform() -> str:
+    """
+    Get platform this script is running on.
+
+    """
+    if sys.platform.startswith("win"):
+        return "windows"
+    elif sys.platform.startswith("darwin"):
+        return "mac"
+    else:
+        return "linux"
+
+
+def wrap_in_quotes(str: str) -> str:
+    """
+    Wrap strings in double quotations so paths don't get misinterpreted by bash.
+
+    """
+    return f'"{str}"'
+
+
+if __name__ == "__main__":
     # Change into the directory this python file is in so we can use relative paths
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
 
-    if runClangFormat() != 0:
-        print("ERROR: Clang-Format encountered issues!")
-        sys.exit(1)
+    # Find all valid files
+    source_files = find_all_files()
+
+    # Start a multiprocessing pool to speed up formatting
+    pool = multiprocessing.Pool()
+    results = pool.map(run_clang_format, source_files)
+    pool.close()
+    pool.join()
+
+    for i, result in enumerate([result for result in results if not result]):
+        print(f"Encountered an error running clang-format against {source_files[i]}")
+
+    if all(results):
+        print("SUCCESS: clang-format ran on all files!")
     else:
-        print("SUCCESS: Clang-Format ran on all files!")
+        print("ERROR: clang-format encountered issues!")
+        sys.exit(1)
