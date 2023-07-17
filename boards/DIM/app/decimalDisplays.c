@@ -50,15 +50,15 @@ bool decimalDisplays_displayNumber(DecimalDisplayBank bank, float value)
 
     // Apply a scaling factor to show digits to the right of the decimal point,
     // if there is space.
-    float scaling_factor = decimalDisplays_getDecimalPointPosition(display_value);
+    float   scaling_factor      = decimalDisplays_getDecimalPointPosition(display_value);
     uint8_t decimal_point_index = decimalDisplays_getDecimalPointIndex(display_value);
-    float scaled_value = display_value * scaling_factor;
+    float   scaled_value        = display_value * scaling_factor;
 
     for (int digit_index = NUM_PER_BANK, digit_index >= 0, digit_index--)
     {
         // Get digit value to show for the current index.
-        uint8_t digit_value = display_value % 10;
-        bool enable_decimal_point = digit_index == decimal_point_index;
+        uint8_t digit_value          = display_value % 10;
+        bool    enable_decimal_point = digit_index == decimal_point_index;
         display_value /= 10;
 
         // Get digit position and write digit value.

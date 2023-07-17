@@ -17,10 +17,10 @@ typedef struct
 
 typedef struct
 {
-    Gpio *srck_pin;
-    Gpio *rck_pin;
-    Gpio *dimming_pin;
-    Gpio *ser_out_pin;
+    Gpio *   srck_pin;
+    Gpio *   rck_pin;
+    Gpio *   dimming_pin;
+    Gpio *   ser_out_pin;
     uint16_t commands[NUM_SEVEN_SEGS];
 } SevenSegDigitsData;
 
@@ -46,10 +46,10 @@ static const CommandLookupTable command_lookup_table =
 
 static SevenSegDigitsData data;
 
-void sevenSegDigits_init(Gpio *srck_pin, Gpio* rck_pin, Gpio* ser_out_pin, Gpio* dimming_pin)
+void sevenSegDigits_init(Gpio *srck_pin, Gpio *rck_pin, Gpio *ser_out_pin, Gpio *dimming_pin)
 {
-    data.srck_pin = srck_pin;
-    data.rck_pin = rck_pin;
+    data.srck_pin    = srck_pin;
+    data.rck_pin     = rck_pin;
     data.ser_out_pin = ser_out_pin;
     data.dimming_pin = dimming_pin;
     memset(data.commands, 0U, sizeof(data.commands));

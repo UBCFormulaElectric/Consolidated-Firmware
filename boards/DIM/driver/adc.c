@@ -5,7 +5,7 @@
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
-static float adc_voltages[NUM_ADC_CHANNELS];
+static float    adc_voltages[NUM_ADC_CHANNELS];
 
 static float adc_convertRawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value)
 {
@@ -56,13 +56,13 @@ static float adc_convertRawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_di
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    for(int i = 0; i < NUM_ADC_CHANNELS; i++) 
+    for (int i = 0; i < NUM_ADC_CHANNELS; i++)
     {
         adc_voltages[i] = adc_convertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC_CHANNEL_5]);
     }
 }
 
-void adc_init(Adc *adc, AdcChannel channel) 
+void adc_init(Adc *adc, AdcChannel channel)
 {
     adc->channel = channel;
 }

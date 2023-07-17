@@ -75,7 +75,7 @@ static void driveState_tick100Hz(struct StateMachine *const state_machine)
 
     // Enable DCM LED if contactors open.
     const bool dcm_in_drive_state = App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
-                                 App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN;
+                                    App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN;
     led_enable(globals->drive_led, dcm_in_drive_state);
 
     // Broadcast start switch statuses.
@@ -110,8 +110,8 @@ static void driveState_tick100Hz(struct StateMachine *const state_machine)
                      (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
                     2;
     float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
-    float instant_power_kW = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() /
-                          1000.0f;
+    float instant_power_kW =
+        App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() / 1000.0f;
 
     App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
 

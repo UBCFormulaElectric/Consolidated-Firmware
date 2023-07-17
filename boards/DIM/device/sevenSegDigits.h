@@ -38,7 +38,7 @@ typedef enum
     NUM_SEVEN_SEGS,
 } SevenSegPosition;
 
-void sevenSegDigits_init(Gpio *srck_pin, Gpio* rck_pin, Gpio* ser_out_pin, Gpio* dimming_pin);
+void sevenSegDigits_init(Gpio *srck_pin, Gpio *rck_pin, Gpio *ser_out_pin, Gpio *dimming_pin);
 void sevenSegDigits_writeCommands(void);
 void sevenSegDigits_setValue(SevenSegPosition position, HexDigit digit, bool decimal_point);
 void sevenSegDigits_disable(SevenSegPosition position);
