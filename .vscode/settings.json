@@ -6,19 +6,5 @@
 			],
 			"url": "/can-bus/json/schema_tx.json"
 		}
-	],
-	"files.associations": {
-		"stm32f412rx.h": "c",
-		"app_sevensegdisplays.h": "c",
-		"cmath": "c",
-		"chrono": "c",
-		"complex": "c",
-		"functional": "c",
-		"optional": "c",
-		"system_error": "c",
-		"type_traits": "c",
-		"xlocmon": "c",
-		"xtr1common": "c",
-		"xutility": "c"
-	}
+	]
 }
