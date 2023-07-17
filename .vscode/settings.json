@@ -6,10 +6,5 @@
 			],
 			"url": "/can-bus/json/schema_tx.json"
 		}
-	],
-	"files.associations": {
-		"stddef.h": "c",
-		"stm32f4xx.h": "c",
-		"softwarewatchdog.h": "c"
-	}
+	]
 }
