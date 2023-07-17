@@ -1,9 +1,6 @@
+#include "avgPower.h"
 #include <stdlib.h>
 #include <assert.h>
-#include "App_AvgPower.h"
-#include "App_CanAlerts.h"
-#include "App_CanUtils.h"
-#include "App_CanRx.h"
 
 typedef struct 
 {

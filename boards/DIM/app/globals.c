@@ -1,7 +1,4 @@
 #include "globals.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include <assert.h>
 
 static Globals globals_data;
 Globals *const globals = &globals_data;
