@@ -79,8 +79,8 @@ static void driveState_tick100Hz(struct StateMachine *const state_machine)
     led_enable(globals->drive_led, dcm_in_drive_state);
 
     // Broadcast start switch statuses.
-    const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
-    const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
+    const bool start_switch_on = switch_isEnabled(globals->start_switch);
+    const bool aux_switch_on   = switch_isEnabled(globals->);
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
@@ -106,25 +106,23 @@ static void driveState_tick100Hz(struct StateMachine *const state_machine)
     }
 
     // Calculate values to display on seven seg banks.
-    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
-                     (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
-                    2;
+    const float left_motor_speed = (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()
+    const float right_motor_speed = (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()
+    float avg_rpm = (left_motor_speed + right_motor_speed) / 2;
     float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
     float instant_power_kW =
         App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() / 1000.0f;
 
-    App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
-
     // Reset average power calculation aux switch flicked.
-    float avg_power = 0.0f;
+    float avg_power;
     if (aux_switch_on)
     {
-        avg_power = App_AvgPowerCalc_Update(avg_power_calc, instant_power_kW);
+        avg_power = avgPower_update(instant_power_kW);
     }
     else
     {
-        avg_power = SSEG_HB_NOT_RECEIVED_ERR;
-        App_AvgPowerCalc_Reset(avg_power_calc);
+        avgPower_reset();
+        avg_power = 0.0f;
     }
 
     if (missing_hb)
