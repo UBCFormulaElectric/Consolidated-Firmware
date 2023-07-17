@@ -6,11 +6,5 @@
 			],
 			"url": "/can-bus/json/schema_tx.json"
 		}
-	],
-	"files.associations": {
-		"cmath": "c",
-		"complex": "c",
-		"cstdlib": "c",
-		"xlocnum": "c"
-	}
+	]
 }
