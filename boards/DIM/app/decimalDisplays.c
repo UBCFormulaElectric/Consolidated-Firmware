@@ -40,6 +40,13 @@ static uint8_t decimalDisplays_getDecimalPointIndex(float value)
     }
 }
 
+void decimalDisplays_init(void)
+{
+    decimalDisplays_displayNumber(DECIMAL_DISPLAY_BANK_L, 0.0f);
+    decimalDisplays_displayNumber(DECIMAL_DISPLAY_BANK_M, 0.0f);
+    decimalDisplays_displayNumber(DECIMAL_DISPLAY_BANK_R, 0.0f);
+}
+
 bool decimalDisplays_displayNumber(DecimalDisplayBank bank, float value)
 {
     // Return false if value exceeds maximum possible value we can show.

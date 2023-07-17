@@ -12,6 +12,11 @@ typedef struct
 
 static AvgPowerData data;
 
+void avgPower_init(void)
+{
+    avgPower_reset();
+}
+
 float avgPower_update(float instant_power)
 {
     data.inc_counter++;

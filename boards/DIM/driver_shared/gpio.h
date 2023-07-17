@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include "Io_Hal.h"
 
 typedef struct
