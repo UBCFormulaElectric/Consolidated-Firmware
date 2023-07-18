@@ -1,0 +1,6 @@
+{
+    "FsmState": {
+        "STATE_IDLE": 0,
+        "STATE_DRIVE": 1
+    }
+}
