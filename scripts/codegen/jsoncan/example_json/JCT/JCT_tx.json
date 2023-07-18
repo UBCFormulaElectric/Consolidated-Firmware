@@ -1,0 +1,73 @@
+{
+    "JctVitals": {
+        "msg_id": 601,
+        "cycle_time": 1000, 
+        "description": "Heartbeat signal.",
+        "allowed_modes": ["default", "debug"],
+        "signals": {
+            "Heartbeat": { 
+                "min": 0,
+                "max": 1,
+                "bits": 1 
+            },
+            "Timestamp": { "bits": 32 }
+        }
+    },  
+    "JctWarnings": {
+        "msg_id": 602,
+        "description": "Non-critical errors.",
+        "num_bytes": 8,
+        "allowed_modes": ["debug"],
+        "signals": {
+            "WatchdogTimeout": { "bits": 1 },
+            "BoardOvertemp": { "bits": 1 },
+            "BoardOvervoltage": { "bits": 1 }
+        }
+    },
+    "JctAirShutdownErrors": {
+        "msg_id": 603,
+        "cycle_time": 1000, 
+        "description": "AIR shutdown.",
+        "num_bytes": 8,
+        "signals": {
+            "DummyAirShutdown": { "bits": 1 }
+        }
+    },
+    "JctMotorShutdownErrors": {
+        "msg_id": 604,
+        "cycle_time": 100, 
+        "description": "Motor shutdown.",
+        "num_bytes": 8,
+        "signals": {
+            "DummyMotorShutdown": { "bits": 1 }
+        }
+    },
+    "JctStatus": {
+        "msg_id": 608,
+        "cycle_time": 100, 
+        "description": "Message for debugging.",
+        "signals": {
+            "ContactorsClosed": {
+                "enum": "AirState"
+            },
+            "Current": {
+                "start_value": 50,
+                "min": 0,
+                "max": 100,
+                "bits": 12,
+                "unit": "A"
+            },
+            "Voltage": {
+                "min": 0,
+                "max": 500,
+                "bits": 12,
+                "unit": "V"
+            },
+            "UnsignedTester": {
+                "bits": 12,
+                "unit": "V",
+                "signed": true
+            }
+        }
+    }
+}
