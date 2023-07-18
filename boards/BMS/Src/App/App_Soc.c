@@ -80,7 +80,7 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, floa
 {
     static int callcount = 0;
     // NOTE current sign is relative to current into the battery
-    float *charge_c     = &soc_stats->charge_c;
+    double *charge_c     = &soc_stats->charge_c;
     float *prev_current = &soc_stats->prev_current_A;
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
@@ -92,12 +92,12 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, floa
 float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
 {
     // return SOC in %
-    return (soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+    return ((float) soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
 }
 
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
 {
-    float charge_c = soc_stats->charge_c;
+    float charge_c = (float) soc_stats->charge_c;
 
     uint8_t lut_index;
 

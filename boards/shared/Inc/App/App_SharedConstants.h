@@ -11,10 +11,9 @@
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
 #define MAX_TORQUE_REQUEST_NM (90.0f) // Max torque of EMRAX 188 HV CC motor
-
 #define TASK_1HZ_PERIOD_S (1.0f)
 #define TASK_100HZ_PERIOD_S (0.01f)
-#define TASK_1KHZ_PERIOD_S (0.001f)
+#define TASK_1KHZ_PERIOD_S (0.001)
 
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.

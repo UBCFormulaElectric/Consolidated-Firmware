@@ -10,7 +10,7 @@ struct SocStats
     uint16_t soc_address;
 
     // charge in cell in coulombs
-    float charge_c;
+    double charge_c;
 
     // Charge loss at time t-1
     float prev_current_A;

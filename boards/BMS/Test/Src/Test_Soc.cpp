@@ -263,21 +263,17 @@ class BmsSocTest : public BaseStateMachineTest
     struct Clock *           clock;
     struct Eeprom *          eeprom;
 };
-TEST_F(BmsSocTest, check_state_transition_from_fault_to_init_with_air_negative_open)
+TEST_F(BmsSocTest, perfect_one_percent_soc_decrease)
 {
     is_air_negative_closed_fake.return_val = true;
-    get_low_res_current_fake.return_val    = -21.2400001f;
-    get_high_res_current_fake.return_val   = -21.2400001f;
+    get_low_res_current_fake.return_val    = -21.24f;
+    get_high_res_current_fake.return_val   = -21.24f;
     SetInitialState(App_GetDriveState());
+    soc_stats->prev_current_A = -21.24f;
 
     LetTimePass(state_machine, 30000);
 
     float               soc       = App_SocStats_GetMinSoc(soc_stats);
-    const struct State *cur_state = App_SharedStateMachine_GetCurrentState(state_machine);
-    UNUSED(cur_state);
-
-    ASSERT_LT(soc, 100.0f);
-
-    LetTimePass(state_machine, 10);
+    ASSERT_FLOAT_EQ(soc, 99.0f);
 }
 } // namespace SocTest
