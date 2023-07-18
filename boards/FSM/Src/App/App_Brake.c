@@ -97,7 +97,7 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
 
     App_CanTx_FSM_Brake_BrakePedalPercentage_Set(brake->get_pedal_travel());
 
-	const bool brake_pressed = brake->get_front_pressure_psi() > 40;
+    const bool brake_pressed = brake->get_front_pressure_psi() > 40;
     App_CanTx_FSM_Brake_IsActuated_Set(brake_pressed);
 
     float                    front_pressure;

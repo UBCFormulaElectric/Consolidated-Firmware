@@ -352,7 +352,7 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
         LetTimePass(state_machine, 10 + AGREEMENT_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_NEAR(test_params[i].sapps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-        ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+        ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
 
         if (test_params[i].expect_fault)
         {
@@ -360,13 +360,13 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
 
             // Clear condition, confirm fault resets
             get_papps_fake.return_val = test_params[i].papps_percentage;
@@ -375,12 +375,12 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 10 + AGREEMENT_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+            ASSERT_TRUE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
 
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+            ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
         }
         else
         {
@@ -388,7 +388,7 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 1000);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].sapps_percentage, App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_GetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT));
+            ASSERT_FALSE(App_CanAlerts_GetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT));
         }
     }
 }
