@@ -1,0 +1,11 @@
+{
+    "warnings_id": 41,
+    "faults_id": 42,
+    "warnings": [
+        "FSM_TEST1",
+        "FSM_TEST2"
+    ],
+    "faults": [
+        "FSM_FAULT_TEST3"
+    ]
+}
