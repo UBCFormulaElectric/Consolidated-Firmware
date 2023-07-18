@@ -463,6 +463,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
 
 TEST_F(FsmFaultTest, primary_flow_rate_underflow_sets_fault)
 {
+    App_CanRx_DCM_Vitals_CurrentState_Update(DCM_DRIVE_STATE);
     // Flow rate underflow threshold is 1.0 L/min
     const float underflow_threshold       = 1.0f;
     coolant_get_flow_rate_fake.return_val = std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest());
