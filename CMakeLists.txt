@@ -18,18 +18,18 @@ if("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
     set(SIZE ${TOOLCHAIN_PREFIX}size)
 elseif("${PLATFORM}" STREQUAL "x86")
-    # We assume this cmake is running on a x86 platform, so the
-    # default compiler settings should be fine
+# We assume this cmake is running on a x86 platform, so the
+# default compiler settings should be fine
 else()
     message(FATAL_ERROR
         "ERROR: Please set the PLATFORM variable to 'x86' or 'arm'.")
 endif()
 
 # Setup project.
-if("${PLATFORM}" STREQUAL "x86")
-    project("UBC Formula Electric Software" C CXX)
-elseif("${PLATFORM}" STREQUAL "arm")
+if("${PLATFORM}" STREQUAL "arm")
     project("UBC Formula Electric Software" C ASM)
+elseif("${PLATFORM}" STREQUAL "x86")
+    project("UBC Formula Electric Software" C CXX)
 endif()
 
 # Globally accessible paths

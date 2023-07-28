@@ -9,12 +9,12 @@ if(NOT STM32CUBEMX_BIN_PATH)
 endif()
 
 # Globally accessible targets
-if("${PLATFORM}" STREQUAL "x86")
-    # This target can be used to build the tests for all the boards
-    add_custom_target(all_tests)
-elseif("${PLATFORM}" STREQUAL "arm")
+if("${PLATFORM}" STREQUAL "arm")
     # This target can be used to build the firmware binaries for all the boards
     add_custom_target(all_arm_binaries)
+elseif("${PLATFORM}" STREQUAL "x86")
+    # This target can be used to build the tests for all the boards
+    add_custom_target(all_tests)
 endif()
 
 # Generate C code for sending/receiving CAN messages for BOARD_NAME
