@@ -125,4 +125,4 @@ hooksl
 /inverter-eeprom-config/conf/
 
 # generated dbc files not allowed
-can-bus/**/*.dbc
+can_bus/**/*.dbc
