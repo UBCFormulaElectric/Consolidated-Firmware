@@ -9,10 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 message("Platform: ${PLATFORM}")
 
 # Target-platform specific settings
-if("${PLATFORM}" STREQUAL "x86")
-# We assume this cmake is running on a x86 platform, so the
-# default compiler settings should be fine
-elseif("${PLATFORM}" STREQUAL "arm")
+if("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_C_COMPILER_WORKS 1)
     set(TOOLCHAIN_PREFIX arm-none-eabi-)
     set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
@@ -20,6 +17,9 @@ elseif("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
     set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
     set(SIZE ${TOOLCHAIN_PREFIX}size)
+elseif("${PLATFORM}" STREQUAL "x86")
+    # We assume this cmake is running on a x86 platform, so the
+    # default compiler settings should be fine
 else()
     message(FATAL_ERROR
         "ERROR: Please set the PLATFORM variable to 'x86' or 'arm'.")
@@ -51,38 +51,18 @@ else()
     set(PYTHON_CMD pipenv run python)
 endif()
 
-function(download_and_unpack_google_test GOOGLETEST_DOWNLOAD_SCRIPT)
-    # Download and unpack googletest at configure time
-    configure_file(${GOOGLETEST_DOWNLOAD_SCRIPT} googletest-download/CMakeLists.txt)
-    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-
-    if(result)
-        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-    endif()
-
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-
-    if(result)
-        message(FATAL_ERROR "Build step for googletest failed: ${result}")
-    endif()
-
-    # Prevent overriding the parent project's compiler/linker
-    # settings on Windows
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Add googletest directly to our build. This defines
-    # the gtest and gtest_main targets.
-    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-endfunction()
-
+# If compiling on x86, fetch GoogleTest for unit testing.
 if("${PLATFORM}" STREQUAL "x86")
-    download_and_unpack_google_test(${CMAKE_SOURCE_DIR}/CMakeLists.txt.in)
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP 1
+    )
+
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
 
     # For ctest to return a non-zero code when Valgrind fails, we must use
     # --error-exitcode. On the other hand, --leak-check=full ensures that any
