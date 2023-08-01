@@ -47,6 +47,7 @@
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
 #include "Io_Eeprom.h"
+#include "Io_ThermistorReadings.h"
 
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
@@ -246,7 +247,8 @@ int main(void)
         Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_ReadVoltages,
         Io_LTC6813CellTemperatures_StartAdcConversion, Io_LTC6813CellTemperatures_ReadTemperatures,
         Io_LTC6813CellTemperatures_GetMinTempDegC, Io_LTC6813CellTemperatures_GetMaxTempDegC,
-        Io_LTC6813CellTemperatures_GetAverageTempDegC, Io_LTC6813Shared_EnableBalance, Io_LTC6813Shared_DisableBalance);
+        Io_LTC6813CellTemperatures_GetAverageTempDegC, Io_LTC6813Shared_EnableBalance, Io_LTC6813Shared_DisableBalance,
+        Io_ThermistorReadings_MuxSelect, Io_ThermistorReadings_ReadSelectedTemp);
 
     ts = App_TractiveSystem_Create(
         Io_VoltageSense_GetTractiveSystemVoltage, Io_CurrentSense_GetHighResolutionMainCurrent,

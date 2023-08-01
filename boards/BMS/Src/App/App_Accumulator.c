@@ -49,6 +49,8 @@ typedef struct
     float       pack_voltage;
 } VoltageStats;
 
+static uint8_t thermistor_channel;
+
 struct Accumulator
 {
     uint8_t num_comm_tries;
@@ -81,6 +83,11 @@ struct Accumulator
 
     bool (*enable_balance)(void);
     bool (*disable_balance)(void);
+
+    void (*select_mux_channel)(uint8_t);
+    float (*read_thermistor_temp)(void);
+
+    float thermistor_temps[16];
 };
 
 /**
@@ -218,7 +225,9 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_balance)(void),
-    bool (*disable_balance)(void))
+    bool (*disable_balance)(void),
+    void (*select_mux_channel)(uint8_t),
+    float (*read_thermistor_temp)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -250,6 +259,16 @@ struct Accumulator *App_Accumulator_Create(
 
     accumulator->enable_balance  = enable_balance;
     accumulator->disable_balance = disable_balance;
+
+    accumulator->select_mux_channel   = select_mux_channel;
+    accumulator->read_thermistor_temp = read_thermistor_temp;
+
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        accumulator->thermistor_temps[i] = 0.0f;
+    }
+
+    thermistor_channel = 0;
 
     return accumulator;
 }
@@ -438,4 +457,44 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
 {
     return accumulator->balance_enabled;
+}
+
+void App_Accumulator_UpdateThermistorTemp(struct Accumulator *const accumulator)
+{
+    accumulator->thermistor_temps[thermistor_channel] = accumulator->read_thermistor_temp();
+
+    if (thermistor_channel < 15)
+    {
+        thermistor_channel++;
+    }
+    else
+    {
+        thermistor_channel = 0;
+    }
+}
+
+float App_Accumulator_GetMaxThermistorTemp(struct Accumulator *const accumulator)
+{
+    float max_temp = 0.0f;
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        if (accumulator->thermistor_temps[i] > max_temp)
+        {
+            max_temp = accumulator->thermistor_temps[i];
+        }
+    }
+    return max_temp;
+}
+
+float App_Accumulator_GetMinThermistorTemp(struct Accumulator *const accumulator)
+{
+    float min_temp = 1000.0f;
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        if (accumulator->thermistor_temps[i] < min_temp)
+        {
+            min_temp = accumulator->thermistor_temps[i];
+        }
+    }
+    return min_temp;
 }

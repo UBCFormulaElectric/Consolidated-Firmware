@@ -49,7 +49,9 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void));
+    bool (*disable_discharge)(void),
+    void (*select_mux_channel)(uint8_t),
+    float (*read_thermistor_temp)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -181,3 +183,9 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
  * @return True if BMS is balancing cells, false otherwise
  */
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator);
+
+void App_Accumulator_UpdateThermistorTemp(struct Accumulator *const accumulator);
+
+float App_Accumulator_GetMaxThermistorTemp(struct Accumulator *const accumulator);
+
+float App_Accumulator_GetMinThermistorTemp(struct Accumulator *const accumulator);

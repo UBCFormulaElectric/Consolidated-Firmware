@@ -137,6 +137,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
     App_CheckCellTemperatureRange(accumulator, state_machine);
+    App_Accumulator_UpdateThermistorTemp(accumulator);
 
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);

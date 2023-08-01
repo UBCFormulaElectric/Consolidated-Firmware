@@ -286,5 +286,24 @@
                 "unit": "W"
             }
         }
+    },
+    "BMS_Thermistors": {
+        "msg_id": 121,
+        "cycle_time": 100,
+        "description": "BMS Thermistor Temperatures",
+        "signals": {
+            "MinThermistorTemperature": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "MaxThermistorTemperature": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
     }
 }
