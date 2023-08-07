@@ -3,13 +3,9 @@ on:
   push:
     branches:
       - master
-      - development
-      - f4-port
   pull_request:
     branches:
       - master
-      - development
-      - f4-port
 
 jobs:
   clang-format:
@@ -21,7 +17,7 @@ jobs:
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
-        
+
     steps:
       # Fix to get git diff working in a Docker container
       # https://github.com/actions/checkout/issues/363
@@ -76,7 +72,7 @@ jobs:
             --ioc boards/${{ matrix.board }}/${{ matrix.board }}.ioc \
             --codegen_output_dir boards/${{ matrix.board }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
-          
+
       - name: Fix formatting
         run: python3 clang-format/fix_formatting.py
 
@@ -104,7 +100,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
-      BUILD_DIR: boards/build_arm
+      BUILD_DIR: build_arm
 
     steps:
       - name: Checkout repository
@@ -117,7 +113,7 @@ jobs:
       # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
       - name: Build
         run: |
-          cmake -S boards -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
 
       # Uploads .elf binary to Github Actions workflow
@@ -126,7 +122,7 @@ jobs:
         with:
           name: ${{ matrix.board }}.elf
           path: ${{ env.BUILD_DIR }}/${{ matrix.board }}/${{ matrix.board }}.elf
-  
+
   test:
     name: Build and Run Tests
     runs-on: ubuntu-22.04
@@ -149,7 +145,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
-      BUILD_DIR: boards/build_x86
+      BUILD_DIR: build_x86
 
     steps:
       - name: Checkout repository
@@ -159,11 +155,10 @@ jobs:
 
       - name: Build
         run: |
-          cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run tests
         run: |
-          cd $BUILD_DIR/${{ matrix.board }}
+          cd $BUILD_DIR/boards/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
-          
