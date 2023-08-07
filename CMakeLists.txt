@@ -34,7 +34,7 @@ endif()
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
-set(BOARDS_DIR ${CMAKE_SOURCE_DIR}/boards)
+set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
 set(PIPENV_PROJECT_DIR ${REPO_ROOT_DIR})
 
@@ -74,4 +74,4 @@ if("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-add_subdirectory(boards)
+add_subdirectory(firmware   )
