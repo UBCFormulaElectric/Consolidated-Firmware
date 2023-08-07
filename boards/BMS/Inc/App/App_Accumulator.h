@@ -49,7 +49,10 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void));
+    bool (*disable_discharge)(void),
+    bool (*check_imd_latched_fault)(void),
+    bool (*check_bspd_latched_fault)(void),
+    bool (*check_bms_latched_fault)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -161,12 +164,17 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
 
 /**
  * Check the status of Accumulator faults, sends warning over CAN bus
- * @param can_tx CAN interface to send messages over
  * @param accumulator The accumulator to check faults
  * @param ts TractiveSystem used to check ts_current to check charge/discharge condition
  * @return True if faults present, false otherwise
  */
 bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts);
+
+/**
+ * Broadcast latched BMS faults over CAN
+ * @param accumulator The accumulator to check faults
+ */
+void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator);
 
 /**
  * Enable or disable cell balancing.
