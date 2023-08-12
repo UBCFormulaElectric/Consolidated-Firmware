@@ -32,6 +32,7 @@ typedef enum
 #define MAX_CELL_VOLTAGE (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
+#define CELL_DCIR_MILLIOHM (13.0f)
 
 // Cell Balancing Discharge Parameters
 #define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV

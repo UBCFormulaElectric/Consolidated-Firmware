@@ -5,6 +5,7 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "App_Soc.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -150,7 +151,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
 
+
     App_AdvertisePackPower(accumulator, ts);
+
+    uint8_t min_segment_id = 0U;
+    uint8_t min_cell_id = 0U;
+    App_CanTx_BMS_Vitals_StateOfCharge_Set(App_Soc_vlookup(App_Accumulator_GetMinVoltage(accumulator, &min_segment_id, &min_cell_id), App_TractiveSystem_GetCurrent(ts))
 
     App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));

@@ -37,3 +37,5 @@
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+float App_Soc_vlookup(float voltage, float current);
