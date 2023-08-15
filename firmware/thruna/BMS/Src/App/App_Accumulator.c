@@ -81,6 +81,10 @@ struct Accumulator
 
     bool (*enable_balance)(void);
     bool (*disable_balance)(void);
+
+    bool (*check_imd_latched_fault)(void);
+    bool (*check_bspd_latched_fault)(void);
+    bool (*check_bms_latched_fault)(void);
 };
 
 /**
@@ -218,7 +222,10 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_balance)(void),
-    bool (*disable_balance)(void))
+    bool (*disable_balance)(void),
+    bool (*check_imd_latched_fault)(void),
+    bool (*check_bspd_latched_fault)(void),
+    bool (*check_bms_latched_fault)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -250,6 +257,10 @@ struct Accumulator *App_Accumulator_Create(
 
     accumulator->enable_balance  = enable_balance;
     accumulator->disable_balance = disable_balance;
+
+    accumulator->check_imd_latched_fault  = check_imd_latched_fault;
+    accumulator->check_bspd_latched_fault = check_bspd_latched_fault;
+    accumulator->check_bms_latched_fault  = check_bms_latched_fault;
 
     return accumulator;
 }
@@ -428,6 +439,21 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+}
+
+void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator)
+{
+    // Check Latched fault pins for IMD and BSPD
+    const bool imd_latched_fault  = accumulator->check_imd_latched_fault;
+    const bool bspd_latched_fault = accumulator->check_bspd_latched_fault;
+    const bool bms_latched_fault  = accumulator->check_bms_latched_fault;
+
+    // Send latched imd and bspd statuses over CAN
+    App_CanTx_BMS_OkStatuses_ImdLatchedFaultStatus_Set(imd_latched_fault);
+    App_CanTx_BMS_OkStatuses_BspdLatchedFaultStatus_Set(bspd_latched_fault);
+
+    // Set fault in table to latch BMS led until reset
+    App_CanAlerts_SetFault(BMS_FAULT_LATCHED_BMS_FAULT, bms_latched_fault);
 }
 
 void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)

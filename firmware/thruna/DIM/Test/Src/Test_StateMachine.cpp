@@ -420,17 +420,17 @@ TEST_F(DimStateMachineTest, check_aux_switch_is_broadcasted_over_can_in_drive_st
 // DIM-5
 TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_OkStatuses_ImdOk_Update(true);
+    App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_OkStatuses_ImdOk_Update(false);
+    App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_OkStatuses_ImdOk_Update(true);
+    App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
@@ -439,17 +439,17 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 // DIM-6
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_OkStatuses_BspdOk_Update(true);
+    App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_BMS_OkStatuses_BspdOk_Update(false);
+    App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_BMS_OkStatuses_BspdOk_Update(true);
+    App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
