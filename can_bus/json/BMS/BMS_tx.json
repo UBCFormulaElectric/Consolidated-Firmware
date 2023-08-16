@@ -293,18 +293,42 @@
             }
         }
     },
-    "BMS_Thermistors": {
+    "BMS_AuxThermistors": {
         "msg_id": 121,
         "cycle_time": 100,
-        "description": "BMS Thermistor Temperatures",
+        "description": "BMS Auxiliary Thermistor Temperatures",
         "signals": {
-            "MinThermistorTemperature": {
+            "ThermTemp0": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
             },
-            "MaxThermistorTemperature": {
+            "ThermTemp1": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp2": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp3": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp4": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp5": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,

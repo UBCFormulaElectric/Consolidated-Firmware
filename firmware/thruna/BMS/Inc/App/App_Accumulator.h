@@ -192,8 +192,14 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
  */
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator);
 
-void App_Accumulator_UpdateThermistorTemp(struct Accumulator *const accumulator);
+/**
+ * Read a thermistor value then update the MUX channel to give time to switch before next read
+ * @param accumulator
+ */
+void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumulator);
 
-float App_Accumulator_GetMaxThermistorTemp(struct Accumulator *const accumulator);
-
-float App_Accumulator_GetMinThermistorTemp(struct Accumulator *const accumulator);
+/**
+ * Broadcast thermistor temperatures over CAN
+ * @param accumulator
+ */
+void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator);

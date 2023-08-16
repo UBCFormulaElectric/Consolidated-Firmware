@@ -7,6 +7,8 @@
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
+#define NUM_AUX_THERMISTORS (6U)
+
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
@@ -91,7 +93,7 @@ struct Accumulator
     void (*select_mux_channel)(uint8_t);
     float (*read_thermistor_temp)(void);
 
-    float thermistor_temps[16];
+    float aux_thermistor_temps[NUM_AUX_THERMISTORS];
 };
 
 /**
@@ -232,8 +234,7 @@ struct Accumulator *App_Accumulator_Create(
     bool (*disable_balance)(void),
     bool (*check_imd_latched_fault)(void),
     bool (*check_bspd_latched_fault)(void),
-    bool (*check_bms_latched_fault)(void))
-    bool (*disable_balance)(void),
+    bool (*check_bms_latched_fault)(void),
     void (*select_mux_channel)(uint8_t),
     float (*read_thermistor_temp)(void))
 {
@@ -275,9 +276,9 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->select_mux_channel   = select_mux_channel;
     accumulator->read_thermistor_temp = read_thermistor_temp;
 
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < NUM_AUX_THERMISTORS; i++)
     {
-        accumulator->thermistor_temps[i] = 0.0f;
+        accumulator->aux_thermistor_temps[i] = 0.0f;
     }
 
     thermistor_channel = 0;
@@ -486,11 +487,11 @@ bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
     return accumulator->balance_enabled;
 }
 
-void App_Accumulator_UpdateThermistorTemp(struct Accumulator *const accumulator)
+void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumulator)
 {
-    accumulator->thermistor_temps[thermistor_channel] = accumulator->read_thermistor_temp();
+    accumulator->aux_thermistor_temps[thermistor_channel] = accumulator->read_thermistor_temp();
 
-    if (thermistor_channel < 15)
+    if (thermistor_channel < (NUM_AUX_THERMISTORS - 1))
     {
         thermistor_channel++;
     }
@@ -500,28 +501,12 @@ void App_Accumulator_UpdateThermistorTemp(struct Accumulator *const accumulator)
     }
 }
 
-float App_Accumulator_GetMaxThermistorTemp(struct Accumulator *const accumulator)
+void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator)
 {
-    float max_temp = 0.0f;
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        if (accumulator->thermistor_temps[i] > max_temp)
-        {
-            max_temp = accumulator->thermistor_temps[i];
-        }
-    }
-    return max_temp;
-}
-
-float App_Accumulator_GetMinThermistorTemp(struct Accumulator *const accumulator)
-{
-    float min_temp = 1000.0f;
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        if (accumulator->thermistor_temps[i] < min_temp)
-        {
-            min_temp = accumulator->thermistor_temps[i];
-        }
-    }
-    return min_temp;
+    App_CanTx_BMS_AuxThermistors_ThermTemp0_Set(accumulator->aux_thermistor_temps[0]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp1_Set(accumulator->aux_thermistor_temps[1]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp2_Set(accumulator->aux_thermistor_temps[2]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp3_Set(accumulator->aux_thermistor_temps[3]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp4_Set(accumulator->aux_thermistor_temps[4]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp5_Set(accumulator->aux_thermistor_temps[5]);
 }

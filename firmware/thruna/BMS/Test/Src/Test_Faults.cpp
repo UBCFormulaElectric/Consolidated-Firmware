@@ -123,7 +123,8 @@ class BmsFaultTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
             read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
-            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault, thermistor_mux_select, read_thermistor_temp);
+            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
+            thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 

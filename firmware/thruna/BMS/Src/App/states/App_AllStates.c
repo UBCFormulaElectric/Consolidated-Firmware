@@ -137,7 +137,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
     App_CheckCellTemperatureRange(accumulator, state_machine);
-    App_Accumulator_UpdateThermistorTemp(accumulator);
+    App_Accumulator_UpdateAuxThermistorTemps(accumulator);
 
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
@@ -151,6 +151,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_Contactors_AirPositive_Set(
         App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
+    App_Accumulator_BroadcastThermistorTemps(accumulator);
 
     App_AdvertisePackPower(accumulator, ts);
 
