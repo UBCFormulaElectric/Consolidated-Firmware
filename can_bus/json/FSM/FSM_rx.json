@@ -1,0 +1,9 @@
+{
+    "messages": [
+        "BMS_Vitals",
+        "Debug_CanModes",
+        "DCM_LeftInverterCommand",
+        "DCM_RightInverterCommand",
+        "DCM_Vitals"
+    ]
+}

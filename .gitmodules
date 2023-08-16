@@ -1,18 +1,12 @@
 [submodule "tools/cmsis-svd"]
 	path = tools/cmsis-svd
 	url = https://github.com/posborne/cmsis-svd.git
-[submodule "boards/shared/profiler-cortex-m4"]
-	path = boards/shared/third_party/profiler-cortex-m4
+[submodule "firmware/third_party/profiler-cortex-m4"]
+	path = firmware/third_party/profiler-cortex-m4
 	url = https://github.com/UBCFormulaElectric/profiler-cortex-m4
-[submodule "boards/shared/third_party/fff"]
-	path = boards/shared/third_party/fff
-	url = https://github.com/UBCFormulaElectric/fff.git
-[submodule "boards/shared/third_party/sbgECom"]
-	path = boards/shared/third_party/sbgECom
+[submodule "firmware/third_party/sbgECom"]
+	path = firmware/third_party/sbgECom
 	url = https://github.com/UBCFormulaElectric/sbgECom.git
-[submodule "list.h"]
-	path = boards/shared/third_party/list.h
-	url = https://github.com/UBCFormulaElectric/list.h.git
-[submodule "scripts/codegen/json2can"]
-	path = scripts/codegen/json2can
-	url = https://github.com/UBCFormulaElectric/json2can.git
+[submodule "firmware/third_party/fff"]
+	path = firmware/third_party/fff
+	url = https://github.com/UBCFormulaElectric/fff.git
