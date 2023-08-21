@@ -1,0 +1,11 @@
+services:
+  develop:
+    build: environment
+    image: ghcr.io/ubcformulaelectric/environment:latest
+    volumes:
+      - .:/home/Consolidated-Firmware
+      - /tmp/.X11-unix/:/tmp/.X11-unix/
+    environment:
+      - DISPLAY
+      - HOST_IP
+    tty: true
