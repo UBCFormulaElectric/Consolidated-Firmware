@@ -28,10 +28,10 @@ RUN apt update -y && apt install -y \
     libxtst6 \
     libxrender1
 
-COPY . /root/environment/
+COPY . /home/environment/
 
 # Install python package dependencies.
-WORKDIR /root/environment/scripts
+WORKDIR /home/environment/scripts
 RUN pip3 install -r ../requirements.txt
 
 # Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
