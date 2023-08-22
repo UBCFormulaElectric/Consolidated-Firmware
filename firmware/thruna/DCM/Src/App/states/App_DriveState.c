@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
-#include "App_SharedMacros.h"
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "App_SharedConstants.h"
+#include "torquevectoring/App_TorqueVectoring.h"
 
+#define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 #define EFFICIENCY_ESTIMATE (0.80f)
 
 void App_SetPeriodicCanSignals_TorqueRequests()
@@ -47,13 +47,17 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
-    // Enable inverters upon entering drive state.
-    App_CanTx_DCM_LeftInverterEnable_Set(true);
-    App_CanTx_DCM_RightInverterEnable_Set(true);
+    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(true);
+    App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
 
     // Set inverter directions.
-    App_CanTx_DCM_LeftInverterDirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
-    App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+    App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
+    App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+
+    static bool torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitch_On() 
+    if (torque_vectoring_switch_is_on) {
+        App_TorqueVectoring_Setup();
+    } 
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -71,8 +75,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (all_states_ok)
     {
-        App_SetPeriodicCanSignals_TorqueRequests();
-    }
+        if (torque_vectoring_switch_is_on)
+        {
+            App_TorqueVectoring_Setup();
+        }
+        else
+        { 
+            App_SetPeriodicCanSignals_TorqueRequests();
+        }
 
     if (exit_drive)
     {
