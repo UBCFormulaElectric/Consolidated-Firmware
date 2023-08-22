@@ -180,6 +180,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     float sapps_pedal_percentage = accelerator_pedals->get_secondary_pedal_percent();
     App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
     App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_Apps_PappsRawPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_Apps_SappsRawPedalPercentage_Set(sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
@@ -207,7 +209,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetFault(FSM_FAULT_APPS_HAS_DISAGREEMENT, apps_disagreement);
+    App_CanAlerts_SetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT, apps_disagreement);
 
     if (apps_disagreement)
     {

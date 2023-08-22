@@ -34,7 +34,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
-    if (!App_CanRx_BMS_OkStatuses_ImdOk_Get())
+    if (App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get())
     {
         App_Led_TurnOn(imd_led);
     }
@@ -43,7 +43,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (!App_CanRx_BMS_OkStatuses_BspdOk_Get())
+    if (App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get())
     {
         App_Led_TurnOn(bspd_led);
     }
@@ -78,8 +78,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
-
-    float avg_power = 0.0f;
 
     struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
                                                          [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
@@ -119,25 +117,18 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
-                     (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
-                    2;
-    float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
+    const float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
+                           (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
+                          2;
+    const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
     //    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
     //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
-    float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() * App_CanRx_BMS_TractiveSystem_TsCurrent_Get() /
-                          1000.0f; // instant kW
+    const float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() *
+                                App_CanRx_BMS_TractiveSystem_TsCurrent_Get() / 1000.0f; // instant kW
 
-    if (aux_switch_on)
-    {
-        avg_power = App_AvgPowerCalc_Update(avg_power_calc, instant_power);
-    }
-    else
-    {
-        avg_power = SSEG_HB_NOT_RECEIVED_ERR;
-        App_AvgPowerCalc_Reset(avg_power_calc);
-    }
+    const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+
     if (missing_hb)
     {
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
@@ -148,7 +139,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SevenSegDisplays_SetGroupL(seven_seg_displays, speed_kph);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, avg_power);
+        App_SevenSegDisplays_SetGroupR(seven_seg_displays, min_cell_voltage);
     }
 }
 

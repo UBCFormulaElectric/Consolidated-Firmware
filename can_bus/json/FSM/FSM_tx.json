@@ -43,6 +43,18 @@
 				"max": 100,
 				"unit": "%"
 			},
+			"PappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
 			"TorqueLimit": {
 				"resolution": 0.1,
 				"min": 0,
@@ -55,7 +67,7 @@
 		}
 	},
 	"FSM_Brake": {
-		"msg_id": 14,
+		"msg_id": 314,
 		"cycle_time": 100,
 		"signals": {
 			"FrontBrakePressure": {
