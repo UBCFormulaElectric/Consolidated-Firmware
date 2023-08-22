@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Start debug server: DIM",
+            "command": "python3",
+            "args": [
+                "debug_server/client.py",
+                "--ip",
+                "${env:HOST_IP}",
+                "--config", 
+                "DIM"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "Close debug servers",
+            "command": "python3",
+            "args": [
+                "debug_server/client.py",
+                "--ip",
+                "${env:HOST_IP}",
+                "--close", 
+            ]
+        }
+    ],
+}

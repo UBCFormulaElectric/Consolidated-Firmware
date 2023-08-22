@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug DIM",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_arm/firmware/thruna/FSM/FSM.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "external",
+      "gdbTarget": "${env:HOST_IP}:3333",
+      "preLaunchTask": "Start debug server: DIM",
+      "postDebugTask": "Close debug servers",
+    }
+  ]
+}
