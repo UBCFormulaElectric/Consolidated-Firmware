@@ -3,9 +3,15 @@ services:
     build: environment
     image: ghcr.io/ubcformulaelectric/environment:latest
     volumes:
+      # Mount repo files into container.
       - .:/home/Consolidated-Firmware
+      # Forward GUIs from container to local computer.
       - /tmp/.X11-unix/:/tmp/.X11-unix/
     environment:
-      - DISPLAY
+      # If an env var is not provided a value, it pulls it from the shell that invokes `docker compose`.
+      # HOST_IP is the IP address of the host, which is used to connect to the debug server.
+      # Set via `start_environment.sh`.
       - HOST_IP
-    tty: true
+      # DISPLAY must be set for GUI forwarding to work.
+      - DISPLAY
+    tty: true # Keeps service running indefinitely.
