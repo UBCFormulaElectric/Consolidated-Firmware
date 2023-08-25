@@ -491,14 +491,10 @@ void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumula
 {
     accumulator->aux_thermistor_temps[thermistor_channel] = accumulator->read_thermistor_temp();
 
-    if (thermistor_channel < (NUM_AUX_THERMISTORS - 1))
-    {
-        thermistor_channel++;
-    }
-    else
-    {
-        thermistor_channel = 0;
-    }
+    thermistor_channel++;
+    thermistor_channel %= NUM_AUX_THERMISTORS;
+
+    accumulator->select_mux_channel(thermistor_channel);
 }
 
 void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator)

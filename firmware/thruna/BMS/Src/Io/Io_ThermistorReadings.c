@@ -33,30 +33,10 @@ static const float temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT] = {
 
 static void intToBinaryArray(uint8_t input_int, GPIO_PinState *output_arr)
 {
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        output_arr[i] = GPIO_PIN_RESET;
-    }
-
-    if (input_int >= 8)
-    {
-        output_arr[3] = GPIO_PIN_SET;
-        input_int     = (uint8_t)(input_int - 8U);
-    }
-    if (input_int >= 4)
-    {
-        output_arr[2] = GPIO_PIN_SET;
-        input_int     = (uint8_t)(input_int - 4U);
-    }
-    if (input_int >= 2)
-    {
-        output_arr[1] = GPIO_PIN_SET;
-        input_int     = (uint8_t)(input_int - 2U);
-    }
-    if (input_int == 1)
-    {
-        output_arr[0] = GPIO_PIN_SET;
-    }
+    output_arr[3] = (input_int & 1 << 3) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+    output_arr[2] = (input_int & 1 << 2) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+    output_arr[1] = (input_int & 1 << 1) ? GPIO_PIN_SET : GPIO_PIN_RESET;
+    output_arr[0] = (input_int & 1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 }
 
 void Io_ThermistorReadings_MuxSelect(uint8_t channel)
@@ -64,7 +44,6 @@ void Io_ThermistorReadings_MuxSelect(uint8_t channel)
     GPIO_PinState binary_select[4];
 
     intToBinaryArray(channel, binary_select);
-
     HAL_GPIO_WritePin(AUX_TSENSE_MUX0_GPIO_Port, AUX_TSENSE_MUX0_Pin, binary_select[0]);
     HAL_GPIO_WritePin(AUX_TSENSE_MUX1_GPIO_Port, AUX_TSENSE_MUX1_Pin, binary_select[1]);
     HAL_GPIO_WritePin(AUX_TSENSE_MUX2_GPIO_Port, AUX_TSENSE_MUX2_Pin, binary_select[2]);
