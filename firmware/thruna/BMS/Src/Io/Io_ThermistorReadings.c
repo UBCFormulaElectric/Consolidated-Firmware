@@ -6,7 +6,9 @@
 #define SIZE_OF_TEMPERATURE_LUT (201U)
 #define BIAS_RESISTOR_OHM (10000.0f)
 #define REFERENCE_VOLTAGE (3.3f)
-#define THERM_INDEX_TO_DEGC (5U)
+#define THERM_INDEX_TO_DEGC (0.5f)
+
+#define THERM_LOOKUP_STARTING_TEMP (255.0f)
 
 // TODO: Update LUT based on new thermisor
 
@@ -85,7 +87,7 @@ float Io_ThermistorReadings_ReadSelectedTemp(void)
     //
     //
 
-    uint16_t thermistor_temp = UINT16_MAX;
+    float thermistor_temp = THERM_LOOKUP_STARTING_TEMP;
     //    const float gpio_voltage          = (float)raw_thermistor_voltage * V_PER_100UV;
     const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
 
@@ -108,7 +110,7 @@ float Io_ThermistorReadings_ReadSelectedTemp(void)
         // CELL_TEMPERATURES_DECI_DEG_C = ----------------------------
         //                                            2
         //
-        thermistor_temp = (uint16_t)(therm_lut_index * THERM_INDEX_TO_DEGC);
+        thermistor_temp = therm_lut_index * THERM_INDEX_TO_DEGC;
     }
 
     return thermistor_temp;
