@@ -3,10 +3,6 @@
 #include "states/App_DriveState.h"
 #include "App_SharedConstants.h"
 
-#define IGNORE_HEARTBEAT_CYCLES 100U
-
-static uint16_t num_cycles = 0;
-
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
@@ -59,12 +55,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         0.01f * App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
     App_CanTx_FSM_Apps_TorqueLimit_Set(fsm_torque_limit);
 
-    if (num_cycles < IGNORE_HEARTBEAT_CYCLES)
-    {
-        num_cycles++;
-    }
-
-    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor) && (num_cycles > IGNORE_HEARTBEAT_CYCLES);
+    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
     App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     if (missing_hb)
