@@ -59,9 +59,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         0.01f * App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
     App_CanTx_FSM_Apps_TorqueLimit_Set(fsm_torque_limit);
 
-
-    if(num_cycles < IGNORE_HEARTBEAT_CYCLES){
-      num_cycles++;
+    if (num_cycles < IGNORE_HEARTBEAT_CYCLES)
+    {
+        num_cycles++;
     }
 
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor) && (num_cycles > IGNORE_HEARTBEAT_CYCLES);

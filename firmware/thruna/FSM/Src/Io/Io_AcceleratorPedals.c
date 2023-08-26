@@ -40,8 +40,15 @@ float Io_AcceleratorPedals_GetPapps(void)
 
     // Calculate pedal percentage
     float pedal_percentage = (pot_len_mm - FULLY_UNPRESSED_POT_LENGTH_MM) /
-                             (FULLY_PRESSED_POT_LENGTH_MM - FULLY_UNPRESSED_POT_LENGTH_MM) * 100.0f - DEADZONE_PERCENT;
-    return CLAMP(pedal_percentage, 0.0f, 100.0f);
+                             (FULLY_PRESSED_POT_LENGTH_MM - FULLY_UNPRESSED_POT_LENGTH_MM) * 100.0f;
+    if (pedal_percentage > DEADZONE_PERCENT)
+    {
+        return CLAMP(pedal_percentage, 0.0f, 100.0f);
+    }
+    else
+    {
+        return 0.0f;
+    }
 }
 bool Io_AcceleratorPedals_PappsOCSC(void)
 {
