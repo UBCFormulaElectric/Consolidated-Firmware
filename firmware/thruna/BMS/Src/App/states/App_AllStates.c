@@ -11,7 +11,7 @@
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
-#define NUM_CYCLES_TO_SETTLE (3U)
+#define NUM_CYCLES_TO_SETTLE (30U)
 
 static uint8_t acc_meas_settle_count = 0U;
 

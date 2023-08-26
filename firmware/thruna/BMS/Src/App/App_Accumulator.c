@@ -465,9 +465,9 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator)
 {
     // Check Latched fault pins for IMD and BSPD
-    const bool imd_latched_fault  = accumulator->check_imd_latched_fault;
-    const bool bspd_latched_fault = accumulator->check_bspd_latched_fault;
-    const bool bms_latched_fault  = accumulator->check_bms_latched_fault;
+    const bool imd_latched_fault  = accumulator->check_imd_latched_fault();
+    const bool bspd_latched_fault = accumulator->check_bspd_latched_fault();
+    const bool bms_latched_fault  = accumulator->check_bms_latched_fault();
 
     // Send latched imd and bspd statuses over CAN
     App_CanTx_BMS_OkStatuses_ImdLatchedFaultStatus_Set(imd_latched_fault);
