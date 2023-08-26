@@ -3,7 +3,7 @@
 #include "states/App_DriveState.h"
 #include "App_SharedConstants.h"
 
-#define IGNORE_HEARTBEAT_CYCLES 1000U
+#define IGNORE_HEARTBEAT_CYCLES 100U
 
 static uint16_t num_cycles = 0;
 
