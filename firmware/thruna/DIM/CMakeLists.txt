@@ -1,54 +1,53 @@
-file(GLOB_RECURSE ARM_BINARY_APP_SRCS "Src/App/*.*")
-set(ARM_BINARY_APP_INCLUDE_DIRS "Inc/App")
+file(GLOB_RECURSE ARM_BINARY_APP_SRCS "src/app/*.*")
+set(ARM_BINARY_APP_INCLUDE_DIRS "src/app")
 file(GLOB ARM_BINARY_IO_SRCS
-    "Src/*.c"
-    "Src/Io/*.c"
-    "startup/*.s"
+    "src/dev/*.c"
+    "src/hw/*.c"
+    "src/stm32/Src/*.c"
+    "src/stm32/startup/*.s"
 )
 set(ARM_BINARY_IO_INCLUDE_DIRS
-    "Inc"
-    "Inc/Io"
+    "src/dev"
+    "src/hw"
+    "src/stm32/Inc"
 )
 
 set(ARM_BINARY_X86_COMPATIBLE_SRCS
-    ${ARM_BINARY_APP_SRCS}
-    ${X86_COMPATIBLE_IO_SRCS})
+    ${ARM_BINARY_APP_SRCS})
 
 list(REMOVE_ITEM ARM_BINARY_IO_SRCS "")
-set(X86_INCOMPATIBLE_IO_SRCS "${ARM_BINARY_IO_SRCS}")
-set(ARM_BINARY_X86_INCOMPATIBLE_SRCS ${X86_INCOMPATIBLE_IO_SRCS})
+set(ARM_BINARY_X86_INCOMPATIBLE_SRCS ${ARM_BINARY_IO_SRCS})
 
 set(ARM_BINARY_INCLUDE_DIRS
     ${ARM_BINARY_APP_INCLUDE_DIRS}
     ${ARM_BINARY_IO_INCLUDE_DIRS})
 
-set(ARM_BINARY_IO_SYSCALLS_SRC "Src/syscalls.c")
+set(ARM_BINARY_IO_SYSCALLS_SRC "src/stm32/Src/syscalls.c")
 list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${ARM_BINARY_IO_SYSCALLS_SRC})
-set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F412RGTx_FLASH.ld")
+set(ARM_LINKER_SCRIPT "src/stm32/STM32F412RGTx_FLASH.ld")
 
 set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
-    "Drivers/STM32F4xx_HAL_Driver/Inc"
-    "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"
-    "Middlewares/Third_Party/FreeRTOS/Source/include"
-    "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
-    "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
-    "Drivers/CMSIS/Device/ST/STM32F4xx/Include"
-    "Drivers/CMSIS/Include"
+    "src/stm32/Drivers/STM32F4xx_HAL_Driver/Inc"
+    "src/stm32/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"
+    "src/stm32/Middlewares/Third_Party/FreeRTOS/Source/include"
+    "src/stm32/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
+    "src/stm32/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+    "src/stm32/Drivers/CMSIS/Device/ST/STM32F4xx/Include"
+    "src/stm32/Drivers/CMSIS/Include"
 )
 list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
-    "Middlewares/*.c"
-    "Drivers/*.c"
+    "src/stm32/Middlewares/*.c"
+    "src/stm32/Drivers/*.c"
 )
 list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
 
-set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DIM.ioc")
+set(IOC_FILE "src/stm32/DIM.ioc")
 set(STM32_DEVICE_TYPE STM32F412Rx)
 
-file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main.cpp")
+file(GLOB GOOGLETEST_TEST_SRCS "test/*.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
+    "test"
 )
 
 create_arm_binary_or_tests_for_board(
