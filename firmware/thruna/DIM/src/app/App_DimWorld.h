@@ -7,7 +7,6 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
-#include "App_Led.h"
 #include "App_BinarySwitch.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
