@@ -128,8 +128,8 @@ static const BinaryLed imd_led   = { .gpio = {
                                        .pin  = IMD_LED_Pin,
                                    } };
 static const BinaryLed bspd_led  = { .gpio = {
-                                        .port = SHDN_LED_GPIO_Port,
-                                        .pin  = SHDN_LED_Pin,
+                                        .port = BSPD_LED_GPIO_Port,
+                                        .pin  = BSPD_LED_Pin,
                                     } };
 static const BinaryLed shdn_led  = { .gpio = {
                                         .port = SHDN_LED_GPIO_Port,
