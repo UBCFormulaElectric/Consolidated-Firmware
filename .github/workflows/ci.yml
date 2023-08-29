@@ -39,13 +39,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - GSM
+        include:
+          - board: DIM
+            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/thruna/FSM
+          - board: PDM
+            ioc_dir: firmware/thruna/PDM
+          - board: DCM
+            ioc_dir: firmware/thruna/DCM
+          - board: BMS
+            ioc_dir: firmware/thruna/BMS
+          - board: GSM
+            ioc_dir: firmware/thruna/GSM
 
     container:
       image: ubcformulaelectric/ci:latest
@@ -69,8 +75,8 @@ jobs:
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir firmware/thruna/${{ matrix.board }} \
+            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            --codegen_output_dir ${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
       - name: Fix formatting
