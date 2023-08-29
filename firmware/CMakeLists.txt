@@ -89,6 +89,7 @@ function(cube_mx_code_generation
     set(FIX_FORMATTING_SCRIPT_PY
         ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
     set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
+    get_filename_component(IOC_DIR ${IOC_FILE} DIRECTORY)
 
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
@@ -98,7 +99,7 @@ function(cube_mx_code_generation
         --board ${BOARD_NAME}
         --log4j_properties_output ${LOG4J_PROPERTIES}
         --ioc ${IOC_FILE}
-        --codegen_output_dir ${CMAKE_CURRENT_SOURCE_DIR}
+        --codegen_output_dir ${IOC_DIR}
         --cube_bin ${STM32CUBEMX_BIN_PATH}
 
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so

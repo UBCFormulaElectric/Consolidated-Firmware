@@ -187,6 +187,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_pdm_status_led_green);
         RESET_FAKE(turn_pdm_status_led_blue);
         RESET_FAKE(turn_off_pdm_status_led);
+        RESET_FAKE(dev_led_enable);
     }
 
     void TearDown() override

@@ -2,5 +2,5 @@
 
 void dev_led_enable(const BinaryLed *led, bool on)
 {
-    hw_gpio_writePin(led->pin, on);
+    hw_gpio_writePin(&led->gpio, on);
 }
