@@ -6,7 +6,8 @@
 #include "hw_gpio.h"
 #endif
 
-typedef struct {
+typedef struct
+{
 #ifdef TARGET_EMBEDDED
     const Gpio srck_gpio;
     const Gpio rck_gpio;
@@ -57,7 +58,7 @@ typedef enum
 /**
  * Initialize the 7-seg displays.
  */
-void dev_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config);
+void dev_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config);
 
 /**
  * Issue commands to the shift registers controlling the 7-segment displays.
@@ -65,13 +66,18 @@ void dev_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config);
 void dev_sevenSegDisplays_writeCommands(void);
 
 /**
- * Update the command value to send to the specified 7-segment display during the next sevenSegDisplays_writeCommands() call.
+ * Update the command value to send to the specified 7-segment display during the next sevenSegDisplays_writeCommands()
+ * call.
  * @param group The group of the specified 7-seg.
  * @param subposition The position, within the group, of the specified 7-seg.
  * @param digit The hexadecimal value to display.
  * @param decimal_point Whether or not to enable the decimal point.
  */
-void dev_sevenSegDisplays_setValue(SevenSegGroup group, SevenSegSubposition subposition, HexDigit digit, bool decimal_point);
+void dev_sevenSegDisplays_setValue(
+    SevenSegGroup       group,
+    SevenSegSubposition subposition,
+    HexDigit            digit,
+    bool                decimal_point);
 
 /**
  * Disable the specified 7-segment display during the next sevenSegDisplays_writeCommands() call.

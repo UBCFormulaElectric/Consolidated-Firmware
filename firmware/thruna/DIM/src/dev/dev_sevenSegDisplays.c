@@ -35,10 +35,10 @@ static const CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
-static const SevenSegsConfig* config;
-static uint8_t commands[NUM_SEVEN_SEGS];
+static const SevenSegsConfig *config;
+static uint8_t                commands[NUM_SEVEN_SEGS];
 
-void dev_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config)
+void dev_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
 {
     config = seven_segs_config;
     memset(commands, 0U, sizeof(commands));
@@ -81,9 +81,13 @@ void dev_sevenSegDisplays_writeCommands(void)
     hw_gpio_writePin(&config->rck_gpio, false);
 }
 
-void dev_sevenSegDisplays_setValue(SevenSegGroup group, SevenSegSubposition subposition, HexDigit digit, bool decimal_point)
+void dev_sevenSegDisplays_setValue(
+    SevenSegGroup       group,
+    SevenSegSubposition subposition,
+    HexDigit            digit,
+    bool                decimal_point)
 {
-    int index = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
+    int     index         = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
     uint8_t command_value = command_lookup_table.values[digit];
 
     // The decimal point is tied to the least significant bit of each shift register.
@@ -98,6 +102,6 @@ void dev_sevenSegDisplays_setValue(SevenSegGroup group, SevenSegSubposition subp
 
 void dev_sevenSegDisplays_disable(SevenSegGroup group, SevenSegSubposition subposition)
 {
-    int index = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
+    int index       = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
     commands[index] = command_lookup_table.disable;
 }

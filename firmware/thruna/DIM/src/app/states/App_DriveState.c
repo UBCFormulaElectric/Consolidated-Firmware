@@ -22,9 +22,9 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *        world              = App_SharedStateMachine_GetWorld(state_machine);
-    struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
-    struct AvgPowerCalc *    avg_power_calc     = App_DimWorld_GetAvgPowerCalc(world);
+    struct DimWorld *        world             = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *heartbeat_monitor = App_DimWorld_GetHeartbeatMonitor(world);
+    struct AvgPowerCalc *    avg_power_calc    = App_DimWorld_GetAvgPowerCalc(world);
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 

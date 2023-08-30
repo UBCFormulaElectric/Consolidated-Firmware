@@ -55,19 +55,20 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
 
     // Apply a scaling factor to show digits to the right of the decimal point,
     // if there is space.
-    float   scaling_factor      = getScalingFactor(value);
+    float               scaling_factor      = getScalingFactor(value);
     SevenSegSubposition decimal_subposition = getDecimalPointSubposition(value);
-    int   scaled_value        = (int)(value * scaling_factor);
+    int                 scaled_value        = (int)(value * scaling_factor);
 
     for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS; digit_subposition >= 0; digit_subposition--)
     {
         // Get digit value to show for the current index.
-        int digit_value          = scaled_value % 10;
-        bool    enable_decimal_point = digit_subposition == (int)decimal_subposition;
+        int  digit_value          = scaled_value % 10;
+        bool enable_decimal_point = digit_subposition == (int)decimal_subposition;
         value /= 10;
 
         // Write digit value.
-        dev_sevenSegDisplays_setValue(group, (SevenSegSubposition) digit_subposition, (HexDigit)digit_value, enable_decimal_point);
+        dev_sevenSegDisplays_setValue(
+            group, (SevenSegSubposition)digit_subposition, (HexDigit)digit_value, enable_decimal_point);
     }
 
     // Shift out all commands to 7-segs.

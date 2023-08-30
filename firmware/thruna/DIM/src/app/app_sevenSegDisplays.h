@@ -10,7 +10,7 @@
 void app_sevenSegDisplays_init(void);
 
 /**
- * Write a number to the specified group. 
+ * Write a number to the specified group.
  * @param group The group to write to.
  * @return True if number could be written successfully, else false.
  */

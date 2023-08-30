@@ -19,9 +19,9 @@ struct DimWorld *App_DimWorld_Create(
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
 
-    world->heartbeat_monitor  = heartbeat_monitor;
-    world->clock              = clock;
-    world->avg_power_calc     = avg_power_calc;
+    world->heartbeat_monitor = heartbeat_monitor;
+    world->clock             = clock;
+    world->avg_power_calc    = avg_power_calc;
 
     return world;
 }
