@@ -29,7 +29,6 @@
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
-#include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
