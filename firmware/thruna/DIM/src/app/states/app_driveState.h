@@ -18,4 +18,4 @@ typedef enum
  * Get a pointer to the Drive State.
  * @return A pointer to the Drive State. THIS SHOULD NOT BE MODIFIED.
  */
-const struct State *App_GetDriveState(void);
+const struct State *app_getDriveState(void);

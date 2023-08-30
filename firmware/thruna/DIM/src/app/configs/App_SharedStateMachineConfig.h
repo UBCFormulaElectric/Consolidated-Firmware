@@ -1,5 +1,4 @@
 #pragma once
 
-#include "App_DimWorld.h"
-
+struct DimWorld;
 #define World DimWorld

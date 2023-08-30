@@ -26,15 +26,17 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
-#include "App_DimWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
+#include "app_avgPower.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -93,11 +95,8 @@ osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
 /* USER CODE BEGIN PV */
-struct DimWorld *        world;
 struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
-struct Clock *           clock;
-struct AvgPowerCalc *    avg_power_calc;
 
 static const BinaryLed imd_led   = { .gpio = {
                                        .port = IMD_LED_GPIO_Port,
@@ -318,16 +317,12 @@ int main(void)
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    clock = App_SharedClock_Create();
-
-    avg_power_calc = App_AvgPowerCalc_Create();
-
-    world = App_DimWorld_Create(heartbeat_monitor, clock, avg_power_calc);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
+    state_machine = App_SharedStateMachine_Create(NULL, app_getDriveState());
 
     app_sevenSegDisplays_init();
+    app_avgPower_init();
     app_globals_init(&globals_config);
+    globals->heartbeat_monitor = heartbeat_monitor;
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -738,7 +733,6 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the

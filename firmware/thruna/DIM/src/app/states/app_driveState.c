@@ -1,31 +1,30 @@
 #include <string.h>
 #include "states/App_DriveState.h"
 #include <stdlib.h>
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
+#include "app_avgPower.h"
 #include "io_led.h"
 #include "io_switch.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
-static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
+static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_Vitals_State_Set(DIM_STATE_DRIVE);
 }
 
-static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *        world             = App_SharedStateMachine_GetWorld(state_machine);
-    struct HeartbeatMonitor *heartbeat_monitor = App_DimWorld_GetHeartbeatMonitor(world);
-    struct AvgPowerCalc *    avg_power_calc    = App_DimWorld_GetAvgPowerCalc(world);
-
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
     const bool imd_fault_latched = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get();
@@ -44,7 +43,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
     const bool aux_switch_on   = io_switch_isClosed(globals->config->aux_switch);
 
-    App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
+    app_avgPower_enable(aux_switch_on);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
@@ -83,11 +82,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (App_CanRx_BMS_Vitals_Heartbeat_Get())
     {
-        App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
 
-    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     const float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
@@ -116,19 +115,19 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
-static void DriveStateRunOnExit(struct StateMachine *const state_machine)
+static void driveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State *App_GetDriveState(void)
+const struct State *app_getDriveState(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",
-        .run_on_entry      = DriveStateRunOnEntry,
-        .run_on_tick_1Hz   = DriveStateRunOnTick1Hz,
-        .run_on_tick_100Hz = DriveStateRunOnTick100Hz,
-        .run_on_exit       = DriveStateRunOnExit,
+        .run_on_entry      = driveStateRunOnEntry,
+        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
+        .run_on_tick_100Hz = driveStateRunOnTick100Hz,
+        .run_on_exit       = driveStateRunOnExit,
     };
 
     return &drive_state;
