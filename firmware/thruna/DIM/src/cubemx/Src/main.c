@@ -28,32 +28,30 @@
 
 #include "App_DimWorld.h"
 #include "App_SharedMacros.h"
-#include "App_SevenSegDisplay.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanAlerts.h"
 #include "app_globals.h"
+#include "app_sevenSegDisplays.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
-#include "Io_SoftwareWatchdog.h"
-#include "Io_StackWaterMark.h"
-#include "Io_SevenSegDisplays.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RgbLedSequence.h"
-#include "Io_DriveModeSwitch.h"
-#include "Io_Switches.h"
-#include "Io_Adc.h"
-#include "Io_RgbLeds.h"
 
 #include "io_led.h"
+#include "dev_switch.h"
+#include "dev_rgbLed.h"
+#include "dev_watchdogConfig.h"
+#include "dev_stackWaterMark.h"
+#include "dev_sevenSegDisplays.h"
 
 #include "hw_gpio.h"
+#include "hw_time.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,32 +93,11 @@ osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
 /* USER CODE BEGIN PV */
-struct DimWorld *         world;
-struct StateMachine *     state_machine;
-struct DimCanTxInterface *can_tx;
-struct DimCanRxInterface *can_rx;
-struct SevenSegDisplay *  left_l_seven_seg_display;
-struct SevenSegDisplay *  left_m_seven_seg_display;
-struct SevenSegDisplay *  left_r_seven_seg_display;
-struct SevenSegDisplay *  middle_l_seven_seg_display;
-struct SevenSegDisplay *  middle_m_seven_seg_display;
-struct SevenSegDisplay *  middle_r_seven_seg_display;
-struct SevenSegDisplay *  right_l_seven_seg_display;
-struct SevenSegDisplay *  right_m_seven_seg_display;
-struct SevenSegDisplay *  right_r_seven_seg_display;
-struct SevenSegDisplays * seven_seg_displays;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct RotarySwitch *     drive_mode_switch;
-struct BinarySwitch *     start_switch;
-struct BinarySwitch *     aux_switch;
-struct RgbLed *           bms_status_led;
-struct RgbLed *           dcm_status_led;
-struct RgbLed *           dim_status_led;
-struct RgbLed *           fsm_status_led;
-struct RgbLed *           pdm_status_led;
-struct Clock *            clock;
-struct AvgPowerCalc *     avg_power_calc;
+struct DimWorld *        world;
+struct StateMachine *    state_machine;
+struct HeartbeatMonitor *heartbeat_monitor;
+struct Clock *           clock;
+struct AvgPowerCalc *    avg_power_calc;
 
 static const BinaryLed imd_led   = { .gpio = {
                                        .port = IMD_LED_GPIO_Port,
@@ -139,11 +116,123 @@ static const BinaryLed drive_led = { .gpio = {
                                          .pin  = IGNTN_LED_Pin,
                                      } };
 
+static const Switch start_switch = {
+    .gpio = {
+        .port = IGNTN_IN_GPIO_Port,
+        .pin = IGNTN_IN_Pin,
+    },
+    .closed_state = true,
+};
+static const Switch aux_switch = {
+    .gpio = {
+        .port = AUX_IN_GPIO_Port,
+        .pin = AUX_IN_Pin,
+    },
+    .closed_state = true,
+};
+
+static const RgbLed bms_status_led = {
+    .red_gpio = {
+        .port = BMS_RED_GPIO_Port,
+        .pin = BMS_RED_Pin,
+    },
+    .green_gpio = {
+        .port = BMS_GREEN_GPIO_Port,
+        .pin = BMS_GREEN_Pin,
+    },
+    .blue_gpio = {
+        .port = BMS_BLUE_GPIO_Port,
+        .pin = BMS_BLUE_Pin,
+    },
+};
+static const RgbLed dcm_status_led = {
+    .red_gpio = {
+        .port = DCM_RED_GPIO_Port,
+        .pin = DCM_RED_Pin,
+    },
+    .green_gpio = {
+        .port = DCM_GREEN_GPIO_Port,
+        .pin = DCM_GREEN_Pin,
+    },
+    .blue_gpio = {
+        .port = DCM_BLUE_GPIO_Port,
+        .pin = DCM_BLUE_Pin,
+    },
+};
+static const RgbLed fsm_status_led = {
+    .red_gpio = {
+        .port = FSM_RED_GPIO_Port,
+        .pin = FSM_RED_Pin,
+    },
+    .green_gpio = {
+        .port = FSM_GREEN_GPIO_Port,
+        .pin = FSM_GREEN_Pin,
+    },
+    .blue_gpio = {
+        .port = FSM_BLUE_GPIO_Port,
+        .pin = FSM_BLUE_Pin,
+    },
+};
+static const RgbLed pdm_status_led = {
+    .red_gpio = {
+        .port = PDM_RED_GPIO_Port,
+        .pin = PDM_RED_Pin,
+    },
+    .green_gpio = {
+        .port = PDM_GREEN_GPIO_Port,
+        .pin = PDM_GREEN_Pin,
+    },
+    .blue_gpio = {
+        .port = PDM_BLUE_GPIO_Port,
+        .pin = PDM_BLUE_Pin,
+    },
+};
+static const RgbLed dim_status_led = {
+    .red_gpio = {
+        .port = DIM_RED_GPIO_Port,
+        .pin = DIM_RED_Pin,
+    },
+    .green_gpio = {
+        .port = DIM_GREEN_GPIO_Port,
+        .pin = DIM_GREEN_Pin,
+    },
+    .blue_gpio = {
+        .port = DIM_BLUE_GPIO_Port,
+        .pin = DIM_BLUE_Pin,
+    },
+};
+
+static const SevenSegsConfig seven_segs_config = {
+    .srck_gpio = {
+        .port = SEVENSEGS_SRCK_GPIO_Port,
+        .pin = SEVENSEGS_SRCK_Pin,
+    },
+    .rck_gpio = {
+        .port = SEVENSEGS_RCK_GPIO_Port,
+        .pin = SEVENSEGS_RCK_Pin,
+    },
+    .ser_out_gpio = {
+        .port = SEVENSEGS_SEROUT_GPIO_Port,
+        .pin = SEVENSEGS_SEROUT_Pin,
+    },
+    .dimming_gpio = {
+        .port = SEVENSEGS_DIMMING_GPIO_Port,
+        .pin = SEVENSEGS_DIMMING_Pin,
+    },
+};
+
 static const GlobalsConfig globals_config = {
-    .imd_led   = &imd_led,
-    .bspd_led  = &bspd_led,
-    .shdn_led  = &shdn_led,
-    .drive_led = &drive_led,
+    .imd_led        = &imd_led,
+    .bspd_led       = &bspd_led,
+    .shdn_led       = &shdn_led,
+    .drive_led      = &drive_led,
+    .start_switch   = &start_switch,
+    .aux_switch     = &aux_switch,
+    .bms_status_led = &bms_status_led,
+    .dcm_status_led = &dcm_status_led,
+    .fsm_status_led = &fsm_status_led,
+    .pdm_status_led = &pdm_status_led,
+    .dim_status_led = &dim_status_led,
 };
 
 /* USER CODE END PV */
@@ -214,78 +303,37 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
+<<<<<<< HEAD
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
 
+=======
+>>>>>>> 2b062df5 (refactor dim io layer)
     Io_SharedHardFaultHandler_Init();
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(dev_watchdogConfig_refresh, dev_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    Io_SevenSegDisplays_Init();
+
+    dev_sevenSegDisplays_init(&seven_segs_config);
 
     App_CanTx_Init();
     App_CanRx_Init();
 
-    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-
-    seven_seg_displays = App_SevenSegDisplays_Create(
-        left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display,
-        middle_m_seven_seg_display, middle_r_seven_seg_display, right_l_seven_seg_display, right_m_seven_seg_display,
-        right_r_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
-
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
-
-    drive_mode_switch = App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
-
-    start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
-
-    aux_switch = App_BinarySwitch_Create(Io_Switches_AuxSwitchIsTurnedOn);
-
-    bms_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen, Io_RgbLeds_TurnBmsStatusLedBlue,
-        Io_RgbLeds_TurnOffBmsStatusLed);
-
-    dcm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnDcmStatusLedRed, Io_RgbLeds_TurnDcmStatusLedGreen, Io_RgbLeds_TurnDcmStatusLedBlue,
-        Io_RgbLeds_TurnOffDcmStatusLed);
-
-    dim_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnDimStatusLedRed, Io_RgbLeds_TurnDimStatusLedGreen, Io_RgbLeds_TurnDimStatusLedBlue,
-        Io_RgbLeds_TurnOffDimStatusLed);
-
-    fsm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnFsmStatusLedRed, Io_RgbLeds_TurnFsmStatusLedGreen, Io_RgbLeds_TurnFsmStatusLedBlue,
-        Io_RgbLeds_TurnOffFsmStatusLed);
-
-    pdm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen, Io_RgbLeds_TurnPdmStatusLedBlue,
-        Io_RgbLeds_TurnOffPdmStatusLed);
+        hw_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     clock = App_SharedClock_Create();
 
     avg_power_calc = App_AvgPowerCalc_Create();
 
-    world = App_DimWorld_Create(
-        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, start_switch, aux_switch,
-        bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock, avg_power_calc);
+    world = App_DimWorld_Create(heartbeat_monitor, clock, avg_power_calc);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
+    app_sevenSegDisplays_init();
     app_globals_init(&globals_config);
     /* USER CODE END 2 */
 
@@ -732,7 +780,7 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
+        dev_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();

@@ -1,5 +1,6 @@
 #include "Test_Dim.h"
 #include "Test_BaseStateMachineTest.h"
+#include <vector>
 
 extern "C"
 {
@@ -183,6 +184,10 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_pdm_status_led_green);
         RESET_FAKE(turn_pdm_status_led_blue);
         RESET_FAKE(turn_off_pdm_status_led);
+<<<<<<< HEAD
+=======
+        // RESET_FAKE(dev_led_enable);
+>>>>>>> 2b062df5 (refactor dim io layer)
     }
 
     void TearDown() override
