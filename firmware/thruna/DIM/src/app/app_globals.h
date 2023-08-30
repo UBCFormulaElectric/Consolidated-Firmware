@@ -1,9 +1,9 @@
 #pragma once
 
+#include "App_SharedHeartbeatMonitor.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
-#include "App_SharedHeartbeatMonitor.h"
 
 typedef struct
 {
