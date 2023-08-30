@@ -14,7 +14,7 @@
 
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.
-enum HexDigit
+typedef enum
 {
     HEX_DIGIT_0,
     HEX_DIGIT_1,
@@ -33,7 +33,8 @@ enum HexDigit
     HEX_DIGIT_E,
     HEX_DIGIT_F,
     NUM_HEX_DIGITS,
-};
+} HexDigit;
+
 
 static_assert(HEX_DIGIT_0 == 0, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_1 == 1, "Hex enum must match its numeric value.");
