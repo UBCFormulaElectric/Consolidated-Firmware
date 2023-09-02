@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <assert.h>
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 
 #include "App_DimWorld.h"
 #include "App_SharedMacros.h"
@@ -189,6 +190,9 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
 
@@ -306,11 +310,6 @@ int main(void)
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-    // According to Percpio documentation, vTraceEnable() should be the last
-    // function call before the scheduler starts.
-#if (configUSE_TRACE_FACILITY == 1)
-    vTraceEnable(TRC_INIT);
-#endif
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
