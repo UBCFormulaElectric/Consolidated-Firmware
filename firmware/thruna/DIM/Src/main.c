@@ -25,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <assert.h>
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
 
 #include "App_DimWorld.h"
 #include "App_SharedMacros.h"
