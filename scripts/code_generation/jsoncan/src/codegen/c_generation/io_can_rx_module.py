@@ -96,7 +96,7 @@ class IoCanRxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-        cw.add_include('"Io_CanTx.h"')
+        cw.add_include('"hw_can.h"')
 
         # Add function prototypes
         cw.add_line()

@@ -151,19 +151,7 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-
-        cw.add_line()
-        cw.add_header_comment("Structs")
-        cw.add_line()
-
-        can_msg_struct = CStruct(
-            name=CTypesConfig.CAN_MSG_STRUCT,
-            comment="Standard CAN message type.",
-        )
-        can_msg_struct.add_member(CVar(name="std_id", type="uint32_t"))
-        can_msg_struct.add_member(CVar(name="dlc", type="uint32_t"))
-        can_msg_struct.add_member(CVar(name="data[8]", type="uint8_t"))
-        cw.add_struct(can_msg_struct)
+        cw.add_include('"hw_can.h"')
 
         cw.add_line()
         cw.add_header_comment("Enums")
