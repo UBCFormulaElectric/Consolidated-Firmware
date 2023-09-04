@@ -9,6 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
-	"cortex-debug.variableUseNaturalFormat": false
+	"cmake.configureOnOpen": true
 }

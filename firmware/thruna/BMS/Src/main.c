@@ -28,7 +28,6 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCan.h"
 #include "hw_hardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -199,26 +198,32 @@ void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
-static void CanRxQueueOverflowCallBack(size_t overflow_count);
-static void CanTxQueueOverflowCallBack(size_t overflow_count);
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-static void CanRxQueueOverflowCallBack(size_t overflow_count)
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_BMS_RxOverflowCount_Set(overflow_count);
     App_CanAlerts_BMS_Warning_RxOverflow_Set(true);
 }
 
-static void CanTxQueueOverflowCallBack(size_t overflow_count)
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_BMS_TxOverflowCount_Set(overflow_count);
     App_CanAlerts_BMS_Warning_TxOverflow_Set(true);
 }
 
+static const CanConfig can_config = {
+    .handle               = &hcan1,
+    .rx_msg_filter        = Io_CanRx_FilterMessageId,
+    .tx_overflow_callback = CanTxQueueOverflowCallBack,
+    .rx_overflow_callback = CanRxQueueOverflowCallBack,
+};
 /* USER CODE END 0 */
 
 /**
@@ -268,9 +273,9 @@ int main(void)
     HAL_TIM_Base_Start(&htim13);
 
     hw_hardFaultHandler_init();
+    hw_can_init(&can_config);
+
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     App_CanTx_Init();
@@ -1013,9 +1018,9 @@ void RunTaskCanRx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        CanMsg rx_msg;
+        hw_can_popRxMsgFromQueue(&rx_msg);
+        Io_CanRx_UpdateRxTableWithMessage(&rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -1035,7 +1040,7 @@ void RunTaskCanTx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        hw_can_transmitMsgFromQueue();
     }
     /* USER CODE END RunTaskCanTx */
 }

@@ -106,8 +106,13 @@ class IoCanTxModule(CModule):
             func.body.add_comment("Prepare msg header")
             func.body.add_var_declaration(CVar("tx_msg", "CanMsg"))
             func.body.add_line("memset(&tx_msg, 0, sizeof(CanMsg));")
+<<<<<<< HEAD
             func.body.add_line(f"tx_msg.std_id = {CMacrosConfig.id(msg.name)};")
             func.body.add_line(f"tx_msg.dlc = {CMacrosConfig.bytes(msg.name)};")
+=======
+            func.body.add_line(f"tx_msg.msg_id = {CMacrosConfig.id(msg.name)};")
+            func.body.add_line(f"tx_msg.length = {CMacrosConfig.bytes(msg.name)};")
+>>>>>>> 8507a611 (refactor can driver)
             func.body.add_line()
 
             # Pack payload
@@ -127,7 +132,11 @@ class IoCanTxModule(CModule):
 
             # Push to TX FIFO
             func.body.add_comment("Append msg to TX FIFO")
+<<<<<<< HEAD
             func.body.add_line("transmit_func(&tx_msg);")
+=======
+            func.body.add_line("hw_can_pushTxMsgToQueue(&tx_msg);")
+>>>>>>> 8507a611 (refactor can driver)
             func.body.end_if()
 
             # If aperiodic, make function public. Otherwise it can be static.
