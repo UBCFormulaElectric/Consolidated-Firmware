@@ -1,7 +1,7 @@
 services:
   develop:
     build: environment
-    image: ghcr.io/ubcformulaelectric/environment:latest
+    image: ubcformulaelectric/environment:latest
     volumes:
       # Mount repo files into container.
       - .:/home/Consolidated-Firmware
