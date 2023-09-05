@@ -13,7 +13,6 @@ FROM ubuntu:22.04
 # valgrind: Used to check for memory leaks during x86 tests
 # openocd: Our embedded GDB server of choice
 # usbutils: USB tools (lsusb)
-# nano: Basic Unix text editor
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -25,18 +24,17 @@ RUN apt update -y && apt install -y \
     libncurses5 \
     valgrind \
     openocd \
-    usbutils \
-    nano
+    usbutils
 
-COPY . /root/environment/
+COPY . /home/environment/
 
 # Install SEGGER JLink tools.
-WORKDIR /root/environment/data
+WORKDIR /home/environment/data
 RUN mkdir /opt/SEGGER
 RUN tar -xf JLink_Linux_V792c_x86_64.tgz -C /opt/SEGGER
 
 # Install python package dependencies.
-WORKDIR /root/environment/scripts
+WORKDIR /home/environment/scripts
 RUN pip3 install -r ../requirements.txt
 
 # Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
