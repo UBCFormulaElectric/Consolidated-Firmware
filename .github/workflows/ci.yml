@@ -15,7 +15,7 @@ jobs:
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
       credentials:
-        username: ${{ github.ref }}
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
