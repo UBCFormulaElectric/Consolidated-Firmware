@@ -12,7 +12,11 @@ jobs:
     name: Check C Formatting
     runs-on: ubuntu-22.04
 
-    container: ghcr.io/ubcformulaelectric/environment:latest
+    container:
+      image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        username: ${{ github.ref }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
