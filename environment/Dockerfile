@@ -11,6 +11,8 @@ FROM ubuntu:22.04
 # (required to run STM32CubeMX without a GUI)
 # libncurses5: Library required by clang-format
 # valgrind: Used to check for memory leaks during x86 tests
+# openocd: Our embedded GDB server of choice
+# usbutils: USB tools (lsusb)
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -20,13 +22,19 @@ RUN apt update -y && apt install -y \
     openjdk-11-jdk \
     xvfb \
     libncurses5 \
-    valgrind 
+    valgrind \
+    openocd \
+    usbutils
 
-# Copy over environment directory for running installation scripts.
 COPY . /home/environment/
-WORKDIR /home/environment/scripts
+
+# Install SEGGER JLink tools.
+WORKDIR /home/environment/data
+RUN mkdir /opt/SEGGER
+RUN tar -xf JLink_Linux_V792c_x86_64.tgz -C /opt/SEGGER
 
 # Install python package dependencies.
+WORKDIR /home/environment/scripts
 RUN pip3 install -r ../requirements.txt
 
 # Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
