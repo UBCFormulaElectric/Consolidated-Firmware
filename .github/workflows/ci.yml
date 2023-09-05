@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ghcr.io/ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -49,9 +49,10 @@ jobs:
             ioc_dir: firmware/thruna/GSM
 
     container:
-      image: ghcr.io/ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -94,9 +95,10 @@ jobs:
           - GSM
 
     container:
-      image: ghcr.io/ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_arm
@@ -137,9 +139,10 @@ jobs:
           - GSM
 
     container:
-      image: ghcr.io/ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_x86
@@ -163,11 +166,11 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
-
     container:
-      image: ghcr.io/ubcformulaelectric/environment:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
       BUILD_DIR: build_x86

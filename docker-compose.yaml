@@ -1,0 +1,16 @@
+services:
+  develop:
+    build: environment
+    image: ubcformulaelectric/environment:latest
+    volumes:
+      # Mount repo files into container.
+      - .:/home/Consolidated-Firmware
+      # Forward GUIs from container to local computer.
+      - /tmp/.X11-unix/:/tmp/.X11-unix/
+      # Forward USB connections.
+      - /dev/bus/usb:/dev/bus/usb
+    environment:
+      # DISPLAY must be set for GUI forwarding to work.
+      - DISPLAY
+    tty: true # Keeps service running indefinitely.
+    privileged: true # Required for USB passthrough to work.
