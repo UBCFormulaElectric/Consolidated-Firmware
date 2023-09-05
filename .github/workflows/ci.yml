@@ -8,10 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -49,10 +46,7 @@ jobs:
             ioc_dir: firmware/thruna/GSM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -81,9 +75,45 @@ jobs:
         run: git --no-pager diff --color --exit-code
         
   build-firmware-thruna:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
-    secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
+    name: Build Thruna Firmware
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - GSM
+
+    container:
+      image: ghcr.io/ubcformulaelectric/environment:latest
+
+    env:
+      BUILD_DIR: build_arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      # xvfb-run is required to prefix any commands that run STM32CubeMX
+      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
+      # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
+      - name: Build
+        run: |
+          cmake -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
+          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
+
+      # Uploads .elf binary to Github Actions workflow
+      - name: Save built artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/${{ matrix.board }}/${{ matrix.board }}.elf
 
   test-thruna:
     name: Test Thruna
@@ -100,10 +130,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     env:
       BUILD_DIR: build_x86
@@ -127,39 +154,9 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
+    
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_x86
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86
-          make --directory=$BUILD_DIR -j`nproc` shared_test
-
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/firmware/shared
-          valgrind --tool=memcheck --leak-check=yes ./shared_test
-
-  test-fakegen:
-    name: Test Fake Function Generation
-    runs-on: ubuntu-22.04
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     env:
       BUILD_DIR: build_x86
