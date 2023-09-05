@@ -9,6 +9,8 @@ jobs:
 
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -47,6 +49,8 @@ jobs:
 
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -90,6 +94,8 @@ jobs:
 
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     env:
       BUILD_DIR: build_arm
@@ -131,6 +137,8 @@ jobs:
 
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     env:
       BUILD_DIR: build_x86
@@ -157,6 +165,8 @@ jobs:
     
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
+      credentials:
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     env:
       BUILD_DIR: build_x86
