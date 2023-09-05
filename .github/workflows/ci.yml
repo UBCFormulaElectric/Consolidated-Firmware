@@ -15,6 +15,7 @@ jobs:
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
       credentials:
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -161,7 +162,7 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
-    
+
     container:
       image: ghcr.io/ubcformulaelectric/environment:latest
       credentials:
