@@ -8,10 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -49,10 +46,7 @@ jobs:
             ioc_dir: firmware/thruna/GSM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     steps:
       # Fix to get git diff working in a Docker container
@@ -95,10 +89,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     env:
       BUILD_DIR: build_arm
@@ -139,10 +130,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     env:
       BUILD_DIR: build_x86
@@ -166,11 +154,9 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
+    
     container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+      image: ghcr.io/ubcformulaelectric/environment:latest
 
     env:
       BUILD_DIR: build_x86
