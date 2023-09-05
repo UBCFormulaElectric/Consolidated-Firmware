@@ -2,13 +2,6 @@ cmake
 schema
 strenum
 pyocd
-<<<<<<< HEAD
-<<<<<<< HEAD
 cantools
 pyclibrary
 jinja2
-=======
->>>>>>> 45c511b0 (remove RPC server, pass USB devices into container via usbipd)
-=======
-cantools
->>>>>>> 3c94e411 (update README.md)

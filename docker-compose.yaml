@@ -7,11 +7,10 @@ services:
       - .:/home/Consolidated-Firmware
       # Forward GUIs from container to local computer.
       - /tmp/.X11-unix/:/tmp/.X11-unix/
+      # Forward USB connections.
+      - /dev/bus/usb:/dev/bus/usb
     environment:
-      # If an env var is not provided a value, it pulls it from the shell that invokes `docker compose`.
-      # HOST_IP is the IP address of the host, which is used to connect to the debug server.
-      # Set via `start_environment.sh`.
-      - HOST_IP
       # DISPLAY must be set for GUI forwarding to work.
       - DISPLAY
     tty: true # Keeps service running indefinitely.
+    privileged: true # Required for USB passthrough to work.
