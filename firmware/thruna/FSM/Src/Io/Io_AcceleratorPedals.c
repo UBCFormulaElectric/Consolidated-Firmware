@@ -30,8 +30,8 @@
 #define FULLY_UNPRESSED_POT_LENGTH_MM (212.2f)
 #define FULLY_PRESSED_POT_LENGTH_MM (165.6f)
 
-#define PAPPS_DEADZONE_PERCENT (8.0f)
-#define SAPPS_DEADZONE_PERCENT (9.0f)
+#define PAPPS_DEADZONE_PERCENT (10.0f)
+#define SAPPS_DEADZONE_PERCENT (8.0f)
 
 float Io_AcceleratorPedals_GetPapps(void)
 {
