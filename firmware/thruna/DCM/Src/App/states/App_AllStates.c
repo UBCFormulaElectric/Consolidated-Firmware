@@ -3,7 +3,7 @@
 #include "states/App_AllStates.h"
 #include "App_EllipseImu.h"
 
-#define IGNORE_HEARTBEAT_CYCLES 1000U
+#define IGNORE_HEARTBEAT_CYCLES 3U
 
 static uint16_t num_cycles = 0;
 
