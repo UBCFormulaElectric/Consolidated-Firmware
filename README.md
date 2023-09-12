@@ -4,23 +4,29 @@ A repository for all software and firmware from UBC Formula Electric.
 
 ## Table of Contents
 
-- [Environment Setup](#environment-setup)
-  - [Install Dependencies](#install-dependencies)
-  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
-    - [WSL USB Setup](#wsl-usb-setup)
-  - [Clone Repo](#clone-repo)
-- [Building](#building)
-  - [Connect to Container](#connect-to-container)
-  - [Configure CMake](#configure-cmake)
-  - [Build Embedded Binaries](#build-embedded-binaries)
-  - [Build and Run Tests](#build-and-run-tests)
-  - [VS Code Integration](#vs-code-integration)
-- [Debugging](#debugging)
-  - [Embedded](#embedded)
-  - [Tests](#tests)
-- [CAN Bus](#can-bus)
-  - [Windows](#windows)
-  - [Linux](#linux)
+- [Consolidated-Firmware](#consolidated-firmware)
+  - [Table of Contents](#table-of-contents)
+  - [Environment Setup](#environment-setup)
+    - [Install Dependencies](#install-dependencies)
+    - [WSL Setup (Windows only)](#wsl-setup-windows-only)
+      - [WSL USB Setup](#wsl-usb-setup)
+    - [Clone Repo](#clone-repo)
+  - [Using the Dev Container](#using-the-dev-container)
+    - [VS Code Extensions](#vs-code-extensions)
+    - [Saving a Git Token](#saving-a-git-token)
+    - [Closing the Container](#closing-the-container)
+  - [Building](#building)
+    - [Load CMake](#load-cmake)
+    - [Build Embedded Binaries](#build-embedded-binaries)
+    - [Build Tests](#build-tests)
+  - [Debugging](#debugging)
+    - [Embedded](#embedded)
+    - [Tests](#tests)
+  - [STM32CubeMX](#stm32cubemx)
+  - [CAN Bus](#can-bus)
+    - [Windows](#windows)
+    - [Linux](#linux)
+  - [Continuous Integration (CI)](#continuous-integration-ci)
 
 ## Environment Setup
 
@@ -32,8 +38,8 @@ For more information, and to see how to update the Docker container, see our [Do
 
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
-[Mac](https://docs.docker.com/desktop/install/mac-install/).
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
+[Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -43,7 +49,7 @@ With WSL, we can run a Linux distribution on top of Windows, with excellent perf
 To install WSL, start Windows PowerShell as an administrator (Start > Search for PowerShell > Run as Administrator), and run:
 
 ```sh
-wsl --install
+wsl --install -d Ubuntu
 ```
 
 This installs Ubuntu by default, and requires a restart. 
@@ -57,16 +63,20 @@ However, we can use [usbipd](https://github.com/dorssel/usbipd-win) to attach sp
 1. Download and install the latest usbipd [release](https://github.com/dorssel/usbipd-win/releases).
 2. From within WSL, run: 
 ```sh
-sudo apt install linux-tools-5.4.0-77-generic hwdata
-sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/5.4.0-77-generic/usbip 20
+sudo apt install linux-tools-generic hwdata
+sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/*-generic/usbip 20
 ```
-3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases). 
+These commands are sourced from [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
+
+3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases) (the `.msi`). 
 
 **Note: All following steps must be completed from within WSL!**
 
 ### Clone Repo
 
-Navigate to where you want to clone the repo and run:
+Navigate to where you want to clone the repo and run the following commands. 
+
+Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
 
 ```sh
 # Install Git LFS.
@@ -74,113 +84,122 @@ apt update && apt install git-lfs
 git lfs install
 
 # Clone repo and update submodules.
-git clone <repo link>
+git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
 cd Consolidated-Firmware
 git submodule update --init --recursive
 git lfs pull
 ```
 
-## Building
-
-### Connect to Container
+## Using the Dev Container
 
 To start the development Docker container, navigate to the repo root and run: 
 
 ```sh
-docker compose up --detach
+./start_environment.sh
 ```
 
+If you're on Windows and get the error:
+```
+The command 'docker' could not be found in this WSL 2 distro.
+We recommend to activate the WSL integration in Docker Desktop settings.
+
+For details about using Docker Desktop with WSL 2, visit:
+
+https://docs.docker.com/go/wsl2/
+```
+You probably just need to open Docker Desktop, which will start Docker automatically.
+
+If you're on Linux/Mac and get an error about failing to mount `/tmp`, you may need to add it as a mountable directory in Docker Desktop.
+Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
+
 From VS Code, click the arrows in the bottom left and select "Attach to Running Container". 
-Select the `consolidated-firmware-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
+Select the `ubcformulaelectric-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
+
+### VS Code Extensions
 
 Install the following VS Code extensions into the container (should only be required once):
 - C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
 - Python (`ms-python.python`)
 - Cortex-Debug (`marus25.cortex-debug`) 
 
-When you're finished developing and want to stop the container, run this from the repo root:
+(It should prompt you to do this)
+
+### Saving a Git Token
+
+If you would like the terminal to stop prompting you for Username and Password when pushing to the repo (since we are not using ssh) use the following commands once you have a git token. Note, that this will mean your token is stored unencrypted.
+
+```sh
+git config credential.helper store
+git push
+# Paste your token for both Username and Password and it should not ask when pushing again.
+```
+### Closing the Container
+
+When you're finished developing and want to stop the container, run this from the repo root (must be outside of the container):
 ```sh
 docker compose down
 ```
 
+**Warning: This will erase all container files outside of the repo!**
+
+## Building
+
 ### Load CMake
 
+CMake is our build system of choice. It generates Makefiles according to the `CMakeLists.txt` files, which can be used with `make` to build our binaries.
+Makefiles are an extremely thin wrapper around the command line, and so are very annoying to work with, whereas editing `CMakeLists.txt` files is more user-friendly.
+
 We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
-This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use. 
 
-Load the embedded and test CMake profiles by running:
-
-```sh
-# Create profile for embedded.
-mkdir build_arm
-cd build_arm
-cmake .. -DPLATFORM=arm -DNO_VENV=ON # TODO: Deprecate NO_VENV option
-cd ..
-
-# Create profile for unit tests.
-mkdir build_x86
-cd build_x86
-cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
-```
+Press `Ctrl+Shift+B` and run "Load CMake: Embedded" and "Load CMake: Tests". This should create a `build_arm` folder for the embedded CMake output, and `build_x86` for the unit test CMake output.
 
 ### Build Embedded Binaries
 
-To build binaries for flashing onto boards, use Make.
+To build binaries for flashing onto boards, press `Ctrl+Shift+B`. 
 
-```sh
-cd build_arm
+The options ending in `.elf` are the embedded ARM binaries for each board. Run "Build: All Embedded Binaries" to build all boards.
 
-# Build binary for single board:
-make <board>.elf # Example: make BMS.elf
- 
-# Build all ARM binaries:
-make
+### Build Tests
 
-# Note: Pass -j10 to `make` to use multiple threads to speed up builds (glitchy when building multiple targets).
-```
-### Build and Run Tests
+We use [GoogleTest](https://github.com/google/googletest) as our testing framework.
+To build unit tests, press `Ctrl+Shift+B`. 
 
-To build unit test binaries, use Make.
-
-```sh
-cd build_x86
-
-# Build tests for single board:
-make <board>_test # Example: make BMS_test
-
-# Run tests for single board:
-./firmware/thruna/<board>/<board>_test # Example: ./firmware/thruna/BMS/BMS_test
-
-# Build all tests:
-make
-
-# Run all tests:
-ctest
-
-# Note: Pass -j10 to `make` to use multiple threads to speed up builds (glitchy when building multiple targets).
-```
-
-### VS Code Integration
-
-All of the above are available as VS Code "Build Tasks." 
-Press `Ctrl-Shift-B` to bring up the "Build Tasks" menu to load CMake and build.
+The options ending in `_test` are the GoogleTest binaries for each board. Run "Build: All Tests" to build all tests.
 
 ## Debugging
 
 ### Embedded
 
-Connect a debugger to your laptop and the microcontroller's SWD port. The correct cable orientation is: 
+Connect a debugger to your laptop and the microcontroller's SWD port. 
+For our SEGGER JLink EDU Minis, The correct cable orientation is: 
 
 <img src="./images/jlink_connector.png" width="50%" height="50%"/>
 
 If you're developing on Windows, make sure the debugger is attached to WSL. 
-Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open.
+Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open (`wsl-usb-gui` must be open!). 
 
 Integration with VS Code's step-through debuggers should work out-of-the-box after installing the Cortex-Debug extension. Navigate to the "Run and Debug" menu to start a debugging session.
 
 ### Tests
 
 Running and step-through-debugging tests are also available through the "Run and Debug" menu.
+
+We use a script called [fakegen](./scripts/code_generation/fakegen/README.md) to generate fake versions of IO-level code for tests. 
+Skimming the README is recommended if you're going to be working with unit tests.
+
+## STM32CubeMX
+
+STM32CubeMX is a program from STMicroelectronics to generate peripheral configuration code for STM32 microcontrollers.
+It can be used with a display to configure peripherals from a GUI, or from the command line to autogenerate code.
+It is invoked from the command line during builds to ensure the `.ioc` (STM32CubeMX config file) stays up to date with the code.
+
+Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it manually.Run the following on Linux/WSL from **outside the container.**
+
+```sh
+cd environment/scripts
+sudo python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
+```
 
 ## CAN Bus
 
