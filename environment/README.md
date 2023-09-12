@@ -17,7 +17,7 @@ All following steps should be independent of OS.
 If you've modified the container, `cd` into this directory and build via:
 
 ```bash
-docker build . -t ubcformulaelectric/ci
+docker build . -t ubcformulaelectric/environment
 ```
 
 ## Push/Pull Container
@@ -36,30 +36,11 @@ If you've rebuilt the container and want to push a new version, run:
 ```bash
 # Follow prompts to login
 docker login 
-docker push ubcformulaelectric/ci
+docker push ubcformulaelectric/environment
 ```
 
 To pull the container, run: 
 
 ```bash
-docker pull ubcformulaelectric/ci
+docker pull ubcformulaelectric/environment
 ```
-
-## Run Container Locally
-
-Running a container locally is extremely useful for testing stuff out and debugging problems. 
-The `run_container.sh` script pulls the latest CI image from the registry (if it doesn't exist locally),
-then starts the container and mounts the local repo into the container.
-
-This means that the repo files are shared between your local machine and the container: If you edit a file in the container, 
-it will be modified locally, and vice-versa.
-
-To run the container, `cd` into this directory and run:
-
-```bash
-./run_container.sh
-```
-
-This should start the container and open up a terminal. 
-
-**Note:** VSCode supports containers via the "Dev Containers" extension, I'd recommend it if you're planning to do any development in the container.
