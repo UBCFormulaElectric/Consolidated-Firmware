@@ -4,23 +4,29 @@ A repository for all software and firmware from UBC Formula Electric.
 
 ## Table of Contents
 
-- [Environment Setup](#environment-setup)
-  - [Install Dependencies](#install-dependencies)
-  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
-    - [WSL USB Setup](#wsl-usb-setup)
-  - [Clone Repo](#clone-repo)
-- [Building](#building)
-  - [Connect to Container](#connect-to-container)
-  - [Configure CMake](#configure-cmake)
-  - [Build Embedded Binaries](#build-embedded-binaries)
-  - [Build and Run Tests](#build-and-run-tests)
-  - [VS Code Integration](#vs-code-integration)
-- [Debugging](#debugging)
-  - [Embedded](#embedded)
-  - [Tests](#tests)
-- [CAN Bus](#can-bus)
-  - [Windows](#windows)
-  - [Linux](#linux)
+- [Consolidated-Firmware](#consolidated-firmware)
+  - [Table of Contents](#table-of-contents)
+  - [Environment Setup](#environment-setup)
+    - [Install Dependencies](#install-dependencies)
+    - [WSL Setup (Windows only)](#wsl-setup-windows-only)
+      - [WSL USB Setup](#wsl-usb-setup)
+    - [Clone Repo](#clone-repo)
+  - [Using the Dev Container](#using-the-dev-container)
+    - [VS Code Extensions](#vs-code-extensions)
+    - [Saving a Git Token](#saving-a-git-token)
+    - [Closing the Container](#closing-the-container)
+  - [Building](#building)
+    - [Load CMake](#load-cmake)
+    - [Build Embedded Binaries](#build-embedded-binaries)
+    - [Build Tests](#build-tests)
+  - [Debugging](#debugging)
+    - [Embedded](#embedded)
+    - [Tests](#tests)
+  - [STM32CubeMX](#stm32cubemx)
+  - [CAN Bus](#can-bus)
+    - [Windows](#windows)
+    - [Linux](#linux)
+  - [Continuous Integration (CI)](#continuous-integration-ci)
 
 ## Environment Setup
 
@@ -32,8 +38,8 @@ For more information, and to see how to update the Docker container, see our [Do
 
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
-[Mac](https://docs.docker.com/desktop/install/mac-install/).
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
+[Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -43,7 +49,7 @@ With WSL, we can run a Linux distribution on top of Windows, with excellent perf
 To install WSL, start Windows PowerShell as an administrator (Start > Search for PowerShell > Run as Administrator), and run:
 
 ```sh
-wsl --install
+wsl --install -d Ubuntu
 ```
 
 This installs Ubuntu by default, and requires a restart. 
@@ -57,16 +63,20 @@ However, we can use [usbipd](https://github.com/dorssel/usbipd-win) to attach sp
 1. Download and install the latest usbipd [release](https://github.com/dorssel/usbipd-win/releases).
 2. From within WSL, run: 
 ```sh
-sudo apt install linux-tools-5.4.0-77-generic hwdata
-sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/5.4.0-77-generic/usbip 20
+sudo apt install linux-tools-generic hwdata
+sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/*-generic/usbip 20
 ```
-3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases). 
+These commands are sourced from [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
+
+3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases) (the `.msi`). 
 
 **Note: All following steps must be completed from within WSL!**
 
 ### Clone Repo
 
-Navigate to where you want to clone the repo and run:
+Navigate to where you want to clone the repo and run the following commands. 
+
+Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
 
 ```sh
 # Install Git LFS.
@@ -74,15 +84,13 @@ apt update && apt install git-lfs
 git lfs install
 
 # Clone repo and update submodules.
-git clone <repo link>
+git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
 cd Consolidated-Firmware
 git submodule update --init --recursive
 git lfs pull
 ```
 
-## Building
-
-### Connect to Container
+## Using the Dev Container
 
 CMake is our build system of choice. It generates Makefiles according to the `CMakeLists.txt` files, which can be used
 with `make` to build our binaries.
@@ -107,8 +115,11 @@ To build binaries for flashing onto boards, press `Ctrl+Shift+B`.
 The options ending in `.elf` are the embedded ARM binaries for each board. Run "Build: All Embedded Binaries" to build
 all boards.
 
+CMake is our build system of choice. It generates Makefiles according to the `CMakeLists.txt` files, which can be used with `make` to build our binaries.
+Makefiles are an extremely thin wrapper around the command line, and so are very annoying to work with, whereas editing `CMakeLists.txt` files is more user-friendly.
+
 We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
-This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use. 
 
 Load the embedded and test CMake profiles by running:
 
@@ -123,7 +134,7 @@ cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
 
 ### Build Embedded Binaries
 
-To build binaries for flashing onto boards, use Make.
+To build binaries for flashing onto boards, press `Ctrl+Shift+B`. 
 
 Connect a debugger to your laptop and the microcontroller's SWD port.
 For our SEGGER JLink EDU Minis, The correct cable orientation is:
