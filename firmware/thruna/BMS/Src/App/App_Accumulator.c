@@ -7,6 +7,8 @@
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
+#define NUM_AUX_THERMISTORS (6U)
+
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
@@ -49,6 +51,8 @@ typedef struct
     float       pack_voltage;
 } VoltageStats;
 
+static uint8_t thermistor_channel;
+
 struct Accumulator
 {
     uint8_t num_comm_tries;
@@ -85,6 +89,11 @@ struct Accumulator
     bool (*check_imd_latched_fault)(void);
     bool (*check_bspd_latched_fault)(void);
     bool (*check_bms_latched_fault)(void);
+
+    void (*select_mux_channel)(uint8_t);
+    float (*read_thermistor_temp)(void);
+
+    float aux_thermistor_temps[NUM_AUX_THERMISTORS];
 };
 
 /**
@@ -225,7 +234,9 @@ struct Accumulator *App_Accumulator_Create(
     bool (*disable_balance)(void),
     bool (*check_imd_latched_fault)(void),
     bool (*check_bspd_latched_fault)(void),
-    bool (*check_bms_latched_fault)(void))
+    bool (*check_bms_latched_fault)(void),
+    void (*select_mux_channel)(uint8_t),
+    float (*read_thermistor_temp)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -261,6 +272,16 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->check_imd_latched_fault  = check_imd_latched_fault;
     accumulator->check_bspd_latched_fault = check_bspd_latched_fault;
     accumulator->check_bms_latched_fault  = check_bms_latched_fault;
+
+    accumulator->select_mux_channel   = select_mux_channel;
+    accumulator->read_thermistor_temp = read_thermistor_temp;
+
+    for (uint8_t i = 0; i < NUM_AUX_THERMISTORS; i++)
+    {
+        accumulator->aux_thermistor_temps[i] = 0.0f;
+    }
+
+    thermistor_channel = 0;
 
     return accumulator;
 }
@@ -444,9 +465,9 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
 void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator)
 {
     // Check Latched fault pins for IMD and BSPD
-    const bool imd_latched_fault  = accumulator->check_imd_latched_fault;
-    const bool bspd_latched_fault = accumulator->check_bspd_latched_fault;
-    const bool bms_latched_fault  = accumulator->check_bms_latched_fault;
+    const bool imd_latched_fault  = accumulator->check_imd_latched_fault();
+    const bool bspd_latched_fault = accumulator->check_bspd_latched_fault();
+    const bool bms_latched_fault  = accumulator->check_bms_latched_fault();
 
     // Send latched imd and bspd statuses over CAN
     App_CanTx_BMS_OkStatuses_ImdLatchedFaultStatus_Set(imd_latched_fault);
@@ -464,4 +485,24 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator)
 {
     return accumulator->balance_enabled;
+}
+
+void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumulator)
+{
+    accumulator->aux_thermistor_temps[thermistor_channel] = accumulator->read_thermistor_temp();
+
+    thermistor_channel++;
+    thermistor_channel %= NUM_AUX_THERMISTORS;
+
+    accumulator->select_mux_channel(thermistor_channel);
+}
+
+void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator)
+{
+    App_CanTx_BMS_AuxThermistors_ThermTemp0_Set(accumulator->aux_thermistor_temps[0]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp1_Set(accumulator->aux_thermistor_temps[1]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp2_Set(accumulator->aux_thermistor_temps[2]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp3_Set(accumulator->aux_thermistor_temps[3]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp4_Set(accumulator->aux_thermistor_temps[4]);
+    App_CanTx_BMS_AuxThermistors_ThermTemp5_Set(accumulator->aux_thermistor_temps[5]);
 }
