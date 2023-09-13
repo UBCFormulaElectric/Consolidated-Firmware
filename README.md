@@ -6,14 +6,18 @@ A repository for all software and firmware from UBC Formula Electric.
 
 - [Environment Setup](#environment-setup)
   - [Install Dependencies](#install-dependencies)
-  - [WSL Setup](#wsl-setup-windows-only)
+  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
+    - [WSL USB Setup](#wsl-usb-setup)
   - [Clone Repo](#clone-repo)
 - [Building](#building)
-    - [Connect to Container](#connect-to-container)
-    - [Configure CMake](#configure-cmake)
-    - [Build ARM Binaries](#build-arm-binaries)
-    - [Build and Run Tests](#build-and-run-tests)
-- [Embedded Debugging](#embedded-debugging)
+  - [Connect to Container](#connect-to-container)
+  - [Configure CMake](#configure-cmake)
+  - [Build Embedded Binaries](#build-embedded-binaries)
+  - [Build and Run Tests](#build-and-run-tests)
+  - [VS Code Integration](#vs-code-integration)
+- [Debugging](#debugging)
+  - [Embedded](#embedded)
+  - [Tests](#tests)
 - [CAN Bus](#can-bus)
   - [Windows](#windows)
   - [Linux](#linux)
@@ -31,7 +35,6 @@ For more information, and to see how to update the Docker container, see our [Do
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
 [Mac](https://docs.docker.com/desktop/install/mac-install/).
 2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
-
 
 ### WSL Setup (Windows only)
 
@@ -101,24 +104,27 @@ When you're finished developing and want to stop the container, run this from th
 docker compose down
 ```
 
-### Configure CMake
+### Load CMake
 
-Configure CMake by running:
+We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+
+Load the embedded and test CMake profiles by running:
 
 ```sh
 # Create profile for embedded.
 mkdir build_arm
 cd build_arm
-cmake .. -DPLATFORM=arm -DNO_VENV=ON # Deprecate NO_VENV option
+cmake .. -DPLATFORM=arm -DNO_VENV=ON # TODO: Deprecate NO_VENV option
 cd ..
 
 # Create profile for unit tests.
 mkdir build_x86
 cd build_x86
-cmake .. -DPLATFORM=x86 -DNO_VENV=ON # Deprecate NO_VENV option
+cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
 ```
 
-### Build ARM Binaries
+### Build Embedded Binaries
 
 To build binaries for flashing onto boards, use Make.
 
@@ -155,7 +161,14 @@ ctest
 # Note: Pass -j10 to `make` to use multiple threads to speed up builds (glitchy when building multiple targets).
 ```
 
-## Embedded Debugging
+### VS Code Integration
+
+All of the above are available as VS Code "Build Tasks." 
+Press `Ctrl-Shift-B` to bring up the "Build Tasks" menu to load CMake and build.
+
+## Debugging
+
+### Embedded
 
 Connect a debugger to your laptop and the microcontroller's SWD port. The correct cable orientation is: 
 
@@ -164,7 +177,11 @@ Connect a debugger to your laptop and the microcontroller's SWD port. The correc
 If you're developing on Windows, make sure the debugger is attached to WSL. 
 Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open.
 
-Integration with VS Code's step-through debuggers should work out-of-the-box after installing the Cortex-Debug extension. Navigate to the "Run and Debug" tab to start a debugging session.
+Integration with VS Code's step-through debuggers should work out-of-the-box after installing the Cortex-Debug extension. Navigate to the "Run and Debug" menu to start a debugging session.
+
+### Tests
+
+Running and step-through-debugging tests are also available through the "Run and Debug" menu.
 
 ## CAN Bus
 
