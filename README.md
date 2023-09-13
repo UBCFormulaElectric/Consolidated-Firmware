@@ -4,29 +4,24 @@ A repository for all software and firmware from UBC Formula Electric.
 
 ## Table of Contents
 
-- [Consolidated-Firmware](#consolidated-firmware)
-  - [Table of Contents](#table-of-contents)
-  - [Environment Setup](#environment-setup)
-    - [Install Dependencies](#install-dependencies)
-    - [WSL Setup (Windows only)](#wsl-setup-windows-only)
-      - [WSL USB Setup](#wsl-usb-setup)
-    - [Clone Repo](#clone-repo)
-  - [Using the Dev Container](#using-the-dev-container)
-    - [VS Code Extensions](#vs-code-extensions)
-    - [Saving a Git Token](#saving-a-git-token)
-    - [Closing the Container](#closing-the-container)
-  - [Building](#building)
-    - [Load CMake](#load-cmake)
-    - [Build Embedded Binaries](#build-embedded-binaries)
-    - [Build Tests](#build-tests)
-  - [Debugging](#debugging)
-    - [Embedded](#embedded)
-    - [Tests](#tests)
-  - [STM32CubeMX](#stm32cubemx)
-  - [CAN Bus](#can-bus)
-    - [Windows](#windows)
-    - [Linux](#linux)
-  - [Continuous Integration (CI)](#continuous-integration-ci)
+- [Environment Setup](#environment-setup)
+  - [Install Dependencies](#install-dependencies)
+  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
+    - [WSL USB Setup](#wsl-usb-setup)
+  - [Clone Repo](#clone-repo)
+- [Building](#building)
+  - [Connect to Container](#connect-to-container)
+  - [Configure CMake](#configure-cmake)
+  - [Build Embedded Binaries](#build-embedded-binaries)
+  - [Build and Run Tests](#build-and-run-tests)
+  - [VS Code Integration](#vs-code-integration)
+- [Debugging](#debugging)
+  - [Embedded](#embedded)
+  - [Tests](#tests)
+- [CAN Bus](#can-bus)
+  - [Windows](#windows)
+  - [Linux](#linux)
+
 
 ## Environment Setup
 
@@ -38,8 +33,8 @@ For more information, and to see how to update the Docker container, see our [Do
 
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
-[Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
+[Mac](https://docs.docker.com/desktop/install/mac-install/).
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -115,11 +110,25 @@ To build binaries for flashing onto boards, press `Ctrl+Shift+B`.
 The options ending in `.elf` are the embedded ARM binaries for each board. Run "Build: All Embedded Binaries" to build
 all boards.
 
-CMake is our build system of choice. It generates Makefiles according to the `CMakeLists.txt` files, which can be used with `make` to build our binaries.
-Makefiles are an extremely thin wrapper around the command line, and so are very annoying to work with, whereas editing `CMakeLists.txt` files is more user-friendly.
-
 We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
-This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use. 
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+
+Load the embedded and test CMake profiles by running:
+
+```sh
+# Create profile for embedded.
+mkdir build_arm
+cd build_arm
+cmake .. -DPLATFORM=arm -DNO_VENV=ON # TODO: Deprecate NO_VENV option
+cd ..
+
+# Create profile for unit tests.
+mkdir build_x86
+cd build_x86
+cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
+```
+
+### Build Embedded Binaries
 
 Load the embedded and test CMake profiles by running:
 
