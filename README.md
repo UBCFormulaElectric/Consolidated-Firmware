@@ -22,7 +22,6 @@ A repository for all software and firmware from UBC Formula Electric.
   - [Windows](#windows)
   - [Linux](#linux)
 
-
 ## Environment Setup
 
 See our guides on Confluence on how to setup the build system.
