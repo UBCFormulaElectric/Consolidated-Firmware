@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug BMS",
+      "name": "Debug Embedded: BMS",
       "cwd": "${workspaceRoot}",
       "executable": "build_arm/firmware/thruna/BMS/BMS.elf",
       "request": "launch",
@@ -11,14 +11,12 @@
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "openOCDLaunchCommands": [
-        "init",
-        "reset init",
-        "echo (((READY)))",
-      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: BMS.elf"
     },
     {
-      "name": "Debug DCM",
+      "name": "Debug Embedded: DCM",
       "cwd": "${workspaceRoot}",
       "executable": "build_arm/firmware/thruna/DCM/DCM.elf",
       "request": "launch",
@@ -27,14 +25,12 @@
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "openOCDLaunchCommands": [
-        "init",
-        "reset init",
-        "echo (((READY)))",
-      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: DCM.elf"
     },
     {
-      "name": "Debug FSM",
+      "name": "Debug Embedded: FSM",
       "cwd": "${workspaceRoot}",
       "executable": "build_arm/firmware/thruna/FSM/FSM.elf",
       "request": "launch",
@@ -43,14 +39,12 @@
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "openOCDLaunchCommands": [
-        "init",
-        "reset init",
-        "echo (((READY)))",
-      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: FSM.elf"
     },
     {
-      "name": "Debug PDM",
+      "name": "Debug Embedded: PDM",
       "cwd": "${workspaceRoot}",
       "executable": "build_arm/firmware/thruna/PDM/PDM.elf",
       "request": "launch",
@@ -59,14 +53,12 @@
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "openOCDLaunchCommands": [
-        "init",
-        "reset init",
-        "echo (((READY)))",
-      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: PDM.elf"
     },
     {
-      "name": "Debug DIM",
+      "name": "Debug Embedded: DIM",
       "cwd": "${workspaceRoot}",
       "executable": "build_arm/firmware/thruna/DIM/DIM.elf",
       "request": "launch",
@@ -75,11 +67,54 @@
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "openOCDLaunchCommands": [
-        "init",
-        "reset init",
-        "echo (((READY)))",
-      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: DIM.elf"
+    },
+    {
+      "name": "Debug Tests: BMS",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/thruna/BMS/BMS_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: BMS_test"
+    },
+    {
+      "name": "Debug Tests: DCM",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: DCM_test"
+    },
+    {
+      "name": "Debug Tests: FSM",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/thruna/FSM/FSM_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: FSM_test"
+    },
+    {
+      "name": "Debug Tests: PDM",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/thruna/PDM/PDM_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: PDM_test"
+    },
+    {
+      "name": "Debug Tests: DIM",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/thruna/DIM/DIM_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: DIM_test"
     }
   ]
 }

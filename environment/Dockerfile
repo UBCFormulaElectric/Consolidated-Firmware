@@ -46,3 +46,7 @@ RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-z
 # Cleanup copied directory.
 WORKDIR /home/
 RUN rm -rf environment
+
+# Environment variable "force_color_prompt" needs to be set to "yes" to get colored output in shell.
+# Hacky fix since we currently don't volume the bashrc, append the line "force_color_prompt=yes" to the top of root's bashrc.
+RUN sed -i '1s/^/force_color_prompt=yes\n\n/' /root/.bashrc
