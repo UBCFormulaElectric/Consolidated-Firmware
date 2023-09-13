@@ -1,12 +1,13 @@
-# CI Docker Container
+# Environment Container
 
-We run our CI (Continuous Integration) pipeline via Github Actions inside a Docker container, defined via the `Dockerfile` in this directory. The `Dockerfile` installs all dependencies required to generate code with STM32CubeMX, build ARM binaries, and build and run tests. This allows for:
+We both develop and run our CI (Continuous Integration) pipeline inside a Docker container, defined via the `Dockerfile` in this directory. This is the "environment container." The `Dockerfile` installs all dependencies required to generate code with STM32CubeMX, build ARM binaries, and build and run tests. This allows for:
 
 1. Fast CI builds: The CI machines don't need to do any setup work since everything is already pre-installed in the container, and Docker containers are extremely lightweight.
 2. Reproducibility: Using a container ensures that builds are reliable and fully independent of each other.
 3. Easier debugging: Debugging problems in a container is easier compared to keeping all setup in the Github Actions workflow `.yml` file, since you can run containers locally.
+4. Quick setup for new members: Build system setup is basically just pulling a container, instead of installing a bunch of dependencies.
 
-## Prerequisites
+## Dependencies
 
 All following steps require Docker Desktop. Install from https://www.docker.com/products/docker-desktop/. Also, make sure Docker Desktop is running.
 
