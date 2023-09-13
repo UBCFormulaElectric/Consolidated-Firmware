@@ -22,7 +22,6 @@ A repository for all software and firmware from UBC Formula Electric.
   - [Windows](#windows)
   - [Linux](#linux)
 
-
 ## Environment Setup
 
 We write, build, and debug code from inside of an Ubuntu 22.04 Docker container, which is effectively a lightweight virtual machine running on top of your native OS.
