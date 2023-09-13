@@ -6,14 +6,18 @@ A repository for all software and firmware from UBC Formula Electric.
 
 - [Environment Setup](#environment-setup)
   - [Install Dependencies](#install-dependencies)
-  - [WSL Setup](#wsl-setup-windows-only)
+  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
+    - [WSL USB Setup](#wsl-usb-setup)
   - [Clone Repo](#clone-repo)
 - [Building](#building)
-    - [Connect to Container](#connect-to-container)
-    - [Configure CMake](#configure-cmake)
-    - [Build ARM Binaries](#build-arm-binaries)
-    - [Build and Run Tests](#build-and-run-tests)
-- [Embedded Debugging](#embedded-debugging)
+  - [Connect to Container](#connect-to-container)
+  - [Configure CMake](#configure-cmake)
+  - [Build Embedded Binaries](#build-embedded-binaries)
+  - [Build and Run Tests](#build-and-run-tests)
+  - [VS Code Integration](#vs-code-integration)
+- [Debugging](#debugging)
+  - [Embedded](#embedded)
+  - [Tests](#tests)
 - [CAN Bus](#can-bus)
   - [Windows](#windows)
   - [Linux](#linux)
@@ -31,7 +35,6 @@ For more information, and to see how to update the Docker container, see our [Do
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
 [Mac](https://docs.docker.com/desktop/install/mac-install/).
 2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
-
 
 ### WSL Setup (Windows only)
 
@@ -105,7 +108,10 @@ To build binaries for flashing onto boards, press `Ctrl+Shift+B`.
 The options ending in `.elf` are the embedded ARM binaries for each board. Run "Build: All Embedded Binaries" to build
 all boards.
 
-Configure CMake by running:
+We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+
+Load the embedded and test CMake profiles by running:
 
 We use [GoogleTest](https://github.com/google/googletest) as our testing framework.
 To build unit tests, press `Ctrl+Shift+B`.
@@ -113,10 +119,10 @@ To build unit tests, press `Ctrl+Shift+B`.
 # Create profile for unit tests.
 mkdir build_x86
 cd build_x86
-cmake .. -DPLATFORM=x86 -DNO_VENV=ON # Deprecate NO_VENV option
+cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
 ```
 
-### Build ARM Binaries
+### Build Embedded Binaries
 
 To build binaries for flashing onto boards, use Make.
 
