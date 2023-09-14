@@ -25,9 +25,9 @@ static Regen_Outputs regen_outputs;
  * No PID for now.
  */
 
-static PID pid_power_correction;
+static PID   pid_power_correction;
 static float pid_power_correction_factor = 0.0f;
-static PID pid_traction_control;
+static PID   pid_traction_control;
 
 static float accelerator_pedal_percent;
 static float accelerator_pedal_percent;
@@ -67,7 +67,7 @@ void App_TorqueVectoring_Run(void)
     wheel_speed_front_left_kph  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     wheel_speed_front_right_kph = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-    motor_speed_right_rpm       = -1*(float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
+    motor_speed_right_rpm       = -1 * (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     battery_voltage             = App_CanRx_BMS_TractiveSystem_TsVoltage_Get();
     current_consumption         = App_CanRx_BMS_TractiveSystem_TsCurrent_Get();
     left_motor_temp_C           = App_CanRx_INVL_Temperatures3_MotorTemperature_Get();
@@ -86,7 +86,7 @@ void App_TorqueVectoring_Run(void)
         App_TorqueVectoring_HandleRegen();
     }
 }
-    // Read data from CAN
+// Read data from CAN
 void App_TorqueVectoring_HandleAcceleration(void)
 {
     // Reset control loops if timeout elapsed
@@ -115,9 +115,12 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
     // Power limit correction
     float power_limit = 0;
-    if (run_power_limiting_feedback) {
+    if (run_power_limiting_feedback)
+    {
         power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
-    } else {
+    }
+    else
+    {
         power_limit = estimated_power_limit;
     }
 
@@ -135,10 +138,10 @@ void App_TorqueVectoring_HandleAcceleration(void)
     }
     else
     {
-        torque_request_no_differential = App_ActiveDifferential_PowerToTorque( 
-            power_limit, motor_speed_left_rpm, motor_speed_right_rpm, 0.5, 0.5);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set((float)(0.5*(double)torque_request_no_differential));
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set((float)(0.5*(double)torque_request_no_differential));
+        torque_request_no_differential =
+            App_ActiveDifferential_PowerToTorque(power_limit, motor_speed_left_rpm, motor_speed_right_rpm, 0.5, 0.5);
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set((float)(0.5 * (double)torque_request_no_differential));
+        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set((float)(0.5 * (double)torque_request_no_differential));
     }
 
     /**
@@ -173,16 +176,17 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_right_final_Nm);
 
     // Calculate power correction PID
-    if (run_power_limiting_feedback) {
+    if (run_power_limiting_feedback)
+    {
         float power_consumed_measured = battery_voltage * current_consumption;
         // TODO: Change this to use the traction control outputs
-        
+
         // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
         //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
         //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
-        float power_consumed_ideal    = (motor_speed_left_rpm * torque_left_final_Nm +
-                                    motor_speed_right_rpm * torque_right_final_Nm) /
-                                    POWER_TO_TORQUE_CONVERSION_FACTOR;
+        float power_consumed_ideal =
+            (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
+            POWER_TO_TORQUE_CONVERSION_FACTOR;
         float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
         pid_power_correction_factor -=
             App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
