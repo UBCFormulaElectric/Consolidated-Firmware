@@ -1,4 +1,5 @@
 #pragma once
+#include "math.h"
 
 // clang-format off
 
@@ -17,6 +18,7 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN3(x, y, z) (MIN(MIN((x),(y)),(z)))
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
+#define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 
 #define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))
 #define SET_BIT_HIGH(input, bit) (input | (1U << bit))
@@ -37,6 +39,8 @@
 #define S_TO_MS(time_s) ((uint32_t)((time_s) * 1000U))
 
 #define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))
+
+
 
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
 
