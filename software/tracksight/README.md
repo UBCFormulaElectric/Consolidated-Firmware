@@ -19,3 +19,26 @@ Build a service to create a dashboard with signals
 - Interacting with cloud data
 - Cloud data blah blah
 
+## Schema
+Client request:
+{
+ids: [“1234”, “5678”]
+}
+
+Response:
+{
+	“1234”: {
+		“Name”: str,
+		“timestamp”:
+		“data”: df
+	},
+5678
+}
+
+“1234” + “5678”
+
+{
+Op: “ad”
+Args: []
+
+}
