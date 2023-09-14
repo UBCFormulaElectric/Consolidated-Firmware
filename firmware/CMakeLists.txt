@@ -220,6 +220,7 @@ function(create_arm_binary
         -Wl,-T ${ARM_LINKER_SCRIPT}
         --specs=nano.specs
     )
+    target_link_libraries(${BOARD_NAME}.elf m)
 
     set(HEX_FILE "${BOARD_NAME}.hex")
     set(BIN_FILE "${BOARD_NAME}.bin")
