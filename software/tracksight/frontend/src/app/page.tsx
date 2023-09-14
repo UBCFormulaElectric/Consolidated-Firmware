@@ -1,21 +1,22 @@
 'use client';
 
-import {useState, React} from 'react';
+import {useState, React} from 'react'
 import styles from './page.module.css'
 import NavBar from './components/navbar.tsx'
+import Graph from './components/graph.tsx'
 
-import { Layout } from 'antd';
-const { Header, Content } = Layout;
+import { Layout } from 'antd'
+const { Header, Content } = Layout
 
 
 const Home = () => {
-    const [componentToDisplay, setComponentToDisplay] = useState("visualize");
+    const [componentToDisplay, setComponentToDisplay] = useState("visualize")
 
     let componentToRender = null;
     if (componentToDisplay === "visualize") {
-        componentToRender = (<p>Hi</p>);
+        componentToRender = (<Graph />)
     } else {
-        componentToRender = (<p>Hello</p>);
+        componentToRender = (<p>Hello</p>)
     }
 
     return (
