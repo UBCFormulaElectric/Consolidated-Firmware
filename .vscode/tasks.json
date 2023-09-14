@@ -148,10 +148,10 @@
         {
             "label": "Launch: STM32CubeMX",
             "type": "shell",
-            "command": "make -j`nproc`",
+            "command": "./STM32CubeMX",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "/usr/local/STM32CubeMX/"
             }
         },
     ]

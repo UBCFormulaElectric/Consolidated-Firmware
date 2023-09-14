@@ -13,6 +13,7 @@ FROM ubuntu:22.04
 # valgrind: Used to check for memory leaks during x86 tests
 # openocd: Our embedded GDB server of choice
 # usbutils: USB tools (lsusb)
+# nano: Basic Unix text editor
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -24,17 +25,18 @@ RUN apt update -y && apt install -y \
     libncurses5 \
     valgrind \
     openocd \
-    usbutils
+    usbutils \
+    nano
 
-COPY . /home/environment/
+COPY . /root/environment/
 
 # Install SEGGER JLink tools.
-WORKDIR /home/environment/data
+WORKDIR /root/environment/data
 RUN mkdir /opt/SEGGER
 RUN tar -xf JLink_Linux_V792c_x86_64.tgz -C /opt/SEGGER
 
 # Install python package dependencies.
-WORKDIR /home/environment/scripts
+WORKDIR /root/environment/scripts
 RUN pip3 install -r ../requirements.txt
 
 # Install GNU ARM Embedded Toolchain, for compiling/debugging on embedded.
@@ -44,7 +46,7 @@ RUN /bin/sh install_gcc_arm_none_eabi.sh /usr/local
 RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
 
 # Cleanup copied directory.
-WORKDIR /home/
+WORKDIR /root/
 RUN rm -rf environment
 
 # Environment variable "force_color_prompt" needs to be set to "yes" to get colored output in shell.

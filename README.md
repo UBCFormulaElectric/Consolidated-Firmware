@@ -34,7 +34,7 @@ For more information, and to see how to update the Docker container, see our [Do
 
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
-[Mac](https://docs.docker.com/desktop/install/mac-install/).
+[Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
 2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
@@ -91,6 +91,9 @@ To start the development Docker container, navigate to the repo root and run:
 ```sh
 docker compose up --detach
 ```
+
+If you get an error about failing to mount `/tmp`, you may need to add it as a mountable directory in Docker Desktop.
+Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
 
 From VS Code, click the arrows in the bottom left and select "Attach to Running Container". 
 Select the `consolidated-firmware-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
