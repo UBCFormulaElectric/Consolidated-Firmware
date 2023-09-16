@@ -4,23 +4,28 @@ A repository for all software and firmware from UBC Formula Electric.
 
 ## Table of Contents
 
-- [Environment Setup](#environment-setup)
-  - [Install Dependencies](#install-dependencies)
-  - [WSL Setup (Windows Only)](#wsl-setup-windows-only)
-    - [WSL USB Setup](#wsl-usb-setup)
-  - [Clone Repo](#clone-repo)
-- [Building](#building)
-  - [Connect to Container](#connect-to-container)
-  - [Configure CMake](#configure-cmake)
-  - [Build Embedded Binaries](#build-embedded-binaries)
-  - [Build and Run Tests](#build-and-run-tests)
-  - [VS Code Integration](#vs-code-integration)
-- [Debugging](#debugging)
-  - [Embedded](#embedded)
-  - [Tests](#tests)
-- [CAN Bus](#can-bus)
-  - [Windows](#windows)
-  - [Linux](#linux)
+- [Consolidated-Firmware](#consolidated-firmware)
+  - [Table of Contents](#table-of-contents)
+  - [Environment Setup](#environment-setup)
+    - [Install Dependencies](#install-dependencies)
+    - [WSL Setup (Windows only)](#wsl-setup-windows-only)
+      - [WSL USB Setup](#wsl-usb-setup)
+    - [Clone Repo](#clone-repo)
+  - [Using the Dev Container](#using-the-dev-container)
+    - [VS Code Extensions](#vs-code-extensions)
+    - [Git in Container](#git-in-container)
+    - [Closing the Container](#closing-the-container)
+  - [Building](#building)
+    - [Load CMake](#load-cmake)
+    - [Build Embedded Binaries](#build-embedded-binaries)
+    - [Build Tests](#build-tests)
+  - [Debugging](#debugging)
+    - [Embedded](#embedded)
+    - [Tests](#tests)
+  - [CAN Bus](#can-bus)
+    - [Windows](#windows)
+    - [Linux](#linux)
+  - [Continuous Integration (CI)](#continuous-integration-ci)
 
 ## Environment Setup
 
@@ -83,9 +88,7 @@ git submodule update --init --recursive
 git lfs pull
 ```
 
-## Building
-
-### Connect to Container
+## Using the Dev Container
 
 To start the development Docker container, navigate to the repo root and run: 
 
@@ -93,94 +96,87 @@ To start the development Docker container, navigate to the repo root and run:
 docker compose up --detach
 ```
 
-If you get an error about failing to mount `/tmp`, you may need to add it as a mountable directory in Docker Desktop.
+If you're on Windows and get the error:
+```
+The command 'docker' could not be found in this WSL 2 distro.
+We recommend to activate the WSL integration in Docker Desktop settings.
+
+For details about using Docker Desktop with WSL 2, visit:
+
+https://docs.docker.com/go/wsl2/
+```
+You probably just need to open Docker Desktop, which will start Docker automatically.
+
+If you're on Linux/Mac and get an error about failing to mount `/tmp`, you may need to add it as a mountable directory in Docker Desktop.
 Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
 
 From VS Code, click the arrows in the bottom left and select "Attach to Running Container". 
 Select the `consolidated-firmware-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
+
+### VS Code Extensions
 
 Install the following VS Code extensions into the container (should only be required once):
 - C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
 - Python (`ms-python.python`)
 - Cortex-Debug (`marus25.cortex-debug`) 
 
+### Git in Container
+
+VS Code's Dev Container extension should forward your git credentials into the container, so git should work out-of-the-box in the container.
+The first time using git in the container, there will probably be a warning about dubious repo ownership. 
+To suppress this, run: 
+
+```sh
+git config --global --add safe.directory /root/Consolidated-Firmware
+```
+
+(It should prompt you to do this)
+
+### Closing the Container
+
 When you're finished developing and want to stop the container, run this from the repo root:
 ```sh
 docker compose down
 ```
 
+**Warning: This will erase all container files outside of the repo!**
+
+## Building
+
 ### Load CMake
 
+CMake is our build system of choice. It generates Makefiles according to the `CMakeLists.txt` files, which can be used with `make` to build our binaries.
+Makefiles are an extremely thin wrapper around the command line, and so are very annoying to work with, whereas editing `CMakeLists.txt` files is more user-friendly.
+
 We use 2 CMake profiles, one for embedded binaries and another for unit tests. 
-This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use.
+This is necessary because a specific compiler (`arm-none-eabi-gcc` from the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for the ARM Cortex-M microcontrollers that we use. 
 
-Load the embedded and test CMake profiles by running:
-
-```sh
-# Create profile for embedded.
-mkdir build_arm
-cd build_arm
-cmake .. -DPLATFORM=arm -DNO_VENV=ON # TODO: Deprecate NO_VENV option
-cd ..
-
-# Create profile for unit tests.
-mkdir build_x86
-cd build_x86
-cmake .. -DPLATFORM=x86 -DNO_VENV=ON # TODO: Deprecate NO_VENV option
-```
+Press `Ctrl+Shift+B` and run "Load CMake: Embedded" and "Load CMake: Tests". This should create a `build_arm` folder for the embedded CMake output, and `build_x86` for the unit test CMake output.
 
 ### Build Embedded Binaries
 
-To build binaries for flashing onto boards, use Make.
+To build binaries for flashing onto boards, press `Ctrl+Shift+B`. 
 
-```sh
-cd build_arm
+The options ending in `.elf` are the embedded ARM binaries for each board. Run "Build: All Embedded Binaries" to build all boards.
 
-# Build binary for single board:
-make <board>.elf # Example: make BMS.elf
- 
-# Build all ARM binaries:
-make
+### Build Tests
 
-# Note: Pass -j10 to `make` to use multiple threads to speed up builds (glitchy when building multiple targets).
-```
-### Build and Run Tests
+We use [GoogleTest](https://github.com/google/googletest) as our testing framework.
+To build unit tests, press `Ctrl+Shift+B`. 
 
-To build unit test binaries, use Make.
-
-```sh
-cd build_x86
-
-# Build tests for single board:
-make <board>_test # Example: make BMS_test
-
-# Run tests for single board:
-./firmware/thruna/<board>/<board>_test # Example: ./firmware/thruna/BMS/BMS_test
-
-# Build all tests:
-make
-
-# Run all tests:
-ctest
-
-# Note: Pass -j10 to `make` to use multiple threads to speed up builds (glitchy when building multiple targets).
-```
-
-### VS Code Integration
-
-All of the above are available as VS Code "Build Tasks." 
-Press `Ctrl-Shift-B` to bring up the "Build Tasks" menu to load CMake and build.
+The options ending in `_test` are the GoogleTest binaries for each board. Run "Build: All Tests" to build all tests.
 
 ## Debugging
 
 ### Embedded
 
-Connect a debugger to your laptop and the microcontroller's SWD port. The correct cable orientation is: 
+Connect a debugger to your laptop and the microcontroller's SWD port. 
+For our SEGGER JLink EDU Minis, The correct cable orientation is: 
 
 <img src="./images/jlink_connector.png" width="50%" height="50%"/>
 
 If you're developing on Windows, make sure the debugger is attached to WSL. 
-Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open.
+Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open (`wsl-usb-gui` must be open!). 
 
 Integration with VS Code's step-through debuggers should work out-of-the-box after installing the Cortex-Debug extension. Navigate to the "Run and Debug" menu to start a debugging session.
 

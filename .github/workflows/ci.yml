@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/${{ matrix.board }}/${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
 
   test-thruna:
     name: Test Thruna
