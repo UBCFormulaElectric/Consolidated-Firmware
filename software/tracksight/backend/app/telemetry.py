@@ -13,9 +13,10 @@ def handle_connect():
     print("Client Connected")
     emit('message', 'You are connected to the server connect')
 
-@socketio.on('message_from_client')
+@socketio.on('data')
 def handle_message(message):
     # Do something with the message, e.g., broadcast it to other clients
+    print("hi")
     socketio.emit('message_from_server', f'Server received: {message}')
 
 

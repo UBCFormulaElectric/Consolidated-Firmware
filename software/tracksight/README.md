@@ -1,5 +1,18 @@
 # Tracksight
 
+## Setup
+
+### Backend
+This sets up the conda environment (you will also need to install conda) for running the backend locally.
+#### Initial Environment Setup:
+1. Install conda
+2. Run `conda env create --file environment.yml`
+3. Activate environment using `conda activate tracksight-backend`
+
+#### Updating Environment Setup:
+1. Activate environment using `conda activate tracksight-backend`
+2. Update environment using `conda env update --file environment.yml --prune`
+
 ## MVP
 Build a service to create a dashboard with signals
 
