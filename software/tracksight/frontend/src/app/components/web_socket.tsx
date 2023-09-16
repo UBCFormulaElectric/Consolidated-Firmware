@@ -1,25 +1,27 @@
-import { useEffect, useState } from 'react'
+'use client';
 
-const WebSocket = (socket) => {
+import { useEffect, useState, React } from 'react';
+
+const WebSocketComponent = (props) => {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
 
     const handleSubmit = () => {
         if (!message) return;
-        socket.emit("data", message);
+        props.socket.emit("data", message);
         setMessage("");
     };
 
     useEffect(() => {
-        socket.on("data", (data) => {
+        props.socket.on("data", (data) => {
             setMessages([...messages, data.data]);
         });
-    }, [socket, messages]);
+    }, [props.socket, messages]);
 
     return (
         <div>
           <h2>WebSocket Communication</h2>
-          <input type="text" value={message} onChange={(e} => setMessage(e.target.value);} />
+          <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
           <button onClick={handleSubmit}>submit</button>
           <ul>
             {messages.map((message, ind) => {
@@ -29,3 +31,5 @@ const WebSocket = (socket) => {
         </div>
     );
 }
+
+export default WebSocketComponent;

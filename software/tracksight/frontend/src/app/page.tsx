@@ -12,6 +12,7 @@ import Graph from './components/graph.tsx';
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
     const [socketInstance, setSocketInstance] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const socket = io("localhost:5000/", {
@@ -26,19 +27,22 @@ const Home = () => {
             console.log(data);
         });
 
+        setLoading(false);
+
         socket.on("disconnect", (data) => {
             console.log(data);
         });
-    });
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
-    let componentToRender = null;
-    useEffect(() => {
-        if (componentToDisplay === "visualize") {
-            componentToRender = (<Graph socket={socketInstance}/>);
-        } else {
-            componentToRender = (<p>Hello</p>);
-        }
-    }, [componentToDisplay]);
+    let componentToRender;
+    if (componentToDisplay === "visualize") {
+        componentToRender = (<Graph socket={socketInstance}/>);
+    } else {
+        componentToRender = (<p>Hello</p>);
+    }
 
     return (
         <Layout className={styles.main}>
@@ -46,7 +50,7 @@ const Home = () => {
                 <NavBar updateFunction={setComponentToDisplay}/>
             </Header>
             <Content>
-                {componentToRender}
+                {!loading && componentToRender}
             </Content>
         </Layout>
     );
