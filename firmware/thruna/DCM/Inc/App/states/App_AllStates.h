@@ -30,7 +30,7 @@ static inline bool App_IsStartSwitchOn(void)
  */
 static inline bool App_IsTorqueVectoringSwitchOn(void) 
 { 
-    return App_CanRx_DIM_Switches_TorqueVectoringSwitch_Get() == SWITCH_ON;
+    return App_CanRx_DIM_Switches_AuxSwitch_Get() == SWITCH_ON;
 }
 
 static inline bool App_IsBmsInDriveState(void)
