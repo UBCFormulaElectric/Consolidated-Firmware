@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
+#include "App_SharedMacros.h"
+#include "App_SharedConstants.h"
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
@@ -8,12 +10,13 @@
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 #define EFFICIENCY_ESTIMATE (0.80f)
 
+static bool torque_vectoring_switch_is_on;
+
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorSpeed_Get();
-    float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
@@ -54,10 +57,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
     App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
-    static bool torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitch_On() 
-    if (torque_vectoring_switch_is_on) {
+    torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitchOn();
+
+    if (torque_vectoring_switch_is_on)
+    {
         App_TorqueVectoring_Setup();
-    } 
+    }
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -77,10 +82,10 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         if (torque_vectoring_switch_is_on)
         {
-            App_TorqueVectoring_Setup();
+            App_TorqueVectoring_Run();
         }
         else
-        { 
+        {
             App_SetPeriodicCanSignals_TorqueRequests();
         }
 
