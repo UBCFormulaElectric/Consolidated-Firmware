@@ -9,8 +9,6 @@
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
-#define MOTOR_NOT_SPINNING_SPEED_RPM 5
-
 static TimerChannel pid_timeout;
 
 static PowerLimiting_Inputs       power_limiting_inputs;
@@ -49,7 +47,7 @@ static float steering_angle_deg;
  */
 static bool run_power_limiting          = true;
 static bool run_power_limiting_feedback = true;
-static bool run_active_differential     = true;
+static bool run_active_differential     = false;
 static bool run_regen                   = false;
 
 void App_TorqueVectoring_Setup(void)
@@ -171,14 +169,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
         torque_left_final_Nm  = torque_request_no_differential;
         torque_right_final_Nm = torque_request_no_differential;
     }
-
-    // Limit asymptotic torques at zero speed
-    if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
-    {
-        torque_left_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
-        torque_right_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
-    }
-
     // CLAMPS for safety only - should never exceed torque limit
     torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
     torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
