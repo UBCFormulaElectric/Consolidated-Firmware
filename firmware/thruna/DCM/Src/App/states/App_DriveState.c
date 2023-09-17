@@ -24,7 +24,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
     App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
-    App_TorqueVectoring_Setup();
+    static bool torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitch_On() 
+    if (torque_vectoring_switch_is_on) {
+        App_TorqueVectoring_Setup();
+    } 
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -36,7 +39,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        App_TorqueVectoring_Run();
+        if (torque_vectoring_switch_is_on)
+        {
+            App_TorqueVectoring_Setup();
+        }
+        else
+        { 
+            App_SetPeriodicCanSignals_TorqueRequests();
+        }
 
         if (!App_IsStartSwitchOn() || !App_IsBmsInDriveState())
         {
