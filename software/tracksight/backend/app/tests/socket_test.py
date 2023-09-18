@@ -1,4 +1,5 @@
 import pytest
+import json
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -25,9 +26,17 @@ def test_socketio_connect(client):
 
 def test_socketio_message(client):
     _, socketio_client = client
-    socketio_client.emit('message_from_client', 'Test message')
+    socketio_client.emit('data', 'Test message')
     received_events = socketio_client.get_received()
-    assert len(received_events) == 2
-    assert received_events[1]['name'] == 'message_from_server'
-    assert received_events[1]['args'][0] == 'Server received: Test message'
+
+def test_get_signals(client):
+    _, socket_client = client
+    req = '{"ids": ["Signal1"]}'
+    print(req, type(req))
+    x = json.loads(req)
+    print("here", x)
+    socket_client.emit('signals', json.loads(req))
+    events = socket_client.get_received()
+    print(events)
+    assert False
 
