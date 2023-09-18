@@ -1,3 +1,5 @@
 cmake
 schema
 strenum
+pyocd
+cantools

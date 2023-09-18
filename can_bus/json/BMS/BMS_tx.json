@@ -292,5 +292,48 @@
                 "unit": "W"
             }
         }
+    },
+    "BMS_AuxThermistors": {
+        "msg_id": 121,
+        "cycle_time": 100,
+        "description": "BMS Auxiliary Thermistor Temperatures",
+        "signals": {
+            "ThermTemp0": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp1": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp2": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp3": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp4": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "ThermTemp5": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
     }
 }

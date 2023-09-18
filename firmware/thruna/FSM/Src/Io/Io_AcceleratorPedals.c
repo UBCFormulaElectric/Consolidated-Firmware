@@ -30,6 +30,9 @@
 #define FULLY_UNPRESSED_POT_LENGTH_MM (212.2f)
 #define FULLY_PRESSED_POT_LENGTH_MM (165.6f)
 
+#define PAPPS_DEADZONE_PERCENT (10.0f)
+#define SAPPS_DEADZONE_PERCENT (8.0f)
+
 float Io_AcceleratorPedals_GetPapps(void)
 {
     // Length calculated via voltage
@@ -38,9 +41,12 @@ float Io_AcceleratorPedals_GetPapps(void)
 
     // Calculate pedal percentage
     float pedal_percentage = (pot_len_mm - FULLY_UNPRESSED_POT_LENGTH_MM) /
-                             (FULLY_PRESSED_POT_LENGTH_MM - FULLY_UNPRESSED_POT_LENGTH_MM) * 100.0f;
+                                 (FULLY_PRESSED_POT_LENGTH_MM - FULLY_UNPRESSED_POT_LENGTH_MM) * 100.0f -
+                             PAPPS_DEADZONE_PERCENT;
+
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
+
 bool Io_AcceleratorPedals_PappsOCSC(void)
 {
     float pedal_voltage = 0.5f;
@@ -60,8 +66,9 @@ float Io_AcceleratorPedals_GetSapps(void)
          (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
 
     float secondary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
-    return secondary_angle / 30.0f * 100.0f;
+    return secondary_angle / 30.0f * 100.0f - SAPPS_DEADZONE_PERCENT;
 }
+
 bool Io_AcceleratorPedals_SappsOCSC(void)
 {
     float pedal_voltage = 0.5f;

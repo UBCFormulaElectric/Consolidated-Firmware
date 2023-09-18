@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/ci:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -54,7 +54,7 @@ jobs:
             ioc_dir: firmware/thruna/GSM
 
     container:
-      image: ubcformulaelectric/ci:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -100,7 +100,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/ci:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/${{ matrix.board }}/${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
 
   test-thruna:
     name: Test Thruna
@@ -144,7 +144,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/ci:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -172,7 +172,7 @@ jobs:
     name: Test Shared
     runs-on: ubuntu-22.04
     container:
-      image: ubcformulaelectric/ci:latest
+      image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}

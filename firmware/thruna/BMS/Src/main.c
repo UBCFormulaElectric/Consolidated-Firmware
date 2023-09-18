@@ -48,6 +48,7 @@
 #include "Io_VoltageSense.h"
 #include "Io_Eeprom.h"
 #include "Io_LatchedFaults.h"
+#include "Io_ThermistorReadings.h"
 
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
@@ -212,6 +213,9 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);
 
@@ -249,7 +253,7 @@ int main(void)
         Io_LTC6813CellTemperatures_GetMinTempDegC, Io_LTC6813CellTemperatures_GetMaxTempDegC,
         Io_LTC6813CellTemperatures_GetAverageTempDegC, Io_LTC6813Shared_EnableBalance, Io_LTC6813Shared_DisableBalance,
         Io_LatchedFaults_CheckImdLatchedFault, Io_LatchedFaults_CheckBspdLatchedFault,
-        Io_LatchedFaults_CheckBmsLatchedFault);
+        Io_LatchedFaults_CheckBmsLatchedFault, Io_ThermistorReadings_MuxSelect, Io_ThermistorReadings_ReadSelectedTemp);
 
     ts = App_TractiveSystem_Create(
         Io_VoltageSense_GetTractiveSystemVoltage, Io_CurrentSense_GetHighResolutionMainCurrent,

@@ -38,6 +38,8 @@ FAKE_VALUE_FUNC(float, get_low_res_current);
 FAKE_VALUE_FUNC(float, get_high_res_current);
 FAKE_VALUE_FUNC(bool, start_temp_conv);
 FAKE_VALUE_FUNC(bool, read_cell_temperatures);
+FAKE_VOID_FUNC(thermistor_mux_select, uint8_t);
+FAKE_VALUE_FUNC(float, read_thermistor_temp);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
@@ -121,7 +123,8 @@ class BmsFaultTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
             read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
-            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault);
+            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
+            thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 

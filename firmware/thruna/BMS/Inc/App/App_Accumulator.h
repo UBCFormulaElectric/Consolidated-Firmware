@@ -52,7 +52,9 @@ struct Accumulator *App_Accumulator_Create(
     bool (*disable_discharge)(void),
     bool (*check_imd_latched_fault)(void),
     bool (*check_bspd_latched_fault)(void),
-    bool (*check_bms_latched_fault)(void));
+    bool (*check_bms_latched_fault)(void),
+    void (*select_mux_channel)(uint8_t),
+    float (*read_thermistor_temp)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -189,3 +191,15 @@ void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool
  * @return True if BMS is balancing cells, false otherwise
  */
 bool App_Accumulator_BalancingEnabled(struct Accumulator *const accumulator);
+
+/**
+ * Read a thermistor value then update the MUX channel to give time to switch before next read
+ * @param accumulator The accumulator to update auxiliary thermistor temps for
+ */
+void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumulator);
+
+/**
+ * Broadcast thermistor temperatures over CAN
+ * @param accumulator The accumulator to broadcast thermistor temps for
+ */
+void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator);
