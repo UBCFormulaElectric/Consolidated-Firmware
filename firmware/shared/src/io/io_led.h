@@ -17,4 +17,4 @@ typedef struct
  * Turn an LED on or off.
  * @param on Whether or not to turn LED on.
  */
-void dev_led_enable(const BinaryLed *led, bool on);
+void io_led_enable(const BinaryLed *led, bool on);
