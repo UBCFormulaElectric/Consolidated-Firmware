@@ -16,4 +16,4 @@ user manual : https://www.peak-system.com/produktcd/Pdf/English/PCAN-USB_UserMan
 3. On the bottom of the screen, add a new connection, when the window opens right click on whitespace under the available nets header. Select add a new net. Then select edit nets and change the bitrate to 500 kbits/s
 4. You should now see some can messages in hex coming in on the main window, click on the dbc file and select apply this will decode the hex messages into human readable format
 
-![image here](../../../images/sym_file_click_apply.png?raw=true "Click Apply")
+![image](https://github.com/UBCFormulaElectric/Consolidated-Firmware/assets/20777515/0458e384-6a85-460c-821f-c759d98eb744?raw=true "Click Apply")
