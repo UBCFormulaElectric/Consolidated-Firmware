@@ -93,7 +93,8 @@ C:\path\to\Consolidated-Firmware-Username;
 ```
 Don't forget the semicolon, otherwise Python scripts won't work.
 
-![[windows path.png]]
+![image](https://github.com/UBCFormulaElectric/Consolidated-Firmware/assets/20777515/4464ddd9-5e1c-4903-b9b6-90283abb17ee)
+
 
 ### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
