@@ -1,0 +1,6 @@
+name: tracksight-backend
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+	- flask-socketio

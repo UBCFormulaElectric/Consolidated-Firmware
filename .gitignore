@@ -127,3 +127,7 @@ hooksl
 
 # generated dbc files not allowed
 can_bus/**/*.dbc
+
+# CMake build directories
+build_arm
+build_x86

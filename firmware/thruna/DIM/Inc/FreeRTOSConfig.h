@@ -82,6 +82,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil 1
 #define INCLUDE_vTaskDelay 1
 #define INCLUDE_xTaskGetSchedulerState 1
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -131,7 +132,7 @@ standard names. */
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
-#include <trcRecorder.h>
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

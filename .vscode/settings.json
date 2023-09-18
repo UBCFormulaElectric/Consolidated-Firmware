@@ -2,9 +2,9 @@
 	"json.schemas": [
 		{
 			"fileMatch": [
-				"/can-bus/json/**/*tx.json"
+				"/can_bus/json/**/*tx.json"
 			],
-			"url": "/can-bus/json/schema_tx.json"
+			"url": "/can_bus/json/schema_tx.json"
 		}
 	]
 }

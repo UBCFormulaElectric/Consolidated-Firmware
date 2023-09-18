@@ -123,6 +123,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil 1
 #define INCLUDE_vTaskDelay 1
 #define INCLUDE_xTaskGetSchedulerState 1
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -171,14 +172,7 @@ standard names. */
 #define xPortSysTickHandler SysTick_Handler
 
 /* USER CODE BEGIN Defines */
-// Integrates the Tracealyzer recorder with FreeRTOS. Tracealyzer recommends
-// that this is inserted at the end of FreeRTOSConfig.h.
-#if (configUSE_TRACE_FACILITY == 1)
-#include "trcRecorder.h"
-#endif
-
-// Required for thread-safety of newlib sprintf, strtok, etc...
-#define configUSE_NEWLIB_REENTRANT 1
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
