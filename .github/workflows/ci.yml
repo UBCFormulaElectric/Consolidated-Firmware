@@ -1,8 +1,5 @@
 name: UBC Formula Electric CI
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -80,48 +77,7 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   build-firmware-thruna:
-    name: Build Thruna Firmware
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - GSM
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_arm
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
-      # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
-          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
-
-      # Uploads .elf binary to Github Actions workflow
-      - name: Save built artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@main
 
   test-thruna:
     name: Test Thruna
