@@ -173,7 +173,8 @@ The options ending in `_test` are the GoogleTest binaries for each board. Run "B
 Connect a debugger to your laptop and the microcontroller's SWD port. 
 For our SEGGER JLink EDU Minis, The correct cable orientation is: 
 
-<img src="./images/jlink_connector.png" width="50%" height="50%"/>
+![image](https://github.com/UBCFormulaElectric/Consolidated-Firmware/assets/20777515/da6e0b3e-8a68-4b8f-b583-185a875f99e0)
+
 
 If you're developing on Windows, make sure the debugger is attached to WSL. 
 Open `wsl-usb-gui` (Start > Search "WSL USB") and create a "Device" auto-attach profile for the debugger. You should only have to do this once: If you unplug/replug a debugger it should auto-attach, as long as `wsl-usb-gui` is open (`wsl-usb-gui` must be open!). 
