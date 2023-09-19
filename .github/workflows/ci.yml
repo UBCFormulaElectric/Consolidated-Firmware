@@ -77,7 +77,7 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   build-firmware-thruna:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@main
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
 
   test-thruna:
     name: Test Thruna
