@@ -32,9 +32,6 @@ def test_socketio_message(client):
 def test_get_signals(client):
     _, socket_client = client
     req = '{"ids": ["Signal1"]}'
-    print(req, type(req))
-    x = json.loads(req)
-    print("here", x)
     socket_client.emit('signals', json.loads(req))
     events = socket_client.get_received()
     print(events)

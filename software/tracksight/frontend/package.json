@@ -13,14 +13,17 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "antd": "^5.9.0",
+    "bufferutil": "^4.0.7",
     "eslint": "8.49.0",
     "eslint-config-next": "13.4.19",
     "next": "13.4.19",
+    "package.json": "^2.0.1",
     "plotly.js": "^2.26.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-plotly.js": "^2.6.0",
     "socket.io-client": "^4.7.2",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "utf-8-validate": "^5.0.10"
   }
 }
