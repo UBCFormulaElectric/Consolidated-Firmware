@@ -47,7 +47,7 @@ static float steering_angle_deg;
  */
 static bool run_power_limiting          = true;
 static bool run_power_limiting_feedback = true;
-static bool run_active_differential     = false;
+static bool run_active_differential     = true;
 static bool run_regen                   = false;
 
 void App_TorqueVectoring_Setup(void)
