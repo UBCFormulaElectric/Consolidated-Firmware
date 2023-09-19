@@ -5,14 +5,14 @@ on:
       - master
       - edwinZ/bin-dbc-gen
 jobs:
-  build-and-release:
+  build:
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@main
+  release:
     name: Build and Add to Releases
     runs-on: ubuntu-22.04
     env:
       BUILD_DIR: build_arm
     steps:
-      - name: Build
-        uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@main
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
