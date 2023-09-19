@@ -1,0 +1,158 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Load CMake: Embedded",
+            "type": "shell",
+            "command": "mkdir -p build_arm && cmake -S . -B build_arm -DPLATFORM=arm -DNO_VENV=ON",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "Load CMake: Tests",
+            "type": "shell",
+            "command": "mkdir -p build_x86 && cmake -S . -B build_x86 -DPLATFORM=x86 -DNO_VENV=ON",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "Clean CMake: Embedded",
+            "type": "shell",
+            "command": "cmake --build . --target clean",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            },
+        },
+        {
+            "label": "Clean CMake: Tests",
+            "type": "shell",
+            "command": "cmake --build . --target clean",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            },
+        },
+        {
+            "label": "Build: BMS.elf",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` BMS.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: DCM.elf",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` DCM.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: FSM.elf",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` FSM.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: PDM.elf",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` PDM.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: DIM.elf",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` DIM.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: BMS_test",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` BMS_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Build: DCM_test",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` DCM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Build: FSM_test",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` FSM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Build: PDM_test",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` PDM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Build: DIM_test",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc` DIM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Build: All Embedded Binaries",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc`",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
+            "label": "Build: All Tests",
+            "type": "shell",
+            "command": "xvfb-run make -j`nproc`",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
+            "label": "Launch: STM32CubeMX",
+            "type": "shell",
+            "command": "./STM32CubeMX",
+            "group": "build",
+            "options": {
+                "cwd": "/usr/local/STM32CubeMX/"
+            }
+        },
+    ]
+}
