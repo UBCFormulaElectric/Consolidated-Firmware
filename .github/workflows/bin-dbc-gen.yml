@@ -6,7 +6,7 @@ on:
       - edwinZ/bin-dbc-gen
 jobs:
   build:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@main
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
   release:
     name: Build and Add to Releases
     runs-on: ubuntu-22.04
