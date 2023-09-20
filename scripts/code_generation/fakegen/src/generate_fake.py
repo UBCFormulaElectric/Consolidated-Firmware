@@ -13,7 +13,12 @@ class CFunction:
     param_types: List[str]
 
 
-def parse_file(file: str) -> CFunction:
+def parse_header_file(file: str) -> List[CFunction]:
+    """
+    Use `pyclibrary` to extract functions from a header file. 
+    Return them as a list of CFunctions.
+
+    """
     parser = pyclibrary.CParser(files=[file])
 
     # Get parsed function definitions.
@@ -42,6 +47,10 @@ def parse_file(file: str) -> CFunction:
 
 
 def parse_type(type: pyclibrary.c_parser.Type) -> str:
+    """
+    Helper to parse the Type class from `pyclibrary` into text representing the type.
+
+    """
     # `pyclibrary` parsed types are basically tuples where the seperate "parts" of the type are
     # elements of the tuple.
     # Ex. uint8_t* -> ("uint8_t", "*"")
@@ -55,6 +64,14 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
 def generate_output(
     header_path: str, output_header: str, output_source: str, functions: List[CFunction]
 ) -> None:
+    """
+    Use jinja2 templates to generate a file which fakes a list of functions. Creates:
+    - Faked header file: Functions declarations to interact with the fake (set return value, 
+        set call count, reset the fake).
+    - Faked source file: Definitions for functions to interact with the fake, as well as 
+        a faked implementation of the function being faked.
+
+    """
     # Load jinja2 templates.
     module_dir = os.path.dirname(os.path.relpath(__file__))
     template_dir = os.path.join(module_dir, "templates")
@@ -72,9 +89,9 @@ def generate_output(
                 template = "void_func_params"
         else:
             if len(function.param_types) == 0:
-                template = "func_no_params"
+                template = "value_returning_func_no_params"
             else:
-                template = "func_params"
+                template = "value_returning_func_params"
 
         declarations_template = env.get_template(f"{template}.hpp.j2")
         definition_template = env.get_template(f"{template}.cpp.j2")
@@ -132,7 +149,7 @@ if __name__ == "__main__":
     if args.header:
         if os.path.isfile(args.header):
             # Parse input.
-            functions = parse_file(args.header)
+            functions = parse_header_file(args.header)
 
             # Output module name.
             header_name = os.path.split(args.header)[-1]

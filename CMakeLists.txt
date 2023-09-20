@@ -75,3 +75,4 @@ if("${PLATFORM}" STREQUAL "x86")
 endif()
 
 add_subdirectory(firmware)
+add_subdirectory(scripts)

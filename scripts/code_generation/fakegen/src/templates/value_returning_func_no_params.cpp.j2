@@ -22,7 +22,7 @@ extern "C"
 }
 
 // Function to set the return value.
-void fake_{{ name }}_return({{return_type}} return_value)
+void fake_{{ name }}_returns({{return_type}} return_value)
 {
     {{ func_return_value }} = return_value;
 }
@@ -30,6 +30,7 @@ void fake_{{ name }}_return({{return_type}} return_value)
 // Function to reset call count.
 void fake_{{ name }}_reset() 
 {
+    memset(&{{ func_return_value }}, 0U, sizeof({{ return_type }}));
     {{ func_call_count }} = 0;
 }
 

@@ -240,10 +240,11 @@ function(create_fake_library
     LIBRARY_NAME
     HDRS_TO_FAKE
 )
-    file(GLOB_RECURSE FAKER_SRCS
-        ${SCRIPTS_DIR}/code_generation/faker/*.py
-        ${SCRIPTS_DIR}/code_generation/faker/*.j2
+    file(GLOB_RECURSE FAKEGEN_SRCS
+        ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
+        ${SCRIPTS_DIR}/code_generation/fakegen/src/*.j2
     )
+
     foreach(HDR_TO_FAKE ${HDRS_TO_FAKE})
         get_filename_component(HDR_MODULE_NAME ${HDR_TO_FAKE} NAME_WE)
         get_filename_component(HDR_DIR ${HDR_TO_FAKE} DIRECTORY)
@@ -253,16 +254,23 @@ function(create_fake_library
         list(APPEND FAKE_SRCS ${FAKE_SRC})
         add_custom_command(
             OUTPUT ${FAKE_HDR} ${FAKE_SRC}
-            COMMAND ${PYTHON_CMD} 
-            ${SCRIPTS_DIR}/code_generation/faker/generate_fake.py
+            COMMAND ${PYTHON_CMD}
+            ${SCRIPTS_DIR}/code_generation/fakegen/src/generate_fake.py
             --header ${HDR_TO_FAKE}
             --output-header ${FAKE_HDR}
             --output-source ${FAKE_SRC}
             WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
-            DEPENDS ${FAKER_SRCS} ${HDR_TO_FAKE}
+            DEPENDS ${FAKEGEN_SRCS} ${HDR_TO_FAKE}
         )
     endforeach()
+
     add_library(${LIBRARY_NAME} STATIC ${FAKE_SRCS})
+    target_compile_options(${LIBRARY_NAME}
+        PUBLIC
+        -Wall
+        -Werror
+        -g3
+    )
     target_include_directories(${LIBRARY_NAME}
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -270,7 +278,30 @@ function(create_fake_library
     )
 endfunction()
 
-function(compile_googletest_executable
+function(compile_gtest_executable
+    TEST_EXECUTABLE_NAME
+    TEST_SRCS
+    TEST_INCLUDE_DIRS
+)
+    add_executable(${TEST_EXECUTABLE_NAME}
+        ${TEST_SRCS}
+    )
+    target_include_directories(${TEST_EXECUTABLE_NAME}
+        PRIVATE
+        ${TEST_INCLUDE_DIRS}
+    )
+    target_compile_options(${TEST_EXECUTABLE_NAME}
+        PUBLIC
+        -Wall
+        -Werror
+        -g3
+    )
+    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    add_test(NAME ${TEST_EXECUTABLE_NAME}
+        COMMAND ${TEST_EXECUTABLE_NAME})
+endfunction()
+
+function(compile_board_gtest_executable
     BOARD_NAME
     TEST_SRCS
     TEST_INCLUDE_DIRS
@@ -283,29 +314,23 @@ function(compile_googletest_executable
         set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
     endif()
 
-    add_executable(${TEST_EXECUTABLE_NAME}
-        ${TEST_SRCS}
+    list(APPEND BOARD_TEST_SRCS ${TEST_SRCS}
         ${ARM_BINARY_X86_COMPATIBLE_SRCS}
         ${SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS}
     )
-    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
-    target_include_directories(${TEST_EXECUTABLE_NAME}
-        PRIVATE
-        ${TEST_INCLUDE_DIRS}
+    list(APPEND BOARD_TEST_INCLUDE_DIRS ${TEST_INCLUDE_DIRS}
         ${ARM_BINARY_INCLUDE_DIRS}
         ${SHARED_ARM_BINARY_INCLUDE_DIRS}
         ${SHARED_GOOGLETEST_TEST_THIRD_PARTY_INCLUDE_DIRS}
         ${FIRMWARE_DIR}/shared/test_utils
     )
-    target_compile_options(${TEST_EXECUTABLE_NAME}
-        PUBLIC
-        -Wall
-        -Werror
-        -g3
+    compile_gtest_executable(
+        "${TEST_EXECUTABLE_NAME}"
+        "${BOARD_TEST_SRCS}"
+        "${BOARD_TEST_INCLUDE_DIRS}"
     )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main shared_fakes)
-    add_test(NAME ${TEST_EXECUTABLE_NAME}
-        COMMAND ${TEST_EXECUTABLE_NAME})
+    target_link_libraries(${TEST_EXECUTABLE_NAME} shared_fakes)
+    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
 endfunction()
 
 # Creates the Arm binary or tests for a board, depending on what CPU architecture
@@ -450,7 +475,7 @@ function(create_arm_binary_or_tests_for_board
 
     if("${PLATFORM}" STREQUAL "x86")
         add_compile_definitions(TARGET_TEST)
-        compile_googletest_executable(
+        compile_board_gtest_executable(
             "${BOARD_NAME}"
             "${GOOGLETEST_TEST_SRCS}"
             "${GOOGLETEST_TEST_INCLUDE_DIRS}"

@@ -195,3 +195,31 @@ jobs:
         run: |
           cd $BUILD_DIR/firmware/shared
           valgrind --tool=memcheck --leak-check=yes ./shared_test
+
+  test-fakegen:
+    name: Test Fake Function Generation
+    runs-on: ubuntu-22.04
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: build_x86
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          make --directory=$BUILD_DIR -j`nproc` fakegen_test
+
+      - name: Run tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/fakegen
+          valgrind --tool=memcheck --leak-check=yes ./fakegen_test

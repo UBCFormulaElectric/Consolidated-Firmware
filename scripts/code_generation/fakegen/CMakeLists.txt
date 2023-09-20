@@ -1,0 +1,20 @@
+set(TEST_HDRS_TO_FAKE 
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/test_header.h"
+)
+set(TEST_SRCS
+    "${CMAKE_CURRENT_SOURCE_DIR}/test/test_fakegen.cpp"
+)
+set(TEST_INCLUDE_DIRS
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
+create_fake_library(
+    "fakegen_test_fakes"
+    "${TEST_HDRS_TO_FAKE}"
+)
+compile_gtest_executable(
+    "fakegen_test"
+    "${TEST_SRCS}"
+    "${TEST_INCLUDE_DIRS}"
+)
+target_link_libraries("fakegen_test" "fakegen_test_fakes")

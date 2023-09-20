@@ -7,6 +7,9 @@ extern "C"
 
 #include "fake_io_led.hpp"
 
+// TODO: This test is pretty much useless, and only here to demonstrate using 
+// fakegen. Delete this once fakegen is validated on other systems.
+
 class TestLed : public testing::Test
 {
   protected:
@@ -15,7 +18,7 @@ class TestLed : public testing::Test
         fake_io_led_enable_reset();
     }
 
-    BinaryLed led;
+    BinaryLed led = {};
 };
 
 TEST_F(TestLed, toggle_led)
