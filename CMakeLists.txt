@@ -72,7 +72,8 @@ if("${PLATFORM}" STREQUAL "x86")
     set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include(CTest)
     enable_testing()
+    
+    add_subdirectory(scripts)
 endif()
 
 add_subdirectory(firmware)
-add_subdirectory(scripts)
