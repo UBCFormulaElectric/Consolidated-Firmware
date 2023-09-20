@@ -2,8 +2,6 @@ import os
 from typing import List
 from dataclasses import dataclass
 from argparse import ArgumentParser
-
-# import schema
 import pyclibrary
 import jinja2
 
@@ -23,11 +21,7 @@ def parse_file(file: str) -> CFunction:
     functions = []
     for func_name, func_type in parsed_functions.items():
         # pyclibrary encodes return value into the `type_spec` variable.
-        # Also, parsed types are basically tuples where the seperate "parts" of the type are
-        # elements of the tuple.
-        # Ex. uint8_t* -> ("uint8_t", "*"")
-        # So join each type to get the C syntax equivalent.
-        ret_val = "".join(func_type.type_spec)
+        return_type = parse_type(func_type.type_spec)
 
         # pyclibrary encodes parameters into the `declarators` variable, as a tuple of
         # 3-tuples of the form:
@@ -35,15 +29,27 @@ def parse_file(file: str) -> CFunction:
         # (don't ask me why, this is dumb)
         param_types = []
         for _, param_type, _ in func_type.declarators[0]:
-            # Again, join type tuple.
-            param_type = "".join(param_type)
-            param_types.append(param_type)
+            param_types.append(parse_type(param_type))
+
+        if len(param_types) == 1 and param_types[0] == "void":
+            param_types.clear()
 
         functions.append(
-            CFunction(name=func_name, return_type=ret_val, param_types=param_types)
+            CFunction(name=func_name, return_type=return_type, param_types=param_types)
         )
 
     return functions
+
+
+def parse_type(type: pyclibrary.c_parser.Type) -> str:
+    # `pyclibrary` parsed types are basically tuples where the seperate "parts" of the type are
+    # elements of the tuple.
+    # Ex. uint8_t* -> ("uint8_t", "*"")
+    # So join each type to get the C syntax equivalent.
+    # Similarly, qualifiers are stored in the `type_quals` variable.
+    qualifiers = "".join(type.type_quals[0])
+    types = "".join(type)
+    return f"{qualifiers} {types}" if qualifiers != "" else types
 
 
 def generate_output(
@@ -75,6 +81,7 @@ def generate_output(
 
         data = {
             "name": function.name,
+            "return_type": function.return_type,
             "params": [
                 {
                     "type": param_type,

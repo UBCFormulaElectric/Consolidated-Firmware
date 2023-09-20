@@ -1,19 +1,30 @@
+{%- set func_return_value = name + "_return_value" -%}
 {%- set func_call_count = name + "_call_count" -%}
 
 // 
 //  Fakes for: {{ name }}
 //
 
+static {{ return_type }} {{ func_return_value }};
 static uint32_t {{ func_call_count }};
 
 extern "C" 
 {
     // Faked void function with no params.
-    void {{ name }}(void)
+    {{ return_type }} {{ name }}(void)
     {
         // Increment call count.
         {{ func_call_count }}++;
+
+        // Return custom return value.
+        return {{ func_return_value }};
     }
+}
+
+// Function to set the return value.
+void fake_{{ name }}_return({{return_type}} return_value)
+{
+    {{ func_return_value }} = return_value;
 }
 
 // Function to reset call count.

@@ -1,6 +1,10 @@
-#include "{{ module }}.h"
 #include "fake_{{ module }}.hpp"
 #include <unordered_map>
+
+extern "C"
+{
+#include "{{ module }}.h"
+}
 
 using namespace std;
 

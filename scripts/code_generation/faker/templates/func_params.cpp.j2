@@ -1,4 +1,5 @@
 {%- set params_cls = name + "_Params" -%}
+{%- set return_value_map = name + "_return_value_map" -%}
 {%- set call_count_map = name + "_call_count_map" -%}
 
 // 
@@ -53,12 +54,13 @@ struct std::hash<{{ params_cls }}>
 };
 
 // State variables.
+static unordered_map<{{ params_cls }}, {{ return_type }}> {{ return_value_map }};
 static unordered_map<{{ params_cls }}, uint32_t> {{ call_count_map }};
 
-extern "C" 
+extern "C"
 {
     // Faked void function with params.
-    void {{ name }}(
+    {{ return_type }} {{ name }}(
     {%- for param in params %}
         {{ param.type }} {{ param.name }}
         {%- if not loop.last %}, {% endif %}
@@ -80,6 +82,14 @@ extern "C"
         else {
             {{ call_count_map }}[params] = 1;
         }
+
+        // Return custom return value.
+        if({{ return_value_map }}.count(params)) {
+            return {{ return_value_map }}[params];
+        }
+        else {
+            return ({{ return_type }})0U;
+        }
     }
 }
 
@@ -87,6 +97,27 @@ extern "C"
 void fake_{{ name }}_reset() 
 {
     {{ call_count_map }}.clear();
+}
+
+// Function to set the return value.
+void fake_{{ name }}_returnForArgs(
+{%- for param in params %}
+    {{ param.type }} {{ param.name }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %},
+    {{ return_type }} return_value
+)
+{
+    // Create an instance of this function's parameters.
+    {{ name }}_Params params(
+{%- for param in params %}
+        {{ param.name }}
+        {%- if not loop.last %}, {% endif %}
+{%- endfor %}
+    );
+
+    // Update return value map.
+    {{ return_value_map }}[params] = return_value;
 }
 
 // Function to get the fake's call count.
