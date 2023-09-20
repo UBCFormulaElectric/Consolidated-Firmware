@@ -83,7 +83,7 @@ apt update && apt install git-lfs
 git lfs install
 
 # Clone repo and update submodules.
-git clone <repo link>
+git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
 cd Consolidated-Firmware
 git submodule update --init --recursive
 git lfs pull
