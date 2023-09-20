@@ -133,6 +133,15 @@ git config --global --add safe.directory /root/Consolidated-Firmware
 
 (It should prompt you to do this)
 
+### Saving a Git Token
+
+If you would like the terminal to stop prompting you for Username and Password when pushing to the repo (since we are not using ssh) use the following commands once you have a git token. Note, that this will mean your token is stored unencrypted.
+
+```sh
+git config credential.helper store
+git push
+#Paste your token for both Username and Password and it should not ask when pushing again.
+```
 ### Closing the Container
 
 When you're finished developing and want to stop the container, run this from the repo root:
