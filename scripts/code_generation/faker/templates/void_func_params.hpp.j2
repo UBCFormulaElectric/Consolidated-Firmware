@@ -1,0 +1,11 @@
+// 
+//  Fakes for: {{ name }}
+//
+
+void fake_{{ name }}_reset(void);
+uint32_t fake_{{ name }}_callCountForArgs(
+{%- for param in params %}
+    {{ param.type }} {{ param.name }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}
+);

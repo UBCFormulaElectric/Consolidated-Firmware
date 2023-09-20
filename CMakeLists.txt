@@ -74,4 +74,4 @@ if("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-add_subdirectory(firmware   )
+add_subdirectory(firmware)

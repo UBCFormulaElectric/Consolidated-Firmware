@@ -236,6 +236,40 @@ Building ${BIN_FILE}
 Building ${ASM_FILE}")
 endfunction()
 
+function(create_fake_library
+    LIBRARY_NAME
+    HDRS_TO_FAKE
+)
+    file(GLOB_RECURSE FAKER_SRCS
+        ${SCRIPTS_DIR}/code_generation/faker/*.py
+        ${SCRIPTS_DIR}/code_generation/faker/*.j2
+    )
+    foreach(HDR_TO_FAKE ${HDRS_TO_FAKE})
+        get_filename_component(HDR_MODULE_NAME ${HDR_TO_FAKE} NAME_WE)
+        get_filename_component(HDR_DIR ${HDR_TO_FAKE} DIRECTORY)
+        set(FAKE_HDR "${CMAKE_CURRENT_BINARY_DIR}/fake_${HDR_MODULE_NAME}.hpp")
+        set(FAKE_SRC "${CMAKE_CURRENT_BINARY_DIR}/fake_${HDR_MODULE_NAME}.cpp")
+        list(APPEND FAKE_HDRS ${FAKE_HDR})
+        list(APPEND FAKE_SRCS ${FAKE_SRC})
+        add_custom_command(
+            OUTPUT ${FAKE_HDR} ${FAKE_SRC}
+            COMMAND ${PYTHON_CMD} 
+            ${SCRIPTS_DIR}/code_generation/faker/generate_fake.py
+            --header ${HDR_TO_FAKE}
+            --output-header ${FAKE_HDR}
+            --output-source ${FAKE_SRC}
+            WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
+            DEPENDS ${FAKER_SRCS}
+        )
+    endforeach()
+    add_library(${LIBRARY_NAME} STATIC ${FAKE_SRCS})
+    target_include_directories(${LIBRARY_NAME}
+        PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${HDR_DIR}
+    )
+endfunction()
+
 function(compile_googletest_executable
     BOARD_NAME
     TEST_SRCS
@@ -269,7 +303,7 @@ function(compile_googletest_executable
         -Werror
         -g3
     )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main shared_fakes)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
         COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()

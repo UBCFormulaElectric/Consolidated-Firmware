@@ -1,0 +1,11 @@
+#include "{{ module }}.h"
+#include "fake_{{ module }}.hpp"
+#include <unordered_map>
+
+using namespace std;
+
+{% for definition in definitions -%}
+
+{{ definition }}
+
+{% endfor %}

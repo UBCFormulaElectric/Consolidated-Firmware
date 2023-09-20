@@ -18,6 +18,8 @@ extern "C"
 #include "io_led.h"
 }
 
+#include "fake_io_led.hpp"
+
 namespace StateMachineTest
 {
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
@@ -71,11 +73,6 @@ FAKE_VOID_FUNC(turn_pdm_status_led_red);
 FAKE_VOID_FUNC(turn_pdm_status_led_green);
 FAKE_VOID_FUNC(turn_pdm_status_led_blue);
 FAKE_VOID_FUNC(turn_off_pdm_status_led);
-
-extern "C"
-{
-    FAKE_VOID_FUNC(io_led_enable, const BinaryLed *, bool);
-}
 
 class DimStateMachineTest : public BaseStateMachineTest
 {
@@ -186,7 +183,9 @@ class DimStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_pdm_status_led_green);
         RESET_FAKE(turn_pdm_status_led_blue);
         RESET_FAKE(turn_off_pdm_status_led);
-        RESET_FAKE(io_led_enable);
+
+        // Reset fakes
+        fake_io_led_enable_reset();
     }
 
     void TearDown() override
