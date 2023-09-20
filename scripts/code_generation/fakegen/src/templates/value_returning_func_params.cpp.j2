@@ -4,7 +4,7 @@
 {%- set call_count_map = name + "_call_count_map" -%}
 
 // 
-//  Fakes for: {{ name }}
+// Fakes for: {{ name }}
 //
 
 // Class representing the parameters for the function being faked.
@@ -61,7 +61,6 @@ static unordered_map<{{ params_cls }}, uint32_t> {{ call_count_map }};
 
 extern "C"
 {
-    // Faked void function with params.
     {{ return_type }} {{ name }}(
     {%- for param in params %}
         {{ param.type }} {{ param.name }}
@@ -98,7 +97,6 @@ extern "C"
     }
 }
 
-// Function to reset call count.
 void fake_{{ name }}_reset() 
 {
     {{ return_value_map }}.clear();
@@ -106,7 +104,6 @@ void fake_{{ name }}_reset()
     {{ call_count_map }}.clear();
 }
 
-// Function to set the return value.
 void fake_{{ name }}_returnsForArgs(
 {%- for param in params %}
     {{ param.type }} {{ param.name }}
@@ -127,13 +124,11 @@ void fake_{{ name }}_returnsForArgs(
     {{ return_value_map }}[params] = return_value;
 }
 
-// Function to get the fake's call count.
 uint32_t fake_{{ name }}_callCount(void)
 {
     return {{ func_call_count }};
 }
 
-// Function to get the fake's call count, by arguments.
 uint32_t fake_{{ name }}_callCountForArgs(
 {%- for param in params %}
     {{ param.type }} {{ param.name }}

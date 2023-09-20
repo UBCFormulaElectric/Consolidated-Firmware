@@ -1,7 +1,18 @@
 // 
-//  Fakes for: {{ name }}
+// Fakes for: {{ name }}
 //
 
+/**
+ * Reset the fake for {{ name }}.
+ */
 void fake_{{ name }}_reset(void);
+
+/**
+ * Set the value to be returned when {{ name }} is invoked.
+ */
 void fake_{{ name }}_returns({{return_type}} return_value);
+
+/**
+ * Return the number of times {{ name }} has been invoked.
+ */
 uint32_t fake_{{ name }}_callCount(void);

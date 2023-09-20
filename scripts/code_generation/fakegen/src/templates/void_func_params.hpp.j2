@@ -1,9 +1,20 @@
 // 
-//  Fakes for: {{ name }}
+// Fakes for: {{ name }}
 //
 
+/**
+ * Reset the fake for {{ name }}.
+ */
 void fake_{{ name }}_reset(void);
+
+/**
+ * Return the number of times {{ name }} has been invoked.
+ */
 uint32_t fake_{{ name }}_callCount(void);
+
+/**
+ * Return the number of times {{ name }} has been invoked with a specific set of arguments.
+ */
 uint32_t fake_{{ name }}_callCountForArgs(
 {%- for param in params %}
     {{ param.type }} {{ param.name }}
