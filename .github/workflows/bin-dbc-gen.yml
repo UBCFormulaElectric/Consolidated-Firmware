@@ -12,6 +12,7 @@ jobs:
   make-release:
     name: Add Binaries and DBC to Release Tab
     runs-on: ubuntu-22.04
+    needs: build
     steps:
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v2
