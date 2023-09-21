@@ -2,7 +2,6 @@
 
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
-#include "App_SevenSegDisplays.h"
 #include "App_SharedExitCode.h"
 
 typedef enum

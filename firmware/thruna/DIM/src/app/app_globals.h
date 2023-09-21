@@ -1,8 +1,8 @@
 #pragma once
 
 #include "io_led.h"
-#include "dev_switch.h"
-#include "dev_rgbLed.h"
+#include "io_switch.h"
+#include "io_rgbLed.h"
 
 typedef struct
 {

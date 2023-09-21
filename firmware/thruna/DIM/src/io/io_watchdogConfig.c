@@ -1,4 +1,4 @@
-#include "dev_watchdogConfig.h"
+#include "io_watchdogConfig.h"
 #include <stm32f4xx.h>
 #include <string.h>
 #include "App_CanAlerts.h"
@@ -8,12 +8,12 @@
 
 extern IWDG_HandleTypeDef hiwdg;
 
-void dev_watchdogConfig_refresh(void)
+void io_watchdogConfig_refresh(void)
 {
     HAL_IWDG_Refresh(&hiwdg);
 }
 
-void dev_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t watchdog)
+void io_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 

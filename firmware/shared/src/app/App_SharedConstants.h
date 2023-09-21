@@ -35,7 +35,6 @@ typedef enum
     NUM_HEX_DIGITS,
 } HexDigit;
 
-
 static_assert(HEX_DIGIT_0 == 0, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_1 == 1, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_2 == 2, "Hex enum must match its numeric value.");

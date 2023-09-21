@@ -44,11 +44,11 @@
 #include "Io_SharedHeartbeatMonitor.h"
 
 #include "io_led.h"
-#include "dev_switch.h"
-#include "dev_rgbLed.h"
-#include "dev_watchdogConfig.h"
-#include "dev_stackWaterMark.h"
-#include "dev_sevenSegDisplays.h"
+#include "io_switch.h"
+#include "io_rgbLed.h"
+#include "io_watchdogConfig.h"
+#include "io_stackWaterMark.h"
+#include "io_sevenSegDisplays.h"
 
 #include "hw_gpio.h"
 #include "hw_time.h"
@@ -303,21 +303,14 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
-<<<<<<< HEAD
-    // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
-    //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
-
-=======
->>>>>>> 2b062df5 (refactor dim io layer)
     Io_SharedHardFaultHandler_Init();
-    Io_SharedSoftwareWatchdog_Init(dev_watchdogConfig_refresh, dev_watchdogConfig_timeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
-    dev_sevenSegDisplays_init(&seven_segs_config);
+    io_sevenSegDisplays_init(&seven_segs_config);
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -780,7 +773,7 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        dev_stackWaterMark_check();
+        io_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();

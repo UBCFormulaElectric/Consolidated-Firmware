@@ -6,7 +6,7 @@
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
 #include "io_led.h"
-#include "dev_switch.h"
+#include "io_switch.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
@@ -41,8 +41,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool in_drive_state = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
     io_led_enable(globals->config->drive_led, in_drive_state);
 
-    const bool start_switch_on = dev_switch_isClosed(globals->config->start_switch);
-    const bool aux_switch_on   = dev_switch_isClosed(globals->config->aux_switch);
+    const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
+    const bool aux_switch_on   = io_switch_isClosed(globals->config->aux_switch);
 
     App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
 
@@ -67,17 +67,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
-            dev_rgbLed_enable(board_status_led, true, false, false);
+            io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            dev_rgbLed_enable(board_status_led, false, false, true);
+            io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
         {
             // Turn green.
-            dev_rgbLed_enable(board_status_led, false, true, false);
+            io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
 

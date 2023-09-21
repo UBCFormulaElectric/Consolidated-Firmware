@@ -55,6 +55,13 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS
     "test"
 )
 
+if("${PLATFORM}" STREQUAL "x86")
+    create_fake_library(
+        "DIM_fakes"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
+    )
+endif()
+
 create_arm_binary_or_tests_for_board(
     "DIM"
     "${IOC_FILE}"

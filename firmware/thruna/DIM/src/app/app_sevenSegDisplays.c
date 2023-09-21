@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
-#include "dev_sevenSegDisplays.h"
+#include "io_sevenSegDisplays.h"
 
 static float getScalingFactor(float value)
 {
@@ -67,11 +67,11 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
         value /= 10;
 
         // Write digit value.
-        dev_sevenSegDisplays_setValue(
+        io_sevenSegDisplays_setValue(
             group, (SevenSegSubposition)digit_subposition, (HexDigit)digit_value, enable_decimal_point);
     }
 
     // Shift out all commands to 7-segs.
-    dev_sevenSegDisplays_writeCommands();
+    io_sevenSegDisplays_writeCommands();
     return true;
 }

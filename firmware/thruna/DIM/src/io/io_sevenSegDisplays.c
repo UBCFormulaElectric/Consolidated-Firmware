@@ -1,4 +1,4 @@
-#include "dev_sevenSegDisplays.h"
+#include "io_sevenSegDisplays.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
@@ -38,7 +38,7 @@ static const CommandLookupTable command_lookup_table =
 static const SevenSegsConfig *config;
 static uint8_t                commands[NUM_SEVEN_SEGS];
 
-void dev_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
+void io_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
 {
     config = seven_segs_config;
     memset(commands, 0U, sizeof(commands));
@@ -53,7 +53,7 @@ void dev_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
     hw_gpio_writePin(&config->dimming_gpio, false);
 }
 
-void dev_sevenSegDisplays_writeCommands(void)
+void io_sevenSegDisplays_writeCommands(void)
 {
     // The 7-segment displays are daisy-chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
@@ -81,7 +81,7 @@ void dev_sevenSegDisplays_writeCommands(void)
     hw_gpio_writePin(&config->rck_gpio, false);
 }
 
-void dev_sevenSegDisplays_setValue(
+void io_sevenSegDisplays_setValue(
     SevenSegGroup       group,
     SevenSegSubposition subposition,
     HexDigit            digit,
@@ -100,7 +100,7 @@ void dev_sevenSegDisplays_setValue(
     commands[index] = command_value;
 }
 
-void dev_sevenSegDisplays_disable(SevenSegGroup group, SevenSegSubposition subposition)
+void io_sevenSegDisplays_disable(SevenSegGroup group, SevenSegSubposition subposition)
 {
     int index       = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
     commands[index] = command_lookup_table.disable;

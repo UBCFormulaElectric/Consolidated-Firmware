@@ -19,4 +19,4 @@ typedef struct
  * @param binary_switch Binary switch instance.
  * @return True if the switch is turned on, else false.
  */
-bool dev_switch_isClosed(const Switch *binary_switch);
+bool io_switch_isClosed(const Switch *binary_switch);
