@@ -10,6 +10,8 @@ jobs:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
+    with:
+      upload_artifact: true
   generate-dbc:
     name: Generate CAN DBC file
     runs-on: ubuntu-22.04
@@ -21,14 +23,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
+        with: # TODO check if submodules are required (can be optimized away)
           submodules: recursive
       - name: Generate DBC
         run: |
-          python3 .\scripts\code_generation\jsoncan\generate_can_from_json.py
+          python3 scripts/code_generation/jsoncan/generate_can_from_json.py
             --only_dbc
-            --can_data_dir "./can_bus/json"
-            --dbc_output "./can_bus/dbcs/CanMsgs.dbc"
+            --can_data_dir can_bus/json
+            --dbc_output can_bus/dbcs/CanMsgs.dbc
       - name: Upload DBC to Artifact
         uses: actions/upload-artifact@v2
         with:

@@ -3,6 +3,11 @@ on:
     secrets:
       docker_token:
         required: true
+    inputs:
+      upload_artifact:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-firmware-thruna:
@@ -40,6 +45,7 @@ jobs:
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
+        if: ${{ inputs.upload_artifact }}
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.board }}.elf
