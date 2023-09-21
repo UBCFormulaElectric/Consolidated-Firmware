@@ -3,10 +3,6 @@ on:
     secrets:
       docker_token:
         required: true
-    inputs:
-      make-release:
-        required: true
-        type: boolean
 
 jobs:
   build-firmware-thruna:
@@ -52,21 +48,3 @@ jobs:
         with:
           name: ${{ matrix.board }}.elf
           path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
-
-      - name: Release
-        if: ${{ inputs.make-release }}
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
-          tag: ${{ github.sha }}
-          files: |
-            ${{ env.BUILD_DIR }}/firmware/thruna/FSM/FSM.elf
-            ${{ env.BUILD_DIR }}/firmware/thruna/PDM/PDM.elf
-            ${{ env.BUILD_DIR }}/firmware/thruna/BMS/BMS.elf
-            ${{ env.BUILD_DIR }}/firmware/thruna/DCM/DCM.elf
-            ${{ env.BUILD_DIR }}/firmware/thruna/DIM/DIM.elf
-            ${{ env.BUILD_DIR }}/firmware/thruna/GSM/GSM.elf
-            can_bus/dbcs/CanMsgs.dbc
