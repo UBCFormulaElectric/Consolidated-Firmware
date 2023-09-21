@@ -16,15 +16,6 @@ jobs:
     steps:
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v2
-        with:
-          name: |
-            FSM.elf
-            BMS.elf
-            DCM.elf
-            DIM.elf
-            GSM.elf
-            PDM.elf
-            CanMsgs.dbc
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -40,4 +31,3 @@ jobs:
             DIM.elf
             GSM.elf
             PDM.elf
-            CanMsgs.dbc
