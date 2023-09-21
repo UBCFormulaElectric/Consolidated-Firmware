@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - edwinZ/bin-dbc-gen
 
 jobs:
   build:
@@ -47,6 +46,7 @@ jobs:
           automatic_release_tag: "latest"
           title: "Binaries and DBCs"
           tag: ${{ github.sha }}
+          prerelease: false
           files: |
             FSM.elf
             BMS.elf
