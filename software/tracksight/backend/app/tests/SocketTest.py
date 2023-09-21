@@ -3,7 +3,7 @@ import json
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from telemetry import app, socketio  # Replace 'your_app_file' with the actual filename of your Flask app
+from Telemetry import app, socketio  # Replace 'your_app_file' with the actual filename of your Flask app
 
 @pytest.fixture
 def client():
