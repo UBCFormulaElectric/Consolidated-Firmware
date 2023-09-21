@@ -54,7 +54,7 @@ jobs:
           path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
 
       - name: Release
-        if: make-release == 'true'
+        if: ${{ inputs.make-release }}
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
