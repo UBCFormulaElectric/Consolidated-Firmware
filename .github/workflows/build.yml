@@ -1,5 +1,8 @@
 on:
   workflow_call:
+    secrets:
+      docker_token:
+        required: true
 
 jobs:
   build-firmware-thruna:
@@ -20,7 +23,7 @@ jobs:
       image: ubcformulaelectric/environment:latest
       credentials:
         username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
+        password: ${{ secrets.docker_token }}
 
     env:
       BUILD_DIR: build_arm
