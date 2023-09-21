@@ -60,7 +60,7 @@ void io_sevenSegDisplays_writeCommands(void)
     // displays all at once. Also note that since they are daisy-chained
     // we must send out the data for the rightmost display first, so count
     // downwards.
-    for (int display = NUM_SEVEN_SEGS - 1; display >= 0; display++)
+    for (int display = NUM_SEVEN_SEGS - 1; display >= 0; display--)
     {
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
