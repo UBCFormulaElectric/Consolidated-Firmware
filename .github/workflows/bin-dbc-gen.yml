@@ -8,7 +8,7 @@ jobs:
   build:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
     secrets:
-      docker_token: ${{secret.DOCKER_TOKEN}}
+      docker_token: ${{secrets.DOCKER_TOKEN}}
   release:
     name: Build and Add to Releases
     runs-on: ubuntu-22.04
