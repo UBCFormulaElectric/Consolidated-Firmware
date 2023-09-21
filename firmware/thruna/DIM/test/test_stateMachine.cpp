@@ -22,7 +22,6 @@ extern "C"
 
 namespace StateMachineTest
 {
-
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 
 class DimStateMachineTest : public BaseStateMachineTest
@@ -92,18 +91,18 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct Clock *           clock;
     struct AvgPowerCalc *    avg_power_calc;
 
-    const BinaryLed imd_led = { };
-    const BinaryLed bspd_led = { };
-    const BinaryLed shdn_led = { };
-    const BinaryLed drive_led = { };
-    const Switch start_switch = { };
-    const Switch aux_switch = { };
-    const RgbLed bms_status_led = { };
-    const RgbLed dcm_status_led = { };
-    const RgbLed fsm_status_led = { };
-    const RgbLed pdm_status_led = { };
-    const RgbLed dim_status_led = { };
-    const SevenSegsConfig seven_segs_config = { };
+    const BinaryLed       imd_led           = {};
+    const BinaryLed       bspd_led          = {};
+    const BinaryLed       shdn_led          = {};
+    const BinaryLed       drive_led         = {};
+    const Switch          start_switch      = {};
+    const Switch          aux_switch        = {};
+    const RgbLed          bms_status_led    = {};
+    const RgbLed          dcm_status_led    = {};
+    const RgbLed          fsm_status_led    = {};
+    const RgbLed          pdm_status_led    = {};
+    const RgbLed          dim_status_led    = {};
+    const SevenSegsConfig seven_segs_config = {};
 
     const GlobalsConfig globals_config = {
         .imd_led        = &imd_led,

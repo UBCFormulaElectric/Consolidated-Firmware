@@ -330,7 +330,13 @@ function(compile_board_gtest_executable
         "${BOARD_TEST_SRCS}"
         "${BOARD_TEST_INCLUDE_DIRS}"
     )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} "shared_fakes" "${BOARD_NAME}_fakes")
+    target_link_libraries(${TEST_EXECUTABLE_NAME} "shared_fakes" )
+
+    set(BOARD_FAKE_LIBRARY "${BOARD_NAME}_fakes")
+    if(TARGET BOARD_FAKE_LIBRARY)
+        target_link_libraries(${TEST_EXECUTABLE_NAME} ${BOARD_FAKE_LIBRARY})
+    endif()
+
     add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
 endfunction()
 
