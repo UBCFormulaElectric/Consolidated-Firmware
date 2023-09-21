@@ -129,7 +129,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
-    const float accelerator_pedal_percent   = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
+    const float accelerator_pedal_percent = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
     if (missing_hb)
     {
