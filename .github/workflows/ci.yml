@@ -79,7 +79,7 @@ jobs:
   build-firmware-thruna:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
     secrets:
-      docker_token: {{secret.DOCKER_TOKEN}}
+      docker_token: ${{secret.DOCKER_TOKEN}}
 
   test-thruna:
     name: Test Thruna
