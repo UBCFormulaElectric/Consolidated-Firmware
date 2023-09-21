@@ -40,7 +40,7 @@ For more information, and to see how to update the Docker container, see our [Do
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
 [Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code search bar), which is required for connecting to Docker containers.
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -75,7 +75,10 @@ These commands are sourced from [here](https://learn.microsoft.com/en-us/windows
 
 ### Clone Repo
 
-Navigate to where you want to clone the repo and run:
+Navigate to where you want to clone the repo and run the following commands. 
+
+Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
+
 
 ```sh
 # Install Git LFS.
@@ -140,7 +143,7 @@ If you would like the terminal to stop prompting you for Username and Password w
 ```sh
 git config credential.helper store
 git push
-#Paste your token for both Username and Password and it should not ask when pushing again.
+# Paste your token for both Username and Password and it should not ask when pushing again.
 ```
 ### Closing the Container
 
