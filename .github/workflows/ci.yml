@@ -29,7 +29,6 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
@@ -75,12 +74,10 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-
   build-firmware-thruna:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
-
   test-thruna:
     name: Test Thruna
     runs-on: ubuntu-22.04

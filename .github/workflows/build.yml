@@ -24,16 +24,13 @@ jobs:
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
-
     env:
       BUILD_DIR: build_arm
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           submodules: recursive
-
       # xvfb-run is required to prefix any commands that run STM32CubeMX
       # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
       # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
@@ -41,7 +38,6 @@ jobs:
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
-
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v2
