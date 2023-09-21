@@ -43,6 +43,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
 
+#include "io_time.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
@@ -51,7 +52,6 @@
 #include "io_sevenSegDisplays.h"
 
 #include "hw_gpio.h"
-#include "hw_time.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -316,7 +316,7 @@ int main(void)
     App_CanRx_Init();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        hw_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     clock = App_SharedClock_Create();
 

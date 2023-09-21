@@ -48,6 +48,7 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 # empty string.
 if("${PLATFORM}" STREQUAL "x86")
     list(APPEND HDRS_TO_FAKE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_rgbLed.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switch.h

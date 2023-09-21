@@ -333,7 +333,7 @@ function(compile_board_gtest_executable
     target_link_libraries(${TEST_EXECUTABLE_NAME} "shared_fakes" )
 
     set(BOARD_FAKE_LIBRARY "${BOARD_NAME}_fakes")
-    if(TARGET BOARD_FAKE_LIBRARY)
+    if(TARGET ${BOARD_FAKE_LIBRARY})
         target_link_libraries(${TEST_EXECUTABLE_NAME} ${BOARD_FAKE_LIBRARY})
     endif()
 

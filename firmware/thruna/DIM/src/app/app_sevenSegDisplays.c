@@ -39,10 +39,10 @@ static SevenSegSubposition getDecimalPointSubposition(float value)
 
 void app_sevenSegDisplays_init(void)
 {
-    // Set all displays to show zero.
-    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, 0.0f);
-    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, 0.0f);
-    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, 0.0f);
+    // Turn off all displays.
+    app_sevenSegDisplays_disableGroup(SEVEN_SEG_GROUP_L);
+    app_sevenSegDisplays_disableGroup(SEVEN_SEG_GROUP_M);
+    app_sevenSegDisplays_disableGroup(SEVEN_SEG_GROUP_R);
 }
 
 bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
@@ -59,12 +59,12 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
     SevenSegSubposition decimal_subposition = getDecimalPointSubposition(value);
     int                 scaled_value        = (int)(value * scaling_factor);
 
-    for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS; digit_subposition >= 0; digit_subposition--)
+    for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS - 1; digit_subposition >= 0; digit_subposition--)
     {
         // Get digit value to show for the current index.
         int  digit_value          = scaled_value % 10;
         bool enable_decimal_point = digit_subposition == (int)decimal_subposition;
-        value /= 10;
+        scaled_value /= 10;
 
         // Write digit value.
         io_sevenSegDisplays_setValue(
@@ -74,4 +74,11 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
     // Shift out all commands to 7-segs.
     io_sevenSegDisplays_writeCommands();
     return true;
+}
+
+void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
+{
+    io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_L);
+    io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_M);
+    io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_R);
 }

@@ -1,5 +1,11 @@
-#include "test_dim.h"
+#include <gtest/gtest.h>
+#include "Test_Utils.h"
 #include "Test_BaseStateMachineTest.h"
+
+#include "fake_io_time.hpp"
+#include "fake_io_led.hpp"
+#include "fake_io_rgbLed.hpp"
+#include "fake_io_switch.hpp"
 
 extern "C"
 {
@@ -16,14 +22,6 @@ extern "C"
 #include "app_globals.h"
 }
 
-#include "fake_io_led.hpp"
-#include "fake_io_rgbLed.hpp"
-#include "fake_io_switch.hpp"
-
-namespace StateMachineTest
-{
-FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-
 class DimStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -35,7 +33,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         App_CanRx_Init();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         clock = App_SharedClock_Create();
 
@@ -58,6 +56,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(avg_power_calc, App_AvgPowerCalc_Destroy);
 
         // Reset fakes.
+        fake_io_time_getCurrentMs_reset();
         fake_io_led_enable_reset();
         fake_io_rgbLed_enable_reset();
         fake_io_rgbLed_disable_reset();
@@ -310,5 +309,3 @@ TEST_F(DimStateMachineTest, avg_power_calc_resets_with_switch)
     test_val = App_AvgPowerCalc_Update(avg_power_calc, 78.9);
     ASSERT_EQ(test_val, 0);
 }
-
-} // namespace StateMachineTest

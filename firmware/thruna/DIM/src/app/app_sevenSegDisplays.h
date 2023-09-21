@@ -15,3 +15,9 @@ void app_sevenSegDisplays_init(void);
  * @return True if number could be written successfully, else false.
  */
 bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value);
+
+/**
+ * Disable the specified group (turn off).
+ * @param group The group to disable.
+ */
+void app_sevenSegDisplays_disableGroup(SevenSegGroup group);
