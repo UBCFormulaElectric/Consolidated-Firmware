@@ -60,9 +60,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitchOn();
 
-    if (torque_vectoring_switch_is_on) {
+    if (torque_vectoring_switch_is_on)
+    {
         App_TorqueVectoring_Setup();
-    } 
+    }
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -76,10 +77,10 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         if (torque_vectoring_switch_is_on)
         {
-            App_TorqueVectoring_Setup();
+            App_TorqueVectoring_Run();
         }
         else
-        { 
+        {
             App_SetPeriodicCanSignals_TorqueRequests();
         }
 
