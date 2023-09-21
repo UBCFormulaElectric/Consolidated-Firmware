@@ -28,7 +28,7 @@
 
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
-#include "states/App_DriveState.h"
+#include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -316,7 +316,7 @@ int main(void)
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine = App_SharedStateMachine_Create(NULL, app_getDriveState());
+    state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
 
     app_sevenSegDisplays_init();
     app_avgPower_init();

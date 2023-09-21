@@ -1,5 +1,5 @@
 #include <string.h>
-#include "states/App_DriveState.h"
+#include "states/app_driveState.h"
 #include <stdlib.h>
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -120,7 +120,7 @@ static void driveStateRunOnExit(struct StateMachine *const state_machine)
     UNUSED(state_machine);
 }
 
-const struct State *app_getDriveState(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",

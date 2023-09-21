@@ -9,15 +9,17 @@
 
 extern "C"
 {
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedStateMachine.h"
 #include "app_sevenSegDisplays.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_AvgPower.h"
+#include "app_avgPower.h"
 #include "App_CanUtils.h"
 #include "App_SharedMacros.h"
-#include "states/App_DriveState.h"
-#include "configs/App_RotarySwitchConfig.h"
+#include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_globals.h"
 }
@@ -34,26 +36,18 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
 
-        clock = App_SharedClock_Create();
-
-        avg_power_calc = App_AvgPowerCalc_Create();
-
-        world = App_DimWorld_Create(heartbeat_monitor, clock, avg_power_calc);
-
-        state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-
+        app_avgPower_init();
         app_sevenSegDisplays_init();
         app_globals_init(&globals_config);
+        globals->heartbeat_monitor = heartbeat_monitor;
     }
 
     void TearDown() override
     {
-        TearDownObject(world, App_DimWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-        TearDownObject(clock, App_SharedClock_Destroy);
-        TearDownObject(avg_power_calc, App_AvgPowerCalc_Destroy);
 
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
@@ -63,32 +57,8 @@ class DimStateMachineTest : public BaseStateMachineTest
         fake_io_switch_isClosed_reset();
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
-    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
-    {
-        struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *   clock = App_DimWorld_GetClock(world);
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
-    }
-
-    void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
-    {
-        // DIM doesn't use any signals currently
-        UNUSED(state_machine);
-        UNUSED(current_time_ms);
-    }
-
-    struct DimWorld *        world;
     struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
-    struct Clock *           clock;
-    struct AvgPowerCalc *    avg_power_calc;
 
     const BinaryLed       imd_led           = {};
     const BinaryLed       bspd_led          = {};
@@ -120,8 +90,6 @@ class DimStateMachineTest : public BaseStateMachineTest
 
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
-    SetInitialState(App_GetDriveState());
-
     EXPECT_EQ(DIM_STATE_DRIVE, App_CanTx_DIM_Vitals_State_Get());
 }
 
@@ -300,12 +268,12 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
 
 TEST_F(DimStateMachineTest, avg_power_calc_resets_with_switch)
 {
-    App_AvgPowerCalc_Enable(avg_power_calc, true);
-    float test_val = App_AvgPowerCalc_Update(avg_power_calc, 45.6);
+    app_avgPower_enable(true);
+    float test_val = app_avgPower_update(45.6);
     float avg      = 45.6f;
     ASSERT_EQ(test_val, avg);
 
-    App_AvgPowerCalc_Enable(avg_power_calc, false);
-    test_val = App_AvgPowerCalc_Update(avg_power_calc, 78.9);
+    app_avgPower_enable(false);
+    test_val = app_avgPower_update(78.9);
     ASSERT_EQ(test_val, 0);
 }

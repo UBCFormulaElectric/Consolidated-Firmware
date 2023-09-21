@@ -4,6 +4,7 @@
 
 extern "C"
 {
+#include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 }
 
@@ -40,9 +41,17 @@ class BaseStateMachineTest : public testing::Test
         current_time_ms = 1;
     }
 
-    virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) = 0;
+    virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms)
+    {
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
+    }
 
-    virtual void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) = 0;
+    virtual void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms)
+    {
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
+    }
 
     void LetTimePass(struct StateMachine *state_machine, uint32_t time_ms)
     {
