@@ -5,7 +5,7 @@ docker compose up --detach
 # (which is the case in the dev container, since the container is run as the root user).
 # After bringing up the container and invoking git, you'll see something like: 
 #
-# git config --global --add safe.directory /root/Consolidated-Firmware
+# fatal: detected dubious ownership in repository at '/root/Consolidated-Firmware'
 # To add an exception for this directory, call:
 #
 #         git config --global --add safe.directory /root/Consolidated-Firmware
