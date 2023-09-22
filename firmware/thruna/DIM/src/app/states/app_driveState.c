@@ -93,8 +93,6 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                            (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
                           2;
     const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
-    //    float gate_temp = App_CanRx_INVR_Temperatures1_GateDriverBoardTemperature_Get();
-    //    float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     const float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() *
                                 App_CanRx_BMS_TractiveSystem_TsCurrent_Get() / 1000.0f; // instant kW
