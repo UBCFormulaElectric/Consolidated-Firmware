@@ -5,6 +5,7 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "App_Soc.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -92,7 +93,7 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
     App_CanTx_BMS_AvailablePower_AvailablePower_Set(available_power);
 }
 
-void App_AllStates_Init()
+void App_AllStates_Init(void)
 {
     // Reset accumulator settle count
     acc_meas_settle_count = 0U;
@@ -103,11 +104,17 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
     struct RgbLedSequence *rgb_led_sequence = App_BmsWorld_GetRgbLedSequence(world);
     struct Charger *       charger          = App_BmsWorld_GetCharger(world);
+    struct Eeprom *        eeprom           = App_BmsWorld_GetEeprom(world);
+    struct SocStats *      soc_stats        = App_BmsWorld_GetSocStats(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
+
+    const float    min_soc  = App_SocStats_GetMinSoc(soc_stats);
+    const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
+    App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -119,6 +126,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *        bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Airs *            airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
+    struct SocStats *        soc_stats   = App_BmsWorld_GetSocStats(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
@@ -180,4 +188,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     return status;
+}
+
+void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
+{
+    struct BmsWorld *      world     = App_SharedStateMachine_GetWorld(state_machine);
+    struct TractiveSystem *ts        = App_BmsWorld_GetTractiveSystem(world);
+    struct SocStats *      soc_stats = App_BmsWorld_GetSocStats(world);
+    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), (float)TASK_1KHZ_PERIOD_S);
 }

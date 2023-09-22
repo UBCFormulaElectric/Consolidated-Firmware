@@ -1,6 +1,20 @@
 #pragma once
 
 #include "App_SharedExitCode.h"
+#include "App_Accumulator.h"
+
+struct SocStats
+{
+    // Address in EEPROM where SOC is being stored (address changes for wear levelling reasons, address always stored in
+    // address 0 of EEPROM)
+    uint16_t soc_address;
+
+    // charge in cell in coulombs
+    double charge_c;
+
+    // Charge loss at time t-1
+    float prev_current_A;
+};
 
 /**
  * Given three state-of-charge (SoCs), check whether the absolute difference
@@ -37,3 +51,50 @@
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+/**
+ * Create the SocStats object
+ * @return struct SocStats pointer to object
+ */
+struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_address, struct Accumulator *accumulator);
+
+/**
+ * Destroy the SocStats object
+ */
+void App_SocStats_Destroy(struct SocStats *soc_stats);
+
+/**
+ * Return the active address on the EEPROM where SOC values are being stored
+ * @param soc_stats soc_stats object to retrieve address from
+ * @return page being used to store SOC values
+ */
+uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
+
+/**
+ * Update the state of charge of all series elements using coulomb counting.
+ * @param soc_stats The charge stats of the pack
+ * @param current The current from the cell to be updated (- is out of the cell, + is into the cell)
+ * @param time_step_s The time elapsed since the last update in seconds.
+ */
+void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
+
+/**
+ * return the coulomb count of the SE with the lowest SOC
+ * @param soc_stats The charge stats of the pack
+ * @return coulomb count of the SE with the lowest SOC
+ */
+float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
+
+/**
+ * Get the minimum series element open circuit voltage approximation given current pack SOC status
+ * @param soc_stats current SOC of each series element in pack
+ * @return float minimum series element open circuit voltage approximation
+ */
+float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
+
+/**
+ * Compute a estimate SOC for each cell based on cell voltages
+ * @param soc_stats object to write SOC stats to
+ * @param accumulator accumulator cell information
+ */
+void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator);

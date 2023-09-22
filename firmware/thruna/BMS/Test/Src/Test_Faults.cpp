@@ -52,6 +52,8 @@ FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, u
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
+static float saved_soc = 100.0f;
+
 static bool
     write_cfg_registers(bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
@@ -136,8 +138,10 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDRESS, accumulator);
+
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
@@ -195,6 +199,7 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -242,6 +247,7 @@ class BmsFaultTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
