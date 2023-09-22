@@ -11,6 +11,7 @@ services:
       # Forward USB connections.
       - /dev/bus/usb:/dev/bus/usb
       # Forward git credentials.
+      # NOTE: VS Code claims to do this out-of-the-box, but it mysteriously stopped working for me.
       - ~/.gitconfig:/etc/gitconfig
     environment:
       # DISPLAY must be set for GUI forwarding to work.
