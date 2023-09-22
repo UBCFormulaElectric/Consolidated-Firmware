@@ -3,7 +3,7 @@ import json
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from telemetry import app, socketio  # Replace 'your_app_file' with the actual filename of your Flask app
+from Telemetry import app, socketio  # Replace 'your_app_file' with the actual filename of your Flask app
 
 @pytest.fixture
 def client():
@@ -32,9 +32,6 @@ def test_socketio_message(client):
 def test_get_signals(client):
     _, socket_client = client
     req = '{"ids": ["Signal1"]}'
-    print(req, type(req))
-    x = json.loads(req)
-    print("here", x)
     socket_client.emit('signals', json.loads(req))
     events = socket_client.get_received()
     print(events)
