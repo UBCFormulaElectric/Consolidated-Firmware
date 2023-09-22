@@ -134,3 +134,8 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
     // Divide by 1000 for mA to A conversion
     soc_stats->charge_c = energy_lookup[lut_index] / 1000;
 }
+
+void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
+{
+    soc_stats->charge_c = (soc_percent / 100.0f) * SERIES_ELEMENT_FULL_CHARGE_C;
+}

@@ -93,8 +93,15 @@ float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
 
 /**
- * Compute a estimate SOC for each cell based on cell voltages
+ * Reset SOC value based on current minimum cell voltage
  * @param soc_stats object to write SOC stats to
  * @param accumulator accumulator cell information
  */
 void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator);
+
+/**
+ * Reset SOC value with custom input
+ * @param soc_stats object to write SOC stats to
+ * @param soc_percent desired SOC in percent
+ */
+void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent);
