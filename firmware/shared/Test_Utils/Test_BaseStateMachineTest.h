@@ -58,6 +58,8 @@ class BaseStateMachineTest : public testing::Test
                 App_SharedStateMachine_Tick100Hz(state_machine);
             }
 
+            App_SharedStateMachine_Tick1kHz(state_machine);
+
             UpdateSignals(state_machine, current_time_ms);
             UpdateClock(state_machine, current_time_ms);
             current_time_ms++;

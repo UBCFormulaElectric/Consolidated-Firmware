@@ -52,7 +52,7 @@ const struct State *App_GetBalancingState(void)
         .run_on_entry      = BalancingStateRunOnEntry,
         .run_on_tick_1Hz   = BalancingStateRunOnTick1Hz,
         .run_on_tick_100Hz = BalancingStateRunOnTick100Hz,
-        .run_on_tick_1kHz   = BalancingStateRunOnTick1kHz,
+        .run_on_tick_1kHz  = BalancingStateRunOnTick1kHz,
         .run_on_exit       = BalancingStateRunOnExit,
     };
 

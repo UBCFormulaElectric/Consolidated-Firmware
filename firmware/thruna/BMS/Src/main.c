@@ -280,7 +280,7 @@ int main(void)
     else
     {
         // If address corrupted, revert to default SOC address location
-        soc_address = DEFAULT_SOC_ADDRESS;
+        soc_address = DEFAULT_SOC_ADDR;
     }
 
     // Update the active address that SOC is stored at

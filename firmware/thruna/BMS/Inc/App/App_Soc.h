@@ -79,9 +79,9 @@ uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
 
 /**
- * return the coulomb count of the SE with the lowest SOC
+ * return percent SOC of the SE with the lowest SOC
  * @param soc_stats The charge stats of the pack
- * @return coulomb count of the SE with the lowest SOC
+ * @return soc % of lowest SOC SE
  */
 float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
 

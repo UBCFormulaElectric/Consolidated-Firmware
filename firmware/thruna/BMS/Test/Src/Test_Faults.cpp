@@ -138,7 +138,7 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
-        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDRESS, accumulator);
+        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDR, accumulator);
 
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,

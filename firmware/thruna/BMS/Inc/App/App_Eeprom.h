@@ -97,4 +97,5 @@ EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc
  * @param address
  * @param min_soc
  * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
- 
+ */
+ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *min_soc);

@@ -58,6 +58,11 @@ FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, u
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
+#define STATE_OF_HEALTH (1.0f)
+#define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
+
+static double saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
+
 static bool
     write_cfg_registers(bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
@@ -110,6 +115,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
+        saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
+
         imd =
             App_Imd_Create(get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
@@ -132,6 +139,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
             disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
             thermistor_mux_select, read_thermistor_temp);
 
+        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDR, accumulator);
+
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
         ts = App_TractiveSystem_Create(get_ts_voltage, get_high_res_current, get_low_res_current);
@@ -143,7 +152,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
@@ -220,6 +229,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -297,13 +307,14 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
     struct Clock *            clock;
     struct Eeprom *           eeprom;
 };
-
+#include <assert.h>
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
@@ -947,6 +958,22 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
         }
     }
+}
+
+TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
+{
+    saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
+
+    is_air_negative_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = -21.24f;
+    get_high_res_current_fake.return_val   = -21.24f;
+    SetInitialState(App_GetDriveState());
+    soc_stats->prev_current_A = -21.24f;
+
+    LetTimePass(state_machine, 30000);
+
+    float soc = App_SocStats_GetMinSoc(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 99.0f);
 }
 
 } // namespace StateMachineTest

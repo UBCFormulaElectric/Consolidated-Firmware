@@ -335,5 +335,18 @@
                 "unit": "degC"
             }
         }
+    },
+    "BMS_Soc": {
+        "msg_id": 122,
+        "cycle_time": 100,
+        "description": "BMS State of Charge",
+        "signals": {
+            "Soc": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
     }
 }

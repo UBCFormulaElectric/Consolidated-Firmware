@@ -8,7 +8,7 @@ extern "C"
 
 TEST(VoltageSenseTest, tractive_system_voltage_calculation)
 {
-    float integral = 0.0f;
+    double integral = 0.0f;
     float prev_fx  = 0.0f;
 
     // A vector between 0 and 2pi, in pi/4 increments

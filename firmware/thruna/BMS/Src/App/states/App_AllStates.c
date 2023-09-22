@@ -151,6 +151,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
+    App_CanTx_BMS_Soc_Soc_Set(App_SocStats_GetMinSoc(soc_stats));
     App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
