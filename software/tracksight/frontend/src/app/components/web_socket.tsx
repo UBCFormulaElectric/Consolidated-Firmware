@@ -4,6 +4,12 @@ import { useEffect, useState, React } from 'react';
 
 const WebSocketComponent = (props) => {
 
+    useEffect(() => {
+        props.socket.on("available_signals_response", (data) => {
+            props.set_available_signals(JSON.parse(data));
+        });
+    }, [props.socket]);
+
     const handleSubmit = () => {
         props.socket.emit("signals", {"ids": ["Signal1"]});
     };
