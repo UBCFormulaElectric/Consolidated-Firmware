@@ -13,7 +13,6 @@ A repository for all software and firmware from UBC Formula Electric.
     - [Clone Repo](#clone-repo)
   - [Using the Dev Container](#using-the-dev-container)
     - [VS Code Extensions](#vs-code-extensions)
-    - [Git in Container](#git-in-container)
     - [Closing the Container](#closing-the-container)
   - [Building](#building)
     - [Load CMake](#load-cmake)
@@ -97,7 +96,7 @@ git lfs pull
 To start the development Docker container, navigate to the repo root and run: 
 
 ```sh
-docker compose up --detach
+./start_environment.sh
 ```
 
 If you're on Windows and get the error:
@@ -115,7 +114,7 @@ If you're on Linux/Mac and get an error about failing to mount `/tmp`, you may n
 Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
 
 From VS Code, click the arrows in the bottom left and select "Attach to Running Container". 
-Select the `consolidated-firmware-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
+Select the `ubcformulaelectric-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
 
 ### VS Code Extensions
 
@@ -123,16 +122,6 @@ Install the following VS Code extensions into the container (should only be requ
 - C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
 - Python (`ms-python.python`)
 - Cortex-Debug (`marus25.cortex-debug`) 
-
-### Git in Container
-
-VS Code's Dev Container extension should forward your git credentials into the container, so git should work out-of-the-box in the container.
-The first time using git in the container, there will probably be a warning about dubious repo ownership. 
-To suppress this, run: 
-
-```sh
-git config --global --add safe.directory /root/Consolidated-Firmware
-```
 
 (It should prompt you to do this)
 
@@ -147,7 +136,7 @@ git push
 ```
 ### Closing the Container
 
-When you're finished developing and want to stop the container, run this from the repo root:
+When you're finished developing and want to stop the container, run this from the repo root (must be outside of the container):
 ```sh
 docker compose down
 ```

@@ -2,6 +2,7 @@ services:
   develop:
     build: environment
     image: ubcformulaelectric/environment:latest
+    container_name: ubcformulaelectric-develop
     volumes:
       # Mount repo files into container.
       - .:/root/Consolidated-Firmware
@@ -9,6 +10,8 @@ services:
       - /tmp/.X11-unix/:/tmp/.X11-unix/
       # Forward USB connections.
       - /dev/bus/usb:/dev/bus/usb
+      # Forward git credentials.
+      - ~/.gitconfig:/etc/gitconfig
     environment:
       # DISPLAY must be set for GUI forwarding to work.
       - DISPLAY=:0

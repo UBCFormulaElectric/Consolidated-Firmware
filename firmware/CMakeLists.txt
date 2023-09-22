@@ -56,7 +56,7 @@ function(can_code_generation
         ${APP_CAN_UTILS_HEADER_OUTPUT}
         ${APP_CAN_ALERTS_SRC_OUTPUT}
         ${APP_CAN_ALERTS_HEADER_OUTPUT}
-        COMMAND ${PYTHON_CMD}
+        COMMAND python3
         ${SCRIPTS_DIR}/code_generation/jsoncan/generate_can_from_json.py
         --board ${BOARD_NAME}
         --can_data_dir ${CAN_JSON_DIR}
@@ -74,7 +74,7 @@ function(can_code_generation
         --app_can_alerts_source_output ${APP_CAN_ALERTS_SRC_OUTPUT}
         --dbc_output ${DBC_OUTPUT}
         DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_PY_SRCS}
-        WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 endfunction()
 
@@ -94,7 +94,7 @@ function(cube_mx_code_generation
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         ${LOG4J_PROPERTIES}
-        COMMAND ${PYTHON_CMD}
+        COMMAND python3
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${BOARD_NAME}
         --log4j_properties_output ${LOG4J_PROPERTIES}
@@ -104,7 +104,7 @@ function(cube_mx_code_generation
 
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
         # this custom command is only executed when IOC_FILE.md5 changes.
-        COMMAND ${PYTHON_CMD}
+        COMMAND python3
         ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
         ${IOC_FILE}
         ${IOC_FILE}.md5
@@ -112,9 +112,9 @@ function(cube_mx_code_generation
 
         # Run clang-format because the STM32CubeMX-generated code is not
         # compliant to our clang-format rules.
-        COMMAND ${PYTHON_CMD}
+        COMMAND python3
         ${FIX_FORMATTING_SCRIPT_PY}
-        WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 endfunction()
 

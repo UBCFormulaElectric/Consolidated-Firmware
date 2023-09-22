@@ -4,7 +4,7 @@
         {
             "label": "Load CMake: Embedded",
             "type": "shell",
-            "command": "mkdir -p build_arm && cmake -S . -B build_arm -DPLATFORM=arm -DNO_VENV=ON",
+            "command": "mkdir -p build_arm && cmake -S . -B build_arm -DPLATFORM=arm",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -13,7 +13,7 @@
         {
             "label": "Load CMake: Tests",
             "type": "shell",
-            "command": "mkdir -p build_x86 && cmake -S . -B build_x86 -DPLATFORM=x86 -DNO_VENV=ON",
+            "command": "mkdir -p build_x86 && cmake -S . -B build_x86 -DPLATFORM=x86",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
