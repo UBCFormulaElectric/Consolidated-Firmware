@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 message("Platform: ${PLATFORM}")
 
 # Target-platform specific settings
-if("${PLATFORM}" STREQUAL "arm")
+if("${PLATFORM}" STREQUAL "arm") 
     set(CMAKE_C_COMPILER_WORKS 1)
     set(TOOLCHAIN_PREFIX arm-none-eabi-)
     set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
