@@ -49,7 +49,7 @@ With WSL, we can run a Linux distribution on top of Windows, with excellent perf
 To install WSL, start Windows PowerShell as an administrator (Start > Search for PowerShell > Run as Administrator), and run:
 
 ```sh
-wsl --install
+wsl --install -d Ubuntu
 ```
 
 This installs Ubuntu by default, and requires a restart. 
@@ -77,7 +77,6 @@ These commands are sourced from [here](https://learn.microsoft.com/en-us/windows
 Navigate to where you want to clone the repo and run the following commands. 
 
 Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
-
 
 ```sh
 # Install Git LFS.

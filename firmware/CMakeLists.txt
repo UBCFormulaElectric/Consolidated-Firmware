@@ -254,7 +254,7 @@ function(create_fake_library
         list(APPEND FAKE_SRCS ${FAKE_SRC})
         add_custom_command(
             OUTPUT ${FAKE_HDR} ${FAKE_SRC}
-            COMMAND ${PYTHON_CMD}
+            COMMAND python3
             ${SCRIPTS_DIR}/code_generation/fakegen/src/generate_fake.py
             --header ${HDR_TO_FAKE}
             --output-header ${FAKE_HDR}
