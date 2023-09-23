@@ -1,5 +1,6 @@
 #pragma once
 
+#include "App_SharedHeartbeatMonitor.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
@@ -21,9 +22,14 @@ typedef struct
 
 typedef struct
 {
-    const GlobalsConfig *config;
+    const GlobalsConfig *    config;
+    struct HeartbeatMonitor *heartbeat_monitor;
 } Globals;
 
 extern Globals *const globals;
 
+/**
+ * Initialize the globals module.
+ * @param config Globals config.
+ */
 void app_globals_init(const GlobalsConfig *config);

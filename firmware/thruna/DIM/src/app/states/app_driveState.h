@@ -1,8 +1,6 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
-#include "App_SharedExitCode.h"
 
 typedef enum
 {
@@ -16,6 +14,6 @@ typedef enum
 
 /**
  * Get a pointer to the Drive State.
- * @return A pointer to the Drive State. THIS SHOULD NOT BE MODIFIED.
+ * @return A pointer to the Drive State.
  */
-const struct State *App_GetDriveState(void);
+const struct State *app_driveState_get(void);
