@@ -40,7 +40,7 @@ For more information, and to see how to update the Docker container, see our [Do
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
 [Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -68,13 +68,17 @@ sudo apt install linux-tools-generic hwdata
 sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/*-generic/usbip 20
 ```
 These commands are sourced from [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
+
 3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases) (the `.msi`). 
 
 **Note: All following steps must be completed from within WSL!**
 
 ### Clone Repo
 
-Navigate to where you want to clone the repo and run:
+Navigate to where you want to clone the repo and run the following commands. 
+
+Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
+
 
 ```sh
 # Install Git LFS.
@@ -82,7 +86,7 @@ apt update && apt install git-lfs
 git lfs install
 
 # Clone repo and update submodules.
-git clone <repo link>
+git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
 cd Consolidated-Firmware
 git submodule update --init --recursive
 git lfs pull
@@ -132,6 +136,15 @@ git config --global --add safe.directory /root/Consolidated-Firmware
 
 (It should prompt you to do this)
 
+### Saving a Git Token
+
+If you would like the terminal to stop prompting you for Username and Password when pushing to the repo (since we are not using ssh) use the following commands once you have a git token. Note, that this will mean your token is stored unencrypted.
+
+```sh
+git config credential.helper store
+git push
+# Paste your token for both Username and Password and it should not ask when pushing again.
+```
 ### Closing the Container
 
 When you're finished developing and want to stop the container, run this from the repo root:
