@@ -4,8 +4,6 @@ on:
     branches:
       - master
   pull_request:
-    branches:
-      - master
 
 jobs:
   clang-format:
@@ -39,13 +37,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - GSM
+        include:
+          - board: DIM
+            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/thruna/FSM
+          - board: PDM
+            ioc_dir: firmware/thruna/PDM
+          - board: DCM
+            ioc_dir: firmware/thruna/DCM
+          - board: BMS
+            ioc_dir: firmware/thruna/BMS
+          - board: GSM
+            ioc_dir: firmware/thruna/GSM
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -69,8 +73,8 @@ jobs:
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir firmware/thruna/${{ matrix.board }} \
+            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            --codegen_output_dir ${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
       - name: Fix formatting
@@ -189,3 +193,31 @@ jobs:
         run: |
           cd $BUILD_DIR/firmware/shared
           valgrind --tool=memcheck --leak-check=yes ./shared_test
+
+  test-fakegen:
+    name: Test Fake Function Generation
+    runs-on: ubuntu-22.04
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: build_x86
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          make --directory=$BUILD_DIR -j`nproc` fakegen_test
+
+      - name: Run tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/fakegen
+          valgrind --tool=memcheck --leak-check=yes ./fakegen_test

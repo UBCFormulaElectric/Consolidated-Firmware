@@ -115,6 +115,15 @@
       "cwd": "${workspaceRoot}",
       "MIMode": "gdb",
       "preLaunchTask": "Build: DIM_test"
-    }
+    },
+    {
+      "name": "Debug Tests: Shared",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_x86/firmware/shared/shared_test",
+      "cwd": "${workspaceRoot}",
+      "MIMode": "gdb",
+      "preLaunchTask": "Build: shared_test"
+    },
   ]
 }
