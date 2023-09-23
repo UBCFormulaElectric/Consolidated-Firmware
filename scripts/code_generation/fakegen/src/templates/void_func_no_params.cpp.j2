@@ -1,0 +1,26 @@
+{%- set func_call_count = name + "_call_count" -%}
+
+// 
+// Fakes for: {{ name }}
+//
+
+static uint32_t {{ func_call_count }};
+
+extern "C" 
+{
+    void {{ name }}(void)
+    {
+        // Increment call count.
+        {{ func_call_count }}++;
+    }
+}
+
+void fake_{{ name }}_reset() 
+{
+    {{ func_call_count }} = 0;
+}
+
+uint32_t fake_{{ name }}_callCount(void)
+{
+    return {{ func_call_count }};
+}

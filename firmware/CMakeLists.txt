@@ -236,7 +236,7 @@ Building ${BIN_FILE}
 Building ${ASM_FILE}")
 endfunction()
 
-function(compile_googletest_executable
+function(compile_board_gtest_executable
     BOARD_NAME
     TEST_SRCS
     TEST_INCLUDE_DIRS
@@ -249,29 +249,23 @@ function(compile_googletest_executable
         set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
     endif()
 
-    add_executable(${TEST_EXECUTABLE_NAME}
-        ${TEST_SRCS}
+    list(APPEND BOARD_TEST_SRCS ${TEST_SRCS}
         ${ARM_BINARY_X86_COMPATIBLE_SRCS}
         ${SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS}
     )
-    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
-    target_include_directories(${TEST_EXECUTABLE_NAME}
-        PRIVATE
-        ${TEST_INCLUDE_DIRS}
+    list(APPEND BOARD_TEST_INCLUDE_DIRS ${TEST_INCLUDE_DIRS}
         ${ARM_BINARY_INCLUDE_DIRS}
         ${SHARED_ARM_BINARY_INCLUDE_DIRS}
         ${SHARED_GOOGLETEST_TEST_THIRD_PARTY_INCLUDE_DIRS}
         ${FIRMWARE_DIR}/shared/test_utils
     )
-    target_compile_options(${TEST_EXECUTABLE_NAME}
-        PUBLIC
-        -Wall
-        -Werror
-        -g3
+    compile_gtest_executable(
+        "${TEST_EXECUTABLE_NAME}"
+        "${BOARD_TEST_SRCS}"
+        "${BOARD_TEST_INCLUDE_DIRS}"
     )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
-    add_test(NAME ${TEST_EXECUTABLE_NAME}
-        COMMAND ${TEST_EXECUTABLE_NAME})
+    target_link_libraries(${TEST_EXECUTABLE_NAME} shared_fakes)
+    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
 endfunction()
 
 # Creates the Arm binary or tests for a board, depending on what CPU architecture
@@ -416,7 +410,7 @@ function(create_arm_binary_or_tests_for_board
 
     if("${PLATFORM}" STREQUAL "x86")
         add_compile_definitions(TARGET_TEST)
-        compile_googletest_executable(
+        compile_board_gtest_executable(
             "${BOARD_NAME}"
             "${GOOGLETEST_TEST_SRCS}"
             "${GOOGLETEST_TEST_INCLUDE_DIRS}"

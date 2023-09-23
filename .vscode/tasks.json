@@ -128,6 +128,15 @@
             }
         },
         {
+            "label": "Build: shared_test",
+            "type": "shell",
+            "command": "make -j`nproc` shared_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_x86"
+            }
+        },
+        {
             "label": "Build: All Embedded Binaries",
             "type": "shell",
             "command": "make -j`nproc`",

@@ -184,6 +184,9 @@ Integration with VS Code's step-through debuggers should work out-of-the-box aft
 
 Running and step-through-debugging tests are also available through the "Run and Debug" menu.
 
+We use a script called [fakegen](./scripts/code_generation/fakegen/README.md) to generate fake versions of IO-level code for tests. 
+Skimming the README is recommended if you're going to be working with unit tests.
+
 ## CAN Bus
 
 Our microcontrollers use CAN bus to pass messages between each other. It is useful to set up your host machine to view the messages on CAN bus.

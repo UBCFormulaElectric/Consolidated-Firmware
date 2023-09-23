@@ -1,0 +1,121 @@
+{%- set params_cls = name + "_Params" -%}
+{%- set func_call_count = name + "_call_count" -%}
+{%- set call_count_map = name + "_call_count_map" -%}
+
+// 
+// Fakes for: {{ name }}
+//
+
+// Class representing the parameters for the function being faked.
+class {{ params_cls }}
+{
+  public: 
+    {%- for param in params %}
+    {{ param.type }} {{ param.name }};
+    {%- endfor %}
+
+    {{ params_cls }}(
+    {%- for param in params %}
+        {{ param.type }} {{ param.name }}
+        {%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+    ) : 
+    {%- for param in params %}
+        {{ param.name }}({{ param.name }}) 
+        {%- if not loop.last %}, {% endif %}
+    {%- endfor %} { }
+
+    bool operator==(const {{ params_cls }} &other) const
+    {
+        return 
+        {%- for param in params %}
+            {{ param.name }} == other.{{ param.name }}
+            {%- if not loop.last %} &&
+            {%- else %};
+            {%- endif -%}
+        {%- endfor %}
+    }
+};
+
+// Create a custom hashing function so we can use unordered_map (a hash table under the hood).
+template <>
+struct std::hash<{{ params_cls }}>
+{
+    std::size_t operator()(const {{ params_cls }} &params) const
+    {
+        return 
+        {%- for param in params  %}
+            hash<{{ param.type }}>()(params.{{ param.name }})
+            {%- if not loop.last %} ^
+            {%- else %};
+            {%- endif -%}
+        {%- endfor %}
+    }
+};
+
+// State variables.
+static uint32_t {{ func_call_count }};
+static unordered_map<{{ params_cls }}, uint32_t> {{ call_count_map }};
+
+extern "C" 
+{
+    void {{ name }}(
+    {%- for param in params %}
+        {{ param.type }} {{ param.name }}
+        {%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+    )
+    {
+        // Create an instance of this function's parameters.
+        {{ params_cls }} params(
+        {%- for param in params %}
+            {{ param.name }}
+            {%- if not loop.last %}, {% endif %}
+        {%- endfor %}
+        );
+
+        // Increment call count.
+        {{ func_call_count }}++;
+        if({{ call_count_map }}.count(params)) {
+            {{ call_count_map }}[params]++;
+        }
+        else {
+            {{ call_count_map }}[params] = 1;
+        }
+    }
+}
+
+void fake_{{ name }}_reset() 
+{
+    {{ func_call_count }} = 0;
+    {{ call_count_map }}.clear();
+}
+
+uint32_t fake_{{ name }}_callCount(void)
+{
+    return {{ func_call_count }};
+}
+
+uint32_t fake_{{ name }}_callCountForArgs(
+{%- for param in params %}
+    {{ param.type }} {{ param.name }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}
+)
+{
+    // Create an instance of this function's parameters.
+    {{ name }}_Params params(
+    {%- for param in params %}
+        {{ param.name }}
+        {%- if not loop.last %}, {% endif %}
+    {%- endfor %}
+    );
+
+    // Return call count from map.
+    if({{ call_count_map }}.count(params)) {
+        return {{ call_count_map }}[params];
+    }
+    else {
+        return 0;
+    }
+}

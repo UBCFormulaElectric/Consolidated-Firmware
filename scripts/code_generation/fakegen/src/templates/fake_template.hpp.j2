@@ -1,0 +1,14 @@
+#pragma once
+
+#include <stdint.h>
+
+extern "C"
+{
+#include "{{ module }}.h"
+}
+
+{% for declaration in declarations -%}
+
+{{ declaration }}
+
+{% endfor %}

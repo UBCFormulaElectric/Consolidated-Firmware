@@ -48,6 +48,11 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 # specific arguments (e.g. IOC_FILE) can be omitted by passing in an
 # empty string.
 if("${PLATFORM}" STREQUAL "x86")
+    create_fake_library(
+        "shared_fakes"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
+    )
+
     create_arm_binary_or_tests_for_board(
         "shared"
         ""

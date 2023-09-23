@@ -74,4 +74,31 @@ if("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-add_subdirectory(firmware   )
+function(compile_gtest_executable
+    TEST_EXECUTABLE_NAME
+    TEST_SRCS
+    TEST_INCLUDE_DIRS
+)
+    add_executable(${TEST_EXECUTABLE_NAME}
+        ${TEST_SRCS}
+    )
+    target_include_directories(${TEST_EXECUTABLE_NAME}
+        PRIVATE
+        ${TEST_INCLUDE_DIRS}
+    )
+    target_compile_options(${TEST_EXECUTABLE_NAME}
+        PUBLIC
+        -Wall
+        -Werror
+        -g3
+    )
+    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    add_test(NAME ${TEST_EXECUTABLE_NAME}
+        COMMAND ${TEST_EXECUTABLE_NAME})
+endfunction()
+
+if("${PLATFORM}" STREQUAL "x86")
+    add_subdirectory(scripts)
+endif()
+
+add_subdirectory(firmware)
