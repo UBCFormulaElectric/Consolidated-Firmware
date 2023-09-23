@@ -5,4 +5,4 @@
  * this function at 1Hz to minimize overhead. If any stack watermark threshold
  * is exceeded, we log the error.
  */
-void Io_StackWaterMark_Check(void);
+void io_stackWaterMark_check(void);

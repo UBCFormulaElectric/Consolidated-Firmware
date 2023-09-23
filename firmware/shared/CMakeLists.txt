@@ -13,7 +13,6 @@ set(SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS
 
 set(X86_INCOMPATIBLE_IO_SRCS
     ${SHARED_IO_SRCS}
-    ${SHARED_DEV_SRCS} 
     ${SHARED_HW_SRCS}
 )
 set(SHARED_ARM_BINARY_X86_INCOMPATIBLE_SRCS ${X86_INCOMPATIBLE_IO_SRCS})
@@ -48,9 +47,15 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 # specific arguments (e.g. IOC_FILE) can be omitted by passing in an
 # empty string.
 if("${PLATFORM}" STREQUAL "x86")
+    list(APPEND HDRS_TO_FAKE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_rgbLed.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switch.h
+    )
     create_fake_library(
         "shared_fakes"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
+        "${HDRS_TO_FAKE}"
     )
 
     create_arm_binary_or_tests_for_board(

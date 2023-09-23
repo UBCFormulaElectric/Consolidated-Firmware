@@ -4,7 +4,9 @@
 #include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
 #include "app_globals.h"
+#include "app_sevenSegDisplays.h"
 #include "io_led.h"
+#include "io_switch.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
@@ -15,20 +17,14 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct RgbLedSequence *rgb_led_sequence = App_DimWorld_GetRgbLedSequence(world);
-
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+    UNUSED(state_machine);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *        world              = App_SharedStateMachine_GetWorld(state_machine);
-    struct SevenSegDisplays *seven_seg_displays = App_DimWorld_GetSevenSegDisplays(world);
-    struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
-    struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
-    struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
-    struct AvgPowerCalc *    avg_power_calc     = App_DimWorld_GetAvgPowerCalc(world);
+    struct DimWorld *        world             = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *heartbeat_monitor = App_DimWorld_GetHeartbeatMonitor(world);
+    struct AvgPowerCalc *    avg_power_calc    = App_DimWorld_GetAvgPowerCalc(world);
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
@@ -45,19 +41,19 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool in_drive_state = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
     io_led_enable(globals->config->drive_led, in_drive_state);
 
-    const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
-    const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
+    const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
+    const bool aux_switch_on   = io_switch_isClosed(globals->config->aux_switch);
 
     App_AvgPowerCalc_Enable(avg_power_calc, aux_switch_on);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
-                                                         [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
-                                                         [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
-                                                         [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
-                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
+    const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
+        [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
+        [DIM_LED] = globals->config->dim_status_led, [FSM_LED] = globals->config->fsm_status_led,
+        [PDM_LED] = globals->config->pdm_status_led,
+    };
 
     CanAlertBoard alert_board_ids[NUM_BOARD_LEDS] = {
         [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
@@ -66,19 +62,22 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
-        struct RgbLed *board_status_led = board_status_leds[i];
+        const RgbLed *board_status_led = board_status_leds[i];
 
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
-            App_SharedRgbLed_TurnRed(board_status_led);
+            // Turn red.
+            io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
-            App_SharedRgbLed_TurnBlue(board_status_led);
+            // Turn blue.
+            io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
         {
-            App_SharedRgbLed_TurnGreen(board_status_led);
+            // Turn green.
+            io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
 
@@ -105,15 +104,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (missing_hb)
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
-        App_SevenSegDisplays_SetGroupM(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, SSEG_HB_NOT_RECEIVED_ERR);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, SSEG_HB_NOT_RECEIVED_ERR);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, SSEG_HB_NOT_RECEIVED_ERR);
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, speed_kph);
-        App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
-        App_SevenSegDisplays_SetGroupR(seven_seg_displays, min_cell_voltage);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
     }
 }
 

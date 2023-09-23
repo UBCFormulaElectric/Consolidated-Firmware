@@ -1,12 +1,16 @@
 file(GLOB_RECURSE ARM_BINARY_APP_SRCS "src/app/*.*")
-set(ARM_BINARY_APP_INCLUDE_DIRS "src/app")
+set(ARM_BINARY_APP_INCLUDE_DIRS 
+    "src/app"
+)
 file(GLOB ARM_BINARY_IO_SRCS
     "src/io/*.c"
+    "src/dev/*.c"
     "src/cubemx/Src/*.c"
     "src/cubemx/startup/*.s"
 )
 set(ARM_BINARY_IO_INCLUDE_DIRS
     "src/io"
+    "src/dev"
     "src/cubemx/Inc"
 )
 
@@ -50,6 +54,13 @@ list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "test/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS
     "test"
 )
+
+if("${PLATFORM}" STREQUAL "x86")
+    create_fake_library(
+        "DIM_fakes"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
+    )
+endif()
 
 create_arm_binary_or_tests_for_board(
     "DIM"

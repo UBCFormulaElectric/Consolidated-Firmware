@@ -32,14 +32,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Application specific configuration options
-#include "Io_SharedSoftwareWatchdogConfig.h"
-
-// Check all the required application specific macros have been defined in
-// <Io_SharedSoftwareWatchdogConfig.h>.
-#ifndef MAX_NUM_OF_SOFTWARE_WATCHDOG
-#error Missing definition: MAX_NUM_OF_SOFTWARE_WATCHDOG must be defined in Io_SharedSoftwareWatchdogConfig.h
-#endif
+#define MAX_NUM_OF_SOFTWARE_WATCHDOG 5
 
 // Anonymous type by which software watchdogs are referenced.
 typedef void *SoftwareWatchdogHandle_t;

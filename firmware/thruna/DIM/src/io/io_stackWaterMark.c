@@ -1,8 +1,8 @@
 #include <assert.h>
 
+#include "io_stackWaterMark.h"
 #include "main.h"
 #include "App_SharedMacros.h"
-#include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
 #include "App_CanTx.h"
 #include "App_CanAlerts.h"
@@ -76,7 +76,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
 };
 
-void Io_StackWaterMark_Check(void)
+void io_stackWaterMark_check(void)
 {
     Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }
