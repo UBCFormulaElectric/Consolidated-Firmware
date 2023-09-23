@@ -7,7 +7,6 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
-#include "App_Led.h"
 #include "App_BinarySwitch.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
@@ -29,10 +28,6 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor *heartbeat_monitor,
     struct RgbLedSequence *  rgb_led_sequence,
     struct RotarySwitch *    drive_mode_switch,
-    struct Led *             imd_led,
-    struct Led *             bspd_led,
-    struct Led *             shdn_led,
-    struct Led *             drive_led,
     struct BinarySwitch *    start_switch,
     struct BinarySwitch *    aux_switch,
     struct RgbLed *          bms_status_led,
@@ -89,34 +84,6 @@ struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
  * @return The aux switch for the given world
  */
 struct BinarySwitch *App_DimWorld_GetAuxSwitch(const struct DimWorld *world);
-
-/**
- * Get the IMD LED for the given world
- * @param world The world to get IMD LED for
- * @return The IMD LED for the given world
- */
-struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
-
-/**
- * Get the BSPD LED for the given world
- * @param world The world to get BSPD LED for
- * @return The BSPD LED for the given world
- */
-struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
-
-/**
- * Get the SHDN LED for the given world
- * @param world The world to get SHDN LED for
- * @return The SHDN LED for the given world
- */
-struct Led *App_DimWorld_GetShdnLed(const struct DimWorld *world);
-
-/**
- * Get the drive LED for the given world
- * @param world The world to get drive LED for
- * @return The drive LED for the given world
- */
-struct Led *App_DimWorld_GetDriveLed(const struct DimWorld *world);
 
 /**
  * Get the BMS status LED for the given world

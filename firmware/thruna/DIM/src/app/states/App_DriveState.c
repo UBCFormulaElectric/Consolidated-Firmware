@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
+#include "app_globals.h"
+#include "io_led.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
@@ -24,52 +26,24 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DimWorld *        world              = App_SharedStateMachine_GetWorld(state_machine);
     struct SevenSegDisplays *seven_seg_displays = App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
-    struct Led *             imd_led            = App_DimWorld_GetImdLed(world);
-    struct Led *             bspd_led           = App_DimWorld_GetBspdLed(world);
-    struct Led *             shdn_led           = App_DimWorld_GetShdnLed(world);
-    struct Led *             drive_led          = App_DimWorld_GetDriveLed(world);
     struct BinarySwitch *    start_switch       = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *    aux_switch         = App_DimWorld_GetAuxSwitch(world);
     struct AvgPowerCalc *    avg_power_calc     = App_DimWorld_GetAvgPowerCalc(world);
 
     App_CanTx_DIM_Vitals_Heartbeat_Set(true);
 
-    if (App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get())
-    {
-        App_Led_TurnOn(imd_led);
-    }
-    else
-    {
-        App_Led_TurnOff(imd_led);
-    }
+    const bool imd_fault_latched = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get();
+    io_led_enable(globals->config->imd_led, imd_fault_latched);
 
-    if (App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get())
-    {
-        App_Led_TurnOn(bspd_led);
-    }
-    else
-    {
-        App_Led_TurnOff(bspd_led);
-    }
+    const bool bspd_fault_latched = App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get();
+    io_led_enable(globals->config->bspd_led, bspd_fault_latched);
 
-    if (App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
-        App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN)
-    {
-        App_Led_TurnOn(shdn_led);
-    }
-    else
-    {
-        App_Led_TurnOff(shdn_led);
-    }
+    const bool contactors_open = App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
+                                 App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN;
+    io_led_enable(globals->config->shdn_led, contactors_open);
 
-    if (App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE)
-    {
-        App_Led_TurnOn(drive_led);
-    }
-    else
-    {
-        App_Led_TurnOff(drive_led);
-    }
+    const bool in_drive_state = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
+    io_led_enable(globals->config->drive_led, in_drive_state);
 
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
     const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);

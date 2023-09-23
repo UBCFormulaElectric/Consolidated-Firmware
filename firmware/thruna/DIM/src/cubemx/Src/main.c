@@ -34,6 +34,7 @@
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanAlerts.h"
+#include "app_globals.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -46,10 +47,13 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
-#include "Io_Leds.h"
 #include "Io_Switches.h"
 #include "Io_Adc.h"
 #include "Io_RgbLeds.h"
+
+#include "io_led.h"
+
+#include "hw_gpio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,10 +112,6 @@ struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
-struct Led *              imd_led;
-struct Led *              bspd_led;
-struct Led *              shdn_led;
-struct Led *              drive_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     aux_switch;
 struct RgbLed *           bms_status_led;
@@ -121,6 +121,31 @@ struct RgbLed *           fsm_status_led;
 struct RgbLed *           pdm_status_led;
 struct Clock *            clock;
 struct AvgPowerCalc *     avg_power_calc;
+
+static const BinaryLed imd_led   = { .gpio = {
+                                       .port = IMD_LED_GPIO_Port,
+                                       .pin  = IMD_LED_Pin,
+                                   } };
+static const BinaryLed bspd_led  = { .gpio = {
+                                        .port = BSPD_LED_GPIO_Port,
+                                        .pin  = BSPD_LED_Pin,
+                                    } };
+static const BinaryLed shdn_led  = { .gpio = {
+                                        .port = SHDN_LED_GPIO_Port,
+                                        .pin  = SHDN_LED_Pin,
+                                    } };
+static const BinaryLed drive_led = { .gpio = {
+                                         .port = IGNTN_LED_GPIO_Port,
+                                         .pin  = IGNTN_LED_Pin,
+                                     } };
+
+static const GlobalsConfig globals_config = {
+    .imd_led   = &imd_led,
+    .bspd_led  = &bspd_led,
+    .shdn_led  = &shdn_led,
+    .drive_led = &drive_led,
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -227,14 +252,6 @@ int main(void)
 
     drive_mode_switch = App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
-    imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
-
-    bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
-
-    shdn_led = App_Led_Create(Io_Leds_TurnOnShdnLed, Io_Leds_TurnOffShdnLed);
-
-    drive_led = App_Led_Create(Io_Leds_TurnOnDriveLed, Io_Leds_TurnOffDriveLed);
-
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
     aux_switch = App_BinarySwitch_Create(Io_Switches_AuxSwitchIsTurnedOn);
@@ -264,11 +281,12 @@ int main(void)
     avg_power_calc = App_AvgPowerCalc_Create();
 
     world = App_DimWorld_Create(
-        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, shdn_led,
-        drive_led, start_switch, aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-        pdm_status_led, clock, avg_power_calc);
+        seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, start_switch, aux_switch,
+        bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock, avg_power_calc);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
+
+    app_globals_init(&globals_config);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
