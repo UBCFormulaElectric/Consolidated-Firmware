@@ -25,6 +25,10 @@ def handle_signal_message(message):
     result = signal_util.get_signals(res)
     socketio.emit("signal_response", result)
 
+@socketio.on('available_signals')
+def handle_available_signals(message):
+    available_signals = signal_util.get_available_signals()
+
 if __name__ == '__main__':
     # Start the Flask app (you can configure host and port)
     app.run(debug=True)

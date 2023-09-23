@@ -25,3 +25,5 @@ class SignalUtil:
 
     def get_signal(self, s_id):
         return self.df[s_id]
+
+    def get_available_signals
