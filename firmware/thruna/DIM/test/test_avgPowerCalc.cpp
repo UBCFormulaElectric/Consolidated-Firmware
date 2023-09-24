@@ -1,15 +1,7 @@
-#include <gtest/gtest.h>
-#include "Test_Utils.h"
+#include "test_dimBaseStateMachine.h"
 
-extern "C"
+class AveragePowerCalcTest : public DimBaseStateMachineTest
 {
-#include "app_avgPower.h"
-}
-
-class AveragePowerCalcTest : public testing::Test
-{
-  protected:
-    void SetUp() override { app_avgPower_init(); }
 };
 
 TEST_F(AveragePowerCalcTest, check_avg_power_calculations)
@@ -26,4 +18,16 @@ TEST_F(AveragePowerCalcTest, check_avg_power_calculations)
     test_val = app_avgPower_update(90.9);
     avg      = (100.3f + 2.330 + 90.9) / 3;
     ASSERT_EQ(test_val, avg);
+}
+
+TEST_F(AveragePowerCalcTest, avg_power_calc_resets_with_switch)
+{
+    app_avgPower_enable(true);
+    float test_val = app_avgPower_update(45.6);
+    float avg      = 45.6f;
+    ASSERT_EQ(test_val, avg);
+
+    app_avgPower_enable(false);
+    test_val = app_avgPower_update(78.9);
+    ASSERT_EQ(test_val, 0);
 }
