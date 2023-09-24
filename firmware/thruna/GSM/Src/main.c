@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -24,21 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
 
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCan.h"
-#include "Io_SharedHardFaultHandler.h"
-#include "Io_StackWaterMark.h"
-#include "Io_SoftwareWatchdog.h"
-
-#include "App_CanUtils.h"
-#include "App_GsmWorld.h"
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
-#include "states/App_DefaultState.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,9 +67,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[512];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct GsmWorld *    world;
-struct StateMachine *state_machine;
-struct Clock *       clock;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,22 +84,11 @@ void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
-static void CanRxQueueOverflowCallBack(size_t overflow_count);
-static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void CanRxQueueOverflowCallBack(size_t overflow_count)
-{
-    App_CanTx_GSM_Warnings_RxOverflowCount_Set(overflow_count);
-}
-
-static void CanTxQueueOverflowCallBack(size_t overflow_count)
-{
-    App_CanTx_GSM_Warnings_TxOverflowCount_Set(overflow_count);
-}
 
 /* USER CODE END 0 */
 
@@ -152,19 +125,7 @@ int main(void)
     MX_SPI1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    __HAL_DBGMCU_FREEZE_IWDG();
 
-    Io_SharedHardFaultHandler_Init();
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
-    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    clock         = App_SharedClock_Create();
-    world         = App_GsmWorld_Create(clock);
-    state_machine = App_SharedStateMachine_Create(world, App_GetDefaultState());
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -360,6 +321,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
+
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -386,6 +348,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
+
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -482,21 +445,10 @@ static void MX_GPIO_Init(void)
 void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
+    /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
-        Io_CanTx_Enqueue100HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
+        osDelay(1);
     }
     /* USER CODE END 5 */
 }
@@ -511,25 +463,10 @@ void RunTask100Hz(void const *argument)
 void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
+    /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
-
-        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
+        osDelay(1);
     }
     /* USER CODE END RunTask1Hz */
 }
@@ -544,28 +481,10 @@ void RunTask1Hz(void const *argument)
 void RunTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
+    /* Infinite loop */
     for (;;)
     {
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
-
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        osDelayUntil(&PreviousWakeTime, period_ms);
+        osDelay(1);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -580,13 +499,10 @@ void RunTask1kHz(void const *argument)
 void RunTaskCanRx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    UNUSED(argument);
-
+    /* Infinite loop */
     for (;;)
     {
-        struct CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        osDelay(1);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -601,11 +517,10 @@ void RunTaskCanRx(void const *argument)
 void RunTaskCanTx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    UNUSED(argument);
-
+    /* Infinite loop */
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        osDelay(1);
     }
     /* USER CODE END RunTaskCanTx */
 }
@@ -639,7 +554,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    __assert_func(__FILE__, __LINE__, "Error_Handler", "Error_Handler");
+    /* User can add his own implementation to report the HAL error return state */
+
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -654,7 +570,8 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    __assert_func(file, line, "assert_failed", "assert_failed");
+    /* User can add his own implementation to report the file name and line number,
+       tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

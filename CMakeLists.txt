@@ -35,20 +35,6 @@ endif()
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
-set(PIPENV_PROJECT_DIR ${REPO_ROOT_DIR})
-
-# Add option to disable invoking python from a virtual environment.
-# Invocation of python should be done with PYTHON_CMD.
-# Used in CI where packages are installed system-wide in a Docker container at build time.
-# This was done as a workaround, since I couldn't figure out how to pre-install packages into
-# a Pipenv virtual environment when building the container.
-option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
-
-if(NO_VENV)
-    set(PYTHON_CMD python3)
-else()
-    set(PYTHON_CMD pipenv run python)
-endif()
 
 # If compiling on x86, fetch GoogleTest for unit testing.
 if("${PLATFORM}" STREQUAL "x86")
@@ -73,4 +59,8 @@ if("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-add_subdirectory(firmware   )
+add_subdirectory(firmware)
+
+if("${PLATFORM}" STREQUAL "x86")
+    add_subdirectory(scripts)
+endif()
