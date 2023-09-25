@@ -117,7 +117,7 @@ jobs:
       # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=arm -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=arm
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
 
       # Uploads .elf binary to Github Actions workflow
@@ -158,7 +158,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=x86
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run tests
@@ -186,7 +186,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=x86
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
