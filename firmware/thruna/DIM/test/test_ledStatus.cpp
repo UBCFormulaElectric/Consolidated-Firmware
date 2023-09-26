@@ -1,4 +1,4 @@
-#include "test_dimBaseStateMachine.h"
+#include "test_dimBaseStateMachineTest.h"
 
 class LedStatusTest : public DimBaseStateMachineTest
 {

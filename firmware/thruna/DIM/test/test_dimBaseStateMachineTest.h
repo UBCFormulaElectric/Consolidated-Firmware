@@ -24,6 +24,9 @@ extern "C"
 #include "app_globals.h"
 }
 
+// Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
+// tests.
+
 class DimBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
