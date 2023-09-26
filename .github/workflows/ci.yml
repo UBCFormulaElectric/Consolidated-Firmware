@@ -62,11 +62,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
       - name: Generate code
         run: |
-          xvfb-run python3 scripts/utilities/generate_cube_code.py \
+          python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
             --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
@@ -78,10 +76,12 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
+        
   build-firmware-thruna:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
+
   test-thruna:
     name: Test Thruna
     runs-on: ubuntu-22.04

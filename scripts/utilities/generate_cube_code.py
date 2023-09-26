@@ -81,6 +81,8 @@ def generate_cubemx_code(
     # Generate STM32CubeMX code
     cmd = ["java", "-jar", cubemx, "-q", cube_script_f.name]
     if headless:
+        # STM32CubeMX will fault out if it doesn't detect a GUI, even though the -q flag specifies no UI.
+        # So xvfb (X virtual framebuffer) is required to fake out a display.
         cmd = ["xvfb-run"] + cmd
 
     proc = subprocess.Popen(cmd)
