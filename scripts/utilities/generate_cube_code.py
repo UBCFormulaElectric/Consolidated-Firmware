@@ -43,10 +43,16 @@ log4j.appender.theConsoleAppender.layout.ConversionPattern=%-4r [%t] %-5p %c %x 
 """
 
 
-def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties, no_gui):
+def generate_cubemx_code(
+    board: str,
+    ioc: str,
+    codegen_dir: str,
+    cubemx: str,
+    log4j_properties: str,
+    headless: bool,
+) -> None:
     """
     Generate STM32CubeMX code
-
 
     board: Name of the board
     @param ioc: Path to .ioc file
@@ -74,8 +80,8 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties, no_g
 
     # Generate STM32CubeMX code
     cmd = ["java", "-jar", cubemx, "-q", cube_script_f.name]
-    if not no_gui:
-        cmd.insert("xvfb-run")
+    if headless:
+        cmd = ["xvfb-run"] + cmd
 
     proc = subprocess.Popen(cmd)
 
@@ -107,7 +113,7 @@ if __name__ == "__main__":
     parser.add_argument("--ioc", help="STM32CubeMX .ioc file")
     parser.add_argument("--codegen_output_dir", help="Code generation output folder")
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
-    parser.add_argument("--no-gui", action="store_true", help="Run without a GUI")
+    parser.add_argument("--headless", action="store_true", help="Run without a GUI")
     args = parser.parse_args()
     if args.board not in supported_boards:
         print("Error: Invalid board name. Valid options: " + " ".join(supported_boards))
@@ -119,5 +125,5 @@ if __name__ == "__main__":
         args.codegen_output_dir,
         args.cube_bin,
         args.log4j_properties_output,
-        args.no_gui,
+        args.headless,
     )

@@ -101,6 +101,7 @@ function(cube_mx_code_generation
         --ioc ${IOC_FILE}
         --codegen_output_dir ${IOC_DIR}
         --cube_bin ${STM32CUBEMX_BIN_PATH}
+        --headless
 
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
         # this custom command is only executed when IOC_FILE.md5 changes.

@@ -8,5 +8,8 @@ services:
       - .:/root/Consolidated-Firmware
       # Forward USB connections.
       - /dev/bus/usb:/dev/bus/usb
+    environment:
+      # Set an environment variable set scripts can check if they're running inside the container.
+      - DEV_CONTAINER=true
     tty: true # Keeps service running indefinitely.
     privileged: true # Required for USB passthrough to work.
