@@ -54,7 +54,7 @@ def generate_cubemx_code(
     """
     Generate STM32CubeMX code
 
-    board: Name of the board
+    @param board: Name of the board
     @param ioc: Path to .ioc file
     @param codegen_dir: Directory in which STM32CubeMX code is to be generated
     @param cubemx: Path to STM32CubeMX binary
