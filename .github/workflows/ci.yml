@@ -70,6 +70,7 @@ jobs:
             --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
             --codegen_output_dir ${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
+            --headless
 
       - name: Fix formatting
         run: python3 scripts/clang_format/fix_formatting.py
