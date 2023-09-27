@@ -23,7 +23,6 @@ A repository for all software and firmware from UBC Formula Electric.
     - [Embedded](#embedded)
     - [Tests](#tests)
   - [STM32CubeMX](#stm32cubemx)
-    - [Mac](#mac)
   - [CAN Bus](#can-bus)
     - [Windows](#windows)
     - [Linux](#linux)
@@ -203,10 +202,6 @@ Since it is a GUI-based program, it cannot be run reliably from within the Docke
 cd environment/scripts
 sudo python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
 ```
-
-### Mac
-
-On Mac, install STM32CubeMX manually from [STM's website](https://www.st.com/en/development-tools/stm32cubemx.html). Installed version must be 5.3.0.
 
 ## CAN Bus
 
