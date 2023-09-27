@@ -24,11 +24,11 @@ endif()
 # However, on Mac, we don't support developing inside a dev container, since Docker doesn't support
 # USB passthrough on macOS. This requires Mac developers to set everything locally, and the virtual 
 # framebuffer is unnecessary. Also, xvfb is not supported on Mac so we're forced to not use it.
-if(NOT MACOS)
-    set(XVFB_PREFIX "xvfb-run")
-else()
-    set(XVFB_PREFIX "")
-endif()
+# if(NOT MACOS)
+#     set(XVFB_PREFIX "xvfb-run")
+# else()
+#     set(XVFB_PREFIX "")
+# endif()
 
 # Generate C code for sending/receiving CAN messages for BOARD_NAME
 function(can_code_generation
@@ -107,7 +107,7 @@ function(cube_mx_code_generation
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         ${LOG4J_PROPERTIES}
-        COMMAND ${XVFB_PREFIX} python3
+        COMMAND xvfb-run python3
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${BOARD_NAME}
         --log4j_properties_output ${LOG4J_PROPERTIES}

@@ -32,9 +32,9 @@ elseif("${PLATFORM}" STREQUAL "x86")
 endif()
 
 # Set a flag if on Mac.
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(MACOS TRUE)
-endif()
+# if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+#     set(MACOS TRUE)
+# endif()
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
