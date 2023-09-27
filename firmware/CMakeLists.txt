@@ -107,7 +107,7 @@ function(cube_mx_code_generation
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         ${LOG4J_PROPERTIES}
-        COMMAND xvfb-run python3
+        COMMAND python3
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${BOARD_NAME}
         --log4j_properties_output ${LOG4J_PROPERTIES}
