@@ -51,7 +51,7 @@ class DbcGenerator:
     def __init__(self, database: CanDatabase):
         self._db = database
 
-    def source(self) -> None:
+    def source(self) -> str:
         """
         Create the DBC file, and write it to the output path.
         """
