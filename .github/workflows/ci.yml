@@ -79,7 +79,7 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
   build-firmware-thruna:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@edwinZ/bin-dbc-gen
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
   test-thruna:
