@@ -31,6 +31,11 @@ elseif("${PLATFORM}" STREQUAL "x86")
     project("UBC Formula Electric Software" C CXX)
 endif()
 
+# Set a flag if on Mac.
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOS TRUE)
+endif()
+
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)

@@ -23,7 +23,6 @@ A repository for all software and firmware from UBC Formula Electric.
     - [Embedded](#embedded)
     - [Tests](#tests)
   - [STM32CubeMX](#stm32cubemx)
-    - [Linux/WSL](#linuxwsl)
     - [Mac](#mac)
   - [CAN Bus](#can-bus)
     - [Windows](#windows)
@@ -198,11 +197,7 @@ STM32CubeMX is a program from STMicroelectronics to generate peripheral configur
 It can be used with a display to configure peripherals from a GUI, or from the command line to autogenerate code.
 It is invoked from the command line during builds to ensure the `.ioc` (STM32CubeMX config file) stays up to date with the code.
 
-Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it manually.
-
-### Linux/WSL
-
-Run the following on Linux/WSL from **outside the container.**
+Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it manually.Run the following on Linux/WSL from **outside the container.**
 
 ```sh
 cd environment/scripts

@@ -17,6 +17,19 @@ elseif("${PLATFORM}" STREQUAL "x86")
     add_custom_target(all_tests)
 endif()
 
+# If we're not running on macOS, assume this is either running in CI or in the dev container.
+# Since we invoke STM32CubeMX as part of building, and STM32CubeMX will fail if it does not 
+# detect a GUI, we use a virtual framebuffer (xvfb) to fake out the display. So, prefix any commands
+# that invoke STM32CubeMX with `xvfb-run`. 
+# However, on Mac, we don't support developing inside a dev container, since Docker doesn't support
+# USB passthrough on macOS. This requires Mac developers to set everything locally, and the virtual 
+# framebuffer is unnecessary. Also, xvfb is not supported on Mac so we're forced to not use it.
+if(NOT MACOS)
+    set(XVFB_PREFIX "xvfb-run")
+else()
+    set(XVFB_PREFIX "")
+endif()
+
 # Generate C code for sending/receiving CAN messages for BOARD_NAME
 function(can_code_generation
     BOARD_NAME
@@ -94,14 +107,13 @@ function(cube_mx_code_generation
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         ${LOG4J_PROPERTIES}
-        COMMAND python3
+        COMMAND ${XVFB_PREFIX} python3
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${BOARD_NAME}
         --log4j_properties_output ${LOG4J_PROPERTIES}
         --ioc ${IOC_FILE}
         --codegen_output_dir ${IOC_DIR}
         --cube_bin ${STM32CUBEMX_BIN_PATH}
-        --headless
 
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
         # this custom command is only executed when IOC_FILE.md5 changes.
