@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=arm
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
+          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
 
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
