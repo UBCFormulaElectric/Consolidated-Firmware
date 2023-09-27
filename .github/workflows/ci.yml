@@ -27,6 +27,7 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
+        
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04

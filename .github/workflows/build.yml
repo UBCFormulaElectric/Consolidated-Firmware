@@ -36,13 +36,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
-      # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
+
       - name: Build
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=arm
-          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
+
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
         if: ${{ inputs.upload_artifact }}
