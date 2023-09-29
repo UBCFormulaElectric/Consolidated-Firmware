@@ -215,11 +215,13 @@ static const SevenSegsConfig seven_segs_config = {
 };
 
 static const GlobalsConfig globals_config = {
-    .imd_led        = &imd_led,
-    .bspd_led       = &bspd_led,
-    .shdn_led       = &shdn_led,
-    .drive_led      = &drive_led,
-    .start_switch   = &start_switch,
+    .imd_led      = &imd_led,
+    .bspd_led     = &bspd_led,
+    .shdn_led     = &shdn_led,
+    .drive_led    = &drive_led,
+    .start_switch = &start_switch,
+    // TODO: Add Aux Switch
+
     .bms_status_led = &bms_status_led,
     .dcm_status_led = &dcm_status_led,
     .fsm_status_led = &fsm_status_led,
