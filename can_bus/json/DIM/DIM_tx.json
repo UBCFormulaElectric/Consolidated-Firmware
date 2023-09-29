@@ -19,9 +19,6 @@
         "signals": {
             "StartSwitch": {
                 "enum": "SwitchState"
-            },
-            "AuxSwitch": {
-                "enum": "SwitchState"
             }
         }
     },
