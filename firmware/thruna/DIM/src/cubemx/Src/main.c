@@ -121,13 +121,8 @@ static const Switch start_switch = {
     },
     .closed_state = true,
 };
-static const Switch aux_switch = {
-    .gpio = {
-        .port = AUX_IN_GPIO_Port,
-        .pin = AUX_IN_Pin,
-    },
-    .closed_state = true,
-};
+
+// TODO: Declare Start Switch Struct
 
 static const RgbLed bms_status_led = {
     .red_gpio = {
@@ -225,7 +220,6 @@ static const GlobalsConfig globals_config = {
     .shdn_led       = &shdn_led,
     .drive_led      = &drive_led,
     .start_switch   = &start_switch,
-    .aux_switch     = &aux_switch,
     .bms_status_led = &bms_status_led,
     .dcm_status_led = &dcm_status_led,
     .fsm_status_led = &fsm_status_led,
@@ -620,11 +614,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin */
-    GPIO_InitStruct.Pin  = AUX_IN_Pin | IGNTN_IN_Pin;
+    /*Configure GPIO pin : IGNTN_IN_Pin */
+    GPIO_InitStruct.Pin  = IGNTN_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(IGNTN_IN_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
     GPIO_InitStruct.Pin  = DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
