@@ -42,9 +42,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
 
-    // TODO: Read from Aux Switch
-
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+
+    // TODO: Read from Aux Switch
 
     const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
@@ -109,9 +109,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
 
         // TODO: Switch between min_cell_voltage and steering angle depending on aux switch value
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
     }
 }
 
