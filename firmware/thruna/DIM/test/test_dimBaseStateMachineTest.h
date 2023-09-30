@@ -63,12 +63,12 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
     struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
 
-    const BinaryLed       imd_led           = {};
-    const BinaryLed       bspd_led          = {};
-    const BinaryLed       shdn_led          = {};
-    const BinaryLed       drive_led         = {};
-    const Switch          start_switch      = {};
-    const Switch          aux_switch        = {};
+    const BinaryLed imd_led      = {};
+    const BinaryLed bspd_led     = {};
+    const BinaryLed shdn_led     = {};
+    const BinaryLed drive_led    = {};
+    const Switch    start_switch = {};
+    // const Switch          aux_switch        = {};
     const RgbLed          bms_status_led    = {};
     const RgbLed          dcm_status_led    = {};
     const RgbLed          fsm_status_led    = {};
@@ -77,12 +77,12 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
     const SevenSegsConfig seven_segs_config = {};
 
     const GlobalsConfig globals_config = {
-        .imd_led        = &imd_led,
-        .bspd_led       = &bspd_led,
-        .shdn_led       = &shdn_led,
-        .drive_led      = &drive_led,
-        .start_switch   = &start_switch,
-        .aux_switch     = &aux_switch,
+        .imd_led      = &imd_led,
+        .bspd_led     = &bspd_led,
+        .shdn_led     = &shdn_led,
+        .drive_led    = &drive_led,
+        .start_switch = &start_switch,
+        // .aux_switch     = &aux_switch,
         .bms_status_led = &bms_status_led,
         .dcm_status_led = &dcm_status_led,
         .fsm_status_led = &fsm_status_led,
