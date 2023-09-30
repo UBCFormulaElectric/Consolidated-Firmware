@@ -19,9 +19,13 @@
         "signals": {
             "StartSwitch": {
                 "enum": "SwitchState"
+            },
+        "Aux_Switch": {
+                "enum": "SwitchState"
             }
         }
     },
+
     "DIM_AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,
