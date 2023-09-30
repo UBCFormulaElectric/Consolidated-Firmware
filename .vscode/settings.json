@@ -6,5 +6,7 @@
 			],
 			"url": "/can_bus/json/schema_tx.json"
 		}
-	]
+  ],
+  "cmake.configureOnOpen": false,
+  "C_Cpp.errorSquiggles": "disabled"
 }
