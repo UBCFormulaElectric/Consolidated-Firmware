@@ -14,6 +14,7 @@
         "INVR_Temperatures1",
         "BMS_TractiveSystem",
         "FSM_Steering",
-        "Debug_CanModes"
+        "Debug_CanModes",
+        "FSM_Steering"
     ]
 }

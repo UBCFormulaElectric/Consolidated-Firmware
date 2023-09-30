@@ -41,8 +41,10 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     io_led_enable(globals->config->drive_led, in_drive_state);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
+    const bool aux_switch_on   = io_switch_isClosed(globals->config->aux_switch);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_Switches_StartSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     // TODO: Read from Aux Switch
 
@@ -99,6 +101,8 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // TODO: Read steering angle from CAN
 
+    const float steering_value = App_CanRx_FSM_Steering_SteeringAngle_Get();
+
     if (missing_hb)
     {
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, SSEG_HB_NOT_RECEIVED_ERR);
@@ -111,7 +115,10 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
 
         // TODO: Switch between min_cell_voltage and steering angle depending on aux switch value
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
+
+        float display_value = (aux_switch_on ? steering_value : min_cell_voltage);
+
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, display_value);
     }
 }
 
