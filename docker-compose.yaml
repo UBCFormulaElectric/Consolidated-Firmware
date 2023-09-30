@@ -4,7 +4,7 @@ services:
     image: ubcformulaelectric/environment:latest
     volumes:
       # Mount repo files into container.
-      - .:/home/Consolidated-Firmware
+      - .:/root/Consolidated-Firmware
       # Forward GUIs from container to local computer.
       - /tmp/.X11-unix/:/tmp/.X11-unix/
       # Forward USB connections.
