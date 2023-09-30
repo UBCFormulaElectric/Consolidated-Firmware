@@ -2,20 +2,21 @@
 
 #include <stdbool.h>
 #include "App_SharedConstants.h"
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-#endif
 
 typedef struct
 {
-#ifdef TARGET_EMBEDDED
     const Gpio srck_gpio;
     const Gpio rck_gpio;
     const Gpio ser_out_gpio;
     const Gpio dimming_gpio;
-#endif
 } SevenSegsConfig;
+#else
+EMPTY_STRUCT(SevenSegsConfig);
+#endif
 
 // 7-segs are grouped into 3 groups of 3 displays.
 typedef enum

@@ -58,3 +58,9 @@
 #define RAD_TO_DEG(r) (r * 180.0f / PI)
 
 #define MOTOR_RPM_TO_KMH(kmh) ((kmh) * (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO) //take rpm of whell to kph
+
+#define EMPTY_STRUCT(name)\
+typedef struct \
+{\
+    unsigned char _unused;\
+} name;
