@@ -12,6 +12,8 @@ typedef struct
     const BinaryLed *const shdn_led;
     const BinaryLed *const drive_led;
     const Switch *const    start_switch;
+    const Switch *const    aux_switch;
+
     // TODO: Add Aux Switch
 
     const RgbLed *const bms_status_led;
