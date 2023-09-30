@@ -4,7 +4,7 @@
 .*
 
 # Explicitly name which dot files/directories should NOT be ignored
-!/.gitignore
+!**/.gitignore
 !/.github
 !/.gitattributes
 !/.travis.yml

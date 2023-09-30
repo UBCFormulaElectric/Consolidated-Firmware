@@ -1,17 +1,18 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
-#if defined(TARGET_EMBEDDED)
+#ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-#endif
 
 typedef struct
 {
-#ifdef TARGET_EMBEDDED
     const Gpio gpio;
-#endif
 } BinaryLed;
+#else
+EMPTY_STRUCT(BinaryLed);
+#endif
 
 /**
  * Turn an LED on or off.
