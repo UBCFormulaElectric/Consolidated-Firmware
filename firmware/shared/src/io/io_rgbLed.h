@@ -1,19 +1,20 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-#endif
 
 typedef struct
 {
-#ifdef TARGET_EMBEDDED
     const Gpio red_gpio;
     const Gpio green_gpio;
     const Gpio blue_gpio;
-#endif
 } RgbLed;
+#else
+EMPTY_STRUCT(RgbLed);
+#endif
 
 /**
  * Enable an RGB LED.

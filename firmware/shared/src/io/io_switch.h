@@ -1,18 +1,19 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-#endif
 
 typedef struct
 {
-#ifdef TARGET_EMBEDDED
     const Gpio gpio;
     const bool closed_state; // GPIO state that indicates closed.
-#endif
 } Switch;
+#else
+EMPTY_STRUCT(Switch);
+#endif
 
 /**
  * Check if the switch is turned on (i.e. matches its `on_state`).
