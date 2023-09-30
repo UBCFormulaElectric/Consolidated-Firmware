@@ -3,6 +3,8 @@ if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+    elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+        set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
     else()
         set(STM32CUBEMX_BIN_PATH /usr/local/STM32CubeMX/STM32CubeMX)
     endif()
@@ -16,19 +18,6 @@ elseif("${PLATFORM}" STREQUAL "x86")
     # This target can be used to build the tests for all the boards
     add_custom_target(all_tests)
 endif()
-
-# If we're not running on macOS, assume this is either running in CI or in the dev container.
-# Since we invoke STM32CubeMX as part of building, and STM32CubeMX will fail if it does not 
-# detect a GUI, we use a virtual framebuffer (xvfb) to fake out the display. So, prefix any commands
-# that invoke STM32CubeMX with `xvfb-run`. 
-# However, on Mac, we don't support developing inside a dev container, since Docker doesn't support
-# USB passthrough on macOS. This requires Mac developers to set everything locally, and the virtual 
-# framebuffer is unnecessary. Also, xvfb is not supported on Mac so we're forced to not use it.
-# if(NOT MACOS)
-#     set(XVFB_PREFIX "xvfb-run")
-# else()
-#     set(XVFB_PREFIX "")
-# endif()
 
 # Generate C code for sending/receiving CAN messages for BOARD_NAME
 function(can_code_generation

@@ -6,7 +6,7 @@ import pyclibrary
 import jinja2
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True)
 class CFunction:
     name: str
     return_type: str

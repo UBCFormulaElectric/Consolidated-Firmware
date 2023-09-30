@@ -1,4 +1,7 @@
-set(CMAKE_SYSTEM_NAME Generic)
+if("${PLATFORM}" STREQUAL "arm")
+    set(CMAKE_SYSTEM_NAME Generic)
+endif()
+
 set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.11)
 
@@ -30,11 +33,6 @@ if("${PLATFORM}" STREQUAL "arm")
 elseif("${PLATFORM}" STREQUAL "x86")
     project("UBC Formula Electric Software" C CXX)
 endif()
-
-# Set a flag if on Mac.
-# if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-#     set(MACOS TRUE)
-# endif()
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
