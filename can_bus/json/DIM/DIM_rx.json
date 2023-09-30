@@ -13,7 +13,7 @@
         "BMS_CellVoltages",
         "INVR_Temperatures1",
         "BMS_TractiveSystem",
-        "FSM_Steering"
+        "FSM_Steering",
         "Debug_CanModes"
     ]
 }
