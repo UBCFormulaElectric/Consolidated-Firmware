@@ -6,15 +6,10 @@ services:
     volumes:
       # Mount repo files into container.
       - .:/root/Consolidated-Firmware
-      # Forward GUIs from container to local computer.
-      - /tmp/.X11-unix/:/tmp/.X11-unix/
       # Forward USB connections.
       - /dev/bus/usb:/dev/bus/usb
-      # Forward git credentials.
-      # NOTE: VS Code claims to do this out-of-the-box, but it mysteriously stopped working for me.
-      - ~/.gitconfig:/etc/gitconfig
     environment:
-      # DISPLAY must be set for GUI forwarding to work.
-      - DISPLAY=:0
+      # Set an environment variable set scripts can check if they're running inside the container.
+      - DEV_CONTAINER=true
     tty: true # Keeps service running indefinitely.
     privileged: true # Required for USB passthrough to work.

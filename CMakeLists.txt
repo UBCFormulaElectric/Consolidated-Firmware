@@ -1,4 +1,11 @@
-set(CMAKE_SYSTEM_NAME Generic)
+# On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
+# However, it is equally mysteriously required for building embedded binaries.
+# So, only run this if loading the embedded configuration.
+# TODO: Look into what is causing this.
+if("${PLATFORM}" STREQUAL "arm")
+    set(CMAKE_SYSTEM_NAME Generic)
+endif()
+
 set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.11)
 

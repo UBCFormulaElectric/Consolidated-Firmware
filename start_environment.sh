@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Start container in the background, as per the docker compose file. 
 docker compose up --detach
 
@@ -11,5 +13,4 @@ docker compose up --detach
 #         git config --global --add safe.directory /root/Consolidated-Firmware
 #
 # Run this at startup, using wildcard to get submodules too.
-docker exec ubcformulaelectric-develop git config --global --add safe.directory "*"
-
+docker exec ubcformulaelectric-develop git config --system --add safe.directory "*"

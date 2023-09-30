@@ -13,6 +13,7 @@ A repository for all software and firmware from UBC Formula Electric.
     - [Clone Repo](#clone-repo)
   - [Using the Dev Container](#using-the-dev-container)
     - [VS Code Extensions](#vs-code-extensions)
+    - [Saving a Git Token](#saving-a-git-token)
     - [Closing the Container](#closing-the-container)
   - [Building](#building)
     - [Load CMake](#load-cmake)
@@ -21,6 +22,7 @@ A repository for all software and firmware from UBC Formula Electric.
   - [Debugging](#debugging)
     - [Embedded](#embedded)
     - [Tests](#tests)
+  - [STM32CubeMX](#stm32cubemx)
   - [CAN Bus](#can-bus)
     - [Windows](#windows)
     - [Linux](#linux)
@@ -187,6 +189,19 @@ Running and step-through-debugging tests are also available through the "Run and
 
 We use a script called [fakegen](./scripts/code_generation/fakegen/README.md) to generate fake versions of IO-level code for tests. 
 Skimming the README is recommended if you're going to be working with unit tests.
+
+## STM32CubeMX
+
+STM32CubeMX is a program from STMicroelectronics to generate peripheral configuration code for STM32 microcontrollers.
+It can be used with a display to configure peripherals from a GUI, or from the command line to autogenerate code.
+It is invoked from the command line during builds to ensure the `.ioc` (STM32CubeMX config file) stays up to date with the code.
+
+Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it manually.Run the following on Linux/WSL from **outside the container.**
+
+```sh
+cd environment/scripts
+sudo python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
+```
 
 ## CAN Bus
 
