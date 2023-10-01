@@ -5,44 +5,97 @@ import Plot from 'react-plotly.js';
 
 import WebSocketComponent from './web_socket.tsx';
 
-
 const Graph = (props) => {
-	const [data, setData] = useState({});
-    const [formattedData, setFormattedData] = useState({
-        x: [],
-        y: [],
+    
+    const [data, setData] = useState({4: 1, 2: 3, 1:2});
+
+const mockData = [{
+    x: [1,2,3],
+    y: [2,4,5],
+    type: 'scatter',
+    mode: 'lines+markers',
+    name: "signal1" 
+}, {
+    x: [-1, 0 ,1],
+    y: [2, 3, 4],
+    type: 'scatter',
+    mode: 'lines+markers',
+    name: "signal2" 
+},
+{
+    x: [2, 3, 4],
+    y: [0, 1, 2],
+    type: 'scatter',
+    mode: 'lines+markers',
+    name: "signal3" 
+}
+];
+
+const [formattedData, setFormattedData] = useState([
+    {
+        x: [1,2,3],
+        y: [2,4,5],
         type: 'scatter',
         mode: 'lines+markers',
-        marker: {color: 'red'},
-    });
+        name: "signal1" 
+    }, {
+        x: [-1, 0 ,1],
+        y: [2, 3, 4],
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: "signal2" 
+    },
+    {
+        x: [2, 3, 4],
+        y: [0, 1, 2],
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: "signal3" 
+    },
+]);
 
-    
-    useEffect(() => {
-        // loads data from the websocket into the formattedData state
-        if (Object.keys(data).length !== 0) {
-            const currData = data["Signal1"];
-            const newFormattedData = formattedData;
+useEffect(() => {
+    // Check if data is not empty
+    if (Object.keys(data).length !== 0) {
+        // Initialize an empty array to hold the new formatted data
+        let newFormattedData = [...formattedData]; // Copy existing formattedData
 
-            for (let k in currData) {
-                let v = currData[k];
-                newFormattedData['x'].push(k);
-                newFormattedData['y'].push(v);
-            }
-            setFormattedData(newFormattedData);
+        const currData = data;
+        let xData = [];
+        let yData = [];
+
+        // Populate x and y arrays
+        for (let k in currData) {
+            let v = currData[k];
+            xData.push(k);
+            yData.push(v);
         }
-    }, [data]);
+
+        // Create a formatted data object for this signal
+        const formattedObj = {
+            x: xData,
+            y: yData,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: "signal5" 
+        };
+
+        // Add this formatted object to the newFormattedData array
+        newFormattedData.push(formattedObj);
+
+        // Update the state with the new formatted data
+        setFormattedData(newFormattedData);
+    }
+}, [data]); // Added formattedData as a dependency
+
 
     return (
         <div>
-          <WebSocketComponent socket={props.socket} setData={setData}/>
-          {/* each plot takes a data; starts with a preset state but once loaded plots new points by adding k/v to 
-          the x/y arrays respectively */}
-    
-          <Plot
-            data={[formattedData]}
-            layout={ {width: "50%", height: "50%", title: 'Sample signal'} }
-          />
-          
+            <WebSocketComponent socket={props.socket} setData={setData} />
+            <Plot
+                data={formattedData} // Pass the array of formatted data objects
+                layout={{ width: "50%", height: "50%", title: 'Sample signal' }}
+            />
         </div>
     );
 }
