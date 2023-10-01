@@ -109,9 +109,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, min_cell_voltage);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
     }
 }
 
