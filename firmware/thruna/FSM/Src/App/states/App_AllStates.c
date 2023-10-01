@@ -41,7 +41,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
     {
-        error_count++;
+        // error_count++;
     }
     else
     {
