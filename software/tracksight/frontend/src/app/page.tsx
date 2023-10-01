@@ -8,6 +8,7 @@ const { Header, Content } = Layout;
 import styles from './page.module.css';
 import NavBar from './components/navbar.tsx';
 import Graph from './components/graph.tsx';
+import Dashboard from './components/dashboard.tsx';
 import DropdownMenu from './components/dropdown_menu';
 
 const Home = () => {
@@ -46,7 +47,7 @@ const Home = () => {
             <Graph socket={socketInstance}/>
         </div>);
     } else {
-        componentToRender = (<p>Hello</p>);
+        componentToRender = (<Dashboard></Dashboard>);
     }
 
     return (

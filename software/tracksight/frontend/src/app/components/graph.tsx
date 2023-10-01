@@ -18,6 +18,7 @@ const Graph = (props) => {
 
     
     useEffect(() => {
+        // loads data from the websocket into the formattedData state
         if (Object.keys(data).length !== 0) {
             const currData = data["Signal1"];
             const newFormattedData = formattedData;
@@ -34,10 +35,14 @@ const Graph = (props) => {
     return (
         <div>
           <WebSocketComponent socket={props.socket} setData={setData}/>
+          {/* each plot takes a data; starts with a preset state but once loaded plots new points by adding k/v to 
+          the x/y arrays respectively */}
+    
           <Plot
             data={[formattedData]}
-            layout={ {width: "100%", height: "100%", title: 'Sample signal'} }
+            layout={ {width: "50%", height: "50%", title: 'Sample signal'} }
           />
+          
         </div>
     );
 }

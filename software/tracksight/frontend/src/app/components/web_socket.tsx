@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, React } from 'react';
+//  WebSockets provide a full-duplex (two-way) communication channel over a single, 
+// long-lived connection, making it ideal for real-time data transfer between the client and server.
 
 const WebSocketComponent = (props) => {
 
