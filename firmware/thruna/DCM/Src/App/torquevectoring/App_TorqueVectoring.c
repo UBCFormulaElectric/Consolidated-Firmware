@@ -9,7 +9,7 @@
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
-#define MOTOR_NOT_SPINNING_SPEED_RPM 100
+#define MOTOR_NOT_SPINNING_SPEED_RPM 30
 
 static TimerChannel pid_timeout;
 
