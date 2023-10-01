@@ -139,7 +139,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        App_SevenSegDisplays_SetGroupL(seven_seg_displays, speed_kph);
+        App_SevenSegDisplays_SetGroupL(seven_seg_displays, min_cell_voltage);
         App_SevenSegDisplays_SetGroupM(seven_seg_displays, instant_power);
         App_SevenSegDisplays_SetGroupR(seven_seg_displays, accelerator_pedal_percent);
     }
