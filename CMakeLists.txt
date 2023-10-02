@@ -32,6 +32,10 @@ else()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
+message("✅ Update Python Dependencies")
+execute_process(COMMAND pip install -r ${CMAKE_SOURCE_DIR}/environment/requirements.txt
+                OUTPUT_QUIET)
+
 message("✅ Configuring for ${PLATFORM} build target")
 
 # Target-platform specific settings
