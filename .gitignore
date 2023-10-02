@@ -130,3 +130,7 @@ can_bus/**/*.dbc
 # CMake build directories
 build_arm
 build_x86
+
+environment/bin
+CMakeUserPresets.json
+build
