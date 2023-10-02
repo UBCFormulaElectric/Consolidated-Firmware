@@ -32,6 +32,11 @@ else()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
+
+find_program(PIP_COMMAND pip)
+IF(NOT PIP_COMMAND)
+    message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
+ENDIF()
 message("✅ Update Python Dependencies")
 execute_process(COMMAND pip install -r ${CMAKE_SOURCE_DIR}/environment/requirements.txt
                 OUTPUT_QUIET)
