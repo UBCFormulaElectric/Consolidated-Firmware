@@ -12,12 +12,12 @@ const [message, setMessage] = useState('');
         props.socket.on("available_signals_response", (data) => {
             console.log(data);
             console.log(typeof data);
-            props.set_available_signals(JSON.parse(data));
+            //props.set_available_signals(JSON.parse(data));
         });
     }, [props.socket]);
 
     const handleSubmit = () => {
-        props.socket.emit("signals", {"ids": ["Signal1"]});
+        props.socket.emit("signals", { "ids": [props.selectedSignal] });
     };
 
     useEffect(() => {
@@ -27,13 +27,13 @@ const [message, setMessage] = useState('');
     }, [props.socket]);
 
     useEffect(() => {
-        socket.on('server_message', (msg) => {
+        props.socket.on('server_message', (msg) => {
           setMessage(msg);
         });
         
         // Cleanup
         return () => {
-          socket.off('server_message');
+          props.socket.off('server_message');
         };
       }, []);
       

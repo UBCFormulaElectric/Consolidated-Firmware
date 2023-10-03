@@ -17,7 +17,9 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const socket = io("localhost:5000/", {
+        // NOTE -> io address may have to change depending on where your server is run. Once you run the server, it will tell you where it is running
+        // i.e Running on http://127.0.0.1:5000, so you would change the io address to that
+        const socket = io("http://127.0.0.1:5000/", {
             transports: ["websocket"],
             cors: {
                 origin: "http://localhost:3000/",
@@ -27,9 +29,9 @@ const Home = () => {
         setSocketInstance(socket)
         socket.on("connect", (data) => {
             console.log(data);
+            setLoading(false);
         });
 
-        setLoading(false);
 
         socket.on("disconnect", (data) => {
             console.log(data);

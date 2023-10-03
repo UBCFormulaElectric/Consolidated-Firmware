@@ -20,12 +20,12 @@ class SignalUtil:
         else:
             pass
 
-    # returns all signals in data in json format
+    # returns all signals in data
     def get_all_signals(self):
         return self.df.iloc[:, 0:]
 
-    # return target signal in json format 
+    # return target signal
     def get_signal(self, s_id):
-        return self.df[s_id]
+        return self.df[s_id].to_json()
     
 

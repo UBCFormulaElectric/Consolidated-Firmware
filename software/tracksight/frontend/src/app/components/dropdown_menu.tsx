@@ -6,45 +6,42 @@ import WebSocketComponent from './web_socket';
 
 
 const DropdownMenu = (props) => {
-    const [data, setData] = useState(["Signal1", "Signal2"]) // Format is list of signals 
-    const [items, setItems] = useState<MenuProps['items']>([]);
-    const noItems: [] = [{
-        key: "1",
-        label: "No Avaliable Signals"
-    }];
+    const [data, setData] = useState([]); // Format is list of signals
+    const [items, setItems] = useState([]);
+    const [selectedSignal, setSelectedSignal] = useState("");
 
     // Request available signals through socket on render
-    props.socket.emit("available_signals", {"ids" : []});
-
     useEffect(() => {
-        if (data.length > 0) {
-            const res = []
-            for (let i = 0; i < data.length; i++) {
-                res.push({
-                    key: i.toString(),
-                    label: (
-                        data[i]
-                    )
-                })
-            }
-            setItems(res)
-        } else {
-            setItems(noItems)
-        }
+        props.socket.emit("available_signals", {"ids": []});
+        
+        // Listen for the server's response
+        props.socket.on("available_signals_response", (signalNames) => {
+            // Update the state with new data
+            setData(signalNames);
+        });
 
-
+        // Cleanup
         return () => {
-            props.socket.off("available_signals");
-        }
-   
-    
-    }, [data]);
+            props.socket.off("available_signals_response");
+        };
+    }, [props.socket]);
 
-    props.socket.getAvailableSignals
+    // Update dropdown items whenever data changes
+    useEffect(() => {
+        const updatedItems = data.map((signalName, index) => ({
+            key: index.toString(),
+            label: (
+                <p onClick={() => setSelectedSignal(signalName)}>
+                  {signalName}
+                </p>
+              ),
+        }));
+        setItems(updatedItems);
+    }, [data]);
 
     return (
         <div>
-            <WebSocketComponent socket={props.socket} setAvailableSignals={setData} />
+            <WebSocketComponent socket={props.socket} setAvailableSignals={setData} selectedSignal={selectedSignal} />
             <Dropdown menu={{ items }}>
                 <a onClick={(e) => e.preventDefault()}>
                     <Space>
@@ -53,7 +50,8 @@ const DropdownMenu = (props) => {
                     </Space>
                 </a>
             </Dropdown>
-        </div>);
+        </div>
+    );
 };
 
 export default DropdownMenu;

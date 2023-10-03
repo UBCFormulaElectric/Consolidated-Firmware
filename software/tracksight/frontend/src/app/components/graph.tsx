@@ -7,52 +7,9 @@ import WebSocketComponent from './web_socket.tsx';
 
 const Graph = (props) => {
     
-    const [data, setData] = useState({4: 1, 2: 3, 1:2});
+    const [data, setData] = useState({});
 
-const mockData = [{
-    x: [1,2,3],
-    y: [2,4,5],
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: "signal1" 
-}, {
-    x: [-1, 0 ,1],
-    y: [2, 3, 4],
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: "signal2" 
-},
-{
-    x: [2, 3, 4],
-    y: [0, 1, 2],
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: "signal3" 
-}
-];
-
-const [formattedData, setFormattedData] = useState([
-    {
-        x: [1,2,3],
-        y: [2,4,5],
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: "signal1" 
-    }, {
-        x: [-1, 0 ,1],
-        y: [2, 3, 4],
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: "signal2" 
-    },
-    {
-        x: [2, 3, 4],
-        y: [0, 1, 2],
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: "signal3" 
-    },
-]);
+    const [formattedData, setFormattedData] = useState([]);
 
 useEffect(() => {
     // Check if data is not empty
