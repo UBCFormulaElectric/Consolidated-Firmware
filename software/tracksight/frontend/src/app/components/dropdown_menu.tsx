@@ -6,7 +6,7 @@ import WebSocketComponent from './web_socket';
 
 
 const DropdownMenu = (props) => {
-    const [data, setData] = useState([]) // Format is list of signals 
+    const [data, setData] = useState(["Signal1", "Signal2"]) // Format is list of signals 
     const [items, setItems] = useState<MenuProps['items']>([]);
     const noItems: [] = [{
         key: "1",
@@ -31,6 +31,13 @@ const DropdownMenu = (props) => {
         } else {
             setItems(noItems)
         }
+
+
+        return () => {
+            props.socket.off("available_signals");
+        }
+   
+    
     }, [data]);
 
     props.socket.getAvailableSignals
