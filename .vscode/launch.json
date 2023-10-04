@@ -77,7 +77,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/BMS/BMS_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: BMS_test"
     },
     {
@@ -86,7 +85,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: DCM_test"
     },
     {
@@ -95,7 +93,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/FSM/FSM_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: FSM_test"
     },
     {
@@ -104,7 +101,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/PDM/PDM_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: PDM_test"
     },
     {
@@ -113,7 +109,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/DIM/DIM_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: DIM_test"
     },
     {
@@ -122,7 +117,6 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
-      "MIMode": "gdb",
       "preLaunchTask": "Build: shared_test"
     },
   ]
