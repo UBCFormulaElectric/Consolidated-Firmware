@@ -32,10 +32,10 @@ def handle_available_signals(message):
     signal_names = list(signals.keys())  # returns list of keys 
     socketio.emit('available_signals_response', signal_names)  # Emit the signal names to the client
 
-
+@socketio.on('signal')
 def handle_signal_message(message):
     ids = message["ids"]
-    signals = {id_: signal_util.get_signal(id_) for id_ in ids}  # Fetch only the requested signals
+    signals = {id_: signal_util.get_signal(id_).to_dict() for id_ in ids}
     socketio.emit("signal_response", signals)
 
 if __name__ == '__main__':

@@ -41,7 +41,7 @@ const DropdownMenu = (props) => {
 
     return (
         <div>
-            <WebSocketComponent socket={props.socket} setAvailableSignals={setData} selectedSignal={selectedSignal} />
+            <WebSocketComponent socket={props.socket} setData={props.setData} selectedSignal={selectedSignal} />
             <Dropdown menu={{ items }}>
                 <a onClick={(e) => e.preventDefault()}>
                     <Space>

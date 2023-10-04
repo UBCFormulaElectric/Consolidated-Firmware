@@ -26,6 +26,6 @@ class SignalUtil:
 
     # return target signal
     def get_signal(self, s_id):
-        return self.df[s_id].to_json()
+        return self.df[s_id]
     
 

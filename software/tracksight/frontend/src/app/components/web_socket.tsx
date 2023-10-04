@@ -8,23 +8,21 @@ import { useEffect, useState, React } from 'react';
 const WebSocketComponent = (props) => {
 const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        props.socket.on("available_signals_response", (data) => {
-            console.log(data);
-            console.log(typeof data);
-            //props.set_available_signals(JSON.parse(data));
-        });
-    }, [props.socket]);
 
     const handleSubmit = () => {
-        props.socket.emit("signals", { "ids": [props.selectedSignal] });
+        props.socket.emit("signal", { "ids": [props.selectedSignal] });
     };
 
     useEffect(() => {
         props.socket.on("signal_response", (data) => {
-            props.setData(JSON.parse(data));
+            console.log(data);
+            if (typeof props.setData === 'function') {
+            props.setData(data);
+            } else {
+                console.error('setData is not a function');
+            }
         });
-    }, [props.socket]);
+    }, [props.socket], [props.setData]);
 
     useEffect(() => {
         props.socket.on('server_message', (msg) => {

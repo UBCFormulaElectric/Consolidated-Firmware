@@ -45,7 +45,6 @@ const Home = () => {
     if (componentToDisplay === "visualize") {
         componentToRender = (
         <div>
-            <DropdownMenu socket={socketInstance} />
             <Graph socket={socketInstance}/>
         </div>);
     } else {
