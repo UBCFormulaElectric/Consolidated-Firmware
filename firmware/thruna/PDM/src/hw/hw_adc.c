@@ -1,7 +1,7 @@
+#include "hw_adc.h"
 #include <assert.h>
-#include "Io_Hal.h"
+#include "hw_hal.h"
 #include "Io_SharedAdc.h"
-#include "Io_Adc.h"
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
 static float    adc_voltages[NUM_ADC_CHANNELS];
@@ -32,12 +32,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
         Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_15]);
 }
 
-uint16_t *Io_Adc_GetRawAdcValues(void)
+uint16_t *hw_adc_getRawValuesBuffer(void)
 {
     return raw_adc_values;
 }
 
-float Io_Adc_GetChannelVoltage(AdcChannel channel)
+float hw_adc_getVoltage(AdcChannel channel)
 {
     assert(channel < NUM_ADC_CHANNELS);
     return adc_voltages[channel];

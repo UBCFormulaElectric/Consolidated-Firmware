@@ -42,14 +42,14 @@ typedef enum
 } AdcChannel;
 
 /**
- * Get the buffer for DMA controller to write raw ADC values into
- * @return Pointer to the buffer
+ * Get the buffer for DMA controller to write raw ADC values into.
+ * @return Pointer to the buffer.
  */
-uint16_t *Io_Adc_GetRawAdcValues(void);
+uint16_t *hw_adc_getRawValuesBuffer(void);
 
 /**
- * Get the voltage measured at an ADC channel
- * @param channel The channel to get the voltage from
- * @return The voltage measured at the specified ADC channel, in volts
+ * Get the voltage measured at an ADC channel.
+ * @param channel The channel to get the voltage from.
+ * @return The voltage measured at the specified ADC channel, in volts.
  */
-float Io_Adc_GetChannelVoltage(AdcChannel channel);
+float hw_adc_getVoltage(AdcChannel channel);

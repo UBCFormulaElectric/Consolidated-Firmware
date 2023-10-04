@@ -1,8 +1,8 @@
 #include <assert.h>
 
+#include "io_stackWaterMark.h"
 #include "main.h"
 #include "App_SharedMacros.h"
-#include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
 #include "App_CanTx.h"
 #include "App_CanAlerts.h"
@@ -17,9 +17,9 @@ extern TaskHandle_t TaskCanTxHandle;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
+static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_SetWarning(PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ, true);
+    App_CanAlerts_SetWarning(PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ, true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
@@ -27,9 +27,9 @@ static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
     App_CanAlerts_SetWarning(PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ, true);
 }
 
-static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
+static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_SetWarning(PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ, true);
+    App_CanAlerts_SetWarning(PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ, true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
@@ -76,7 +76,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
 };
 
-void Io_StackWaterMark_Check(void)
+void io_stackWaterMark_check(void)
 {
     Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

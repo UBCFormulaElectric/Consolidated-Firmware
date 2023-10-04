@@ -31,8 +31,8 @@
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_StackWaterMark.h"
-#include "Io_SoftwareWatchdog.h"
+#include "io_stackWaterMark.h"
+#include "io_watchdogConfig.h"
 #include "Io_VoltageSense.h"
 #include "Io_CurrentSense.h"
 #include "Io_SharedHeartbeatMonitor.h"
@@ -198,7 +198,7 @@ int main(void)
     HAL_TIM_Base_Start(&htim3);
 
     Io_SharedHardFaultHandler_Init();
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
@@ -833,7 +833,7 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
+        io_stackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
