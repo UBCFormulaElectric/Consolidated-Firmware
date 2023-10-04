@@ -74,34 +74,34 @@
 //     }
 // };
 
-void io_efuse_init(EFuse* efuse, const EfuseConfig* config)
+void io_efuse_init(EFuse *efuse, const EfuseConfig *config)
 {
     assert(efuse);
     assert(config);
-    efuse->config = config;
+    efuse->config  = config;
     efuse->enabled = false;
 }
 
-void io_efuse_setChannel(EFuse* efuse, bool enabled)
+void io_efuse_setChannel(EFuse *efuse, bool enabled)
 {
     assert(efuse);
     hw_gpio_writePin(&efuse->config->enable_gpio, enabled);
     efuse->enabled = enabled;
 }
 
-bool io_efuse_isChannelEnabled(EFuse* efuse)
+bool io_efuse_isChannelEnabled(EFuse *efuse)
 {
     assert(efuse);
     return efuse->enabled;
 }
 
-float io_efuse_getChannelCurrent(EFuse* efuse)
+float io_efuse_getChannelCurrent(EFuse *efuse)
 {
     assert(efuse);
     return hw_adc_getVoltage(efuse->config->isense_adc_channel) * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
-void io_efuse_standbyReset(EFuse* efuse)
+void io_efuse_standbyReset(EFuse *efuse)
 {
     assert(efuse);
 

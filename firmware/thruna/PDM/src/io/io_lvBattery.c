@@ -11,9 +11,9 @@
 #define VBOOST_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 #define VACC_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 
-static const LvBatteryConfig* config; 
+static const LvBatteryConfig *config;
 
-void io_lvBattery_init(const LvBatteryConfig* lv_batt_config)
+void io_lvBattery_init(const LvBatteryConfig *lv_batt_config)
 {
     config = lv_batt_config;
 }
@@ -26,7 +26,8 @@ bool io_lvBattery_hasChargeFault(void)
 
 bool io_lvBattery_hasBoostControllerFault(void)
 {
-    // PGOOD pin on LTC3786 boost converter is pulled low when the output voltage is more than ±10 % away from the regulated output voltage.
+    // PGOOD pin on LTC3786 boost converter is pulled low when the output voltage is more than ±10 % away from the
+    // regulated output voltage.
     return !hw_gpio_readPin(&config->ltc3786_boost_fault_gpio);
 }
 

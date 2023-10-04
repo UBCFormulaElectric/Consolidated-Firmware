@@ -6,43 +6,43 @@
 
 typedef struct
 {
-    const Gpio enable_gpio;
-    const Gpio stby_reset_gpio;
+    const Gpio       enable_gpio;
+    const Gpio       stby_reset_gpio;
     const AdcChannel isense_adc_channel;
 } EfuseConfig;
 
-typedef struct 
+typedef struct
 {
-    bool enabled;
-    const EfuseConfig* config;
+    bool               enabled;
+    const EfuseConfig *config;
 } EFuse;
- 
- /**
+
+/**
  * Initialize an efuse.
  * @param efuse EFuse to init.
  * @param config Config params.
  */
-void io_efuse_init(EFuse* efuse, const EfuseConfig* config);
+void io_efuse_init(EFuse *efuse, const EfuseConfig *config);
 
 /**
  * Enable or disable the provided efuse.
  * @param efuse Efuse to enable/disable.
  * @param enabled Enable if enabled is true, disable if false.
  */
-void io_efuse_setChannel(EFuse* efuse, bool enabled);
+void io_efuse_setChannel(EFuse *efuse, bool enabled);
 
 /**
  * Get whether or not an efuse is enabled.
  * @return If efuse is enabled.
  */
-bool io_efuse_isChannelEnabled(EFuse* efuse);
+bool io_efuse_isChannelEnabled(EFuse *efuse);
 
 /**
  * Get the current drawn by an efuse.
  * @param efuse Efuse to read current from
  * @return The current read from the provided efuse, in A.
  */
-float io_efuse_getChannelCurrent(EFuse* efuse);
+float io_efuse_getChannelCurrent(EFuse *efuse);
 
 /**
  * De-latch faults on a given efuse. The VND5T100LAx-E will latch itself
@@ -59,4 +59,4 @@ float io_efuse_getChannelCurrent(EFuse* efuse);
  *
  * @param efuse Channel to delatch faults for.
  */
-void io_efuse_standbyReset(EFuse* efuse);
+void io_efuse_standbyReset(EFuse *efuse);
