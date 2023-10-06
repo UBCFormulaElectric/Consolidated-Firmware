@@ -23,6 +23,7 @@
 #define BALANCE_DEFAULT_DUTY (50) // %
 #define BALANCE_TICKS_ON (100U)
 #define BALANCE_TICKS_OFF (100U)
+#define INTERNAL_CELL_RESISTANCE_OHMS (0.0025f)
 
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
@@ -395,7 +396,7 @@ bool App_Accumulator_DisableBalance(const struct Accumulator *const accumulator)
     return accumulator->disable_balance();
 }
 
-void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
+void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
 {
     switch (accumulator->state)
     {
@@ -477,6 +478,25 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     float max_allowable_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
+    float cell_voltage_minimum = 0;
+
+    for(uint8_t seg; seg <= 4; seg++){
+        float cell_voltage = App_Accumulator_GetAverageCellVoltage(accumulator, seg);
+        float cell_voltage_sum += cell_voltage;
+        if(cell_voltage < cell_voltage_minimum){
+            cell_voltage_minimum = cell_voltage;
+        }
+    }
+    float = cell_voltage_avg = cell_voltage_sum/4.0;
+    float segment_current = App_TractiveSystem_GetCurrent(ts);
+
+    num_of_cells = (segment_current)*INTERNAL_RESISTANCE/
+                        (cell_voltage_avg - cell_voltage_minimum + segment_current*INTERNAL_CELL_RESISTANCE_OHMS/3.0);
+    
+    if(num_of_cells < 2.5){
+        blown_fuse = true;
+        App_CanAlerts_SetFault(BMS_FAULT_BLOWN_CELL_FUSE, blown_fuse);
+    }
     // if we are charging, max cell temp is 45C not 60C
     if (App_TractiveSystem_GetCurrent(ts) > 3.0f)
     {
@@ -500,7 +520,7 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_BMS_Fault_CellOvertemp_Set(overtemp_fault);
     App_CanAlerts_BMS_Fault_ModuleCommunicationError_Set(communication_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault || blown_fuse);
 }
 
 void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator)
