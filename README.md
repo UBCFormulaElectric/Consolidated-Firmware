@@ -13,7 +13,7 @@ A repository for all software and firmware from UBC Formula Electric.
     - [Clone Repo](#clone-repo)
   - [Using the Dev Container](#using-the-dev-container)
     - [VS Code Extensions](#vs-code-extensions)
-    - [Git in Container](#git-in-container)
+    - [Saving a Git Token](#saving-a-git-token)
     - [Closing the Container](#closing-the-container)
   - [Building](#building)
     - [Load CMake](#load-cmake)
@@ -22,6 +22,7 @@ A repository for all software and firmware from UBC Formula Electric.
   - [Debugging](#debugging)
     - [Embedded](#embedded)
     - [Tests](#tests)
+  - [STM32CubeMX](#stm32cubemx)
   - [CAN Bus](#can-bus)
     - [Windows](#windows)
     - [Linux](#linux)
@@ -40,7 +41,7 @@ For more information, and to see how to update the Docker container, see our [Do
 1. Docker Desktop: Required for running Docker. Available on [Windows](https://docs.docker.com/desktop/install/windows-install/), 
 [Linux](https://docs.docker.com/desktop/install/linux-install/), and
 [Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so please follow the instructions carefully!
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack`), which is required for connecting to Docker containers.
+2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which is required for connecting to Docker containers.
 
 ### WSL Setup (Windows only)
 
@@ -50,7 +51,7 @@ With WSL, we can run a Linux distribution on top of Windows, with excellent perf
 To install WSL, start Windows PowerShell as an administrator (Start > Search for PowerShell > Run as Administrator), and run:
 
 ```sh
-wsl --install
+wsl --install -d Ubuntu
 ```
 
 This installs Ubuntu by default, and requires a restart. 
@@ -68,13 +69,16 @@ sudo apt install linux-tools-generic hwdata
 sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/*-generic/usbip 20
 ```
 These commands are sourced from [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
+
 3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases) (the `.msi`). 
 
 **Note: All following steps must be completed from within WSL!**
 
 ### Clone Repo
 
-Navigate to where you want to clone the repo and run:
+Navigate to where you want to clone the repo and run the following commands. 
+
+Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
 
 ```sh
 # Install Git LFS.
@@ -82,7 +86,7 @@ apt update && apt install git-lfs
 git lfs install
 
 # Clone repo and update submodules.
-git clone <repo link>
+git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
 cd Consolidated-Firmware
 git submodule update --init --recursive
 git lfs pull
@@ -93,7 +97,7 @@ git lfs pull
 To start the development Docker container, navigate to the repo root and run: 
 
 ```sh
-docker compose up --detach
+./start_environment.sh
 ```
 
 If you're on Windows and get the error:
@@ -111,7 +115,7 @@ If you're on Linux/Mac and get an error about failing to mount `/tmp`, you may n
 Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
 
 From VS Code, click the arrows in the bottom left and select "Attach to Running Container". 
-Select the `consolidated-firmware-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
+Select the `ubcformulaelectric-develop` option and VS Code should connect you to the container. From here, you can open the repo and build code from VS Code's integrated terminal.
 
 ### VS Code Extensions
 
@@ -120,21 +124,20 @@ Install the following VS Code extensions into the container (should only be requ
 - Python (`ms-python.python`)
 - Cortex-Debug (`marus25.cortex-debug`) 
 
-### Git in Container
-
-VS Code's Dev Container extension should forward your git credentials into the container, so git should work out-of-the-box in the container.
-The first time using git in the container, there will probably be a warning about dubious repo ownership. 
-To suppress this, run: 
-
-```sh
-git config --global --add safe.directory /root/Consolidated-Firmware
-```
-
 (It should prompt you to do this)
 
+### Saving a Git Token
+
+If you would like the terminal to stop prompting you for Username and Password when pushing to the repo (since we are not using ssh) use the following commands once you have a git token. Note, that this will mean your token is stored unencrypted.
+
+```sh
+git config credential.helper store
+git push
+# Paste your token for both Username and Password and it should not ask when pushing again.
+```
 ### Closing the Container
 
-When you're finished developing and want to stop the container, run this from the repo root:
+When you're finished developing and want to stop the container, run this from the repo root (must be outside of the container):
 ```sh
 docker compose down
 ```
@@ -183,6 +186,22 @@ Integration with VS Code's step-through debuggers should work out-of-the-box aft
 ### Tests
 
 Running and step-through-debugging tests are also available through the "Run and Debug" menu.
+
+We use a script called [fakegen](./scripts/code_generation/fakegen/README.md) to generate fake versions of IO-level code for tests. 
+Skimming the README is recommended if you're going to be working with unit tests.
+
+## STM32CubeMX
+
+STM32CubeMX is a program from STMicroelectronics to generate peripheral configuration code for STM32 microcontrollers.
+It can be used with a display to configure peripherals from a GUI, or from the command line to autogenerate code.
+It is invoked from the command line during builds to ensure the `.ioc` (STM32CubeMX config file) stays up to date with the code.
+
+Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it manually.Run the following on Linux/WSL from **outside the container.**
+
+```sh
+cd environment/scripts
+sudo python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
+```
 
 ## CAN Bus
 

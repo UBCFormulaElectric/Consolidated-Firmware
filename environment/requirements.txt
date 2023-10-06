@@ -3,3 +3,5 @@ schema
 strenum
 pyocd
 cantools
+pyclibrary
+jinja2
