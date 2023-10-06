@@ -396,7 +396,7 @@ bool App_Accumulator_DisableBalance(const struct Accumulator *const accumulator)
     return accumulator->disable_balance();
 }
 
-void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
+void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
     switch (accumulator->state)
     {
