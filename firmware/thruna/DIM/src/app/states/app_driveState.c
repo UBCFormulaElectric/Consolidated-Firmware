@@ -45,6 +45,8 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     // TODO: Read from Aux Switch
+    const bool start_aux_on = io_switch_isClosed(globals->config->aux_switch);
+    APP_CANTx_DIM__Switches_AuxSwitch_Set(start_aux_on ? SWITCH_ON : SWITCH_OFF);
 
     const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
@@ -98,6 +100,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
     // TODO: Read steering angle from CAN
+    const float steering_value = App_CANRx_FSM_SteeringAngle_Get();
 
     if (missing_hb)
     {
@@ -111,7 +114,11 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
 
         // TODO: Switch between min_cell_voltage and steering angle depending on aux switch value
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
+        if(start_aux_on){
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, steering_value);
+        }else{
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
+        }
     }
 }
 
