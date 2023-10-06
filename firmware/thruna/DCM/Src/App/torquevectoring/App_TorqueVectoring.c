@@ -174,7 +174,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
     {
-        torque_left_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
+        torque_left_final_Nm  = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
         torque_right_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
     }
 
