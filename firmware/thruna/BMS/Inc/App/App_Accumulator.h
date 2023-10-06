@@ -162,7 +162,7 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
-void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
+void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator, struct TractiveSystem *const ts);
 
 /**
  * Check the status of Accumulator faults, sends warning over CAN bus
