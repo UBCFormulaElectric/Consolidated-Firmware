@@ -2,7 +2,7 @@
 
 import { useEffect, useState, React } from 'react';
 import { io } from "socket.io-client";
-import { Layout } from 'antd';
+import { Layout, Divider, Button } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
@@ -15,6 +15,13 @@ const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
+    const [graphs, setGraphs] = useState([]);
+
+    // logic to add a new graph
+    const addGraph = () => {
+        const newGraphId = Date.now();  
+        setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+    };
 
     useEffect(() => {
         // NOTE -> io address may have to change depending on where your server is run. Once you run the server, it will tell you where it is running
@@ -44,8 +51,17 @@ const Home = () => {
     let componentToRender;
     if (componentToDisplay === "visualize") {
         componentToRender = (
-        <div>
-            <Graph socket={socketInstance}/>
+        <div className="layout">
+            <h1>Visualize</h1>
+            <p>Select a signal from the dropdown menu and the press submit to visualize the data on the graph.</p>
+            <Button onClick={addGraph}>Add Another Graph</Button>
+            <Divider></Divider>
+            <div className="flex-container">
+            {graphs.map(graphId => (
+                <Graph key={graphId} id={graphId} socket={socketInstance}/>
+                
+            ))}
+            </div>
         </div>);
     } else {
         componentToRender = (<Dashboard></Dashboard>);

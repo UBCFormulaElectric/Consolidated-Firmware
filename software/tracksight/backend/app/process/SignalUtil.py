@@ -6,7 +6,7 @@ from pathlib import Path
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
 import Definitions 
-MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data.csv"
+MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data2.csv"
 
 class SignalUtil:
     def __init__(self, is_mock = True):

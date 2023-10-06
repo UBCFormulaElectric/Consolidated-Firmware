@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState, React } from 'react';
+import { Button, Space } from 'antd';
 //  WebSockets provide a full-duplex (two-way) communication channel over a single, 
 // long-lived connection, making it ideal for real-time data transfer between the client and server.
 
@@ -39,7 +40,7 @@ const [message, setMessage] = useState('');
     return (
         <div>
           <h2>WebSocket Communication</h2>
-          <button onClick={handleSubmit}>submit</button>
+          <Button onClick={handleSubmit}>submit</Button>
         </div>
     );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, React } from 'react';
 import Plot from 'react-plotly.js';
 import DropdownMenu from './dropdown_menu.tsx';
+import { Button } from 'antd';
 
 const Graph = (props) => {
     
@@ -10,11 +11,21 @@ const Graph = (props) => {
     const [formattedData, setFormattedData] = useState([]);
     const [graphName, setGraphName] = useState("Empty");
 
+    // adds a signal to a graph 
     const updateData = (newData) => {
         setData(oldData => {
             return {...oldData, ...newData};
         });
     }
+
+    //resets a graphs data
+    const clearData = () => {
+        setFormattedData([]);
+        setGraphName("Empty");
+        setData({});
+    }
+
+    
 
     useEffect(() => {
         // Check if data is not empty
@@ -38,7 +49,6 @@ const Graph = (props) => {
                     yData.push(signalData[date]);
                 }
     
-                // Create a formatted data object for this signal
                 const formattedObj = {
                     x: xData,
                     y: yData,
@@ -58,15 +68,17 @@ const Graph = (props) => {
             setFormattedData(newFormattedData);
             setGraphName(newGraphName);
         }
-    }, [data]);  // removed formattedData as a dependency to avoid infinite loop
+    }, [data]);  
 
     return (
         <div>
             <DropdownMenu socket={props.socket} setData={updateData} />
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
-                layout={{ width: "50%", height: "50%", title: graphName }}
+                layout={{ width: 650, height: 500, title: graphName }}
             />
+            <br></br>
+            <Button onClick={clearData}>Clear</Button>
         </div>
     );
 }
