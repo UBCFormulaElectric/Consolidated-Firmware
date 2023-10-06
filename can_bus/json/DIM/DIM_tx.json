@@ -15,9 +15,12 @@
     "DIM_Switches": {
         "msg_id": 503,
         "cycle_time": 100,
-        "description": "TODO: Implement Aux Switch Signal",
+        "description": "State of DIM Switches",
         "signals": {
             "StartSwitch": {
+                "enum": "SwitchState"
+            },
+            "AuxSwitch": {
                 "enum": "SwitchState"
             }
         }
