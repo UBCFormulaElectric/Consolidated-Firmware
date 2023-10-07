@@ -2,10 +2,10 @@ name: UBC Formula Electric CI
 on:
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
-  clang-format:
+  clang-format: 
     name: Check C Formatting
     runs-on: ubuntu-22.04
 
