@@ -57,6 +57,9 @@ jobs:
             PDM.elf
             CanMsgs.dbc
   delete-existing-release:
+    name: Delete Existing Release
+    runs-on: ubuntu-22.04
+    needs: [make-release]
     steps:
       - name: Extract branch name
         shell: bash
