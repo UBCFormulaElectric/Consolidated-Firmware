@@ -107,6 +107,7 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
 
+    App_Regen_Deactivate(0.0, 0.0);
 }
 
 const struct State *app_driveState_get(void)

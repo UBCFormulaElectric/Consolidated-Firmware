@@ -13,5 +13,5 @@ struct RegenBraking
 };
 void App_Run_Regen(void);
 bool App_Regen_Safety(struct RegenBraking *regenAttr);
-void App_Regen_Activate(struct RegenBraking *regenAttr);
-void App_Regen_Deactivate(struct RegenBraking *regenAttr);
+void App_Regen_Activate(float left, float right);
+void App_Regen_Deactivate(float left, float right);

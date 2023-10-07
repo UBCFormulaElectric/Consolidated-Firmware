@@ -8,11 +8,11 @@ static float wheelSpeedThreshold = 5.0;
 void App_Run_Regen(void) {
     if (App_Regen_Safety(&regenAttributes)) {
 
-        App_Regen_Activate(&regenAttributes);
+        App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 
     } else {
 
-        App_Regen_Deactivate(&regenAttributes);
+        App_Regen_Deactivate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 
     }
 }
@@ -32,14 +32,14 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr)
     return true;
 }
 
-void App_Regen_Activate(struct RegenBraking *regenAttr) {
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regenAttr->left_inverter_torque);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regenAttr->right_inverter_torque);
+void App_Regen_Activate(float left, float right) {
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(left);
+    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
 }
 
-void App_Regen_Deactivate(struct RegenBraking *regenAttr) {
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regenAttr->left_inverter_torque);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regenAttr->right_inverter_torque);
+void App_Regen_Deactivate(float left, float right) {
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(left);
+    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
 }
 
 bool wheel_speed_in_range(void) {
