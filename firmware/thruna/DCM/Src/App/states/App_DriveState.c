@@ -94,6 +94,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+
     }
 }
 
@@ -103,8 +104,9 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     App_CanTx_DCM_LeftInverterEnable_Set(false);
     App_CanTx_DCM_RightInverterEnable_Set(false);
 
-    App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
-    App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
+    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
+
 }
 
 const struct State *app_driveState_get(void)
