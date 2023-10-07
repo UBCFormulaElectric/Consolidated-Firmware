@@ -34,7 +34,7 @@ jobs:
         with:
           name: CanMsgs.dbc
           path: ./can_bus/dbcs/CanMsgs.dbc
-  make-release: # Testing purposes
+  make-release: # Testing purposes again
     name: Add DBC to Pull_Request-specific release
     runs-on: ubuntu-22.04
     needs: generate-dbc
