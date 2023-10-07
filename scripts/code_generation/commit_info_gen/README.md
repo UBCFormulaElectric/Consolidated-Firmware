@@ -1,30 +1,25 @@
-# commit_info_gen
-Generates a header file that exposes some info about the current commit:
-- Short commit hash.
-- If the commit is clean.
+# git_hash_gen
+Generates a header file that exposes the current git hash (and if the hash is clean).
+
+## WIP
+1) generate a header file with: ✅
+  - the short commit hash (`git rev-parse --short HEAD`) exposed under `GIT_COMMIT_HASH`
+  - whether or not the commit is clean (see `git status`) exposed under `GIT_COMMIT_CLEAN`
+2) invoke `generate_commit_info.py` on compile, and add header file to dependencies
+  - currently the generated file is generated in the same directory as this readme.
 
 ## Invocation
-Invoke `src/generate_commit_info.py`, and use the `--output_header` option to set the output path.
-
-For example,
-```sh
-python3 src/generate_commit_info.py --output-header example_header.h 
+To generate the header file, run
+```bash
+python src/generate_commit_info.py
 ```
 
-## Generated File
-The generated header file exposes:
-- `GIT_COMMIT_HASH`, eg. `0xe6dd7a7`
-- `GIT_COMMIT_CLEAN`, which is `0` for dirty, and `1` for clean
+This will take a couple seconds... The whole repo needs to be scanned to check if we are dirty or clean.
 
+## Generated File
 A sample generated header file:
 
 ```h
-#pragma once
-
-#define GIT_COMMIT_HASH 0xe6dd7a7
+#define GIT_COMMIT_HASH "f3d0d76"
 #define GIT_COMMIT_CLEAN 0
 ```
-
-## Implementation
-- `jinja2` for templating.
-- `GitPython` for interfacing with git through Python.
