@@ -77,7 +77,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/BMS/BMS_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: BMS_test"
+      "preLaunchTask": "Build: BMS_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
     {
       "name": "Debug Tests: DCM",
@@ -85,7 +91,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: DCM_test"
+      "preLaunchTask": "Build: DCM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
     {
       "name": "Debug Tests: FSM",
@@ -93,7 +105,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/FSM/FSM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: FSM_test"
+      "preLaunchTask": "Build: FSM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
     {
       "name": "Debug Tests: PDM",
@@ -101,7 +119,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/PDM/PDM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: PDM_test"
+      "preLaunchTask": "Build: PDM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
     {
       "name": "Debug Tests: DIM",
@@ -109,7 +133,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/thruna/DIM/DIM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: DIM_test"
+      "preLaunchTask": "Build: DIM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
     {
       "name": "Debug Tests: Shared",
@@ -117,7 +147,13 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_x86/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: shared_test"
+      "preLaunchTask": "Build: shared_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
     },
   ]
 }
