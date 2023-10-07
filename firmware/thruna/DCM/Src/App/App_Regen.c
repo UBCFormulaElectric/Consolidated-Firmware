@@ -28,6 +28,7 @@ void App_Run_Regen(void) {
     if (App_Regen_Safety(&regenAttributes)) {
         compute(&regenAttributes);
     } 
+    //TODO: else statement to send warning?
 
     App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 }
