@@ -5,6 +5,7 @@ on:
       - master
       - peter/build_DBC_PR
 
+# testing purposes 
 jobs:
   build:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
