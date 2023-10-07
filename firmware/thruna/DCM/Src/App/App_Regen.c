@@ -1,10 +1,10 @@
 #include "App_Regen.h"
 
-bool wheel_speed_in_range(void);
-bool power_limit_check(void);
-void compute(struct RegenBraking *regenAttr);
-struct RegenBraking regenAttributes;
+static bool wheel_speed_in_range(void);
+static bool power_limit_check(void);
+static void compute(struct RegenBraking *regenAttr);
 
+struct RegenBraking regenAttributes;
 static float MAXREGEN = -50.0;
 static float wheelSpeedThreshold = 5.0;
 
@@ -44,7 +44,7 @@ void App_Regen_Deactivate(float left, float right) {
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
 }
 
-bool wheel_speed_in_range(void) {
+static bool wheel_speed_in_range(void) {
     float right =  App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     float left = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
     if (right > wheelSpeedThreshold && left > wheelSpeedThreshold) {
@@ -54,7 +54,7 @@ bool wheel_speed_in_range(void) {
     return false;
 }
 
-bool power_limit_check(void) {
+static bool power_limit_check(void) {
     //TODO: Update check once power limiting is available @Will Chaba
     if (App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f) {
         return true;
@@ -63,7 +63,7 @@ bool power_limit_check(void) {
     return false;
 }
 
-void compute(struct RegenBraking *regenAttr) {
+static void compute(struct RegenBraking *regenAttr) {
     float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
     float torque = accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage)/50.0f*MAXREGEN : 0.0f;
