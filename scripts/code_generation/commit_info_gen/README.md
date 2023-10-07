@@ -1,25 +1,26 @@
 # git_hash_gen
-Generates a header file that exposes the current git hash (and if the hash is clean).
-
-## WIP
-1) generate a header file with: ✅
-  - the short commit hash (`git rev-parse --short HEAD`) exposed under `GIT_COMMIT_HASH`
-  - whether or not the commit is clean (see `git status`) exposed under `GIT_COMMIT_CLEAN`
-2) invoke `generate_commit_info.py` on compile, and add header file to dependencies
-  - currently the generated file is generated in the same directory as this readme.
+Generates a header file that exposes the current git hash (and if the hash is clean). 
 
 ## Invocation
-To generate the header file, run
-```bash
-python src/generate_commit_info.py
+Invoke `src/generate_commit_info.py`, and use the `--output_header` option to set the output path.
+
+For example,
+```sh
+python src/generate_commit_info.py --output_header test.h 
 ```
 
-This will take a couple seconds... The whole repo needs to be scanned to check if we are dirty or clean.
+This will take a couple seconds... The whole repo needs to be scanned to check if the commit is dirty or clean.
 
 ## Generated File
 A sample generated header file:
 
 ```h
+#pragma once
+
 #define GIT_COMMIT_HASH "f3d0d76"
 #define GIT_COMMIT_CLEAN 0
 ```
+
+## Implementation
+- `jinja2` for templating.
+- `GitPython` for interfacing with git through Python.
