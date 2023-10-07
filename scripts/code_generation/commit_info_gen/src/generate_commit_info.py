@@ -9,7 +9,6 @@ if __name__ == "__main__":
   parser = ArgumentParser()
   parser.add_argument("--output-header", type=str, required=True)
   args = parser.parse_args() 
-  output_path = ""
 
   # get template for rendering
   module_dir = os.path.dirname(os.path.relpath(__file__))
