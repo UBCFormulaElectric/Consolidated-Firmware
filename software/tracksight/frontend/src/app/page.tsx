@@ -23,6 +23,11 @@ const Home = () => {
         setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
     };
 
+    const deleteGraph = (graphId) => {
+        setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+    };
+    
+
     useEffect(() => {
         // NOTE -> io address may have to change depending on where your server is run. Once you run the server, it will tell you where it is running
         // i.e Running on http://127.0.0.1:5000, so you would change the io address to that
@@ -58,9 +63,8 @@ const Home = () => {
             <Divider></Divider>
             <div className="flex-container">
             {graphs.map(graphId => (
-                <Graph key={graphId} id={graphId} socket={socketInstance}/>
-                
-            ))}
+     <Graph key={graphId} id={graphId} socket={socketInstance} onDelete={() => deleteGraph(graphId)}/>
+))}
             </div>
         </div>);
     } else {
