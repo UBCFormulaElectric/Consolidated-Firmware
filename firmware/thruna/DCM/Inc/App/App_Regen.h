@@ -10,6 +10,7 @@ struct RegenBraking
     float left_inverter_torque;
     float right_inverter_torque;
 };
+
 void App_Run_Regen(void);
 bool App_Regen_Safety(struct RegenBraking *regenAttr);
 void App_Regen_Activate(float left, float right);

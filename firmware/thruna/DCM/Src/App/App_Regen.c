@@ -1,23 +1,35 @@
 #include "App_Regen.h"
 
+/**
+ * Check if left or right wheel is greater than 5.0km/hr
+ * @return true if wheel speed meets this condition, false
+ * otherwise
+ */
 static bool wheel_speed_in_range(void);
+
+/**
+ * Check if battery cells are less than 4.0V
+ * @return true battery cells meet this condition,
+ * false otherwise
+ */
 static bool power_limit_check(void);
+
+/**
+ * Algorithm to send negative torque request 
+ * dependent on accelerator pedal percentage
+ */
 static void compute(struct RegenBraking *regenAttr);
 
 struct RegenBraking regenAttributes;
-static float MAXREGEN = -50.0;
-static float wheelSpeedThreshold = 5.0;
+static float MAXREGEN = -50.0f;
+static float wheelSpeedThreshold = 5.0f;
 
 void App_Run_Regen(void) {
     if (App_Regen_Safety(&regenAttributes)) {
+        compute(&regenAttributes);
+    } 
 
-        App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
-
-    } else {
-
-        App_Regen_Deactivate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
-
-    }
+    App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 }
 
 bool App_Regen_Safety(struct RegenBraking *regenAttr)
@@ -25,13 +37,12 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr)
     if (App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45
     && wheel_speed_in_range() 
     && power_limit_check()) {
-        compute(regenAttr);
+        return true;
     }
 
     regenAttr->left_inverter_torque = 0.0;
     regenAttr->right_inverter_torque = 0.0;
-
-    return true;
+    return false;
 }
 
 void App_Regen_Activate(float left, float right) {
@@ -39,15 +50,10 @@ void App_Regen_Activate(float left, float right) {
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
 }
 
-void App_Regen_Deactivate(float left, float right) {
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(left);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
-}
-
 static bool wheel_speed_in_range(void) {
     float right =  App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     float left = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
-    if (right > wheelSpeedThreshold && left > wheelSpeedThreshold) {
+    if (right > wheelSpeedThreshold || left > wheelSpeedThreshold) {
         return true;
     }
 
