@@ -35,9 +35,13 @@ def handle_available_signals(message):
 @socketio.on('signal')
 def handle_signal_message(message):
     ids = message["ids"]
-    signals = {id_: signal_util.get_signal(id_).to_dict() for id_ in ids}
+    signals = {}
+    for id_ in ids:
+        signal_data = signal_util.get_signal(id_).to_dict()
+        signals[id_] = signal_data
     socketio.emit("signal_response", signals)
 
+    
 if __name__ == '__main__':
     # Note: You should only call one of these, as they both start the server
     # app.run(debug=True)  # This starts another server, which you probably don't want

@@ -47,3 +47,8 @@ a {
   flex-wrap: wrap; 
   gap: 20px;
 }
+
+.dropdown {
+  width: 100px;
+  height: 20px;
+}

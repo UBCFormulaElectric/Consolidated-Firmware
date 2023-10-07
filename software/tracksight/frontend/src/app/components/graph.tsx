@@ -11,7 +11,7 @@ const Graph = (props) => {
     const [data, setData] = useState({});
     const [formattedData, setFormattedData] = useState([]);
     const [graphName, setGraphName] = useState("Empty");
-    const [signal, setSignal] = useState("");
+    const [signals, setSignals] = useState([])
     // sets available signals 
     const [avail, setAvail] = useState([]);
     // adds a signal to a graph 
@@ -48,7 +48,8 @@ const Graph = (props) => {
     useEffect(() => {
         // Check if data is not empty
         if (Object.keys(data).length !== 0) {
-            if (signal === Object.keys(data)[0]) {
+
+            if (signals[0] === Object.keys(data)[0]) {
             // Initialize an empty array to hold the new formatted data
             let newFormattedData = []; 
             
@@ -91,8 +92,8 @@ const Graph = (props) => {
 
     return (
         <div>
-            <WebSocketComponent socket={props.socket} setData={setData} selectedSignal={signal}></WebSocketComponent>
-            <DropdownMenu setSignal={setSignal} signals={avail}/>
+                        <WebSocketComponent socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
+            <DropdownMenu setSignal={setSignals} signals={avail} />
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={{ width: 650, height: 500, title: graphName }}

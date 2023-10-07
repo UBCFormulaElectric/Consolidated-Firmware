@@ -7,15 +7,16 @@ import { Button, Space } from 'antd';
 // long-lived connection, making it ideal for real-time data transfer between the client and server.
 
 const WebSocketComponent = (props) => {
-const [message, setMessage] = useState('');
 const [currId, setCurrId] = useState('');
 
 
 
-    const handleSubmit = () => {
-        setCurrId(props.id)
-        props.socket.emit("signal", { "ids": [props.selectedSignal] });
-    };
+const handleSubmit = () => {
+  setCurrId(props.id);
+  console.log(props.signals)
+  props.socket.emit("signal", { "ids": props.signals });  
+};
+
 
     useEffect(() => {
         props.socket.on("signal_response", (data) => {
