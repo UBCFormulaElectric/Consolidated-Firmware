@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - peter/build_DBC_PR
 
 jobs:
   build:
@@ -56,6 +55,7 @@ jobs:
             GSM.elf
             PDM.elf
             CanMsgs.dbc
+  # Deletion
   delete-existing-release:
     name: Delete Existing Release
     runs-on: ubuntu-22.04

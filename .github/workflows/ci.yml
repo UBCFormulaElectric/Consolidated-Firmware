@@ -1,6 +1,8 @@
 name: UBC Formula Electric CI
 on:
   pull_request:
+    branches:
+    - master
 
 jobs:
   clang-format:
@@ -201,7 +203,7 @@ jobs:
           with:
             name: CanMsgs.dbc
             path: ./can_bus/dbcs/CanMsgs.dbc
-            
+
   make-release:
     name: Add DBC to Pull_Request-specific release
     runs-on: ubuntu-22.04
