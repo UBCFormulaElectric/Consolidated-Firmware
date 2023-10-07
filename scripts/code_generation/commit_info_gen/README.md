@@ -1,5 +1,7 @@
-# git_hash_gen
-Generates a header file that exposes the current git hash (and if the hash is clean). 
+# commit_info_gen
+Generates a header file that exposes some info about the current commit:
+- Short commit hash.
+- If the commit is clean.
 
 ## Invocation
 Invoke `src/generate_commit_info.py`, and use the `--output_header` option to set the output path.
