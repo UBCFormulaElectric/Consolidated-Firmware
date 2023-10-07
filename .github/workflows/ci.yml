@@ -180,7 +180,7 @@ jobs:
           cd $BUILD_DIR/scripts/code_generation/fakegen
           valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
-  generate-dbc:
+  generate-dbc: # testing purposes
       name: Generate CAN DBC file
       runs-on: ubuntu-22.04
       container:
