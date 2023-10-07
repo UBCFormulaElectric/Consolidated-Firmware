@@ -7,8 +7,10 @@
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "torquevectoring/App_TorqueVectoring.h"
+#include "../../../Inc/App/App_Regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
+static bool regen_switch_enabled = true;
 
 static bool torque_vectoring_switch_is_on;
 
@@ -88,6 +90,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SetPeriodicCanSignals_TorqueRequests();
         }
     }
+    
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
