@@ -17,6 +17,7 @@
         "INVL_Temperatures3",
         "INVR_Temperatures3",
         "BMS_TractiveSystem",
-        "BMS_CellTemperatures"
+        "BMS_CellTemperatures",
+        "BMS_CellVoltages"
     ]
 }
