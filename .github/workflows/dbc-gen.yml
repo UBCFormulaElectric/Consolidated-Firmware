@@ -39,14 +39,18 @@ jobs:
     runs-on: ubuntu-22.04
     needs: generate-dbc
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          title: "DBC"
+          automatic_release_tag: "eng:${{steps.extract_branch.outputs.branch}}"
+          title: "DBC Generation"
           tag: ${{ github.sha }}
           prerelease: false
           files: |
