@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - peter/build_DBC_PR
 
 jobs:
   build:
