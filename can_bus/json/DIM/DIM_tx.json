@@ -12,6 +12,7 @@
             }
         }
     },
+    
     "DIM_Switches": {
         "msg_id": 503,
         "cycle_time": 100,

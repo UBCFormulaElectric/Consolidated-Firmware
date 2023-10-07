@@ -125,7 +125,7 @@ static const Switch start_switch = {
 // TODO: Declare Start Switch Struct
 static const Switch aux_switch = {
     .gpio = {
-        .port = AUX_IN_GPIO_PORT,
+        .port = AUX_IN_GPIO_Port,
         .pin = AUX_IN_Pin,
     },
     .closed_state = true,
