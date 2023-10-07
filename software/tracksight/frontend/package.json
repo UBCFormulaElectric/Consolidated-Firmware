@@ -16,7 +16,7 @@
     "bufferutil": "^4.0.7",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.2",
-    "next": "13.5.2",
+    "next": "13.5.4",
     "package.json": "^2.0.1",
     "plotly.js": "^2.26.0",
     "react": "18.2.0",
