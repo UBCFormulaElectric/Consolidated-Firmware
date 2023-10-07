@@ -7,7 +7,6 @@
 
 struct RegenBraking
 {
-    float vehicle_speed_kph;
     float left_inverter_torque;
     float right_inverter_torque;
 };
