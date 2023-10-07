@@ -1,4 +1,3 @@
-#include <stdint-gcc.h>
 #include "App_InRangeCheck.h"
 #include "App_CanTx.h"
 
