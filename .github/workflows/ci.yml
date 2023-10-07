@@ -204,7 +204,7 @@ jobs:
   make-release:
     name: Add DBC to Pull_Request-specific release
     runs-on: ubuntu-22.04
-    needs: needs: [test-fakegen, test-shared, test-thruna, build-firmware-thruna, codegen, generate-dbc]
+    needs: [test-fakegen, test-shared, test-thruna, build-firmware-thruna, codegen, generate-dbc]
     steps:
       - name: Extract branch name
         shell: bash
