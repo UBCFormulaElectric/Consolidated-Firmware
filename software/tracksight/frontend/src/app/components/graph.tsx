@@ -4,13 +4,16 @@ import { useState, useEffect, React } from 'react';
 import Plot from 'react-plotly.js';
 import DropdownMenu from './dropdown_menu.tsx';
 import { Button } from 'antd';
+import WebSocketComponent from './web_socket.tsx';
 
 const Graph = (props) => {
     
     const [data, setData] = useState({});
     const [formattedData, setFormattedData] = useState([]);
     const [graphName, setGraphName] = useState("Empty");
-
+    const [signal, setSignal] = useState("");
+    // sets available signals 
+    const [avail, setAvail] = useState([]);
     // adds a signal to a graph 
     const updateData = (newData) => {
         setData(oldData => {
@@ -25,15 +28,30 @@ const Graph = (props) => {
         setData({});
     }
 
+    // Request available signals through socket on render
+        useEffect(() => {
+            props.socket.emit("available_signals", {"ids": []});
+            
+            // Listen for the server's response
+            props.socket.on("available_signals_response", (signalNames) => {
+                // Update the state with new data
+                setAvail(signalNames);
+            });
     
+            // Cleanup
+            return () => {
+                props.socket.off("available_signals_response");
+            };
+        }, [props.socket]);
+
 
     useEffect(() => {
         // Check if data is not empty
         if (Object.keys(data).length !== 0) {
+            if (signal === Object.keys(data)[0]) {
             // Initialize an empty array to hold the new formatted data
-            let newFormattedData = []; // Empty the array, we'll populate it based on the new data
+            let newFormattedData = []; 
             
-            // Initialize an empty graph name, we'll populate it based on the new data
             let newGraphName = "";
 
             // Iterate through each signal in the data object
@@ -68,11 +86,13 @@ const Graph = (props) => {
             setFormattedData(newFormattedData);
             setGraphName(newGraphName);
         }
+    }
     }, [data]);  
 
     return (
         <div>
-            <DropdownMenu socket={props.socket} setData={updateData} />
+            <WebSocketComponent socket={props.socket} setData={setData} selectedSignal={signal}></WebSocketComponent>
+            <DropdownMenu setSignal={setSignal} signals={avail}/>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={{ width: 650, height: 500, title: graphName }}

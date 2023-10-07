@@ -8,9 +8,12 @@ import { Button, Space } from 'antd';
 
 const WebSocketComponent = (props) => {
 const [message, setMessage] = useState('');
+const [currId, setCurrId] = useState('');
+
 
 
     const handleSubmit = () => {
+        setCurrId(props.id)
         props.socket.emit("signal", { "ids": [props.selectedSignal] });
     };
 
@@ -23,19 +26,7 @@ const [message, setMessage] = useState('');
                 console.error('setData is not a function');
             }
         });
-    }, [props.socket], [props.setData]);
-
-    useEffect(() => {
-        props.socket.on('server_message', (msg) => {
-          setMessage(msg);
-        });
-        
-        // Cleanup
-        return () => {
-          props.socket.off('server_message');
-        };
-      }, []);
-      
+    }, []);
 
     return (
         <div>
