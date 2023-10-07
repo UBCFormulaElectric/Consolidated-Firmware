@@ -18,7 +18,7 @@ static bool power_limit_check(void);
  * Algorithm to send negative torque request 
  * dependent on accelerator pedal percentage
  */
-static void compute(struct RegenBraking *regenAttr);
+static void compute_regen_torque_request(struct RegenBraking *regenAttr);
 
 struct RegenBraking regenAttributes;
 static float MAXREGEN = -50.0f; //TODO: find max regen torque value
@@ -26,7 +26,7 @@ static float wheelSpeedThreshold = 5.0f;
 
 void App_Run_Regen(void) {
     if (App_Regen_Safety(&regenAttributes)) {
-        compute(&regenAttributes);
+        compute_regen_torque_request(&regenAttributes);
     } 
     //TODO: else statement to send warning?
 
@@ -70,7 +70,7 @@ static bool power_limit_check(void) {
     return false;
 }
 
-static void compute(struct RegenBraking *regenAttr) {
+static void compute_regen_torque_request(struct RegenBraking *regenAttr) {
     float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
     float torque = accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage)/50.0f*MAXREGEN : 0.0f;
