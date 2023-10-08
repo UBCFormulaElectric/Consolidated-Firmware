@@ -11,6 +11,8 @@
 #include "io_led.h"
 #include "io_switch.h"
 
+#include "App_CommitInfo.h"
+
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
@@ -110,6 +112,10 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
     }
+
+    // broadcast commit info
+    App_CanTx_DIM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_DIM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 static void driveStateRunOnExit(struct StateMachine *const state_machine)
