@@ -19,7 +19,7 @@ A sample generated header file:
 ```h
 #pragma once
 
-#define GIT_COMMIT_HASH "f3d0d76"
+#define GIT_COMMIT_HASH 0xe6dd7a7
 #define GIT_COMMIT_CLEAN 0
 ```
 
