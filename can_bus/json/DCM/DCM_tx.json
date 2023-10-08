@@ -244,5 +244,18 @@
                 "unit": "deg"
             }
         }
+    },
+    "DCM_CommitInfo": {
+      "msg_id": 208,
+      "cycle_time": 100,
+      "description": "DCM Current Running Git Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
     }
 }
