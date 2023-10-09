@@ -12,47 +12,60 @@ if("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_SYSTEM_NAME Generic)
 endif()
 
-# Get CPM + CMake Dependency Configuration
-cmake_policy(SET CMP0135 NEW)
-file(
-    DOWNLOAD
-    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-
-# Python dependencies configuration
-find_program(PIP_COMMAND pip)
-IF(NOT PIP_COMMAND)
-    message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
-ENDIF()
-
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
+cmake_policy(SET CMP0135 NEW)
 
 # Host system specific settings
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     set(PYTHON_COMMAND "python")
+    set(BINARY_SUFFIX ".exe")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-win32.zip")
 elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     set(PYTHON_COMMAND "python3")
+    set(BINARY_SUFFIX "")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2")
 elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(PYTHON_COMMAND "python3")
+    set(BINARY_SUFFIX "")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2")
 else()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 endif()
 
+# Find all required pre-installed binaries
+find_program(PIP_HAS_COMMAND pip)
+IF(NOT PIP_HAS_COMMAND)
+    message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
+ELSE ()
+    message("✅ Found pip")
+ENDIF()
+
+find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
+IF(NOT PYTHON_HAS_COMMAND)
+    message(FATAL_ERROR "❌ Could not find python, please install python and try again.")
+ELSE()
+    message("✅ Found python")
+ENDIF()
+
+
+# Get CPM + CMake Dependency Configuration
+            file(
+                DOWNLOAD
+                https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+                EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+            )
+            include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
 message("⚙️ Configuring for ${PLATFORM} build target")
 
-# Target specific settings
-if("${PLATFORM}" STREQUAL "arm")
+IF(("${PLATFORM}" STREQUAL "arm") AND (NOT BUILD_SERVER))
     CPMAddPackage(${ARM_BINARY_URL})
+    set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
     message("✅ Arm Compiler Installed")
 
     message("📦 Update Python Dependencies")
@@ -63,15 +76,18 @@ if("${PLATFORM}" STREQUAL "arm")
     else ()
         message("✅ Python dependencies installed")
     endif()
+ENDIF()
 
+# Target specific settings
+if("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_C_COMPILER_WORKS 1)
-    set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/arm-none-eabi)
-    set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc.exe)
-    set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++.exe)
-    set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}-gcc.exe)
-    set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy.exe)
-    set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump.exe)
-    set(SIZE ${TOOLCHAIN_PREFIX}-size.exe)
+    set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX}arm-none-eabi)
+    set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+    set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${BINARY_SUFFIX})
+    set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+    set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy${BINARY_SUFFIX})
+    set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump${BINARY_SUFFIX})
+    set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
     project("UBC Formula Electric Software" C ASM)
 elseif("${PLATFORM}" STREQUAL "x86")
     # We assume this cmake is running on a x86 platform, so the
