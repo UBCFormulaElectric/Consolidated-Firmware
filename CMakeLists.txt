@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.11)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+
+# Globally accessible paths
+set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
+set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
+set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
+set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
+cmake_policy(SET CMP0135 NEW)
 # On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
 # However, it is equally mysteriously required for building embedded binaries.
 # So, only run this if loading the embedded configuration.
@@ -12,12 +19,10 @@ IF("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_SYSTEM_NAME Generic)
 ENDIF()
 
-# Globally accessible paths
-set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
-set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
-set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
-set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
-cmake_policy(SET CMP0135 NEW)
+IF(NOT PLATFORM)
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'x86' or 'arm'. To do this, set the -DPLATFORM=<platform>")
+ENDIF()
+message("⚙️ Configuring for ${PLATFORM} build target")
 
 option(BUILD_SERVER "Build build on the server" OFF)
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
@@ -131,8 +136,6 @@ IF (NOT BUILD_SERVER)
         ENDIF ()
     ENDIF()
 ENDIF ()
-
-message("⚙️ Configuring for ${PLATFORM} build target")
 
 # Target specific settings
 IF("${PLATFORM}" STREQUAL "arm")
