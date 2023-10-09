@@ -43,14 +43,6 @@ static float right_motor_temp_C;
 static float available_battery_power_kW;
 static float steering_angle_deg;
 
-/**
- * NEW: parameters for enabling/disabling power limiting and active differential
- */
-static bool run_power_limiting          = true;
-static bool run_power_limiting_feedback = true;
-static bool run_active_differential     = true;
-static bool run_regen                   = false;
-
 void App_TorqueVectoring_Setup(void)
 {
     App_PID_Init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
@@ -105,45 +97,21 @@ void App_TorqueVectoring_HandleAcceleration(void)
     power_limiting_inputs.available_battery_power_kW = available_battery_power_kW;
     power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
     float estimated_power_limit;
-    if (run_power_limiting)
-    {
-        estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
-    }
-    else
-    {
-        estimated_power_limit = available_battery_power_kW;
-    }
+    estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
     // Power limit correction
     float power_limit = 0;
-    if (run_power_limiting_feedback)
-    {
-        power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
-    }
-    else
-    {
-        power_limit = estimated_power_limit;
-    }
+    power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
     float torque_request_no_differential = 0;
-    if (run_active_differential)
-    {
-        active_differential_inputs.power_max_kW          = power_limit;
-        active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
-        active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
-        active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
-        App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(active_differential_outputs.torque_left_Nm);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(active_differential_outputs.torque_right_Nm);
-    }
-    else
-    {
-        torque_request_no_differential =
-            App_ActiveDifferential_PowerToTorque(power_limit, motor_speed_left_rpm, motor_speed_right_rpm, 0.5, 0.5);
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set((float)(0.5 * (double)torque_request_no_differential));
-        App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set((float)(0.5 * (double)torque_request_no_differential));
-    }
+    active_differential_inputs.power_max_kW          = power_limit;
+    active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
+    active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
+    active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
+    App_ActiveDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
+    App_CanTx_DCM_DEBUG_ActiveDiff_TorqueLeft_Set(active_differential_outputs.torque_left_Nm);
+    App_CanTx_DCM_DEBUG_ActiveDiff_TorqueRight_Set(active_differential_outputs.torque_right_Nm);
 
     /**
      * SKIP TRACTION CONTROL FOR NOW
@@ -160,16 +128,8 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    if (run_active_differential)
-    {
         torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
         torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
-    }
-    else
-    {
-        torque_left_final_Nm  = torque_request_no_differential;
-        torque_right_final_Nm = torque_request_no_differential;
-    }
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
@@ -185,28 +145,25 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_right_final_Nm);
 
     // Calculate power correction PID
-    if (run_power_limiting_feedback)
-    {
-        float power_consumed_measured = battery_voltage * current_consumption;
-        // TODO: Change this to use the traction control outputs
+    float power_consumed_measured = battery_voltage * current_consumption;
+    // TODO: Change this to use the traction control outputs
 
-        // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
-        //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
-        //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
-        float power_consumed_ideal =
-            (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
-            POWER_TO_TORQUE_CONVERSION_FACTOR;
-        float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
-        pid_power_correction_factor -=
-            App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
-        pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
-        App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set(power_consumed_measured);
-        App_CanTx_DCM_DEBUG_Power_PowerEstimate_Set(power_consumed_estimate);
-        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Output_Set(pid_power_correction_factor);
-        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
-        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
-        App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
-    }
+    // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
+    //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
+    //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
+    float power_consumed_ideal =
+        (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
+        POWER_TO_TORQUE_CONVERSION_FACTOR;
+    float power_consumed_estimate = power_consumed_ideal / (1.0f + pid_power_correction_factor);
+    pid_power_correction_factor -=
+        App_PID_Compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
+    pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
+    App_CanTx_DCM_DEBUG_Power_PowerMeasured_Set(power_consumed_measured);
+    App_CanTx_DCM_DEBUG_Power_PowerEstimate_Set(power_consumed_estimate);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Output_Set(pid_power_correction_factor);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
+    App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
 }
 
 void App_TorqueVectoring_HandleRegen(void)
