@@ -18,6 +18,7 @@ set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
+option(BUILD_SERVER "Build build on the server" OFF)
 
 # Host system specific settings
 if(WIN32)

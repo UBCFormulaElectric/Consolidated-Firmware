@@ -116,7 +116,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DBUILD_SERVER=true
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DBUILD_SERVER=ON
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run tests
@@ -144,7 +144,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DBUILD_SERVER=true
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DBUILD_SERVER=ON
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -172,7 +172,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON -DBUILD_SERVER=true
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON -DBUILD_SERVER=ON
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests
