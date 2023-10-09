@@ -20,15 +20,15 @@ set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 
 # Host system specific settings
-if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+if(WIN32)
     set(PYTHON_COMMAND "python")
     set(BINARY_SUFFIX ".exe")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-win32.zip")
-elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+elseif(LINUX)
     set(PYTHON_COMMAND "python3")
     set(BINARY_SUFFIX "")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2")
-elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+elseif(APPLE)
     set(PYTHON_COMMAND "python3")
     set(BINARY_SUFFIX "")
     set(ARM_BINARY_URL "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2")
@@ -41,32 +41,51 @@ find_program(PIP_HAS_COMMAND pip)
 IF(NOT PIP_HAS_COMMAND)
     message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
 ELSE ()
-    message("✅ Found pip")
+    message("📥 Found pip")
 ENDIF()
 
+find_package(Python3 COMPONENTS Interpreter)
 find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
-IF(NOT PYTHON_HAS_COMMAND)
-    message(FATAL_ERROR "❌ Could not find python, please install python and try again.")
-ELSE()
-    message("✅ Found python")
+IF(Python3_VERSION VERSION_LESS 3.9)
+    message(FATAL_ERROR "❌ Python version 3.9 or greater is required")
+ELSEIF(Python3_VERSION VERSION_GREATER_EQUAL 3.12)
+    message(WARNING "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF()
+message("🐍 Found Python ${Python3_VERSION}")
 
 
 # Get CPM + CMake Dependency Configuration
-            file(
-                DOWNLOAD
-                https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-                ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-                EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
-            )
-            include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+if (NOT BUILD_SERVER)
+    file(
+        DOWNLOAD
+        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+        EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+    )
+    message("✅ Download CPM.cmake")
+    include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+endif ()
 
 message("⚙️ Configuring for ${PLATFORM} build target")
 
 IF(("${PLATFORM}" STREQUAL "arm") AND (NOT BUILD_SERVER))
     CPMAddPackage(${ARM_BINARY_URL})
     set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
-    message("✅ Arm Compiler Installed")
+
+    if(WIN32)
+        CPMAddPackage("https://github.com/openocd-org/openocd/releases/download/v0.12.0/openocd-v0.12.0-i686-w64-mingw32.tar.gz")
+        message("🔖 OpenOCD Installed At ${openocd_SOURCE_DIR}/bin/openocd.exe")
+
+        if(NOT EXISTS ${CMAKE_SOURCE_DIR}/zadig.exe)
+            message(DEBUG "Zadig does not exist, installing now...")
+            file(
+                DOWNLOAD
+                https://github.com/pbatard/libwdi/releases/download/v1.5.0/zadig-2.8.exe
+                ${CMAKE_SOURCE_DIR}/zadig.exe
+            )
+        endif()
+        message("🔖 Zadig has been installed in the root directory")
+    endif ()
 
     message("📦 Update Python Dependencies")
     # make command throw and error if it doesn't work

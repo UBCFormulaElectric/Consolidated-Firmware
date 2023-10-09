@@ -142,7 +142,7 @@ function(create_arm_binary
     ARM_LINKER_SCRIPT
     STM32_DEVICE_TYPE
 )
-    message("➕ Creating Arm Binary for ${BOARD_NAME}")
+    message("➕ Creating Arm Target for ${BOARD_NAME}")
     add_executable(${BOARD_NAME}.elf
         ${ARM_BINARY_SRCS}
         ${ARM_BINARY_THIRD_PARTY_SRCS}

@@ -135,3 +135,5 @@ build_x86
 environment/bin
 CMakeUserPresets.json
 build
+
+zadig.exe
