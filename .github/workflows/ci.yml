@@ -213,7 +213,7 @@ jobs:
         run: |
           ls
           gh release create ${{github.head_ref}} \
-            ./CanMsgs.dbc \
+            CanMsgs.dbc \
             --title "${{github.head_ref}} DBC File" \
             --notes "DBC Files generated for ${{github.head_ref}}" \it 
             --repo UBCFormulaElectric/Consolidated-Firmware \
