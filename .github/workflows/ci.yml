@@ -215,7 +215,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{github.ref_name}}"
+          automatic_release_tag: "${{github.head_ref}}"
           title: "DBC Generation"
           tag: ${{ github.sha }}
           prerelease: false
