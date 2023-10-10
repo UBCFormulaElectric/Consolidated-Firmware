@@ -211,6 +211,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ls
           gh release create ${{github.head_ref}} \
             ./CanMsgs.dbc \
             --title "${{github.head_ref}} DBC File" \
