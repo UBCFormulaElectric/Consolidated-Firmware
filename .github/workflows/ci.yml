@@ -71,7 +71,7 @@ jobs:
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            --ioc ${{ github.workspace }}/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
             --codegen_output_dir ${{ github.workspace }}/${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
