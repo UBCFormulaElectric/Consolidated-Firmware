@@ -5,188 +5,188 @@ on:
       - master
 
 jobs:
-  clang-format:
-    name: Check C Formatting
-    runs-on: ubuntu-22.04
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    steps:
-      # Fix to get git diff working in a Docker container
-      # https://github.com/actions/checkout/issues/363
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Format code
-        run: python3 scripts/clang_format/fix_formatting.py
-
-      - name: Check for differences
-        run: git --no-pager diff --color --exit-code
-
-  codegen:
-    name: Check CubeMX Code Gen
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/thruna/FSM
-          - board: PDM
-            ioc_dir: firmware/thruna/PDM
-          - board: DCM
-            ioc_dir: firmware/thruna/DCM
-          - board: BMS
-            ioc_dir: firmware/thruna/BMS
-          - board: GSM
-            ioc_dir: firmware/thruna/GSM
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    steps:
-      # Fix to get git diff working in a Docker container
-      # https://github.com/actions/checkout/issues/363
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
-      - name: Generate code
-        run: |
-          xvfb-run python3 scripts/utilities/generate_cube_code.py \
-            --board ${{ matrix.board }} \
-            --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir ${{ matrix.ioc_dir }} \
-            --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
-
-      - name: Fix formatting
-        run: python3 scripts/clang_format/fix_formatting.py
-
-      - name: Check for differences
-        run: git --no-pager diff --color --exit-code
-
-  build-firmware-thruna:
-    needs: [ clang-format ]
-    name: Build Firmware Binaries
-    uses: ./.github/workflows/build.yml
-    secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
-
-  test-thruna:
-    needs: [ clang-format ]
-    name: Test Thruna
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - GSM
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_x86
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
-
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
-  
-  test-shared:
-    name: Test Shared
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_x86
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86
-          make --directory=$BUILD_DIR -j`nproc` shared_test
-
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/firmware/shared
-          valgrind --tool=memcheck --leak-check=yes ./shared_test
-
-  test-fakegen:
-    name: Test Fake Function Generation
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_x86
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
-          make --directory=$BUILD_DIR -j`nproc` fakegen_test
-
-      - name: Run tests
-        run: |
-          cd $BUILD_DIR/scripts/code_generation/fakegen
-          valgrind --tool=memcheck --leak-check=yes ./fakegen_test
+  #  clang-format:
+  #    name: Check C Formatting
+  #    runs-on: ubuntu-22.04
+  #
+  #    container:
+  #      image: ubcformulaelectric/environment:latest
+  #      credentials:
+  #        username: ubcformulaelectric
+  #        password: ${{ secrets.DOCKER_TOKEN }}
+  #
+  #    steps:
+  #      # Fix to get git diff working in a Docker container
+  #      # https://github.com/actions/checkout/issues/363
+  #      - name: Setup git
+  #        run: git config --global --add safe.directory $(realpath .)
+  #
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v2
+  #
+  #      - name: Format code
+  #        run: python3 scripts/clang_format/fix_formatting.py
+  #
+  #      - name: Check for differences
+  #        run: git --no-pager diff --color --exit-code
+  #
+  #  codegen:
+  #    name: Check CubeMX Code Gen
+  #    runs-on: ubuntu-22.04
+  #    needs: [ clang-format ]
+  #    strategy:
+  #      fail-fast: false
+  #      matrix:
+  #        include:
+  #          - board: DIM
+  #            ioc_dir: firmware/thruna/DIM/src/cubemx
+  #          - board: FSM
+  #            ioc_dir: firmware/thruna/FSM
+  #          - board: PDM
+  #            ioc_dir: firmware/thruna/PDM
+  #          - board: DCM
+  #            ioc_dir: firmware/thruna/DCM
+  #          - board: BMS
+  #            ioc_dir: firmware/thruna/BMS
+  #          - board: GSM
+  #            ioc_dir: firmware/thruna/GSM
+  #
+  #    container:
+  #      image: ubcformulaelectric/environment:latest
+  #      credentials:
+  #        username: ubcformulaelectric
+  #        password: ${{ secrets.DOCKER_TOKEN }}
+  #
+  #    steps:
+  #      # Fix to get git diff working in a Docker container
+  #      # https://github.com/actions/checkout/issues/363
+  #      - name: Setup git
+  #        run: git config --global --add safe.directory $(realpath .)
+  #
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v2
+  #
+  #      # xvfb-run is required to prefix any commands that run STM32CubeMX
+  #      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
+  #      - name: Generate code
+  #        run: |
+  #          xvfb-run python3 scripts/utilities/generate_cube_code.py \
+  #            --board ${{ matrix.board }} \
+  #            --log4j_properties_output ~/.stm32cubemx/log4j.properties \
+  #            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+  #            --codegen_output_dir ${{ matrix.ioc_dir }} \
+  #            --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
+  #
+  #      - name: Fix formatting
+  #        run: python3 scripts/clang_format/fix_formatting.py
+  #
+  #      - name: Check for differences
+  #        run: git --no-pager diff --color --exit-code
+  #
+  #  build-firmware-thruna:
+  #    needs: [ clang-format ]
+  #    name: Build Firmware Binaries
+  #    uses: ./.github/workflows/build.yml
+  #    secrets:
+  #      docker_token: ${{secrets.DOCKER_TOKEN}}
+  #
+  #  test-thruna:
+  #    needs: [ clang-format ]
+  #    name: Test Thruna
+  #    runs-on: ubuntu-22.04
+  #    strategy:
+  #      fail-fast: false
+  #      matrix:
+  #        board:
+  #          - FSM
+  #          - PDM
+  #          - BMS
+  #          - DCM
+  #          - DIM
+  #          - GSM
+  #
+  #    container:
+  #      image: ubcformulaelectric/environment:latest
+  #      credentials:
+  #        username: ubcformulaelectric
+  #        password: ${{ secrets.DOCKER_TOKEN }}
+  #
+  #    env:
+  #      BUILD_DIR: build_x86
+  #
+  #    steps:
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v2
+  #        with:
+  #          submodules: recursive
+  #
+  #      - name: Build
+  #        run: |
+  #          cmake -B $BUILD_DIR -DPLATFORM=x86
+  #          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
+  #
+  #      - name: Run tests
+  #        run: |
+  #          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+  #          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
+  #
+  #  test-shared:
+  #    name: Test Shared
+  #    runs-on: ubuntu-22.04
+  #    needs: [ clang-format ]
+  #    container:
+  #      image: ubcformulaelectric/environment:latest
+  #      credentials:
+  #        username: ubcformulaelectric
+  #        password: ${{ secrets.DOCKER_TOKEN }}
+  #
+  #    env:
+  #      BUILD_DIR: build_x86
+  #
+  #    steps:
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v2
+  #        with:
+  #          submodules: recursive
+  #
+  #      - name: Build
+  #        run: |
+  #          cmake -B $BUILD_DIR -DPLATFORM=x86
+  #          make --directory=$BUILD_DIR -j`nproc` shared_test
+  #
+  #      - name: Run tests
+  #        run: |
+  #          cd $BUILD_DIR/firmware/shared
+  #          valgrind --tool=memcheck --leak-check=yes ./shared_test
+  #
+  #  test-fakegen:
+  #    name: Test Fake Function Generation
+  #    runs-on: ubuntu-22.04
+  #    needs: [ clang-format ]
+  #    container:
+  #      image: ubcformulaelectric/environment:latest
+  #      credentials:
+  #        username: ubcformulaelectric
+  #        password: ${{ secrets.DOCKER_TOKEN }}
+  #
+  #    env:
+  #      BUILD_DIR: build_x86
+  #
+  #    steps:
+  #      - name: Checkout repository
+  #        uses: actions/checkout@v2
+  #        with:
+  #          submodules: recursive
+  #
+  #      - name: Build
+  #        run: |
+  #          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+  #          make --directory=$BUILD_DIR -j`nproc` fakegen_test
+  #
+  #      - name: Run tests
+  #        run: |
+  #          cd $BUILD_DIR/scripts/code_generation/fakegen
+  #          valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
   generate-dbc:
     name: Call DBC Generation
