@@ -22,8 +22,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with: # TODO check if submodules are required (can be optimized away)
-          submodules: recursive
       - name: Generate DBC
         run: |
           python3 scripts/code_generation/jsoncan/generate_can_from_json.py --only_dbc --can_data_dir "can_bus/json" --dbc_output "can_bus/dbcs/CanMsgs.dbc"
