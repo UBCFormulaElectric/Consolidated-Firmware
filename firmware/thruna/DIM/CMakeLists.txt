@@ -62,7 +62,9 @@ if("${PLATFORM}" STREQUAL "x86")
     )
 endif()
 
+
 # INCLUDES and SOURCES from shared
+# Define the shared code that you want to use in this project
 set(SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../shared")
 file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_DIR}/src/app/*.c")
 file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_DIR}/src/io/*.c")
@@ -74,17 +76,21 @@ set(SHARED_IO_INCLUDE_DIRS
     "${SHARED_DIR}/src/hw"
 )
 
+
 set(ALL_SHARED_SRCS
-    ${SHARED_APP_SRCS}
-    ${SHARED_IO_SRCS}
-    ${SHARED_HW_SRCS}
+${SHARED_APP_SRCS}
+${SHARED_IO_SRCS}
+${SHARED_HW_SRCS}
 )
 
 set(ALL_SHARED_INCLUDE_DIRS
-    ${SHARED_APP_INCLUDE_DIRS}
-    ${SHARED_IO_INCLUDE_DIRS}
+${SHARED_APP_INCLUDE_DIRS}
+${SHARED_IO_INCLUDE_DIRS}
 )
 
+# list(REMOVE_ITEM ALL_SHARED_SRCS "${SHARED_DIR}/src/io/Io_SharedHardFaultHandler.c") 
+
+message("SHARED_IO_SRCS: ${ALL_SHARED_SRCS}----------------------")
 
 
 

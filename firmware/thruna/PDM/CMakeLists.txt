@@ -51,6 +51,32 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
 )
 
+# INCLUDES and SOURCES from shared
+set(SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../shared")
+file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_DIR}/src/app/*.c")
+file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_DIR}/src/io/*.c")
+file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_DIR}/src/hw/*.c")
+
+set(SHARED_APP_INCLUDE_DIRS "${SHARED_DIR}/src/app")
+set(SHARED_IO_INCLUDE_DIRS
+    "${SHARED_DIR}/src/io"
+    "${SHARED_DIR}/src/hw"
+)
+
+set(ALL_SHARED_SRCS
+    ${SHARED_APP_SRCS}
+    ${SHARED_IO_SRCS}
+    ${SHARED_HW_SRCS}
+)
+
+set(ALL_SHARED_INCLUDE_DIRS
+    ${SHARED_APP_INCLUDE_DIRS}
+    ${SHARED_IO_INCLUDE_DIRS}
+)
+
+
+
+
 create_arm_binary_or_tests_for_board(
     "PDM"
     "${IOC_FILE}"
@@ -61,6 +87,8 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
+    "${ALL_SHARED_INCLUDE_DIRS}"
+    "${ALL_SHARED_SRCS}"
     "${GOOGLETEST_TEST_SRCS}"
     "${GOOGLETEST_TEST_INCLUDE_DIRS}"
 )
