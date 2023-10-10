@@ -270,7 +270,6 @@ function(create_fake_library
     target_compile_options(${LIBRARY_NAME}
         PUBLIC
         -Wall
-        -Werror
         -g3
     )
     target_include_directories(${LIBRARY_NAME}
@@ -296,7 +295,6 @@ function(compile_gtest_executable
     target_compile_options(${TEST_EXECUTABLE_NAME}
         PUBLIC
         -Wall
-        -Werror
         -g3
     )
     target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)

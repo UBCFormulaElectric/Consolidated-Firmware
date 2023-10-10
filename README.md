@@ -5,168 +5,26 @@ A repository for all software and firmware from UBC Formula Electric.
 ## Table of Contents
 
 - [Consolidated-Firmware](#consolidated-firmware)
-    - [Table of Contents](#table-of-contents)
-    - [Environment Setup](#environment-setup)
-        - [Install Dependencies](#install-dependencies)
-        - [WSL Setup (Windows only)](#wsl-setup-windows-only)
-            - [WSL USB Setup](#wsl-usb-setup)
-        - [Clone Repo](#clone-repo)
-    - [Using the Dev Container](#using-the-dev-container)
-        - [VS Code Extensions](#vs-code-extensions)
-        - [Saving a Git Token](#saving-a-git-token)
-        - [Closing the Container](#closing-the-container)
-    - [Building](#building)
-        - [Load CMake](#load-cmake)
-        - [Build Embedded Binaries](#build-embedded-binaries)
-        - [Build Tests](#build-tests)
-    - [Debugging](#debugging)
-        - [Embedded](#embedded)
-        - [Tests](#tests)
-    - [STM32CubeMX](#stm32cubemx)
-    - [CAN Bus](#can-bus)
-        - [Windows](#windows)
-        - [Linux](#linux)
-    - [Continuous Integration (CI)](#continuous-integration-ci)
+  - [Table of Contents](#table-of-contents)
+  - [Environment Setup](#environment-setup)
+  - [Building](#building)
+    - [Load CMake](#load-cmake)
+    - [Build Embedded Binaries](#build-embedded-binaries)
+    - [Build Tests](#build-tests)
+  - [Debugging](#debugging)
+    - [Embedded](#embedded)
+    - [Tests](#tests)
+  - [CAN Bus](#can-bus)
+    - [Windows](#windows)
+    - [Linux](#linux)
+  - [Continuous Integration (CI)](#continuous-integration-ci)
 
 ## Environment Setup
 
-We write, build, and debug code from inside of an Ubuntu 22.04 Docker container, which is effectively a lightweight
-virtual machine running on top of your native OS.
-This significantly simplifies environment setup, since the container bundles all the dependencies required for
-development, and is isolated from any software a member might already have on their computer.
-The container uses [Docker Volumes](https://docs.docker.com/storage/volumes/) such any changes made to the repo from
-inside the container will be mirrored to your native filesystem, and vice-versa.
+See our guides on Confluence on how to setup the build system.
 
-For more information, and to see how to update the Docker container, see our [Docker README](./environment/README.md).
-
-### Install Dependencies
-
-1. Docker Desktop: Required for running Docker. Available
-   on [Windows](https://docs.docker.com/desktop/install/windows-install/),
-   [Linux](https://docs.docker.com/desktop/install/linux-install/), and
-   [Mac](https://docs.docker.com/desktop/install/mac-install/). Some people have had issues with this on Ubuntu, so
-   please follow the instructions carefully!
-2. [Visual Studio Code](https://code.visualstudio.com/Download): Our IDE of choice. Also install the Remote Development
-   VS Code extension pack (`ms-vscode-remote.vscode-remote-extensionpack` in VS Code Extension Tab > Search Bar), which
-   is required for connecting to Docker containers.
-
-### WSL Setup (Windows only)
-
-Linux Docker containers run extremely slowly on native Windows, but we can fix this problem by using Windows Subsystem
-for Linux (WSL).
-With WSL, we can run a Linux distribution on top of Windows, with excellent performance.
-
-To install WSL, start Windows PowerShell as an administrator (Start > Search for PowerShell > Run as Administrator), and
-run:
-
-```sh
-wsl --install -d Ubuntu
-```
-
-This installs Ubuntu by default, and requires a restart.
-Start WSL after restarting, and you will be prompted up to set up your username and password. After doing so you will
-get access to a Linux shell.
-
-#### WSL USB Setup
-
-WSL can't access USB devices out-of-the-box.
-However, we can use [usbipd](https://github.com/dorssel/usbipd-win) to attach specific USB devices to WSL, which is
-required for connecting to debuggers.
-
-1. Download and install the latest usbipd [release](https://github.com/dorssel/usbipd-win/releases).
-2. From within WSL, run:
-
-```sh
-sudo apt install linux-tools-generic hwdata
-sudo update-alternatives --install /usr/local/bin/usbip usbip /usr/lib/linux-tools/*-generic/usbip 20
-```
-
-These commands are sourced from [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
-
-3. [wsl-usb-gui](https://gitlab.com/alelec/wsl-usb-gui) is a simple GUI program for attaching USB devices to WSL via
-   usbipd. Install the latest wsl-usb-gui [release](https://gitlab.com/alelec/wsl-usb-gui/-/releases) (the `.msi`).
-
-**Note: All following steps must be completed from within WSL!**
-
-### Clone Repo
-
-Navigate to where you want to clone the repo and run the following commands.
-
-Ensure that you clone using the HTTPS (not SSH) since using Git inside the container currently DOESN'T work with SSH:
-
-```sh
-# Install Git LFS.
-apt update && apt install git-lfs
-git lfs install
-
-# Clone repo and update submodules.
-git clone <repo link> #ENSURE IT IS THE HTTP LINK NOT SSH#
-cd Consolidated-Firmware
-git submodule update --init --recursive
-git lfs pull
-```
-
-## Using the Dev Container
-
-To start the development Docker container, navigate to the repo root and run:
-
-```sh
-./start_environment.sh
-```
-
-If you're on Windows and get the error:
-
-```
-The command 'docker' could not be found in this WSL 2 distro.
-We recommend to activate the WSL integration in Docker Desktop settings.
-
-For details about using Docker Desktop with WSL 2, visit:
-
-https://docs.docker.com/go/wsl2/
-```
-
-You probably just need to open Docker Desktop, which will start Docker automatically.
-
-If you're on Linux/Mac and get an error about failing to mount `/tmp`, you may need to add it as a mountable directory
-in Docker Desktop.
-Open Docker Desktop > Settings > Resources > File Sharing > Add `/tmp`.
-
-From VS Code, click the arrows in the bottom left and select "Attach to Running Container".
-Select the `ubcformulaelectric-develop` option and VS Code should connect you to the container. From here, you can open
-the repo and build code from VS Code's integrated terminal.
-
-### VS Code Extensions
-
-Install the following VS Code extensions into the container (should only be required once):
-
-- C/C++ Extension Pack (`ms-vscode.cpptools-extension-pack`)
-- Python (`ms-python.python`)
-- Cortex-Debug (`marus25.cortex-debug`)
-
-(It should prompt you to do this)
-
-### Saving a Git Token
-
-If you would like the terminal to stop prompting you for Username and Password when pushing to the repo (since we are
-not using ssh) use the following commands once you have a git token. Note, that this will mean your token is stored
-unencrypted.
-
-```sh
-git config credential.helper store
-git push
-# Paste your token for both Username and Password and it should not ask when pushing again.
-```
-
-### Closing the Container
-
-When you're finished developing and want to stop the container, run this from the repo root (must be outside of the
-container):
-
-```sh
-docker compose down
-```
-
-**Warning: This will erase all container files outside of the repo!**
+- [Windows/Linux Setup Guide](https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/169771078/Software+-+Onboarding+-+Week+2+-+Environment+Setup+WSL+Linux)
+- [Mac Setup Guide](https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/168329217/Software+-+Onboarding+-+Week+2+-+Environment+Setup+Mac)
 
 ## Building
 
@@ -223,21 +81,6 @@ Running and step-through-debugging tests are also available through the "Run and
 We use a script called [fakegen](./scripts/code_generation/fakegen/README.md) to generate fake versions of IO-level code
 for tests.
 Skimming the README is recommended if you're going to be working with unit tests.
-
-## STM32CubeMX
-
-STM32CubeMX is a program from STMicroelectronics to generate peripheral configuration code for STM32 microcontrollers.
-It can be used with a display to configure peripherals from a GUI, or from the command line to autogenerate code.
-It is invoked from the command line during builds to ensure the `.ioc` (STM32CubeMX config file) stays up to date with
-the code.
-
-Since it is a GUI-based program, it cannot be run reliably from within the Docker container, and you must install it
-manually.Run the following on Linux/WSL from **outside the container.**
-
-```sh
-cd environment/scripts
-sudo python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.STM32CubeMX_v5-3-0.zip
-```
 
 ## CAN Bus
 

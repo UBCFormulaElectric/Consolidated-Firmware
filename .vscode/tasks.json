@@ -157,10 +157,17 @@
         {
             "label": "Launch: STM32CubeMX",
             "type": "shell",
-            "command": "./STM32CubeMX",
+            "command": "java -jar STM32CubeMX",
             "group": "build",
-            "options": {
-                "cwd": "/usr/local/STM32CubeMX/"
+            "linux": {
+                "options": {
+                    "cwd": "/usr/local/STM32CubeMX/"
+                }
+            },
+            "osx": {
+                "options": {
+                    "cwd": "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs"
+                }
             }
         },
     ]

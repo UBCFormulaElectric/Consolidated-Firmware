@@ -1,8 +1,8 @@
 # Native Environment Setup
 
-The following is a guide to setup the build system on native Linux, Windows, and Mac, using CLion as the chosen IDE. This was the main workflow until September 2023, where it was deprecated in favour of containerizing the build system with Docker.
+The following is a guide to setup the build system on Linux, Windows, and Mac, using CLion as the chosen IDE. This was the main workflow until September 2023, where it was deprecated in favour of developing inside of WSL on Windows. However, I'm leaving this here for future reference.
 
-**Warning:** This guide may not be 100% accurate, especially on Windows and Mac.
+**Warning:** This guide may not be accurate, especially on Windows and Mac.
 
 ## Table of Contents
 - [Environment Setup](#environment-setup)
