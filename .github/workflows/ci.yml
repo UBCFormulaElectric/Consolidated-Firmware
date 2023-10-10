@@ -197,6 +197,8 @@ jobs:
   make-release:
     name: Add DBC to Pull_Request-specific release
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     needs: [test-fakegen, test-shared, test-thruna, generate-dbc]
     steps:
       - name: Checkout repository
