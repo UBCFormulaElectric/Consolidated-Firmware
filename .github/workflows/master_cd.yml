@@ -14,7 +14,7 @@ jobs:
     with:
       upload_artifact: true
   generate-dbc:
-    name: Generate DBC
+    name: Call DBC Generation
     uses: ./.github/workflows/dbc-gen.yml
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
