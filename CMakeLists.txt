@@ -25,7 +25,7 @@ IF (NOT PLATFORM)
 ENDIF ()
 message("⚙️ Configuring for ${PLATFORM} build target")
 
-option(BUILD_SERVER "Build build on the server" OFF)
+option(BUILD_SERVER "Build build on the server" ON)
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (BUILD_SERVER)
     message("🏗️ Building on the server")
@@ -88,8 +88,6 @@ IF (NOT BUILD_SERVER)
     execute_process(COMMAND "git submodule update --init --recursive" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     message("✅ Git Submodules Updated")
 
-    # CPM + CMake Dependency Configuration
-
     # check pip is ok
     find_program(PIP_HAS_COMMAND pip)
     IF (NOT PIP_HAS_COMMAND)
@@ -120,7 +118,7 @@ IF (NOT BUILD_SERVER)
     # arm toolchain
     IF ("${PLATFORM}" STREQUAL "arm")
         # arm binary
-        CPMAddPackage(${ARM_BINARY_URL})
+        CPMAddPackage(URL ${ARM_BINARY_URL} NAME gcc-arm-none-eabi-9)
         set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
         IF (WIN32)
             # openocd
