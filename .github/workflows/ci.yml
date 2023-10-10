@@ -203,11 +203,9 @@ jobs:
       contents: write
     needs: [ generate-dbc ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
       - name: debug env
         run: |
+          ls
           echo ${{github.head_ref}}
           echo ${{github.SHA}}
           git status
