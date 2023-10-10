@@ -5,6 +5,7 @@ on:
       - master
 
 jobs:
+  # Build DBC and Binaries
   build:
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
@@ -29,7 +30,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          title: "Binaries and DBCs"
+          title: "Stable Binaries and DBCs"
           tag: ${{ github.sha }}
           prerelease: false
           files: |
@@ -40,7 +41,7 @@ jobs:
             GSM.elf
             PDM.elf
             CanMsgs.dbc
-  # Deletion
+  # Deletion of branch release
   delete-existing-release:
     name: Delete Existing Release
     runs-on: ubuntu-22.04
