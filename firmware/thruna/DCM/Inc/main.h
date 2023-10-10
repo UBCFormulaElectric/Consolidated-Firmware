@@ -73,6 +73,7 @@ extern "C"
 #define IMU_INT2_GPIO_Port GPIOB
 #define IMU_INT1_Pin GPIO_PIN_8
 #define IMU_INT1_GPIO_Port GPIOB
+
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
@@ -82,5 +83,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

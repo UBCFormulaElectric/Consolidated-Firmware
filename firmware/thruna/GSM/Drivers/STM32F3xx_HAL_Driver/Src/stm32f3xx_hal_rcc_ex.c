@@ -10,30 +10,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
+  * This software is licensed under terms that can be found in the LICENSE file in
+  * the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */ 
 
@@ -114,12 +96,17 @@ static uint32_t RCC_GetPLLCLKFreq(void);
   *         order to modify the RTC Clock source, as consequence RTC registers (including 
   *         the backup registers) and RCC_BDCR register are set to their reset values.
   *
+  * @note   When the TIMx clock source is APB clock, so the TIMx clock is APB clock or 
+  *         APB clock x 2 depending on the APB prescaler.
+  *         When the TIMx clock source is PLL clock, so the TIMx clock is PLL clock x 2.
+  *
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
   uint32_t tickstart = 0U;
   uint32_t temp_reg = 0U;
+  FlagStatus       pwrclkchanged = RESET;
     
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
@@ -130,7 +117,6 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* check for RTC Parameters used to output RTCCLK */
     assert_param(IS_RCC_RTCCLKSOURCE(PeriphClkInit->RTCClockSelection));
 
-    FlagStatus       pwrclkchanged = RESET;
 
     /* As soon as function is called to change RTC clock source, activation of the 
        power domain is done. */
@@ -962,10 +948,10 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 
   uint32_t srcclk = 0U;
 #if defined(RCC_CFGR2_ADC1PRES) || defined(RCC_CFGR2_ADCPRE12) || defined(RCC_CFGR2_ADCPRE34)
-  uint16_t adc_pll_prediv_table[16] = { 1U,  2U,  4U,  6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U, 256U, 256U, 256U, 256U};
+  static const uint16_t adc_pll_prediv_table[16U] = { 1U,  2U,  4U,  6U, 8U, 10U, 12U, 16U, 32U, 64U, 128U, 256U, 256U, 256U, 256U, 256U};
 #endif /* RCC_CFGR2_ADC1PRES || RCC_CFGR2_ADCPRE12 || RCC_CFGR2_ADCPRE34 */
 #if defined(RCC_CFGR_SDPRE)
-  uint8_t sdadc_prescaler_table[16] = { 2U,  4U,  6U, 8U, 10U, 12U, 14U, 16U, 20U, 24U, 28U, 32U, 36U, 40U, 44U, 48U};
+  static const uint8_t sdadc_prescaler_table[16U] = { 2U,  4U,  6U, 8U, 10U, 12U, 14U, 16U, 20U, 24U, 28U, 32U, 36U, 40U, 44U, 48U};
 #endif /* RCC_CFGR_SDPRE */
 
   /* Check the parameters */
@@ -1593,4 +1579,3 @@ static uint32_t RCC_GetPLLCLKFreq(void)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

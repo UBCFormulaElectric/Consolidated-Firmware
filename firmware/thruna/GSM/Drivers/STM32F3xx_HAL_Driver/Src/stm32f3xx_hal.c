@@ -5,6 +5,17 @@
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
@@ -19,33 +30,6 @@
 
   @endverbatim
   ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************  
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -68,11 +52,11 @@
   * @{
   */
 /**
- * @brief STM32F3xx HAL Driver version number V1.5.2
+ * @brief STM32F3xx HAL Driver version number V1.5.7
    */
 #define __STM32F3xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
 #define __STM32F3xx_HAL_VERSION_SUB1   (0x05U) /*!< [23:16] sub1 version */
-#define __STM32F3xx_HAL_VERSION_SUB2   (0x02U) /*!< [15:8]  sub2 version */
+#define __STM32F3xx_HAL_VERSION_SUB2   (0x07U) /*!< [15:8]  sub2 version */
 #define __STM32F3xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 #define __STM32F3xx_HAL_VERSION         ((__STM32F3xx_HAL_VERSION_MAIN << 24U)\
                                         |(__STM32F3xx_HAL_VERSION_SUB1 << 16U)\
@@ -145,7 +129,7 @@ HAL_TickFreqTypeDef uwTickFreq = HAL_TICK_FREQ_DEFAULT;  /* 1KHz */
   * @note   The Systick configuration is based on HSI clock, as HSI is the clock
   *         used after a system Reset and the NVIC configuration is set to Priority group 4 
   *            
-  * @note   The time base configuration is based on MSI clock when exting from Reset.
+  * @note   The time base configuration is based on MSI clock when exiting from Reset.
   *         Once done, time base tick start incrementing.
   *         In the default implementation,Systick is used as source of time base.
   *       The tick variable is incremented each 1ms in its ISR.
@@ -318,19 +302,31 @@ uint32_t HAL_GetTickPrio(void)
 
 /**
   * @brief Set new tick Freq.
-  * @retval Status
+  * @retval status
   */
 HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 {
   HAL_StatusTypeDef status  = HAL_OK;
+  HAL_TickFreqTypeDef prevTickFreq;
+
   assert_param(IS_TICKFREQ(Freq));
 
   if (uwTickFreq != Freq)
   {
+    /* Back up uwTickFreq frequency */
+    prevTickFreq = uwTickFreq;
+
+    /* Update uwTickFreq global variable used by HAL_InitTick() */
     uwTickFreq = Freq;
 
-    /* Apply the new tick Freq  */
+    /* Apply the new tick Freq */
     status = HAL_InitTick(uwTickPrio);
+
+    if (status != HAL_OK)
+    {
+      /* Restore previous tick frequency */
+      uwTickFreq = prevTickFreq;
+    }
   }
 
   return status;
@@ -338,7 +334,8 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 
 /**
   * @brief Return tick frequency.
-  * @retval tick period in Hz
+  * @retval Tick frequency.
+  *         Value of @ref HAL_TickFreqTypeDef.
   */
 HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 {
@@ -346,7 +343,7 @@ HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 }
 
 /**
-  * @brief  This function provides accurate delay (in milliseconds) based 
+  * @brief  This function provides accurate delay (in milliseconds) based
   *         on variable incremented.
   * @note   In the default implementation , SysTick timer is the source of time base. 
   *         It is used to generate interrupts at regular time intervals where uwTick
@@ -532,4 +529,4 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

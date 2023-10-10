@@ -110,6 +110,7 @@ extern "C"
 #define BSPD_BRAKE_PRESSED_5V_GPIO_Port GPIOC
 #define BRAKE_OCSC_OK_5V_Pin GPIO_PIN_8
 #define BRAKE_OCSC_OK_5V_GPIO_Port GPIOC
+
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
@@ -119,5 +120,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

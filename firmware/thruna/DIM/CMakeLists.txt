@@ -50,13 +50,9 @@ list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
 
 # We use heap_useNewlib.c for a thread-safe heap implementation, so we can use malloc with FreeRTOS.
 # FreeRTOS also provides heap implementations, and when using the CMSIS_V2 interface we are required to pick one.
-# FreeRTOS's heap will cause linker errors with heap_useNewlib.c, so remove all possible FreeRTOS heap implementations from the build.
+# FreeRTOS's heap will cause linker errors with heap_useNewlib.c, so remove the FreeRTOS heap implementation from the build.
 # Source: https://nadler.com/embedded/newlibAndFreeRTOS.html
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_1.c")
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_2.c")
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_3.c")
 list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_4.c")
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_5.c")
 
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DIM.ioc")
 set(STM32_DEVICE_TYPE STM32F412Rx)

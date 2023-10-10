@@ -17,7 +17,6 @@
  ******************************************************************************
  */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
@@ -64,6 +63,7 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -90,21 +90,66 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
 
-osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[512];
-osStaticThreadDef_t Task1kHzControlBlock;
-osThreadId          Task100HzHandle;
-uint32_t            Task100HzBuffer[512];
-osStaticThreadDef_t Task100HzControlBlock;
-osThreadId          TaskCanRxHandle;
-uint32_t            TaskCanRxBuffer[512];
-osStaticThreadDef_t TaskCanRxControlBlock;
-osThreadId          TaskCanTxHandle;
-uint32_t            TaskCanTxBuffer[512];
-osStaticThreadDef_t TaskCanTxControlBlock;
-osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[512];
-osStaticThreadDef_t Task1HzControlBlock;
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+osStaticThreadDef_t  TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
+uint32_t             TaskCanTxBuffer[512];
+osStaticThreadDef_t  TaskCanTxControlBlock;
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
+    .cb_mem     = &TaskCanTxControlBlock,
+    .cb_size    = sizeof(TaskCanTxControlBlock),
+    .stack_mem  = &TaskCanTxBuffer[0],
+    .stack_size = sizeof(TaskCanTxBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
 /* USER CODE BEGIN PV */
 struct Brake *            brake;
 struct World *            world;
@@ -126,11 +171,11 @@ static void MX_IWDG_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_TIM3_Init(void);
-void        RunTask1kHz(void const *argument);
-void        RunTask100Hz(void const *argument);
-void        RunTaskCanRx(void const *argument);
-void        RunTaskCanTx(void const *argument);
-void        RunTask1Hz(void const *argument);
+void        RunTask1kHz(void *argument);
+void        RunTask100Hz(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -234,6 +279,9 @@ int main(void)
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 2 */
 
+    /* Init scheduler */
+    osKernelInitialize();
+
     /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
     /* USER CODE END RTOS_MUTEX */
@@ -251,34 +299,32 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of Task1kHz */
-    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityNormal, 0, 512, Task1kHzBuffer, &Task1kHzControlBlock);
-    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
 
-    /* definition and creation of Task100Hz */
-    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512, Task100HzBuffer, &Task100HzControlBlock);
-    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
 
-    /* definition and creation of TaskCanRx */
-    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 512, TaskCanRxBuffer, &TaskCanRxControlBlock);
-    TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
 
-    /* definition and creation of TaskCanTx */
-    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 512, TaskCanTxBuffer, &TaskCanTxControlBlock);
-    TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
 
-    /* definition and creation of Task1Hz */
-    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
-    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* USER CODE END RTOS_THREADS */
+
+    /* USER CODE BEGIN RTOS_EVENTS */
+    /* add events, ... */
+    /* USER CODE END RTOS_EVENTS */
 
     /* Start scheduler */
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
-
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -303,7 +349,9 @@ void SystemClock_Config(void)
      */
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    /** Initializes the CPU, AHB and APB busses clocks
+
+    /** Initializes the RCC Oscillators according to the specified parameters
+     * in the RCC_OscInitTypeDef structure.
      */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
@@ -319,7 +367,8 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    /** Initializes the CPU, AHB and APB busses clocks
+
+    /** Initializes the CPU, AHB and APB buses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
@@ -349,6 +398,7 @@ static void MX_ADC1_Init(void)
     /* USER CODE BEGIN ADC1_Init 1 */
 
     /* USER CODE END ADC1_Init 1 */
+
     /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
      */
     hadc1.Instance                   = ADC1;
@@ -367,6 +417,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel      = ADC_CHANNEL_0;
@@ -376,6 +427,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_1;
@@ -384,6 +436,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_2;
@@ -392,6 +445,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_3;
@@ -400,6 +454,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_4;
@@ -408,6 +463,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_5;
@@ -416,6 +472,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_6;
@@ -424,6 +481,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_7;
@@ -432,6 +490,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_8;
@@ -440,6 +499,7 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
     sConfig.Channel = ADC_CHANNEL_9;
@@ -668,6 +728,8 @@ static void MX_DMA_Init(void)
 static void MX_GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    /* USER CODE BEGIN MX_GPIO_Init_1 */
+    /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -690,6 +752,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /* USER CODE BEGIN MX_GPIO_Init_2 */
+    /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -703,7 +768,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void const *argument)
+void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -714,6 +779,8 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
+        const uint32_t start_time_ms = osKernelSysTick();
+
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
@@ -728,7 +795,7 @@ void RunTask1kHz(void const *argument)
             Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         }
 
-        osDelayUntil(&PreviousWakeTime, period_ms);
+        osDelayUntil(start_time_ms + period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -740,7 +807,7 @@ void RunTask1kHz(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void const *argument)
+void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
@@ -752,13 +819,16 @@ void RunTask100Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
+        const uint32_t start_time_ms = osKernelSysTick();
+
         App_SharedStateMachine_Tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
+
+        osDelayUntil(start_time_ms + period_ms);
     }
     /* USER CODE END RunTask100Hz */
 }
@@ -770,7 +840,7 @@ void RunTask100Hz(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void const *argument)
+void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
@@ -792,7 +862,7 @@ void RunTaskCanRx(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void const *argument)
+void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
@@ -812,7 +882,7 @@ void RunTaskCanTx(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void const *argument)
+void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
@@ -823,6 +893,8 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        const uint32_t start_time_ms = osKernelSysTick();
+
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
@@ -833,7 +905,8 @@ void RunTask1Hz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
+
+        osDelayUntil(start_time_ms + period_ms);
     }
     /* USER CODE END RunTask1Hz */
 }
@@ -897,5 +970,3 @@ void assert_failed(uint8_t *file, uint32_t line)
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -966,14 +966,14 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    static const TickType_t  period_ms        = 10;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    static const TickType_t  period_ms = 10;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     /* Infinite loop */
     for (;;)
     {
-        uint32_t start_time_ms = osKernelSysTick();
+        const uint32_t start_time_ms = osKernelSysTick();
 
         App_SharedStateMachine_Tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
@@ -1040,14 +1040,14 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    static const TickType_t  period_ms        = 1;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    static const TickType_t  period_ms = 1;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     /* Infinite loop */
     for (;;)
     {
-        uint32_t start_time_ms = osKernelSysTick();
+        const uint32_t start_time_ms = osKernelSysTick();
 
         // ADC wasn't reading any voltages when triggered by TIM3 like on other boards
         // But worked fine when starting the conversion via software as below
@@ -1085,14 +1085,14 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms        = 1000U;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    static const TickType_t  period_ms = 1000U;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     /* Infinite loop */
     for (;;)
     {
-        uint32_t start_time_ms = osKernelSysTick();
+        const uint32_t start_time_ms = osKernelSysTick();
 
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
@@ -1104,7 +1104,7 @@ void RunTask1Hz(void *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        
+
         osDelayUntil(start_time_ms + period_ms);
     }
     /* USER CODE END RunTask1Hz */
