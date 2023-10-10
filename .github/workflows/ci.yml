@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/environment:new_cube2
+      image: ubcformulaelectric/environment:new_cube
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -37,20 +37,20 @@ jobs:
       matrix:
         include:
           - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/DIM/src/cubemx
           - board: FSM
-            ioc_dir: firmware/thruna/FSM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/FSM
           - board: PDM
-            ioc_dir: firmware/thruna/PDM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/PDM
           - board: DCM
-            ioc_dir: firmware/thruna/DCM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/DCM
           - board: BMS
-            ioc_dir: firmware/thruna/BMS
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/BMS
           - board: GSM
-            ioc_dir: firmware/thruna/GSM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/GSM
 
     container:
-      image: ubcformulaelectric/environment:new_cube2
+      image: ubcformulaelectric/environment:new_cube
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
             --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir $GITHUB_WORKSPACE/${{ matrix.ioc_dir }} \
+            --codegen_output_dir ${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
       - name: Fix formatting
@@ -104,7 +104,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/environment:new_cube2
+      image: ubcformulaelectric/environment:new_cube
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:new_cube2
+      image: ubcformulaelectric/environment:new_cube
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:new_cube2
+      image: ubcformulaelectric/environment:new_cube
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
