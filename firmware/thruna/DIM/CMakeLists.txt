@@ -90,7 +90,7 @@ ${SHARED_IO_INCLUDE_DIRS}
 
 # list(REMOVE_ITEM ALL_SHARED_SRCS "${SHARED_DIR}/src/io/Io_SharedHardFaultHandler.c") 
 
-message("SHARED_IO_SRCS: ${ALL_SHARED_SRCS}----------------------")
+# message("SHARED_IO_SRCS: ${ALL_SHARED_SRCS}----------------------")
 
 
 
