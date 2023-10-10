@@ -6,8 +6,9 @@ def path_is_folder_and_has_ioc_file(pathName: str):
     is_folder = not path.isfile(pathName)
     if not is_folder:
         return False
-    has_ioc = any(file.endswith(".ioc") for file in listdir(pathName)
-                  or any(file.endswith(".ioc") for file in listdir(path.join(pathName, "src/cubemx"))))
+    has_ioc = (any(file.endswith(".ioc") for file in listdir(pathName))  # TODO remove when refactor is done.
+               or any([file.endswith(".ioc") for file in listdir(path.join(pathName, "src/cubemx"))]))
+
     return has_ioc
 
 
@@ -29,4 +30,4 @@ def print_space_delimited_board_names():
 
 
 if __name__ == '__main__':
-    print(print_space_delimited_board_names())
+    print_space_delimited_board_names()
