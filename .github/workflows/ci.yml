@@ -207,15 +207,16 @@ jobs:
         uses: actions/checkout@v2
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
-      - name: Create Tag
-        run: |
-          git tag ${{github.head_ref}}_tag -f
-          git push origin ${{github.head_ref}}_tag
       - name: Delete ONE other releases on tag
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete ${{github.head_ref}}_tag --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
+        continue-on-error: true
+      - name: Create Tag
+        run: |
+          git tag ${{github.head_ref}}_tag -f
+          git push origin ${{github.head_ref}}_tag -f
       - name: Create Release
         env:
           GH_TOKEN: ${{ github.token }}
