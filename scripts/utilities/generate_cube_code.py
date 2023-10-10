@@ -82,7 +82,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
     # Note: If the STM32CubeMX script encounters an exception (e.g. It can't
     # find the a valid script), the process may never exit so there is no status
     # code to check at all. Account for this by setting a time out.
-    timeout_sec = 120
+    timeout_sec = 600
     try:
         proc.wait(timeout_sec)
     except subprocess.TimeoutExpired:
