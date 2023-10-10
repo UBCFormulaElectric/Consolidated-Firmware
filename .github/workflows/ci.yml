@@ -3,9 +3,9 @@ on:
   pull_request:
     branches:
       - master
-      
+
 jobs:
-  clang-format: 
+  clang-format:
     name: Check C Formatting
     runs-on: ubuntu-22.04
 
@@ -29,11 +29,11 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-        
+
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
-    needs: [clang-format]
+    needs: [ clang-format ]
     strategy:
       fail-fast: false
       matrix:
@@ -82,15 +82,15 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-        
+
   build-firmware-thruna:
-    needs: [clang-format]
+    needs: [ clang-format ]
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
-    needs: [clang-format]
+    needs: [ clang-format ]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
@@ -132,7 +132,7 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
-    needs: [clang-format]
+    needs: [ clang-format ]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -161,7 +161,7 @@ jobs:
   test-fakegen:
     name: Test Fake Function Generation
     runs-on: ubuntu-22.04
-    needs: [clang-format]
+    needs: [ clang-format ]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -199,7 +199,7 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
-    needs: [test-fakegen, test-shared, test-thruna, generate-dbc]
+    needs: [ generate-dbc ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
