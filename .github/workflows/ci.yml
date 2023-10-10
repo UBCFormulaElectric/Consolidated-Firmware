@@ -183,7 +183,7 @@ jobs:
           valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
   generate-dbc:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@master
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@peter/build_DBC_PR
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
     with:
