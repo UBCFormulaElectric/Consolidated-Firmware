@@ -206,14 +206,11 @@ jobs:
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          target_commitish: "${{github.SHA}}"
-          tag_name: "${{github.head_ref}}"
-          name: "${{github.head_ref}} DBC File"
-          prerelease: false
-          body: |
-            DBC Files generated for ${{github.head_ref}}
-          files: |
-            ./can_bus/dbcs/CanMsgs.dbc
+        run: |
+          gh release create ${{github.head_ref}} \
+            ./can_bus/dbcs/CanMsgs.dbc \
+            --title "${{github.head_ref}} DBC File" \
+            --notes "DBC Files generated for ${{github.head_ref}}" \it 
+            --repo UBCFormulaElectric/Consolidated-Firmware \
+            --target "${{github.SHA}}" \
+            --draft \
