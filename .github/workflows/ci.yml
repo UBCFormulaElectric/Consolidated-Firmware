@@ -208,6 +208,8 @@ jobs:
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Delete other releases on branch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete ${{github.head_ref}} --repo UBCFormulaElectric/Consolidated-Firmware --yes
       - name: Create Release
