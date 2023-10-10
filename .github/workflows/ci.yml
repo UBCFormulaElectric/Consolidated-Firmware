@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     container:
-      image: ubcformulaelectric/environment:new_cube
+      image: ubcformulaelectric/environment:new_cube2
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
             ioc_dir: firmware/thruna/GSM
 
     container:
-      image: ubcformulaelectric/environment:new_cube
+      image: ubcformulaelectric/environment:new_cube2
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -104,7 +104,7 @@ jobs:
           - GSM
 
     container:
-      image: ubcformulaelectric/environment:new_cube
+      image: ubcformulaelectric/environment:new_cube2
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:new_cube
+      image: ubcformulaelectric/environment:new_cube2
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:new_cube
+      image: ubcformulaelectric/environment:new_cube2
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.DOCKER_TOKEN }}
