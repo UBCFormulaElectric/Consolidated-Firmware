@@ -128,6 +128,7 @@ extern "C"
 #define DRIVE_MODE_2_GPIO_Port GPIOB
 #define DRIVE_MODE_3_Pin GPIO_PIN_9
 #define DRIVE_MODE_3_GPIO_Port GPIOB
+
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
@@ -137,5 +138,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -3,7 +3,7 @@
 // clang-format off
 
 #ifdef __arm__
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #endif
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) \
