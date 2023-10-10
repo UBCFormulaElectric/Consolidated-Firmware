@@ -85,7 +85,8 @@ jobs:
 
   build-firmware-thruna:
     needs: [ clang-format ]
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
+    name: Build Firmware Binaries
+    uses: ./.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
@@ -188,6 +189,7 @@ jobs:
           valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
   generate-dbc:
+    name: Generate DBC
     uses: ./.github/workflows/dbc-gen.yml
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
