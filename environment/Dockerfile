@@ -15,9 +15,9 @@ FROM ubuntu:22.04
 # usbutils: USB tools (lsusb)
 # nano: Basic Unix text editor
 # libgtk-3-0: Random library required for running STM32CubeMX in container
-# libxi6: Random library required for running STM32CubeMX in container
-# libxtst6: Random library required for running STM32CubeMX in container
-# libxrender1: Random library required for running STM32CubeMX in container
+# libxi6: Random library required for running STM32CubeMX V6 in container
+# libxtst6: Random library required for running STM32CubeMX V6 in container
+# libxrender1: Random library required for running STM32CubeMX V6 in container
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -47,4 +47,3 @@ RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-z
 # Cleanup copied directory.
 WORKDIR /root/
 RUN rm -rf environment
-

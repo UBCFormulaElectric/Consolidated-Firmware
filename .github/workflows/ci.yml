@@ -64,9 +64,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ok
-        run: echo "${{ github.workspace }}"
-
       # xvfb-run is required to prefix any commands that run STM32CubeMX
       # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
       - name: Generate code
@@ -75,8 +72,8 @@ jobs:
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc  $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir  $GITHUB_WORKSPACE/${{ matrix.ioc_dir }} \
+            --ioc $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            --codegen_output_dir $GITHUB_WORKSPACE/${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
       - name: Fix formatting

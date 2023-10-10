@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CI container image.
-IMAGE="ubcformulaelectric/environment:latest"
+IMAGE="ubcformulaelectric/environment:new_cube"
 
 # Check if the image exists locally.
 if [[ "$(docker images -q ${IMAGE} 2> /dev/null)" == "" ]]; then
@@ -23,7 +23,7 @@ fi
 
 ENVIRONMENT_DIR="$(cd "$(dirname "$0")" && pwd)" # Directory of this script
 REPO_ROOT_DIR="${ENVIRONMENT_DIR}/.." # Path to repo root
-CONTAINER_MOUNT_DIR="/home/Consolidated-Firmware" # Directory in container to mount repo
+CONTAINER_MOUNT_DIR="/root/Consolidated-Firmware" # Directory in container to mount repo
 
 # Run container, and mount local repo.
 docker run \
