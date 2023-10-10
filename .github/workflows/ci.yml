@@ -90,7 +90,7 @@ jobs:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
-    needs: [build-firmware-thruna]
+    needs: [codegen]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
@@ -188,7 +188,7 @@ jobs:
           valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
   generate-dbc:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@peter/build_DBC_PR
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
     with:
@@ -204,14 +204,13 @@ jobs:
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{github.head_ref}}"
-          title: "{{github.head_ref}}.DBC File"
-          tag: ${{ github.sha }}
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag_name: "${{github.head_ref}}"
+          name: "${{github.head_ref}}.DBC File"
           prerelease: false
           body: |
-            DBC Files generated for {{github.head_ref}}
+            DBC Files generated for ${{github.head_ref}}
           files: |
             CanMsgs.dbc

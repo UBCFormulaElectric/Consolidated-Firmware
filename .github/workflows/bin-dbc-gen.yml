@@ -13,7 +13,7 @@ jobs:
     with:
       upload_artifact: true
   generate-dbc:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@peter/build_DBC_PR
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
     with:
@@ -31,7 +31,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           title: "Stable Binaries and DBCs"
-          tag: ${{ github.sha }}
           prerelease: false
           files: |
             FSM.elf
