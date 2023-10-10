@@ -1,3 +1,4 @@
+name: Generate DBC
 on:
   workflow_call:
     secrets:
