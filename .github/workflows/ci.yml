@@ -208,6 +208,7 @@ jobs:
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - run: ls -l
+      - run: ls ./CanMsgs.dbc -l
       - name: Create Release
         env:
           GH_TOKEN: ${{ github.token }}
