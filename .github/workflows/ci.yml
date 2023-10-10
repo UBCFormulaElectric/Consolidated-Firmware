@@ -216,4 +216,4 @@ jobs:
           body: |
             DBC Files generated for ${{github.head_ref}}
           files: |
-            /CanMsgs.dbc
+            ./can_bus/dbcs/CanMsgs.dbc
