@@ -41,19 +41,16 @@ jobs:
             GSM.elf
             PDM.elf
             CanMsgs.dbc
+          
   # Deletion of branch release
   delete-existing-release:
     name: Delete Existing Release
     runs-on: ubuntu-22.04
     needs: [make-release]
     steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
       - name: Delete Release
         uses: dev-drprasad/delete-tag-and-release@v1.0 
         with:
-          tag_name: "${{steps.extract_branch.outputs.branch}}"
+          tag_name: "{{github.head_ref}}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_release: true 

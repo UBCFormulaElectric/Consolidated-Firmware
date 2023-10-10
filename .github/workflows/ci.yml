@@ -199,6 +199,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [test-fakegen, test-shared, test-thruna, generate-dbc]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Create Release
@@ -206,8 +208,10 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{github.head_ref}}"
-          title: "DBC Generation"
+          title: "{{github.head_ref}}.DBC File"
           tag: ${{ github.sha }}
           prerelease: false
+          body: |
+            DBC Files generated for {{github.head_ref}}
           files: |
             CanMsgs.dbc
