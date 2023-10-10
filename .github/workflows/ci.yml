@@ -90,7 +90,7 @@ jobs:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
-  needs: [build-firmware-thruna]
+    needs: [build-firmware-thruna]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
