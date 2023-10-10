@@ -37,17 +37,17 @@ jobs:
       matrix:
         include:
           - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/DIM/src/cubemx
           - board: FSM
-            ioc_dir: firmware/thruna/FSM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/FSM
           - board: PDM
-            ioc_dir: firmware/thruna/PDM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/PDM
           - board: DCM
-            ioc_dir: firmware/thruna/DCM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/DCM
           - board: BMS
-            ioc_dir: firmware/thruna/BMS
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/BMS
           - board: GSM
-            ioc_dir: firmware/thruna/GSM
+            ioc_dir: $GITHUB_WORKSPACE/firmware/thruna/GSM
 
     container:
       image: ubcformulaelectric/environment:new_cube2
@@ -86,7 +86,7 @@ jobs:
     name: Build Firmware Binaries
     uses: ./.github/workflows/build.yml # https://github.blog/changelog/2022-01-25-github-actions-reusable-workflows-can-be-referenced-locally/ God is good
     secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
 
   test-thruna:
     needs: [ clang-format ]
