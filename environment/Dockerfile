@@ -14,6 +14,10 @@ FROM ubuntu:22.04
 # openocd: Our embedded GDB server of choice
 # usbutils: USB tools (lsusb)
 # nano: Basic Unix text editor
+# libgtk-3-0: Random library required for running STM32CubeMX in container
+# libxi6: Random library required for running STM32CubeMX in container
+# libxtst6: Random library required for running STM32CubeMX in container
+# libxrender1: Random library required for running STM32CubeMX in container
 RUN apt update -y && apt install -y \
     wget \
     unzip \
@@ -22,7 +26,11 @@ RUN apt update -y && apt install -y \
     git-lfs \
     xvfb \
     libncurses5 \
-    valgrind
+    valgrind \
+    libgtk-3-0 \
+    libxi6 \
+    libxtst6 \
+    libxrender1
 
 COPY . /root/environment/
 
