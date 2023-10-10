@@ -205,6 +205,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: debug env
+        run: |
+          echo ${{github.head_ref}}
+          echo ${{github.SHA}}
+          git status
+          git log --oneline -n 10 --no-pager
+          git rev-parse --verify HEAD
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
       - name: Delete ONE other releases on tag
