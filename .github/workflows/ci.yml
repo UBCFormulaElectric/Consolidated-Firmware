@@ -33,6 +33,7 @@ jobs:
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
+    needs: [clang-format]
     strategy:
       fail-fast: false
       matrix:
@@ -83,11 +84,13 @@ jobs:
         run: git --no-pager diff --color --exit-code
         
   build-firmware-thruna:
+    needs: [codegen]
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
+  needs: [build-firmware-thruna]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
@@ -129,6 +132,7 @@ jobs:
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
+    needs: [clang-format]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -157,6 +161,7 @@ jobs:
   test-fakegen:
     name: Test Fake Function Generation
     runs-on: ubuntu-22.04
+    needs: [clang-format]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -192,7 +197,7 @@ jobs:
   make-release:
     name: Add DBC to Pull_Request-specific release
     runs-on: ubuntu-22.04
-    needs: [test-fakegen, test-shared, test-thruna, build-firmware-thruna, codegen, generate-dbc]
+    needs: [test-fakegen, test-shared, test-thruna, generate-dbc]
     steps:
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
