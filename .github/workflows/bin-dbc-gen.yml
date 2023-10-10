@@ -12,26 +12,11 @@ jobs:
     with:
       upload_artifact: true
   generate-dbc:
-    name: Generate CAN DBC file
-    runs-on: ubuntu-22.04
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.docker_token }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with: # TODO check if submodules are required (can be optimized away)
-          submodules: recursive
-      - name: Generate DBC
-        run: |
-          python3 scripts/code_generation/jsoncan/generate_can_from_json.py --only_dbc --can_data_dir "can_bus/json" --dbc_output "can_bus/dbcs/CanMsgs.dbc"
-      - name: Upload DBC to Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: CanMsgs.dbc
-          path: ./can_bus/dbcs/CanMsgs.dbc
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@master
+    secrets:
+      docker_token: ${{secrets.DOCKER_TOKEN}}
+    with:
+      upload_artifact: true
   make-release:
     name: Add Binaries and DBC to Release Tab
     runs-on: ubuntu-22.04

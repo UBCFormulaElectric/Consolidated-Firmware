@@ -3,7 +3,7 @@ on:
   pull_request:
     branches:
       - master
-
+      
 jobs:
   clang-format: 
     name: Check C Formatting
@@ -183,26 +183,11 @@ jobs:
           valgrind --tool=memcheck --leak-check=yes ./fakegen_test
   
   generate-dbc:
-      name: Generate CAN DBC file
-      runs-on: ubuntu-22.04
-      container:
-        image: ubcformulaelectric/environment:latest
-        credentials:
-          username: ubcformulaelectric
-          password: ${{ secrets.docker_token }}
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
-          with: # TODO check if submodules are required (can be optimized away) (From bin-dbc-gen)
-            submodules: recursive
-        - name: Generate DBC
-          run: |
-            python3 scripts/code_generation/jsoncan/generate_can_from_json.py --only_dbc --can_data_dir "can_bus/json" --dbc_output "can_bus/dbcs/CanMsgs.dbc"
-        - name: Upload DBC to Artifact
-          uses: actions/upload-artifact@v2
-          with:
-            name: CanMsgs.dbc
-            path: ./can_bus/dbcs/CanMsgs.dbc
+    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/dbc-gen.yml@master
+    secrets:
+      docker_token: ${{secrets.DOCKER_TOKEN}}
+    with:
+      upload_artifact: true
 
   make-release:
     name: Add DBC to Pull_Request-specific release
@@ -220,7 +205,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{steps.extract_branch.outputs.branch}}"
-          title: "DBC Generation"
+          title: "${{steps.extract_branch.outputs.branch}}.DBC File"
           tag: ${{ github.sha }}
           prerelease: false
           files: |
