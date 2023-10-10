@@ -84,13 +84,13 @@ jobs:
         run: git --no-pager diff --color --exit-code
         
   build-firmware-thruna:
-    needs: [codegen]
+    needs: [clang-format]
     uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
-    needs: [codegen]
+    needs: [clang-format]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
@@ -207,10 +207,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
+          target_commitish: "${{github.SHA}}"
           tag_name: "${{github.head_ref}}"
-          name: "${{github.head_ref}}.DBC File"
+          name: "${{github.head_ref}} DBC File"
           prerelease: false
           body: |
             DBC Files generated for ${{github.head_ref}}
           files: |
-            CanMsgs.dbc
+            /CanMsgs.dbc
