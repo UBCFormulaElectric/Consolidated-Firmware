@@ -25,10 +25,12 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ build, generate-dbc ]
     steps:
-      - name: Download Binaries and DBC from Artifacts
-        uses: actions/download-artifact@v3
       - name: Create artifacts directory
         run: mkdir artifacts
+      - name: Download Binaries and DBC from Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
       - name: Create Release
         uses: ./.github/actions/push_release
         with:
