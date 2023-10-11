@@ -26,7 +26,7 @@ jobs:
     needs: [ build, generate-dbc ]
     steps:
       - name: Download Binaries and DBC from Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
       - name: Create Release
         uses: ./.github/actions/push_release
         with:
