@@ -19,8 +19,6 @@ runs:
     - name: Create Tag
       shell: bash
       run: |
-        git config --local user.email "ev_engineer@tesla.com"
-        git config --local user.name "Josh Goat"
         git tag ${{github.head_ref}}_tag -f
         git push origin ${{github.head_ref}}_tag -f
     - name: Create Release
@@ -28,6 +26,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        ls -l
         gh release create ${{github.head_ref}}_tag \
           "${{inputs.files}}" \
           --title "${{github.head_ref}} DBC File" \
