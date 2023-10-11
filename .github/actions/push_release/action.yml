@@ -49,6 +49,6 @@ runs:
       run: |
         ls -l
         gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs.FILE_NAMES }} \
-          --title ${{inputs.title}} \
-          --notes ${{inputs.body}} \
+          --title "${{inputs.title}}" \
+          --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
