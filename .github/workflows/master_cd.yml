@@ -28,20 +28,19 @@ jobs:
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v2
       - name: Create Release
-        uses: marvinpinto/action-automatic-releases@latest"
+        uses: ./.github/actions/push_release
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          title: "Stable Binaries and DBCs"
-          prerelease: false
           files: |
-            FSM.elf
-            BMS.elf
-            DCM.elf
-            DIM.elf
-            GSM.elf
-            PDM.elf
-            CanMsgs.dbc
+            FSM.elf/FSM.elf
+            BMS.elf/BMS.elf
+            DCM.elf/DCM.elf
+            DIM.elf/DIM.elf
+            GSM.elf/GSM.elf
+            PDM.elf/PDM.elf
+            CanMsgs.dbc/CanMsgs.dbc
+          latest: true
+          title: "Stable Binaries and DBCs"
+          body: "This release contains the latest stable binaries and DBCs."
 
   # Deletion of branch release
   delete-existing-release:

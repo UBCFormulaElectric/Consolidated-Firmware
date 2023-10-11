@@ -5,22 +5,35 @@ inputs:
     description: The files to upload (must exist in the current working directory)
     required: true
     default: 'World'
+  latest:
+    description: Whether to push to the latest tag
+    required: false
+    default: false
+  title:
+    description: The title of the release
+    required: true
+  body:
+    description: The body of the release
+    required: true
 
 runs:
   using: "composite"
+  env:
+    TAG_NAME: ${{ github.ref == 'refs/heads/master' && 'latest' || github.head_ref + '_tag' }}
   steps:
     - name: Delete ONE other releases on tag
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release delete ${{github.head_ref}}_tag --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
+        gh release delete ${{ env.TAG_NAME }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
       continue-on-error: true
     - name: Create Tag
       shell: bash
       run: |
-        git tag ${{github.head_ref}}_tag -f
-        git push origin ${{github.head_ref}}_tag -f
+        git tag ${{ env.TAG_NAME }} -f
+        git push origin ${{ env.TAG_NAME }}g -f
+
     - name: Make file name one line
       shell: bash
       run: |
@@ -31,13 +44,13 @@ runs:
         MY_STRING="${MY_STRING//$'\n'/' '}"
         echo "::set-output name=content::$MY_STRING"
       id: my_string
+
     - name: Create Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release create ${{github.head_ref}}_tag ${{ steps.my_string.outputs.content }} \
-          --title "${{github.head_ref}} DBC File" \
-          --notes "DBC Files generated for ${{github.head_ref}}" \
-          --repo UBCFormulaElectric/Consolidated-Firmware \
-          --target "${{github.SHA}}"
+        gh release create ${{ env.TAG_NAME }} ${{ steps.my_string.outputs.content }} \
+          --title ${{inputs.title}} \
+          --notes ${{inputs.body}} \
+          --repo UBCFormulaElectric/Consolidated-Firmware
