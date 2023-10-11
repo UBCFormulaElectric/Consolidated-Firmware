@@ -27,17 +27,19 @@ jobs:
     steps:
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v3
+      - name: Create artifacts directory
+        run: mkdir artifacts
       - name: Create Release
         uses: ./.github/actions/push_release
         with:
           files: |
-            FSM.elf/FSM.elf
-            BMS.elf/BMS.elf
-            DCM.elf/DCM.elf
-            DIM.elf/DIM.elf
-            GSM.elf/GSM.elf
-            PDM.elf/PDM.elf
-            CanMsgs.dbc/CanMsgs.dbc
+            artifacts/FSM.elf
+            artifacts/BMS.elf
+            artifacts/DCM.elf
+            artifacts/DIM.elf
+            artifacts/GSM.elf
+            artifacts/PDM.elf
+            artifacts/CanMsgs.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
