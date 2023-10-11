@@ -40,15 +40,14 @@ runs:
         ${{inputs.files}}
         EOF
         )
-        MY_STRING="${MY_STRING//$'\n'/' '}"
-        echo -n "$MY_STRING" >> "$GITHUB_OUTPUT"
+        echo -n "FILE_NAMES=$MY_STRING" >> "$GITHUB_OUTPUT"
       id: join_tag_name
     - name: Create Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs }} \
+        gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs.FILE_NAMES }} \
           --title ${{inputs.title}} \
           --notes ${{inputs.body}} \
           --repo UBCFormulaElectric/Consolidated-Firmware
