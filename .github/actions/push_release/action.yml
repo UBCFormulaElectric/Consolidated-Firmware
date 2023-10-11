@@ -39,7 +39,7 @@ runs:
         EOF
         )
         MY_STRING="${MY_STRING//$'\n'/' '}"
-        echo "name=$MY_STRING" >> >> $GITHUB_OUTPUT
+        echo "name=$MY_STRING" >> $GITHUB_OUTPUT
       id: my_string
 
     - name: Create Release
