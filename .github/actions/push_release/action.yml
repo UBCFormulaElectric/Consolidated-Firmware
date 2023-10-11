@@ -1,8 +1,8 @@
 name: Push Release
 description: Push a release to the repo under a given tag
 inputs:
-  who-to-greet: # id of input
-    description: 'Who to greet'
+  files: # id of input
+    description: The files to upload (must exist i
     required: true
     default: 'World'
 
@@ -19,6 +19,8 @@ runs:
     - name: Create Tag
       shell: bash
       run: |
+        git config --local user.email "ev_engineer@tesla.com"
+        git config --local user.name "Josh Goat"
         git tag ${{github.head_ref}}_tag -f
         git push origin ${{github.head_ref}}_tag -f
     - name: Create Release
