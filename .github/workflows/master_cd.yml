@@ -41,6 +41,7 @@ jobs:
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
+          tag_name: "latest"
 
   # Deletion of branch release
   delete-existing-release:
@@ -53,4 +54,4 @@ jobs:
         with:
           tag_name: "{{github.head_ref}}"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true 
+          delete_release: true

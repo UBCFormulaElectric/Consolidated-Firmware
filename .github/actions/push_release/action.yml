@@ -5,10 +5,9 @@ inputs:
     description: The files to upload (must exist in the current working directory)
     required: true
     default: 'World'
-  latest:
-    description: Whether to push to the latest tag
-    required: false
-    default: false
+  tag_name:
+    description: The tag to push the release to
+    required: true
   title:
     description: The title of the release
     required: true
@@ -18,21 +17,19 @@ inputs:
 
 runs:
   using: "composite"
-  env:
-    TAG_NAME: ${{ github.ref == 'refs/heads/master' && 'latest' || format('{0}_tag', github.head_ref) }}
   steps:
     - name: Delete ONE other releases on tag
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release delete ${{ env.TAG_NAME }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
+        gh release delete ${{ inputs.tag_name }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
       continue-on-error: true
     - name: Create Tag
       shell: bash
       run: |
-        git tag ${{ env.TAG_NAME }} -f
-        git push origin ${{ env.TAG_NAME }}g -f
+        git tag ${{ inputs.tag_name }} -f
+        git push origin ${{ inputs.tag_name }}g -f
 
     - name: Make file name one line
       shell: bash
@@ -50,7 +47,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release create ${{ env.TAG_NAME }} ${{ steps.my_string.outputs.content }} \
+        gh release create ${{ inputs.tag_name }} ${{ steps.my_string.outputs.content }} \
           --title ${{inputs.title}} \
           --notes ${{inputs.body}} \
           --repo UBCFormulaElectric/Consolidated-Firmware
