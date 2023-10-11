@@ -41,7 +41,7 @@ runs:
         EOF
         )
         MY_STRING="${MY_STRING//$'\n'/' '}"
-        echo "$MY_STRING" >> "$GITHUB_OUTPUT"
+        echo -n "$MY_STRING" >> "$GITHUB_OUTPUT"
       id: join_tag_name
     - name: Create Release
       shell: bash
