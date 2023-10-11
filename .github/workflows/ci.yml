@@ -203,9 +203,10 @@ jobs:
       contents: write
     needs: [ generate-dbc ]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: debug env
         run: |
-          ls
           echo ${{github.head_ref}}
           echo ${{github.SHA}}
           git status
@@ -213,24 +214,6 @@ jobs:
           git rev-parse --verify HEAD
       - name: Download DBC from artifact
         uses: actions/download-artifact@v2
-      - name: Delete ONE other releases on tag
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release delete ${{github.head_ref}}_tag --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
-        continue-on-error: true
-      - name: Create Tag
-        run: |
-          git tag ${{github.head_ref}}_tag -f
-          git push origin ${{github.head_ref}}_tag -f
-      - name: Create Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create ${{github.head_ref}}_tag \
-            CanMsgs.dbc/CanMsgs.dbc \
-            --title "${{github.head_ref}} DBC File" \
-            --notes "DBC Files generated for ${{github.head_ref}}" \
-            --repo UBCFormulaElectric/Consolidated-Firmware \
-            --target "${{github.SHA}}" \
-            --draft \
+      - uses: actions/push_release.yml
+        with:
+          who-to-greet: 'Mona the Octocat'
