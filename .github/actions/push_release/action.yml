@@ -36,11 +36,12 @@ runs:
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
       # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-setting-an-output-parameter
       run: |
-        {
-          echo 'release_file_names<<EOF'
-          ${{ inputs.files }}
-          echo EOF
-        } >> "$GITHUB_OUTPUT"
+        MY_STRING=$(cat << EOF
+        ${{inputs.files}}
+        EOF
+        )
+        MY_STRING="${MY_STRING//$'\n'/' '}"
+        echo $MY_STRING >> "$GITHUB_OUTPUT"
       id: join_tag_name
     - name: Create Release
       shell: bash
