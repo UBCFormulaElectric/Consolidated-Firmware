@@ -521,6 +521,16 @@ function(create_arm_binary_or_tests_for_board
     endif()
 endfunction()
 
+## shared library
+set(SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shared") 
+file(GLOB_RECURSE ALL_SHARED_APP_SRCS "${SHARED_DIR}/src/app/*.c")
+file(GLOB_RECURSE ALL_SHARED_IO_SRCS "${SHARED_DIR}/src/io/*.c")
+file(GLOB_RECURSE ALL_SHARED_HW_SRCS "${SHARED_DIR}/src/hw/*.c")
+set(ALL_SHARED_APP_INCLUDE_DIRS "${SHARED_DIR}/src/app")
+set(ALL_SHARED_IO_INCLUDE_DIRS "${SHARED_DIR}/src/io")
+set(ALL_SHARED_HW_INCLUDE_DIRS "${SHARED_DIR}/src/hw")
+
+
 add_subdirectory(third_party)
 add_subdirectory(shared)
 add_subdirectory(thruna)
