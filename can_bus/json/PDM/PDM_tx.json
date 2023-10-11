@@ -1,5 +1,5 @@
 {
-    "PDM_Vitals": {
+    "Vitals": {
         "msg_id": 402,
         "cycle_time": 100,
         "description": "PDM vitals message.",
@@ -8,11 +8,11 @@
                 "bits": 1
             },
             "State": {
-                "enum": "PDM_State"
+                "enum": "PdmState"
             }
         }
     },
-    "PDM_AlertsContext": {
+    "AlertsContext": {
         "msg_id": 404,
         "cycle_time": 1000,
         "description": "Context info for PDM alerts",
@@ -46,7 +46,7 @@
             }
         }
     },
-    "PDM_Voltages": {
+    "Voltages": {
         "msg_id": 405,
         "cycle_time": 100,
         "description": "PDM voltages.",

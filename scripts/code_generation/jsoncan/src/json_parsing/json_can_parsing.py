@@ -132,17 +132,19 @@ class JsonCanParser:
                 self._enums[enum_name] = can_enum
 
             # Parse node's tx messages
-            for tx_msg_name, msg_data in node_tx_json_data.items():
+            for tx_node_msg_name, msg_data in node_tx_json_data.items():
+                tx_node_msg_name = f"{node}_{tx_node_msg_name}"
+
                 # Check if this message name is a duplicate
-                if tx_msg_name in self._messages:
+                if tx_node_msg_name in self._messages:
                     raise InvalidCanJson(
-                        f"Message '{tx_msg_name}' transmitted by node '{node}' is a duplicate, messages must have unique names."
+                        f"Message '{tx_node_msg_name}' transmitted by node '{node}' is a duplicate, messages must have unique names."
                     )
 
                 can_msg = self._get_parsed_can_message(
-                    msg_name=tx_msg_name, msg_json_data=msg_data, node=node
+                    msg_name=tx_node_msg_name, msg_json_data=msg_data, node=node
                 )
-                self._messages[tx_msg_name] = can_msg
+                self._messages[tx_node_msg_name] = can_msg
 
             # Parse node's alerts
             if len(node_alerts_json_data) > 0:
@@ -171,14 +173,14 @@ class JsonCanParser:
             )
             node_rx_msgs = node_rx_json_data["messages"]
 
-            for tx_msg_name in node_rx_msgs:
+            for tx_node_msg_name in node_rx_msgs:
                 # Check if this message is defined
-                if tx_msg_name not in self._messages:
+                if tx_node_msg_name not in self._messages:
                     raise InvalidCanJson(
-                        f"Message '{tx_msg_name}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
+                        f"Message '{tx_node_msg_name}' received by '{node}' is not defined. Make sure it is correctly defined in the TX JSON."
                     )
 
-                rx_msg = self._messages[tx_msg_name]
+                rx_msg = self._messages[tx_node_msg_name]
                 if rx_msg not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node)
 
@@ -218,12 +220,13 @@ class JsonCanParser:
         require_start_bit_specified = False
 
         # Parse message signals
-        for name, data in msg_json_data["signals"].items():
+        for signal_name, signal_data in msg_json_data["signals"].items():
+            signal_node_name = f"{node}_{signal_name}"
             signal, specified_start_bit = self._get_parsed_can_signal(
-                signal_name=name,
-                signal_json_data=data,
+                signal_name=signal_node_name,
+                signal_json_data=signal_data,
                 next_available_bit=next_available_bit,
-                msg_name=name,
+                msg_name=msg_name,
             )
 
             # If we specify one start bit, we require that the rest of the message specify start bit too
@@ -273,6 +276,13 @@ class JsonCanParser:
         """
         Parse JSON data dictionary representing a CAN signal.
         """
+        if signal_name in [
+            signal.name for msg in self._messages.values() for signal in msg.signals
+        ]:
+            raise InvalidCanJson(
+                f"Signal '{signal_name}' in message '{msg_name}' is a duplicate, signals must have unique names."
+            )
+
         max_val = 0
         min_val = 0
         scale = 0

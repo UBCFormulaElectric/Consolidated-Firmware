@@ -13,8 +13,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_CHARGE_STATE);
-    App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
+    App_CanTx_BMS_CurrentState_Set(BMS_CHARGE_STATE);
+    App_CanTx_BMS_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
     App_Charger_ResetFaultCounterVal(charger);
     App_Charger_ResetExitCounterVal(charger);
@@ -35,7 +35,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct TractiveSystem *const ts      = App_BmsWorld_GetTractiveSystem(world);
 
         const bool external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        const bool charging_enabled           = App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
+        const bool charging_enabled           = App_CanRx_Debug_StartCharging_Get();
         bool       charging_completed         = false;
         const bool is_charger_connected       = App_Charger_IsConnected(charger);
 
@@ -62,16 +62,16 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (has_charger_faulted)
         {
-            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_StartCharging_Update(false);
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
 
-        App_CanTx_BMS_Charger_IsChargingComplete_Set(charging_completed);
+        App_CanTx_BMS_IsChargingComplete_Set(charging_completed);
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (!is_charger_connected || external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_StartCharging_Update(false);
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE, !is_charger_connected);
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, external_shutdown_occurred);
         }
@@ -99,7 +99,7 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     // Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
     App_Airs_OpenAirPositive(airs);
-    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+    App_CanRx_Debug_StartCharging_Update(false);
 }
 
 const struct State *App_GetChargeState(void)

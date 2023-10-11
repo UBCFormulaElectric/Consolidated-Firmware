@@ -329,7 +329,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     SetInitialState(App_GetInitState());
 
     is_charger_connected_fake.return_val = true;
-    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+    App_CanRx_Debug_StartCharging_Update(false);
 
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
@@ -376,7 +376,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetChargeState());
-    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+    App_CanRx_Debug_StartCharging_Update(true);
 
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
@@ -448,7 +448,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
-    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+    App_CanRx_Debug_StartCharging_Update(true);
 
     // Set TS current positive to trigger charging condition in tempertature check and above threshold to remain
     // charging
@@ -520,7 +520,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
-    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
+    App_CanRx_Debug_StartCharging_Update(true);
 
     // Set TS current above cutoff threshold to keep state machine in charge state
     get_high_res_current_fake.return_val = 10.0f;
@@ -596,7 +596,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         // Close negative contactor with charger disconnected, precharge should start
         is_air_negative_closed_fake.return_val = true;
         is_charger_connected_fake.return_val   = false;
-        App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+        App_CanRx_Debug_StartCharging_Update(false);
         LetTimePass(state_machine, 10U);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR));
@@ -653,9 +653,9 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
 
-        App_CanRx_FSM_Vitals_Heartbeat_Update(true);
-        App_CanRx_DCM_Vitals_Heartbeat_Update(true);
-        App_CanRx_PDM_Vitals_Heartbeat_Update(true);
+        App_CanRx_FSM_Heartbeat_Update(true);
+        App_CanRx_DCM_Heartbeat_Update(true);
+        App_CanRx_PDM_Heartbeat_Update(true);
 
         get_current_ms_fake.return_val += 10;
         LetTimePass(state_machine, 10);
@@ -668,9 +668,9 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
 
-        App_CanRx_FSM_Vitals_Heartbeat_Update(!test_params[i].fsm_mia);
-        App_CanRx_DCM_Vitals_Heartbeat_Update(!test_params[i].dcm_mia);
-        App_CanRx_PDM_Vitals_Heartbeat_Update(!test_params[i].pdm_mia);
+        App_CanRx_FSM_Heartbeat_Update(!test_params[i].fsm_mia);
+        App_CanRx_DCM_Heartbeat_Update(!test_params[i].dcm_mia);
+        App_CanRx_PDM_Heartbeat_Update(!test_params[i].pdm_mia);
 
         get_current_ms_fake.return_val += 10;
         LetTimePass(state_machine, 10);
@@ -684,9 +684,9 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
         ASSERT_TRUE(App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT));
 
         // Check heartbeats back in, fault should clear and transition back to init
-        App_CanRx_FSM_Vitals_Heartbeat_Update(true);
-        App_CanRx_DCM_Vitals_Heartbeat_Update(true);
-        App_CanRx_PDM_Vitals_Heartbeat_Update(true);
+        App_CanRx_FSM_Heartbeat_Update(true);
+        App_CanRx_DCM_Heartbeat_Update(true);
+        App_CanRx_PDM_Heartbeat_Update(true);
 
         get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
         LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
@@ -698,10 +698,10 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_heartbeat_timeout)
 TEST_F(BmsFaultTest, check_state_transition_fault_state_from_fault_over_can)
 {
     void (*update_rx_fault[4])(bool) = {
-        App_CanRx_DCM_Faults_DCM_FAULT_STATE_FAULT_Update,
-        App_CanRx_FSM_Faults_FSM_FAULT_STATE_FAULT_Update,
-        App_CanRx_PDM_Faults_PDM_FAULT_DUMMY_Update,
-        App_CanRx_DIM_Faults_DIM_FAULT_MISSING_HEARTBEAT_Update,
+        App_CanRx_DCM_FAULT_STATE_FAULT_Update,
+        App_CanRx_FSM_FAULT_STATE_FAULT_Update,
+        App_CanRx_PDM_FAULT_DUMMY_Update,
+        App_CanRx_DIM_FAULT_MISSING_HEARTBEAT_Update,
     };
 
     for (int i = 0; i < 4; i++)

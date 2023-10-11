@@ -17,7 +17,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
+    App_CanTx_BMS_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);
@@ -47,9 +47,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
             // if charger connected, wait for CAN message to enter pre-charge state
-            const bool precharge_for_charging =
-                is_charger_connected && App_CanRx_Debug_ChargingSwitch_StartCharging_Get();
-            const bool cell_balancing_enabled = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+            const bool precharge_for_charging = is_charger_connected && App_CanRx_Debug_StartCharging_Get();
+            const bool cell_balancing_enabled = App_CanRx_Debug_RequestCellBalancing_Get();
 
             // if charger disconnected, proceed directly to precharge state
             if (precharge_for_charging || (!is_charger_connected && !cell_balancing_enabled))

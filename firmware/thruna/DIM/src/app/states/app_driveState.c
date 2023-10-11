@@ -15,7 +15,7 @@
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_DIM_Vitals_State_Set(DIM_STATE_DRIVE);
+    App_CanTx_DIM_State_Set(DIM_STATE_DRIVE);
 }
 
 static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -25,19 +25,19 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_CanTx_DIM_Vitals_Heartbeat_Set(true);
+    App_CanTx_DIM_Heartbeat_Set(true);
 
-    const bool imd_fault_latched = App_CanRx_BMS_OkStatuses_ImdLatchedFaultStatus_Get();
+    const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFaultStatus_Get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
 
-    const bool bspd_fault_latched = App_CanRx_BMS_OkStatuses_BspdLatchedFaultStatus_Get();
+    const bool bspd_fault_latched = App_CanRx_BMS_BspdLatchedFaultStatus_Get();
     io_led_enable(globals->config->bspd_led, bspd_fault_latched);
 
-    const bool contactors_open = App_CanRx_BMS_Contactors_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
-                                 App_CanRx_BMS_Contactors_AirPositive_Get() == CONTACTOR_STATE_OPEN;
+    const bool contactors_open = App_CanRx_BMS_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
+                                 App_CanRx_BMS_AirPositive_Get() == CONTACTOR_STATE_OPEN;
     io_led_enable(globals->config->shdn_led, contactors_open);
 
-    const bool in_drive_state = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
+    const bool in_drive_state = App_CanRx_DCM_CurrentState_Get() == DCM_DRIVE_STATE;
     io_led_enable(globals->config->drive_led, in_drive_state);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
@@ -45,8 +45,8 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     app_avgPower_enable(aux_switch_on);
 
-    App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
-    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
@@ -80,24 +80,22 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
-    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    if (App_CanRx_BMS_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+        App_CanRx_BMS_Heartbeat_Update(false);
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
-    const float avg_rpm = ((float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get()) +
-                           (float)abs(App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get())) /
-                          2;
+    const float avg_rpm =
+        ((float)abs(App_CanRx_INVR_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
     const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
 
-    const float instant_power = App_CanRx_BMS_TractiveSystem_TsVoltage_Get() *
-                                App_CanRx_BMS_TractiveSystem_TsCurrent_Get() / 1000.0f; // instant kW
+    const float instant_power = App_CanRx_BMS_TsVoltage_Get() * App_CanRx_BMS_TsCurrent_Get() / 1000.0f; // instant kW
 
-    const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
+    const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 
     if (missing_hb)
     {

@@ -9,22 +9,22 @@ static uint16_t num_cycles = 0;
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    App_CanTx_DCM_Vitals_Heartbeat_Set(true);
+    App_CanTx_DCM_Heartbeat_Set(true);
 
-    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    if (App_CanRx_BMS_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+        App_CanRx_BMS_Heartbeat_Update(false);
     }
-    if (App_CanRx_FSM_Vitals_Heartbeat_Get())
+    if (App_CanRx_FSM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
-        App_CanRx_FSM_Vitals_Heartbeat_Update(false);
+        App_CanRx_FSM_Heartbeat_Update(false);
     }
-    if (App_CanRx_DIM_Vitals_Heartbeat_Get())
+    if (App_CanRx_DIM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DIM_HEARTBEAT_ONE_HOT);
-        App_CanRx_DIM_Vitals_Heartbeat_Update(false);
+        App_CanRx_DIM_Heartbeat_Update(false);
     }
 }
 
@@ -42,7 +42,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SendAndReceiveHeartbeat(hb_monitor);
 
-    const bool brake_actuated = App_CanRx_FSM_Brake_IsActuated_Get();
+    const bool brake_actuated = App_CanRx_FSM_IsActuated_Get();
     App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)

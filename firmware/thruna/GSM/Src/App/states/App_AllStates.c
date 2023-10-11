@@ -9,5 +9,5 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_CanTx_GSM_Vitals_Heartbeat_Set(true);
+    App_CanTx_GSM_Heartbeat_Set(true);
 }

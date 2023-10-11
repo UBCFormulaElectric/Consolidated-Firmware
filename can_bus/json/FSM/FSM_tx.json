@@ -1,5 +1,5 @@
 {
-	"FSM_Vitals": {
+	"Vitals": {
 		"msg_id": 304,
 		"cycle_time": 100,
 		"description": "FSM Heartbeat signal",
@@ -12,7 +12,7 @@
 			}
 		}
 	},
-	"FSM_AlertsContext": {
+	"AlertsContext": {
 		"msg_id": 301,
 		"cycle_time": 1000,
 		"signals": {
@@ -27,7 +27,7 @@
 			}
 		}
 	},
-	"FSM_Apps": {
+	"Apps": {
 		"msg_id": 300,
 		"cycle_time": 100,
 		"signals": {
@@ -66,7 +66,7 @@
 			}
 		}
 	},
-	"FSM_Brake": {
+	"Brake": {
 		"msg_id": 314,
 		"cycle_time": 100,
 		"signals": {
@@ -99,7 +99,7 @@
 			}
 		}
 	},
-	"FSM_Coolant": {
+	"Coolant": {
 		"msg_id": 307,
 		"cycle_time": 1000,
 		"signals": {
@@ -135,7 +135,7 @@
 			}
 		}
 	},
-	"FSM_Steering": {
+	"Steering": {
 		"msg_id": 318,
 		"cycle_time": 100,
 		"signals": {
@@ -147,7 +147,7 @@
 			}
 		}
 	},
-	"FSM_Wheels": {
+	"Wheels": {
 		"msg_id": 317,
 		"cycle_time": 100,
 		"signals": {

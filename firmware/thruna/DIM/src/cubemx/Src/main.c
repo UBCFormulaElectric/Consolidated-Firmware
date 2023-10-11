@@ -256,13 +256,13 @@ void        RunTask1Hz(void const *argument);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_AlertsContext_RxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_RxOverflowCount_Set(overflow_count);
     App_CanAlerts_SetWarning(DIM_WARNING_RX_OVERFLOW, true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_DIM_AlertsContext_TxOverflowCount_Set(overflow_count);
+    App_CanTx_DIM_TxOverflowCount_Set(overflow_count);
     App_CanAlerts_SetWarning(DIM_WARNING_TX_OVERFLOW, true);
 }
 /* USER CODE END 0 */
@@ -769,7 +769,7 @@ void RunTask1Hz(void const *argument)
         io_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
-        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 

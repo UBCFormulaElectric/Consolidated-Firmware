@@ -1,5 +1,5 @@
 {
-    "INVL_Temperatures1": {
+    "Temperatures1": {
         "msg_id": 0,
         "cycle_time": 100,
         "signals": {
@@ -45,7 +45,7 @@
             }
         }
     },
-    "INVL_Temperatures2": {
+    "Temperatures2": {
         "msg_id": 1,
         "cycle_time": 100,
         "signals": {
@@ -91,7 +91,7 @@
             }
         }
     },
-    "INVL_Temperatures3": {
+    "Temperatures3": {
         "msg_id": 2,
         "cycle_time": 100,
         "signals": {
@@ -137,7 +137,7 @@
             }
         }
     },
-    "INVL_MotorPositionInfo": {
+    "MotorPositionInfo": {
         "msg_id": 5,
         "cycle_time": 10,
         "signals": {
@@ -183,7 +183,7 @@
             }
         }
     },
-    "INVL_CurrentInfo": {
+    "CurrentInfo": {
         "msg_id": 6,
         "cycle_time": 10,
         "signals": {
@@ -229,7 +229,7 @@
             }
         }
     },
-    "INVL_VoltageInfo": {
+    "VoltageInfo": {
         "msg_id": 7,
         "cycle_time": 10,
         "signals": {
@@ -275,7 +275,7 @@
             }
         }
     },
-    "INVL_InternalVoltages": {
+    "InternalVoltages": {
         "msg_id": 9,
         "cycle_time": 100,
         "signals": {
@@ -321,7 +321,7 @@
             }
         }
     },
-    "INVL_InternalStates": {
+    "InternalStates": {
         "msg_id": 10,
         "cycle_time": 10,
         "signals": {
@@ -420,7 +420,7 @@
             }
         }
     },
-    "INVL_FaultCodes": {
+    "FaultCodes": {
         "msg_id": 11,
         "cycle_time": 10,
         "signals": {
@@ -658,7 +658,7 @@
             }
         }
     },
-    "INVL_TorqueAndTimerInfo": {
+    "TorqueAndTimerInfo": {
         "msg_id": 12,
         "cycle_time": 10,
         "signals": {
@@ -694,71 +694,35 @@
             }
         }
     },
-    "INVL_HighSpeedMessage": {
-        "msg_id": 16,
-        "cycle_time": 3,
-        "signals": {
-            "TorqueCommand": {
-                "start_bit": 0,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm"
-            },
-            "TorqueFeedback": {
-                "start_bit": 16,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm"
-            },
-            "MotorSpeed": {
-                "start_bit": 32,
-                "bits": 16,
-                "signed": true,
-                "scale": 1,
-                "offset": 0,
-                "min": -32768,
-                "max": 32767,
-                "unit": "rpm"
-            }
-        }
-    },
-    "INVL_DebugReadWriteParamCommand": {
+    "DebugReadWriteParamCommand": {
         "msg_id": 33, 
         "signals": {
-            "ParameterAddress": {
+            "CommandParameterAddress": {
                 "start_bit": 0, 
                 "bits": 16
             },
-            "ReadWriteCommand": {
+            "CommandReadWrite": {
                 "start_bit": 16, 
                 "enum": "InverterReadWriteCommand"
             },
-            "Data": {
+            "CommandData": {
                 "start_bit": 32, 
                 "bits": 16
             }
         }
     },
-    "INVL_DebugReadWriteParamResponse": {
+    "DebugReadWriteParamResponse": {
         "msg_id": 34, 
         "signals": {
-            "ParameterAddress": {
+            "ResponseParameterAddress": {
                 "start_bit": 0, 
                 "bits": 16
             },
-            "WriteSuccess": {
+            "ResponseWriteSuccess": {
                 "start_bit": 16, 
                 "bits": 1
             },
-            "Data": {
+            "ResponseData": {
                 "start_bit": 32, 
                 "bits": 16
             }

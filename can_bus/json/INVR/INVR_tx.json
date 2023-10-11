@@ -1,5 +1,5 @@
 {
-    "INVR_Temperatures1": {
+    "Temperatures1": {
         "msg_id": 50,
         "cycle_time": 100,
         "signals": {
@@ -45,7 +45,7 @@
             }
         }
     },
-    "INVR_Temperatures2": {
+    "Temperatures2": {
         "msg_id": 51,
         "cycle_time": 100,
         "signals": {
@@ -91,7 +91,7 @@
             }
         }
     },
-    "INVR_Temperatures3": {
+    "Temperatures3": {
         "msg_id": 52,
         "cycle_time": 100,
         "signals": {
@@ -137,7 +137,7 @@
             }
         }
     },
-    "INVR_MotorPositionInfo": {
+    "MotorPositionInfo": {
         "msg_id": 55,
         "cycle_time": 10,
         "signals": {
@@ -183,7 +183,7 @@
             }
         }
     },
-    "INVR_CurrentInfo": {
+    "CurrentInfo": {
         "msg_id": 56,
         "cycle_time": 10,
         "signals": {
@@ -229,7 +229,7 @@
             }
         }
     },
-    "INVR_VoltageInfo": {
+    "VoltageInfo": {
         "msg_id": 57,
         "cycle_time": 10,
         "signals": {
@@ -275,7 +275,7 @@
             }
         }
     },
-    "INVR_InternalVoltages": {
+    "InternalVoltages": {
         "msg_id": 59,
         "cycle_time": 100,
         "signals": {
@@ -321,7 +321,7 @@
             }
         }
     },
-    "INVR_InternalStates": {
+    "InternalStates": {
         "msg_id": 60,
         "cycle_time": 10,
         "signals": {
@@ -420,7 +420,7 @@
             }
         }
     },
-    "INVR_FaultCodes": {
+    "FaultCodes": {
         "msg_id": 61,
         "cycle_time": 10,
         "signals": {
@@ -658,7 +658,7 @@
             }
         }
     },
-    "INVR_TorqueAndTimerInfo": {
+    "TorqueAndTimerInfo": {
         "msg_id": 62,
         "cycle_time": 10,
         "signals": {
@@ -694,72 +694,36 @@
             }
         }
     },
-    "INVR_HighSpeedMessage": {
-        "msg_id": 66,
-        "cycle_time": 3,
+    "DebugReadWriteParamCommand": {
+        "msg_id": 83, 
         "signals": {
-            "TorqueCommand": {
-                "start_bit": 0,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm"
-            },
-            "TorqueFeedback": {
-                "start_bit": 16,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm"
-            },
-            "MotorSpeed": {
-                "start_bit": 32,
-                "bits": 16,
-                "signed": true,
-                "scale": 1,
-                "offset": 0,
-                "min": -32768,
-                "max": 32767,
-                "unit": "rpm"
-            }
-        }
-    },
-    "INVR_DebugReadWriteParamCommand": {
-        "msg_id": 83,
-        "signals": {
-            "ParameterAddress": {
-                "start_bit": 0,
+            "CommandParameterAddress": {
+                "start_bit": 0, 
                 "bits": 16
             },
-            "ReadWriteCommand": {
-                "start_bit": 16,
+            "CommandReadWrite": {
+                "start_bit": 16, 
                 "enum": "InverterReadWriteCommand"
             },
-            "Data": {
-                "start_bit": 32,
+            "CommandData": {
+                "start_bit": 32, 
                 "bits": 16
             }
         }
     },
-    "INVR_DebugReadWriteParamResponse": {
-        "msg_id": 84,
+    "DebugReadWriteParamResponse": {
+        "msg_id": 84, 
         "signals": {
-            "ParameterAddress": {
-                "start_bit": 0,
+            "ResponseParameterAddress": {
+                "start_bit": 0, 
                 "bits": 16
             },
-            "WriteSuccess": {
-                "start_bit": 16,
+            "ResponseWriteSuccess": {
+                "start_bit": 16, 
                 "bits": 1
             },
-            "Data": {
-                "start_bit": 32,
+            "ResponseData": {
+                "start_bit": 32, 
                 "bits": 16
             }
         }

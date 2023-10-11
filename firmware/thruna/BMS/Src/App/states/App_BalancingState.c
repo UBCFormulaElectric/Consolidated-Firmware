@@ -8,7 +8,7 @@ static void BalancingStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
     struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_BALANCING_STATE);
+    App_CanTx_BMS_CurrentState_Set(BMS_BALANCING_STATE);
     App_Accumulator_EnableBalancing(accumulator, true);
 }
 
@@ -25,7 +25,7 @@ static void BalancingStateRunOnTick100Hz(struct StateMachine *const state_machin
         struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
         const bool air_negative_open          = !App_Airs_IsAirNegativeClosed(airs);
-        const bool stopped_requesting_balance = !App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+        const bool stopped_requesting_balance = !App_CanRx_Debug_RequestCellBalancing_Get();
         if (air_negative_open || stopped_requesting_balance)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());

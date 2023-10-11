@@ -1,5 +1,5 @@
 {
-    "BMS_Vitals": {
+    "Vitals": {
         "msg_id": 100,
         "cycle_time": 100,
         "description": "Vitals message for the BMS.",
@@ -17,7 +17,7 @@
             }
         }
     },
-    "BMS_AlertsContext": {
+    "AlertsContext": {
         "msg_id": 104,
         "cycle_time": 1000,
         "description": "Context info for BMS alerts",
@@ -33,7 +33,7 @@
             }
         }
     },
-    "BMS_ImdStatus": {
+    "ImdStatus": {
         "msg_id": 105,
         "cycle_time": 1000,
         "description": "BMS IMD Messages",
@@ -56,7 +56,7 @@
             }
         }
     },
-    "BMS_ImdData": {
+    "ImdData": {
         "msg_id": 106,
         "cycle_time": 1000,
         "description": "BMS IMD Measurement Data Values",
@@ -83,7 +83,7 @@
             }
         }
     },
-    "BMS_ImdPwmOutput": {
+    "ImdPwmOutput": {
         "msg_id": 107,
         "cycle_time": 1000,
         "description": "BMS IMD PWM Output",
@@ -102,7 +102,7 @@
             }
         }
     },
-    "BMS_Charger": {
+    "Charger": {
         "msg_id": 110,
         "cycle_time": 1000,
         "description": "Flags relaying BMS Charger Status",
@@ -115,7 +115,7 @@
             }
         }
     },
-    "BMS_OkStatuses": {
+    "OkStatuses": {
         "msg_id": 111,
         "cycle_time": 10,
         "description": "BMS OK status flags",
@@ -137,7 +137,7 @@
             }
         }
     },
-    "BMS_Contactors": {
+    "Contactors": {
         "msg_id": 112,
         "cycle_time": 10,
         "description": "BMS AIR state statuses",
@@ -153,7 +153,7 @@
             }
         }
     },
-    "BMS_MotorShutdownErrors": {
+    "MotorShutdownErrors": {
         "msg_id": 113,
         "cycle_time": 1000,
         "description": "BMS Motor Shutdown Errors",
@@ -163,7 +163,7 @@
             }
         }
     },
-    "BMS_CellTemperatures": {
+    "CellTemperatures": {
         "msg_id": 114,
         "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
@@ -182,7 +182,7 @@
             }
         }
     },
-    "BMS_CellVoltages": {
+    "CellVoltages": {
         "msg_id": 115,
         "cycle_time": 100,
         "description": "BMS Cell Voltage readings",
@@ -201,7 +201,7 @@
             }
         }
     },
-    "BMS_CellStats": {
+    "CellStats": {
         "msg_id": 116,
         "cycle_time": 100,
         "description": "BMS Cell Stats",
@@ -248,7 +248,7 @@
             }
         }
     },
-    "BMS_TractiveSystem": {
+    "TractiveSystem": {
         "msg_id": 117,
         "cycle_time": 100,
         "description": "BMS Tractive System Data",
@@ -267,7 +267,7 @@
             }
         }
     },
-    "BMS_PackVoltage": {
+    "PackVoltage": {
         "msg_id": 118,
         "cycle_time": 100,
         "description": "BMS Pack Voltage",
@@ -280,7 +280,7 @@
             }
         }
     },
-    "BMS_AvailablePower": {
+    "AvailablePower": {
         "msg_id": 120,
         "cycle_time": 100,
         "description": "BMS Available Power",
@@ -293,7 +293,7 @@
             }
         }
     },
-    "BMS_AuxThermistors": {
+    "AuxThermistors": {
         "msg_id": 121,
         "cycle_time": 100,
         "description": "BMS Auxiliary Thermistor Temperatures",

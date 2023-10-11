@@ -1,5 +1,5 @@
 {
-    "Debug_CanModes": {
+    "CanModes": {
         "msg_id": 701,
         "cycle_time": 1000,
         "description": "Signals related to CAN modes.",
@@ -9,7 +9,7 @@
             }
         }
     },
-    "Debug_ChargingSwitch": {
+    "ChargingSwitch": {
         "msg_id": 702,
         "cycle_time": 100,
         "description": "Value set by user to start charging BMS.",
@@ -19,7 +19,7 @@
             }
         }
     },
-    "Debug_CellBalancing": {
+    "CellBalancing": {
         "msg_id": 703,
         "cycle_time": 1000,
         "description": "Signals related to BMS cell balancing.",
