@@ -211,6 +211,7 @@ jobs:
         run: |
           echo ${{github.head_ref}}
           echo ${{github.SHA}}
+          echo ${{ github }}
           git status
           git log --oneline -n 10
           git rev-parse --verify HEAD
