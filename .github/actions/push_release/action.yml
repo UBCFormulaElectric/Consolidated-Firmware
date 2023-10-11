@@ -31,5 +31,4 @@ runs:
           --title "${{github.head_ref}} DBC File" \
           --notes "DBC Files generated for ${{github.head_ref}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware \
-          --target "${{github.SHA}}" \
-          --draft \
+          --target "${{github.SHA}}"
