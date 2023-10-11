@@ -29,6 +29,7 @@ runs:
         EOF
         )
         MY_STRING="${MY_STRING//$'\n'/' '}"
+        echo "$MY_STRING"
         echo "$MY_STRING" >> $GITHUB_ENV
     - name: Create Release
       shell: bash
