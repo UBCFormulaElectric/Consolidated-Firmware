@@ -153,13 +153,13 @@
         "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
         "signals": {
-            "MinCellTemp": {
+            "MinCellTemperature": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
             },
-            "MaxCellTemp": {
+            "MaxCellTemperature": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,

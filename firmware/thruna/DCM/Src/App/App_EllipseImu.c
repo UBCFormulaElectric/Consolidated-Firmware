@@ -68,9 +68,9 @@ void App_EllipseImu_Broadcast()
     const float euler_pitch = sensor.get_sensor_output(ELLIPSE_OUTPUT_EULER_PITCH);
     const float euler_yaw   = sensor.get_sensor_output(ELLIPSE_OUTPUT_EULER_YAW);
 
-    App_CanTx_DCM_EulerRoll_Set(euler_roll);
-    App_CanTx_DCM_EulerPitch_Set(euler_pitch);
-    App_CanTx_DCM_EulerYaw_Set(euler_yaw);
+    App_CanTx_DCM_EulerAnglesRoll_Set(euler_roll);
+    App_CanTx_DCM_EulerAnglesPitch_Set(euler_pitch);
+    App_CanTx_DCM_EulerAnglesYaw_Set(euler_yaw);
 }
 
 uint32_t App_EllipseImu_GetTimestampUs()

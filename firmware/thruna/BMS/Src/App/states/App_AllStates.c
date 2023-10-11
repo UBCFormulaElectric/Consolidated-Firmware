@@ -70,8 +70,8 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
 
-    App_CanTx_BMS_MinCellTemp_Set(curr_min_cell_temp);
-    App_CanTx_BMS_MaxCellTemp_Set(curr_max_cell_temp);
+    App_CanTx_BMS_MinCellTemperature_Set(curr_min_cell_temp);
+    App_CanTx_BMS_MaxCellTemperature_Set(curr_max_cell_temp);
     App_CanTx_BMS_MinTempSegment_Set(min_segment);
     App_CanTx_BMS_MaxTempSegment_Set(max_segment);
     App_CanTx_BMS_MinTempIdx_Set(min_loc);

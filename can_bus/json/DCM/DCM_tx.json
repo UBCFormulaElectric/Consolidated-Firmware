@@ -225,19 +225,19 @@
         "cycle_time": 10,
         "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {
-            "EulerRoll": {
+            "EulerAnglesRoll": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
             },
-            "EulerPitch": {
+            "EulerAnglesPitch": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
             },
-            "EulerYaw": {
+            "EulerAnglesYaw": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
