@@ -16,7 +16,8 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Set(condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Set(
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
                 App_CanTx_BMS_ImdActiveFrequency_Set(IMD_10Hz);
             }
         }
@@ -25,7 +26,8 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Set(condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Set(
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
                 App_CanTx_BMS_ImdActiveFrequency_Set(IMD_20Hz);
             }
         }

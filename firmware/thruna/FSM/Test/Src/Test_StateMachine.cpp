@@ -257,7 +257,8 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
-        App_CanTx_FSM_CoolantFlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning, FSM_WARNING_FLOW_RATE_OUT_OF_RANGE);
+        App_CanTx_FSM_CoolantFlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
+        FSM_WARNING_FLOW_RATE_OUT_OF_RANGE);
 }
 
 TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states)

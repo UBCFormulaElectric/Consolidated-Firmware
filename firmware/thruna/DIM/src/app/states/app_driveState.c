@@ -90,10 +90,11 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanAlerts_SetFault(DIM_FAULT_MISSING_HEARTBEAT, missing_hb);
 
     const float avg_rpm =
-        ((float)abs(App_CanRx_INVR_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
+        ((float)abs(App_CanRx_INVL_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
     const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
 
-    const float instant_power = App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
+    const float instant_power =
+        App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
 
     const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 

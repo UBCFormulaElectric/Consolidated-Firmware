@@ -150,7 +150,9 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
 {
     float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    target_voltage = App_CanRx_Debug_CellBalancingOverrideTarget_Get() ? App_CanRx_Debug_CellBalancingOverrideTargetValue_Get() : target_voltage;
+    target_voltage = App_CanRx_Debug_CellBalancingOverrideTarget_Get()
+                         ? App_CanRx_Debug_CellBalancingOverrideTargetValue_Get()
+                         : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
@@ -178,10 +180,12 @@ static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
     accumulator->write_cfg_registers(accumulator->cells_to_balance);
 
     // Balance PWM settings
-    float balance_pwm_freq =
-        App_CanRx_Debug_CellBalancingOverridePWM_Get() ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get() : BALANCE_DEFAULT_FREQ;
-    uint32_t balance_pwm_duty =
-        App_CanRx_Debug_CellBalancingOverridePWM_Get() ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get() : BALANCE_DEFAULT_DUTY;
+    float balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                 ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
+                                 : BALANCE_DEFAULT_FREQ;
+    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                    ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get()
+                                    : BALANCE_DEFAULT_DUTY;
 
     // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
     // TODO: verify frequency calculation. Period seems to be about double what it should be.
