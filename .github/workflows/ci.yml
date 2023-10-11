@@ -209,7 +209,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: debug env
         run: |
-          echo ${{ github.base_ref }} <- ${{github.head_ref}}
+          echo "${{ github.base_ref }} <- ${{github.head_ref}}"
           echo ${{github.SHA}}
           git status
           git log --oneline -n 10
