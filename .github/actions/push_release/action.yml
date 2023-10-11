@@ -24,7 +24,7 @@ runs:
     - name: Make input file names one line and save to a variable
       shell: bash
       run: |
-        echo ${{inputs.files}} |
+        echo "${{inputs.files}}" |
         tr '\n' ' ' |
         xargs -I echo "RELEASE_FILE_TAGS={}" >> "$GITHUB_ENV"
     - name: Create Release
