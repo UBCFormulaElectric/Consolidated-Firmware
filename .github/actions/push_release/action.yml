@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: |
         git tag ${{ inputs.tag_name }} -f
-        git push origin ${{ inputs.tag_name }}g -f
+        git push origin ${{ inputs.tag_name }} -f
 
     - name: Make file name one line
       shell: bash
