@@ -28,9 +28,8 @@ runs:
         ${{inputs.files}}
         EOF
         )
-        echo "MY_STRING<<EOF" >> $GITHUB_ENV
+        MY_STRING="${MY_STRING//$'\n'/' '}"
         echo "$MY_STRING" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
     - name: Create Release
       shell: bash
       env:
