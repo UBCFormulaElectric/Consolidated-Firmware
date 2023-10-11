@@ -19,7 +19,7 @@ inputs:
 runs:
   using: "composite"
   env:
-    TAG_NAME: ${{ github.ref == 'refs/heads/master' && 'latest' || github.head_ref + '_tag' }}
+    TAG_NAME: ${{ github.ref == 'refs/heads/master' && 'latest' || format('{0}_tag', github.head_ref) }}
   steps:
     - name: Delete ONE other releases on tag
       shell: bash
