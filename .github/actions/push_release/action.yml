@@ -21,12 +21,22 @@ runs:
       run: |
         git tag ${{github.head_ref}}_tag -f
         git push origin ${{github.head_ref}}_tag -f
+    - name: Make file name one line
+      shell: bash
+      run: |
+        MY_STRING=$(cat << EOF
+        ${{inputs.files}}
+        EOF
+        )
+        echo "MY_STRING<<EOF" >> $GITHUB_ENV
+        echo "$MY_STRING" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
     - name: Create Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release create ${{github.head_ref}}_tag """${{inputs.files}}""" \
+        gh release create ${{github.head_ref}}_tag ${{ env.MY_STRING }} \
           --title "${{github.head_ref}} DBC File" \
           --notes "DBC Files generated for ${{github.head_ref}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware \
