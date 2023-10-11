@@ -2,7 +2,7 @@ name: Push Release
 description: Push a release to the repo under a given tag
 inputs:
   files: # id of input
-    description: The files to upload (must exist i
+    description: The files to upload (must exist in the current working directory)
     required: true
     default: 'World'
 
@@ -29,7 +29,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh release create ${{github.head_ref}}_tag \
-          CanMsgs.dbc/CanMsgs.dbc \
+          ${{inputs.files}} \
           --title "${{github.head_ref}} DBC File" \
           --notes "DBC Files generated for ${{github.head_ref}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware \

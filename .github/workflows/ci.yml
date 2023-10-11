@@ -219,4 +219,6 @@ jobs:
       - name: Push Release
         uses: ./.github/actions/push_release
         with:
-          who-to-greet: 'Mona the Octocat'
+          files: |
+            CanMsgs.dbc/CanMsgs.dbc
+            CMakeLists.txt
