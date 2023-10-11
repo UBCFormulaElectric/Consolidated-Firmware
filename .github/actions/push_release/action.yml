@@ -47,6 +47,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        ls -l
         gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs.FILE_NAMES }} \
           --title ${{inputs.title}} \
           --notes ${{inputs.body}} \
