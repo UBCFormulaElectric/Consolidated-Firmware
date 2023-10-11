@@ -29,14 +29,14 @@ runs:
         EOF
         )
         MY_STRING="${MY_STRING//$'\n'/' '}"
-        echo "$MY_STRING"
-        echo "$MY_STRING" >> $GITHUB_ENV
+        echo "::set-output name=content::$MY_STRING"
+      id: my_string
     - name: Create Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release create ${{github.head_ref}}_tag ${{ env.MY_STRING }} \
+        gh release create ${{github.head_ref}}_tag ${{ steps.my_string.outputs.content }} \
           --title "${{github.head_ref}} DBC File" \
           --notes "DBC Files generated for ${{github.head_ref}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware \
