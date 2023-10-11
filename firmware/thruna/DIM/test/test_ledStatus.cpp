@@ -6,17 +6,17 @@ class LedStatusTest : public DimBaseStateMachineTest
 
 TEST_F(LedStatusTest, imd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_ImdLatchedFaultStatus_Update(false);
+    App_CanRx_BMS_ImdLatchedFault_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, fake_io_led_enable_callCountForArgs(&imd_led, true));
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&imd_led, false));
 
-    App_CanRx_BMS_ImdLatchedFaultStatus_Update(true);
+    App_CanRx_BMS_ImdLatchedFault_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&imd_led, true));
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&imd_led, false));
 
-    App_CanRx_BMS_ImdLatchedFaultStatus_Update(false);
+    App_CanRx_BMS_ImdLatchedFault_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&imd_led, true));
     ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&imd_led, false));
@@ -24,17 +24,17 @@ TEST_F(LedStatusTest, imd_led_control_in_drive_state)
 
 TEST_F(LedStatusTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_BspdLatchedFaultStatus_Update(false);
+    App_CanRx_BMS_BspdLatchedFault_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, fake_io_led_enable_callCountForArgs(&bspd_led, true));
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&bspd_led, false));
 
-    App_CanRx_BMS_BspdLatchedFaultStatus_Update(true);
+    App_CanRx_BMS_BspdLatchedFault_Update(true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&bspd_led, true));
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&bspd_led, false));
 
-    App_CanRx_BMS_BspdLatchedFaultStatus_Update(false);
+    App_CanRx_BMS_BspdLatchedFault_Update(false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&bspd_led, true));
     ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&bspd_led, false));

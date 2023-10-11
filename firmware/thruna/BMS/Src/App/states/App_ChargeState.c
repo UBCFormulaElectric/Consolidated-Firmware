@@ -13,8 +13,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
 
-    App_CanTx_BMS_CurrentState_Set(BMS_CHARGE_STATE);
-    App_CanTx_BMS_IsChargingComplete_Set(false);
+    App_CanTx_BMS_State_Set(BMS_CHARGE_STATE);
+    App_CanTx_BMS_ChargingComplete_Set(false);
     App_Charger_Enable(charger);
     App_Charger_ResetFaultCounterVal(charger);
     App_Charger_ResetExitCounterVal(charger);
@@ -66,7 +66,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
 
-        App_CanTx_BMS_IsChargingComplete_Set(charging_completed);
+        App_CanTx_BMS_ChargingComplete_Set(charging_completed);
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (!is_charger_connected || external_shutdown_occurred)
         {

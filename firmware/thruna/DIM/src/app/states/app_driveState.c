@@ -27,17 +27,17 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_Heartbeat_Set(true);
 
-    const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFaultStatus_Get();
+    const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
 
-    const bool bspd_fault_latched = App_CanRx_BMS_BspdLatchedFaultStatus_Get();
+    const bool bspd_fault_latched = App_CanRx_BMS_BspdLatchedFault_Get();
     io_led_enable(globals->config->bspd_led, bspd_fault_latched);
 
     const bool contactors_open = App_CanRx_BMS_AirNegative_Get() == CONTACTOR_STATE_OPEN &&
                                  App_CanRx_BMS_AirPositive_Get() == CONTACTOR_STATE_OPEN;
     io_led_enable(globals->config->shdn_led, contactors_open);
 
-    const bool in_drive_state = App_CanRx_DCM_CurrentState_Get() == DCM_DRIVE_STATE;
+    const bool in_drive_state = App_CanRx_DCM_State_Get() == DCM_DRIVE_STATE;
     io_led_enable(globals->config->drive_led, in_drive_state);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
@@ -93,7 +93,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         ((float)abs(App_CanRx_INVR_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
     const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
 
-    const float instant_power = App_CanRx_BMS_TsVoltage_Get() * App_CanRx_BMS_TsCurrent_Get() / 1000.0f; // instant kW
+    const float instant_power = App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
 
     const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 

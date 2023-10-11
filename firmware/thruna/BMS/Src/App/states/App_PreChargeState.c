@@ -10,7 +10,7 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *         clock           = App_BmsWorld_GetClock(world);
     struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
 
-    App_CanTx_BMS_CurrentState_Set(BMS_PRECHARGE_STATE);
+    App_CanTx_BMS_State_Set(BMS_PRECHARGE_STATE);
 
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_PrechargeRelay_Close(precharge_relay);

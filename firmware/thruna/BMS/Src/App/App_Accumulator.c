@@ -150,7 +150,7 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
 {
     float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    target_voltage = App_CanRx_Debug_OverrideTarget_Get() ? App_CanRx_Debug_OverrideTargetValue_Get() : target_voltage;
+    target_voltage = App_CanRx_Debug_CellBalancingOverrideTarget_Get() ? App_CanRx_Debug_CellBalancingOverrideTargetValue_Get() : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
@@ -179,9 +179,9 @@ static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
 
     // Balance PWM settings
     float balance_pwm_freq =
-        App_CanRx_Debug_OverridePWM_Get() ? App_CanRx_Debug_OverridePWMFrequency_Get() : BALANCE_DEFAULT_FREQ;
+        App_CanRx_Debug_CellBalancingOverridePWM_Get() ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get() : BALANCE_DEFAULT_FREQ;
     uint32_t balance_pwm_duty =
-        App_CanRx_Debug_OverridePWM_Get() ? App_CanRx_Debug_OverridePWMDuty_Get() : BALANCE_DEFAULT_DUTY;
+        App_CanRx_Debug_CellBalancingOverridePWM_Get() ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get() : BALANCE_DEFAULT_DUTY;
 
     // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
     // TODO: verify frequency calculation. Period seems to be about double what it should be.
@@ -466,8 +466,8 @@ void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulato
     const bool bms_latched_fault  = accumulator->check_bms_latched_fault();
 
     // Send latched imd and bspd statuses over CAN
-    App_CanTx_BMS_ImdLatchedFaultStatus_Set(imd_latched_fault);
-    App_CanTx_BMS_BspdLatchedFaultStatus_Set(bspd_latched_fault);
+    App_CanTx_BMS_ImdLatchedFault_Set(imd_latched_fault);
+    App_CanTx_BMS_BspdLatchedFault_Set(bspd_latched_fault);
 
     // Set fault in table to latch BMS led until reset
     App_CanAlerts_SetFault(BMS_FAULT_LATCHED_BMS_FAULT, bms_latched_fault);

@@ -7,7 +7,7 @@
             "Heartbeat": {
                 "bits": 1
             },
-            "CurrentState": {
+            "State": {
                 "enum": "DcmState"
             }
         }
@@ -146,31 +146,31 @@
             }
         }
     },
-    "EllipseImuStatus": {
+    "EllipseStatus": {
         "msg_id": 208,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
-            "GeneralStatusBitmask": {
+            "EllipseGeneralStatusBitmask": {
                 "bits": 16
             },
-            "ComStatusBitmask": {
+            "EllipseComStatusBitmask": {
                 "bits": 32
             }
         }
     },
-    "EllipseImuTime": {
+    "EllipseTime": {
         "msg_id": 209,
         "cycle_time": 100,
         "description": "Timestamp from the SBG Ellipse N sensor.",
         "signals": {
-            "Timestamp": {
+            "EllipseTimestamp": {
                 "bits": 32,
                 "unit": "us"
             }
         }
     },
-    "EllipseImuAcceleration": {
+    "EllipseAcceleration": {
         "msg_id": 205,
         "cycle_time": 10,
         "description": "Acceleration from the SBG Ellipse N sensor.",
@@ -195,7 +195,7 @@
             }
         }
     },
-    "EllipseImuAngularVelocity": {
+    "EllipseAngularVelocity": {
         "msg_id": 206,
         "cycle_time": 10,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
@@ -220,7 +220,7 @@
             }
         }
     },
-    "EllipseImuEulerAngles": {
+    "EllipseEulerAngles": {
         "msg_id": 207,
         "cycle_time": 10,
         "description": "Euler angles from the SBG Ellipse N sensor.",

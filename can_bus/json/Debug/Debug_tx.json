@@ -1,5 +1,5 @@
 {
-    "CanModes": {
+    "CanMode": {
         "msg_id": 701,
         "cycle_time": 1000,
         "description": "Signals related to CAN modes.",
@@ -9,7 +9,7 @@
             }
         }
     },
-    "ChargingSwitch": {
+    "Charging": {
         "msg_id": 702,
         "cycle_time": 100,
         "description": "Value set by user to start charging BMS.",
@@ -24,28 +24,28 @@
         "cycle_time": 1000,
         "description": "Signals related to BMS cell balancing.",
         "signals": {
-            "RequestCellBalancing": {
+            "CellBalancingRequest": {
                 "bits": 1
             },
-            "OverrideTarget": {
+            "CellBalancingOverrideTarget": {
                 "bits": 1
             },
-            "OverrideTargetValue": {
+            "CellBalancingOverrideTargetValue": {
                 "resolution": 0.0001,
                 "min": 3,
                 "max": 4.2,
                 "unit": "V"
             },
-            "OverridePWM": {
+            "CellBalancingOverridePWM": {
                 "bits": 1
             },
-            "OverridePWMFrequency": {
+            "CellBalancingOverridePWMFrequency": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "Hz"
             },
-            "OverridePWMDuty": {
+            "CellBalancingOverridePWMDuty": {
                 "resolution": 1,
                 "min": 0,
                 "max": 100,

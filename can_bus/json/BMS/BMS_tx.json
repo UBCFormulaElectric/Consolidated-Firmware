@@ -7,13 +7,8 @@
             "Heartbeat": {
                 "bits": 1
             },
-            "CurrentState": {
+            "State": {
                 "enum": "BmsState"
-            },
-            "StateOfCharge": {
-                "bits": 3,
-                "min": 0,
-                "max": 100
             }
         }
     },
@@ -38,19 +33,19 @@
         "cycle_time": 1000,
         "description": "BMS IMD Messages",
         "signals": {
-            "OkHs": {
+            "ImdOkHs": {
                 "bits": 1
             },
-            "SecondsSincePowerOn": {
+            "ImdSecondsSincePowerOn": {
                 "bits": 8,
                 "min": 0,
                 "max": 255,
                 "unit": "Seconds"
             },
-            "ValidDutyCycle": {
+            "ImdValidDutyCycle": {
                 "bits": 1
             },
-            "Condition": {
+            "ImdCondition": {
                 "signed": false,
                 "bits": 4
             }
@@ -61,22 +56,22 @@
         "cycle_time": 1000,
         "description": "BMS IMD Measurement Data Values",
         "signals": {
-            "ActiveFrequency": {
+            "ImdActiveFrequency": {
                 "enum": "ImdActiveFrequency"
             },
-            "InsulationMeasurementDcp10Hz": {
+            "ImdInsulationMeasurementDcp10Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "InsulationMeasurementDcp20Hz": {
+            "ImdInsulationMeasurementDcp20Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "SpeedStartStatus30Hz": {
+            "ImdSpeedStartStatus30Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535
@@ -88,13 +83,13 @@
         "cycle_time": 1000,
         "description": "BMS IMD PWM Output",
         "signals": {
-            "DutyCycle": {
+            "ImdDutyCycle": {
                 "bits": 8,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
-            "Frequency": {
+            "ImdFrequency": {
                 "bits": 8,
                 "min": 0,
                 "max": 100,
@@ -107,10 +102,10 @@
         "cycle_time": 1000,
         "description": "Flags relaying BMS Charger Status",
         "signals": {
-            "IsConnected": {
+            "ChargerConnected": {
                 "bits": 1
             },
-            "IsChargingComplete": {
+            "ChargingComplete": {
                 "bits": 1
             }
         }
@@ -129,10 +124,10 @@
             "BspdOk": {
                 "bits": 1
             },
-            "ImdLatchedFaultStatus": {
+            "ImdLatchedFault": {
                 "bits": 1
             },
-            "BspdLatchedFaultStatus": {
+            "BspdLatchedFault": {
                 "bits": 1
             }
         }
@@ -153,28 +148,18 @@
             }
         }
     },
-    "MotorShutdownErrors": {
-        "msg_id": 113,
-        "cycle_time": 1000,
-        "description": "BMS Motor Shutdown Errors",
-        "signals": {
-            "BmsDummyMotorShutdown": {
-                "bits": 1
-            }
-        }
-    },
     "CellTemperatures": {
         "msg_id": 114,
         "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
         "signals": {
-            "MinCellTemperature": {
+            "MinCellTemp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
             },
-            "MaxCellTemperature": {
+            "MaxCellTemp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
@@ -253,13 +238,13 @@
         "cycle_time": 100,
         "description": "BMS Tractive System Data",
         "signals": {
-            "TsVoltage": {
+            "TractiveSystemVoltage": {
                 "resolution": 0.0001,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
             },
-            "TsCurrent": {
+            "TractiveSystemCurrent": {
                 "resolution": 0.1,
                 "min": -300,
                 "max": 300,

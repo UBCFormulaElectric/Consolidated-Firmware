@@ -463,7 +463,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
 
 TEST_F(FsmFaultTest, primary_flow_rate_underflow_sets_fault)
 {
-    App_CanRx_DCM_CurrentState_Update(DCM_DRIVE_STATE);
+    App_CanRx_DCM_State_Update(DCM_DRIVE_STATE);
     // Flow rate underflow threshold is 1.0 L/min
     const float underflow_threshold       = 1.0f;
     coolant_get_flow_rate_fake.return_val = std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest());
@@ -491,24 +491,24 @@ TEST_F(FsmFaultTest, brake_pedal_ocsc_sets_warning_and_brake_travel_to_zero)
     brake_get_pedal_travel_fake.return_val = 30;
     LetTimePass(state_machine, 10);
     ASSERT_NEAR(30, App_CanTx_FSM_BrakePedalPercentage_Get(), 0.5f);
-    ASSERT_FALSE(App_CanTx_FSM_PedalOpenShortCircuit_Get());
+    ASSERT_FALSE(App_CanTx_FSM_BrakePedalSensorOCSC_Get());
 
     // Set brake OCSC
     brake_pedal_ocsc_fake.return_val = true;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, App_CanTx_FSM_BrakePedalPercentage_Get());
-    ASSERT_TRUE(App_CanTx_FSM_PedalOpenShortCircuit_Get());
+    ASSERT_TRUE(App_CanTx_FSM_BrakePedalSensorOCSC_Get());
 
     // Confirm set indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(0, App_CanTx_FSM_BrakePedalPercentage_Get());
-    ASSERT_TRUE(App_CanTx_FSM_PedalOpenShortCircuit_Get());
+    ASSERT_TRUE(App_CanTx_FSM_BrakePedalSensorOCSC_Get());
 
     // Clear condition, confirm warning resets
     brake_pedal_ocsc_fake.return_val = false;
     LetTimePass(state_machine, 10);
     ASSERT_NEAR(30, App_CanTx_FSM_BrakePedalPercentage_Get(), 0.5f);
-    ASSERT_FALSE(App_CanTx_FSM_PedalOpenShortCircuit_Get());
+    ASSERT_FALSE(App_CanTx_FSM_BrakePedalSensorOCSC_Get());
 }
 
 TEST_F(FsmFaultTest, steering_sensor_ocsc_sets_warning)

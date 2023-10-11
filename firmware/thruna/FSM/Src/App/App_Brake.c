@@ -98,7 +98,7 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     App_CanTx_FSM_BrakePedalPercentage_Set(brake->get_pedal_travel());
 
     const bool brake_pressed = brake->get_front_pressure_psi() > 40 || brake->get_rear_pressure_psi() > 40;
-    App_CanTx_FSM_IsActuated_Set(brake_pressed);
+    App_CanTx_FSM_BrakeActuated_Set(brake_pressed);
 
     float                    front_pressure;
     enum InRangeCheck_Status front_pressure_status =
@@ -112,8 +112,8 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     App_CanTx_FSM_RearBrakePressure_Set((uint32_t)rear_pressure);
     App_CanAlerts_SetWarning(FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE, rear_pressure_status != VALUE_IN_RANGE);
 
-    App_CanTx_FSM_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
-    App_CanTx_FSM_PedalOpenShortCircuit_Set(brake->pedal_travel_sensor_ocsc());
+    App_CanTx_FSM_BrakePressureSensorOCSC_Set(App_Brake_PressureElectricalFault(brake));
+    App_CanTx_FSM_BrakePedalSensorOCSC_Set(brake->pedal_travel_sensor_ocsc());
 
     if (brake->pedal_travel_sensor_ocsc())
     {

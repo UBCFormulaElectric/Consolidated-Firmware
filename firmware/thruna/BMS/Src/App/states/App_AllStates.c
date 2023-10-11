@@ -70,8 +70,8 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
 
-    App_CanTx_BMS_MinCellTemperature_Set(curr_min_cell_temp);
-    App_CanTx_BMS_MaxCellTemperature_Set(curr_max_cell_temp);
+    App_CanTx_BMS_MinCellTemp_Set(curr_min_cell_temp);
+    App_CanTx_BMS_MaxCellTemp_Set(curr_max_cell_temp);
     App_CanTx_BMS_MinTempSegment_Set(min_segment);
     App_CanTx_BMS_MaxTempSegment_Set(max_segment);
     App_CanTx_BMS_MinTempIdx_Set(min_loc);
@@ -107,7 +107,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
-    App_CanTx_BMS_IsConnected_Set(charger_is_connected);
+    App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -124,7 +124,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
-    const bool balancing_enabled    = App_CanRx_Debug_RequestCellBalancing_Get();
+    const bool balancing_enabled    = App_CanRx_Debug_CellBalancingRequest_Get();
     const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
 
     bool status = true;
@@ -144,8 +144,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
-    App_CanTx_BMS_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
-    App_CanTx_BMS_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
+    App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
+    App_CanTx_BMS_TractiveSystemCurrent_Set(App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_AirNegative_Set(App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);

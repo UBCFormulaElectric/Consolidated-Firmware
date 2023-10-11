@@ -88,13 +88,13 @@
 				"max": 100,
 				"unit": "%"
 			},
-			"IsActuated": {
+			"BrakeActuated": {
 				"bits": 1
 			},
-			"PressureSensorOpenShortCircuit": {
+			"BrakePressureSensorOCSC": {
 				"bits": 1
 			},
-			"PedalOpenShortCircuit": {
+			"BrakePedalSensorOCSC": {
 				"bits": 1
 			}
 		}
@@ -103,31 +103,31 @@
 		"msg_id": 307,
 		"cycle_time": 1000,
 		"signals": {
-			"FlowRate": {
+			"CoolantFlowRate": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "L/min"
 			},
-			"TemperatureA": {
+			"CoolantTemperatureA": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "°C"
 			},
-			"TemperatureB": {
+			"CoolantTemperatureB": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "°C"
 			},
-			"PressureA": {
+			"CoolantPressureA": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "psi"
 			},
-			"PressureB": {
+			"CoolantPressureB": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,

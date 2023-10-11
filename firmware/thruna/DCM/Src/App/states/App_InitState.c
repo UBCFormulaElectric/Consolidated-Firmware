@@ -4,7 +4,7 @@
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_DCM_CurrentState_Set(DCM_INIT_STATE);
+    App_CanTx_DCM_State_Set(DCM_INIT_STATE);
 
     // Disable inverters and apply zero torque upon entering init state
     App_CanTx_DCM_LeftInverterEnable_Set(false);
@@ -30,7 +30,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
         prev_start_switch_pos                 = curr_start_switch_pos;
 
-        const bool is_brake_actuated = App_CanRx_FSM_IsActuated_Get();
+        const bool is_brake_actuated = App_CanRx_FSM_BrakeActuated_Get();
 
         if (App_IsBmsInDriveState() && is_brake_actuated && was_start_switch_pulled_up)
         {

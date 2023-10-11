@@ -307,27 +307,27 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_CurrentState_Get());
+    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMS_CurrentState_Get());
+    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_CurrentState_Get());
+    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
-    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_CurrentState_Get());
+    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -340,7 +340,7 @@ TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_s
         get_pwm_frequency_fake.return_val = fake_frequency;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(fake_frequency, App_CanTx_BMS_Frequency_Get());
+        EXPECT_EQ(fake_frequency, App_CanTx_BMS_ImdFrequency_Get());
 
         // To avoid false positives, we use a different duty cycle each time
         fake_frequency++;
@@ -357,7 +357,7 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(fake_duty_cycle, App_CanTx_BMS_DutyCycle_Get());
+        EXPECT_EQ(fake_duty_cycle, App_CanTx_BMS_ImdDutyCycle_Get());
 
         // To avoid false positives, we use a different frequency each time
         fake_duty_cycle++;
@@ -375,15 +375,15 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ValidDutyCycle_Get());
-        EXPECT_EQ(1200, App_CanTx_BMS_InsulationMeasurementDcp10Hz_Get());
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(1200, App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Get());
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ValidDutyCycle_Get());
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
     }
 }
 
@@ -398,15 +398,15 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ValidDutyCycle_Get());
-        EXPECT_EQ(1200, App_CanTx_BMS_InsulationMeasurementDcp20Hz_Get());
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(1200, App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Get());
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ValidDutyCycle_Get());
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
     }
 }
 
@@ -420,22 +420,22 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ValidDutyCycle_Get());
-        EXPECT_EQ(SST_GOOD, App_CanTx_BMS_SpeedStartStatus30Hz_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(SST_GOOD, App_CanTx_BMS_ImdSpeedStartStatus30Hz_Get());
 
         // Test an arbitrarily chosen SST_BAD
         get_pwm_duty_cycle_fake.return_val = 92.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ValidDutyCycle_Get());
-        EXPECT_EQ(SST_BAD, App_CanTx_BMS_SpeedStartStatus30Hz_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(SST_BAD, App_CanTx_BMS_ImdSpeedStartStatus30Hz_Get());
 
         // Test an arbitrarily chosen invalid SST status
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_Condition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ValidDutyCycle_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
     }
 }
 
@@ -446,7 +446,7 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(123, App_CanTx_BMS_SecondsSincePowerOn_Get());
+        EXPECT_EQ(123, App_CanTx_BMS_ImdSecondsSincePowerOn_Get());
     }
 }
 
@@ -483,11 +483,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 
         is_charger_connected_fake.return_val = true;
         LetTimePass(state_machine, 1000);
-        EXPECT_EQ(true, App_CanTx_BMS_IsConnected_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ChargerConnected_Get());
 
         is_charger_connected_fake.return_val = false;
         LetTimePass(state_machine, 1000);
-        EXPECT_EQ(false, App_CanTx_BMS_IsConnected_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ChargerConnected_Get());
     }
 }
 
@@ -616,11 +616,11 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     is_charger_connected_fake.return_val   = false;
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_CurrentState_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_CurrentState_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open)
@@ -632,12 +632,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_CurrentState_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_CurrentState_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
 }
 
 TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)

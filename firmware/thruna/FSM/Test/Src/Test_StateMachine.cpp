@@ -247,17 +247,17 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 
     // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignalInAllStates(
-        front_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_PressureSensorOpenShortCircuit_Get);
+        front_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_BrakePressureSensorOCSC_Get);
 
     CheckBinaryStatusCanSignalInAllStates(
-        rear_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_PressureSensorOpenShortCircuit_Get);
+        rear_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_BrakePressureSensorOCSC_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
-        App_CanTx_FSM_FlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning, FSM_WARNING_FLOW_RATE_OUT_OF_RANGE);
+        App_CanTx_FSM_CoolantFlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning, FSM_WARNING_FLOW_RATE_OUT_OF_RANGE);
 }
 
 TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states)
@@ -272,10 +272,10 @@ TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_al
         coolant_get_pressure_b_fake.return_val = 30;
         LetTimePass(fsm_state_machine, 10);
 
-        ASSERT_EQ(App_CanTx_FSM_TemperatureA_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_TemperatureB_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_PressureA_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_PressureB_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureA_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureB_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantPressureA_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantPressureB_Get(), 30);
     }
 }
 

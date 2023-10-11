@@ -45,7 +45,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
     App_Buzzer_TurnOn(buzzer);
 
-    App_CanTx_DCM_CurrentState_Set(DCM_DRIVE_STATE);
+    App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
     // Enable inverters upon entering drive state.
     App_CanTx_DCM_LeftInverterEnable_Set(true);

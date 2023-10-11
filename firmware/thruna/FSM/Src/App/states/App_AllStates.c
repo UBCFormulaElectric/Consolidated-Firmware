@@ -25,7 +25,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct Brake *   brake = App_FsmWorld_GetBrake(world);
 
-    App_CanTx_FSM_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
+    App_CanTx_FSM_BrakePressureSensorOCSC_Set(App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)

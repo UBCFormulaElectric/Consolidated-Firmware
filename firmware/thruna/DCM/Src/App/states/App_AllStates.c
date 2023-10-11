@@ -42,7 +42,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SendAndReceiveHeartbeat(hb_monitor);
 
-    const bool brake_actuated = App_CanRx_FSM_IsActuated_Get();
+    const bool brake_actuated = App_CanRx_FSM_BrakeActuated_Get();
     App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)

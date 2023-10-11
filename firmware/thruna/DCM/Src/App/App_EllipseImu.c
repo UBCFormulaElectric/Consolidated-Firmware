@@ -38,12 +38,12 @@ void App_EllipseImu_Broadcast()
     const uint16_t general_status = sensor.get_general_status();
     const uint32_t com_status     = sensor.get_com_status();
 
-    App_CanTx_DCM_GeneralStatusBitmask_Set(general_status);
-    App_CanTx_DCM_ComStatusBitmask_Set(com_status);
+    App_CanTx_DCM_EllipseGeneralStatusBitmask_Set(general_status);
+    App_CanTx_DCM_EllipseComStatusBitmask_Set(com_status);
 
     // Time msg
     const uint32_t timestamp_us = App_EllipseImu_GetTimestampUs();
-    App_CanTx_DCM_Timestamp_Set(timestamp_us);
+    App_CanTx_DCM_EllipseTimestamp_Set(timestamp_us);
 
     // Acceleration msg
     const float forward_accel  = sensor.get_sensor_output(ELLIPSE_OUTPUT_ACCELERATION_X);

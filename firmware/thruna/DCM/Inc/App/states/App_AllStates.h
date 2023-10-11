@@ -25,7 +25,7 @@ static inline bool App_IsStartSwitchOn(void)
 
 static inline bool App_IsBmsInDriveState(void)
 {
-    return App_CanRx_BMS_CurrentState_Get() == BMS_DRIVE_STATE;
+    return App_CanRx_BMS_State_Get() == BMS_DRIVE_STATE;
 }
 /**
  * On-tick 1Hz function for every state in the given state machine
