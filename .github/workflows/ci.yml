@@ -206,12 +206,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.head_ref }}
       - name: debug env
         run: |
-          echo ${{github.head_ref}}
+          echo ${{ github.base_ref }} <- ${{github.head_ref}}
           echo ${{github.SHA}}
-          echo ${{ github.base_ref }}
           git status
           git log --oneline -n 10
           git rev-parse --verify HEAD
