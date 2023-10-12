@@ -1,7 +1,7 @@
 {
     "Vitals": {
         "msg_id": 100,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "Vitals message for the BMS.",
         "signals": {
             "Heartbeat": {
@@ -153,7 +153,7 @@
     },
     "CellTemperatures": {
         "msg_id": 114,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Cell Temperature readings",
         "signals": {
             "MinCellTemperature": {
@@ -172,7 +172,7 @@
     },
     "CellVoltages": {
         "msg_id": 115,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Cell Voltage readings",
         "signals": {
             "MinCellVoltage": {
@@ -191,7 +191,7 @@
     },
     "CellStats": {
         "msg_id": 116,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Cell Stats",
         "signals": {
             "MinCellVoltageSegment": {
@@ -238,7 +238,7 @@
     },
     "TractiveSystem": {
         "msg_id": 117,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Tractive System Data",
         "signals": {
             "TractiveSystemVoltage": {
@@ -257,7 +257,7 @@
     },
     "PackVoltage": {
         "msg_id": 118,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Pack Voltage",
         "signals": {
             "PackVoltage": {
@@ -270,7 +270,7 @@
     },
     "AvailablePower": {
         "msg_id": 120,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Available Power",
         "signals": {
             "AvailablePower": {
@@ -283,7 +283,7 @@
     },
     "AuxThermistors": {
         "msg_id": 121,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Auxiliary Thermistor Temperatures",
         "signals": {
             "ThermTemp0": {

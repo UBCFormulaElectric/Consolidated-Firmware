@@ -6,7 +6,7 @@ if(NOT STM32CUBEMX_BIN_PATH)
     elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
         set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
     else()
-        set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
+        set(STM32CUBEMX_BIN_PATH "~/STM32CubeMX/STM32CubeMX")
     endif()
 endif()
 

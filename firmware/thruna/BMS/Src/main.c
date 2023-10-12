@@ -89,8 +89,6 @@ CAN_HandleTypeDef hcan1;
 
 I2C_HandleTypeDef hi2c1;
 
-IWDG_HandleTypeDef hiwdg;
-
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
@@ -99,7 +97,7 @@ TIM_HandleTypeDef htim13;
 
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
-uint32_t             Task100HzBuffer[TASK100HZ_STACK_SIZE];
+uint32_t             Task100HzBuffer[512];
 osStaticThreadDef_t  Task100HzControlBlock;
 const osThreadAttr_t Task100Hz_attributes = {
     .name       = "Task100Hz",
@@ -107,11 +105,11 @@ const osThreadAttr_t Task100Hz_attributes = {
     .cb_size    = sizeof(Task100HzControlBlock),
     .stack_mem  = &Task100HzBuffer[0],
     .stack_size = sizeof(Task100HzBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* Definitions for TaskCanRx */
 osThreadId_t         TaskCanRxHandle;
-uint32_t             TaskCanRxBuffer[TASKCANRX_STACK_SIZE];
+uint32_t             TaskCanRxBuffer[512];
 osStaticThreadDef_t  TaskCanRxControlBlock;
 const osThreadAttr_t TaskCanRx_attributes = {
     .name       = "TaskCanRx",
@@ -123,7 +121,7 @@ const osThreadAttr_t TaskCanRx_attributes = {
 };
 /* Definitions for TaskCanTx */
 osThreadId_t         TaskCanTxHandle;
-uint32_t             TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
+uint32_t             TaskCanTxBuffer[512];
 osStaticThreadDef_t  TaskCanTxControlBlock;
 const osThreadAttr_t TaskCanTx_attributes = {
     .name       = "TaskCanTx",
@@ -135,7 +133,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
-uint32_t             Task1kHzBuffer[TASK1KHZ_STACK_SIZE];
+uint32_t             Task1kHzBuffer[512];
 osStaticThreadDef_t  Task1kHzControlBlock;
 const osThreadAttr_t Task1kHz_attributes = {
     .name       = "Task1kHz",
@@ -143,11 +141,11 @@ const osThreadAttr_t Task1kHz_attributes = {
     .cb_size    = sizeof(Task1kHzControlBlock),
     .stack_mem  = &Task1kHzBuffer[0],
     .stack_size = sizeof(Task1kHzBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityRealtime,
 };
 /* Definitions for Task1Hz */
 osThreadId_t         Task1HzHandle;
-uint32_t             Task1HzBuffer[TASK1HZ_STACK_SIZE];
+uint32_t             Task1HzBuffer[512];
 osStaticThreadDef_t  Task1HzControlBlock;
 const osThreadAttr_t Task1Hz_attributes = {
     .name       = "Task1Hz",
@@ -155,7 +153,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .cb_size    = sizeof(Task1HzControlBlock),
     .stack_mem  = &Task1HzBuffer[0],
     .stack_size = sizeof(Task1HzBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
 struct BmsWorld *        world;
@@ -185,7 +183,6 @@ static void MX_CAN1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM13_Init(void);
-static void MX_IWDG_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 void        RunTask100Hz(void *argument);
@@ -252,7 +249,6 @@ int main(void)
     MX_SPI1_Init();
     MX_TIM1_Init();
     MX_TIM13_Init();
-    MX_IWDG_Init();
     MX_I2C1_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
@@ -397,9 +393,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -629,32 +624,6 @@ static void MX_I2C1_Init(void)
     /* USER CODE BEGIN I2C1_Init 2 */
 
     /* USER CODE END I2C1_Init 2 */
-}
-
-/**
- * @brief IWDG Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG_Init(void)
-{
-    /* USER CODE BEGIN IWDG_Init 0 */
-
-    /* USER CODE END IWDG_Init 0 */
-
-    /* USER CODE BEGIN IWDG_Init 1 */
-
-    /* USER CODE END IWDG_Init 1 */
-    hiwdg.Instance       = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG_Init 2 */
-
-    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
@@ -970,11 +939,11 @@ void RunTask100Hz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
+    uint32_t start_ticks = osKernelGetTickCount();
+
     /* Infinite loop */
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
-
         App_SharedStateMachine_Tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
@@ -982,7 +951,9 @@ void RunTask100Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        osDelayUntil(start_time_ms + period_ms);
+        // osDelayUntil(start_time_ms + period_ms);
+        osDelayUntil(start_ticks + 10);
+        start_ticks = osKernelGetTickCount();
     }
     /* USER CODE END 5 */
 }
@@ -1044,18 +1015,18 @@ void RunTask1kHz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
+    uint32_t start_ticks = osKernelGetTickCount();
+
     /* Infinite loop */
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
-
         // ADC wasn't reading any voltages when triggered by TIM3 like on other boards
         // But worked fine when starting the conversion via software as below
         // TODO: Figure out why
         HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
 
         // Check in for timeouts for all RTOS tasks
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        // Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
@@ -1069,7 +1040,8 @@ void RunTask1kHz(void *argument)
             Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         }
 
-        osDelayUntil(start_time_ms + period_ms);
+        osDelayUntil(start_ticks + 1);
+        start_ticks = osKernelGetTickCount();
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -1088,11 +1060,12 @@ void RunTask1Hz(void *argument)
     static const TickType_t  period_ms = 1000U;
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    
+    uint32_t start_ticks = osKernelGetTickCount();
 
     /* Infinite loop */
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
 
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
@@ -1105,7 +1078,8 @@ void RunTask1Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        osDelayUntil(start_time_ms + period_ms);
+        osDelayUntil(start_ticks + 1000);
+        start_ticks = osKernelGetTickCount();
     }
     /* USER CODE END RunTask1Hz */
 }
