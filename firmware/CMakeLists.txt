@@ -154,7 +154,7 @@ function(create_arm_binary
     target_include_directories(${BOARD_NAME}.elf
         PRIVATE
         ${ARM_BINARY_INCLUDE_DIRS}
-        ${ALL_SHARED_INCLUDE_DIRS}
+        ${SHARED_ARM_BINARY_INCLUDE_DIRS}
     )
 
     # Suppress header file warnings for third-party IO code that are not meant
@@ -523,14 +523,6 @@ set(SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shared")
 file(GLOB_RECURSE ALL_SHARED_APP_SRCS "${SHARED_DIR}/src/app/*.c")
 file(GLOB_RECURSE ALL_SHARED_IO_SRCS "${SHARED_DIR}/src/io/*.c")
 file(GLOB_RECURSE ALL_SHARED_HW_SRCS "${SHARED_DIR}/src/hw/*.c")
-set(SHARED_APP_INCLUDE_DIRS "${SHARED_DIR}/src/app")
-set(SHARED_IO_INCLUDE_DIRS "${SHARED_DIR}/src/io")
-set(SHARED_HW_INCLUDE_DIRS "${SHARED_DIR}/src/hw")
-set(ALL_SHARED_INCLUDE_DIRS
-    ${SHARED_APP_INCLUDE_DIRS}
-    ${SHARED_IO_INCLUDE_DIRS}
-    ${SHARED_HW_INCLUDE_DIRS}
-)
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
