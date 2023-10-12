@@ -3,6 +3,11 @@
 #include <stdbool.h>
 
 /**
+ * @return returns absolute angle based on pedal position using cosine law
+ */
+float calcAppsAngle(float cos_law_coefficent, float cos_law_denominator, float pot_len);
+
+/**
  * @return Percentage of press of accelerator pedal
  */
 float Io_AcceleratorPedals_GetPapps(void);

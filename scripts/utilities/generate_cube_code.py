@@ -87,7 +87,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser()
-    supported_boards = get_board_names()
+    supported_boards = [] #get_board_names()
     parser.add_argument('--board', help='Choose one of the following: ' + ' '.join(supported_boards))
     parser.add_argument('--log4j_properties_output', help='Path to output file storing log4j properties')
     parser.add_argument('--ioc', help='STM32CubeMX .ioc file')
@@ -96,6 +96,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.board not in supported_boards:
         print('Error: Invalid board name. Valid options: ' + ' '.join(supported_boards))
-        sys.exit(1)
+        # sys.exit(1)
 
     generate_cubemx_code(args.board, args.ioc, args.codegen_output_dir, args.cube_bin, args.log4j_properties_output)
