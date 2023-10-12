@@ -64,12 +64,7 @@ static bool wheel_speed_in_range(void)
 static bool power_limit_check(void)
 {
     // TODO: Update check once power limiting is available @Will Chaba
-    if (App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f)
-    {
-        return true;
-    }
-
-    return false;
+    return App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f;
 }
 
 static void compute_regen_torque_request(struct RegenBraking *regenAttr)
