@@ -139,7 +139,6 @@ function(create_arm_binary
     ARM_BINARY_THIRD_PARTY_SRCS
     ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS
     ARM_LINKER_SCRIPT
-    ALL_ARM_SHARED_BINARY_INCLUDE_DIRS
     SELECTED_ARM_SHARED_BINARY_SRCS
     STM32_DEVICE_TYPE
 )
@@ -155,7 +154,7 @@ function(create_arm_binary
     target_include_directories(${BOARD_NAME}.elf
         PRIVATE
         ${ARM_BINARY_INCLUDE_DIRS}
-        ${ALL_ARM_SHARED_BINARY_INCLUDE_DIRS}
+        ${ALL_SHARED_INCLUDE_DIRS}
     )
 
     # Suppress header file warnings for third-party IO code that are not meant
@@ -390,7 +389,6 @@ function(create_arm_binary_or_tests_for_board
     ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS
     ARM_LINKER_SCRIPT
     STM32_DEVICE_TYPE
-    ALL_ARM_SHARED_BINARY_INCLUDE_DIRS
     SELECTED_ARM_SHARED_BINARY_SRCS
     GOOGLETEST_TEST_SRCS
     GOOGLETEST_TEST_INCLUDE_DIRS
@@ -514,7 +512,6 @@ function(create_arm_binary_or_tests_for_board
             "${ARM_BINARY_THIRD_PARTY_SRCS}"
             "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
             "${ARM_LINKER_SCRIPT}"
-            "${ALL_ARM_SHARED_BINARY_INCLUDE_DIRS}"
             "${SELECTED_ARM_SHARED_BINARY_SRCS}"
             "${STM32_DEVICE_TYPE}"
         )
@@ -526,10 +523,14 @@ set(SHARED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/shared")
 file(GLOB_RECURSE ALL_SHARED_APP_SRCS "${SHARED_DIR}/src/app/*.c")
 file(GLOB_RECURSE ALL_SHARED_IO_SRCS "${SHARED_DIR}/src/io/*.c")
 file(GLOB_RECURSE ALL_SHARED_HW_SRCS "${SHARED_DIR}/src/hw/*.c")
-set(ALL_SHARED_APP_INCLUDE_DIRS "${SHARED_DIR}/src/app")
-set(ALL_SHARED_IO_INCLUDE_DIRS "${SHARED_DIR}/src/io")
-set(ALL_SHARED_HW_INCLUDE_DIRS "${SHARED_DIR}/src/hw")
-
+set(SHARED_APP_INCLUDE_DIRS "${SHARED_DIR}/src/app")
+set(SHARED_IO_INCLUDE_DIRS "${SHARED_DIR}/src/io")
+set(SHARED_HW_INCLUDE_DIRS "${SHARED_DIR}/src/hw")
+set(ALL_SHARED_INCLUDE_DIRS
+    ${SHARED_APP_INCLUDE_DIRS}
+    ${SHARED_IO_INCLUDE_DIRS}
+    ${SHARED_HW_INCLUDE_DIRS}
+)
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
