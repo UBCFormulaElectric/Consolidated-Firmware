@@ -24,11 +24,11 @@ static inline bool App_IsStartSwitchOn(void)
 }
 
 /**
- * Check if the torque vectoring switch is pulled up to the on position
+ * Check if the torque vectoring and regenerative braking switch is pulled up to the on position
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
- * @return true if the torque vectoring switch is on, false otherwise
+ * @return true if the torque vectoring and regenerative braking switch is on, false otherwise
  */
-static inline bool App_IsTorqueVectoringSwitchOn(void)
+static inline bool App_RegenTorqueVectoringStatus(void)
 {
     return App_CanRx_DIM_AuxSwitch_Get() == SWITCH_ON;
 }

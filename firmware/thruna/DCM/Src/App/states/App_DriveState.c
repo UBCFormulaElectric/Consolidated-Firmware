@@ -58,7 +58,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
     // Read torque vectoring switch only when entering drive state, not during driving
-    torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitchOn();
+    torque_vectoring_switch_is_on = App_RegenTorqueVectoringStatus();
 
     if (torque_vectoring_switch_is_on)
     {
@@ -90,6 +90,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SetPeriodicCanSignals_TorqueRequests();
         }
     }
+    
+    regen_switch_enabled = App_RegenTorqueVectoringStatus();
 
     if (regen_switch_enabled)
     {
