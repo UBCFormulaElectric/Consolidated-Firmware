@@ -18,7 +18,7 @@ struct RegenBraking
 void App_Run_Regen(void);
 
 /**
- * Check if conditions allow for regenerative braking, if not reset 
+ * Check if conditions allow for regenerative braking, if not reset
  * left and right torque struct to 0.0f
  * @return true or false depending on if it is safe to run regen
  */

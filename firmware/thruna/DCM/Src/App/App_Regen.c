@@ -15,29 +15,30 @@ static bool wheel_speed_in_range(void);
 static bool power_limit_check(void);
 
 /**
- * Algorithm to send negative torque request 
+ * Algorithm to send negative torque request
  * dependent on accelerator pedal percentage
  */
 static void compute_regen_torque_request(struct RegenBraking *regenAttr);
 
 struct RegenBraking regenAttributes;
-static float MAXREGEN = -50.0f; //TODO: find max regen torque value
+static float MAXREGEN = -50.0f; // TODO: find max regen torque value
 static float wheelSpeedThreshold = 5.0f;
 
-void App_Run_Regen(void) {
-    if (App_Regen_Safety(&regenAttributes)) {
+void App_Run_Regen(void)
+{
+    if (App_Regen_Safety(&regenAttributes))
+    {
         compute_regen_torque_request(&regenAttributes);
-    } 
-    //TODO: else statement to send warning?
+    }
+    // TODO: else statement to send warning?
 
     App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 }
 
 bool App_Regen_Safety(struct RegenBraking *regenAttr)
 {
-    if (App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45
-    && wheel_speed_in_range() 
-    && power_limit_check()) {
+    if (App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45 && wheel_speed_in_range() && power_limit_check())
+    {
         return true;
     }
 
@@ -46,34 +47,36 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr)
     return false;
 }
 
-void App_Regen_Activate(float left, float right) {
+void App_Regen_Activate(float left, float right)
+{
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(left);
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
 }
 
-static bool wheel_speed_in_range(void) {
-    float right =  App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
+static bool wheel_speed_in_range(void)
+{
+    float right = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
     float left = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
-    if (right > wheelSpeedThreshold || left > wheelSpeedThreshold) {
+
+    return right > wheelSpeedThreshold && left > wheelSpeedThreshold;
+}
+
+static bool power_limit_check(void)
+{
+    // TODO: Update check once power limiting is available @Will Chaba
+    if (App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f)
+    {
         return true;
     }
 
     return false;
 }
 
-static bool power_limit_check(void) {
-    //TODO: Update check once power limiting is available @Will Chaba
-    if (App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f) {
-        return true;
-    }
-
-    return false;
-}
-
-static void compute_regen_torque_request(struct RegenBraking *regenAttr) {
+static void compute_regen_torque_request(struct RegenBraking *regenAttr)
+{
     float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
-    float torque = accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage)/50.0f*MAXREGEN : 0.0f;
+    float torque = accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage) / 50.0f * MAXREGEN : 0.0f;
 
     regenAttr->left_inverter_torque = torque;
     regenAttr->right_inverter_torque = torque;
