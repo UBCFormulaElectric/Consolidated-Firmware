@@ -21,8 +21,8 @@ static bool power_limit_check(void);
 static void compute_regen_torque_request(struct RegenBraking *regenAttr);
 
 struct RegenBraking regenAttributes;
-static float MAXREGEN = -50.0f; // TODO: find max regen torque value
-static float wheelSpeedThreshold = 5.0f;
+const float MAXREGEN = -50.0f; // TODO: find max regen torque value
+const float wheelSpeedThreshold = 5.0f;
 
 void App_Run_Regen(void)
 {
