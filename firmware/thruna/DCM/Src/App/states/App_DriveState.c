@@ -24,7 +24,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
-        const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
+        const float available_output_power_w = bms_available_power * EFFICIENCY_ESTIMATE;
         const float combined_motor_speed_rads = RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm);
         bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
     }
@@ -90,7 +90,16 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SetPeriodicCanSignals_TorqueRequests();
         }
     }
-    
+
+    if (regen_switch_enabled)
+    {
+        App_Run_Regen();
+    }
+    else
+    {
+        App_SetPeriodicCanSignals_TorqueRequests();
+    }
+
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
@@ -113,11 +122,11 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
-        .name              = "DRIVE",
-        .run_on_entry      = DriveStateRunOnEntry,
-        .run_on_tick_1Hz   = DriveStateRunOnTick1Hz,
+        .name = "DRIVE",
+        .run_on_entry = DriveStateRunOnEntry,
+        .run_on_tick_1Hz = DriveStateRunOnTick1Hz,
         .run_on_tick_100Hz = DriveStateRunOnTick100Hz,
-        .run_on_exit       = DriveStateRunOnExit,
+        .run_on_exit = DriveStateRunOnExit,
     };
 
     return &drive_state;
