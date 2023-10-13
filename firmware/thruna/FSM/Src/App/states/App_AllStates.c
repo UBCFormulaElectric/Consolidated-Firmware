@@ -48,7 +48,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         error_count = 0;
     }
 
-    App_CanAlerts_SetFault(FSM_FAULT_TORQUE_PLAUSABILITY_FAILED, error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
+    App_CanAlerts_SetFault(TorquePlausabilityFailedFault, error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
 
     // Broadcast a new FSM torque limit based on pedal percentage
     fsm_torque_limit =
@@ -56,7 +56,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_FSM_TorqueLimit_Set(fsm_torque_limit);
 
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
-    App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, missing_hb);
+    App_CanAlerts_SetFault(MissingHeartbeatFault, missing_hb);
 
     if (missing_hb)
     {

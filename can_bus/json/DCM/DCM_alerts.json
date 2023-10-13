@@ -1,18 +1,19 @@
 {
     "warnings_id": 200,
     "faults_id": 201,
+    "warnings_counts_id": 250,
+    "faults_counts_id": 251,
     "warnings": [
-        "DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ",
-        "DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ",
-        "DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ",
-        "DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX",
-        "DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX",
-        "DCM_WARNING_WATCHDOG_TIMEOUT",
-        "DCM_WARNING_TX_OVERFLOW",
-        "DCM_WARNING_RX_OVERFLOW"
+        "StackWaterMarkHighTask1HzWarning",
+        "StackWaterMarkHighTask100HzWarning",
+        "StackWaterMarkHighTask1kHzWarning",
+        "StackWaterMarkHighTaskCanRxWarning",
+        "StackWaterMarkHighTaskCanTxWarning",
+        "WatchdogTimeoutWarning",
+        "TxOverflowWarning",
+        "RxOverflowWarning"
     ],
     "faults": [
-        "DCM_FAULT_STATE_FAULT",
-        "DCM_FAULT_MISSING_HEARTBEAT"
+        "MissingHeartbeatFault"
     ]
 }

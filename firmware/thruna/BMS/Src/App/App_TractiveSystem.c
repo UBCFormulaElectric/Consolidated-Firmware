@@ -69,7 +69,7 @@ bool App_TractveSystem_CheckFaults(struct TractiveSystem *ts)
     //    TS current should be in the range: (-265.5, 70.8)
     bool ts_current_out_of_bounds =
         !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
-    App_CanAlerts_SetFault(BMS_FAULT_TS_OVERCURRENT, ts_current_out_of_bounds);
+    App_CanAlerts_TractiveSystemOvercurrentFault_Set(ts_current_out_of_bounds);
 
     return ts_current_out_of_bounds;
 }

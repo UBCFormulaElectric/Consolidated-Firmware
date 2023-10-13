@@ -12,7 +12,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     App_Airs_OpenAirPositive(airs);
     App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
-    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, true);
+    App_CanAlerts_StateMachineFault_Set(true);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -37,8 +37,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
-    const bool hb_ok                = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
-    const bool precharge_ok         = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
+    const bool hb_ok                = !App_CanAlerts_MissingHeartbeatFault_Get();
+    const bool precharge_ok         = !App_CanAlerts_PrechargeFailureFault_Get();
 
     const bool dcm_ok        = !App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
     const bool fsm_ok        = !App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
@@ -55,7 +55,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, false);
+    App_CanAlerts_StateMachineFault_Set(false);
 }
 
 const struct State *App_GetFaultState()
