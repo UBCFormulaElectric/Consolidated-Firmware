@@ -21,8 +21,8 @@ static bool power_limit_check(void);
 static void compute_regen_torque_request(struct RegenBraking *regenAttr);
 
 struct RegenBraking regenAttributes;
-const float MAXREGEN = -50.0f; // TODO: find max regen torque value
-const float wheelSpeedThreshold = 5.0f;
+const float         MAXREGEN            = -50.0f; // TODO: find max regen torque value
+const float         wheelSpeedThreshold = 5.0f;
 
 void App_Run_Regen(void)
 {
@@ -42,7 +42,7 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr)
         return true;
     }
 
-    regenAttr->left_inverter_torque = 0.0;
+    regenAttr->left_inverter_torque  = 0.0;
     regenAttr->right_inverter_torque = 0.0;
     return false;
 }
@@ -56,7 +56,7 @@ void App_Regen_Activate(float left, float right)
 static bool wheel_speed_in_range(void)
 {
     float right = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
-    float left = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
+    float left  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
 
     return right > wheelSpeedThreshold && left > wheelSpeedThreshold;
 }
@@ -71,8 +71,9 @@ static void compute_regen_torque_request(struct RegenBraking *regenAttr)
 {
     float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
-    float torque = accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage) / 50.0f * MAXREGEN : 0.0f;
+    float torque =
+        accelerator_pedal_percentage <= 50.0f ? -(50.0f - accelerator_pedal_percentage) / 50.0f * MAXREGEN : 0.0f;
 
-    regenAttr->left_inverter_torque = torque;
+    regenAttr->left_inverter_torque  = torque;
     regenAttr->right_inverter_torque = torque;
 }
