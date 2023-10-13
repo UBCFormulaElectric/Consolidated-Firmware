@@ -33,7 +33,6 @@ function(commit_info_code_generation
       --output-header 
       ${HEADER_OUTPUT_PATH}
       WORKING_DIRECTORY ${REPO_ROOT_DIR}
-      DEPENDS 
     )
 endfunction()
 
