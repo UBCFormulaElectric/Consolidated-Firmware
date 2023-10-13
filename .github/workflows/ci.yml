@@ -33,7 +33,6 @@ jobs:
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
-    needs: [ clang-format ]
     strategy:
       fail-fast: false
       matrix:
@@ -204,10 +203,6 @@ jobs:
       contents: write
     needs: [ generate-dbc ]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
       - name: debug env
         run: |
           echo "${{ github.base_ref }} <- ${{github.head_ref}}"
@@ -215,6 +210,7 @@ jobs:
           git status
           git log --oneline -n 10
           git rev-parse --verify HEAD
+          /usr/bin/git checkout --progress --force -B ${{github.head_ref}} refs/remotes/origin/${{github.head_ref}}
       - name: Download DBC from artifact
         uses: actions/download-artifact@v3
       - name: Create Release for DBC
