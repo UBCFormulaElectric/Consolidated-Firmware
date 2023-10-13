@@ -25,6 +25,19 @@ runs:
       run: |
         gh release delete ${{ inputs.tag_name }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
       continue-on-error: true
+    - name: Setup Env
+      run: |
+        git init
+        git remote add origin "https://github.com/UBCFormulaElectric/Consolidated-Firmware"
+        git fetch 
+        git checkout --progress --force -b ${{github.head_ref}} refs/remote/${{github.head_ref}}
+    - name: debug env
+      run: |
+        echo "${{ github.base_ref }} <- ${{github.head_ref}}"
+        echo ${{github.SHA}}
+        git status
+        git log --oneline -n 10
+        git rev-parse --verify HEAD
     - name: Create Tag
       shell: bash
       run: |

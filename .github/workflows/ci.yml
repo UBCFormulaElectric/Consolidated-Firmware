@@ -203,14 +203,6 @@ jobs:
       contents: write
     needs: [ generate-dbc ]
     steps:
-      - name: debug env
-        run: |
-          echo "${{ github.base_ref }} <- ${{github.head_ref}}"
-          echo ${{github.SHA}}
-          git status
-          git log --oneline -n 10
-          git rev-parse --verify HEAD
-          /usr/bin/git checkout --progress --force -B ${{github.head_ref}} refs/remotes/origin/${{github.head_ref}}
       - name: Download DBC from artifact
         uses: actions/download-artifact@v3
       - name: Create Release for DBC
