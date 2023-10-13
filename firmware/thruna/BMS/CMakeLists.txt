@@ -50,6 +50,15 @@ list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main
 set(GOOGLETEST_TEST_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 
+    
+# INCLUDES and SOURCES from shared
+# Define the shared code that you want to use in this project
+set(SELECTED_SHARED_SRCS
+    ${ALL_SHARED_APP_SRCS}
+    ${ALL_SHARED_IO_SRCS}
+    ${ALL_SHARED_HW_SRCS}
+)
+
 create_arm_binary_or_tests_for_board(
     "BMS"
     "${IOC_FILE}"
@@ -60,6 +69,7 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
+    "${SELECTED_SHARED_SRCS}"
     "${GOOGLETEST_TEST_SRCS}"
     "${GOOGLETEST_TEST_INCLUDE_DIRS}"
 )
