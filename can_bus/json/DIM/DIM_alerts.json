@@ -1,6 +1,8 @@
 {
     "warnings_id": 500,
     "faults_id": 501,
+    "warnings_counts_id": 550,
+    "faults_counts_id": 551,
     "warnings": [
         "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ",
         "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ",

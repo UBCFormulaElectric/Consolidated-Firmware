@@ -33,8 +33,8 @@ class CFuncsConfig(StrEnum):
 
     # Alerts
     APP_ALERTS_INIT = "App_CanAlerts_Init"
-    APP_ALERTS_SET = "App_CanAlerts_SetAlert"
-    APP_ALERTS_PUSH = "App_CanAlerts_PushAlert"
+    APP_ALERTS_SET = "App_CanAlerts_{alert}_Set"
+    APP_ALERTS_GET = "App_CanAlerts_{alert}_Get"
 
 
 class CVarsConfig(StrEnum):

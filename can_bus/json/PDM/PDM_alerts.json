@@ -1,6 +1,8 @@
 {
     "warnings_id": 400,
     "faults_id": 401,
+    "warnings_counts_id": 450,
+    "faults_counts_id": 451,
     "warnings": [
         "PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ",
         "PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ",

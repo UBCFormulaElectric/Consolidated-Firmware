@@ -15,13 +15,13 @@ Example:
     "warnings_id": 350,
     "faults_id": 351,
     "warnings": [
-        "FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE",
-        "FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE",
-        "FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE",
+        "LeftWheelSpeedOutOfRangeWarning",
+        "RightWheelSpeedOutOfRangeWarning",
+        "SteeringAngleOutOfRangeWarning",
     ],
     "faults": [
-        "FSM_FAULT_MISSING_HEARTBEAT",
-        "FSM_FAULT_STATE_FAULT",
+        "MissingHeartbeatFault",
+        "StateMachineFault",
     ]
 }
 ```
