@@ -27,6 +27,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          sparse-checkout: .github
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v3
       - name: Create Release
