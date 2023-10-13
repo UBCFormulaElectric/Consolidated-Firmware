@@ -24,7 +24,6 @@ IF (NOT PLATFORM)
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'x86' or 'arm'. To do this, set the -DPLATFORM=<platform>")
 ENDIF ()
 message("⚙️ Configuring for ${PLATFORM} build target")
-
 option(HANDLE_DEPS "Build build on the server" OFF)
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (HANDLE_DEPS)
