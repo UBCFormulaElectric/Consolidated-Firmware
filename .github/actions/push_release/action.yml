@@ -26,6 +26,7 @@ runs:
         gh release delete ${{ inputs.tag_name }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
       continue-on-error: true
     - name: debug env
+      shell: bash
       run: |
         echo "${{ github.base_ref }} <- ${{github.head_ref}}"
         echo ${{github.SHA}}
