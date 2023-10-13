@@ -566,8 +566,8 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    static const TickType_t  period_ms        = 1U;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    static const TickType_t  period_ms = 1U;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
@@ -647,8 +647,8 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms        = 10;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    static const TickType_t  period_ms = 10;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;

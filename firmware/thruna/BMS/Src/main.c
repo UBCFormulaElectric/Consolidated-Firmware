@@ -89,6 +89,8 @@ CAN_HandleTypeDef hcan1;
 
 I2C_HandleTypeDef hi2c1;
 
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
@@ -185,6 +187,7 @@ static void MX_TIM1_Init(void);
 static void MX_TIM13_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
@@ -251,6 +254,7 @@ int main(void)
     MX_TIM13_Init();
     MX_I2C1_Init();
     MX_TIM3_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -393,8 +397,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -624,6 +629,32 @@ static void MX_I2C1_Init(void)
     /* USER CODE BEGIN I2C1_Init 2 */
 
     /* USER CODE END I2C1_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
@@ -939,7 +970,8 @@ void RunTask100Hz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
-    uint32_t start_ticks = osKernelGetTickCount();
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
 
     /* Infinite loop */
     for (;;)
@@ -951,9 +983,8 @@ void RunTask100Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        // osDelayUntil(start_time_ms + period_ms);
-        osDelayUntil(start_ticks + 10);
-        start_ticks = osKernelGetTickCount();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END 5 */
 }
@@ -1015,7 +1046,8 @@ void RunTask1kHz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
-    uint32_t start_ticks = osKernelGetTickCount();
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
 
     /* Infinite loop */
     for (;;)
@@ -1026,8 +1058,8 @@ void RunTask1kHz(void *argument)
         HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
 
         // Check in for timeouts for all RTOS tasks
-        // Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
@@ -1035,13 +1067,13 @@ void RunTask1kHz(void *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
         {
             Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         }
 
-        osDelayUntil(start_ticks + 1);
-        start_ticks = osKernelGetTickCount();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -1061,7 +1093,8 @@ void RunTask1Hz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
-    uint32_t start_ticks = osKernelGetTickCount();
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
 
     /* Infinite loop */
     for (;;)
@@ -1077,8 +1110,8 @@ void RunTask1Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        osDelayUntil(start_ticks + 1000);
-        start_ticks = osKernelGetTickCount();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END RunTask1Hz */
 }
