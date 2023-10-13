@@ -203,12 +203,10 @@ jobs:
       contents: write
     needs: [ generate-dbc ]
     steps:
-      - name: Setup Env
-        run: |
-          git init
-          git remote add origin "https://github.com/UBCFormulaElectric/Consolidated-Firmware"
-          git fetch "${{github.head_ref}}"
-          git checkout --progress --force -b ${{github.head_ref}} refs/remote/${{github.head_ref}}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          - ${{ github.head_ref }}
       - name: Download DBC from artifact
         uses: actions/download-artifact@v3
       - name: Create Release for DBC
