@@ -7,7 +7,7 @@
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "torquevectoring/App_TorqueVectoring.h"
-#include "../../../Inc/App/App_Regen.h"
+#include "App_Regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 static bool regen_switch_enabled = true;
