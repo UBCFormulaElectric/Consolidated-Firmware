@@ -90,6 +90,7 @@ Testing/
 !**/.idea
 !**/.idea/runConfigurations/*.xml
 **/.idea
+!.idea/jsonSchemas.xmls
 cmake-build-*
 
 # Miscellaneous
