@@ -206,7 +206,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          - ${{ github.head_ref }}
+          ref: ${{ github.head_ref }}
       - name: Download DBC from artifact
         uses: actions/download-artifact@v3
       - name: Create Release for DBC

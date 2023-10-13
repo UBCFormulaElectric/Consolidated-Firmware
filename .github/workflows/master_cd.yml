@@ -27,8 +27,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          - ${{ github.head_ref }}
       - name: Download Binaries and DBC from Artifacts
         uses: actions/download-artifact@v3
       - name: Create Release
