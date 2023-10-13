@@ -34,6 +34,7 @@ const Graph = (props) => {
         setFormattedData([]);
         setGraphName("Empty");
         setData({});
+        setSignals([]);
     }
 
     // Request available signals through socket on render
@@ -54,8 +55,10 @@ const Graph = (props) => {
 
 
         useEffect(() => {
-            if (Object.keys(data).length !== 0) {
-                if (signals[0] === Object.keys(data)[0]) {
+            let len = Object.keys(data).length;
+            if (len !== 0) {
+                for (let i = 0; i < len; i++) {
+                if (signals[i] === Object.keys(data)[i]) {
                     let newFormattedData = [];
                     let newGraphName = "";
         
@@ -87,6 +90,7 @@ const Graph = (props) => {
                     setGraphName(newGraphName);
                 }
             }
+        }
         }, [data]);
         
 
