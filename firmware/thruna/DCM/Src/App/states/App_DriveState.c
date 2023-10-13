@@ -63,14 +63,20 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    if (App_AllStatesRunOnTick100Hz(state_machine))
+    // All states module checks for faults, and returns whether or not a fault was detected.
+    const bool all_states_ok = App_AllStatesRunOnTick100Hz(state_machine);
+    const bool start_switch_off = !App_IsStartSwitchOn();
+    const bool bms_not_in_drive = !App_IsBmsInDriveState();
+    bool exit_drive = !all_states_ok || start_switch_off || bms_not_in_drive; 
+
+    if (all_states_ok)
     {
         App_SetPeriodicCanSignals_TorqueRequests();
+    }
 
-        if (!App_IsStartSwitchOn() || !App_IsBmsInDriveState())
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
-        }
+    if(exit_drive)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
 }
 
