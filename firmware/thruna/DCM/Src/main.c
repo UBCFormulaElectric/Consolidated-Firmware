@@ -80,7 +80,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .cb_size    = sizeof(Task1HzControlBlock),
     .stack_mem  = &Task1HzBuffer[0],
     .stack_size = sizeof(Task1HzBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -92,7 +92,7 @@ const osThreadAttr_t Task1kHz_attributes = {
     .cb_size    = sizeof(Task1kHzControlBlock),
     .stack_mem  = &Task1kHzBuffer[0],
     .stack_size = sizeof(Task1kHzBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityRealtime,
 };
 /* Definitions for TaskCanRx */
 osThreadId_t         TaskCanRxHandle;
@@ -128,7 +128,7 @@ const osThreadAttr_t Task100Hz_attributes = {
     .cb_size    = sizeof(Task100HzControlBlock),
     .stack_mem  = &Task100HzBuffer[0],
     .stack_size = sizeof(Task100HzBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
 struct DcmWorld *        world;
@@ -533,10 +533,11 @@ void RunTask1Hz(void *argument)
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
-
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
@@ -548,7 +549,8 @@ void RunTask1Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        osDelayUntil(start_time_ms + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END 5 */
 }
@@ -564,17 +566,17 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
-
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         App_DcmWorld_UpdateWaitSignal(world, task_start_ms);
@@ -583,12 +585,13 @@ void RunTask1kHz(void *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
         // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
         {
             Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         }
 
-        osDelayUntil(start_time_ms + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -644,16 +647,16 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     /* Infinite loop */
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelSysTick();
-
         App_SharedStateMachine_Tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
@@ -661,7 +664,8 @@ void RunTask100Hz(void *argument)
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
-        osDelayUntil(start_time_ms + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
     /* USER CODE END RunTask100Hz */
 }

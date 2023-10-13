@@ -1060,13 +1060,12 @@ void RunTask1Hz(void *argument)
     static const TickType_t  period_ms = 1000U;
     SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-    
+
     uint32_t start_ticks = osKernelGetTickCount();
 
     /* Infinite loop */
     for (;;)
     {
-
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 

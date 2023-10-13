@@ -96,7 +96,7 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
         if (sw_watchdog_table.watchdogs[i].initialized == false)
             continue;
 
-        if (osKernelSysTick() >= sw_watchdog_table.watchdogs[i].deadline)
+        if (osKernelGetTickCount() >= sw_watchdog_table.watchdogs[i].deadline)
         {
             // Check if the check-in status is set
             if (sw_watchdog_table.watchdogs[i].check_in_status == true)
