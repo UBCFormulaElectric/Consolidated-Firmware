@@ -51,7 +51,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
-    App_CanAlerts_MissingHeartbeatFault_Set(is_missing_hb);
+    App_CanAlerts_DCM_MissingHeartbeatFault_Set(is_missing_hb);
 
     if (App_HasInverterFault() || is_missing_hb)
     {

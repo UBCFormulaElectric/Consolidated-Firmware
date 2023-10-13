@@ -104,13 +104,13 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     enum InRangeCheck_Status front_pressure_status =
         App_InRangeCheck_GetValue(brake->front_pressure_in_range_check, &front_pressure);
     App_CanTx_FSM_FrontBrakePressure_Set((uint32_t)front_pressure);
-    App_CanAlerts_SetWarning(FrontBrakePressureOutOfRangeWarning, front_pressure_status != VALUE_IN_RANGE);
+    App_CanAlerts_FSM_FrontBrakePressureOutOfRangeWarning_Set(front_pressure_status != VALUE_IN_RANGE);
 
     float                    rear_pressure;
     enum InRangeCheck_Status rear_pressure_status =
         App_InRangeCheck_GetValue(brake->rear_pressure_in_range_check, &rear_pressure);
     App_CanTx_FSM_RearBrakePressure_Set((uint32_t)rear_pressure);
-    App_CanAlerts_SetWarning(RearBrakePressureOutOfRangeWarning, rear_pressure_status != VALUE_IN_RANGE);
+    App_CanAlerts_FSM_RearBrakePressureOutOfRangeWarning_Set(rear_pressure_status != VALUE_IN_RANGE);
 
     App_CanTx_FSM_BrakePressureSensorOCSC_Set(App_Brake_PressureElectricalFault(brake));
     App_CanTx_FSM_BrakePedalSensorOCSC_Set(brake->pedal_travel_sensor_ocsc());
