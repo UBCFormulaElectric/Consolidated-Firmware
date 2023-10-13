@@ -276,7 +276,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
-    
+
     // broadcast
     // broadcast commit info
     App_CanTx_BMS_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
