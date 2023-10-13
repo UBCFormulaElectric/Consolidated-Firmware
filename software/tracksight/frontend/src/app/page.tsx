@@ -29,9 +29,8 @@ const Home = () => {
     
 
     useEffect(() => {
-        // NOTE -> io address may have to change depending on where your server is run. Once you run the server, it will tell you where it is running
-        // i.e Running on http://127.0.0.1:5000, so you would change the io address to that
-        const socket = io("http://127.0.0.1:5000/", {
+        // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
+        const socket = io("http://localhost:5000/", {
             transports: ["websocket"],
             cors: {
                 origin: "http://localhost:3000/",

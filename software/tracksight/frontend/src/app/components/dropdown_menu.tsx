@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'; 
 import { DownOutlined, SmileOutlined } from '@ant-design/icons';
-import { Dropdown, Space } from 'antd';
+import { Dropdown, Space, Button } from 'antd';
 
 const DropdownMenu = (props) => {
     const [items, setItems] = useState([]);
-    const [visible, setVisible] = useState(false);
     // for intermediate states of selected signals
+    const [open, setOpen] = useState(false);
     const [selectedSignals, setSelectedSignals] = useState([]);
 
     const handleSignalClick = (signalName) => {
@@ -24,40 +24,35 @@ const DropdownMenu = (props) => {
         const updatedItems = props.avail.map((signalName, index) => ({
             key: index.toString(),
             label: (
-                <p>
+                <Space onClick={() => handleSignalClick(signalName)} >
                     <input 
+                        style={{"cursor": "pointer"}}
                         type="checkbox" 
                         checked={props.signals.includes(signalName)}
-                        onChange={() => handleSignalClick(signalName)} 
                     />
-                    <span onClick={() => handleSignalClick(signalName)}> 
+                    <span> 
                         {signalName}
                     </span>
-                </p>
+                </Space>
             ),
         }));
         setItems(updatedItems);
     }, [props.avail, props.signals, selectedSignals]);
 
-    const handleVisibleChange = (flag) => {
-        setVisible(flag);
-    };
 
     return (
-        <div className="dropdown" onMouseLeave={() => setVisible(false)}>
             <Dropdown 
                 menu={{ items }} 
-                open={visible} 
-                onOpenChange={handleVisibleChange}
+                open={open}
+                
             >
-                <a onClick={(e) => e.preventDefault()}>
+                <Button onClick={() => setOpen(!open)} style={{"display":"block"}}>
                     <Space>
                         Signals
                         <DownOutlined />
                     </Space>
-                </a>
+                </Button>
             </Dropdown>
-        </div>
     );
 };
 
