@@ -11,9 +11,11 @@ For example,
 python src/generate_commit_info.py --output_header test.h 
 ```
 
-This will take a couple seconds... The whole repo needs to be scanned to check if the commit is dirty or clean.
-
 ## Generated File
+The generated header file exposes:
+- `GIT_COMMIT_HASH`, eg. `0xe6dd7a7`
+- `GIT_COMMIT_CLEAN`, which is `0` for dirty, and `1` for clean
+
 A sample generated header file:
 
 ```h
