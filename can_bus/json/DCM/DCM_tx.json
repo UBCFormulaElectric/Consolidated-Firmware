@@ -246,7 +246,7 @@
         }
     },
     "DCM_CommitInfo": {
-      "msg_id": 208,
+      "msg_id": 210,
       "cycle_time": 100,
       "description": "DCM Current Running Git Commit Info",
       "signals": {
