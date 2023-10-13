@@ -1,14 +1,21 @@
-from flask import Flask
+from flask import Flask, jsonify, Response
 from flask_socketio import SocketIO, emit
-from process import SignalUtil 
+from process import SignalUtil  # Assuming SignalUtil is in a module named 'process'
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
-signal_util = SignalUtil.SignalUtil()
+signal_util = SignalUtil.SignalUtil()  # Initialize your SignalUtil class
 
 @app.route('/')
 def hello_world():
     return "Wireless 2.0"
+
+# test route to get all signals from the SignalUtil class
+@app.route('/get_mock_data')
+def get_mock_data():
+    signals = signal_util.get_all_signals() 
+    signal_names = list(signals.keys()) 
+    return signal_names  # This will return a JSON string of the data
 
 @socketio.on('connect')
 def handle_connect():
@@ -19,16 +26,24 @@ def handle_connect():
 def handle_message(message):
     socketio.emit('message_from_server', f'Server received: {message}')
 
-@socketio.on('signals')
-def handle_signal_message(message):
-    res = message["ids"]
-    result = signal_util.get_signals(res)
-    socketio.emit("signal_response", result)
+@socketio.on('available_signals')
+def handle_available_signals(message):
+    signals = signal_util.get_all_signals() 
+    signal_names = list(signals.keys())  # returns list of keys 
+    socketio.emit('available_signals_response', signal_names)  # Emit the signal names to the client
 
+@socketio.on('signal')
+def handle_signal_message(message):
+    ids = message["ids"]
+    signals = {}
+    for id_ in ids:
+        signal_data = signal_util.get_signal(id_).to_dict()
+        signals[id_] = signal_data
+    socketio.emit("signal_response", signals)
+
+    
 if __name__ == '__main__':
-    # Start the Flask app (you can configure host and port)
-    app.run(debug=True)
+    # app.run(debug=True)  # This starts another server
 
     # Start the Socket.IO server
     socketio.run(app, debug=True)
-

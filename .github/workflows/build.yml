@@ -43,7 +43,7 @@ jobs:
       # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=arm
+          cmake -B $BUILD_DIR -DPLATFORM=arm -DHANDLE_DEPS=OFF
           xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
