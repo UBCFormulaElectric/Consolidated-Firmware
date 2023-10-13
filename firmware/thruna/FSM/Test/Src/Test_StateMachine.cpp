@@ -141,8 +141,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         float  max_value,
         float &fake_value,
         T (*value_can_signal_getter)(),
-        bool (*alert_getter)(uint8_t),
-        uint8_t alert_id)
+        bool (*alert_getter)(void))
     {
         for (const auto &state : GetAllStates())
         {
@@ -152,17 +151,17 @@ class FsmStateMachineTest : public BaseStateMachineTest
             fake_value = (min_value + max_value) / 2;
             LetTimePass(fsm_state_machine, 10);
             ASSERT_EQ(fake_value, value_can_signal_getter());
-            ASSERT_FALSE(alert_getter(alert_id));
+            ASSERT_FALSE(alert_getter());
 
             // Underflow range
             fake_value = std::nextafter(min_value, std::numeric_limits<float>::lowest());
             LetTimePass(fsm_state_machine, 10);
-            ASSERT_TRUE(alert_getter(alert_id));
+            ASSERT_TRUE(alert_getter());
 
             // Overflow range
             fake_value = std::nextafter(max_value, std::numeric_limits<float>::max());
             LetTimePass(fsm_state_machine, 10);
-            ASSERT_TRUE(alert_getter(alert_id));
+            ASSERT_TRUE(alert_getter());
         }
     }
 
@@ -233,12 +232,10 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
     // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_front_pressure_fake.return_val,
-        App_CanTx_FSM_FrontBrakePressure_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FrontBrakePressureOutOfRangeWarning);
+        App_CanTx_FSM_FrontBrakePressure_Get, App_CanAlerts_FSM_FrontBrakePressureOutOfRangeWarning_Get);
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_rear_pressure_fake.return_val,
-        App_CanTx_FSM_RearBrakePressure_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        RearBrakePressureOutOfRangeWarning);
+        App_CanTx_FSM_RearBrakePressure_Get, App_CanAlerts_FSM_RearBrakePressureOutOfRangeWarning_Get);
 
     // actuation
     // TODO: Update this once potentiometer is fixed
@@ -257,8 +254,7 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
-        App_CanTx_FSM_CoolantFlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FlowRateOutOfRangeWarning);
+        App_CanTx_FSM_CoolantFlowRate_Get, App_CanAlerts_FSM_FlowRateOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states)
@@ -284,24 +280,21 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG, get_steering_angle_fake.return_val,
-        App_CanTx_FSM_SteeringAngle_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        SteeringAngleOutOfRangeWarning);
+        App_CanTx_FSM_SteeringAngle_Get, App_CanAlerts_FSM_SteeringAngleOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, wheel_get_left_speed_fake.return_val,
-        App_CanTx_FSM_LeftWheelSpeed_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        LeftWheelSpeedOutOfRangeWarning);
+        App_CanTx_FSM_LeftWheelSpeed_Get, App_CanAlerts_FSM_LeftWheelSpeedOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, wheel_get_right_speed_fake.return_val,
-        App_CanTx_FSM_RightWheelSpeed_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        RightWheelSpeedOutOfRangeWarning);
+        App_CanTx_FSM_RightWheelSpeed_Get, App_CanAlerts_FSM_RightWheelSpeedOutOfRangeWarning_Get);
 }
 
 //========================OTHERS========================

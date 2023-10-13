@@ -562,7 +562,7 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
     LetTimePass(state_machine, 10);
 
     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
-    ASSERT_EQ(true, App_CanAlerts_GetFault(ChargerDisconnectedDuringChargeFault));
+    ASSERT_EQ(true, App_CanAlerts_BMS_ChargerDisconnectedDuringChargeFault_Get());
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 

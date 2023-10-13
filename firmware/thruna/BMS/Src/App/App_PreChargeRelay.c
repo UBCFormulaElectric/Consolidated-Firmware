@@ -69,7 +69,7 @@ bool App_PrechargeRelay_CheckFaults(
     }
 
     *precharge_limit_exceeded = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= MAX_PRECHARGE_ATTEMPTS;
-    App_CanAlerts_PrechargeFailureFault_Set(*precharge_limit_exceeded);
+    App_CanAlerts_BMS_PrechargeFailureFault_Set(*precharge_limit_exceeded);
 
     return has_precharge_fault;
 }

@@ -162,13 +162,13 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_BMS_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_RxOverflowWarning_Set(true);
+    App_CanAlerts_BMS_RxOverflowWarning_Set(true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_BMS_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_TxOverflowWarning_Set(true);
+    App_CanAlerts_BMS_TxOverflowWarning_Set(true);
 }
 
 /* USER CODE END 0 */

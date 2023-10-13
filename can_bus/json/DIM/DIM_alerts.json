@@ -4,16 +4,16 @@
     "warnings_counts_id": 550,
     "faults_counts_id": 551,
     "warnings": [
-        "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ",
-        "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ",
-        "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ",
-        "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX",
-        "DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX",
-        "DIM_WARNING_WATCHDOG_TIMEOUT",
-        "DIM_WARNING_TX_OVERFLOW",
-        "DIM_WARNING_RX_OVERFLOW"
+        "StackWaterMarkHighTask1HzWarning",
+        "StackWaterMarkHighTask100HzWarning",
+        "StackWaterMarkHighTask1kHzWarning",
+        "StackWaterMarkHighTaskCanRxWarning",
+        "StackWaterMarkHighTaskCanTxWarning",
+        "WatchdogTimeoutWarning",
+        "TxOverflowWarning",
+        "RxOverflowWarning"
     ],
     "faults": [
-        "DIM_FAULT_MISSING_HEARTBEAT"
+        "MissingHeartbeatFault"
     ]
 }

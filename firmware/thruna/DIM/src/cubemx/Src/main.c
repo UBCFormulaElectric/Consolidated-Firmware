@@ -257,13 +257,13 @@ void        RunTask1Hz(void const *argument);
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_DIM_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(DIM_WARNING_RX_OVERFLOW, true);
+    App_CanAlerts_DIM_RxOverflowWarning_Set(true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_DIM_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(DIM_WARNING_TX_OVERFLOW, true);
+    App_CanAlerts_DIM_TxOverflowWarning_Set(true);
 }
 /* USER CODE END 0 */
 

@@ -474,10 +474,10 @@ class JsonCanParser:
             )
 
         # Make alert signals
-        warnings_signals = self._node_alert_signals(warnings)
-        faults_signals = self._node_alert_signals(faults)
-        warnings_counts_signals = self._node_alert_count_signals(warnings)
-        faults_counts_signals = self._node_alert_count_signals(faults)
+        warnings_signals = self._node_alert_signals(node, warnings)
+        faults_signals = self._node_alert_signals(node, faults)
+        warnings_counts_signals = self._node_alert_count_signals(node, warnings)
+        faults_counts_signals = self._node_alert_count_signals(node, faults)
 
         # Make CAN msg for alerts
         alerts_msgs = [
@@ -525,13 +525,13 @@ class JsonCanParser:
 
         return alerts_msgs
 
-    def _node_alert_signals(self, alerts: List[str]) -> List[CanSignal]:
+    def _node_alert_signals(self, node: str, alerts: List[str]) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
         """
         return [
             CanSignal(
-                name=alert,
+                name=f"{node}_{alert}",
                 start_bit=i,
                 bits=1,
                 scale=1,
@@ -546,7 +546,7 @@ class JsonCanParser:
             for i, alert in enumerate(alerts)
         ]
 
-    def _node_alert_count_signals(self, alerts: List[str]) -> List[CanSignal]:
+    def _node_alert_count_signals(self, node: str, alerts: List[str]) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals.
         Each signal will represent the number of times the corresponding alert has been set.
@@ -554,7 +554,7 @@ class JsonCanParser:
         COUNT_BITS = 3
         return [
             CanSignal(
-                name=f"{alert}Count",
+                name=f"{node}_{alert}Count",
                 start_bit=i * COUNT_BITS,
                 bits=COUNT_BITS,
                 scale=1,
