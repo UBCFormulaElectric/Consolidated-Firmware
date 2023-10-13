@@ -1,52 +1,59 @@
-import { useState, useEffect, React } from 'react';
+import { useState, useEffect } from 'react'; 
 import { DownOutlined, SmileOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Dropdown, Space } from 'antd';
-import WebSocketComponent from './web_socket';
-
+import { Dropdown, Space, Button } from 'antd';
 
 const DropdownMenu = (props) => {
-    const [data, setData] = useState([]) // Format is list of signals 
-    const [items, setItems] = useState<MenuProps['items']>([]);
-    const noItems: [] = [{
-        key: "1",
-        label: "No Avaliable Signals"
-    }];
+    const [items, setItems] = useState([]);
+    // for intermediate states of selected signals
+    const [open, setOpen] = useState(false);
+    const [selectedSignals, setSelectedSignals] = useState([]);
 
-    // Request available signals through socket on render
-    props.socket.emit("available_signals", {"ids" : []});
+    const handleSignalClick = (signalName) => {
+        const newSelectedSignals = [...selectedSignals];
+        const index = newSelectedSignals.indexOf(signalName);
+        if (index === -1) {
+            newSelectedSignals.push(signalName);
+        } else {
+            newSelectedSignals.splice(index, 1);
+        }
+        setSelectedSignals(newSelectedSignals);
+        props.setSignal(newSelectedSignals);
+    };
 
     useEffect(() => {
-        if (data.length > 0) {
-            const res = []
-            for (let i = 0; i < data.length; i++) {
-                res.push({
-                    key: i.toString(),
-                    label: (
-                        data[i]
-                    )
-                })
-            }
-            setItems(res)
-        } else {
-            setItems(noItems)
-        }
-    }, [data]);
+        const updatedItems = props.avail.map((signalName, index) => ({
+            key: index.toString(),
+            label: (
+                <Space onClick={() => handleSignalClick(signalName)} >
+                    <input 
+                        style={{"cursor": "pointer"}}
+                        type="checkbox" 
+                        checked={props.signals.includes(signalName)}
+                    />
+                    <span> 
+                        {signalName}
+                    </span>
+                </Space>
+            ),
+        }));
+        setItems(updatedItems);
+    }, [props.avail, props.signals, selectedSignals]);
 
-    props.socket.getAvailableSignals
 
     return (
-        <div>
-            <WebSocketComponent socket={props.socket} setAvailableSignals={setData} />
-            <Dropdown menu={{ items }}>
-                <a onClick={(e) => e.preventDefault()}>
+            <Dropdown 
+                menu={{ items }} 
+                open={open}
+                
+            >
+                <Button onClick={() => setOpen(!open)} style={{"display":"block"}}>
                     <Space>
                         Signals
                         <DownOutlined />
                     </Space>
-                </a>
+                </Button>
             </Dropdown>
-        </div>);
+    );
 };
 
 export default DropdownMenu;

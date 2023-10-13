@@ -27,7 +27,7 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-        
+
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
@@ -79,9 +79,9 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-        
+
   build-firmware-thruna:
-    uses: UBCFormulaElectric/Consolidated-Firmware/.github/workflows/build.yml@master
+    uses: ./.github/workflows/build.yml # https://github.blog/changelog/2022-01-25-github-actions-reusable-workflows-can-be-referenced-locally/ God is good
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
@@ -116,7 +116,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DHANDLE_DEPS=OFF
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run tests
@@ -144,7 +144,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DHANDLE_DEPS=OFF
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -172,7 +172,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON
+          cmake -B $BUILD_DIR -DPLATFORM=x86 -DNO_VENV=ON -DHANDLE_DEPS=OFF
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests
