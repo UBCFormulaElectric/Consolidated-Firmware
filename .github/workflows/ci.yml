@@ -207,7 +207,7 @@ jobs:
         run: |
           git init
           git remote add origin "https://github.com/UBCFormulaElectric/Consolidated-Firmware"
-          git fetch 
+          git fetch "${{github.head_ref}}"
           git checkout --progress --force -b ${{github.head_ref}} refs/remote/${{github.head_ref}}
       - name: Download DBC from artifact
         uses: actions/download-artifact@v3
