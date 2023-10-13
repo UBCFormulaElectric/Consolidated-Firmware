@@ -8,6 +8,7 @@ const { Header, Content } = Layout;
 import styles from './page.module.css';
 import NavBar from './components/navbar.tsx';
 import Graph from './components/graph.tsx';
+import DropdownMenu from './components/dropdown_menu';
 
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
@@ -39,7 +40,11 @@ const Home = () => {
 
     let componentToRender;
     if (componentToDisplay === "visualize") {
-        componentToRender = (<Graph socket={socketInstance}/>);
+        componentToRender = (
+        <div>
+            <DropdownMenu socket={socketInstance} />
+            <Graph socket={socketInstance}/>
+        </div>);
     } else {
         componentToRender = (<p>Hello</p>);
     }

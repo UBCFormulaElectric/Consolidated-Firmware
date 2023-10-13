@@ -45,7 +45,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool brake_actuated = App_CanRx_FSM_Brake_IsActuated_Get();
     App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
 
-    if (num_cycles < IGNORE_HEARTBEAT_CYCLES)
+    if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
     {
         num_cycles++;
     }
