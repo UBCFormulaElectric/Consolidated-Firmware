@@ -14,7 +14,7 @@ def hello_world():
 @app.route('/get_mock_data')
 def get_mock_data():
     signals = signal_util.get_all_signals() 
-    signal_names = list(signals.keys())  # Assuming your data is a dictionary
+    signal_names = list(signals.keys()) 
     return signal_names  # This will return a JSON string of the data
 
 @socketio.on('connect')
@@ -43,8 +43,7 @@ def handle_signal_message(message):
 
     
 if __name__ == '__main__':
-    # Note: You should only call one of these, as they both start the server
-    # app.run(debug=True)  # This starts another server, which you probably don't want
+    # app.run(debug=True)  # This starts another server
 
     # Start the Socket.IO server
     socketio.run(app, debug=True)

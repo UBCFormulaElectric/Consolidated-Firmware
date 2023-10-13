@@ -78,7 +78,7 @@ const Graph = (props) => {
                             type: 'scatter',
                             mode: 'lines+markers',
                             name: signalName,
-                            line: { color: getRandomColor() } // Add this line
+                            line: { color: getRandomColor() }
                         };
         
                         newGraphName += signalName + " + ";
@@ -97,7 +97,7 @@ const Graph = (props) => {
     return (
         <div>
                         <WebSocketComponent socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
-            <DropdownMenu setSignal={setSignals} signals={avail} />
+            <DropdownMenu setSignal={setSignals} signals={signals} avail={avail} />
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={{ width: 650, height: 500, title: graphName }}

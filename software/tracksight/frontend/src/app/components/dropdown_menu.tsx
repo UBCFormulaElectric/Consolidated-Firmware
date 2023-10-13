@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'; // Removed extra React import
+import { useState, useEffect } from 'react'; 
 import { DownOutlined, SmileOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
 
 const DropdownMenu = (props) => {
     const [items, setItems] = useState([]);
     const [visible, setVisible] = useState(false);
+    // for intermediate states of selected signals
     const [selectedSignals, setSelectedSignals] = useState([]);
 
     const handleSignalClick = (signalName) => {
@@ -20,14 +21,14 @@ const DropdownMenu = (props) => {
     };
 
     useEffect(() => {
-        const updatedItems = props.signals.map((signalName, index) => ({
+        const updatedItems = props.avail.map((signalName, index) => ({
             key: index.toString(),
             label: (
                 <p>
                     <input 
                         type="checkbox" 
-                        checked={selectedSignals.includes(signalName)}
-                        onChange={() => handleSignalClick(signalName)} // Added onChange handler
+                        checked={props.signals.includes(signalName)}
+                        onChange={() => handleSignalClick(signalName)} 
                     />
                     <span onClick={() => handleSignalClick(signalName)}> 
                         {signalName}
@@ -36,7 +37,7 @@ const DropdownMenu = (props) => {
             ),
         }));
         setItems(updatedItems);
-    }, [props.signals, selectedSignals]);
+    }, [props.avail, props.signals, selectedSignals]);
 
     const handleVisibleChange = (flag) => {
         setVisible(flag);
