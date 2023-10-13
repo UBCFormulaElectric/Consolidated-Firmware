@@ -2,6 +2,8 @@ from flask import Flask, jsonify, Response
 from flask_socketio import SocketIO, emit
 from process import SignalUtil  # Assuming SignalUtil is in a module named 'process'
 
+from influx_handler import InfluxHandler as influx
+
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 signal_util = SignalUtil.SignalUtil()  # Initialize your SignalUtil class
@@ -24,7 +26,15 @@ def handle_connect():
 
 @socketio.on('data')
 def handle_message(message):
-    socketio.emit('message_from_server', f'Server received: {message}')
+    #socketio.emit('message_from_server', f'Server received: {message}')
+    bucket_names_and_ids = influx.get_bucket_names_and_ids()
+
+    bucket_data = bucket_names_and_ids[0]
+    measurements = influx.get_measurements(bucket_data["name"])
+
+    measurement = measurements[0]
+    fields = influx.get_fields(bucket_data["name"], measurement)
+    print(fields)
 
 @socketio.on('available_signals')
 def handle_available_signals(message):
