@@ -15,7 +15,7 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_Heartbeat_Update(false);
     }
-    
+
     if (App_CanRx_FSM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
@@ -54,16 +54,16 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
     App_CanAlerts_DCM_MissingHeartbeatFault_Set(is_missing_hb);
 
-    const bool left_inverter_fault =  App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+    const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     const bool right_inverter_fault = App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     App_CanAlerts_DCM_LeftInverterFault_Set(left_inverter_fault);
     App_CanAlerts_DCM_RightInverterFault_Set(right_inverter_fault);
-    
-    const bool bms_fault = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD);
-    const bool dcm_fault = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
-    const bool fsm_fault = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
-    const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
-    const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+
+    const bool bms_fault           = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD);
+    const bool dcm_fault           = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault           = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault           = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault           = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
     const bool any_board_has_fault = bms_fault || dcm_fault || fsm_fault || pdm_fault || dim_fault;
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.

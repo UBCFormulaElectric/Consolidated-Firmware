@@ -135,7 +135,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
-    void TestFaultBlocksDrive(std::function<void(void)> set_fault, std::function<void(void)> clear_fault) 
+    void TestFaultBlocksDrive(std::function<void(void)> set_fault, std::function<void(void)> clear_fault)
     {
         SetInitialState(App_GetDriveState());
 
@@ -224,7 +224,7 @@ TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(1.0f);
     App_CanTx_DCM_LeftInverterEnable_Set(true);
     App_CanTx_DCM_RightInverterEnable_Set(true);
-    
+
     EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
     EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
     EXPECT_FLOAT_EQ(true, App_CanTx_DCM_LeftInverterEnable_Get());
@@ -305,72 +305,48 @@ TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pre
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_left_inverter_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
-    };
-    auto clear_fault = []() {
-        App_CanRx_INVR_VsmState_Update(INVERTER_VSM_START_STATE);
-    };
+    auto set_fault   = []() { App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
+    auto clear_fault = []() { App_CanRx_INVR_VsmState_Update(INVERTER_VSM_START_STATE); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_right_inverter_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
-    };
-    auto clear_fault = []() {
-        App_CanRx_INVR_VsmState_Update(INVERTER_VSM_START_STATE);
-    };
+    auto set_fault   = []() { App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
+    auto clear_fault = []() { App_CanRx_INVR_VsmState_Update(INVERTER_VSM_START_STATE); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_bms_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_BMS_CellOvervoltageFault_Update(true);
-    };
-    auto clear_fault = []() {
-        App_CanRx_BMS_CellOvervoltageFault_Update(false);
-    };
+    auto set_fault   = []() { App_CanRx_BMS_CellOvervoltageFault_Update(true); };
+    auto clear_fault = []() { App_CanRx_BMS_CellOvervoltageFault_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_fsm_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_FSM_FlowMeterUnderflowFault_Update(true);
-    };
-    auto clear_fault = []() {
-        App_CanRx_FSM_FlowMeterUnderflowFault_Update(false);
-    };
+    auto set_fault   = []() { App_CanRx_FSM_FlowMeterUnderflowFault_Update(true); };
+    auto clear_fault = []() { App_CanRx_FSM_FlowMeterUnderflowFault_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_pdm_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_PDM_DummyFault_Update(true);
-    };
-    auto clear_fault = []() {
-        App_CanRx_PDM_DummyFault_Update(false);
-    };
+    auto set_fault   = []() { App_CanRx_PDM_DummyFault_Update(true); };
+    auto clear_fault = []() { App_CanRx_PDM_DummyFault_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_dim_fault)
 {
-    auto set_fault = []() {
-        App_CanRx_DIM_MissingHeartbeatFault_Update(true);
-    };
-    auto clear_fault = []() {
-        App_CanRx_DIM_MissingHeartbeatFault_Update(false);
-    };
+    auto set_fault   = []() { App_CanRx_DIM_MissingHeartbeatFault_Update(true); };
+    auto clear_fault = []() { App_CanRx_DIM_MissingHeartbeatFault_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
