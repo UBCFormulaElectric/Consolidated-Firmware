@@ -99,7 +99,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
 
-    if (false)
+    if (missing_hb)
     {
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, SSEG_HB_NOT_RECEIVED_ERR);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, SSEG_HB_NOT_RECEIVED_ERR);

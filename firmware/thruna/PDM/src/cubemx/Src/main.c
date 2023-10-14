@@ -45,6 +45,7 @@
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/app_initState.h"
+#include "App_PowerManager.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_globals.h"
 /* USER CODE END Includes */
@@ -301,14 +302,7 @@ int main(void)
     state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
     globals->heartbeat_monitor = heartbeat_monitor;
 
-    io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
+    App_PowerManager_Init();
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
