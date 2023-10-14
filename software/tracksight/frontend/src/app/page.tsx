@@ -52,6 +52,10 @@ const Home = () => {
         };
     }, []);
 
+    const handleHello = () => {
+        socketInstance.emit("data", "buh");
+    }
+
     let componentToRender;
     if (componentToDisplay === "visualize") {
         componentToRender = (
@@ -65,6 +69,7 @@ const Home = () => {
      <Graph key={graphId} id={graphId} socket={socketInstance} onDelete={() => deleteGraph(graphId)}/>
 ))}
             </div>
+            <button onClick={handleHello}>HELLO</button>
         </div>);
     } else {
         componentToRender = (<Dashboard></Dashboard>);
