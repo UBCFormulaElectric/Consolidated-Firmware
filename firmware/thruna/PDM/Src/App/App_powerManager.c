@@ -6,10 +6,10 @@ typedef struct
 } PowerStateConfig;
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
-    [POWER_MANAGER_CONTRACTOR_OPEN] = {
+    [POWER_MANAGER_CONTRACTOR_SHUTDOWN] = {
         .efuses = {
-            [EFUSE_CHANNEL_AIR] = false,
-            [EFUSE_CHANNEL_LVPWR] = false,
+            [EFUSE_CHANNEL_AIR] = true,
+            [EFUSE_CHANNEL_LVPWR] = true,
             [EFUSE_CHANNEL_EMETER] = false,
             [EFUSE_CHANNEL_AUX] = false,
             [EFUSE_CHANNEL_DRS] = false,
@@ -18,13 +18,13 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
             [EFUSE_CHANNEL_DI_RHS] = false,
         }
     },
-    [POWER_MANAGER_CONTRACTOR_CLOSED] = {
+    [POWER_MANAGER_CONTRACTOR_DRIVE] = {
         .efuses = {
             [EFUSE_CHANNEL_AIR] = true,
             [EFUSE_CHANNEL_LVPWR] = true,
-            [EFUSE_CHANNEL_EMETER] = true,
-            [EFUSE_CHANNEL_AUX] = true,
-            [EFUSE_CHANNEL_DRS] = true,
+            [EFUSE_CHANNEL_EMETER] = false,
+            [EFUSE_CHANNEL_AUX] = false,
+            [EFUSE_CHANNEL_DRS] = false,
             [EFUSE_CHANNEL_FAN] = true,
             [EFUSE_CHANNEL_DI_LHS] = true,
             [EFUSE_CHANNEL_DI_RHS] = true,
@@ -32,12 +32,12 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     }
 };
 
-void PowerManager_Init()
+void App_PowerManager_Init()
 {
-    PowerManager_SetState(POWER_MANAGER_CONTRACTOR_CLOSED);
+    App_PowerManager_SetState(POWER_MANAGER_CONTRACTOR_DRIVE);
 }
 
-void PowerManager_SetState(PowerManagerState state)
+void App_PowerManager_SetState(PowerManagerState state)
 {
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {

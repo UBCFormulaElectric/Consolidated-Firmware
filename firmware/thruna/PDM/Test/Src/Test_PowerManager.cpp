@@ -14,9 +14,9 @@ class PowerManagerTests : public ::testing::Test
     void SetUp() override { RESET_FAKE(Io_Efuse_SetChannel); }
 };
 
-TEST_F(PowerManagerTests, PowerManager_Init)
+TEST_F(PowerManagerTests, App_PowerManager_Init)
 {
-    PowerManager_Init();
+    App_PowerManager_Init();
     Io_Efuse_IsChannelEnabled_fake.return_val = true;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
@@ -25,9 +25,9 @@ TEST_F(PowerManagerTests, PowerManager_Init)
     }
 }
 
-TEST_F(PowerManagerTests, PowerManager_SetState_ContractorOpen)
+TEST_F(PowerManagerTests, App_PowerManager_SetState_Shutdown)
 {
-    PowerManager_SetState(POWER_MANAGER_CONTRACTOR_OPEN);
+    App_PowerManager_SetState(POWER_MANAGER_CONTRACTOR_SHUTDOWN);
     Io_Efuse_IsChannelEnabled_fake.return_val = false;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
@@ -36,9 +36,9 @@ TEST_F(PowerManagerTests, PowerManager_SetState_ContractorOpen)
     }
 }
 
-TEST_F(PowerManagerTests, PowerManager_SetState_ContractorClosed)
+TEST_F(PowerManagerTests, App_PowerManager_SetState_Drive)
 {
-    PowerManager_SetState(POWER_MANAGER_CONTRACTOR_CLOSED);
+    App_PowerManager_SetState(POWER_MANAGER_CONTRACTOR_DRIVE);
     Io_Efuse_IsChannelEnabled_fake.return_val = true;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
