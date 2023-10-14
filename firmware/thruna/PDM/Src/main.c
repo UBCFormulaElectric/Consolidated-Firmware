@@ -303,10 +303,6 @@ int main(void)
     osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
-    // broadcast commit info
-    App_CanTx_PDM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_PDM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
-
     /* USER CODE BEGIN RTOS_THREADS */
     /* USER CODE END RTOS_THREADS */
 

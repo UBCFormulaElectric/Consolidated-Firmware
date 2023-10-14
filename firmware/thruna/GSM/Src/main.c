@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "App_CommitInfo.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -164,10 +164,6 @@ int main(void)
     /* definition and creation of TaskCanTx */
     osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 512, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
-
-    // broadcast commit info
-    App_CanTx_GSM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_GSM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
