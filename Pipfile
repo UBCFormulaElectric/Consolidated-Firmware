@@ -11,6 +11,8 @@ pyocd = "*"
 cantools = "*"
 pyclibrary = "*"
 jinja2 = "*"
+jinja2 = "*"
+gitpython = "*"
 
 [dev-packages]
 
