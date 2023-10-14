@@ -33,25 +33,20 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "io_stackWaterMark.h"
 #include "io_watchdogConfig.h"
-#include "Io_VoltageSense.h"
-#include "Io_CurrentSense.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RgbLedSequence.h"
-#include "Io_LT3650.h"
-#include "Io_LTC3786.h"
-#include "Io_Adc.h"
-#include "Io_Efuse.h"
-#include "Io_VoltageSense.h"
+#include "io_lowVoltageBattery.h"
+#include "io_efuse.h"
+#include "hw_adc.h"
 
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_PdmWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
-#include "states/App_InitState.h"
-#include "configs/App_CurrentLimits.h"
-#include "configs/App_VoltageLimits.h"
+#include "states/app_initState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_globals.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,22 +92,114 @@ osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
 /* USER CODE BEGIN PV */
-struct PdmWorld *         world;
-struct StateMachine *     state_machine;
-struct InRangeCheck *     vbat_voltage_in_range_check;
-struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-struct InRangeCheck *     aux1_current_in_range_check;
-struct InRangeCheck *     aux2_current_in_range_check;
-struct InRangeCheck *     left_inverter_current_in_range_check;
-struct InRangeCheck *     right_inverter_current_in_range_check;
-struct InRangeCheck *     energy_meter_current_in_range_check;
-struct InRangeCheck *     can_current_in_range_check;
-struct InRangeCheck *     air_shutdown_current_in_range_check;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct LowVoltageBattery *low_voltage_battery;
-struct Clock *            clock;
+struct StateMachine *    state_machine;
+struct HeartbeatMonitor *heartbeat_monitor;
+
+static const LvBatteryConfig lv_battery_config = {
+    .lt3650_charger_fault_gpio = {
+        .port = N_CHRG_FAULT_GPIO_Port,
+        .pin = N_CHRG_FAULT_Pin
+    },
+    .ltc3786_boost_fault_gpio = {
+        .port = PGOOD_GPIO_Port,
+        .pin = PGOOD_Pin,
+    },
+    .vbat_vsense_adc_channel = ADC_CHANNEL_10,
+    .boost_vsense_adc_channel = ADC_CHANNEL_12,
+    .acc_vsense_adc_channel = ADC_CHANNEL_11
+};
+
+static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
+    [EFUSE_CHANNEL_AIR] = {
+        .enable_gpio = {
+            .port = EN_AIR_GPIO_Port,
+            .pin = EN_AIR_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_AIR_LVPWR_GPIO_Port,
+            .pin = FR_STBY_AIR_LVPWR_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_9,
+    },
+    [EFUSE_CHANNEL_LVPWR] = {
+        .enable_gpio = {
+            .port = EN_LVPWR_GPIO_Port,
+            .pin = EN_LVPWR_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_AIR_LVPWR_GPIO_Port,
+            .pin = FR_STBY_AIR_LVPWR_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_8,
+    },
+    [EFUSE_CHANNEL_EMETER] = {
+        .enable_gpio = {
+            .port = EN_EMETER_GPIO_Port,
+            .pin = EN_EMETER_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_EMETER_AUX_GPIO_Port,
+            .pin = FR_STBY_EMETER_AUX_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_15,
+    },
+    [EFUSE_CHANNEL_AUX] = {
+        .enable_gpio = {
+            .port = EN_AUX_GPIO_Port,
+            .pin = EN_AUX_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_EMETER_AUX_GPIO_Port,
+            .pin = FR_STBY_EMETER_AUX_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_14,
+    },
+    [EFUSE_CHANNEL_DRS] = {
+        .enable_gpio = {
+            .port = EN_DRS_GPIO_Port,
+            .pin = EN_DRS_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_DRS_FAN_GPIO_Port,
+            .pin = FR_STBY_DRS_FAN_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_7,
+    },
+    [EFUSE_CHANNEL_FAN] = {
+        .enable_gpio = {
+            .port = EN_FAN_GPIO_Port,
+            .pin = EN_FAN_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_DRS_FAN_GPIO_Port,
+            .pin = FR_STBY_DRS_FAN_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_6,
+    },
+    [EFUSE_CHANNEL_DI_LHS] = {
+        .enable_gpio = {
+            .port = EN_DI_LHS_GPIO_Port,
+            .pin = EN_DI_LHS_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_DIS_GPIO_Port,
+            .pin = FR_STBY_DIS_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_5,
+    },
+    [EFUSE_CHANNEL_DI_RHS] = {
+        .enable_gpio = {
+            .port = EN_DI_RHS_GPIO_Port,
+            .pin = EN_DI_RHS_Pin
+        },
+        .stby_reset_gpio = {
+            .port = FR_STBY_DIS_GPIO_Port,
+            .pin = FR_STBY_DIS_Pin,
+        },
+        .cur_sns_adc_channel = ADC1_CHANNEL_4,
+    }
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -194,7 +281,7 @@ int main(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     Io_SharedHardFaultHandler_Init();
@@ -202,66 +289,26 @@ int main(void)
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
+    io_lowVoltageBattery_init(&lv_battery_config);
+    io_efuse_init(efuse_configs);
+
     App_CanTx_Init();
     App_CanRx_Init();
-
-    vbat_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
-
-    _24v_aux_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_GetBoostVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
-
-    _24v_acc_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_GetAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
-
-    aux1_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
-
-    aux2_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
-
-    left_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT);
-
-    right_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT);
-
-    energy_meter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT);
-
-    can_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
+    state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
+    globals->heartbeat_monitor = heartbeat_monitor;
 
-    low_voltage_battery = App_LowVoltageBattery_Create(
-        Io_LT3650_HasFault, Io_LTC3786_HasFault, Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_GetAccVoltage,
-        Io_VoltageSense_GetBoostVoltage);
-    clock = App_SharedClock_Create();
-
-    world = App_PdmWorld_Create(
-        vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
-        aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
-        right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
-        air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
-
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_AIR, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_LVPWR, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_EMETER, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_AUX, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_DRS, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_FAN, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_LHS, true);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_RHS, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -798,7 +845,6 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -833,7 +879,7 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        io_stackWaterMark_Check();
+        io_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();

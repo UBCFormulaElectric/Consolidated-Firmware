@@ -1,5 +1,4 @@
 #pragma once
 
-#include "App_PdmWorld.h"
-
+struct PdmWorld;
 #define World PdmWorld

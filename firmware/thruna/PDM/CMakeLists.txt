@@ -4,13 +4,13 @@ set(ARM_BINARY_APP_INCLUDE_DIRS
 )
 file(GLOB ARM_BINARY_IO_SRCS
     "src/io/*.c"
-    "src/dev/*.c"
+    "src/hw/*.c"
     "src/cubemx/Src/*.c"
     "src/cubemx/startup/*.s"
 )
 set(ARM_BINARY_IO_INCLUDE_DIRS
     "src/io"
-    "src/dev"
+    "src/hw"
     "src/cubemx/Inc"
 )
 
@@ -63,12 +63,13 @@ set(SELECTED_SHARED_SRCS
     ${ALL_SHARED_HW_SRCS}
 )
 
-# if("${PLATFORM}" STREQUAL "x86")
-# create_fake_library(
-# "PDM_fakes"
-# "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
-# )
-# endif()
+if("${PLATFORM}" STREQUAL "x86")
+    create_fake_library(
+        "PDM_fakes"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+    )
+endif()
 
 create_arm_binary_or_tests_for_board(
     "PDM"

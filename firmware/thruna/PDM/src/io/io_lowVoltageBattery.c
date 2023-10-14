@@ -1,4 +1,4 @@
-#include "io_lvBattery.h"
+#include "io_lowVoltageBattery.h"
 
 // Percent error used to compensate for resistor errors. Determined from
 // testing with the HW
@@ -13,37 +13,37 @@
 
 static const LvBatteryConfig *config;
 
-void io_lvBattery_init(const LvBatteryConfig *lv_batt_config)
+void io_lowVoltageBattery_init(const LvBatteryConfig *lv_batt_config)
 {
     config = lv_batt_config;
 }
 
-bool io_lvBattery_hasChargeFault(void)
+bool io_lowVoltageBattery_hasChargeFault(void)
 {
     // FAULT pin on LT3650 2-cell Li-Ion battery charger is pulled low when the chip detects a fault.
     return !hw_gpio_readPin(&config->lt3650_charger_fault_gpio);
 }
 
-bool io_lvBattery_hasBoostControllerFault(void)
+bool io_lowVoltageBattery_hasBoostControllerFault(void)
 {
     // PGOOD pin on LTC3786 boost converter is pulled low when the output voltage is more than ±10 % away from the
     // regulated output voltage.
     return !hw_gpio_readPin(&config->ltc3786_boost_fault_gpio);
 }
 
-float io_lvBattery_getBatVoltage(void)
+float io_lowVoltageBattery_getBatVoltage(void)
 {
     float adc_reading = hw_adc_getVoltage(config->vbat_vsense_adc_channel);
     return adc_reading * VBAT_R_ERROR_COMPENSATION / VBAT_VOLTAGE_DIV;
 }
 
-float io_lvBattery_getBoostVoltage(void)
+float io_lowVoltageBattery_getBoostVoltage(void)
 {
     float adc_reading = hw_adc_getVoltage(config->boost_vsense_adc_channel);
     return adc_reading * VBOOST_R_ERROR_COMPENSATION / VBOOST_VOLTAGE_DIV;
 }
 
-float io_lvBattery_getAccVoltage(void)
+float io_lowVoltageBattery_getAccVoltage(void)
 {
     float adc_reading = hw_adc_getVoltage(config->acc_vsense_adc_channel);
     return adc_reading * VACC_R_ERROR_COMPENSATION / VACC_VOLTAGE_DIV;
