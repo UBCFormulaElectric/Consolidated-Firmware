@@ -10,37 +10,26 @@ signal_util = SignalUtil.SignalUtil()  # Initialize your SignalUtil class
 def hello_world():
     return "Wireless 2.0"
 
-# test route to get all signals from the SignalUtil class
-@app.route('/get_mock_data')
-def get_mock_data():
-    signals = signal_util.get_all_signals() 
-    signal_names = list(signals.keys()) 
-    return signal_names  # This will return a JSON string of the data
-
 @socketio.on('connect')
 def handle_connect():
     print("Client Connected")
     emit('message', 'You are connected to the server connect')
 
-@socketio.on('data')
-def handle_message(message):
-    socketio.emit('message_from_server', f'Server received: {message}')
-
-@socketio.on('available_signals')
-def handle_available_signals(message):
+@app.route('/signal', methods=['GET'])
+def return_all_available_signals():
     signals = signal_util.get_all_signals() 
     signal_names = list(signals.keys())  # returns list of keys 
-    socketio.emit('available_signals_response', signal_names)  # Emit the signal names to the client
 
-@socketio.on('signal')
-def handle_signal_message(message):
-    ids = message["ids"]
-    signals = {}
-    for id_ in ids:
-        signal_data = signal_util.get_signal(id_).to_dict()
-        signals[id_] = signal_data
-    socketio.emit("signal_response", signals)
+    response = jsonify(signal_names)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
+@app.route('/signal/<string:name>', methods=['GET'])
+def return_signal(name):
+    signal_data = signal_util.get_signal(name).to_dict()
+    response = jsonify(signal_data)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
     
 if __name__ == '__main__':
     # app.run(debug=True)  # This starts another server
