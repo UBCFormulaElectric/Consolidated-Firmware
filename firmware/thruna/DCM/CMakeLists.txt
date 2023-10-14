@@ -51,6 +51,19 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
 )
 
+# INCLUDES and SOURCES from shared
+# Define the shared code that you want to use in this project
+set(SELECTED_SHARED_SRCS
+    ${ALL_SHARED_APP_SRCS}
+    ${ALL_SHARED_IO_SRCS}
+    ${ALL_SHARED_HW_SRCS}
+)
+set(SELECTED_SHARED_INCLUDE_DIRS
+    ${ALL_SHARED_APP_INCLUDE_DIRS}
+    ${ALL_SHARED_IO_INCLUDE_DIRS}
+    ${ALL_SHARED_HW_INCLUDE_DIRS}
+)
+
 create_arm_binary_or_tests_for_board(
     "DCM"
     "${IOC_FILE}"
@@ -61,6 +74,7 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
+    "${SELECTED_SHARED_SRCS}"
     "${GOOGLETEST_TEST_SRCS}"
     "${GOOGLETEST_TEST_INCLUDE_DIRS}"
 )

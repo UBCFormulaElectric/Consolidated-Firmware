@@ -36,3 +36,19 @@ a {
     color-scheme: light;
   }
 }
+
+.layout {
+  margin-top: 0.5rem;
+  padding: 2%;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 20px;
+}
+
+.dropdown {
+  width: 100px;
+
+}
