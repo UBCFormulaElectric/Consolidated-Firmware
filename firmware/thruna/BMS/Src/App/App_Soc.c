@@ -90,7 +90,7 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current)
     times_run++;
     UNUSED(times_run);
 
-    float elapsed_time_s = App_Timer_GetElapsedTime(&soc_stats->soc_timer) * MS_TO_S;
+    float elapsed_time_s = (float)(App_Timer_GetElapsedTime(&soc_stats->soc_timer) * MS_TO_S);
     App_Timer_Restart(&soc_stats->soc_timer);
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
