@@ -80,7 +80,7 @@ uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats)
     return soc_stats->soc_address;
 }
 
-void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s)
+void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current)
 {
     // NOTE current sign is relative to current into the battery
     double *charge_c     = &soc_stats->charge_c;
@@ -95,8 +95,6 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, floa
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
     App_SharedProcessing_TrapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
-
-    UNUSED(time_step_s);
 }
 
 float App_SocStats_GetMinSoc(struct SocStats *soc_stats)

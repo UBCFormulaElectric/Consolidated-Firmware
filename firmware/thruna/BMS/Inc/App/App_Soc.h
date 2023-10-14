@@ -77,9 +77,8 @@ uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
  * Update the state of charge of all series elements using coulomb counting.
  * @param soc_stats The charge stats of the pack
  * @param current The current from the cell to be updated (- is out of the cell, + is into the cell)
- * @param time_step_s The time elapsed since the last update in seconds.
  */
-void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s);
+void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current);
 
 /**
  * return percent SOC of the SE with the lowest SOC
