@@ -50,9 +50,7 @@ if __name__ == "__main__":
 
     print("commit_info_gen: Failed to get commit data, returning header with dummy data.")
 
-
   # short hash is the first 7 chars of the long hash
-
   with open(args.output_header, "w") as file:
     file.write(template.render(data))
     
