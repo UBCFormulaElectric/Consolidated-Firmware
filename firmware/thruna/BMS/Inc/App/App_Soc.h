@@ -2,6 +2,7 @@
 
 #include "App_SharedExitCode.h"
 #include "App_Accumulator.h"
+#include "App_Timer.h"
 
 struct SocStats
 {
@@ -14,6 +15,8 @@ struct SocStats
 
     // Charge loss at time t-1
     float prev_current_A;
+
+    TimerChannel soc_timer;
 };
 
 /**

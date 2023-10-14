@@ -196,5 +196,6 @@ void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
     struct BmsWorld *      world     = App_SharedStateMachine_GetWorld(state_machine);
     struct TractiveSystem *ts        = App_BmsWorld_GetTractiveSystem(world);
     struct SocStats *      soc_stats = App_BmsWorld_GetSocStats(world);
+
     App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts), (float)TASK_1KHZ_PERIOD_S);
 }

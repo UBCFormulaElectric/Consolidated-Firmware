@@ -8,6 +8,8 @@
 
 #define STATE_OF_HEALTH (1.0f)
 #define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
+#define MS_TO_S (0.001f)
+#define SOC_TIMER_DURATION (100U)
 
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result)
 {
@@ -60,8 +62,10 @@ struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_ad
     }
     else
     {
-        soc_stats->charge_c = initial_charge_value;
+        soc_stats->charge_c = (double)initial_charge_value;
     }
+
+    App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
 
     return soc_stats;
 }
@@ -78,15 +82,21 @@ uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats)
 
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current, float time_step_s)
 {
-    static int callcount = 0;
     // NOTE current sign is relative to current into the battery
     double *charge_c     = &soc_stats->charge_c;
     float * prev_current = &soc_stats->prev_current_A;
 
+    static uint32_t times_run = 0;
+    times_run++;
+    UNUSED(times_run);
+
+    float elapsed_time_s = App_Timer_GetElapsedTime(&soc_stats->soc_timer) * MS_TO_S;
+    App_Timer_Restart(&soc_stats->soc_timer);
+
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
-    App_SharedProcessing_TrapezoidalRule(charge_c, prev_current, current, time_step_s);
-    callcount++;
-    UNUSED(callcount);
+    App_SharedProcessing_TrapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
+
+    UNUSED(time_step_s);
 }
 
 float App_SocStats_GetMinSoc(struct SocStats *soc_stats)

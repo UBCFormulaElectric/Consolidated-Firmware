@@ -286,6 +286,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
         struct Clock *   clock = App_BmsWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
     void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
@@ -962,13 +963,31 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
 TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
 {
-    saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
+    saved_soc                              = SERIES_ELEMENT_FULL_CHARGE_C;
+    is_air_negative_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = 0.0f;
+    get_high_res_current_fake.return_val   = 0.0f;
+    soc_stats->prev_current_A              = 0.0f;
+
+    // Allow Timer time to initialize before drawing current
+    SetInitialState(App_GetDriveState());
+    LetTimePass(state_machine, 10);
+
+    /* Simulate drawing current.
+     * Constant current over 30s span for 1% drop in SOC (0.01)
+     * 0.01 = I * dt / (SERIES_ELEMENT_FULL_CHARGE_C)
+     *
+     * dt = 30s
+     *
+     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells
+     *
+     * I = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30 = 21.24A
+     */
 
     is_air_negative_closed_fake.return_val = true;
     get_low_res_current_fake.return_val    = -21.24f;
     get_high_res_current_fake.return_val   = -21.24f;
-    SetInitialState(App_GetDriveState());
-    soc_stats->prev_current_A = -21.24f;
+    soc_stats->prev_current_A              = -21.24f;
 
     LetTimePass(state_machine, 30000);
 
