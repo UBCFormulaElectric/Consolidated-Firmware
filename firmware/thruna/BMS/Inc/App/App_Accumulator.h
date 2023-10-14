@@ -18,6 +18,7 @@ typedef enum
     ACCUMULATOR_NUM_SEGMENTS,
 } AccumulatorSegment;
 
+#define ACCUMULATOR_NUM_CELLS_PER_SEGMENT (3U)
 #define ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT (16U)
 #define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
@@ -25,6 +26,7 @@ typedef enum
 // C_RATE_TO_AMP conversion value is obtained by using the 5.9Ahrs
 // that each cell is rated for and multiplying by three to get
 // our 17.7amps = 1C for conversion
+// For internal cell resistance see the cell-segment datasheet on google drive Model No.:SLPB9742126
 #define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
@@ -32,6 +34,7 @@ typedef enum
 #define MAX_CELL_VOLTAGE (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
+#define INTERNAL_CELL_RESISTANCE (0.0025f) // Ohms
 
 // Cell Balancing Discharge Parameters
 #define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV
@@ -163,6 +166,14 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
+
+/**
+ * Check the status of Accumulator warnings, sends warning over CAN bus
+ * @param accumulator The accumulator to check warnings
+ * @param ts TractiveSystem used to check ts_current to check for blown fuse
+ * @return True if warnings present, false otherwise
+ */
+bool App_Accumulator_CheckWarnings(struct Accumulator *const accumulator, struct TractiveSystem *const ts);
 
 /**
  * Check the status of Accumulator faults, sends warning over CAN bus
