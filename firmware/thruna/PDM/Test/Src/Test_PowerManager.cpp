@@ -11,7 +11,8 @@ FAKE_VALUE_FUNC(bool, Io_Efuse_IsChannelEnabled, EfuseChannel);
 class PowerManagerTests : public ::testing::Test
 {
   protected:
-    void SetUp() override {
+    void SetUp() override 
+    { 
         RESET_FAKE(Io_Efuse_SetChannel); 
     }
 };
