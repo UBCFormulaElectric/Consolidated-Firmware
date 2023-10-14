@@ -1,4 +1,5 @@
 import os.path
+from typing import Tuple
 from os import path, listdir
 
 
@@ -12,7 +13,7 @@ def path_is_folder_and_has_ioc_file(pathName: str):
     return has_ioc
 
 
-def get_board_names() -> tuple[str]:
+def get_board_names() -> Tuple[str]:
     """
     Return a tuple of board names supported in our current build, whose STM code can be generated (only usage)
     """
