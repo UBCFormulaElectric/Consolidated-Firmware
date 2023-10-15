@@ -8,11 +8,10 @@ import git
 # data["hash"]: 7 char string with short commit hash
 # data["clean"]: "0" if dirty, "1" is clean
 def validateData(data):
-  return (
-    len(data["hash"]) == 7 # check length of hash
-    and all([c in string.hexdigits for c in data["hash"]])  # check hash is valid hexadecimal
-    and (data["clean"] == "0" or data["clean"] == "1") # check clean bit
-  )
+  validLength = len(data["hash"]) == 7
+  validHex = all([c in string.hexdigits for c in data["hash"]])
+  validClean = data["clean"] == "0" or data["clean"] == "1"
+  return validLength and validHex and validClean
 
 if __name__ == "__main__":
 
