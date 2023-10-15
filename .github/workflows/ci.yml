@@ -41,7 +41,7 @@ jobs:
           - board: DIM
             ioc_dir: firmware/thruna/DIM/src/cubemx
           - board: FSM
-            ioc_dir: firmware/thruna/FSM
+            ioc_dir: firmware/thruna/FSM/src/cubemx
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
           - board: DCM
