@@ -66,7 +66,7 @@ endif()
 # INCLUDES and SOURCES from shared
 # Define the shared code that you want to use in this project
 set(SELECTED_SHARED_SRCS
-    "${SHARED_DIR}/src/hw/hw_sd.c"
+    "${SHARED_DIR}/src/hw/hw_sdio_sd.c"
     # ""
 )
 

@@ -55,6 +55,8 @@ set(SELECTED_SHARED_SRCS
     ${ALL_SHARED_HW_SRCS}
 )
 
+list(REMOVE_ITEM SELECTED_SHARED_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
+
 create_arm_binary_or_tests_for_board(
     "BMS"
     "${IOC_FILE}"
