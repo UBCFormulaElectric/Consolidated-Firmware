@@ -8,7 +8,7 @@ Invoke `src/generate_commit_info.py`, and use the `--output_header` option to se
 
 For example,
 ```sh
-python src/generate_commit_info.py --output_header test.h 
+python3 src/generate_commit_info.py --output-header example_header.h 
 ```
 
 ## Generated File
