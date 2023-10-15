@@ -28,7 +28,7 @@ function(commit_info_code_generation
 
     add_custom_command(
       OUTPUT ${HEADER_OUTPUT_PATH}
-      COMMAND python3
+      COMMAND ${PYTHON_COMMAND}
       ${GENERATE_COMMIT_INFO_SCRIPT_PY}
       --output-header 
       ${HEADER_OUTPUT_PATH}
