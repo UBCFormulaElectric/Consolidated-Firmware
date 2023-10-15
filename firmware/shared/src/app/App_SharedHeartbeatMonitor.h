@@ -22,4 +22,6 @@ void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor *heartbeat_monit
 
 bool App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *heartbeat_monitor);
 
+enum HeartbeatOneHot App_SharedHeartbeatMonitor_GetCheckedIn(struct HeartbeatMonitor *const heartbeat_monitor);
+
 void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor *heartbeat_monitor, enum HeartbeatOneHot heartbeat);

@@ -23,7 +23,7 @@
         "AppsDisagreementWarning"
     ],
     "faults": [
-        "MissingHeartbeatFault",
+        "MissingBmsHeartbeatFault",
         "StateMachineFault",
         "PappsOCSCFault",
         "SappsOCSCFault",

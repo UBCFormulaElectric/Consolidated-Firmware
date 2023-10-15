@@ -87,7 +87,11 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
-    App_CanAlerts_DIM_MissingHeartbeatFault_Set(missing_hb);
+    if(missing_hb) 
+    {
+        const enum HeartbeatOneHot checked_in = App_SharedHeartbeatMonitor_GetCheckedIn(globals->heartbeat_monitor);
+        App_CanAlerts_DIM_MissingBmsHeartbeatFault_Set(~checked_in & BMS_HEARTBEAT_ONE_HOT);
+    }
 
     const float avg_rpm =
         ((float)abs(App_CanRx_INVL_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;

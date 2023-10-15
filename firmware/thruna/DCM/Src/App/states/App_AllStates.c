@@ -27,6 +27,20 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DIM_HEARTBEAT_ONE_HOT);
         App_CanRx_DIM_Heartbeat_Update(false);
     }
+
+    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
+    if(missing_hb) 
+    {
+        const enum HeartbeatOneHot checked_in = App_SharedHeartbeatMonitor_GetCheckedIn(hb_monitor);
+        App_CanAlerts_DCM_MissingBmsHeartbeatFault_Set(~checked_in & BMS_HEARTBEAT_ONE_HOT);
+        App_CanAlerts_DCM_MissingFsmHeartbeatFault_Set(~checked_in & FSM_HEARTBEAT_ONE_HOT);
+        App_CanAlerts_DCM_MissingDimHeartbeatFault_Set(~checked_in & DIM_HEARTBEAT_ONE_HOT);
+    }
+
+    if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
+    {
+        num_cycles++;
+    }
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -45,14 +59,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const bool brake_actuated = App_CanRx_FSM_BrakeActuated_Get();
     App_BrakeLight_SetLightStatus(brake_light, brake_actuated);
-
-    if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
-    {
-        num_cycles++;
-    }
-
-    const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
-    App_CanAlerts_DCM_MissingHeartbeatFault_Set(is_missing_hb);
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     const bool right_inverter_fault = App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;

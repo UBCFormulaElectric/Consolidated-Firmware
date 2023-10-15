@@ -22,12 +22,13 @@ void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
     App_CanTx_FSM_PappsMappedPedalPercentage_Set(0);
     App_CanTx_FSM_SappsMappedPedalPercentage_Set(0);
 
-    const bool hb_ok = !App_CanAlerts_FSM_MissingHeartbeatFault_Get();
+    const bool hb_ok = !App_CanAlerts_FSM_MissingBmsHeartbeatFault_Get();
     if (hb_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
 }
+
 void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);

@@ -37,7 +37,10 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
-    const bool hb_ok                = !App_CanAlerts_BMS_MissingHeartbeatFault_Get();
+    const bool dcm_hb_ok                = !App_CanAlerts_BMS_MissingDcmHeartbeatFault_Get();
+    const bool fsm_hb_ok                = !App_CanAlerts_BMS_MissingFsmHeartbeatFault_Get();
+    const bool pdm_hb_ok                = !App_CanAlerts_BMS_MissingPdmHeartbeatFault_Get();
+    const bool hb_ok = dcm_hb_ok && fsm_hb_ok && pdm_hb_ok;
     const bool precharge_ok         = !App_CanAlerts_BMS_PrechargeFailureFault_Get();
 
     const bool dcm_ok        = !App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);

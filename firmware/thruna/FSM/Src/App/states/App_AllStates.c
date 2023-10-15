@@ -17,6 +17,12 @@ static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    if(missing_hb) 
+    {
+        const enum HeartbeatOneHot checked_in = App_SharedHeartbeatMonitor_GetCheckedIn(hb_monitor);
+        App_CanAlerts_FSM_MissingBmsHeartbeatFault_Set(~checked_in & BMS_HEARTBEAT_ONE_HOT);
+    }
+
     return missing_hb;
 }
 
@@ -56,8 +62,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_FSM_TorqueLimit_Set(fsm_torque_limit);
 
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
-    App_CanAlerts_FSM_MissingHeartbeatFault_Set(missing_hb);
-
     if (missing_hb)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

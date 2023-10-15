@@ -15,7 +15,7 @@
 
 static uint8_t acc_meas_settle_count = 0U;
 
-static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Heartbeat_Set(true);
 
@@ -38,7 +38,13 @@ static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    return missing_hb;
+    if(missing_hb) 
+    {
+        const enum HeartbeatOneHot checked_in = App_SharedHeartbeatMonitor_GetCheckedIn(hb_monitor);
+        App_CanAlerts_BMS_MissingDcmHeartbeatFault_Set(~checked_in & DCM_HEARTBEAT_ONE_HOT);
+        App_CanAlerts_BMS_MissingFsmHeartbeatFault_Set(~checked_in & FSM_HEARTBEAT_ONE_HOT);
+        App_CanAlerts_BMS_MissingPdmHeartbeatFault_Set(~checked_in & PDM_HEARTBEAT_ONE_HOT);
+    }
 }
 
 static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
@@ -121,13 +127,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
-    struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     bool status = true;
 
     // ignore heartbeat when charging, other boards likely disconnected
-    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
-    App_CanAlerts_BMS_MissingHeartbeatFault_Set(missing_hb);
+    App_SendAndReceiveHeartbeat(hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);

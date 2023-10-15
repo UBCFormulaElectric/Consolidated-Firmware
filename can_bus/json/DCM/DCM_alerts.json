@@ -14,7 +14,9 @@
         "RxOverflowWarning"
     ],
     "faults": [
-        "MissingHeartbeatFault",
+        "MissingBmsHeartbeatFault",
+        "MissingFsmHeartbeatFault",
+        "MissingDimHeartbeatFault",
         "LeftInverterFault",
         "RightInverterFault"
     ]

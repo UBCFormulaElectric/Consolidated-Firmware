@@ -54,6 +54,11 @@ bool App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *const heartbeat_mo
     return heartbeat_monitor->status;
 }
 
+enum HeartbeatOneHot App_SharedHeartbeatMonitor_GetCheckedIn(struct HeartbeatMonitor *const heartbeat_monitor)
+{
+    return heartbeat_monitor->heartbeats_checked_in;
+}
+
 void App_SharedHeartbeatMonitor_CheckIn(
     struct HeartbeatMonitor *const heartbeat_monitor,
     enum HeartbeatOneHot           heartbeat)
