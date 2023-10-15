@@ -68,6 +68,7 @@ if("${PLATFORM}" STREQUAL "x86")
         ""
         ""
         ""
+        ""
         "${GOOGLETEST_TEST_SRCS}"
         "${GOOGLETEST_TEST_INCLUDE_DIRS}"
     )
