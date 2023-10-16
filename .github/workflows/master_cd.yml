@@ -36,14 +36,7 @@ jobs:
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          files: |
-            FSM.elf/FSM.elf
-            BMS.elf/BMS.elf
-            DCM.elf/DCM.elf
-            DIM.elf/DIM.elf
-            GSM.elf/GSM.elf
-            PDM.elf/PDM.elf
-            CanMsgs.dbc/CanMsgs.dbc
+          files: FSM.elf/FSM.elf BMS.elf/BMS.elf DCM.elf/DCM.elf DIM.elf/DIM.elf GSM.elf/GSM.elf PDM.elf/PDM.elf CanMsgs.dbc/CanMsgs.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
