@@ -1,6 +1,7 @@
 name: UBC Formula Electric CI
 on:
   pull_request:
+    - master
 
 jobs:
   clang-format:
