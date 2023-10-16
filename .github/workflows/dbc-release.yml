@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - master
+      - peter/build_DBR_PR
 
 jobs: # testing purposes
   generate-dbc:
