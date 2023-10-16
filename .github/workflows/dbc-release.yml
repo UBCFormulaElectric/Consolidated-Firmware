@@ -5,7 +5,7 @@ on:
       - master
       - peter/build_DBR_PR
 
-jobs:
+jobs: # testing purposes
   generate-dbc:
     name: Call DBC Generation
     uses: ./.github/workflows/dbc-gen.yml
