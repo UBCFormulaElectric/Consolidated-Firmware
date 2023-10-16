@@ -54,6 +54,7 @@ FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(bool, check_imd_latched_fault);
 FAKE_VALUE_FUNC(bool, check_bspd_latched_fault);
 FAKE_VALUE_FUNC(bool, check_bms_latched_fault);
+FAKE_VAUE_FUNC()
 
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
@@ -209,7 +210,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     std::vector<const struct State *> GetAllStates(void)
     {
         return std::vector<const struct State *>{
-            App_GetInitState(), App_GetPreChargeState(), App_GetDriveState(), App_GetChargeState(), App_GetFaultState(),
+            App_GetInitState(), App_GetPreChargeState(), App_GetInverterState(), App_GetDriveState(), App_GetChargeState(), App_GetFaultState(),
         };
     }
 
@@ -280,6 +281,14 @@ TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
+}
+
+// Make this test for the inverter
+TEST_F(BmsStateMachineTest, check_inverter_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetInverterState());
+
+    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
