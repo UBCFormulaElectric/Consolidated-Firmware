@@ -4,7 +4,6 @@ inputs:
   files: # id of input
     description: The files to upload (must exist in the current working directory)
     required: true
-    default: 'World'
   tag_name:
     description: The tag to push the release to
     required: true
@@ -14,6 +13,11 @@ inputs:
   body:
     description: The body of the release
     required: true
+  latest:
+    description: Determine if this commit 
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
@@ -60,3 +64,4 @@ runs:
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
+          ${{ inputs.latest == 1 && "--latest" || "" }}
