@@ -20,13 +20,9 @@ RUN apt update -y && apt install -y \
     pip \
     git \
     git-lfs \
-    openjdk-11-jdk \
     xvfb \
     libncurses5 \
     valgrind \
-    openocd \
-    usbutils \
-    nano
 
 COPY . /root/environment/
 

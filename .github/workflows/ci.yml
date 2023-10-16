@@ -1,7 +1,7 @@
 name: UBC Formula Electric CI
 on:
   pull_request:
-
+  
 jobs:
   clang-format:
     name: Check C Formatting
@@ -20,17 +20,18 @@ jobs:
         run: git config --global --add safe.directory $(realpath .)
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Format code
         run: python3 scripts/clang_format/fix_formatting.py
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-
+        
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
+    needs: [clang-format]
     strategy:
       fail-fast: false
       matrix:
@@ -61,7 +62,7 @@ jobs:
         run: git config --global --add safe.directory $(realpath .)
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # xvfb-run is required to prefix any commands that run STM32CubeMX
       # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
@@ -81,11 +82,14 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   build-firmware-thruna:
+    needs: [ clang-format ]
+    name: Build Firmware Binaries
     uses: ./.github/workflows/build.yml # https://github.blog/changelog/2022-01-25-github-actions-reusable-workflows-can-be-referenced-locally/ God is good
     secrets:
       docker_token: ${{secrets.DOCKER_TOKEN}}
 
   test-thruna:
+    needs: [ clang-format ]
     name: Test Thruna
     runs-on: ubuntu-22.04
     strategy:
@@ -110,7 +114,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -123,10 +127,11 @@ jobs:
         run: |
           cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
-  
+
   test-shared:
     name: Test Shared
     runs-on: ubuntu-22.04
+    needs: [ clang-format ]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -138,7 +143,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -155,6 +160,7 @@ jobs:
   test-fakegen:
     name: Test Fake Function Generation
     runs-on: ubuntu-22.04
+    needs: [ clang-format ]
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -166,7 +172,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -178,4 +184,3 @@ jobs:
       - name: Run tests
         run: |
           cd $BUILD_DIR/scripts/code_generation/fakegen
-          valgrind --tool=memcheck --leak-check=yes ./fakegen_test

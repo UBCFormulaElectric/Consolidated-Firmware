@@ -1,0 +1,62 @@
+name: Push Release
+description: Push a release to the repo under a given tag
+inputs:
+  files: # id of input
+    description: The files to upload (must exist in the current working directory)
+    required: true
+    default: 'World'
+  tag_name:
+    description: The tag to push the release to
+    required: true
+  title:
+    description: The title of the release
+    required: true
+  body:
+    description: The body of the release
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Delete ONE other releases on tag
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release delete ${{ inputs.tag_name }} --repo UBCFormulaElectric/Consolidated-Firmware --cleanup-tag --yes
+      continue-on-error: true
+    - name: debug env
+      shell: bash
+      run: |
+        echo "${{ github.base_ref }} <- ${{github.head_ref}}"
+        echo ${{github.SHA}}
+        git status
+        git log --oneline -n 10
+        git rev-parse --verify HEAD
+    - name: Create Tag
+      shell: bash
+      run: |
+        git tag ${{ inputs.tag_name }} -f
+        git push origin ${{ inputs.tag_name }} -f
+
+    - name: Make file name one line
+      shell: bash
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
+      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-setting-an-output-parameter
+      run: |
+        MY_STRING=$(cat << EOF
+        ${{inputs.files}}
+        EOF
+        )
+        echo -n "FILE_NAMES=$MY_STRING" >> "$GITHUB_OUTPUT"
+      id: join_tag_name
+    - name: Create Release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        ls -l
+        gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs.FILE_NAMES }} \
+          --title "${{inputs.title}}" \
+          --notes "${{inputs.body}}" \
+          --repo UBCFormulaElectric/Consolidated-Firmware
