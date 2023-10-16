@@ -48,16 +48,3 @@ jobs:
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
           tag_name: "latest"
-
-  # Deletion of branch release
-  delete-existing-release:
-    name: Delete Existing Release
-    runs-on: ubuntu-22.04
-    needs: [ make-release ]
-    steps:
-      - name: Delete Release
-        uses: dev-drprasad/delete-tag-and-release@v1.0
-        with:
-          tag_name: "{{github.head_ref}}"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true
