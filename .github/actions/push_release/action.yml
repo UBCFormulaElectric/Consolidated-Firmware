@@ -64,4 +64,4 @@ runs:
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
-          ${{ inputs.latest == 1 && "--latest" || "" }}
+          ${{ inputs.latest == true && --latest ||  }}
