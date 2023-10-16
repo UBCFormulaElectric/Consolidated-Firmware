@@ -4,7 +4,6 @@ inputs:
   files: # id of input
     description: The files to upload (must exist in the current working directory)
     required: true
-    default: 'World'
   tag_name:
     description: The tag to push the release to
     required: true
@@ -14,6 +13,11 @@ inputs:
   body:
     description: The body of the release
     required: true
+  latest:
+    description: Determine if this commit 
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
@@ -39,24 +43,24 @@ runs:
         git tag ${{ inputs.tag_name }} -f
         git push origin ${{ inputs.tag_name }} -f
 
-    - name: Make file name one line
-      shell: bash
-      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
-      # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-setting-an-output-parameter
-      run: |
-        MY_STRING=$(cat << EOF
-        ${{inputs.files}}
-        EOF
-        )
-        echo -n "FILE_NAMES=$MY_STRING" >> "$GITHUB_OUTPUT"
-      id: join_tag_name
+    # - name: Make file name one line
+    #   shell: bash
+    #   # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-a-multiline-string
+    #   # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#example-of-setting-an-output-parameter
+    #   run: |
+    #     MY_STRING=$(cat << EOF
+    #     ${{inputs.files}}
+    #     EOF
+    #     )
+    #     echo -n "FILE_NAMES=$MY_STRING" >> "$GITHUB_OUTPUT"
+    #   id: join_tag_name
     - name: Create Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         ls -l
-        gh release create ${{ inputs.tag_name }} ${{ steps.join_tag_name.outputs.FILE_NAMES }} \
+        gh release create ${{ inputs.tag_name }} ${{ inputs.files }} \
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
