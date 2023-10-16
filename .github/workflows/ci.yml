@@ -1,9 +1,7 @@
 name: UBC Formula Electric CI
 on:
   pull_request:
-    branches:
-      - master
-
+  
 jobs:
   clang-format:
     name: Check C Formatting

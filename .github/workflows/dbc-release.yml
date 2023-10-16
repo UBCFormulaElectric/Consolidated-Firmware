@@ -3,9 +3,8 @@ on:
   pull_request:
     branches:
       - master
-      - peter/build_DBC_PR
 
-jobs: # testing purposes
+jobs: 
   generate-dbc:
     name: Call DBC Generation
     uses: ./.github/workflows/dbc-gen.yml
