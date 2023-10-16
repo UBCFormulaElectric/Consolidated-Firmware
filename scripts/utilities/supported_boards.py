@@ -28,10 +28,7 @@ def get_board_names() -> Tuple[str]:
     # split the dir 
     supported_board_names = tuple(map(lambda p: p.split("/")[-1], supported_board_names))
 
-    print(supported_board_names)
-
      
-
     return supported_board_names
 
 

@@ -30,7 +30,7 @@ typedef enum
 } SD_card_status; // wrapper of HAL status for better interface
 
 /**
- * @brief Initialize the SDIO peripheral
+ * @brief Initialize the SDIO, SD card
  * @param sdio the pointer to the SDIO peripheral registers
  * @param sd_config will configure the SDIO peripheral
  * @param card_info will hold the information about the SD card
