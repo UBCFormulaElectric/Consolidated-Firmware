@@ -8,7 +8,6 @@ jobs:
   delete-existing-release:
     name: Delete Existing Release
     runs-on: ubuntu-22.04
-    needs: [ make-release ]
     steps:
       - name: Delete Release
         uses: dev-drprasad/delete-tag-and-release@v1.0
