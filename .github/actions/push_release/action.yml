@@ -63,5 +63,4 @@ runs:
         gh release create ${{ inputs.tag_name }} ${{ inputs.files }} \
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
-          --repo UBCFormulaElectric/Consolidated-Firmware \
-          ${{ inputs.latest == true && --latest ||  }}
+          --repo UBCFormulaElectric/Consolidated-Firmware
