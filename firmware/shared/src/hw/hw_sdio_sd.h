@@ -9,15 +9,15 @@
 
 typedef struct
 {
-    SD_HandleTypeDef *const hsd;      // the HAL SD handle that will hold the state of the SD card
+    SD_HandleTypeDef *const hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t                timeout; // the timeout for the SD card operations
 } SD_card;                           // struct that included all the state about SDIO and SD card
 
 typedef struct
 {
-    SD_TypeDef *           sdio;        // sdio register base address
-    SD_InitTypeDef         sdio_config; // sdio config
-    uint32_t               timeout;     // timeout config
+    SD_TypeDef *   sdio;        // sdio register base address
+    SD_InitTypeDef sdio_config; // sdio config
+    uint32_t       timeout;     // timeout config
 } SD_card_init_config;
 
 typedef enum
