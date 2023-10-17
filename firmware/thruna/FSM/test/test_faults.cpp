@@ -238,7 +238,8 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
 
             // Clear condition, confirm fault resets
             fake_io_apps_getPrimary_returns(test_params[i].papps_percentage);
-            fake_io_apps_getSecondary_returns(test_params[i].papps_percentage); // Set sapps to papps, so there is agreement
+            fake_io_apps_getSecondary_returns(
+                test_params[i].papps_percentage); // Set sapps to papps, so there is agreement
 
             LetTimePass(state_machine, 10 + AGREEMENT_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get());
@@ -333,7 +334,7 @@ TEST_F(FsmFaultsTest, primary_flow_rate_underflow_sets_fault)
 {
     App_CanRx_DCM_Vitals_CurrentState_Update(DCM_DRIVE_STATE);
     // Flow rate underflow threshold is 1.0 L/min
-    const float underflow_threshold       = 1.0f;
+    const float underflow_threshold = 1.0f;
     fake_io_coolant_getFlowRate_returns(std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest()));
 
     LetTimePass(state_machine, 10 + FLOW_METER_TIME_TO_FAULT - 1);

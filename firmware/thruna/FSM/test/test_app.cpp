@@ -6,8 +6,8 @@ class FsmAppTest : public FsmBaseStateMachineTest
   protected:
     template <typename T>
     void CheckInRangeCanSignals(
-        float  min_value,
-        float  max_value,
+        float min_value,
+        float max_value,
         void (*fake_setter)(float),
         T (*value_can_signal_getter)(),
         bool (*alert_getter)(uint8_t),
@@ -70,8 +70,7 @@ TEST_F(FsmAppTest, check_brake_can_signals)
         FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE);
 
     // actuation
-    CheckBinaryStatusCanSignal(
-        fake_io_brake_isActuated_returns, (uint8_t(*)(void))App_CanTx_FSM_Brake_IsActuated_Get);
+    CheckBinaryStatusCanSignal(fake_io_brake_isActuated_returns, (uint8_t(*)(void))App_CanTx_FSM_Brake_IsActuated_Get);
 
     // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignal(
