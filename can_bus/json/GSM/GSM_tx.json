@@ -9,29 +9,11 @@
             }
         }
     },
-    "GSM_Warnings": {
+    "GSM_AlertsContext": {
         "msg_id": 604,
         "cycle_time": 1000,
-        "description": "Warning flags for the GSM.",
+        "description": "Context info for GSM alerts",
         "signals": {
-            "StackWatermarkAboveThresholdTask1Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask100Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask1kHz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanRx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            },
             "TxOverflowCount": {
                 "bits": 8
             },

@@ -1,5 +1,4 @@
 #pragma once
 
-#include "App_GsmWorld.h"
-
+struct GsmWorld;
 #define World GsmWorld
