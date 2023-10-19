@@ -40,7 +40,12 @@
         {
             "label": "Build: BMS.elf",
             "type": "shell",
-            "command": "make -j`nproc` BMS.elf",
+            "linux": {
+                "command": "make -j`nproc` BMS.elf",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) BMS.elf"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_arm"
@@ -49,7 +54,12 @@
         {
             "label": "Build: DCM.elf",
             "type": "shell",
-            "command": "make -j`nproc` DCM.elf",
+            "linux": {
+                "command": "make -j`nproc` DCM.elf",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) DCM.elf"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_arm"
@@ -58,7 +68,12 @@
         {
             "label": "Build: FSM.elf",
             "type": "shell",
-            "command": "make -j`nproc` FSM.elf",
+            "linux": {
+                "command": "make -j`nproc` FSM.elf",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) FSM.elf"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_arm"
@@ -76,7 +91,12 @@
         {
             "label": "Build: DIM.elf",
             "type": "shell",
-            "command": "make -j`nproc` DIM.elf",
+            "linux": {
+                "command": "make -j`nproc` DIM.elf",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) DIM.elf"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_arm"
@@ -85,7 +105,12 @@
         {
             "label": "Build: BMS_test",
             "type": "shell",
-            "command": "make -j`nproc` BMS_test",
+            "linux": {
+                "command": "make -j`nproc` BMS_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) BMS_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -94,7 +119,12 @@
         {
             "label": "Build: DCM_test",
             "type": "shell",
-            "command": "make -j`nproc` DCM_test",
+            "linux": {
+                "command": "make -j`nproc` DCM_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) DCM_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -103,7 +133,12 @@
         {
             "label": "Build: FSM_test",
             "type": "shell",
-            "command": "make -j`nproc` FSM_test",
+            "linux": {
+                "command": "make -j`nproc` FSM_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) FSM_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -112,7 +147,12 @@
         {
             "label": "Build: PDM_test",
             "type": "shell",
-            "command": "make -j`nproc` PDM_test",
+            "linux": {
+                "command": "make -j`nproc` PDM_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) PDM_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -121,7 +161,12 @@
         {
             "label": "Build: DIM_test",
             "type": "shell",
-            "command": "make -j`nproc` DIM_test",
+            "linux": {
+                "command": "make -j`nproc` DIM_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) DIM_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -130,7 +175,12 @@
         {
             "label": "Build: shared_test",
             "type": "shell",
-            "command": "make -j`nproc` shared_test",
+            "linux": {
+                "command": "make -j`nproc` shared_test",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu) shared_test"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
@@ -139,7 +189,12 @@
         {
             "label": "Build: All Embedded Binaries",
             "type": "shell",
-            "command": "make -j`nproc`",
+            "linux": {
+                "command": "make -j`nproc`",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu)"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_arm"
@@ -148,7 +203,12 @@
         {
             "label": "Build: All Tests",
             "type": "shell",
-            "command": "make -j`nproc`",
+            "linux": {
+                "command": "make -j`nproc`",
+            },
+            "osx": {
+                "command": "make -j$(sysctl -n hw.ncpu)"
+            },
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_x86"
