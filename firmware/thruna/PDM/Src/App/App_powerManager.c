@@ -32,15 +32,15 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     }
 };
 
-void App_PowerManager_Init()
+void app_powerManager_init()
 {
-    App_PowerManager_SetState(POWER_MANAGER_CONTRACTOR_DRIVE);
+    app_powerManager_setState(POWER_MANAGER_CONTRACTOR_DRIVE);
 }
 
-void App_PowerManager_SetState(PowerManagerState state)
+void app_powerManager_setState(PowerManagerState state)
 {
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        Io_Efuse_SetChannel(efuse, power_states_config[state].efuses[efuse]);
+        io_efuse_setChannel(efuse, power_states_config[state].efuses[efuse]);
     }
 }
