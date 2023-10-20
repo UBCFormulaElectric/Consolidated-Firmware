@@ -4,11 +4,11 @@ Generates a header file and corresponding source file that exposes some info abo
 - If the commit is clean.
 
 ## Invocation
-Invoke `src/generate_commit_info.py`, and use the `--output-directory`, `--output-header`, `--output-source` options to set the output paths.
+Invoke `src/generate_commit_info.py` with the `--output-header` and `--output-source` options to set the output paths.
 
 For example,
 ```sh
-python3 src/generate_commit_info.py --output-directory ./ --output-header example_header.h --output-source example_source.c 
+python3 src/generate_commit_info.py --output-header example_header.h --output-source example_source.c 
 ```
 
 ## Generated File

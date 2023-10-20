@@ -17,7 +17,6 @@ if __name__ == "__main__":
 
   # set up path arg
   parser = ArgumentParser()
-  parser.add_argument("--output-directory", type=str, required=True)
   parser.add_argument("--output-header", type=str, required=True)
   parser.add_argument("--output-source", type=str, required=True)
   args = parser.parse_args() 
@@ -53,12 +52,11 @@ if __name__ == "__main__":
     data["clean"] = "0"
     print("commit_info_gen: Failed to get commit data, returning header with dummy data.")
 
-  output_header_path = os.path.join(args.output_directory, args.output_header)
-  output_source_path = os.path.join(args.output_directory, args.output_source)
-
   # write
-  with open(output_header_path , "w") as file:
+  with open(args.output_header , "w") as file:
     file.write(header_template.render(data))
-  with open(output_source_path, "w") as file:
-    file.write(source_template.render({"header": args.output_header}))
+  with open(args.output_source, "w") as file:
+    file.write(source_template.render({
+      "header": os.path.basename(args.output_header)
+    }))
     
