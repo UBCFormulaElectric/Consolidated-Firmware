@@ -17,14 +17,17 @@ if __name__ == "__main__":
 
   # set up path arg
   parser = ArgumentParser()
+  parser.add_argument("--output-directory", type=str, required=True)
   parser.add_argument("--output-header", type=str, required=True)
+  parser.add_argument("--output-source", type=str, required=True)
   args = parser.parse_args() 
 
   # get template for rendering
   module_dir = os.path.dirname(os.path.relpath(__file__))
   template_dir = os.path.join(module_dir, "templates")
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-  template = env.get_template("./App_CommitInfo.h.j2")
+  header_template = env.get_template("./App_CommitInfo.h.j2")
+  source_template = env.get_template("./App_CommitInfo.c.j2")
 
   # data to expose to header
   data = {}
@@ -34,6 +37,8 @@ if __name__ == "__main__":
     repo = git.Repo(search_parent_directories=True)
     commit = repo.head.commit
     clean = not repo.is_dirty(untracked_files=True)
+
+    # short hash is the first 7 chars of the long hash
     short_hash = commit.hexsha[0:7]
 
     data["hash"] = short_hash
@@ -46,10 +51,14 @@ if __name__ == "__main__":
   except:
     data["hash"] = "0000000"
     data["clean"] = "0"
-
     print("commit_info_gen: Failed to get commit data, returning header with dummy data.")
 
-  # short hash is the first 7 chars of the long hash
-  with open(args.output_header, "w") as file:
-    file.write(template.render(data))
+  output_header_path = os.path.join(args.output_directory, args.output_header)
+  output_source_path = os.path.join(args.output_directory, args.output_source)
+
+  # write
+  with open(output_header_path , "w") as file:
+    file.write(header_template.render(data))
+  with open(output_source_path, "w") as file:
+    file.write(source_template.render({"header": args.output_header}))
     

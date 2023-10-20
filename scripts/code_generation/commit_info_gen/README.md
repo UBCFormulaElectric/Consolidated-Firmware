@@ -1,14 +1,14 @@
 # commit_info_gen
-Generates a header file that exposes some info about the current commit:
+Generates a header file and corresponding source file that exposes some info about the current commit:
 - Short commit hash.
 - If the commit is clean.
 
 ## Invocation
-Invoke `src/generate_commit_info.py`, and use the `--output_header` option to set the output path.
+Invoke `src/generate_commit_info.py`, and use the `--output-directory`, `--output-header`, `--output-source` options to set the output paths.
 
 For example,
 ```sh
-python3 src/generate_commit_info.py --output-header example_header.h 
+python3 src/generate_commit_info.py --output-directory ./ --output-header example_header.h --output-source example_source.c 
 ```
 
 ## Generated File
@@ -23,6 +23,16 @@ A sample generated header file:
 
 #define GIT_COMMIT_HASH 0xe6dd7a7
 #define GIT_COMMIT_CLEAN 0
+```
+
+The generated source file looks like:
+
+```c
+#include "example_header.h"
+/* 
+  This file is intentionally empty,
+  it only exists to tell cmake to scan example_header.h
+*/
 ```
 
 ## Implementation
