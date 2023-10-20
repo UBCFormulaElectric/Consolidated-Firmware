@@ -55,4 +55,3 @@ typedef struct Regen_Outputs
 void App_TorqueVectoring_Setup(void);
 void App_TorqueVectoring_Run(void);
 void App_TorqueVectoring_HandleAcceleration(void);
-void App_TorqueVectoring_HandleRegen(void);
