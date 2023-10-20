@@ -257,30 +257,31 @@
           "Clean": {
               "bits": 1
           }
+        }
       },
-    "DCM_DEBUG_Power": {
-        "msg_id": 210,
+    "PowerEstimate": {
+        "msg_id": 211,
         "cycle_time": 10,
         "description": "Debug Power Messages",
         "signals": {
-            "PowerEstimate": {
+            "PowerEstimateValue": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
             },
-            "PowerMeasured": {
+            "PowerEstimateMeasuredValue": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
             }
         }
     },
-    "DCM_DEBUG_PIDPowerEstimate": {
-        "msg_id": 211,
+    "PowerEstimatePID": {
+        "msg_id": 212,
         "cycle_time": 10,
         "description": "Debug messages for the PID power estimate controller",
         "signals": {
-            "Output": {
+            "PIDPowerEstimateOutput": {
                 "start_bit": 0,
                 "bits": 8,
                 "offset": 0,
@@ -289,7 +290,7 @@
                 "max": 1,
                 "scale": 0.01
             },
-            "Error": {
+            "PIDPowerEstimateError": {
                 "start_bit": 8,
                 "bits": 16,
                 "offset": 0,
@@ -298,7 +299,7 @@
                 "max": 80,
                 "scale": 0.1
             },
-            "Derivative": {
+            "PIDPowerEstimateDerivative": {
                 "start_bit": 24,
                 "bits" : 16,
                 "offset": 0,
@@ -307,7 +308,7 @@
                 "max": 160,
                 "scale": 0.1
             },
-            "Integral": {
+            "PIDPowerEstimateIntegral": {
                 "start_bit": 40,
                 "bits" : 24,
                 "offset": 0,
@@ -318,12 +319,12 @@
             }
         }
     },
-    "DCM_DEBUG_PIDSlipRatio": {
-        "msg_id": 212,
+    "PIDSlipRatio": {
+        "msg_id": 213,
         "cycle_time": 10,
         "description": "Debug messages for the PID slip ratio controller",
         "signals": {
-            "Output": {
+            "PIDSlipRatioOutput": {
                 "start_bit": 0,
                 "bits": 8,
                 "offset": 0,
@@ -332,7 +333,7 @@
                 "max": 1,
                 "scale": 0.01
             },
-            "Error": {
+            "PIDSlipRatioError": {
                 "start_bit": 8,
                 "bits": 16,
                 "offset": 0,
@@ -341,7 +342,7 @@
                 "max": 80,
                 "scale": 0.1
             },
-            "Derivative": {
+            "PIDSlipRatioDerivative": {
                 "start_bit": 24,
                 "bits" : 16,
                 "offset": 0,
@@ -350,7 +351,7 @@
                 "max": 160,
                 "scale": 0.1
             },
-            "Integral": {
+            "PIDSlipRatioIntegral": {
                 "start_bit": 40,
                 "bits" : 24,
                 "offset": 0,
@@ -361,8 +362,8 @@
             }
         }
     },
-    "DCM_DEBUG_WheelTraction": {
-        "msg_id": 213,
+    "SlipRatios": {
+        "msg_id": 214,
         "cycle_time": 10,
         "description": "Debug Messages for the Traction Control component of Torque Vectoring",
         "signals": {
@@ -384,34 +385,34 @@
             }
         }
     },
-    "DCM_DEBUG_ActiveDiff": {
-        "msg_id": 214,
+    "ActiveDiffOutputs": {
+        "msg_id": 215,
         "cycle_time": 10,
         "description": "Debug Messages for the Active Differential component of Torque Vectoring",
         "signals": {
-            "TorqueLeft": {
+            "ActiveDiffTorqueLeft": {
                 "min": 0,
                 "max": 100,
                 "resolution": 0.1
             },
-            "TorqueRight": {
+            "ActiveDiffTorqueRight": {
                 "min": 0,
                 "max": 100,
                 "resolution": 0.1
             }
         }
     },
-    "DCM_DEBUG_PowerLimit": {
-        "msg_id": 215,
+    "PowerLimit": {
+        "msg_id": 216,
         "cycle_time": 10,
         "description": "Debug Power Messages for Power Limit ",
         "signals": {
-            "PowerLimit": {
+            "PowerLimitValue": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
             }, 
-            "PowerLimitAtFullThrottle": {
+            "PowerLimitValueAtFullThrottle": {
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
