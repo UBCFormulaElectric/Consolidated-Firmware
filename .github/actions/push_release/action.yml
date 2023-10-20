@@ -64,8 +64,8 @@ runs:
       if: 
       run: |
         ls -l -a
-        gh release create ${{ inputs.tag_name }} ${{env.FILES}}\
-          ${{ env.RELEASE }} 
+        gh release create ${{ inputs.tag_name }} ${{env.FILES}} \
+          ${{ env.RELEASE }} \
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
