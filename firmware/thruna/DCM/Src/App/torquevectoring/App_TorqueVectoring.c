@@ -74,10 +74,6 @@ void App_TorqueVectoring_Run(void)
     {
         App_TorqueVectoring_HandleAcceleration();
     }
-    else
-    {
-        App_TorqueVectoring_HandleRegen();
-    }
 }
 // Read data from CAN
 void App_TorqueVectoring_HandleAcceleration(void)
@@ -164,21 +160,4 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_DEBUG_PIDPowerEstimate_Error_Set(pid_power_correction.error);
     App_CanTx_DCM_DEBUG_PIDPowerEstimate_Derivative_Set(pid_power_correction.derivative);
     App_CanTx_DCM_DEBUG_PIDPowerEstimate_Integral_Set(pid_power_correction.integral);
-}
-
-void App_TorqueVectoring_HandleRegen(void)
-{
-    if (run_regen)
-    { // Run Regen
-        regen_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
-        regen_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
-        App_Regen_ComputeTorque(&regen_inputs, &regen_outputs);
-        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_left_Nm);
-        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(regen_outputs.regen_torque_right_Nm);
-    }
-    else
-    { // No regen
-        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0);
-        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0);
-    }
 }
