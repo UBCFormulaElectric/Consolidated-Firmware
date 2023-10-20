@@ -63,8 +63,8 @@ runs:
       if: 
       run: |
         ls -l -a
-        echo "${{ inputs.files }}"" | tr '\n' ' '
-        gh release create ${{ inputs.tag_name }} ${{ inputs.files }} | tr '\n' ' ' \
+        echo "${{ inputs.files }}"
+        gh release create ${{ inputs.tag_name }} ${{ inputs.files }}\
           ${{ env.RELEASE }} 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
