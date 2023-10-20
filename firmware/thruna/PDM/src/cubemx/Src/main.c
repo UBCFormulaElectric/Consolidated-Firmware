@@ -302,7 +302,7 @@ int main(void)
     state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
     globals->heartbeat_monitor = heartbeat_monitor;
 
-    App_PowerManager_Init();
+    app_powerManager_init();
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

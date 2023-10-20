@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include "Io_Efuse.h"
+#include "io_efuse.h"
 
 typedef enum
 {
@@ -11,10 +11,10 @@ typedef enum
 /**
  * Initalizes to the drive state (closed)
  */
-void App_PowerManager_Init();
+void app_powerManager_init();
 
 /**
  * Sets the Power Manager state
  * @param state to open/close
  */
-void App_PowerManager_SetState(PowerManagerState state);
+void app_powerManager_setState(PowerManagerState state);
