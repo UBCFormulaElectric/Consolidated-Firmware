@@ -61,21 +61,11 @@ runs:
         GH_TOKEN: ${{ github.token }}
         RELEASE: ${{inputs.latest && '--latest' || '-p'}}
         FILES: ${{ inputs.files }}
-      if: ${{inputs.latest}}
-        run: |
-          ls -l -a
-          echo ${{inputs.latest}}
-          gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
-            --latest \
-            --title "${{inputs.title}}" \
-            --notes "${{inputs.body}}" \
-            --repo UBCFormulaElectric/Consolidated-Firmware
-      if: ${{!inputs.latest}}
-        run: |
-            ls -l -a
-            echo ${{inputs.latest}}
-            gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
-              -p \
-              --title "${{inputs.title}}" \
-              --notes "${{inputs.body}}" \
-              --repo UBCFormulaElectric/Consolidated-Firmware
+      run: |
+        ls -l -a
+        echo ${{inputs.latest}}
+        gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
+          ${{inputs.latest && '--latest' || '-p'}} \ 
+          --title "${{inputs.title}}" \
+          --notes "${{inputs.body}}" \
+          --repo UBCFormulaElectric/Consolidated-Firmware
