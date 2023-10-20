@@ -1,35 +1,25 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 import { Card, Button } from 'antd';
 
 import QueryData from './query_data.tsx';
 
+const DEFAULT_LAYOUT = {
+    width: 620, 
+    height: 500, 
+    title: "Empty",
+    xaxis: {},
+    yaxis: {},
+}
+
 const Graph = (props) => {
     const [data, setData] = useState({});
     const [formattedData, setFormattedData] = useState([]);
-    const [graphName, setGraphName] = useState("Empty");
-    
+
     //default graph layout
-    const [graphLayout, setGraphLayout] = useState({
-        width: 620, 
-        height: 500, 
-        title: graphName,
-        xaxis: {},
-        yaxis: {},
-    });
-    const graphDivRef = useRef(null);
-
-    //layout for graph 
-    const layout = {
-        width: 620, 
-        height: 500, 
-        title: graphName,
-        xaxis: {range: ["2017-04-04", "2017-08-06"]},
-        yaxis: {range: ["9:00:00", "24:00:00"]},
-     }
-
+    const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
 
      // randomizes colour for graph lines 
     const getRandomColor = () => {
@@ -42,7 +32,7 @@ const Graph = (props) => {
     // resets data on graph
     const clearData = () => {
         setFormattedData([]);
-        setGraphName("Empty");
+        setGraphLayout(DEFAULT_LAYOUT);
         setData({});
     }
 
@@ -51,7 +41,6 @@ const Graph = (props) => {
     // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
     // suggestions for improvements appreciated. 
     useEffect(() => {
-        setGraphName("Empty");
         const tempFormattedData = [];
         for (const name in data) {
             let signalData = data[name];
@@ -74,14 +63,20 @@ const Graph = (props) => {
 
             tempFormattedData.push(formattedObj);
         }
+
+        const newGraphName = Object.keys(data).join(" + ");
+
+        setGraphLayout(prevLayout => ({
+        ...prevLayout,
+        title: newGraphName,
+       }));
         setFormattedData(tempFormattedData);
-        setGraphName(Object.keys(data).join(" + "));
     }, [data]);
 
 
     // updates graph layout when zoomed 
     useEffect(() => {
-        if (props.zoomData && 'xaxis.range[0]' in props.zoomData) {
+        if (props.sync && props.zoomData && 'xaxis.range[0]' in props.zoomData) {
             const xaxisRange0 = props.zoomData['xaxis.range[0]'];
             const xaxisRange1 = props.zoomData['xaxis.range[1]'];
             const yaxisRange0 = props.zoomData['yaxis.range[0]'];
@@ -106,7 +101,7 @@ const Graph = (props) => {
 
 
     return (
-        <Card ref={graphDivRef}
+        <Card
         bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
             <QueryData url={props.url} setData={setData}></QueryData>
             <Plot
