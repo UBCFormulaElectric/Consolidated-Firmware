@@ -149,7 +149,7 @@ class BmsFaultTest : public BaseStateMachineTest
 
         // Set initial voltages to nominal value
         // set_all_cell_voltages(3.8);
-        get_cell_voltage_fake.return_val = 3.8;
+        get_cell_voltage_fake.return_val   = 3.8;
         start_voltage_conv_fake.return_val = true;
 
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state

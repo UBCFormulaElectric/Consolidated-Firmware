@@ -67,7 +67,6 @@ static bool
     return true;
 }
 
-
 static bool read_cell_voltages(void)
 {
     return true;
@@ -101,9 +100,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
-            start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
-            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
+            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
+            enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
             thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
@@ -164,7 +162,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(page_erase);
 
         // Set initial voltages to nominal value
-        get_cell_voltage_fake.return_val = 3.8f;
+        get_cell_voltage_fake.return_val   = 3.8f;
         start_voltage_conv_fake.return_val = true;
 
         // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
