@@ -72,7 +72,7 @@ if("${PLATFORM}" STREQUAL "x86")
         "PDM_fakes"
         "${HDRS_TO_FAKE}"
     )
-endif()
+endif() 
 
 create_arm_binary_or_tests_for_board(
     "PDM"
