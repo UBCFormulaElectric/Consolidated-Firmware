@@ -59,7 +59,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        RELEASE: ${{inputs.latest == 0 && '-p' || '--latest'}}
+        RELEASE: ${{inputs.latest && '--latest' || '-p'}}
         FILES: ${{ inputs.files }}
       if: 
       run: |
