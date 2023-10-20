@@ -157,7 +157,7 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
-            const bool needs_discharging                 = (accumulator->get_cell_voltage(segment, cell) > target_voltage);
+            const bool needs_discharging = (accumulator->get_cell_voltage(segment, cell) > target_voltage);
             accumulator->cells_to_balance[segment][cell] = needs_discharging;
         }
     }
@@ -399,8 +399,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
         case GET_CELL_VOLTAGE_STATE:
         {
             // Attempt to read voltages from the LTCs, write output to cell voltages array
-            UPDATE_PEC15_ERROR_COUNT(
-                accumulator->read_cell_voltages, accumulator->num_comm_tries);
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages, accumulator->num_comm_tries);
 
             // Calculate min/max/segment voltages
             App_Accumulator_CalculateVoltageStats(accumulator);

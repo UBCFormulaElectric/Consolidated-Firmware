@@ -48,13 +48,9 @@ static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
  * @param cell_voltages Buffer to write out the read voltages to
  * @return True if the data is read back successfully. Else, false
  */
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
 
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
 {
     bool status = true;
 
