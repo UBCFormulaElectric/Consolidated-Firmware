@@ -9,7 +9,6 @@ import styles from './page.module.css';
 import NavBar from './components/navbar.tsx';
 import Graph from './components/graph.tsx';
 import Dashboard from './components/dashboard.tsx';
-import DropdownMenu from './components/dropdown_menu';
 
 const FLASK_URL = "http://localhost:5000"
 
@@ -18,6 +17,8 @@ const Home = () => {
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
+    const [zoomData, setZoomData] = useState([]);
+    
 
     // logic to add a new graph
     const addGraph = () => {
@@ -28,7 +29,6 @@ const Home = () => {
     const deleteGraph = (graphId) => {
         setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
     };
-    
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
@@ -65,7 +65,7 @@ const Home = () => {
             <div className="flex-container">
             {graphs.map(graphId => (
                  <Graph 
-                    key={graphId} id={graphId} url={FLASK_URL}
+                    key={graphId} id={graphId} url={FLASK_URL} setZoomData={setZoomData} zoomData={zoomData}
                     onDelete={() => deleteGraph(graphId)}
                  />
             ))}
