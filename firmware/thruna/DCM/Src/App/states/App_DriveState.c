@@ -17,6 +17,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorSpeed_Get();
+    float       bms_torque_limit      = 0;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
@@ -50,12 +51,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
-    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(true);
-    App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
+    App_CanTx_DCM_LeftInverterEnable_Set(true);
+    App_CanTx_DCM_RightInverterEnable_Set(true);
 
     // Set inverter directions.
-    App_CanTx_DCM_LeftInverterCommand_DirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
-    App_CanTx_DCM_RightInverterCommand_DirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+    App_CanTx_DCM_LeftInverterDirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
+    App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
     torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitchOn();
 
@@ -89,9 +90,10 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SetPeriodicCanSignals_TorqueRequests();
         }
 
-    if (exit_drive)
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+        if (exit_drive)
+        {
+            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+        }
     }
 }
 
