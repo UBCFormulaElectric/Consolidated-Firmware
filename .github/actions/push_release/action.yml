@@ -60,10 +60,11 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
         RELEASE: ${{inputs.latest == false && '--prelease' || '--latest'}}
+        FILES: "${{ inputs.files }}"
       if: 
       run: |
         ls -l -a
-        gh release create ${{ inputs.tag_name }} "${{ inputs.files }}"\
+        gh release create ${{ inputs.tag_name }} ${{env.FILES}}\
           ${{ env.RELEASE }} 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
