@@ -3,30 +3,30 @@ on:
   pull_request:
   
 jobs:
-#   clang-format:
-#     name: Check C Formatting
-#     runs-on: ubuntu-22.04
+  clang-format:
+    name: Check C Formatting
+    runs-on: ubuntu-22.04
 
-#     container:
-#       image: ubcformulaelectric/environment:latest
-#       credentials:
-#         username: ubcformulaelectric
-#         password: ${{ secrets.DOCKER_TOKEN }}
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
 
-#     steps:
-#       # Fix to get git diff working in a Docker container
-#       # https://github.com/actions/checkout/issues/363
-#       - name: Setup git
-#         run: git config --global --add safe.directory $(realpath .)
+    steps:
+      # Fix to get git diff working in a Docker container
+      # https://github.com/actions/checkout/issues/363
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
 
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-#       - name: Format code
-#         run: python3 scripts/clang_format/fix_formatting.py
+      - name: Format code
+        run: python3 scripts/clang_format/fix_formatting.py
 
-#       - name: Check for differences
-#         run: git --no-pager diff --color --exit-code
+      - name: Check for differences
+        run: git --no-pager diff --color --exit-code
         
 #   codegen:
 #     name: Check CubeMX Code Gen
