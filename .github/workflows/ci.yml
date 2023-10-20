@@ -2,7 +2,7 @@ name: UBC Formula Electric CI
 on:
   pull_request:
   
-# jobs:
+jobs:
 #   clang-format:
 #     name: Check C Formatting
 #     runs-on: ubuntu-22.04
