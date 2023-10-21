@@ -62,7 +62,7 @@ runs:
         FILES: ${{ inputs.files }}
       run: |
         ls -l -a
-        gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
+        gh release create ${{ inputs.tag_name }} ${{ inputs.FILES }} \
           ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
