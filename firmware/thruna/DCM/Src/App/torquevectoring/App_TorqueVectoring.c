@@ -97,10 +97,10 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
     // Power limit correction
     float power_limit = 0;
-    power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    power_limit       = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
-    float torque_request_no_differential = 0;
+    float torque_request_no_differential             = 0;
     active_differential_inputs.power_max_kW          = power_limit;
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
@@ -124,8 +124,8 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-        torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
-        torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+    torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
+    torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
