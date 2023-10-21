@@ -9,11 +9,7 @@
 
 #define NUM_AUX_THERMISTORS (6U)
 
-<<<<<<< HEAD
 // What we will compare against to determine if a segment has a blown fuse and is
-=======
-// What we will compare against to determine if a segment has a blown fuse and is 
->>>>>>> 71ae60de (altered based on code review comments, except for adding helper function and creating can msg)
 // less than three cells in parallel. We calculate number of cells and compare.
 // TODO: TUNING AND TESTING REQUIRED, STILL A WORK IN PROGRESS THRESHOLD.
 #define BLOWN_FUSE_THRESHOLD (2.5f)
