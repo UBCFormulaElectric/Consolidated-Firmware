@@ -20,6 +20,8 @@ static const CommandLookupTable command_lookup_table =
 {
     .disable = 0x0,
     .values  =
+
+    //follows the conventional way of doing 7 segement displays going MSB representing A and LSB representing . (period)
     {
         0xFC, // 0x0
         0x60, // 0x1
@@ -31,8 +33,11 @@ static const CommandLookupTable command_lookup_table =
         0xE0, // 0x7
         0xFE, // 0x8
         0xE6, // 0x9
+        0x3E, // bsm
+        0x8E  // fsm
     }
 };
+
 // clang-format on
 
 static const SevenSegsConfig *config;
@@ -98,6 +103,20 @@ void io_sevenSegDisplays_setValue(
     }
 
     commands[index] = command_value;
+}
+
+// for not going to be displaying the boards 
+void io_sevenSegDisplays_setBoardIndicator(
+    SevenSegGroup       group, 
+    SevenSegSubposition subposition, 
+    HexDigit            board)
+
+{
+    int     index = NUM_SEVEN_SEG_SUBPOSITIONS * group + subposition;
+    uint8_t command_value = command_lookup_table.values[board];
+
+    commands[index] = command_value;
+
 }
 
 void io_sevenSegDisplays_disable(SevenSegGroup group, SevenSegSubposition subposition)

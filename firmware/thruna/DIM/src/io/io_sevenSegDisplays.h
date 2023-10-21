@@ -60,9 +60,20 @@ void io_sevenSegDisplays_setValue(
     HexDigit            digit,
     bool                decimal_point);
 
+
+/**
+ * Updaye the seven segmenet display to the board which caused a fault
+ * @param group The group of the specified 7-seg.
+ * @param subposition The position, within the group, of the specified 7-seg.
+ * @param board The associated board which is giving out the fault.
+*/
+
+void io_sevenSegDisplays_setBoardIndicator(SevenSegGroup group, SevenSegSubposition subposition, HexDigit board);
+
 /**
  * Disable the specified 7-segment display during the next sevenSegDisplays_writeCommands() call.
  * @param group The group of the specified 7-seg.
  * @param subposition The position, within the group, of the specified 7-seg.
  */
 void io_sevenSegDisplays_disable(SevenSegGroup group, SevenSegSubposition subposition);
+

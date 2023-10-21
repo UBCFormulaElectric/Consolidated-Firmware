@@ -76,6 +76,13 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
     return true;
 }
 
+bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, HexDigit board, HexDigit fault){
+
+    
+
+    return true;
+}
+
 void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
 {
     io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_L);
