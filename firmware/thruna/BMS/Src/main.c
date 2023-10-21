@@ -265,6 +265,8 @@ int main(void)
 
     uint16_t soc_address;
 
+    eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
+
     // A negative soc value will indicate to App_SocStats_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
     if (App_Eeprom_ReadAddress(eeprom, &soc_address) == EXIT_CODE_OK)
@@ -291,8 +293,6 @@ int main(void)
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
     clock = App_SharedClock_Create();
-
-    eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
 
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
