@@ -13,3 +13,6 @@
 [submodule "firmware/third_party/SEGGER_SystemView_Src"]
 	path = firmware/third_party/SEGGER_SystemView_Src
 	url = https://github.com/UBCFormulaElectric/SEGGER_SystemView_Src.git
+[submodule "firmware/third_party/STM32CubeF4"]
+	path = firmware/third_party/STM32CubeF4
+	url = https://github.com/STMicroelectronics/STM32CubeF4.git
