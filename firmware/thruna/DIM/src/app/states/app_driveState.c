@@ -58,6 +58,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
         [FSM_LED] = FSM_ALERT_BOARD, [PDM_LED] = PDM_ALERT_BOARD,
     };
+    else
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
@@ -67,6 +68,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             // Turn red.
             io_rgbLed_enable(board_status_led, true, false, false);
+
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {

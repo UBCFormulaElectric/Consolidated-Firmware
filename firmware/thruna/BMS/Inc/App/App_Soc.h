@@ -4,6 +4,20 @@
 #include "App_Accumulator.h"
 #include "App_Timer.h"
 
+/**
+ * Function to retrieve soc closest to given open circuit voltage
+ * @param voc open circuit voltage
+ * @return soc related to open circuit voltage
+ */
+float App_Soc_GetSocFromVoc(float voltage);
+
+/**
+ * Function to retrieve open circuit voltage closest to given soc
+ * @param soc_percent state of charge in percent
+ * @return open circuit voltage closest to given state of charge
+ */
+float App_Soc_GetVocFromSoc(float soc_percent);
+
 struct SocStats
 {
     // Address in EEPROM where SOC is being stored (address changes for wear levelling reasons, address always stored in

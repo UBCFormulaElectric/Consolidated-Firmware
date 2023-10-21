@@ -11,6 +11,41 @@
 #define MS_TO_S (0.001f)
 #define SOC_TIMER_DURATION (100U)
 
+float App_Soc_GetSocFromVoc(float voltage)
+{
+    uint8_t lut_index = 0;
+
+    while( (voltage > voc_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
+    {
+        lut_index++;
+    }
+
+    if (lut_index == V_TO_SOC_LUT_SIZE)
+    {
+        // Ensures that the index is in the LUT range
+        lut_index--;
+    }
+    return LUT_BASE_SOC + lut_index * 0.5f;
+}
+
+float App_Soc_GetVocFromSoc(float soc_percent)
+{
+    uint8_t lut_index = 0;
+
+    while( (LUT_BASE_SOC + lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE))
+    {
+        lut_index++;
+    }
+
+    if (lut_index == V_TO_SOC_LUT_SIZE)
+    {
+    // Ensures that the index is in the LUT range
+    lut_index--;
+    }
+
+    return voc_soc_lut[lut_index];
+}
+
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result)
 {
     if (max_abs_difference < 0.0f || max_abs_difference > 100.0f || soc_1 < 0.0f || soc_1 > 100.0f || soc_2 < 0.0f ||
@@ -105,23 +140,8 @@ float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
 
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
 {
-    float soc_percent = (float)soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C;
-
-
-    uint8_t lut_index;
-
-
-    // Find the index for the cell soc to look up the open-circuit voltage
-    for (lut_index = 0U; (lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE); lut_index++)
-        ;
-
-    if (lut_index == V_TO_SOC_LUT_SIZE)
-    {
-        // Ensures that the index is in the LUT range
-        lut_index--;
-    }
-
-    return new_lut[lut_index];
+    float soc_percent = App_SocStats_GetMinSoc(soc_stats);
+    return App_Soc_GetVocFromSoc(soc_percent);
 }
 
 void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator)
@@ -129,22 +149,12 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
     uint8_t segment;
     uint8_t cell;
 
-    const float cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &segment, &cell);
+    const float min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &segment, &cell);
 
-    uint8_t lut_index;
-    for (lut_index = 0; cell_voltage < new_lut[lut_index]; lut_index++)
-        ;
+    float soc_percent = App_Soc_GetSocFromVoc(min_cell_voltage);
 
-    if (lut_index == V_TO_SOC_LUT_SIZE)
-    {
-        // Ensures that the index is in the LUT range
-        lut_index--;
-    }
-
-    float soc_percent = 5.0f + lut_index * 0.5f;
-
-    // Divide by 1000 for mA to A conversion
-    soc_stats->charge_c = (double) (soc_percent * SERIES_ELEMENT_FULL_CHARGE_C);
+    // convert from percent to coulombs
+    soc_stats->charge_c = (double)(soc_percent * SERIES_ELEMENT_FULL_CHARGE_C);
 }
 
 void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
