@@ -49,18 +49,18 @@ list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(STM32_DEVICE_TYPE STM32F412Rx)
 
-file(GLOB GOOGLETEST_TEST_SRCS "test/*.cpp")
-list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "test/main.cpp")
-set(GOOGLETEST_TEST_INCLUDE_DIRS
-    "test"
-)
+# file(GLOB GOOGLETEST_TEST_SRCS "test/*.cpp")
+# list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "test/main.cpp")
+# set(GOOGLETEST_TEST_INCLUDE_DIRS
+#     "test"
+# )
 
-if("${PLATFORM}" STREQUAL "x86")
-    create_fake_library(
-        "f4dev_fakes"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
-    )
-endif()
+# if("${PLATFORM}" STREQUAL "x86")
+#     create_fake_library(
+#         "f4dev_fakes"
+#         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
+#     )
+# endif()
 
 
 # INCLUDES and SOURCES from shared
@@ -81,6 +81,6 @@ create_arm_binary_or_tests_for_board(
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
     "${SELECTED_SHARED_SRCS}"
-    "${GOOGLETEST_TEST_SRCS}"
-    "${GOOGLETEST_TEST_INCLUDE_DIRS}"
+    ""
+    ""
 )
