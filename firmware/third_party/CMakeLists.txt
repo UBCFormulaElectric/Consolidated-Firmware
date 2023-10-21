@@ -23,9 +23,4 @@ if("${PLATFORM}" STREQUAL "arm")
 endif()
 
 
-CPMAddPackage(
-  NAME littlefs
-  GITHUB_REPOSITORY littlefs-project/littlefs
-  GIT_TAG v2.8.0
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/littlefs  # Specify the source directory
-)
+
