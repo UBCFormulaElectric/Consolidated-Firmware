@@ -11,6 +11,8 @@ import Graph from './components/graph.tsx';
 import Dashboard from './components/dashboard.tsx';
 import DropdownMenu from './components/dropdown_menu';
 
+const FLASK_URL = "http://localhost:5000"
+
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
     const [socketInstance, setSocketInstance] = useState("");
@@ -30,7 +32,7 @@ const Home = () => {
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
-        const socket = io("http://localhost:5000/", {
+        const socket = io(FLASK_URL, {
             transports: ["websocket"],
             cors: {
                 origin: "http://localhost:3000/",
@@ -62,8 +64,11 @@ const Home = () => {
             <Divider></Divider>
             <div className="flex-container">
             {graphs.map(graphId => (
-     <Graph key={graphId} id={graphId} socket={socketInstance} onDelete={() => deleteGraph(graphId)}/>
-))}
+                 <Graph 
+                    key={graphId} id={graphId} url={FLASK_URL}
+                    onDelete={() => deleteGraph(graphId)}
+                 />
+            ))}
             </div>
         </div>);
     } else {

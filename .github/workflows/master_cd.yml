@@ -1,0 +1,43 @@
+name: Binary and DBC Generation
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # Build DBC and Binaries
+  build:
+    name: Build Firmware Binaries
+    uses: ./.github/workflows/build.yml
+    secrets:
+      docker_token: ${{secrets.DOCKER_TOKEN}}
+    with:
+      upload_artifact: true
+  generate-dbc:
+    name: Call DBC Generation
+    uses: ./.github/workflows/dbc-gen.yml
+    secrets:
+      docker_token: ${{secrets.DOCKER_TOKEN}}
+    with:
+      upload_artifact: true
+  make-release:
+    name: Add Binaries and DBC to Release Tab
+    runs-on: ubuntu-22.04
+    needs: [ build, generate-dbc ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          sparse-checkout: .github
+      - name: Download Binaries and DBC from Artifacts
+        uses: actions/download-artifact@v3
+      - name: Create Release
+        uses: ./.github/actions/push_release
+        with:
+          # https://github.com/actions/download-artifact#download-all-artifacts
+          files: "FSM.elf/FSM.elf BMS.elf/BMS.elf DCM.elf/DCM.elf DIM.elf/DIM.elf GSM.elf/GSM.elf PDM.elf/PDM.elf CanMsgs.dbc/CanMsgs.dbc"
+          latest: true
+          title: "Stable Binaries and DBCs"
+          body: "This release contains the latest stable binaries and DBCs."
+          tag_name: "latest"

@@ -44,7 +44,6 @@ const DropdownMenu = (props) => {
             <Dropdown 
                 menu={{ items }} 
                 open={open}
-                
             >
                 <Button onClick={() => setOpen(!open)} style={{"display":"block"}}>
                     <Space>
