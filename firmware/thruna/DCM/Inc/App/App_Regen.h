@@ -5,11 +5,11 @@
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 
-struct RegenBraking
+typedef struct RegenBraking
 {
     float left_inverter_torque;
     float right_inverter_torque;
-};
+} RegenBraking;
 
 /**
  * Run safety checks before starting regenerative braking and execute

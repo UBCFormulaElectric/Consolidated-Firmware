@@ -18,9 +18,9 @@ static bool power_limit_check(void);
  * Algorithm to send negative torque request
  * dependent on accelerator pedal percentage
  */
-static void compute_regen_torque_request(struct RegenBraking *regenAttr);
+static void compute_regen_torque_request(RegenBraking *regenAttr);
 
-struct RegenBraking regenAttributes;
+RegenBraking regenAttributes;
 const float         MAXREGEN            = -50.0f; // TODO: find max regen torque value
 const float         wheelSpeedThreshold = 5.0f;
 
@@ -38,7 +38,7 @@ void App_Run_Regen(void)
     App_Regen_Activate(regenAttributes.left_inverter_torque, regenAttributes.right_inverter_torque);
 }
 
-bool App_Regen_Safety(struct RegenBraking *regenAttr)
+bool App_Regen_Safety(RegenBraking *regenAttr)
 {
     const bool batteryTempInRange = App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45;
     return batteryTempInRange && wheel_speed_in_range() && power_limit_check();
@@ -64,7 +64,7 @@ static bool power_limit_check(void)
     return App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get() < 4.0f;
 }
 
-static void compute_regen_torque_request(struct RegenBraking *regenAttr)
+static void compute_regen_torque_request(RegenBraking *regenAttr)
 {
     float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
 
