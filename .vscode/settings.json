@@ -7,5 +7,7 @@
 			"url": "/can_bus/json/schema_tx.json"
 		}
 	],
-	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}"
+	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}",
+	"cmake.configureOnEdit": false,
+	"cmake.configureOnOpen": true
 }
