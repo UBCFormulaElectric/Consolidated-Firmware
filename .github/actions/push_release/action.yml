@@ -62,7 +62,8 @@ runs:
         FILES: format(${{ inputs.files }}, '\n', " ")
       run: |
         ls -l -a
-        gh release create ${{ inputs.tag_name }} ${{ inputs.files }} \
+        echo ${{env.FILES}}
+        gh release create ${{ inputs.tag_name }} ${{ env.files }} \
           ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
