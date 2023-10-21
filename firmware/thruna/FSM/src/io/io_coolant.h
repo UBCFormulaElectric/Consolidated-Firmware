@@ -32,7 +32,7 @@ float io_coolant_getFlowRate(void);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the primary flow meter.
  */
-void io_coolant_isFlowMeterActive(void);
+void io_coolant_checkIfFlowMeterActive(void);
 
 /**
  * @returns the temperature of the coolant at [sensor B] in Celsius

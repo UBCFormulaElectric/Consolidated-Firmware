@@ -1,6 +1,7 @@
 #include "io_wheels.h"
 #include <assert.h>
 #include <math.h>
+#include "main.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 
 // Note: Unit for length is measured in metres unless specified
@@ -12,9 +13,7 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 
 static struct FreqOnlyPwmInput *left_wheel_speed_sensor, *right_wheel_speed_sensor;
 
-void io_wheels_Init(
-    TIM_HandleTypeDef *htim_left_wheel_speed_sensor,
-    TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
+void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed_sensor, TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
 {
     assert(htim_left_wheel_speed_sensor != NULL);
     assert(htim_right_wheel_speed_sensor != NULL);
@@ -56,12 +55,12 @@ float io_wheels_getRightSpeedKph(void)
            Io_SharedFreqOnlyPwmInput_GetFrequency(right_wheel_speed_sensor);
 }
 
-void io_wheels_isLeftSensorActive(void)
+void io_wheels_checkIfLeftSensorActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(left_wheel_speed_sensor);
 }
 
-void io_wheels_isRightSensorActive(void)
+void io_wheels_checkIfRightSensorActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(right_wheel_speed_sensor);
 }

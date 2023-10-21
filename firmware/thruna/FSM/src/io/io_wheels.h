@@ -8,7 +8,7 @@
  * @param htim_left_wheel_speed Timer handle for the left wheel speed
  * @param htim_right_wheel_speed Timer handle for the right wheel speed
  */
-void io_wheels_Init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef *htim_right_wheel_speed);
+void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef *htim_right_wheel_speed);
 
 /**
  * Update the frequency for the left and right wheel speed sensors.
@@ -39,7 +39,7 @@ float io_wheels_getRightSpeedKph(void);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the left wheel speed sensor.
  */
-void io_wheels_isLeftSensorActive(void);
+void io_wheels_checkIfLeftSensorActive(void);
 
 /**
  * Check if the PWM signal of the right wheel speed sensor is active. If
@@ -49,4 +49,4 @@ void io_wheels_isLeftSensorActive(void);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the right wheel speed sensor.
  */
-void io_wheels_isRightSensorActive(void);
+void io_wheels_checkIfRightSensorActive(void);

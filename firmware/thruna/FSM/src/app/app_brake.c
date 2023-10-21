@@ -1,19 +1,20 @@
 #include "app_brake.h"
 #include <stdlib.h>
 #include <assert.h>
+#include "App_InRangeCheck.h"
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
 #include "io_brake.h"
 
-#define BRAKE_PRESSED_PRESSURE_THRESHOLD_PSI (40.0f)
-#define MIN_BRAKE_PRESSURE_PSI (0.0f)
-#define MAX_BRAKE_PRESSURE_PSI (1000.0f)
-
-static struct InRangeCheck front_pressure_in_range_check;
-static struct InRangeCheck rear_pressure_in_range_check;
+static struct InRangeCheck *front_pressure_in_range_check;
+static struct InRangeCheck *rear_pressure_in_range_check;
 
 void app_brake_init()
 {
-    front_pressure_in_range_check = App_InRangeCheck_Create(io_brake_getFrontPressurePsi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
-    rear_pressure_in_range_check = App_InRangeCheck_Create(io_brake_getRearPressurePsi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+    front_pressure_in_range_check =
+        App_InRangeCheck_Create(io_brake_getFrontPressurePsi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+    rear_pressure_in_range_check =
+        App_InRangeCheck_Create(io_brake_getRearPressurePsi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 }
 
 void app_brake_broadcast()
@@ -36,11 +37,11 @@ void app_brake_broadcast()
     App_CanTx_FSM_Brake_RearBrakePressure_Set((uint32_t)rear_pressure);
     App_CanAlerts_SetWarning(FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE, rear_pressure_status != VALUE_IN_RANGE);
 
-    const bool brake_pressure_ocsc = io_brake_frontPressureSensorOCSC() || io_brake_getRearPressurePsi();
-    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
-    App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(brake->pedal_travel_sensor_ocsc());
+    const bool brake_pressure_ocsc = io_brake_frontPressureSensorOCSC() || io_brake_rearPressureSensorOCSC();
+    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(brake_pressure_ocsc);
+    App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(io_brake_pedalSensorOCSC());
 
-    if (brake->pedal_travel_sensor_ocsc())
+    if (io_brake_pedalSensorOCSC())
     {
         App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);
     }

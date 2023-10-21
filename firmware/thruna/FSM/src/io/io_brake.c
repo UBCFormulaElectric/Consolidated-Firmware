@@ -34,34 +34,35 @@ static float pressureFromVoltage(float voltage)
 
 bool io_brake_isActuated(void)
 {
-    return io_brake_getFrontPressurePsi() > BRAKE_PRESSED_PRESSURE_THRESHOLD_PSI || io_brake_getRearPressurePsi > BRAKE_PRESSED_PRESSURE_THRESHOLD_PSI;
+    return io_brake_getFrontPressurePsi() > BRAKE_PRESSURE_PRESSED_THRESHOLD_PSI ||
+           io_brake_getRearPressurePsi() > BRAKE_PRESSURE_PRESSED_THRESHOLD_PSI;
 }
 
 float io_brake_getFrontPressurePsi(void)
 {
-    return pressureFromVoltage(Io_Adc_GetChannelVoltage(ADC_CHANNEL_7));
+    return pressureFromVoltage(hw_adc_getVoltage(ADC_CHANNEL_7));
 }
 
 bool io_brake_frontPressureSensorOCSC(void)
 {
-    float front_pressure_voltage = Io_Adc_GetChannelVoltage(ADC_CHANNEL_7);
+    float front_pressure_voltage = hw_adc_getVoltage(ADC_CHANNEL_7);
     return pressureSensorOCSC(front_pressure_voltage);
 }
 
 float io_brake_getRearPressurePsi(void)
 {
-    return pressureFromVoltage(Io_Adc_GetChannelVoltage(ADC_CHANNEL_8));
+    return pressureFromVoltage(hw_adc_getVoltage(ADC_CHANNEL_8));
 }
 
 bool io_brake_rearPressureSensorOCSC(void)
 {
-    float rear_pressure_voltage = Io_Adc_GetChannelVoltage(ADC_CHANNEL_8);
+    float rear_pressure_voltage = hw_adc_getVoltage(ADC_CHANNEL_8);
     return pressureSensorOCSC(rear_pressure_voltage);
 }
 
 float io_brake_getPedalPercentTravel(void)
 {
-    float       pedal_voltage    = Io_Adc_GetChannelVoltage(ADC_CHANNEL_9);
+    float       pedal_voltage    = hw_adc_getVoltage(ADC_CHANNEL_9);
     const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
     return 100.0f - (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
 }
@@ -69,6 +70,6 @@ float io_brake_getPedalPercentTravel(void)
 bool io_brake_pedalSensorOCSC(void)
 {
     return !(
-        BRAKE_PEDAL_MIN_VOLTAGE <= Io_Brake_GetPedalSensorVoltage() &&
-        Io_Brake_GetPedalSensorVoltage() <= BRAKE_PEDAL_MAX_VOLTAGE);
+        BRAKE_PEDAL_MIN_VOLTAGE <= hw_adc_getVoltage(ADC_CHANNEL_9) &&
+        hw_adc_getVoltage(ADC_CHANNEL_9) <= BRAKE_PEDAL_MAX_VOLTAGE);
 }

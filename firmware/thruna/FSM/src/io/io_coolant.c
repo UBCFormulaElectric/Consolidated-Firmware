@@ -1,5 +1,6 @@
 #include "io_coolant.h"
 #include <assert.h>
+#include "main.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "hw_adc.h"
 
@@ -21,7 +22,7 @@ void io_coolant_init(TIM_HandleTypeDef *htim)
         htim, TIMx_FREQUENCY / TIM8_PRESCALER, TIM_CHANNEL_1, TIM8_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
-void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
+void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(flow_meter) &&
         htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(flow_meter))
@@ -35,7 +36,7 @@ float io_coolant_getFlowRate(void)
     return Io_SharedFreqOnlyPwmInput_GetFrequency(flow_meter) / FLOW_RATE_CONVERSION_FACTOR;
 }
 
-void io_coolant_isFlowMeterActive(void)
+void io_coolant_checkIfFlowMeterActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
@@ -43,23 +44,23 @@ void io_coolant_isFlowMeterActive(void)
 float io_coolant_getTemperatureA(void)
 {
     // TODO calculate the temperature
-    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_4);
+    return hw_adc_getVoltage(ADC_CHANNEL_4);
 }
 
 float io_coolant_getTemperatureB(void)
 {
     // TODO calculate the temperature
-    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_5);
+    return hw_adc_getVoltage(ADC_CHANNEL_5);
 }
 
 float io_coolant_getPressureA(void)
 {
     // TODO calculate the pressure
-    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_0);
+    return hw_adc_getVoltage(ADC_CHANNEL_0);
 }
 
 float io_coolant_getPressureB(void)
 {
     // TODO calculate the pressure
-    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_3);
+    return hw_adc_getVoltage(ADC_CHANNEL_3);
 }

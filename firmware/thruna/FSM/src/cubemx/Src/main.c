@@ -25,41 +25,38 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <assert.h>
-// shared
+
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
+#include "App_SharedHeartbeatMonitor.h"
 #include "App_Timer.h"
-#include "App_CanAlerts.h"
+#include "states/app_driveState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_apps.h"
+#include "app_brake.h"
+#include "app_coolant.h"
+#include "app_steering.h"
+#include "app_wheels.h"
+#include "app_globals.h"
 
-// IO functions exposing
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_StackWaterMark.h"
-#include "Io_SoftwareWatchdog.h"
-#include "Io_Coolant.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_WheelSpeedSensors.h"
-#include "Io_SteeringAngleSensor.h"
-#include "Io_Adc.h"
-#include "Io_AcceleratorPedals.h"
-#include "Io_Brake.h"
-#include "Io_PrimaryScancon2RMHF.h"
-#include "Io_SecondaryScancon2RMHF.h"
+#include "io_stackWaterMark.h"
+#include "io_watchdogConfig.h"
+#include "io_coolant.h"
+#include "io_wheels.h"
+#include "io_steering.h"
+#include "io_apps.h"
+#include "io_brake.h"
 
-// world/state
-#include "App_FsmWorld.h"
-#include "states/App_DriveState.h"
-
-// Sensors
-#include "App_AcceleratorPedals.h"
-#include "App_Brake.h"
-#include "App_Coolant.h"
-#include "App_Steering.h"
-#include "App_Wheels.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
+#include "hw_adc.h"
 
 /* USER CODE END Includes */
 
@@ -197,41 +194,31 @@ int main(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     Io_SharedHardFaultHandler_Init();
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+
+    io_coolant_init(&htim8);
+    io_wheels_init(&htim12, &htim12);
 
     App_CanTx_Init();
     App_CanRx_Init();
 
+    app_apps_init();
+    app_brake_init();
+    app_coolant_init();
+    app_steering_init();
+    app_wheels_init();
+
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetSapps,
-        Io_AcceleratorPedals_SappsOCSC);
-
-    brake = App_Brake_Create(
-        Io_Brake_GetFrontPressurePsi, Io_Brake_FrontPressureSensorOCSC, Io_Brake_GetRearPressurePsi,
-        Io_Brake_RearPressureSensorOCSC, Io_Brake_GetPedalPercentTravel, Io_Brake_PedalSensorOCSC, Io_Brake_IsActuated);
-
-    Io_FlowMeter_Init(&htim8);
-    coolant = App_Coolant_Create(
-        Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
-        Io_Coolant_GetPressureB);
-
-    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree, Io_SteeringSensorOCSC);
-
-    Io_WheelSpeedSensors_Init(&htim12, &htim12);
-    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
-
-    world = App_FsmWorld_Create(heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
+    state_machine              = App_SharedStateMachine_Create(NULL, app_driveState_get());
+    globals->heartbeat_monitor = heartbeat_monitor;
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -818,7 +805,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        Io_StackWaterMark_Check();
+        io_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
@@ -846,15 +833,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeter_CheckIfFlowMeterIsActive();
+        io_coolant_checkIfFlowMeterActive();
     }
     else if (htim->Instance == TIM12)
     {
-        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+        io_wheels_checkIfLeftSensorActive();
     }
     else if (htim->Instance == TIM12)
     {
-        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
+        io_wheels_checkIfRightSensorActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

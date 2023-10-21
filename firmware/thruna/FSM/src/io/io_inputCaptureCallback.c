@@ -5,6 +5,6 @@
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    io_flowMeter_inputCaptureCallback(htim);
-    io_wheelSpeedSensors_inputCaptureCallback(htim);
+    io_coolant_inputCaptureCallback(htim);
+    io_wheels_inputCaptureCallback(htim);
 }

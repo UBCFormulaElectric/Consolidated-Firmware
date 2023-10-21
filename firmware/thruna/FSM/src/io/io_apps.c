@@ -36,7 +36,7 @@
 float io_apps_getPrimary(void)
 {
     // Length calculated via voltage
-    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_2);
+    float       pedal_voltage = hw_adc_getVoltage(ADC1_CHANNEL_2);
     const float pot_len_mm    = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
     // Calculate pedal percentage
@@ -57,7 +57,7 @@ float io_apps_getSecondary(void)
 {
     // TODO implement IO functionality
     // Length calculated via voltage
-    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+    float       pedal_voltage = hw_adc_getVoltage(ADC1_CHANNEL_1);
     const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
     // Compute the angle relative to the y-axis with cosine law

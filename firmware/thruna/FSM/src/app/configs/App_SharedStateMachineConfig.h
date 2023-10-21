@@ -1,5 +1,4 @@
 #pragma once
 
-#include "App_FsmWorld.h"
-
+struct FsmWorld;
 #define World FsmWorld
