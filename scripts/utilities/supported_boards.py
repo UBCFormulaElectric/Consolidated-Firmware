@@ -22,7 +22,6 @@ def get_board_names() -> Tuple[str]:
         filter(lambda x: path_is_folder_and_has_ioc_file(os.path.join(path_to_boards, x)), listdir(path_to_boards)))
     return supported_board_names
 
-def get_board_names() -> Tuple[str]:
 
 def print_space_delimited_board_names():
     """
