@@ -59,11 +59,9 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        RELEASE: ${{inputs.latest && '--latest' || '-p'}}
         FILES: ${{ inputs.files }}
       run: |
         ls -l -a
-        echo ${{inputs.latest}}
         gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
           ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
