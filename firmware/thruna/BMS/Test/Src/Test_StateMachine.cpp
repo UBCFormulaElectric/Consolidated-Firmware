@@ -54,7 +54,6 @@ FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(bool, check_imd_latched_fault);
 FAKE_VALUE_FUNC(bool, check_bspd_latched_fault);
 FAKE_VALUE_FUNC(bool, check_bms_latched_fault);
-FAKE_VAUE_FUNC()
 
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
@@ -283,12 +282,25 @@ TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
 }
 
-// Make this test for the inverter
+// // TODO:
 TEST_F(BmsStateMachineTest, check_inverter_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInverterState());
-
     EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+}
+
+// TODO:
+TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge) 
+{
+    SetInitialState(App_GetInitState());
+
+    is_charger_connected_fake.return_val   = false;
+    is_air_negative_closed_fake.return_val = true;
+    LetTimePass(state_machine, 150);
+    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+
+    LetTimePass(state_machine, 2000);
+    EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
