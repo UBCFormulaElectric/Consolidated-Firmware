@@ -73,3 +73,14 @@ if("${PLATFORM}" STREQUAL "x86")
         "${GOOGLETEST_TEST_INCLUDE_DIRS}"
     )
 endif()
+
+set(SHARED_EMBEDDED_SRCS ${SHARED_APP_SRCS} ${SHARED_IO_SRCS} ${SHARED_HW_SRCS})
+set(SHARED_EMBEDDED_INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIRS} ${SHARED_IO_INCLUDE_DIRS})
+
+compile_embedded_lib(
+    "shared_embedded"
+    "${SHARED_EMBEDDED_SRCS}"
+    "${SHARED_EMBEDDED_INCLUDE_DIRS}"
+    "STM32F412Rx"
+)
+target_link_libraries("shared_embedded" "dim_stm32cube")
