@@ -2,14 +2,13 @@
 
 import { useEffect, useState, React } from 'react';
 import { io } from "socket.io-client";
-import { Layout, Divider, Button } from 'antd';
+import { Layout, Divider, Button, Switch } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
 import NavBar from './components/navbar.tsx';
 import Graph from './components/graph.tsx';
 import Dashboard from './components/dashboard.tsx';
-import DropdownMenu from './components/dropdown_menu';
 
 const FLASK_URL = "http://localhost:5000"
 
@@ -18,17 +17,26 @@ const Home = () => {
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
+    const [zoomData, setZoomData] = useState([]);
+    // determines if all graphs are supposed to zoom together or not
+    const [sync, setSync] = useState(false);
+    
 
-    // logic to add a new graph
+    //add a new graph
     const addGraph = () => {
         const newGraphId = Date.now();  
         setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
     };
 
+    //delete a graph
     const deleteGraph = (graphId) => {
         setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
     };
-    
+
+    //set sync for all graphs
+    const setSyncAll = (sync) => {
+        setSync(!sync);
+    }
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
@@ -60,12 +68,16 @@ const Home = () => {
         <div className="layout">
             <h1>Visualize</h1>
             <p>Select a signal from the dropdown menu and the press submit to visualize the data on the graph.</p>
+            <div>
+                 <Switch onClick={setSync}></Switch>
+                    <p>Sync Zoom</p>
+            </div>
             <Button onClick={addGraph}>Add Another Graph</Button>
             <Divider></Divider>
             <div className="flex-container">
             {graphs.map(graphId => (
                  <Graph 
-                    key={graphId} id={graphId} url={FLASK_URL}
+                    key={graphId} id={graphId} url={FLASK_URL} sync={sync} setZoomData={setZoomData} zoomData={zoomData}
                     onDelete={() => deleteGraph(graphId)}
                  />
             ))}
