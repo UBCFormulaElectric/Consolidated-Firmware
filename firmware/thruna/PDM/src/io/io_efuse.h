@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -13,7 +14,7 @@ typedef struct
     const AdcChannel cur_sns_adc_channel;
 } EfuseConfig;
 #else
-EMPTY_STRUCT(BinaryLed);
+EMPTY_STRUCT(EfuseConfig);
 #endif
 
 typedef enum

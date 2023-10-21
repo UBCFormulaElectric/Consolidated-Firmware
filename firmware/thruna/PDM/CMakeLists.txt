@@ -64,10 +64,13 @@ set(SELECTED_SHARED_SRCS
 )
 
 if("${PLATFORM}" STREQUAL "x86")
+    list(APPEND HDRS_TO_FAKE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h
+    )
     create_fake_library(
         "PDM_fakes"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+        "${HDRS_TO_FAKE}"
     )
 endif()
 

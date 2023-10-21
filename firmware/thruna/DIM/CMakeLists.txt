@@ -56,12 +56,14 @@ set(GOOGLETEST_TEST_INCLUDE_DIRS
 )
 
 if("${PLATFORM}" STREQUAL "x86")
-    create_fake_library(
-        "DIM_fakes"
+    list(APPEND HDRS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )
+    create_fake_library(
+        "DIM_fakes"
+        "${HDRS_TO_FAKE}"
+    )
 endif()
-
 
 # INCLUDES and SOURCES from shared
 # Define the shared code that you want to use in this project
