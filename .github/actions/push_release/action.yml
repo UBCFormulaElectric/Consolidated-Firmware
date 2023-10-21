@@ -65,7 +65,7 @@ runs:
         ls -l -a
         echo ${{inputs.latest}}
         gh release create ${{ inputs.tag_name }} ${{ env.FILES }} \
-          ${{inputs.latest && '--latest' || '-p'}} \ 
+          ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
