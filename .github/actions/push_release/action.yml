@@ -59,10 +59,10 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        FILES: ${{ inputs.files }}
+        FILES: format(${{ inputs.files }}, '\n', " ")
       run: |
         ls -l -a
-        gh release create ${{ inputs.tag_name }} ${{ inputs.FILES }} \
+        gh release create ${{ inputs.tag_name }} ${{ inputs.files }} \
           ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
