@@ -20,13 +20,13 @@ elseif("${PLATFORM}" STREQUAL "x86")
 endif()
 
 # Generate header file for commit message
+set(GENERATE_COMMIT_INFO_SCRIPT_PY
+${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
+
 function(commit_info_code_generation
     HEADER_OUTPUT_PATH
     SRC_OUTPUT_PATH
 )
-    set(GENERATE_COMMIT_INFO_SCRIPT_PY
-    ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
-
     add_custom_command(
       OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
       COMMAND ${PYTHON_COMMAND}

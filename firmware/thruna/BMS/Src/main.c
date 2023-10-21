@@ -276,10 +276,6 @@ int main(void)
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
 
-    // broadcast
-
-    // broadcast
-
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
