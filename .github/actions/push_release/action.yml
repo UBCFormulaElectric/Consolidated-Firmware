@@ -59,7 +59,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
-        FILES: format(${{ inputs.files }}, '\n', " ")
+        FILES: ${{format(inputs.files, '\n', ' ')}}
       run: |
         ls -l -a
         echo ${{env.FILES}}
