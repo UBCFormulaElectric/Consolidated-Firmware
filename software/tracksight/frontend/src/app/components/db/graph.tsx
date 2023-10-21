@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 import { PlotRelayoutEvent } from 'plotly.js';
 
-import { Card, Button } from 'antd';
+import { Card, Button, Space } from 'antd';
 
 import QueryData from './query_data';
 import { MessageInstance } from 'antd/es/message/interface';
@@ -20,8 +20,7 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
 }
 
 export interface GraphProps {
-    graphid: string,
-    id: string,
+    id: number,
     url: string,
     sync: boolean,
     setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
@@ -125,8 +124,10 @@ const Graph = (props: GraphProps) => {
                   onRelayout={handleZoom}
             />
             <br></br>
-            <Button onClick={clearData}>Clear</Button>
-            <Button onClick={props.onDelete}>Delete This Graph</Button>
+            <Space.Compact size={"middle"}>
+      <Button block={true} className="clear" onClick={clearData}>Clear</Button>
+      <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
+      </Space.Compact>
         </Card>
     );
 }

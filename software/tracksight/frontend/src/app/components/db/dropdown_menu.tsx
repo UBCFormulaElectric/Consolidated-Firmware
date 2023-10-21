@@ -1,13 +1,13 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'; 
 import { Select } from 'antd';
 
-export interface DropdownMenuProps {
-    setOption: Dispatch<SetStateAction<string[]>>,
-    selectedOptions: string[],
-    options: string[],
-    single: boolean,
-    name: string,
-}
+
+// props = url (HTTP url), avail (avail signals), signals (signals to be queried), setSignal (set data) 
+const DropdownMenu = (props) => {
+    const [items, setItems] = useState([]);
+    // for intermediate states of selected signals
+    const [open, setOpen] = useState(false);
+    const [selectedSignals, setSelectedSignals] = useState([]);
 
 const DropdownMenu = (props: DropdownMenuProps) => {
     const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
