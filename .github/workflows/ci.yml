@@ -47,7 +47,7 @@ jobs:
           - board: BMS
             ioc_dir: firmware/thruna/BMS
           - board: GSM
-            ioc_dir: firmware/thruna/GSM
+            ioc_dir: firmware/thruna/GSM/src/cubemx
 
     container:
       image: ubcformulaelectric/environment:latest
