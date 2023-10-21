@@ -61,12 +61,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: |
         ls -l -a
-        MY_STRING=$(cat << EOF
-        ${{inputs.files}}
-        EOF
-        )
-        echo MY_STRING
-        gh release create ${{ inputs.tag_name }} MY_STRING \
+        gh release create ${{ inputs.tag_name }}  ${{inputs.files}} \
           ${{inputs.latest == 'true' && '--latest' || '-p'}} \ 
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
