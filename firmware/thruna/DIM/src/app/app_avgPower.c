@@ -1,4 +1,4 @@
-#include <stdlib.h>
+// #include <stdlib.h>
 #include <assert.h>
 #include "app_avgPower.h"
 

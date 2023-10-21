@@ -1,93 +1,132 @@
-file(GLOB_RECURSE ARM_BINARY_APP_SRCS "src/app/*.*")
-set(ARM_BINARY_APP_INCLUDE_DIRS
-    "src/app"
-)
-file(GLOB ARM_BINARY_IO_SRCS
-    "src/io/*.c"
-    "src/dev/*.c"
-    "src/cubemx/Src/*.c"
-    "src/cubemx/Startup/*.s"
-)
-set(ARM_BINARY_IO_INCLUDE_DIRS
-    "src/io"
-    "src/dev"
-    "src/cubemx/Inc"
-)
-
-set(ARM_BINARY_X86_COMPATIBLE_SRCS
-    ${ARM_BINARY_APP_SRCS}
-    ${X86_COMPATIBLE_IO_SRCS})
-
-list(REMOVE_ITEM ARM_BINARY_IO_SRCS "")
-set(X86_INCOMPATIBLE_IO_SRCS "${ARM_BINARY_IO_SRCS}")
-set(ARM_BINARY_X86_INCOMPATIBLE_SRCS ${X86_INCOMPATIBLE_IO_SRCS})
-
-set(ARM_BINARY_INCLUDE_DIRS
-    ${ARM_BINARY_APP_INCLUDE_DIRS}
-    ${ARM_BINARY_IO_INCLUDE_DIRS})
-
-set(ARM_BINARY_IO_SYSCALLS_SRC "src/cubemx/Src/syscalls.c")
-list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${ARM_BINARY_IO_SYSCALLS_SRC})
-set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/STM32F412RGTX_FLASH.ld")
-
-set(DRIVERS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Drivers")
-set(FREERTOS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Middlewares/Third_Party/FreeRTOS/Source")
-set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
-    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc"
-    "${DRIVERS_SRC_DIR}/CMSIS/Include"
-    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
-    "${DRIVERS_SRC_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
-    "${FREERTOS_SRC_DIR}/include"
-    "${FREERTOS_SRC_DIR}/CMSIS_RTOS_V2"
-    "${FREERTOS_SRC_DIR}/portable/GCC/ARM_CM4F"
-)
-list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
-file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
-    "${DRIVERS_SRC_DIR}/*.c"
-    "${FREERTOS_SRC_DIR}/*.c"
-)
-list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
-
-# We use heap_useNewlib.c for a thread-safe heap implementation, so we can use malloc with FreeRTOS.
-# FreeRTOS also provides heap implementations, and when using the CMSIS_V2 interface we are required to pick one.
-# FreeRTOS's heap will cause linker errors with heap_useNewlib.c, so remove the FreeRTOS heap implementation from the build.
-# Source: https://nadler.com/embedded/newlibAndFreeRTOS.html
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_4.c")
-
-set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DIM.ioc")
-set(STM32_DEVICE_TYPE STM32F412Rx)
-
-file(GLOB GOOGLETEST_TEST_SRCS "test/*.cpp")
-list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "test/main.cpp")
-set(GOOGLETEST_TEST_INCLUDE_DIRS "test")
-
-if("${PLATFORM}" STREQUAL "x86")
-    create_fake_library(
-        "DIM_fakes"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
+if("${PLATFORM}" STREQUAL "arm")
+    set(STM32_HAL_SRCS
+        stm32f4xx_hal_adc_ex.c
+        stm32f4xx_hal_adc.c
+        stm32f4xx_hal_can.c
+        stm32f4xx_hal_cortex.c
+        stm32f4xx_hal_dma_ex.c
+        stm32f4xx_hal_dma.c
+        stm32f4xx_hal_exti.c
+        stm32f4xx_hal_flash_ex.c
+        stm32f4xx_hal_flash_ramfunc.c
+        stm32f4xx_hal_flash.c
+        stm32f4xx_hal_gpio.c
+        stm32f4xx_hal_iwdg.c
+        stm32f4xx_hal_pwr_ex.c
+        stm32f4xx_hal_pwr.c
+        stm32f4xx_hal_rcc_ex.c
+        stm32f4xx_hal_rcc.c
+        stm32f4xx_hal_spi.c
+        stm32f4xx_hal_tim_ex.c
+        stm32f4xx_hal_tim.c
+        stm32f4xx_hal.c
+        stm32f4xx_ll_adc.c
     )
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    stm32cube_library(
+        "dim_stm32cube"
+        "${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${STM32_HAL_SRCS}"
+        "${SYSCALLS}"
+        "STM32F412Rx"
+    )
+
+    file(GLOB_RECURSE NEWLIB_FREERTOS_PATCH_SRCS ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch/*.c)
+    compile_embedded_lib(
+        "dim_newlib"
+        "${NEWLIB_FREERTOS_PATCH_SRCS}"
+        ""
+        ""
+    )
+    target_link_libraries("dim_newlib" "dim_stm32cube")
+
+    jsoncan_library(
+        "dim_can"
+        "DIM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        "STM32F412Rx"
+    )
+    target_link_libraries("dim_can" "dim_stm32cube")
+
+    file(GLOB_RECURSE TARGET_EMBEDDED_SRCS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c"    
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Startup/*.s"
+    )
+    list(REMOVE_ITEM TARGET_EMBEDDED_SRCS "${SYSCALLS}")
+    set(TARGET_EMBEDDED_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+    )
+    set(SHARED_EMBEDDED_INCLUDE_DIRS
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/app"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/io"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/hw"
+    )
+    file(GLOB_RECURSE SHARED_EMBEDDED_SRCS 
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/app/*.c"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/io/*.c"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/hw/*.c"
+    )
+    set(EMBEDDED_SRCS ${TARGET_EMBEDDED_SRCS} ${SHARED_EMBEDDED_SRCS})
+    set(EMBEDDED_INCLUDE_DIRS ${TARGET_EMBEDDED_INCLUDE_DIRS} ${SHARED_EMBEDDED_INCLUDE_DIRS})
+
+    list(APPEND EMBEDDED_SRCS "${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/STM32F412RGTX_FLASH.ld)
+    compile_embedded_binary(
+        "dim.elf"
+        "${EMBEDDED_SRCS}"
+        "${EMBEDDED_INCLUDE_DIRS}"
+        "STM32F412Rx"
+        "${LINKER_SCRIPT}"
+    )
+    target_link_libraries("dim.elf" "dim_stm32cube" "dim_can" "dim_newlib")
 endif()
 
+if("${PLATFORM}" STREQUAL "x86")
+    set(TARGET_TEST_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test"
+    )
+    file(GLOB_RECURSE TARGET_TEST_SRCS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+    )
+    set(SHARED_TEST_INCLUDE_DIRS 
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/app"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/src/io"
+        "${CMAKE_SOURCE_DIR}/firmware/shared/test_utils"
+    )
+    file(GLOB_RECURSE SHARED_TEST_SRCS "${CMAKE_SOURCE_DIR}/firmware/shared/src/app/*.c")
+    set(TEST_SRCS ${TARGET_TEST_SRCS} ${SHARED_TEST_SRCS})
+    set(TEST_INCLUDE_DIRS ${TARGET_TEST_INCLUDE_DIRS} ${SHARED_TEST_INCLUDE_DIRS})
 
-# INCLUDES and SOURCES from shared
-# Define the shared code that you want to use in this project
-set(SELECTED_SHARED_SRCS
-    ${ALL_SHARED_APP_SRCS}
-    ${ALL_SHARED_IO_SRCS}
-    ${ALL_SHARED_HW_SRCS}
-)
+    jsoncan_library(
+        "dim_can"
+        "DIM"
+        "${CMAKE_CURRENT_BINARY_DIR}/jsoncan"
+        ""
+    )
 
-create_arm_binary_or_tests_for_board(
-    "DIM"
-    "${IOC_FILE}"
-    "${ARM_BINARY_X86_COMPATIBLE_SRCS}"
-    "${ARM_BINARY_X86_INCOMPATIBLE_SRCS}"
-    "${ARM_BINARY_INCLUDE_DIRS}"
-    "${ARM_BINARY_THIRD_PARTY_SRCS}"
-    "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
-    "${ARM_LINKER_SCRIPT}"
-    "${STM32_DEVICE_TYPE}"
-    "${SELECTED_SHARED_SRCS}"
-    "${GOOGLETEST_TEST_SRCS}"
-    "${GOOGLETEST_TEST_INCLUDE_DIRS}"
-)
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
+    )
+    create_fake_library(
+        "dim_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+
+    compile_gtest_executable(
+        "dim_test"
+        "${TEST_SRCS}"
+        "${TEST_INCLUDE_DIRS}"
+    )
+    target_link_libraries("dim_test" "dim_can" "dim_fakes" "shared_fakes")
+endif()
