@@ -134,8 +134,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Accumulator_UpdateAuxThermistorTemps(accumulator);
 
     const bool acc_warning = App_Accumulator_CheckWarnings(accumulator, ts);
-    const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
-    const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
+    const bool acc_fault   = App_Accumulator_CheckFaults(accumulator, ts);
+    const bool ts_fault    = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
@@ -163,8 +163,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-    else if(acc_warning){
-        //Cut torque requests to wheels??
+    else if (acc_warning)
+    {
+        // Cut torque requests to wheels??
     }
 
     return status;
