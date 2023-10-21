@@ -1,4 +1,3 @@
-
 function(create_fake_library
     LIBRARY_NAME
     HDRS_TO_FAKE
