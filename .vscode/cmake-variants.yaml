@@ -1,0 +1,17 @@
+platform:
+    default: arm
+    choices:
+        arm: 
+            short: Embedded
+            settings:
+                PLATFORM: arm
+            env:
+                PLATFORM: arm
+            buildType: Debug
+        x86: 
+            short: Tests
+            settings:
+                PLATFORM: x86
+            env:
+                PLATFORM: x86
+            buildType: Debug
