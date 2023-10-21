@@ -1,9 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
-ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_1
-ADC1.IPParameters=Rank-0\#ChannelRegularConversion,master,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,NbrOfConversionFlag
+ADC1.IPParameters=master,NbrOfConversionFlag,Resolution
 ADC1.NbrOfConversionFlag=1
-ADC1.Rank-0\#ChannelRegularConversion=1
-ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_3CYCLES
+ADC1.Resolution=ADC_RESOLUTION_8B
 ADC1.master=1
 CAN1.CalculateTimeQuantum=333.3333333333333
 CAN1.IPParameters=CalculateTimeQuantum
