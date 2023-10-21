@@ -81,4 +81,3 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-

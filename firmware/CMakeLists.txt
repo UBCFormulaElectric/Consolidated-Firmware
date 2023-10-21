@@ -198,6 +198,7 @@ function(jsoncan_library
             "${CAN_SRCS}"
             "${CAN_INCLUDE_DIRS}"
             "${STM32_MCU}"
+            TRUE
         )
     elseif("${PLATFORM}" STREQUAL "x86")
         set(CAN_SRCS 
