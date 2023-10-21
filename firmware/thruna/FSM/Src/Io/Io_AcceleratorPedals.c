@@ -23,12 +23,11 @@
 
 // Denominator term for angle calculation using the cosine law
 
-#define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * LEN_B) 
+#define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * LEN_B)
 #define PAPPS_COS_LAW_COEFFICIENT ((PAPPS_LEN_A * PAPPS_LEN_A + LEN_B * LEN_B) / PAPPS_COS_LAW_DENOMINATOR)
 
-#define SAPPS_COS_LAW_DENOMINATOR (2.0f * SAPPS_LEN_A * LEN_B) 
+#define SAPPS_COS_LAW_DENOMINATOR (2.0f * SAPPS_LEN_A * LEN_B)
 #define SAPPS_COS_LAW_COEFFICIENT ((SAPPS_LEN_A * SAPPS_LEN_A + LEN_B * LEN_B) / SAPPS_COS_LAW_DENOMINATOR)
-
 
 // Macro to calculate the linear change in PAPPS length per change in voltage (we only use max because min = 0)
 
@@ -47,7 +46,7 @@
 #define SAPPS_LENGTH_UNPRESSED_MM (RAW_VOLTAGE_TO_LEN_MM(SAPPS_UNPRESSED_POT_V))
 #define SAPPS_LENGTH_FULLY_PRESSED_MM (RAW_VOLTAGE_TO_LEN_MM(SAPPS_FULL_PRESSED_POT_V))
 
-// OC & SC bounds 
+// OC & SC bounds
 
 #define PAPPS_MIN_V (PAPPS_UNPRESSED_POT_V - 0.5f)
 #define PAPPS_MAX_V (PAPPS_FULL_PRESSED_POT_V + 0.5f)
@@ -101,11 +100,10 @@ bool Io_AcceleratorPedals_PappsOCSC(void)
 
 float Io_AcceleratorPedals_GetSapps(void)
 {
-    
-    float       pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+    float pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
 
     // length calc from SAPPS voltage reading
-    const float pot_len_mm    = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
+    const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
     const float rest_angle =
         calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_COS_LAW_DENOMINATOR, SAPPS_LENGTH_UNPRESSED_MM);
