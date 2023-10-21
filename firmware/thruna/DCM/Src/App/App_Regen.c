@@ -29,6 +29,9 @@ void App_Run_Regen(void)
     if (App_Regen_Safety(&regenAttributes))
     {
         compute_regen_torque_request(&regenAttributes);
+    } else {
+        regenAttributes.left_inverter_torque  = 0.0;
+        regenAttributes.right_inverter_torque = 0.0;
     }
     // TODO: else statement to send warning?
 
@@ -37,14 +40,8 @@ void App_Run_Regen(void)
 
 bool App_Regen_Safety(struct RegenBraking *regenAttr)
 {
-    if (App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45 && wheel_speed_in_range() && power_limit_check())
-    {
-        return true;
-    }
-
-    regenAttr->left_inverter_torque  = 0.0;
-    regenAttr->right_inverter_torque = 0.0;
-    return false;
+    const bool batteryTempInRange = App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45;
+    return batteryTempInRange && wheel_speed_in_range() && power_limit_check();
 }
 
 void App_Regen_Activate(float left, float right)
