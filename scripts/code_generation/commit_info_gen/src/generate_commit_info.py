@@ -52,9 +52,14 @@ if __name__ == "__main__":
     data["clean"] = "0"
     print("commit_info_gen: Failed to get commit data, returning header with dummy data.")
 
+  # recursively generate output dirs if they do not exist
+  os.makedirs(os.path.dirname(args.output_header), exist_ok=True)
+  os.makedirs(os.path.dirname(args.output_source), exist_ok=True)
+
   # write
   with open(args.output_header, "w+") as file:
     file.write(header_template.render(data))
+  
   with open(args.output_source, "w+") as file:
     file.write(source_template.render({
       "header": os.path.basename(args.output_header)

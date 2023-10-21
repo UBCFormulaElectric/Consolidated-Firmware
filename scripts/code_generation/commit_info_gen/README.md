@@ -8,7 +8,7 @@ Invoke `src/generate_commit_info.py` with the `--output-header` and `--output-so
 
 For example,
 ```sh
-python3 src/generate_commit_info.py --output-header example_header.h --output-source example_source.c 
+python3 src/generate_commit_info.py --output-header ./examples/example_header.h --output-source ./examples/example_source.c
 ```
 
 ## Generated File
