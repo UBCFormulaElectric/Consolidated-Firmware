@@ -59,8 +59,9 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        ls -l
+        ls -l -a
         gh release create ${{ inputs.tag_name }} ${{ inputs.files }} \
+          ${{inputs.latest == 'true' && '--latest' || '-p'}} \
           --title "${{inputs.title}}" \
           --notes "${{inputs.body}}" \
           --repo UBCFormulaElectric/Consolidated-Firmware
