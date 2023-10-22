@@ -10,6 +10,7 @@
 #include "App_SharedMacros.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
+#define MAX_TORQUE_INCREASE_PER_100Hz_CYCLE 5.0f
 static TimerChannel pid_timeout;
 
 static PowerLimiting_Inputs       power_limiting_inputs;
@@ -19,6 +20,9 @@ static TractionControl_Inputs     traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
 static Regen_Inputs  regen_inputs;
 static Regen_Outputs regen_outputs;
+// Limiting dT
+static float prev_torque_left_Nm  = 0.0f;
+static float prev_torque_right_Nm = 0.0f;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -127,18 +131,19 @@ void App_TorqueVectoring_HandleAcceleration(void)
     torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
     torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
 
-    // Limit asymptotic torques at zero speed
-    if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
-    {
-        torque_left_final_Nm  = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
-        torque_right_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
-    }
+    // Limit increase in torque
+    torque_left_final_Nm  = MIN(torque_left_final_Nm, prev_torque_left_Nm + MAX_TORQUE_INCREASE_PER_100Hz_CYCLE);
+    torque_right_final_Nm = MIN(torque_right_final_Nm, prev_torque_right_Nm + MAX_TORQUE_INCREASE_PER_100Hz_CYCLE);
 
     // CLAMPS for safety only - should never exceed torque limit
     torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
     torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(torque_left_final_Nm);
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(torque_right_final_Nm);
+
+    // Update prev_torques
+    prev_torque_left_Nm  = torque_left_final_Nm;
+    prev_torque_right_Nm = torque_right_final_Nm;
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
