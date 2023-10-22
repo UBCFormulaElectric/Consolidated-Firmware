@@ -67,7 +67,6 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             // Turn red.
             io_rgbLed_enable(board_status_led, true, false, false);
-
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {

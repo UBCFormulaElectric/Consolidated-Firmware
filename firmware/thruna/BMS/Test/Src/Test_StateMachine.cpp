@@ -1000,59 +1000,58 @@ TEST_F(BmsStateMachineTest, voc_to_soc_lut_test)
     // Check that soc saturates at 5.0% lower bound
     float test_voltage = 0.0f;
 
-    float soc  = App_Soc_GetSocFromVoc(test_voltage);
+    float soc = App_Soc_GetSocFromVoc(test_voltage);
 
     float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(soc,expected_soc);
+    ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check middle of the range
     test_voltage = 4.0f;
 
-    soc  = App_Soc_GetSocFromVoc(test_voltage);
+    soc = App_Soc_GetSocFromVoc(test_voltage);
 
     expected_soc = 81.5f;
 
-    ASSERT_FLOAT_EQ(soc,expected_soc);
+    ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check that SOC saturates at 100.0%
     test_voltage = 5.0f;
 
-    soc  = App_Soc_GetSocFromVoc(test_voltage);
+    soc = App_Soc_GetSocFromVoc(test_voltage);
 
     expected_soc = 100.0;
 
-    ASSERT_FLOAT_EQ(soc,expected_soc);
-
+    ASSERT_FLOAT_EQ(soc, expected_soc);
 }
 
 TEST_F(BmsStateMachineTest, soc_to_voc_lut_test)
 {
     float test_soc = 0.0f;
 
-    float voc  = App_Soc_GetVocFromSoc(test_soc);
+    float voc = App_Soc_GetVocFromSoc(test_soc);
 
     float expected_voc = 3.648025f; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc,expected_voc);
+    ASSERT_FLOAT_EQ(voc, expected_voc);
 
     // Check middle of the range
     test_soc = 68.5f;
 
-    voc  = App_Soc_GetVocFromSoc(test_soc);
+    voc = App_Soc_GetVocFromSoc(test_soc);
 
     expected_voc = 3.924725; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc,expected_voc);
+    ASSERT_FLOAT_EQ(voc, expected_voc);
 
     // Check that voltage saturates at value associated with 100.0% soc
     test_soc = 101.0f;
 
-    voc  = App_Soc_GetVocFromSoc(test_soc);
+    voc = App_Soc_GetVocFromSoc(test_soc);
 
     expected_voc = 4.194519f; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc,expected_voc);
+    ASSERT_FLOAT_EQ(voc, expected_voc);
 }
 
 } // namespace StateMachineTest

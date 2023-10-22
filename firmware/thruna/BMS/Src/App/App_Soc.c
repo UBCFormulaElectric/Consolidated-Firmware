@@ -15,7 +15,7 @@ float App_Soc_GetSocFromVoc(float voltage)
 {
     uint8_t lut_index = 0;
 
-    while( (voltage > voc_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
+    while ((voltage > voc_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
     {
         lut_index++;
     }
@@ -32,15 +32,15 @@ float App_Soc_GetVocFromSoc(float soc_percent)
 {
     uint8_t lut_index = 0;
 
-    while( (LUT_BASE_SOC + lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE))
+    while ((LUT_BASE_SOC + lut_index * 0.5f < soc_percent) && (lut_index < V_TO_SOC_LUT_SIZE))
     {
         lut_index++;
     }
 
     if (lut_index == V_TO_SOC_LUT_SIZE)
     {
-    // Ensures that the index is in the LUT range
-    lut_index--;
+        // Ensures that the index is in the LUT range
+        lut_index--;
     }
 
     return voc_soc_lut[lut_index];
@@ -135,7 +135,8 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current)
 float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
 {
     // return SOC in %
-    return ((float)soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+    float soc_percent = ((float)soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+    return soc_percent;
 }
 
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
@@ -154,7 +155,7 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
     float soc_percent = App_Soc_GetSocFromVoc(min_cell_voltage);
 
     // convert from percent to coulombs
-    soc_stats->charge_c = (double)(soc_percent * SERIES_ELEMENT_FULL_CHARGE_C);
+    soc_stats->charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
 }
 
 void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
