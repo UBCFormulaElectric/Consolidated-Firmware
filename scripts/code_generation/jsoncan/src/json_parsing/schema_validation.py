@@ -59,7 +59,7 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
-        "msg_id": And(int, lambda x: x >= 0 and x < 2^11), # Standard CAN uses 11-bit identifiers
+        "msg_id": And(int, lambda x: x >= 0 and x < 2**11), # Standard CAN uses 11-bit identifiers
         "signals": {
             str: tx_signal_schema,
         },
