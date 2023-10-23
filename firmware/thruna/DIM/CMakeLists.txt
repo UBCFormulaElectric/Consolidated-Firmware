@@ -63,7 +63,7 @@ if("${PLATFORM}" STREQUAL "arm")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f4_cube_library(
-        "dim_stm32cube"
+        "DIM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -72,28 +72,28 @@ if("${PLATFORM}" STREQUAL "arm")
     )
 
     jsoncan_library(
-        "dim_can"
+        "DIM_can"
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         "STM32F412Rx"
     )
-    target_link_libraries("dim_can" "dim_stm32cube")
+    target_link_libraries("DIM_can" "DIM_stm32cube")
 
     set(SRCS ${APP_SRCS} ${IO_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
     set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/STM32F412RGTX_FLASH.ld)
     compile_embedded_binary(
-        "dim.elf"
+        "DIM.elf"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "STM32F412Rx"
         "${LINKER_SCRIPT}"
     )
-    target_link_libraries("dim.elf" "dim_stm32cube" "dim_can")
+    target_link_libraries("DIM.elf" "DIM_stm32cube" "DIM_can")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     jsoncan_library(
-        "dim_can"
+        "DIM_can"
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}/jsoncan"
         ""
@@ -103,16 +103,16 @@ elseif("${PLATFORM}" STREQUAL "x86")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )
     create_fake_library(
-        "dim_fakes"
+        "DIM_fakes"
         "${HEADERS_TO_FAKE}"
     )
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "dim_test"
+        "DIM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("dim_test" "dim_can" "dim_fakes" "shared_fakes")
+    target_link_libraries("DIM_test" "DIM_can" "DIM_fakes" "shared_fakes")
 endif()
