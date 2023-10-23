@@ -8,6 +8,8 @@
 4. Enum values are in `SCREAMING_SNAKE_CASE`. 
 5. Alert names are in `PascalCase`, ending in `Faults` or `Warnings` depending on the alert type. ECU name prefixes will be added automatically.
 
+Message, signal, enum, and alert names must be unique (with the board prefix).
+
 ## Message IDs
 
 Standard CAN allows an 11-bit message identifier, so up to 2048 possible IDs. High priority messages will have IDs in [0, 999], low priority messages will have IDs in [1000, 1999]. Each board will be assigned a range of 100s as follows:
