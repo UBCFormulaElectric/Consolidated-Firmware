@@ -1,3 +1,18 @@
+set(STM32F4_CUBE_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4)
+set(SYSTEMVIEW_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src)
+set(NEWLIB_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch)
+
+if(NOT STM32CUBEMX_BIN_PATH)
+    # Default STM32CubeMX path
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+    elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+        set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
+    else()
+        set(STM32CUBEMX_BIN_PATH "~/STM32CubeMX/STM32CubeMX")
+    endif()
+endif()
+
 set(FPU_FLAGS
     -mcpu=cortex-m4
     -mfloat-abi=hard
@@ -34,9 +49,6 @@ set(COMPILER_DEFINES
     -DARM_MATH_MATRIX_CHECK
     -DARM_MATH_ROUNDING
 )
-set(STM32F4_CUBE_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4)
-set(SYSTEMVIEW_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src)
-set(NEWLIB_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch)
 
 function(compile_embedded_lib
     LIB_NAME
@@ -72,11 +84,11 @@ function(compile_embedded_lib
         -D${STM32_MCU}
     )
     target_compile_options(${LIB_NAME}
-        PUBLIC
+        PRIVATE
         ${COMPILER_FLAGS}
     )
     target_link_options(${LIB_NAME}
-        PUBLIC
+        PRIVATE
         ${FPU_FLAGS}
         -Wl,-gc-sections,--print-memory-usage
         --specs=nano.specs
@@ -135,6 +147,47 @@ Building ${BIN_FILE}
 Building ${ASM_FILE}")
 endfunction()
 
+# Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
+# the directory where this function is called from.
+function(generate_stm32cube_code
+    TARGET_NAME
+    IOC_PATH
+)
+    set(GENERATE_CUBE_CODE_SCRIPT_PY
+        ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
+    set(FIX_FORMATTING_SCRIPT_PY
+        ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
+    set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
+    get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
+
+    add_custom_command(
+        OUTPUT ${IOC_PATH}.md5
+        ${LOG4J_PROPERTIES}
+        COMMENT "Generating drivers for ${TARGET_NAME}"
+        COMMAND ${PYTHON_COMMAND}
+        ${GENERATE_CUBE_CODE_SCRIPT_PY}
+        --board ${TARGET_NAME}
+        --log4j_properties_output ${LOG4J_PROPERTIES}
+        --ioc ${IOC_PATH}
+        --codegen_output_dir ${IOC_DIR}
+        --cube_bin ${STM32CUBEMX_BIN_PATH}
+
+        # Create a MD5 hash of IOC_PATH for other build targets to depend on, so
+        # this custom command is only executed when IOC_PATH.md5 changes.
+        COMMAND ${PYTHON_COMMAND}
+        ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
+        ${IOC_PATH}
+        ${IOC_PATH}.md5
+        DEPENDS ${IOC_PATH}
+
+        # Run clang-format because the STM32CubeMX-generated code is not
+        # compliant to our clang-format rules.
+        COMMAND ${PYTHON_COMMAND}
+        ${FIX_FORMATTING_SCRIPT_PY}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    )
+endfunction()
+
 function(stm32f4_cube_library
     HAL_LIB_NAME
     HAL_CONF_DIR
@@ -189,53 +242,15 @@ function(stm32f4_cube_library
     # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
     file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_ROOT}/*.c")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM})
+    # Startup assembly script.
+    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
+    
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     compile_embedded_lib(
         "${HAL_LIB_NAME}"
         "${STM32CUBE_SRCS}"
         "${STM32CUBE_INCLUDE_DIRS}"
         "${STM32_MCU}"
         TRUE
-    )
-endfunction()
-
-# Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
-# the directory where this function is called from.
-function(generate_stm32cube_code
-    TARGET_NAME
-    IOC_PATH
-)
-    set(GENERATE_CUBE_CODE_SCRIPT_PY
-        ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
-    set(FIX_FORMATTING_SCRIPT_PY
-        ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
-    set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
-    get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
-
-    add_custom_command(
-        OUTPUT ${IOC_PATH}.md5
-        ${LOG4J_PROPERTIES}
-        COMMENT "Generating drivers for ${TARGET_NAME}"
-        COMMAND ${PYTHON_COMMAND}
-        ${GENERATE_CUBE_CODE_SCRIPT_PY}
-        --board ${TARGET_NAME}
-        --log4j_properties_output ${LOG4J_PROPERTIES}
-        --ioc ${IOC_PATH}
-        --codegen_output_dir ${IOC_DIR}
-        --cube_bin ${STM32CUBEMX_BIN_PATH}
-
-        # Create a MD5 hash of IOC_PATH for other build targets to depend on, so
-        # this custom command is only executed when IOC_PATH.md5 changes.
-        COMMAND ${PYTHON_COMMAND}
-        ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
-        ${IOC_PATH}
-        ${IOC_PATH}.md5
-        DEPENDS ${IOC_PATH}
-
-        # Run clang-format because the STM32CubeMX-generated code is not
-        # compliant to our clang-format rules.
-        COMMAND ${PYTHON_COMMAND}
-        ${FIX_FORMATTING_SCRIPT_PY}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 endfunction()

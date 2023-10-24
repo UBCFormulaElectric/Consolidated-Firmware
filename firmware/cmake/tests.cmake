@@ -1,6 +1,10 @@
+include("cmake/shared.cmake")
+set(FFF_DIR "${THIRD_PARTY_DIR}/fff")
+
 function(create_fake_library
-    LIBRARY_NAME
+    LIB_NAME
     HDRS_TO_FAKE
+    INCLUDE_DIRS
 )
     file(GLOB_RECURSE FAKEGEN_SRCS
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
@@ -26,17 +30,17 @@ function(create_fake_library
         )
     endforeach()
 
-    add_library(${LIBRARY_NAME} STATIC ${FAKE_SRCS})
-    target_compile_options(${LIBRARY_NAME}
+    add_library(${LIB_NAME} STATIC ${FAKE_SRCS})
+    target_compile_options(${LIB_NAME}
         PUBLIC
         -Wall
         -g3
     )
-    target_include_directories(${LIBRARY_NAME}
+    target_include_directories(${LIB_NAME}
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${HDR_DIR}
-        ${SHARED_ARM_BINARY_INCLUDE_DIRS}
+        ${INCLUDE_DIRS}
     )
 endfunction()
 
