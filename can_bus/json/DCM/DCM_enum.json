@@ -1,7 +1,6 @@
 {
     "DcmState": {
         "DCM_INIT_STATE": 0,
-        "DCM_FAULT_STATE": 1,
-        "DCM_DRIVE_STATE": 2
+        "DCM_DRIVE_STATE": 1
       }
 }
