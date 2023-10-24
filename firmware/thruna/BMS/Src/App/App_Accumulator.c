@@ -453,11 +453,11 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERVOLTAGE, undervoltage_fault);
-    App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERVOLTAGE, overvoltage_fault);
-    App_CanAlerts_SetFault(BMS_FAULT_CELL_UNDERTEMP, undertemp_fault);
-    App_CanAlerts_SetFault(BMS_FAULT_CELL_OVERTEMP, overtemp_fault);
-    App_CanAlerts_SetFault(BMS_FAULT_MODULE_COMM_ERROR, communication_fault);
+    App_CanAlerts_BMS_CellUndervoltageFault_Set(undervoltage_fault);
+    App_CanAlerts_BMS_CellOvervoltageFault_Set(overvoltage_fault);
+    App_CanAlerts_BMS_CellUndertempFault_Set(undertemp_fault);
+    App_CanAlerts_BMS_CellOvertempFault_Set(overtemp_fault);
+    App_CanAlerts_BMS_ModuleCommunicationFault_Set(communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
@@ -472,9 +472,7 @@ void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulato
     // Send latched imd and bspd statuses over CAN
     App_CanTx_BMS_ImdLatchedFault_Set(imd_latched_fault);
     App_CanTx_BMS_BspdLatchedFault_Set(bspd_latched_fault);
-
-    // Set fault in table to latch BMS led until reset
-    App_CanAlerts_SetFault(BMS_FAULT_LATCHED_BMS_FAULT, bms_latched_fault);
+    App_CanTx_BMS_BmsLatchedFault_Set(bms_latched_fault);
 }
 
 void App_Accumulator_EnableBalancing(struct Accumulator *const accumulator, bool enabled)

@@ -124,6 +124,9 @@
             "BspdOk": {
                 "bits": 1
             },
+            "BmsLatchedFault": {
+                "bits": 1
+            },
             "ImdLatchedFault": {
                 "bits": 1
             },

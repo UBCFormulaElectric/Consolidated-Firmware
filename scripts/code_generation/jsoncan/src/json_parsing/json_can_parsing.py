@@ -148,7 +148,12 @@ class JsonCanParser:
 
             # Parse node's alerts
             if len(node_alerts_json_data) > 0:
-                warnings, faults = self._parse_node_alerts(node, node_alerts_json_data)
+                (
+                    warnings,
+                    faults,
+                    warnings_counts,
+                    faults_counts,
+                ) = self._parse_node_alerts(node, node_alerts_json_data)
 
                 # Make sure alerts are received by all other boards
                 other_nodes = [other for other in self._nodes if other != node]
@@ -157,13 +162,18 @@ class JsonCanParser:
 
                 self._messages[warnings.name] = warnings
                 self._messages[faults.name] = faults
+                self._messages[warnings_counts.name] = warnings_counts
+                self._messages[faults_counts.name] = faults_counts
 
                 self._alerts[node] = [
-                    CanAlert(alert.name, CanAlertType.WARNING)
-                    for alert in warnings.signals
-                ]
-                self._alerts[node] += [
-                    CanAlert(alert.name, CanAlertType.FAULT) for alert in faults.signals
+                    *[
+                        CanAlert(alert.name, CanAlertType.WARNING)
+                        for alert in warnings.signals
+                    ],
+                    *[
+                        CanAlert(alert.name, CanAlertType.FAULT)
+                        for alert in faults.signals
+                    ],
                 ]
 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
@@ -422,8 +432,10 @@ class JsonCanParser:
         warnings = alerts_json["warnings"]
         faults = alerts_json["faults"]
 
-        # Number of alerts can't exceed 64
-        if max(len(warnings), len(faults)) > 64:
+        # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
+        # that indicate the number of times an alert has been set. Each signal is allocated 3 bits, and so can count
+        # up to 8, meaning we can pack 21 alerts to fit inside a 64-bit CAN payload.
+        if max(len(warnings), len(faults)) > 21:
             raise InvalidCanJson(
                 f"Number of alerts for node '{node}' cannot exceed 64."
             )
@@ -431,6 +443,8 @@ class JsonCanParser:
         # Check alert messages ID are unique
         warnings_id = alerts_json["warnings_id"]
         faults_id = alerts_json["faults_id"]
+        warnings_counts_id = alerts_json["warnings_counts_id"]
+        faults_counts_id = alerts_json["faults_counts_id"]
 
         if any(
             msg_id in {msg.id for msg in self._messages.values()}
@@ -443,60 +457,110 @@ class JsonCanParser:
         # Check if message name is unique
         warnings_name = f"{node}_Warnings"
         faults_name = f"{node}_Faults"
+        warnings_counts_name = f"{node}_WarningsCounts"
+        faults_counts_name = f"{node}_FaultsCounts"
 
-        if any(msg_name in self._messages for msg_name in [warnings_name, faults_name]):
+        if any(
+            msg_name in self._messages
+            for msg_name in [
+                warnings_name,
+                faults_name,
+                warnings_counts_name,
+                faults_counts_name,
+            ]
+        ):
             raise InvalidCanJson(
                 f"Name for alerts message transmitted by '{node}' is a duplicate, messages must have unique names."
             )
 
         # Make alert signals
-        warnings_signals = self._node_alert_signals(warnings)
-        fault_signals = self._node_alert_signals(faults)
+        warnings_signals = self._node_alert_signals(node, warnings)
+        faults_signals = self._node_alert_signals(node, faults)
+        warnings_counts_signals = self._node_alert_count_signals(node, warnings)
+        faults_counts_signals = self._node_alert_count_signals(node, faults)
 
         # Make CAN msg for alerts
         alerts_msgs = [
             CanMessage(
                 name=name,
                 id=msg_id,
-                description=f"Status of {comment} for the {node}",
+                description=description,
                 cycle_time=cycle_time,
                 signals=signals,
                 tx_node=node,
                 rx_nodes=[self._bus_cfg.default_receiver],
                 modes=[self._bus_cfg.default_mode],
             )
-            for name, msg_id, comment, signals, cycle_time in [
+            for name, msg_id, description, signals, cycle_time in [
                 (
                     warnings_name,
                     warnings_id,
-                    "warnings",
+                    f"Status of warnings for the {node}.",
                     warnings_signals,
                     WARNINGS_ALERTS_CYCLE_TIME,
                 ),
                 (
                     faults_name,
                     faults_id,
-                    "faults",
-                    fault_signals,
+                    f"Status of faults for the {faults}.",
+                    faults_signals,
+                    FAULTS_ALERTS_CYCLE_TIME,
+                ),
+                (
+                    warnings_counts_name,
+                    warnings_counts_id,
+                    f"Number of times warnings have been set for the {node}.",
+                    warnings_counts_signals,
+                    WARNINGS_ALERTS_CYCLE_TIME,
+                ),
+                (
+                    faults_counts_name,
+                    faults_counts_id,
+                    f"Number of times faults have been set for the {node}.",
+                    faults_counts_signals,
                     FAULTS_ALERTS_CYCLE_TIME,
                 ),
             ]
         ]
+
         return alerts_msgs
 
-    def _node_alert_signals(self, alerts: List[str]) -> List[CanSignal]:
+    def _node_alert_signals(self, node: str, alerts: List[str]) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
         """
         return [
             CanSignal(
-                name=alert,
+                name=f"{node}_{alert}",
                 start_bit=i,
                 bits=1,
                 scale=1,
                 offset=0,
                 min_val=0,
                 max_val=1,
+                start_val=0,
+                enum=None,
+                unit="",
+                signed=False,
+            )
+            for i, alert in enumerate(alerts)
+        ]
+
+    def _node_alert_count_signals(self, node: str, alerts: List[str]) -> List[CanSignal]:
+        """
+        From a list of strings of alert names, return a list of CAN signals.
+        Each signal will represent the number of times the corresponding alert has been set.
+        """
+        COUNT_BITS = 3
+        return [
+            CanSignal(
+                name=f"{node}_{alert}Count",
+                start_bit=i * COUNT_BITS,
+                bits=COUNT_BITS,
+                scale=1,
+                offset=0,
+                min_val=0,
+                max_val=2**COUNT_BITS - 1,
                 start_val=0,
                 enum=None,
                 unit="",

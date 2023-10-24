@@ -66,7 +66,7 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
     enum InRangeCheck_Status coolant_status =
         App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &coolant_flow_clamped);
     App_CanTx_FSM_CoolantFlowRate_Set(coolant_flow_clamped);
-    App_CanAlerts_SetWarning(FSM_WARNING_FLOW_RATE_OUT_OF_RANGE, coolant_status != VALUE_IN_RANGE);
+    App_CanAlerts_FSM_FlowRateOutOfRangeWarning_Set(coolant_status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
     float                    flow_rate;
@@ -76,5 +76,5 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW && in_drive_state,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE || !in_drive_state);
-    App_CanAlerts_SetFault(FSM_FAULT_FLOW_METER_HAS_UNDERFLOW, flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanAlerts_FSM_FlowMeterUnderflowFault_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
