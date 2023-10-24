@@ -175,5 +175,5 @@ ENDIF ()
 add_subdirectory(firmware)
 
 IF ("${PLATFORM}" STREQUAL "x86")
-    add_subdirectory(scripts/code_generation/fakegen)
+    # add_subdirectory(scripts/code_generation/fakegen)
 ENDIF ()
