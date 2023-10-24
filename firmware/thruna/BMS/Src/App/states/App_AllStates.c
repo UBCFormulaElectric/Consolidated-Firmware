@@ -121,7 +121,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
-    struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     bool status = true;
 
