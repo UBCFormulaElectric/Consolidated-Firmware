@@ -76,12 +76,12 @@ bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_Warnings_FSM_TEST1_Get())
+            if (App_CanRx_FSM_TEST1_Get())
             {
                 return true;
             }
             
-            if (App_CanRx_FSM_Warnings_FSM_TEST2_Get())
+            if (App_CanRx_FSM_TEST2_Get())
             {
                 return true;
             }
@@ -113,7 +113,7 @@ bool App_CanAlerts_BoardHasFault(CanAlertBoard board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_Faults_FSM_FAULT_TEST3_Get())
+            if (App_CanRx_FSM_FAULT_TEST3_Get())
             {
                 return true;
             }

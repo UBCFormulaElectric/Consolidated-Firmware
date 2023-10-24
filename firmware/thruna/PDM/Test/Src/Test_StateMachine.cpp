@@ -538,8 +538,8 @@ TEST_F(PdmStateMachineTest, exit_air_open_state_when_air_positive_and_air_negati
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
-    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirPositive_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirClosedState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -550,8 +550,8 @@ TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_positive_is_close
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
-    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirNegative_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_AirPositive_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -562,8 +562,8 @@ TEST_F(PdmStateMachineTest, stay_in_air_open_state_if_only_air_negative_is_close
 {
     SetInitialState(App_GetAirOpenState());
 
-    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
-    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirPositive_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_AirNegative_Update(CONTACTOR_STATE_CLOSED);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -574,8 +574,8 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
 {
     SetInitialState(App_GetAirClosedState());
 
-    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_CLOSED);
-    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_AirNegative_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirPositive_Update(CONTACTOR_STATE_OPEN);
 
     LetTimePass(state_machine, 10);
 
@@ -587,8 +587,8 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 {
     SetInitialState(App_GetAirClosedState());
 
-    App_CanRx_BMS_Contactors_AirPositive_Update(CONTACTOR_STATE_CLOSED);
-    App_CanRx_BMS_Contactors_AirNegative_Update(CONTACTOR_STATE_OPEN);
+    App_CanRx_BMS_AirPositive_Update(CONTACTOR_STATE_CLOSED);
+    App_CanRx_BMS_AirNegative_Update(CONTACTOR_STATE_OPEN);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetAirOpenState(), App_SharedStateMachine_GetCurrentState(state_machine));

@@ -8,10 +8,9 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct Airs *const     airs   = App_BmsWorld_GetAirs(world);
     struct OkStatus *      bms_ok = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_FAULT_STATE);
+    App_CanTx_BMS_State_Set(BMS_FAULT_STATE);
     App_Airs_OpenAirPositive(airs);
-    App_CanTx_BMS_Contactors_AirPositive_Set(
-        App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
     App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, true);
 }
@@ -32,7 +31,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Charger *       charger     = App_BmsWorld_GetCharger(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
-    const bool balancing_enabled    = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool balancing_enabled    = App_CanRx_Debug_CellBalancingRequest_Get();
     const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
 
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);

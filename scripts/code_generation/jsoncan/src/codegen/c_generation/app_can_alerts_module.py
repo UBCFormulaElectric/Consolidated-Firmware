@@ -38,7 +38,7 @@ class AppCanAlertsModule(CModule):
             set_func.body.add_switch_case(alert)
             set_func.body.start_switch_case()
             set_func.body.add_line(
-                f"App_CanTx_{self._node}_{alert_type}s_{alert}_Set(set_alert);"
+                f"{CFuncsConfig.APP_TX_SET_SIGNAL.format(signal=alert)}(set_alert);"
             )
             set_func.body.add_switch_break()
 
@@ -69,7 +69,7 @@ class AppCanAlertsModule(CModule):
             get_func.body.add_switch_case(alert)
             get_func.body.start_switch_case()
             get_func.body.add_line(
-                f"return App_CanTx_{self._node}_{alert_type}s_{alert}_Get();"
+                f"return {CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}();"
             )
             get_func.body.add_switch_break()
 
@@ -105,11 +105,11 @@ class AppCanAlertsModule(CModule):
             ):
                 if node == self._node:
                     has_alert.body.start_if(
-                        f"App_CanTx_{node}_{alert_type}s_{alert}_Get()"
+                        f"{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()"
                     )
                 else:
                     has_alert.body.start_if(
-                        f"App_CanRx_{node}_{alert_type}s_{alert}_Get()"
+                        f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
 
                 has_alert.body.add_line("return true;")

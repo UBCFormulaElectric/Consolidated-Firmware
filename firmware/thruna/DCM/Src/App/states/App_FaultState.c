@@ -6,13 +6,13 @@
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_DCM_Vitals_CurrentState_Set(DCM_FAULT_STATE);
+    App_CanTx_DCM_State_Set(DCM_FAULT_STATE);
 
     // Disable inverters and apply zero torque upon entering fault state
-    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(false);
-    App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(false);
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
+    App_CanTx_DCM_LeftInverterEnable_Set(false);
+    App_CanTx_DCM_RightInverterEnable_Set(false);
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
+    App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)

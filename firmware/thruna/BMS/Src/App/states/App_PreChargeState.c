@@ -10,7 +10,7 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *         clock           = App_BmsWorld_GetClock(world);
     struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_PRECHARGE_STATE);
+    App_CanTx_BMS_State_Set(BMS_PRECHARGE_STATE);
 
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_PrechargeRelay_Close(precharge_relay);
@@ -53,7 +53,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 
         struct HeartbeatMonitor *hb_monitor = App_BmsWorld_GetHeartbeatMonitor(world);
         const bool               missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-        App_CanTx_BMS_Faults_BMS_FAULT_MISSING_HEARTBEAT_Set(missing_hb);
+        App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
 
         // If there is a pre-charge fault and there were no more than three previous pre-charge faults
         // Go back to Init State, add one to the pre-charge failed counter and set the CAN charging message to false
@@ -70,7 +70,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             {
                 next_state = App_GetInitState();
             }
-            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_StartCharging_Update(false);
 
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
@@ -88,7 +88,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         if (external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-            App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
+            App_CanRx_Debug_StartCharging_Update(false);
             App_CanAlerts_SetFault(BMS_FAULT_CHARGER_EXTERNAL_SHUTDOWN, !is_charger_connected);
         }
 

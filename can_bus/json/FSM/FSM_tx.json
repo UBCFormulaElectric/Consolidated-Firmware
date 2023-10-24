@@ -1,5 +1,5 @@
 {
-	"FSM_Vitals": {
+	"Vitals": {
 		"msg_id": 304,
 		"cycle_time": 100,
 		"description": "FSM Heartbeat signal",
@@ -12,7 +12,7 @@
 			}
 		}
 	},
-	"FSM_AlertsContext": {
+	"AlertsContext": {
 		"msg_id": 301,
 		"cycle_time": 1000,
 		"signals": {
@@ -27,7 +27,7 @@
 			}
 		}
 	},
-	"FSM_Apps": {
+	"Apps": {
 		"msg_id": 300,
 		"cycle_time": 100,
 		"signals": {
@@ -66,7 +66,7 @@
 			}
 		}
 	},
-	"FSM_Brake": {
+	"Brake": {
 		"msg_id": 314,
 		"cycle_time": 100,
 		"signals": {
@@ -88,46 +88,46 @@
 				"max": 100,
 				"unit": "%"
 			},
-			"IsActuated": {
+			"BrakeActuated": {
 				"bits": 1
 			},
-			"PressureSensorOpenShortCircuit": {
+			"BrakePressureSensorOCSC": {
 				"bits": 1
 			},
-			"PedalOpenShortCircuit": {
+			"BrakePedalSensorOCSC": {
 				"bits": 1
 			}
 		}
 	},
-	"FSM_Coolant": {
+	"Coolant": {
 		"msg_id": 307,
 		"cycle_time": 1000,
 		"signals": {
-			"FlowRate": {
+			"CoolantFlowRate": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "L/min"
 			},
-			"TemperatureA": {
+			"CoolantTemperatureA": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "°C"
 			},
-			"TemperatureB": {
+			"CoolantTemperatureB": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "°C"
 			},
-			"PressureA": {
+			"CoolantPressureA": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
 				"unit": "psi"
 			},
-			"PressureB": {
+			"CoolantPressureB": {
 				"resolution": 0.1,
 				"min": 0,
 				"max": 100,
@@ -135,7 +135,7 @@
 			}
 		}
 	},
-	"FSM_Steering": {
+	"Steering": {
 		"msg_id": 318,
 		"cycle_time": 100,
 		"signals": {
@@ -147,7 +147,7 @@
 			}
 		}
 	},
-	"FSM_Wheels": {
+	"Wheels": {
 		"msg_id": 317,
 		"cycle_time": 100,
 		"signals": {

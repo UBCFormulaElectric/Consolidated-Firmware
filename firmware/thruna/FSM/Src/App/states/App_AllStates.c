@@ -8,12 +8,12 @@
 
 static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    App_CanTx_FSM_Vitals_Heartbeat_Set(true);
+    App_CanTx_FSM_Heartbeat_Set(true);
 
-    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
+    if (App_CanRx_BMS_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
+        App_CanRx_BMS_Heartbeat_Update(false);
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
@@ -25,7 +25,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct Brake *   brake = App_FsmWorld_GetBrake(world);
 
-    App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Set(App_Brake_PressureElectricalFault(brake));
+    App_CanTx_FSM_BrakePressureSensorOCSC_Set(App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -35,9 +35,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     static uint8_t           error_count = 0;
 
     // Check for torque plausibility
-    float left_torque_req  = (float)App_CanRx_DCM_LeftInverterCommand_TorqueCommand_Get();
-    float right_torque_req = (float)App_CanRx_DCM_LeftInverterCommand_TorqueCommand_Get();
-    float fsm_torque_limit = App_CanTx_FSM_Apps_TorqueLimit_Get();
+    float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
+    float right_torque_req = (float)App_CanRx_DCM_RightInverterTorqueCommand_Get();
+    float fsm_torque_limit = App_CanTx_FSM_TorqueLimit_Get();
 
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
     {
@@ -52,8 +52,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // Broadcast a new FSM torque limit based on pedal percentage
     fsm_torque_limit =
-        0.01f * App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
-    App_CanTx_FSM_Apps_TorqueLimit_Set(fsm_torque_limit);
+        0.01f * App_CanTx_FSM_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
+    App_CanTx_FSM_TorqueLimit_Set(fsm_torque_limit);
 
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
     App_CanAlerts_SetFault(FSM_FAULT_MISSING_HEARTBEAT, missing_hb);

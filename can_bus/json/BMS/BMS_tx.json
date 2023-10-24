@@ -1,5 +1,5 @@
 {
-    "BMS_Vitals": {
+    "Vitals": {
         "msg_id": 100,
         "cycle_time": 100,
         "description": "Vitals message for the BMS.",
@@ -7,17 +7,12 @@
             "Heartbeat": {
                 "bits": 1
             },
-            "CurrentState": {
+            "State": {
                 "enum": "BmsState"
-            },
-            "StateOfCharge": {
-                "bits": 3,
-                "min": 0,
-                "max": 100
             }
         }
     },
-    "BMS_AlertsContext": {
+    "AlertsContext": {
         "msg_id": 104,
         "cycle_time": 1000,
         "description": "Context info for BMS alerts",
@@ -33,68 +28,68 @@
             }
         }
     },
-    "BMS_ImdStatus": {
+    "ImdStatus": {
         "msg_id": 105,
         "cycle_time": 1000,
         "description": "BMS IMD Messages",
         "signals": {
-            "OkHs": {
+            "ImdOkHs": {
                 "bits": 1
             },
-            "SecondsSincePowerOn": {
+            "ImdSecondsSincePowerOn": {
                 "bits": 8,
                 "min": 0,
                 "max": 255,
                 "unit": "Seconds"
             },
-            "ValidDutyCycle": {
+            "ImdValidDutyCycle": {
                 "bits": 1
             },
-            "Condition": {
+            "ImdCondition": {
                 "signed": false,
                 "bits": 4
             }
         }
     },
-    "BMS_ImdData": {
+    "ImdData": {
         "msg_id": 106,
         "cycle_time": 1000,
         "description": "BMS IMD Measurement Data Values",
         "signals": {
-            "ActiveFrequency": {
+            "ImdActiveFrequency": {
                 "enum": "ImdActiveFrequency"
             },
-            "InsulationMeasurementDcp10Hz": {
+            "ImdInsulationMeasurementDcp10Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "InsulationMeasurementDcp20Hz": {
+            "ImdInsulationMeasurementDcp20Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "SpeedStartStatus30Hz": {
+            "ImdSpeedStartStatus30Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535
             }
         }
     },
-    "BMS_ImdPwmOutput": {
+    "ImdPwmOutput": {
         "msg_id": 107,
         "cycle_time": 1000,
         "description": "BMS IMD PWM Output",
         "signals": {
-            "DutyCycle": {
+            "ImdDutyCycle": {
                 "bits": 8,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
-            "Frequency": {
+            "ImdFrequency": {
                 "bits": 8,
                 "min": 0,
                 "max": 100,
@@ -102,20 +97,20 @@
             }
         }
     },
-    "BMS_Charger": {
+    "Charger": {
         "msg_id": 110,
         "cycle_time": 1000,
         "description": "Flags relaying BMS Charger Status",
         "signals": {
-            "IsConnected": {
+            "ChargerConnected": {
                 "bits": 1
             },
-            "IsChargingComplete": {
+            "ChargingComplete": {
                 "bits": 1
             }
         }
     },
-    "BMS_OkStatuses": {
+    "OkStatuses": {
         "msg_id": 111,
         "cycle_time": 10,
         "description": "BMS OK status flags",
@@ -129,15 +124,15 @@
             "BspdOk": {
                 "bits": 1
             },
-            "ImdLatchedFaultStatus": {
+            "ImdLatchedFault": {
                 "bits": 1
             },
-            "BspdLatchedFaultStatus": {
+            "BspdLatchedFault": {
                 "bits": 1
             }
         }
     },
-    "BMS_Contactors": {
+    "Contactors": {
         "msg_id": 112,
         "cycle_time": 10,
         "description": "BMS AIR state statuses",
@@ -153,17 +148,7 @@
             }
         }
     },
-    "BMS_MotorShutdownErrors": {
-        "msg_id": 113,
-        "cycle_time": 1000,
-        "description": "BMS Motor Shutdown Errors",
-        "signals": {
-            "BmsDummyMotorShutdown": {
-                "bits": 1
-            }
-        }
-    },
-    "BMS_CellTemperatures": {
+    "CellTemperatures": {
         "msg_id": 114,
         "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
@@ -182,7 +167,7 @@
             }
         }
     },
-    "BMS_CellVoltages": {
+    "CellVoltages": {
         "msg_id": 115,
         "cycle_time": 100,
         "description": "BMS Cell Voltage readings",
@@ -201,7 +186,7 @@
             }
         }
     },
-    "BMS_CellStats": {
+    "CellStats": {
         "msg_id": 116,
         "cycle_time": 100,
         "description": "BMS Cell Stats",
@@ -248,18 +233,18 @@
             }
         }
     },
-    "BMS_TractiveSystem": {
+    "TractiveSystem": {
         "msg_id": 117,
         "cycle_time": 100,
         "description": "BMS Tractive System Data",
         "signals": {
-            "TsVoltage": {
+            "TractiveSystemVoltage": {
                 "resolution": 0.0001,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
             },
-            "TsCurrent": {
+            "TractiveSystemCurrent": {
                 "resolution": 0.1,
                 "min": -300,
                 "max": 300,
@@ -267,7 +252,7 @@
             }
         }
     },
-    "BMS_PackVoltage": {
+    "PackVoltage": {
         "msg_id": 118,
         "cycle_time": 100,
         "description": "BMS Pack Voltage",
@@ -280,7 +265,7 @@
             }
         }
     },
-    "BMS_AvailablePower": {
+    "AvailablePower": {
         "msg_id": 120,
         "cycle_time": 100,
         "description": "BMS Available Power",
@@ -293,7 +278,7 @@
             }
         }
     },
-    "BMS_AuxThermistors": {
+    "AuxThermistors": {
         "msg_id": 121,
         "cycle_time": 100,
         "description": "BMS Auxiliary Thermistor Temperatures",

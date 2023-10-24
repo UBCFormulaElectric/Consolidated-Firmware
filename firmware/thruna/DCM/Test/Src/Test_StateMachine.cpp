@@ -151,34 +151,34 @@ class DcmStateMachineTest : public BaseStateMachineTest
 TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
     // Pull start switch down and back up, expect no transition
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_OFF);
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Transition BMS to drive state, expect no transition
-    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+    App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Actuate brake pedal
-    App_CanRx_FSM_Brake_IsActuated_Update(true);
+    App_CanRx_FSM_BrakeActuated_Update(true);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Pull start switch down and back up, expect init->drive transition
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_OFF);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     LetTimePass(state_machine, 10);
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-21
 TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-21
@@ -186,7 +186,7 @@ TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-21
@@ -194,7 +194,7 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-16
@@ -203,25 +203,25 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
     SetInitialState(App_GetFaultState());
 
     // Start with a non-zero torque request to prevent false positive
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(1.0f);
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(1.0f);
 
-    EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 }
 
 // DCM-14
 TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
 {
     SetInitialState(App_GetDriveState());
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_OFF);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-17
@@ -231,7 +231,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_error)
 
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-17
@@ -243,7 +243,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_only_warning)
 
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-17
@@ -254,24 +254,24 @@ TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_and_inverter_f
     // Set any critical error and introduce inverter faults, expect no
     // transition
 
-    App_CanRx_INVR_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
-    App_CanRx_INVL_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVL_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 
     // Clear critical error, expect no transition
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 
     // Clear right inverter fault, expect no transition
-    App_CanRx_INVR_InternalStates_VsmState_Update(INVERTER_VSM_MOTOR_RUNNING_STATE);
+    App_CanRx_INVR_VsmState_Update(INVERTER_VSM_MOTOR_RUNNING_STATE);
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 
     // Clear left inverter fault, expect fault->init transition
-    App_CanRx_INVL_InternalStates_VsmState_Update(INVERTER_VSM_MOTOR_RUNNING_STATE);
+    App_CanRx_INVL_VsmState_Update(INVERTER_VSM_MOTOR_RUNNING_STATE);
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
 
 // DCM-12
@@ -281,12 +281,12 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
     {
         SetInitialState(state);
 
-        if (DCM_DRIVE_STATE == App_CanTx_DCM_Vitals_CurrentState_Get())
+        if (DCM_DRIVE_STATE == App_CanTx_DCM_State_Get())
         {
             // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
             // the drive state.
-            App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-            App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+            App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
+            App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
 
             EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
 
@@ -318,7 +318,7 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+    App_CanRx_DIM_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
 
     App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -359,7 +359,7 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+    App_CanRx_DIM_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
 
     App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -420,7 +420,7 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+    App_CanRx_DIM_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
 
     App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -495,25 +495,25 @@ TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pre
 
     // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
 
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
     LetTimePass(state_machine, 10);
-    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 }
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
 {
     // Introduce left inverter fault, expect init->fault transition on next
     // 100 Hz tick
-    App_CanRx_INVL_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVL_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     LetTimePass(state_machine, 9);
-    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
     LetTimePass(state_machine, 1);
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 }
 
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
@@ -522,27 +522,27 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
 
     // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 
     // Introduce left inverter fault, expect transition to fault state
-    App_CanRx_INVL_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVL_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 }
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
 {
     // Introduce right inverter fault, expect transition to fault state on
     // next 100 Hz tick
-    App_CanRx_INVR_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     LetTimePass(state_machine, 9);
-    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 
     LetTimePass(state_machine, 1);
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 }
 
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
@@ -551,15 +551,15 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 
     // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+    App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
+    App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 
     // Introduce right inverter fault, expect transition to fault state
-    App_CanRx_INVR_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+    App_CanRx_INVR_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_State_Get());
 }
 
 TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
@@ -614,24 +614,24 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
 
         // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
-        App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-        App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
+        App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
+        App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
 
         // Set inital conditions
-        App_CanRx_BMS_AvailablePower_AvailablePower_Update(test_params[i].bms_available_power);
-        App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
-        App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Update(test_params[i].motor_speed);
-        App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);
-        App_CanRx_FSM_Apps_TorqueLimit_Update(test_params[i].fsm_max_torque_request);
+        App_CanRx_BMS_AvailablePower_Update(test_params[i].bms_available_power);
+        App_CanRx_INVR_MotorSpeed_Update(test_params[i].motor_speed);
+        App_CanRx_INVL_MotorSpeed_Update(test_params[i].motor_speed);
+        App_CanRx_FSM_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);
+        App_CanRx_FSM_TorqueLimit_Update(test_params[i].fsm_max_torque_request);
 
         // Confirm expected torque request is set
         LetTimePass(state_machine, 10);
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 
         LetTimePass(state_machine, 1000);
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
     }
 }
 

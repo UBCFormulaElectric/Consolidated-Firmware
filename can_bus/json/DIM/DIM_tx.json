@@ -1,5 +1,5 @@
 {
-    "DIM_Vitals": {
+    "Vitals": {
         "msg_id": 502,
         "cycle_time": 100,
         "description": "DIM vitals message.",
@@ -12,7 +12,7 @@
             }
         }
     },
-    "DIM_Switches": {
+    "Switches": {
         "msg_id": 503,
         "cycle_time": 100,
         "description": "States of the switches on the DIM.",
@@ -25,7 +25,7 @@
             }
         }
     },
-    "DIM_AlertsContext": {
+    "AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,
         "description": "Context info for DIM alerts",

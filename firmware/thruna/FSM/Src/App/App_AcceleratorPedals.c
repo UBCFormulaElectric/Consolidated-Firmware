@@ -178,10 +178,10 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     float papps_pedal_percentage = accelerator_pedals->get_primary_pedal_percent();
     float sapps_pedal_percentage = accelerator_pedals->get_secondary_pedal_percent();
-    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
-    App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
-    App_CanTx_FSM_Apps_PappsRawPedalPercentage_Set(papps_pedal_percentage);
-    App_CanTx_FSM_Apps_SappsRawPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_PappsRawPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_SappsRawPedalPercentage_Set(sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
@@ -199,8 +199,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // torque 0
     if (papps_ocsc_active || sapps_ocsc_active)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
@@ -213,8 +213,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     if (apps_disagreement)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Accelerator Brake Plausibility (bad user input safety issues)
@@ -229,7 +229,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     if (brake_acc_disagreement)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 }

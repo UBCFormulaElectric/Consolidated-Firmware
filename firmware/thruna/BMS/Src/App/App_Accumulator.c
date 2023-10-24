@@ -150,8 +150,8 @@ static void App_Accumulator_CalculateCellsToBalance(struct Accumulator *accumula
 {
     float target_voltage = accumulator->voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    target_voltage = App_CanRx_Debug_CellBalancing_OverrideTarget_Get()
-                         ? App_CanRx_Debug_CellBalancing_OverrideTargetValue_Get()
+    target_voltage = App_CanRx_Debug_CellBalancingOverrideTarget_Get()
+                         ? App_CanRx_Debug_CellBalancingOverrideTargetValue_Get()
                          : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
@@ -180,11 +180,11 @@ static void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
     accumulator->write_cfg_registers(accumulator->cells_to_balance);
 
     // Balance PWM settings
-    float balance_pwm_freq = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
-                                 ? App_CanRx_Debug_CellBalancing_OverridePWMFrequency_Get()
+    float balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                 ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
                                  : BALANCE_DEFAULT_FREQ;
-    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancing_OverridePWM_Get()
-                                    ? App_CanRx_Debug_CellBalancing_OverridePWMDuty_Get()
+    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                    ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get()
                                     : BALANCE_DEFAULT_DUTY;
 
     // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
@@ -470,8 +470,8 @@ void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulato
     const bool bms_latched_fault  = accumulator->check_bms_latched_fault();
 
     // Send latched imd and bspd statuses over CAN
-    App_CanTx_BMS_OkStatuses_ImdLatchedFaultStatus_Set(imd_latched_fault);
-    App_CanTx_BMS_OkStatuses_BspdLatchedFaultStatus_Set(bspd_latched_fault);
+    App_CanTx_BMS_ImdLatchedFault_Set(imd_latched_fault);
+    App_CanTx_BMS_BspdLatchedFault_Set(bspd_latched_fault);
 
     // Set fault in table to latch BMS led until reset
     App_CanAlerts_SetFault(BMS_FAULT_LATCHED_BMS_FAULT, bms_latched_fault);
@@ -499,10 +499,10 @@ void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumula
 
 void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator)
 {
-    App_CanTx_BMS_AuxThermistors_ThermTemp0_Set(accumulator->aux_thermistor_temps[0]);
-    App_CanTx_BMS_AuxThermistors_ThermTemp1_Set(accumulator->aux_thermistor_temps[1]);
-    App_CanTx_BMS_AuxThermistors_ThermTemp2_Set(accumulator->aux_thermistor_temps[2]);
-    App_CanTx_BMS_AuxThermistors_ThermTemp3_Set(accumulator->aux_thermistor_temps[3]);
-    App_CanTx_BMS_AuxThermistors_ThermTemp4_Set(accumulator->aux_thermistor_temps[4]);
-    App_CanTx_BMS_AuxThermistors_ThermTemp5_Set(accumulator->aux_thermistor_temps[5]);
+    App_CanTx_BMS_ThermTemp0_Set(accumulator->aux_thermistor_temps[0]);
+    App_CanTx_BMS_ThermTemp1_Set(accumulator->aux_thermistor_temps[1]);
+    App_CanTx_BMS_ThermTemp2_Set(accumulator->aux_thermistor_temps[2]);
+    App_CanTx_BMS_ThermTemp3_Set(accumulator->aux_thermistor_temps[3]);
+    App_CanTx_BMS_ThermTemp4_Set(accumulator->aux_thermistor_temps[4]);
+    App_CanTx_BMS_ThermTemp5_Set(accumulator->aux_thermistor_temps[5]);
 }

@@ -19,5 +19,5 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 
     const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
     App_CanAlerts_SetWarning(BMS_WARNING_WATCHDOG_TIMEOUT, true);
-    App_CanTx_BMS_AlertsContext_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
+    App_CanTx_BMS_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }
