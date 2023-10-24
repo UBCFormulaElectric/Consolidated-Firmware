@@ -25,7 +25,7 @@ set(SHARED_IO_INCLUDE_DIR
     "${SHARED_EMBEDDED_DIR}/io"
     "${SHARED_EMBEDDED_DIR}/hw"
 )
-set(SHARED_TEST_UTILS_INCLUDE_DIR "${SHARED_DIR}/test_utils")
+set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test_utils")
 
 function(jsoncan_library
     LIB_NAME
