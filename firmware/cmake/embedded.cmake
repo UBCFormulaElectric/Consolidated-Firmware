@@ -1,9 +1,13 @@
-set(STM32F4_CUBE_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4)
-set(SYSTEMVIEW_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src)
-set(NEWLIB_ROOT ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch)
+# STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
+set(STM32F4_CUBE_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4)
+
+# SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
+set(SYSTEMVIEW_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src)
+
+# FreeRTOS patch to enable thread-safe malloc (so we can use the heap with FreeRTOS).
+set(NEWLIB_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch)
 
 if(NOT STM32CUBEMX_BIN_PATH)
-    # Default STM32CubeMX path
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
     elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
@@ -196,8 +200,8 @@ function(stm32f4_cube_library
     IOC_CHECKSUM
     STM32_MCU
 )
-    set(DRIVERS_DIR "${STM32F4_CUBE_ROOT}/Drivers")
-    set(FREERTOS_DIR "${STM32F4_CUBE_ROOT}/Middlewares/Third_Party/FreeRTOS/Source")
+    set(DRIVERS_DIR "${STM32F4_CUBE_DIR}/Drivers")
+    set(FREERTOS_DIR "${STM32F4_CUBE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
@@ -209,9 +213,9 @@ function(stm32f4_cube_library
         "${FREERTOS_DIR}/CMSIS_RTOS_V2"
         "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
         "${HAL_CONF_DIR}"
-        "${SYSTEMVIEW_ROOT}/SEGGER"
-        "${SYSTEMVIEW_ROOT}/Config"
-        "${SYSTEMVIEW_ROOT}/Sample/FreeRTOSV10"
+        "${SYSTEMVIEW_DIR}/SEGGER"
+        "${SYSTEMVIEW_DIR}/Config"
+        "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10"
     )
     # HAL sources.
     set(STM32_HAL_SRCS)
@@ -228,19 +232,19 @@ function(stm32f4_cube_library
     
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS 
-        "${SYSTEMVIEW_ROOT}/SEGGER/*.c" 
-        "${SYSTEMVIEW_ROOT}/SEGGER/*.S"
+        "${SYSTEMVIEW_DIR}/SEGGER/*.c" 
+        "${SYSTEMVIEW_DIR}/SEGGER/*.S"
     )
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
-    list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_ROOT}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our STM32F412x boards use FreeRTOS V10. 
     # Note that the GSM currently has an STM32F302x MCU, which is limited to FreeRTOS V9, so SystemView is not supported
     # on the GSM.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_ROOT}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
     # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
-    file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_ROOT}/*.c")
+    file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_DIR}/*.c")
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
