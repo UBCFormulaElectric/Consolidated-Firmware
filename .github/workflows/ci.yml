@@ -46,8 +46,6 @@ jobs:
             ioc_dir: firmware/thruna/DCM
           - board: BMS
             ioc_dir: firmware/thruna/BMS
-          - board: GSM
-            ioc_dir: firmware/thruna/GSM
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -102,7 +100,6 @@ jobs:
           - BMS
           - DCM
           - DIM
-          - GSM
 
     container:
       image: ubcformulaelectric/environment:latest
