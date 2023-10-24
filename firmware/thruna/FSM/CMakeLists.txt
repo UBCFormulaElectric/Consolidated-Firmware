@@ -1,82 +1,104 @@
-file(GLOB_RECURSE ARM_BINARY_APP_SRCS "Src/App/*.*")
-set(ARM_BINARY_APP_INCLUDE_DIRS "Inc/App")
-file(GLOB_RECURSE ARM_BINARY_IO_SRCS
-    "Src/*.c"
-    "Src/Io/*.c"
-    "Startup/*.s"
+set(STM32_MCU "STM32F412Rx")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/FSM.ioc")
+set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
+
+file(GLOB_RECURSE APP_SRCS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/Src/App/*.c"
 )
-set(ARM_BINARY_IO_INCLUDE_DIRS
-    "Inc"
-    "Inc/Io"
+list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
+set(APP_INCLUDE_DIRS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Inc/App"
+)   
+list(APPEND APP_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIRS}")
+
+file(GLOB_RECURSE IO_SRCS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/Src/Io/*.c"    
+    "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
 )
-
-set(ARM_BINARY_X86_COMPATIBLE_SRCS
-    ${ARM_BINARY_APP_SRCS}
-    ${X86_COMPATIBLE_IO_SRCS})
-
-list(REMOVE_ITEM ARM_BINARY_IO_SRCS "")
-set(X86_INCOMPATIBLE_IO_SRCS "${ARM_BINARY_IO_SRCS}")
-set(ARM_BINARY_X86_INCOMPATIBLE_SRCS ${X86_INCOMPATIBLE_IO_SRCS})
-
-set(ARM_BINARY_INCLUDE_DIRS
-    ${ARM_BINARY_APP_INCLUDE_DIRS}
-    ${ARM_BINARY_IO_INCLUDE_DIRS})
-
-set(ARM_BINARY_IO_SYSCALLS_SRC "Src/syscalls.c")
-list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${ARM_BINARY_IO_SYSCALLS_SRC})
-set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F412RGTX_FLASH.ld")
-
-set(DRIVERS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Drivers")
-set(FREERTOS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
-    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc"
-    "${DRIVERS_SRC_DIR}/CMSIS/Include"
-    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
-    "${DRIVERS_SRC_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
-    "${FREERTOS_SRC_DIR}/include"
-    "${FREERTOS_SRC_DIR}/CMSIS_RTOS_V2"
-    "${FREERTOS_SRC_DIR}/portable/GCC/ARM_CM4F"
+list(APPEND IO_SRCS "${SHARED_IO_SRCS}" "${SHARED_HW_SRCS}")
+set(IO_INCLUDE_DIRS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Inc"  
 )
-list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
-file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
-    "${DRIVERS_SRC_DIR}/*.c"
-    "${FREERTOS_SRC_DIR}/*.c"
+list(APPEND IO_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}")
+
+file(GLOB_RECURSE TEST_SRCS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp"
 )
-list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
-
-# We use heap_useNewlib.c for a thread-safe heap implementation, so we can use malloc with FreeRTOS.
-# FreeRTOS also provides heap implementations, and when using the CMSIS_V2 interface we are required to pick one.
-# FreeRTOS's heap will cause linker errors with heap_useNewlib.c, so remove the FreeRTOS heap implementation from the build.
-# Source: https://nadler.com/embedded/newlibAndFreeRTOS.html
-list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_4.c")
-
-set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/FSM.ioc")
-set(STM32_DEVICE_TYPE STM32F412Rx)
-
-file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main.cpp")
-set(GOOGLETEST_TEST_INCLUDE_DIRS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
-
-# INCLUDES and SOURCES from shared
-# Define the shared code that you want to use in this project
-set(SELECTED_SHARED_SRCS
-    ${ALL_SHARED_APP_SRCS}
-    ${ALL_SHARED_IO_SRCS}
-    ${ALL_SHARED_HW_SRCS}
+list(APPEND TEST_SRCS "${SHARED_TEST_UTILS_SRCS}")
+set(TEST_INCLUDE_DIRS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
 )
+list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIR}")
 
-create_arm_binary_or_tests_for_board(
-    "FSM"
-    "${IOC_FILE}"
-    "${ARM_BINARY_X86_COMPATIBLE_SRCS}"
-    "${ARM_BINARY_X86_INCOMPATIBLE_SRCS}"
-    "${ARM_BINARY_INCLUDE_DIRS}"
-    "${ARM_BINARY_THIRD_PARTY_SRCS}"
-    "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
-    "${ARM_LINKER_SCRIPT}"
-    "${STM32_DEVICE_TYPE}"
-    "${SELECTED_SHARED_SRCS}"
-    "${GOOGLETEST_TEST_SRCS}"
-    "${GOOGLETEST_TEST_INCLUDE_DIRS}"
-)
+if("${PLATFORM}" STREQUAL "arm")
+    generate_stm32cube_code(
+        "FSM"
+        "${IOC_PATH}"
+    )
+
+    set(STM32_HAL_SRCS
+        "stm32f4xx_hal_adc_ex.c"
+        "stm32f4xx_hal_adc.c"
+        "stm32f4xx_hal_can.c"
+        "stm32f4xx_hal_cortex.c"
+        "stm32f4xx_hal_dma_ex.c"
+        "stm32f4xx_hal_dma.c"
+        "stm32f4xx_hal_exti.c"
+        "stm32f4xx_hal_gpio.c"
+        "stm32f4xx_hal_iwdg.c"
+        "stm32f4xx_hal_rcc_ex.c"
+        "stm32f4xx_hal_rcc.c"
+        "stm32f4xx_hal_spi.c"
+        "stm32f4xx_hal_tim_ex.c"
+        "stm32f4xx_hal_tim.c"
+        "stm32f4xx_hal.c"
+        "stm32f4xx_ll_adc.c"
+    )
+    # Pass syscalls to the cube library so we can build without warnings.
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/Src/syscalls.c")
+    stm32f4_cube_library(
+        "FSM_stm32cube"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Inc"
+        "${STM32_HAL_SRCS}"
+        "${SYSCALLS}"
+        "${IOC_PATH}.md5"
+        "${STM32_MCU}"
+    )
+
+    jsoncan_library(
+        "FSM_can"
+        "FSM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        "${STM32_MCU}"
+    )
+    target_link_libraries("FSM_can" "FSM_stm32cube")
+
+    set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
+    set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
+    compile_embedded_binary(
+        "FSM.elf"
+        "${EMBEDDED_SRCS}"
+        "${EMBEDDED_INCLUDE_DIRS}"
+        "${STM32_MCU}"
+        "${LINKER_SCRIPT}"
+    )
+    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can")
+
+elseif("${PLATFORM}" STREQUAL "x86")
+    jsoncan_library(
+        "FSM_can"
+        "FSM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        ""
+    )
+
+    set(SRCS ${APP_SRCS} ${TEST_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
+    compile_gtest_executable(
+        "FSM_test"
+        "${SRCS}"
+        "${INCLUDE_DIRS}"
+    )
+    target_link_libraries("FSM_test" "FSM_can" "shared_fakes")
+endif()
