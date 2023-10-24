@@ -1,10 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify, Response
 from flask_socketio import SocketIO, emit
-from process import SignalUtil 
+from process import SignalUtil  # Assuming SignalUtil is in a module named 'process'
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
-signal_util = SignalUtil.SignalUtil()
+signal_util = SignalUtil.SignalUtil()  # Initialize your SignalUtil class
 
 @app.route('/')
 def hello_world():
@@ -15,20 +15,24 @@ def handle_connect():
     print("Client Connected")
     emit('message', 'You are connected to the server connect')
 
-@socketio.on('data')
-def handle_message(message):
-    socketio.emit('message_from_server', f'Server received: {message}')
+@app.route('/signal', methods=['GET'])
+def return_all_available_signals():
+    signals = signal_util.get_all_signals() 
+    signal_names = list(signals.keys())  # returns list of keys 
 
-@socketio.on('signals')
-def handle_signal_message(message):
-    res = message["ids"]
-    result = signal_util.get_signals(res)
-    socketio.emit("signal_response", result)
+    response = jsonify(signal_names)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
+@app.route('/signal/<string:name>', methods=['GET'])
+def return_signal(name):
+    signal_data = signal_util.get_signal(name).to_dict()
+    response = jsonify(signal_data)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+    
 if __name__ == '__main__':
-    # Start the Flask app (you can configure host and port)
-    app.run(debug=True)
+    # app.run(debug=True)  # This starts another server
 
     # Start the Socket.IO server
     socketio.run(app, debug=True)
-
