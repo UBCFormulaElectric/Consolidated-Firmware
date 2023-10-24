@@ -52,6 +52,5 @@ jobs:
             BMS.elf
             DCM.elf
             DIM.elf
-            GSM.elf
             PDM.elf
             CanMsgs.dbc
