@@ -14,10 +14,10 @@ DUMMY_DATA = {
 # data["hash"]: 7 char string with short commit hash
 # data["clean"]: "0" if dirty, "1" is clean
 def validateData(data):
-  validLength = len(data["hash"]) == 7
-  validHex = all([c in string.hexdigits for c in data["hash"]])
-  validClean = data["clean"] == "false" or data["clean"] == "true"
-  return validLength and validHex and validClean
+  valid_length = len(data["hash"]) == 7
+  valid_hex = all([c in string.hexdigits for c in data["hash"]])
+  valid_clean = data["clean"] == "false" or data["clean"] == "true"
+  return valid_length and valid_hex and valid_clean
 
 if __name__ == "__main__":
 
