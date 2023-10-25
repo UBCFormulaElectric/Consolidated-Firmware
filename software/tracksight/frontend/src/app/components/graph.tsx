@@ -37,7 +37,7 @@ const Graph = (props: GraphProps) => {
     //default graph layout
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
 
-    // randomizes colour for graph lines 
+     // randomizes colour for graph lines 
     const getRandomColor = () => {
         const r = Math.floor(Math.random() * 256);
         const g = Math.floor(Math.random() * 256);
@@ -62,6 +62,7 @@ const Graph = (props: GraphProps) => {
             let signalData = data[name];
             let xData = signalData["time"];
             let yData = signalData["value"];
+
             const formattedObj: Plotly.Data = {
                 x: xData,
                 y: yData,
@@ -82,6 +83,7 @@ const Graph = (props: GraphProps) => {
        }));
         setFormattedData(tempFormattedData);
     }, [data]);
+
 
     // updates graph layout when zoomed 
     useEffect(() => {
@@ -107,6 +109,7 @@ const Graph = (props: GraphProps) => {
     const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
         props.setZoomData(e);
     }
+
     return (
         <Card
         bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
@@ -127,4 +130,5 @@ const Graph = (props: GraphProps) => {
         </Card>
     );
 }
+
 export default Graph;
