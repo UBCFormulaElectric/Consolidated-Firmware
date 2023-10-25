@@ -1,4 +1,3 @@
-set(STM32_MCU "STM32F412Rx")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/FSM.ioc")
 set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
 
@@ -57,30 +56,27 @@ if("${PLATFORM}" STREQUAL "arm")
     )
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/Src/syscalls.c")
-    stm32f4_cube_library(
+    stm32f412rx_cube_library(
         "FSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
-        "${STM32_MCU}"
     )
 
     jsoncan_library(
         "FSM_can"
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
-        "${STM32_MCU}"
     )
     target_link_libraries("FSM_can" "FSM_stm32cube")
 
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
-    compile_embedded_binary(
+    cm4_binary(
         "FSM.elf"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
-        "${STM32_MCU}"
         "${LINKER_SCRIPT}"
     )
     target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can")

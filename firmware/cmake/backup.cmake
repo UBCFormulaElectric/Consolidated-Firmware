@@ -20,7 +20,7 @@ if(NOT STM32CUBEMX_BIN_PATH)
     endif()
 endif()
 
-set(SHARED_COMPILER_DEFINES
+set(SHARED_COMPILE_DEFINITIONS
     -D__weak=__attribute__\(\(weak\)\)
     -D__packed=__attribute__\(\(__packed__\)\)
     -DUSE_HAL_DRIVER
@@ -49,30 +49,8 @@ set(SHARED_COMPILER_FLAGS
     -Wno-unused-variable
     -Wno-unused-parameter
 )
-set(SHARED_LINKER_FLAGS
-    -Wl,-gc-sections,--print-memory-usage
-    --specs=nano.specs    
-)
 
-set(CM4_DEFINES
-    -DARM_MATH_CM4
-)
-set(CM4_FPU_FLAGS
-    -mcpu=cortex-m4
-    -mfloat-abi=hard
-    -mfpu=fpv4-sp-d16
-)
-
-set(CM7_DEFINES
-    -DARM_MATH_CM7
-)
-set(CM7_FPU_FLAGS
-    -mcpu=cortex-m4
-    -mfloat-abi=hard
-    -mfpu=fpv5-d16
-)
-
-function(embedded_library
+function(cm4_library
     LIB_NAME
     LIB_SRCS
     LIB_INCLUDE_DIRS
@@ -98,105 +76,27 @@ function(embedded_library
             ${LIB_INCLUDE_DIRS}
         )
     endif()
-    
-    target_compile_definitions(${LIB_NAME}
-        PRIVATE
-        ${SHARED_COMPILER_DEFINES}
-    )
-    target_compile_options(${LIB_NAME}
-        PRIVATE
-        ${SHARED_COMPILER_FLAGS}
-    )
-    target_link_options(${LIB_NAME}
-        PRIVATE
-        ${SHARED_LINKER_FLAGS}
-    )
 endfunction()
 
-function(cm4_library
-    LIB_NAME
-    LIB_SRCS
-    LIB_INCLUDE_DIRS
-    THIRD_PARTY
-)
-    embedded_library(
-        "${LIB_NAME}"
-        "${LIB_SRCS}"
-        "${LIB_INCLUDE_DIRS}"
-        "${THIRD_PARTY}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${LIB_NAME}
-        PRIVATE
-        ${CM4_DEFINES}
-    )
-    target_compile_options(${LIB_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-    target_link_options(${LIB_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-endfunction()
-
-function(cm7_library
-    LIB_NAME
-    LIB_SRCS
-    LIB_INCLUDE_DIRS
-    THIRD_PARTY
-)
-    embedded_library(
-        "${LIB_NAME}"
-        "${LIB_SRCS}"
-        "${LIB_INCLUDE_DIRS}"
-        "${THIRD_PARTY}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${LIB_NAME}
-        PRIVATE
-        ${CM7_DEFINES}
-    )
-    target_compile_options(${LIB_NAME}
-        PRIVATE
-        ${CM7_FPU_FLAGS}
-    )
-    target_link_options(${LIB_NAME}
-        PRIVATE
-        ${CM7_FPU_FLAGS}
-    )
-endfunction()
-
-function(embedded_binary
+function(cm4_binary
     BIN_NAME
     BIN_SRCS
     BIN_INCLUDE_DIRS
     LINKER_SCRIPT
 )
-    message("➕ Creating Embedded Target for ${BIN_NAME}")
+    message("➕ Creating Arm Target for ${BIN_NAME}")
     add_executable(${BIN_NAME} ${BIN_SRCS})
 
+    # this makes it so that you don't have to include each file with a full path
     target_include_directories(${BIN_NAME}
         PRIVATE
         ${BIN_INCLUDE_DIRS}
     )
 
-    target_compile_definitions(${BIN_NAME}
-        PRIVATE
-        ${SHARED_COMPILER_DEFINES}
-    )
-    target_compile_options(${BIN_NAME}
-        PRIVATE
-        ${SHARED_COMPILER_FLAGS}
-    )
     target_link_options(${BIN_NAME}
-        PUBLIC
+        PRIVATE
         -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.map
-        -Wl,-gc-sections,--print-memory-usage
         -Wl,-T ${LINKER_SCRIPT}
-        --specs=nano.specs
     )
 
     set(HEX_FILE "${BIN_NAME}.hex")
@@ -215,90 +115,6 @@ function(embedded_binary
 Building ${HEX_FILE}
 Building ${BIN_FILE}
 Building ${ASM_FILE}")
-endfunction()
-
-function(cm4_binary
-    BIN_NAME
-    BIN_SRCS
-    BIN_INCLUDE_DIRS
-    LINKER_SCRIPT
-)
-    embedded_binary(
-        "${BIN_NAME}"
-        "${BIN_SRCS}"
-        "${BIN_INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${BIN_NAME}
-        PRIVATE
-        ${CM4_DEFINES}
-    )
-    target_compile_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-    target_link_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-endfunction()
-
-function(cm7_binary
-    BIN_NAME
-    BIN_SRCS
-    BIN_INCLUDE_DIRS
-    LINKER_SCRIPT
-)
-    embedded_binary(
-        "${BIN_NAME}"
-        "${BIN_SRCS}"
-        "${BIN_INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${BIN_NAME}
-        PRIVATE
-        ${CM7_DEFINES}
-    )
-    target_compile_options(${BIN_NAME}
-        PRIVATE
-        ${CM7_FPU_FLAGS}
-    )
-    target_link_options(${BIN_NAME}
-        PRIVATE
-        ${CM7_FPU_FLAGS}
-    )
-endfunction()
-
-function(cm4_binary
-    BIN_NAME
-    BIN_SRCS
-    BIN_INCLUDE_DIRS
-    LINKER_SCRIPT
-)
-    embedded_binary(
-        "${BIN_NAME}"
-        "${BIN_SRCS}"
-        "${BIN_INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${BIN_NAME}
-        PRIVATE
-        ${CM4_DEFINES}
-    )
-    target_compile_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-    target_link_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
 endfunction()
 
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
@@ -342,7 +158,7 @@ function(generate_stm32cube_code
     )
 endfunction()
 
-function(stm32f412rx_cube_library
+function(stm32f4_cube_library
     HAL_LIB_NAME
     HAL_CONF_DIR
     HAL_SRCS
@@ -386,7 +202,7 @@ function(stm32f412rx_cube_library
     )
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
-    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1. 
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our STM32F412x boards use FreeRTOS V10. 
     # Note that the GSM currently has an STM32F302x MCU, which is limited to FreeRTOS V9, so SystemView is not supported
     # on the GSM.
     file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
@@ -405,77 +221,31 @@ function(stm32f412rx_cube_library
         "${STM32CUBE_INCLUDE_DIRS}"
         TRUE
     )
+
+    # STM32F4 compile definitions. 
+    # Marked public so everything linked to this library will inherit these definitions. 
+    # (Following compiler/linker flags are also marked as public, for the same reason)
     target_compile_definitions(${HAL_LIB_NAME}
         PUBLIC
-        -DSTM32F412Rx
+        ${SHARED_COMPILE_DEFINITIONS}
+        -DARM_MATH_CM4
+        -D${STM32_MCU}
     )
-endfunction()
 
-function(stm32h733xx_cube_library
-    HAL_LIB_NAME
-    HAL_CONF_DIR
-    HAL_SRCS
-    SYSCALLS
-    IOC_CHECKSUM
-)
-    set(DRIVERS_DIR "${STM32H7_CUBE_DIR}/Drivers")
-    set(FREERTOS_DIR "${STM32H7_CUBE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-
-    # Set include directories for STM32Cube library.
-    set(STM32CUBE_INCLUDE_DIRS
-        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
-        "${DRIVERS_DIR}/CMSIS/Include"
-        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
-        "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
-        "${FREERTOS_DIR}/include"
-        "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-        "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
-        "${HAL_CONF_DIR}"
-        "${SYSTEMVIEW_DIR}/SEGGER"
-        "${SYSTEMVIEW_DIR}/Config"
-        "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10"
+    set(FPU_FLAGS
+        -mcpu=cortex-m4
+        -mfloat-abi=hard
+        -mfpu=fpv4-sp-d16
     )
-    # HAL sources.
-    set(STM32_HAL_SRCS)
-    foreach(HAL_SRC ${HAL_SRCS})
-        list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Src/${HAL_SRC}")
-    endforeach()
-
-    # FreeRTOS sources.
-    file(GLOB RTOS_SRCS
-        "${FREERTOS_DIR}/*.c"
-        "${FREERTOS_DIR}/CMSIS_RTOS_V2/*.c"
-        "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/*.c"
-    )
-    
-    # SEGGER SystemView sources.
-    file(GLOB SYSTEMVIEW_SRCS 
-        "${SYSTEMVIEW_DIR}/SEGGER/*.c" 
-        "${SYSTEMVIEW_DIR}/SEGGER/*.S"
-    )
-    # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
-    list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
-    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1. 
-    # Note that the GSM currently has an STM32F302x MCU, which is limited to FreeRTOS V9, so SystemView is not supported
-    # on the GSM.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
-    list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
-
-    # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
-    file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_DIR}/*.c")
-
-    # Startup assembly script.
-    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
-    
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
-    cm4_library(
-        "${HAL_LIB_NAME}"
-        "${STM32CUBE_SRCS}"
-        "${STM32CUBE_INCLUDE_DIRS}"
-        TRUE
-    )
-    target_compile_definitions(${HAL_LIB_NAME}
+    target_compile_options(${HAL_LIB_NAME}
         PUBLIC
-        -DSTM32H733xx
+        ${FPU_FLAGS}
+        ${SHARED_COMPILER_FLAGS}
+    )
+    target_link_options(${HAL_LIB_NAME}
+        PUBLIC
+        ${FPU_FLAGS}
+        -Wl,-gc-sections,--print-memory-usage
+        --specs=nano.specs
     )
 endfunction()

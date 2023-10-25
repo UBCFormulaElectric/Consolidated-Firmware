@@ -31,7 +31,6 @@ function(jsoncan_library
     LIB_NAME
     TARGET_NAME
     OUTPUT_DIR
-    STM32_MCU
 )
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(CAN_JSON_DIR ${CAN_DIR}/json)
@@ -113,11 +112,10 @@ function(jsoncan_library
             ${CMAKE_SOURCE_DIR}/firmware/shared/src/hw
         )
 
-        compile_embedded_lib(
+        cm4_library(
             "${LIB_NAME}"
             "${CAN_SRCS}"
             "${CAN_INCLUDE_DIRS}"
-            "${STM32_MCU}"
             TRUE
         )
     elseif("${PLATFORM}" STREQUAL "x86")
