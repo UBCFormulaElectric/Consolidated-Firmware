@@ -6,7 +6,7 @@ GENERATED_APP_DIR="${GENERATED_DIR}/App"
 GENERATED_IO_DIR="${GENERATED_DIR}/Io"
 GENERATED_DBC_DIR="${GENERATED_DIR}/Dbc"
 
-python generate_can_from_json.py \
+python3 generate_can_from_json.py \
 --board=JCT \
 --can_data_dir="./example_json" \
 --app_can_tx_header_output="${GENERATED_APP_DIR}/App_CanTx.h" \

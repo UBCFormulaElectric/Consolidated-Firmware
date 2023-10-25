@@ -11,6 +11,6 @@
         "INVL_MotorPositionInfo",
         "INVR_MotorPositionInfo",
         "BMS_AvailablePower",
-        "Debug_CanModes"
+        "Debug_CanMode"
     ]
 }

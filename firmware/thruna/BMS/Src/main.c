@@ -59,6 +59,9 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
+
+#include "App_CommitInfo.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -162,14 +165,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMS_AlertsContext_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(BMS_WARNING_RX_OVERFLOW, true);
+    App_CanTx_BMS_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_BMS_RxOverflowWarning_Set(true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMS_AlertsContext_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(BMS_WARNING_TX_OVERFLOW, true);
+    App_CanTx_BMS_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_BMS_TxOverflowWarning_Set(true);
 }
 
 /* USER CODE END 0 */
@@ -300,6 +303,10 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
+
+    // broadcast commit info
+    App_CanTx_BMS_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_BMS_Clean_Set(GIT_COMMIT_CLEAN);
 
     /* USER CODE END 2 */
 
@@ -1063,7 +1070,7 @@ void RunTask1Hz(void const *argument)
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
-        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 

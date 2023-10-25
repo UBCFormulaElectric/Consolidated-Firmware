@@ -57,24 +57,24 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
 {
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
-    App_CanTx_FSM_Coolant_TemperatureA_Set(coolant->get_temperature_A());
-    App_CanTx_FSM_Coolant_TemperatureB_Set(coolant->get_temperature_B());
-    App_CanTx_FSM_Coolant_PressureA_Set(coolant->get_pressure_A());
-    App_CanTx_FSM_Coolant_PressureB_Set(coolant->get_pressure_B());
+    App_CanTx_FSM_CoolantTemperatureA_Set(coolant->get_temperature_A());
+    App_CanTx_FSM_CoolantTemperatureB_Set(coolant->get_temperature_B());
+    App_CanTx_FSM_CoolantPressureA_Set(coolant->get_pressure_A());
+    App_CanTx_FSM_CoolantPressureB_Set(coolant->get_pressure_B());
 
     float                    coolant_flow_clamped;
     enum InRangeCheck_Status coolant_status =
         App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &coolant_flow_clamped);
-    App_CanTx_FSM_Coolant_FlowRate_Set(coolant_flow_clamped);
-    App_CanAlerts_SetWarning(FSM_WARNING_FLOW_RATE_OUT_OF_RANGE, coolant_status != VALUE_IN_RANGE);
+    App_CanTx_FSM_CoolantFlowRate_Set(coolant_flow_clamped);
+    App_CanAlerts_FSM_FlowRateOutOfRangeWarning_Set(coolant_status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
     float                    flow_rate;
     enum InRangeCheck_Status flow_rate_inRangeCheck_status =
         App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &flow_rate);
-    const bool  in_drive_state             = App_CanRx_DCM_Vitals_CurrentState_Get() == DCM_DRIVE_STATE;
+    const bool  in_drive_state             = App_CanRx_DCM_State_Get() == DCM_DRIVE_STATE;
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW && in_drive_state,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE || !in_drive_state);
-    App_CanAlerts_SetFault(FSM_FAULT_FLOW_METER_HAS_UNDERFLOW, flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+    App_CanAlerts_FSM_FlowMeterUnderflowFault_Set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }

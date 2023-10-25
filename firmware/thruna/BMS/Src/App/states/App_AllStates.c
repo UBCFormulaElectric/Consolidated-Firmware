@@ -18,24 +18,24 @@ static uint8_t acc_meas_settle_count = 0U;
 
 static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    App_CanTx_BMS_Vitals_Heartbeat_Set(true);
+    App_CanTx_BMS_Heartbeat_Set(true);
 
-    if (App_CanRx_FSM_Vitals_Heartbeat_Get())
+    if (App_CanRx_FSM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
-        App_CanRx_FSM_Vitals_Heartbeat_Update(false);
+        App_CanRx_FSM_Heartbeat_Update(false);
     }
 
-    if (App_CanRx_DCM_Vitals_Heartbeat_Get())
+    if (App_CanRx_DCM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DCM_HEARTBEAT_ONE_HOT);
-        App_CanRx_DCM_Vitals_Heartbeat_Update(false);
+        App_CanRx_DCM_Heartbeat_Update(false);
     }
 
-    if (App_CanRx_PDM_Vitals_Heartbeat_Get())
+    if (App_CanRx_PDM_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
-        App_CanRx_PDM_Vitals_Heartbeat_Update(false);
+        App_CanRx_PDM_Heartbeat_Update(false);
     }
 
     const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
@@ -52,12 +52,12 @@ static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
     const float curr_min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_voltage = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
 
-    App_CanTx_BMS_CellVoltages_MinCellVoltage_Set(curr_min_cell_voltage);
-    App_CanTx_BMS_CellVoltages_MaxCellVoltage_Set(curr_max_cell_voltage);
-    App_CanTx_BMS_CellStats_MinCellVoltageSegment_Set(min_segment);
-    App_CanTx_BMS_CellStats_MaxCellVoltageSegment_Set(max_segment);
-    App_CanTx_BMS_CellStats_MinCellVoltageIdx_Set(min_loc);
-    App_CanTx_BMS_CellStats_MaxCellVoltageIdx_Set(max_loc);
+    App_CanTx_BMS_MinCellVoltage_Set(curr_min_cell_voltage);
+    App_CanTx_BMS_MaxCellVoltage_Set(curr_max_cell_voltage);
+    App_CanTx_BMS_MinCellVoltageSegment_Set(min_segment);
+    App_CanTx_BMS_MaxCellVoltageSegment_Set(max_segment);
+    App_CanTx_BMS_MinCellVoltageIdx_Set(min_loc);
+    App_CanTx_BMS_MaxCellVoltageIdx_Set(max_loc);
 }
 
 static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struct StateMachine *state_machine)
@@ -71,12 +71,12 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
 
-    App_CanTx_BMS_CellTemperatures_MinCellTemperature_Set(curr_min_cell_temp);
-    App_CanTx_BMS_CellTemperatures_MaxCellTemperature_Set(curr_max_cell_temp);
-    App_CanTx_BMS_CellStats_MinTempSegment_Set(min_segment);
-    App_CanTx_BMS_CellStats_MaxTempSegment_Set(max_segment);
-    App_CanTx_BMS_CellStats_MinTempIdx_Set(min_loc);
-    App_CanTx_BMS_CellStats_MaxTempIdx_Set(max_loc);
+    App_CanTx_BMS_MinCellTemperature_Set(curr_min_cell_temp);
+    App_CanTx_BMS_MaxCellTemperature_Set(curr_max_cell_temp);
+    App_CanTx_BMS_MinTempSegment_Set(min_segment);
+    App_CanTx_BMS_MaxTempSegment_Set(max_segment);
+    App_CanTx_BMS_MinTempIdx_Set(min_loc);
+    App_CanTx_BMS_MaxTempIdx_Set(max_loc);
 }
 
 static void App_AdvertisePackPower(struct Accumulator *accumulator, struct TractiveSystem *ts)
@@ -90,7 +90,7 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
                 max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
-    App_CanTx_BMS_AvailablePower_AvailablePower_Set(available_power);
+    App_CanTx_BMS_AvailablePower_Set(available_power);
 }
 
 void App_AllStates_Init(void)
@@ -110,11 +110,15 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
+<<<<<<< HEAD
     App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
 
     const float    min_soc  = App_SocStats_GetMinSoc(soc_stats);
     const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
     App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
+=======
+    App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
+>>>>>>> origin/master
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -131,16 +135,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
     struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
-    const bool charger_is_connected = App_Charger_IsConnected(charger);
-    const bool balancing_enabled    = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
-    const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
-
     bool status = true;
 
     // ignore heartbeat when charging, other boards likely disconnected
-    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor) && !ignore_other_boards;
-
-    App_CanAlerts_SetFault(BMS_FAULT_MISSING_HEARTBEAT, missing_hb);
+    const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
+    App_CanAlerts_BMS_MissingHeartbeatFault_Set(missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
@@ -152,29 +151,19 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
     App_CanTx_BMS_Soc_Soc_Set(App_SocStats_GetMinSoc(soc_stats));
-    App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
-    App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
-    App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
-    App_CanTx_BMS_Contactors_AirNegative_Set(
-        App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
-    App_CanTx_BMS_Contactors_AirPositive_Set(
-        App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
+    App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
+    App_CanTx_BMS_TractiveSystemCurrent_Set(App_TractiveSystem_GetCurrent(ts));
+    App_CanTx_BMS_AirNegative_Set(App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
     App_Accumulator_BroadcastThermistorTemps(accumulator);
 
     App_AdvertisePackPower(accumulator, ts);
 
-    App_CanTx_BMS_OkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
-    App_CanTx_BMS_OkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
-    App_CanTx_BMS_OkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
-
-    const bool dcm_fault = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
-    const bool fsm_fault = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
-    const bool pdm_fault = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
-    const bool dim_fault = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
-
-    // Ignore faults from other boards when charging, other boards likely disconnected.
-    bool fault_from_other_board = (dcm_fault || fsm_fault || pdm_fault || dim_fault) && !ignore_other_boards;
+    App_CanTx_BMS_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
+    App_CanTx_BMS_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
+    App_CanTx_BMS_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
@@ -182,7 +171,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault || missing_hb || fault_from_other_board)
+    else if (acc_fault || ts_fault)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

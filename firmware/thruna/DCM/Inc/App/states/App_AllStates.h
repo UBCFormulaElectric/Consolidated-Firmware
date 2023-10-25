@@ -9,8 +9,8 @@
  */
 static inline bool App_HasInverterFault(void)
 {
-    return App_CanRx_INVL_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE ||
-           App_CanRx_INVR_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+    return App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE ||
+           App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
 }
 
 /**
@@ -20,12 +20,12 @@ static inline bool App_HasInverterFault(void)
  */
 static inline bool App_IsStartSwitchOn(void)
 {
-    return App_CanRx_DIM_Switches_StartSwitch_Get() == SWITCH_ON;
+    return App_CanRx_DIM_StartSwitch_Get() == SWITCH_ON;
 }
 
 static inline bool App_IsBmsInDriveState(void)
 {
-    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE;
+    return App_CanRx_BMS_State_Get() == BMS_DRIVE_STATE;
 }
 /**
  * On-tick 1Hz function for every state in the given state machine

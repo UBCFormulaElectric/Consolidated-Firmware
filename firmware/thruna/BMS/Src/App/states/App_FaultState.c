@@ -8,12 +8,11 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct Airs *const     airs   = App_BmsWorld_GetAirs(world);
     struct OkStatus *      bms_ok = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_FAULT_STATE);
+    App_CanTx_BMS_State_Set(BMS_FAULT_STATE);
     App_Airs_OpenAirPositive(airs);
-    App_CanTx_BMS_Contactors_AirPositive_Set(
-        App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
-    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, true);
+    App_CanAlerts_BMS_StateMachineFault_Set(true);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -32,14 +31,14 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Charger *       charger     = App_BmsWorld_GetCharger(world);
 
     const bool charger_is_connected = App_Charger_IsConnected(charger);
-    const bool balancing_enabled    = App_CanRx_Debug_CellBalancing_RequestCellBalancing_Get();
+    const bool balancing_enabled    = App_CanRx_Debug_CellBalancingRequest_Get();
     const bool ignore_other_boards  = charger_is_connected || balancing_enabled;
 
     const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
-    const bool hb_ok                = !App_CanAlerts_GetFault(BMS_FAULT_MISSING_HEARTBEAT);
-    const bool precharge_ok         = !App_CanAlerts_GetFault(BMS_FAULT_PRECHARGE_ERROR);
+    const bool hb_ok                = !App_CanAlerts_BMS_MissingHeartbeatFault_Get();
+    const bool precharge_ok         = !App_CanAlerts_BMS_PrechargeFailureFault_Get();
 
     const bool dcm_ok        = !App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
     const bool fsm_ok        = !App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
@@ -56,7 +55,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-    App_CanAlerts_SetFault(BMS_FAULT_STATE_FAULT, false);
+    App_CanAlerts_BMS_StateMachineFault_Set(false);
 }
 
 const struct State *App_GetFaultState()

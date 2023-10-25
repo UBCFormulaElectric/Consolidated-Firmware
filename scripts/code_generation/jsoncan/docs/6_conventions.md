@@ -3,10 +3,12 @@
 ## Naming Conventions
 
 1. Names should be descriptive and avoid using any uncommon or undocumented acronyms.
-2. Message names are in `PascalCase`, prefixed by the board name in caps. For example, `BMS_HighVoltage`. 
-3. Signal and enum names are in `PascalCase`. 
+2. Message and signal names are in `PascalCase`. ECU name prefixes will be added automatically.
+3. Enum names are in `PascalCase`
 4. Enum values are in `SCREAMING_SNAKE_CASE`. 
-5. Alert names are in `SCREAMING_SNAKE_CASE`, and prefixed with `<board name>_ALERT`. For example, `BMS_ALERT_ACCUMULATOR_OVERTEMP`.
+5. Alert names are in `PascalCase`, ending in `Faults` or `Warnings` depending on the alert type. ECU name prefixes will be added automatically.
+
+Message, signal, enum, and alert names must be unique (with the board prefix).
 
 ## Message IDs
 

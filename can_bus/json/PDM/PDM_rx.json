@@ -2,6 +2,6 @@
     "messages": [
         "BMS_Vitals",
         "BMS_Contactors",
-        "Debug_CanModes"
+        "Debug_CanMode"
     ]
 }

@@ -1,5 +1,5 @@
 {
-    "JctVitals": {
+    "Vitals": {
         "msg_id": 601,
         "cycle_time": 1000, 
         "description": "Heartbeat signal.",
@@ -13,7 +13,7 @@
             "Timestamp": { "bits": 32 }
         }
     },  
-    "JctWarnings": {
+    "WarningsTest": {
         "msg_id": 602,
         "description": "Non-critical errors.",
         "num_bytes": 8,
@@ -24,7 +24,7 @@
             "BoardOvervoltage": { "bits": 1 }
         }
     },
-    "JctAirShutdownErrors": {
+    "AirShutdownErrors": {
         "msg_id": 603,
         "cycle_time": 1000, 
         "description": "AIR shutdown.",
@@ -33,7 +33,7 @@
             "DummyAirShutdown": { "bits": 1 }
         }
     },
-    "JctMotorShutdownErrors": {
+    "MotorShutdownErrors": {
         "msg_id": 604,
         "cycle_time": 100, 
         "description": "Motor shutdown.",
@@ -42,7 +42,7 @@
             "DummyMotorShutdown": { "bits": 1 }
         }
     },
-    "JctStatus": {
+    "Status": {
         "msg_id": 608,
         "cycle_time": 100, 
         "description": "Message for debugging.",

@@ -52,6 +52,9 @@
 #include "configs/App_CurrentLimits.h"
 #include "configs/App_VoltageLimits.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+
+#include "App_CommitInfo.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -142,14 +145,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_PDM_AlertsContext_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(PDM_WARNING_RX_OVERFLOW, true);
+    App_CanTx_PDM_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_PDM_RxOverflowWarning_Set(true);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_PDM_AlertsContext_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_SetWarning(PDM_WARNING_TX_OVERFLOW, true);
+    App_CanTx_PDM_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_PDM_TxOverflowWarning_Set(true);
 }
 
 /* USER CODE END 0 */
@@ -262,6 +265,11 @@ int main(void)
     Io_Efuse_SetChannel(EFUSE_CHANNEL_FAN, true);
     Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_LHS, true);
     Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_RHS, true);
+
+    // broadcast commit info
+    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -836,7 +844,7 @@ void RunTask1Hz(void const *argument)
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
-        const bool debug_mode_enabled = App_CanRx_Debug_CanModes_EnableDebugMode_Get();
+        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 

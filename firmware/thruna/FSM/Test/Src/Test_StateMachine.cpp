@@ -141,8 +141,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         float  max_value,
         float &fake_value,
         T (*value_can_signal_getter)(),
-        bool (*alert_getter)(uint8_t),
-        uint8_t alert_id)
+        bool (*alert_getter)(void))
     {
         for (const auto &state : GetAllStates())
         {
@@ -152,17 +151,17 @@ class FsmStateMachineTest : public BaseStateMachineTest
             fake_value = (min_value + max_value) / 2;
             LetTimePass(fsm_state_machine, 10);
             ASSERT_EQ(fake_value, value_can_signal_getter());
-            ASSERT_FALSE(alert_getter(alert_id));
+            ASSERT_FALSE(alert_getter());
 
             // Underflow range
             fake_value = std::nextafter(min_value, std::numeric_limits<float>::lowest());
             LetTimePass(fsm_state_machine, 10);
-            ASSERT_TRUE(alert_getter(alert_id));
+            ASSERT_TRUE(alert_getter());
 
             // Overflow range
             fake_value = std::nextafter(max_value, std::numeric_limits<float>::max());
             LetTimePass(fsm_state_machine, 10);
-            ASSERT_TRUE(alert_getter(alert_id));
+            ASSERT_TRUE(alert_getter());
         }
     }
 
@@ -207,7 +206,7 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_s
     get_papps_fake.return_val = 50.0;
     get_sapps_fake.return_val = 50.0;
     LetTimePass(fsm_state_machine, 10);
-    ASSERT_NEAR(50.0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
+    ASSERT_NEAR(50.0, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
 
     /*REMOVED when switched to linear pot
     // Underflow range
@@ -216,7 +215,7 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_s
     get_papps_encoder_counter_fake.return_val = GetPrimaryEncoderCounterFromPedalPercentage(0) - 1;
     get_sapps_encoder_counter_fake.return_val = GetSecondaryEncoderCounterFromPedalPercentage(0) + 1;
     LetTimePass(state_machine, 10);
-    ASSERT_NEAR(0, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
+    ASSERT_NEAR(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
 
     // Overflow range
     // Increment fake_value by 1 to ensure that the encoder counter value is
@@ -224,7 +223,7 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_s
     get_papps_encoder_counter_fake.return_val = GetPrimaryEncoderCounterFromPedalPercentage(100) + 1;
     get_sapps_encoder_counter_fake.return_val = GetSecondaryEncoderCounterFromPedalPercentage(100) - 1;
     LetTimePass(state_machine, 10);
-    ASSERT_NEAR(100, App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Get(), 0.5f);
+    ASSERT_NEAR(100, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
      */
 }
 
@@ -233,34 +232,29 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
     // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_front_pressure_fake.return_val,
-        App_CanTx_FSM_Brake_FrontBrakePressure_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_FRONT_BRAKE_PRESSURE_OUT_OF_RANGE);
+        App_CanTx_FSM_FrontBrakePressure_Get, App_CanAlerts_FSM_FrontBrakePressureOutOfRangeWarning_Get);
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_rear_pressure_fake.return_val,
-        App_CanTx_FSM_Brake_RearBrakePressure_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_REAR_BRAKE_PRESSURE_OUT_OF_RANGE);
+        App_CanTx_FSM_RearBrakePressure_Get, App_CanAlerts_FSM_RearBrakePressureOutOfRangeWarning_Get);
 
     // actuation
     // TODO: Update this once potentiometer is fixed
     //    CheckBinaryStatusCanSignalInAllStates(
-    //        is_brake_actuated_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_Brake_IsActuated_Get);
+    //        is_brake_actuated_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_IsActuated_Get);
 
     // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignalInAllStates(
-        front_pressure_sensor_ocsc_fake.return_val,
-        (uint8_t(*)(void))App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Get);
+        front_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_BrakePressureSensorOCSC_Get);
 
     CheckBinaryStatusCanSignalInAllStates(
-        rear_pressure_sensor_ocsc_fake.return_val,
-        (uint8_t(*)(void))App_CanTx_FSM_Brake_PressureSensorOpenShortCircuit_Get);
+        rear_pressure_sensor_ocsc_fake.return_val, (uint8_t(*)(void))App_CanTx_FSM_BrakePressureSensorOCSC_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
-        App_CanTx_FSM_Coolant_FlowRate_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_FLOW_RATE_OUT_OF_RANGE);
+        App_CanTx_FSM_CoolantFlowRate_Get, App_CanAlerts_FSM_FlowRateOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states)
@@ -275,10 +269,10 @@ TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_al
         coolant_get_pressure_b_fake.return_val = 30;
         LetTimePass(fsm_state_machine, 10);
 
-        ASSERT_EQ(App_CanTx_FSM_Coolant_TemperatureA_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_Coolant_TemperatureB_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_Coolant_PressureA_Get(), 30);
-        ASSERT_EQ(App_CanTx_FSM_Coolant_PressureB_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureA_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureB_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantPressureA_Get(), 30);
+        ASSERT_EQ(App_CanTx_FSM_CoolantPressureB_Get(), 30);
     }
 }
 
@@ -286,24 +280,21 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG, get_steering_angle_fake.return_val,
-        App_CanTx_FSM_Steering_SteeringAngle_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_STEERING_ANGLE_OUT_OF_RANGE);
+        App_CanTx_FSM_SteeringAngle_Get, App_CanAlerts_FSM_SteeringAngleOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, wheel_get_left_speed_fake.return_val,
-        App_CanTx_FSM_Wheels_LeftWheelSpeed_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_LEFT_WHEEL_SPEED_OUT_OF_RANGE);
+        App_CanTx_FSM_LeftWheelSpeed_Get, App_CanAlerts_FSM_LeftWheelSpeedOutOfRangeWarning_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, wheel_get_right_speed_fake.return_val,
-        App_CanTx_FSM_Wheels_RightWheelSpeed_Get, (bool (*)(uint8_t))App_CanAlerts_GetWarning,
-        FSM_WARNING_RIGHT_WHEEL_SPEED_OUT_OF_RANGE);
+        App_CanTx_FSM_RightWheelSpeed_Get, App_CanAlerts_FSM_RightWheelSpeedOutOfRangeWarning_Get);
 }
 
 //========================OTHERS========================
@@ -311,13 +302,13 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
-    EXPECT_EQ(FSM_STATE_DRIVE, App_CanTx_FSM_Vitals_State_Get());
+    EXPECT_EQ(FSM_STATE_DRIVE, App_CanTx_FSM_State_Get());
 }
 
 TEST_F(FsmStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
-    EXPECT_EQ(FSM_STATE_FAULT, App_CanTx_FSM_Vitals_State_Get());
+    EXPECT_EQ(FSM_STATE_FAULT, App_CanTx_FSM_State_Get());
 }
 
 } // namespace StateMachineTest
