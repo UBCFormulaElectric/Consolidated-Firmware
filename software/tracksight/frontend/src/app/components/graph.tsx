@@ -44,13 +44,8 @@ const Graph = (props) => {
         const tempFormattedData = [];
         for (const name in data) {
             let signalData = data[name];
-            let xData = [];
-            let yData = [];
-
-            for (let date in signalData) {
-                xData.push(date);
-                yData.push(signalData[date]);
-            }
+            let xData = signalData["time"];
+            let yData = signalData["value"];
 
             const formattedObj = {
                 x: xData,
