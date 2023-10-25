@@ -17,15 +17,13 @@
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_State_Set(DIM_STATE_DRIVE);
+    App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-
-    // broadcast commit info
-    App_CanTx_DIM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_DIM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)

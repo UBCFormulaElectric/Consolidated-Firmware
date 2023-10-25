@@ -1,7 +1,6 @@
 #include "App_SharedMacros.h"
 #include "states/App_AllStates.h"
 #include "App_EllipseImu.h"
-#include "App_CommitInfo.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -33,10 +32,6 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-
-    // broadcast commit info
-    App_CanTx_DCM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_DCM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)

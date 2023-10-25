@@ -2,7 +2,6 @@
 #include "states/App_FaultState.h"
 #include "states/App_DriveState.h"
 #include "App_SharedConstants.h"
-#include "App_CommitInfo.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window

@@ -5,7 +5,6 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
-#include "App_CommitInfo.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)

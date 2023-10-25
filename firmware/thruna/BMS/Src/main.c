@@ -60,6 +60,8 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 
+#include "App_CommitInfo.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -275,6 +277,10 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
+
+    // broadcast commit info
+    App_CanTx_BMS_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_BMS_Clean_Set(GIT_COMMIT_CLEAN);
 
     /* USER CODE END 2 */
 

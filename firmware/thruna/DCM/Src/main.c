@@ -45,6 +45,7 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_AccelerationThresholds.h"
+#include "App_CommitInfo.h"
 
 /* USER CODE END Includes */
 
@@ -203,6 +204,10 @@ int main(void)
         heartbeat_monitor, brake_light, buzzer, imu, clock, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
+    // broadcast commit info
+    App_CanTx_DCM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_DCM_Clean_Set(GIT_COMMIT_CLEAN);
 
     /* USER CODE END 2 */
 

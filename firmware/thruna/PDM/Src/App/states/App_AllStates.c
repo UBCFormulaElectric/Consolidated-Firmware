@@ -1,5 +1,4 @@
 #include "states/App_AllStates.h"
-#include "App_CommitInfo.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -7,10 +6,6 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct RgbLedSequence *rgb_led_sequence = App_PdmWorld_GetRgbLedSequence(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
-
-    // broadcast commit info
-    App_CanTx_PDM_CommitInfo_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_PDM_CommitInfo_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
