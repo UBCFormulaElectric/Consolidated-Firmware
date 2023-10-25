@@ -3,7 +3,7 @@
 user manual : https://www.peak-system.com/produktcd/Pdf/English/PCAN-USB_UserMan_eng.pdf
 
 ## Setup
-1. Download and extract http://www.peak-system.com/cupd2/PE6Setup6_2_1_1946.zip
+1. Download and extract http://www.peak-system.com/cupd2/PE6Setup6_6_1_2744.zip
 1. Install PCAN-Explorer 6 using **PE6-Setup.exe**
 1. The installer will ask for a license file which you can find in this folder as **PcanExpl.lic**
 2. Install the apropriate PCAN USB drivers from https://www.peak-system.com/Drivers.523.0.html?&L=1 run the application
