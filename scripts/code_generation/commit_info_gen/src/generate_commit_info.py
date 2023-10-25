@@ -10,7 +10,7 @@ import git
 def validateData(data):
   validLength = len(data["hash"]) == 7
   validHex = all([c in string.hexdigits for c in data["hash"]])
-  validClean = data["clean"] == "0" or data["clean"] == "1"
+  validClean = data["clean"] == "false" or data["clean"] == "true"
   return validLength and validHex and validClean
 
 if __name__ == "__main__":
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     short_hash = commit.hexsha[0:7]
 
     data["hash"] = short_hash
-    data["clean"] = "1" if clean else "0"
+    data["clean"] = "true" if clean else "false"
 
     # validate
     if not validateData(data):
