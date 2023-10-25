@@ -4,6 +4,12 @@ from argparse import ArgumentParser
 import jinja2
 import git
 
+# dummy data in case of error
+DUMMY_DATA = {
+  "hash": "0000000",
+  "clean": "0"
+}
+
 # validates data dict
 # data["hash"]: 7 char string with short commit hash
 # data["clean"]: "0" if dirty, "1" is clean
@@ -31,6 +37,7 @@ if __name__ == "__main__":
   # data to expose to header
   data = {}
 
+  # return dummy data if gitpython throws any error
   try: 
     # get commit info
     repo = git.Repo(search_parent_directories=True)
@@ -43,14 +50,14 @@ if __name__ == "__main__":
     data["hash"] = short_hash
     data["clean"] = "true" if clean else "false"
 
-    # validate
-    if not validateData(data):
-      raise Exception("Invalid data.")
-
   except:
-    data["hash"] = "0000000"
-    data["clean"] = "0"
-    print("commit_info_gen: Failed to get commit data, returning header with dummy data.")
+    data = DUMMY_DATA
+    print("⚠️ commit_info_gen: GitPython failed to fetch data, returning dummy data.")
+
+  # also generate dummy data if data is not valid
+  if not validateData(data):
+    data = DUMMY_DATA
+    print("⚠️ commit_info_gen: Internally generated invalid data, returning dummy data.")
 
   # recursively generate output dirs if they do not exist
   os.makedirs(os.path.dirname(args.output_header), exist_ok=True)
