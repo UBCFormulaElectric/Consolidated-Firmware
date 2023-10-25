@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
-import { Card, Button } from 'antd';
+import { Card, Button, Switch } from 'antd';
 import QueryData from './query_data.tsx';
 
 const DEFAULT_LAYOUT = {
@@ -11,11 +11,15 @@ const DEFAULT_LAYOUT = {
   yaxis: {},
 };
 
+// props = key (graph key), id (graph id), url(for http), socket(for socket), sync (determines if should sync), 
+// setZoomData (sets zoom data), zoomData (zoom data), onDelete (deletes a graph),
 const Graph = (props) => {
   const [data, setData] = useState({});
+  const [live, setLive] = useState(false);
   const [formattedData, setFormattedData] = useState([]);
   const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
 
+  // for random colour generation of graph lines 
   const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
@@ -23,12 +27,20 @@ const Graph = (props) => {
     return `rgb(${r},${g},${b})`;
   };
 
+  const changeLive = (checked: boolean) => {
+    setLive(checked);
+    console.log(checked);
+  }
+
+
+  // reset graph data
   const clearData = () => {
     setFormattedData([]);
     setGraphLayout(DEFAULT_LAYOUT);
     setData({});
   };
 
+  // format data for graph
   const formatData = () => {
     const tempFormattedData = [];
     for (const name in data) {
@@ -69,6 +81,7 @@ const Graph = (props) => {
     formatData();
   }, [data]);
 
+  // changes zoom data if sync is on
   useEffect(() => {
     if (props.sync && props.zoomData && 'xaxis.range[0]' in props.zoomData) {
       const { 'xaxis.range[0]': xaxisRange0, 'xaxis.range[1]': xaxisRange1, 'yaxis.range[0]': yaxisRange0, 'yaxis.range[1]': yaxisRange1 } = props.zoomData;
@@ -86,7 +99,14 @@ const Graph = (props) => {
 
   return (
     <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-      <QueryData url={props.url} setData={setData} />
+        <div className="space-between">
+      <QueryData url={props.url} socket={props.socket} live={live} setData={setData} />
+      <div className="center-align">
+        <p>Use Live Data</p>
+      <Switch onChange={changeLive}></Switch>
+      </div>
+
+      </div>
       <Plot
         data={formattedData}
         layout={graphLayout}
@@ -98,6 +118,7 @@ const Graph = (props) => {
         onRelayout={handleZoom}
       />
       <br />
+
       <Button onClick={clearData}>Clear</Button>
       <Button onClick={props.onDelete}>Delete This Graph</Button>
     </Card>

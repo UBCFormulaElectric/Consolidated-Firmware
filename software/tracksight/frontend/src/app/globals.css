@@ -48,7 +48,15 @@ a {
   gap: 20px;
 }
 
-.dropdown {
-  width: 100px;
-
+.space-between {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1%;
 }
+
+.center-align {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+

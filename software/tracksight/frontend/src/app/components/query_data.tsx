@@ -8,6 +8,8 @@ import DropdownMenu from './dropdown_menu.tsx';
 // pass in bool to determine how to query (live or not)
 // add a guard for each (i.e if true then query live, else query http)
 
+// props = url(for http), socket(for socket), live(bool for live or http),
+// setData(for setting a graph's data)
 const QueryData = (props) => {
     const [signals, setSignals] = useState([]);
     const [avail, setAvail] = useState([]);

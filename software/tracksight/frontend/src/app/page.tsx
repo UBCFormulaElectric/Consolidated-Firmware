@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, React } from 'react';
 import { io } from "socket.io-client";
-import { Layout, Divider, Button, Switch } from 'antd';
+import { Layout } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
@@ -16,7 +16,6 @@ const Home = () => {
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
-    const [zoomData, setZoomData] = useState([]);
 
     // determines if all graphs are supposed to zoom together or not
     const [sync, setSync] = useState(false);
@@ -71,13 +70,9 @@ const Home = () => {
                 {!loading && (
                     componentToDisplay === "visualize" ? (
                         <Visualize
-                            setSync={setSync}
                             addGraph={addGraph}
                             graphs={graphs}
-                            sync={sync}
-                            setZoomData={setZoomData}
                             deleteGraph={deleteGraph}
-                            zoomData={zoomData}
                             url={FLASK_URL}
                             socket={socketInstance}
                         />

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { DownOutlined, SmileOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Button } from 'antd';
 
+
+// props = url (HTTP url), avail (avail signals), signals (signals to be queried), setSignal (set data) 
 const DropdownMenu = (props) => {
     const [items, setItems] = useState([]);
     // for intermediate states of selected signals
