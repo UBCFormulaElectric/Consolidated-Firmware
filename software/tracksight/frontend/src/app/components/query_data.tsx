@@ -5,10 +5,12 @@ import { Button, Space } from 'antd';
 
 import DropdownMenu from './dropdown_menu.tsx';
 
+// pass in bool to determine how to query (live or not)
+// add a guard for each (i.e if true then query live, else query http)
+
 const QueryData = (props) => {
     const [signals, setSignals] = useState([]);
     const [avail, setAvail] = useState([]);
-    const [temp_data, set_temp_data] = useState({});
 
     useEffect(() => {
         fetch(props.url + "/signal", {

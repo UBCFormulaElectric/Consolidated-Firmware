@@ -1,14 +1,13 @@
 'use client';
-
 import { useEffect, useState, React } from 'react';
 import { io } from "socket.io-client";
 import { Layout, Divider, Button, Switch } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
-import NavBar from './components/navbar.tsx';
-import Graph from './components/graph.tsx';
 import Dashboard from './components/dashboard.tsx';
+import NavBar from './components/navbar.tsx';
+import Visualize from './components/visualize';
 
 const FLASK_URL = "http://localhost:5000"
 
@@ -18,6 +17,7 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
     const [zoomData, setZoomData] = useState([]);
+
     // determines if all graphs are supposed to zoom together or not
     const [sync, setSync] = useState(false);
     
@@ -62,38 +62,29 @@ const Home = () => {
         };
     }, []);
 
-    let componentToRender;
-    if (componentToDisplay === "visualize") {
-        componentToRender = (
-        <div className="layout">
-            <h1>Visualize</h1>
-            <p>Select a signal from the dropdown menu and the press submit to visualize the data on the graph.</p>
-            <div>
-                 <Switch onClick={setSync}></Switch>
-                    <p>Sync Zoom</p>
-            </div>
-            <Button onClick={addGraph}>Add Another Graph</Button>
-            <Divider></Divider>
-            <div className="flex-container">
-            {graphs.map(graphId => (
-                 <Graph 
-                    key={graphId} id={graphId} url={FLASK_URL} sync={sync} setZoomData={setZoomData} zoomData={zoomData}
-                    onDelete={() => deleteGraph(graphId)}
-                 />
-            ))}
-            </div>
-        </div>);
-    } else {
-        componentToRender = (<Dashboard></Dashboard>);
-    }
-
     return (
         <Layout className={styles.main}>
             <Header className={styles.header}>
-                <NavBar updateFunction={setComponentToDisplay}/>
+                <NavBar updateFunction={setComponentToDisplay} />
             </Header>
             <Content>
-                {!loading && componentToRender}
+                {!loading && (
+                    componentToDisplay === "visualize" ? (
+                        <Visualize
+                            setSync={setSync}
+                            addGraph={addGraph}
+                            graphs={graphs}
+                            sync={sync}
+                            setZoomData={setZoomData}
+                            deleteGraph={deleteGraph}
+                            zoomData={zoomData}
+                            url={FLASK_URL}
+                            socket={socketInstance}
+                        />
+                    ) : (
+                        <Dashboard />
+                    )
+                )}
             </Content>
         </Layout>
     );
