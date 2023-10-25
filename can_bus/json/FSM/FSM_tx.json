@@ -165,7 +165,7 @@
 			}
 		}
 	},
-  "FSM_CommitInfo": {
+  "CommitInfo": {
     "msg_id": 319,
     "cycle_time": 100,
     "description": "FSM Current Running Git Commit Info",

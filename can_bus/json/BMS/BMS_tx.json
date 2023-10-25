@@ -324,7 +324,7 @@
             }
         }
     },
-    "BMS_CommitInfo": {
+    "CommitInfo": {
       "msg_id": 122,
       "cycle_time": 100,
       "description": "BMS Current Running Git Commit Info",

@@ -71,7 +71,7 @@
             }
         }
     },
-    "PDM_CommitInfo": {
+    "CommitInfo": {
       "msg_id": 406,
       "cycle_time": 100,
       "description": "PDM Current Running Git Commit Info",

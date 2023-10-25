@@ -43,7 +43,7 @@
             }
         }
     },
-    "GSM_CommitInfo": {
+    "CommitInfo": {
       "msg_id": 605,
       "cycle_time": 100,
       "description": "GSM Current Running Git Commit Info",
