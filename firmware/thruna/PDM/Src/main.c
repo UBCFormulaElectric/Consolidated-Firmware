@@ -52,6 +52,9 @@
 #include "configs/App_CurrentLimits.h"
 #include "configs/App_VoltageLimits.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+
+#include "App_CommitInfo.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -262,6 +265,11 @@ int main(void)
     Io_Efuse_SetChannel(EFUSE_CHANNEL_FAN, true);
     Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_LHS, true);
     Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_RHS, true);
+
+    // broadcast commit info
+    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

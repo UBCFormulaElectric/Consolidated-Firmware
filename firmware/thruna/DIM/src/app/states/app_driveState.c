@@ -10,12 +10,15 @@
 #include "app_avgPower.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "App_CommitInfo.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DIM_State_Set(DIM_STATE_DRIVE);
+    App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
 static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
