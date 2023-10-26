@@ -110,15 +110,12 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
-<<<<<<< HEAD
-    App_CanTx_BMS_Charger_IsConnected_Set(charger_is_connected);
 
-    const float    min_soc  = App_SocStats_GetMinSoc(soc_stats);
+    const float    min_soc  = App_SocStats_GetMinSocCoulombs(soc_stats);
     const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
+
     App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
-=======
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
->>>>>>> origin/master
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -150,7 +147,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
-    App_CanTx_BMS_Soc_Soc_Set(App_SocStats_GetMinSoc(soc_stats));
+    App_CanTx_BMS_Soc_Set(App_SocStats_GetMinSocPercent(soc_stats));
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystemCurrent_Set(App_TractiveSystem_GetCurrent(ts));

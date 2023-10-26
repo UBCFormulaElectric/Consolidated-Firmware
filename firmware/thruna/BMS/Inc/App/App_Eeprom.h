@@ -65,14 +65,13 @@ EEPROM_StatusTypeDef
 EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
 
 /**
- * Write an address 4 times to EEPROM
+ * Update address and write 4 times to EEPROM
  * @note SHOULD ONLY BE CALLED ONCE EVERY 5ms, DOING SO MORE QUICKLY WILL VIOLATE EEPROM SPECS
  * @param eeprom Eeprom to write address to
- * @param page the number of the page to write to
- * @param address the address to store on the EEPROM
+ * @param address pointer to the the address to store on the EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t current_address);
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t *address);
 
 /**
  * Read stored copies of last SOC address and perform error checking

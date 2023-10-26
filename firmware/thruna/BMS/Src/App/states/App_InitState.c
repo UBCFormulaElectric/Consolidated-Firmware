@@ -37,13 +37,13 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    if (App_CanRx_Debug_ResetSoc_ResetSoc_MinCellV_Get())
+    if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
     {
         App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
     }
-    else if (App_CanRx_Debug_ResetSoc_ResetSoc_CustomEnable_Get())
+    else if (App_CanRx_Debug_ResetSoc_CustomEnable_Get())
     {
-        App_SOC_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_ResetSoc_CustomVal_Get());
+        App_SOC_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_CustomVal_Get());
     }
 }
 

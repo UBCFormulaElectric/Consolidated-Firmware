@@ -91,7 +91,7 @@ struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_ad
     soc_stats->soc_address = soc_address;
 
     // input a negative initial value if EEPROM reading corrupted. Reset SOC values based on cell voltages.
-    if (initial_charge_value < 0)
+    if (initial_charge_value < 0.0f)
     {
         App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
     }
@@ -132,7 +132,13 @@ void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current)
     App_SharedProcessing_TrapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
 }
 
-float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
+float App_SocStats_GetMinSocCoulombs(struct SocStats *soc_stats)
+{
+    // return SOC in Coulombs
+    return (float)soc_stats->charge_c;
+}
+
+float App_SocStats_GetMinSocPercent(struct SocStats *soc_stats)
 {
     // return SOC in %
     float soc_percent = ((float)soc_stats->charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
@@ -141,7 +147,7 @@ float App_SocStats_GetMinSoc(struct SocStats *soc_stats)
 
 float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
 {
-    float soc_percent = App_SocStats_GetMinSoc(soc_stats);
+    float soc_percent = App_SocStats_GetMinSocPercent(soc_stats);
     return App_Soc_GetVocFromSoc(soc_percent);
 }
 
@@ -160,5 +166,5 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
 
 void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
 {
-    soc_stats->charge_c = (double)((soc_percent / 100.0f) * SERIES_ELEMENT_FULL_CHARGE_C);
+    soc_stats->charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 }

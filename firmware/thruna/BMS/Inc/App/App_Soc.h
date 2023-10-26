@@ -95,11 +95,18 @@ uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current);
 
 /**
+ * return Coulombs of the SE with the lowest SOC
+ * @param soc_stats The charge stats of the pack
+ * @return cloulombs of lowest SOC SE
+ */
+float App_SocStats_GetMinSocCoulombs(struct SocStats *soc_stats);
+
+/**
  * return percent SOC of the SE with the lowest SOC
  * @param soc_stats The charge stats of the pack
  * @return soc % of lowest SOC SE
  */
-float App_SocStats_GetMinSoc(struct SocStats *soc_stats);
+float App_SocStats_GetMinSocPercent(struct SocStats *soc_stats);
 
 /**
  * Get the minimum series element open circuit voltage approximation given current pack SOC status

@@ -7,6 +7,7 @@
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
 #define DEFAULT_OFFSET 0U
 #define ADDRESS_PAGE 0U
+#define MAX_SOC_ADDR (NUM_PAGES - 1U)
 
 static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 {
@@ -116,27 +117,26 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page)
     return eeprom->page_erase(page);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t current_address)
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t *address)
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
 
     // Increment address for wear levelling purposes
-    uint16_t new_address;
-    if (current_address >= NUM_PAGES - 1)
+    if (*address >= MAX_SOC_ADDR)
     {
-        new_address = DEFAULT_SOC_ADDR;
+        *address = DEFAULT_SOC_ADDR;
     }
     else
     {
-        new_address = (uint16_t)(current_address + 1);
+        *address = (uint16_t)(*address + 1);
     }
 
     // convert address to bytes and write 4 copies to page 0
 
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        convert_short_to_bytes(&byte_array[i * sizeof(uint16_t)], new_address);
+        convert_short_to_bytes(&byte_array[i * sizeof(uint16_t)], *address);
     }
 
     return eeprom->write_page(ADDRESS_PAGE, DEFAULT_OFFSET, byte_array, num_bytes);

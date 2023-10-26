@@ -289,7 +289,7 @@ int main(void)
     }
 
     // Update the active address that SOC is stored at
-    App_Eeprom_UpdateSavedAddress(eeprom, soc_address);
+    App_Eeprom_UpdateSavedAddress(eeprom, &soc_address);
 
     soc_stats = App_SocStats_Create(saved_soc_c, soc_address, accumulator);
 
