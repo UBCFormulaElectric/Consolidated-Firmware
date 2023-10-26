@@ -14,11 +14,11 @@
 #define MAX_POT_V (3.30f)
 
 // Raw voltage seen at the pin (used to calculate rest and max PAPPS/SAPPS length)
-#define PAPPS_FULL_PRESSED_POT_V (2.61f)
-#define PAPPS_UNPRESSED_POT_V (0.72f)
+#define PAPPS_FULL_PRESSED_POT_V (2.55f)
+#define PAPPS_UNPRESSED_POT_V (0.85f)
 
-#define SAPPS_FULL_PRESSED_POT_V (3.12f)
-#define SAPPS_UNPRESSED_POT_V (1.23f)
+#define SAPPS_FULL_PRESSED_POT_V (3.05f)
+#define SAPPS_UNPRESSED_POT_V (1.37f)
 
 // Denominator term for angle calculation using the cosine law
 #define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * LEN_B)
@@ -48,7 +48,7 @@
 #define SAPPS_MIN_V (SAPPS_UNPRESSED_POT_V - 0.5f)
 #define SAPPS_MAX_V (SAPPS_FULL_PRESSED_POT_V + 0.5f)
 
-#define DEAD_ZONE_PERCENT (10.3f)
+#define DEAD_ZONE_PERCENT (10.0f)
 
 static float calcAppsAngle(float cos_law_coefficent, float cos_law_denominator, float pot_len)
 {
