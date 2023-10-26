@@ -4,14 +4,14 @@
     "warnings_counts_id": 450,
     "faults_counts_id": 451,
     "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow"
+        "StackWaterMarkHighTask1HzWarning",
+        "StackWaterMarkHighTask100HzWarning",
+        "StackWaterMarkHighTask1kHzWarning",
+        "StackWaterMarkHighTaskCanRxWarning",
+        "StackWaterMarkHighTaskCanTxWarning",
+        "WatchdogTimeoutWarning",
+        "TxOverflowWarning",
+        "RxOverflowWarning"
     ],
     "faults": [
         "DummyFault"

@@ -23,3 +23,5 @@ struct stack_watermark
  * @param num_of_stacks Number of stacks in the array.
  */
 void Io_SharedStackWaterMark_Check(struct stack_watermark *stacks, size_t num_of_stacks);
+
+void Io_SharedStackSize_Check(struct stack_watermark *stacks, size_t num_of_stacks);
