@@ -41,7 +41,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     io_led_enable(globals->config->shdn_led, contactors_open);
 
     const bool in_drive_state = App_CanRx_DCM_State_Get() == DCM_DRIVE_STATE;
-    // true instead of in_drive_state
+   //true instead of in_drive_state
     io_led_enable(globals->config->drive_led, in_drive_state);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
