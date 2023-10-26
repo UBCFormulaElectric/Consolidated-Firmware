@@ -8,8 +8,6 @@ file(GLOB_RECURSE SHARED_APP_SRCS
 )
 file(GLOB_RECURSE SHARED_IO_SRCS 
     "${SHARED_EMBEDDED_DIR}/io/*.c"
-)
-file(GLOB_RECURSE SHARED_HW_SRCS 
     "${SHARED_EMBEDDED_DIR}/hw/*.c"
 )
 file(GLOB_RECURSE SHARED_TEST_UTILS_SRCS 
@@ -31,7 +29,6 @@ function(jsoncan_library
     LIB_NAME
     TARGET_NAME
     OUTPUT_DIR
-    STM32_MCU
 )
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(CAN_JSON_DIR ${CAN_DIR}/json)
@@ -108,16 +105,14 @@ function(jsoncan_library
         set(CAN_INCLUDE_DIRS
             ${OUTPUT_DIR}/app
             ${OUTPUT_DIR}/io
-            ${CMAKE_SOURCE_DIR}/firmware/shared/src/app
-            ${CMAKE_SOURCE_DIR}/firmware/shared/src/io
-            ${CMAKE_SOURCE_DIR}/firmware/shared/src/hw
+            ${SHARED_APP_INCLUDE_DIRS}
+            ${SHARED_IO_INCLUDE_DIRS}
         )
 
-        compile_embedded_lib(
+        cm4_library(
             "${LIB_NAME}"
             "${CAN_SRCS}"
             "${CAN_INCLUDE_DIRS}"
-            "${STM32_MCU}"
             TRUE
         )
     elseif("${PLATFORM}" STREQUAL "x86")
@@ -133,8 +128,7 @@ function(jsoncan_library
         )
         set(CAN_INCLUDE_DIRS
             ${OUTPUT_DIR}/app
-            ${CMAKE_SOURCE_DIR}/firmware/shared/src/app
-            ${CMAKE_SOURCE_DIR}/firmware/shared/src/io
+            ${SHARED_APP_INCLUDE_DIRS}
         )
 
         add_library(

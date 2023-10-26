@@ -1,8 +1,7 @@
-set(STM32_MCU "STM32F412Rx")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DIM.ioc")
 set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
 
-file(GLOB_RECURSE APP_SRCS 
+file(GLOB_RECURSE APP_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c"
 )
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -11,24 +10,24 @@ set(APP_INCLUDE_DIRS
 )
 list(APPEND APP_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIRS}")
 
-file(GLOB_RECURSE IO_SRCS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c"    
+file(GLOB_RECURSE IO_SRCS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND IO_SRCS "${SHARED_IO_SRCS}" "${SHARED_HW_SRCS}")
+list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
 set(IO_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"  
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
 )
 list(APPEND IO_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}")
 
-file(GLOB_RECURSE TEST_SRCS 
+file(GLOB_RECURSE TEST_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
 )
 list(APPEND TEST_SRCS "${SHARED_TEST_UTILS_SRCS}")
-set(TEST_INCLUDE_DIRS 
+set(TEST_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/test"
 )
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -56,32 +55,30 @@ if("${PLATFORM}" STREQUAL "arm")
         "stm32f4xx_hal_tim.c"
         "stm32f4xx_hal.c"
     )
+
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-    stm32f4_cube_library(
+    stm32f412rx_cube_library(
         "DIM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
-        "${STM32_MCU}"
     )
 
     jsoncan_library(
         "DIM_can"
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
-        "${STM32_MCU}"
     )
     target_link_libraries("DIM_can" "DIM_stm32cube")
 
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
-    compile_embedded_binary(
+    cm4_binary(
         "DIM.elf"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
-        "${STM32_MCU}"
         "${LINKER_SCRIPT}"
     )
     target_link_libraries("DIM.elf" "DIM_stm32cube" "DIM_can")
