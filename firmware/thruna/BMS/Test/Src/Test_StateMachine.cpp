@@ -209,7 +209,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     std::vector<const struct State *> GetAllStates(void)
     {
         return std::vector<const struct State *>{
-            App_GetInitState(), App_GetPreChargeState(), App_GetInverterState(), App_GetDriveState(), App_GetChargeState(), App_GetFaultState(),
+            App_GetInitState(),  App_GetPreChargeState(), App_GetInverterState(),
+            App_GetDriveState(), App_GetChargeState(),    App_GetFaultState(),
         };
     }
 
@@ -282,7 +283,7 @@ TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
 }
 
-// // TODO:
+
 TEST_F(BmsStateMachineTest, check_inverter_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInverterState());
@@ -290,17 +291,18 @@ TEST_F(BmsStateMachineTest, check_inverter_state_is_broadcasted_over_can)
 }
 
 // TODO:
-TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge) 
+TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
 {
+    is_charger_connected_fake.return_val   = false;
+    get_ts_voltage_fake.return_val         = 2.0f;
+    is_air_negative_closed_fake.return_val = true;
     SetInitialState(App_GetInitState());
 
-    is_charger_connected_fake.return_val   = false;
-    is_air_negative_closed_fake.return_val = true;
-    LetTimePass(state_machine, 150);
-    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get()) << "Expected state: BMS_INVERTER_STATE";
 
-    LetTimePass(state_machine, 2000);
-    EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+    LetTimePass(state_machine, 100);
+    EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get()) << "Expected state: BMS_PRECHARGE_STATE";
 }
 
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
@@ -807,7 +809,7 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
 
-    // Set TS current negative to trigger discharging condition in tempertature check
+    // Set TS current negative to triggering condition in tempertature check
     get_high_res_current_fake.return_val = -10.0f;
     get_low_res_current_fake.return_val  = -10.0f;
 
