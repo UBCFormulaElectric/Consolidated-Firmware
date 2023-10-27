@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'; 
-import { DownOutlined, SmileOutlined } from '@ant-design/icons';
-import { Dropdown, Select,  Space, Button } from 'antd';
+import { Select } from 'antd';
 
 const DropdownMenu = (props) => {
     const [items, setItems] = useState([]);
@@ -29,6 +28,7 @@ const DropdownMenu = (props) => {
             onChange={handleChange}
             style={{width: "100%"}}
             options={items}
+            maxTagCount="responsive"
         />
     );
 };

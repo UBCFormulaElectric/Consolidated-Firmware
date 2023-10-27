@@ -12,6 +12,7 @@ const DEFAULT_LAYOUT = {
     title: "Empty",
     xaxis: {},
     yaxis: {},
+    legend: {"orientation": "h"},
 }
 
 const Graph = (props) => {

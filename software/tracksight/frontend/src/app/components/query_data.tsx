@@ -13,10 +13,6 @@ const QueryData = (props) => {
     const [fields, setFields] = useState([]);
     const [allFields, setAllFields] = useState([]);
 
-    const [signals, setSignals] = useState([]);
-    const [avail, setAvail] = useState([]);
-    const [temp_data, set_temp_data] = useState({});
-
     const [startEpoch, setStartEpoch] = useState(null);
     const [endEpoch, setEndEpoch] = useState(null);
 
@@ -61,30 +57,12 @@ const QueryData = (props) => {
         })).then((response) => response.json())
            .then((data) => props.setData(data))
            .catch((error) => console.log(error));
-        
-        /* TODO: Reinstate this for debugging purposes
-        const promises = [];
-        const temp_data = {};
-        for (const signal of signals) {
-            promises.push(
-                fetch(props.url + "/signal/" + signal, {
-                    method: 'GET',
-                }).then((response) => response.json())
-                  .then((data) => {
-                      temp_data[signal] = data;
-                  })
-                  .catch((error) => console.log(error))
-            );
-        }
-        Promise.all(promises).then(e => props.setData(temp_data));
-        */
     };
 
     return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"}/>
             <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} name={"Fields"}/>
-            <DropdownMenu setOption={setSignals} selectedOptions={signals} options={avail} name={"Sample Signals"}/>
             <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
             <Button onClick={handleSubmit}>submit</Button>
         </div>);

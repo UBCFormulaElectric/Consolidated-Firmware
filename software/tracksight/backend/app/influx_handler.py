@@ -8,6 +8,7 @@ BUCKET = "testing"
 TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
 
 # This requires the influx dbrc mapping to have db name == bucket name
+# TODO: Implement proper error handling for things like no data available.
 class InfluxHandler:
     @staticmethod
     def _gen_headers():
