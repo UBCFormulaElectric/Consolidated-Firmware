@@ -315,32 +315,3 @@ function(stm32f412rx_cube_library
     )
 endfunction()
 
-# Generate library with header file for commit message
-function(commit_info_library
-    LIB_NAME
-    HEADER_OUTPUT_PATH
-    SRC_OUTPUT_PATH
-    ARM_CORE
-)
-    set(GENERATE_COMMIT_INFO_SCRIPT_PY
-    ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
-    add_custom_command(
-        OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
-        COMMAND ${PYTHON_COMMAND}
-        ${GENERATE_COMMIT_INFO_SCRIPT_PY}
-        --output-header 
-        ${HEADER_OUTPUT_PATH}
-        --output-source
-        ${SRC_OUTPUT_PATH}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )
-
-    if("${ARM_CORE}" STREQUAL "M4")
-        cm4_library(
-            "${LIB_NAME}"
-            "${SRC_OUTPUT_PATH}"
-            "${HEADER_OUTPUT_PATH}"
-            FALSE
-        )
-    endif()
-endfunction()

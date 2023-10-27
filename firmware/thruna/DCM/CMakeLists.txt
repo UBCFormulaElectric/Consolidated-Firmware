@@ -30,6 +30,24 @@ set(TEST_INCLUDE_DIRS
 )
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
+# Autogenerate jsoncan library.
+jsoncan_library(
+    "DCM_can"
+    "DCM"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "M4"
+)
+
+# Autogenerate git commit info header/source.
+set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+commit_info_library(
+    "DCM_commit_info"
+    "${COMMIT_INFO_HEADER_PATH}"
+    "${COMMIT_INFO_SRC_PATH}"
+    "M4"
+)
+
 if("${PLATFORM}" STREQUAL "arm")
     generate_stm32cube_code(
         "DCM"
@@ -64,23 +82,6 @@ if("${PLATFORM}" STREQUAL "arm")
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
     )
-
-    jsoncan_library(
-        "DCM_can"
-        "DCM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-    )
-    target_link_libraries("DCM_can" "DCM_stm32cube")
-
-    # Autogenerate git commit info header/source.
-    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-    commit_info_library(
-        "DCM_commit_info"
-        "${COMMIT_INFO_HEADER_PATH}"
-        "${COMMIT_INFO_SRC_PATH}"
-        "M4"
-    )
     
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
@@ -89,17 +90,11 @@ if("${PLATFORM}" STREQUAL "arm")
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
-    )
+    ) 
+    target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom")
 
 elseif("${PLATFORM}" STREQUAL "x86")
-    jsoncan_library(
-        "DCM_can"
-        "DCM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        ""
-    )
-
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
     compile_gtest_executable(
@@ -107,5 +102,5 @@ elseif("${PLATFORM}" STREQUAL "x86")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DCM_test" "DCM_can" "shared_fakes")
+    target_link_libraries("DCM_test" "DCM_can" "DCM_commit_info" "shared_fakes")
 endif()
