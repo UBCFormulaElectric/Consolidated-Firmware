@@ -51,7 +51,7 @@
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/app_initState.h"
-#include "App_PowerManager.h"
+#include "app_powerManager.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CommitInfo.h"
 #include "app_globals.h"
