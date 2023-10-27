@@ -9,7 +9,7 @@ typedef enum
 } PowerManagerState;
 
 /**
- * Initalizes the ddrive state: LVPWW, DI_LHS, DI_RHS and AIR to closed and others to open
+ * Initalizes to the drive state (closed)
  */
 void PowerManager_Init();
 

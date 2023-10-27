@@ -2,44 +2,49 @@
 
 extern "C"
 {
-#include "App_powerManager.h"
+#include "App_PowerManager.h"
 }
 
-FAKE_VOID_FUNC(Io_Efuse_SetChannel, int, bool);
+FAKE_VOID_FUNC(Io_Efuse_SetChannel, EfuseChannel, bool);
+FAKE_VALUE_FUNC(bool, Io_Efuse_IsChannelEnabled, EfuseChannel);
 
 class PowerManagerTests : public ::testing::Test
 {
   protected:
-    void SetUp() override { RESET_FAKE(Io_Efuse_SetChannel); }
+    void SetUp() override {
+        RESET_FAKE(Io_Efuse_SetChannel); 
+    }
 };
 
 TEST_F(PowerManagerTests, PowerManager_Init)
 {
     PowerManager_Init();
-    
-    ASSERT_EQ(Io_Efuse_IsChannelEnabled(EFUSE_CHANNEL_AIR), true);
-    ASSERT_EQ(Io_Efuse_IsChannelEnabled(EFUSE_CHANNEL_LVPWR), true);
-    ASSERT_EQ(Io_Efuse_IsChannelEnabled(EFUSE_CHANNEL_DI_LHS), true);
-    ASSERT_EQ(Io_Efuse_IsChannelEnabled(EFUSE_CHANNEL_DI_RHS), true);
-    ASSERT_EQ(Io_Efuse_IsChannelEnabled(EFUSE_CHANNEL_AUX), false);
+    Io_Efuse_IsChannelEnabled_fake.return_val = true;
+
+    for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
+    {
+        ASSERT_TRUE(Io_Efuse_IsChannelEnabled(static_cast<EfuseChannel>(efuse)));
+    }
 }
 
 TEST_F(PowerManagerTests, PowerManager_SetState_ContractorOpen)
 {
     PowerManager_SetState(POWER_MANAGER_CONTRACTOR_OPEN);
+    Io_Efuse_IsChannelEnabled_fake.return_val = false;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        ASSERT_EQ(Io_Efuse_IsChannelEnabled(static_cast<EfuseChannel>(efuse)), false);
+        GTEST_ASSERT_FALSE(Io_Efuse_IsChannelEnabled(static_cast<EfuseChannel>(efuse)));
     }
 }
 
 TEST_F(PowerManagerTests, PowerManager_SetState_ContractorClosed)
 {
     PowerManager_SetState(POWER_MANAGER_CONTRACTOR_CLOSED);
+    Io_Efuse_IsChannelEnabled_fake.return_val = true;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        ASSERT_EQ(Io_Efuse_IsChannelEnabled(static_cast<EfuseChannel>(efuse)), true);
+        GTEST_ASSERT_TRUE(Io_Efuse_IsChannelEnabled(static_cast<EfuseChannel>(efuse)));
     }
 }

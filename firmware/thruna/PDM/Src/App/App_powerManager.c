@@ -34,12 +34,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
 
 void PowerManager_Init()
 {
-    PowerManager_Init(POWER_MANAGER_CONTRACTOR_OPEN);
-
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_LVPWR, POWER_MANAGER_CONTRACTOR_CLOSED);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_LHS, POWER_MANAGER_CONTRACTOR_CLOSED);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_DI_RHS, POWER_MANAGER_CONTRACTOR_CLOSED);
-    Io_Efuse_SetChannel(EFUSE_CHANNEL_AIR, POWER_MANAGER_CONTRACTOR_CLOSED);
+    PowerManager_SetState(POWER_MANAGER_CONTRACTOR_CLOSED);
 }
 
 void PowerManager_SetState(PowerManagerState state)
