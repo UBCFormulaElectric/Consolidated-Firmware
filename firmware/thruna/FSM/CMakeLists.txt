@@ -71,6 +71,16 @@ if("${PLATFORM}" STREQUAL "arm")
     )
     target_link_libraries("FSM_can" "FSM_stm32cube")
 
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+        "FSM_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "M4"
+    )
+
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
     cm4_binary(
@@ -79,7 +89,7 @@ if("${PLATFORM}" STREQUAL "arm")
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
     )
-    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can")
+    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     jsoncan_library(

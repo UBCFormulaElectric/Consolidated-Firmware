@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
-set(FIRMWARE_DIR ${CMAKE_SOURCE_DIR}/firmware)
-set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/scripts)
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)

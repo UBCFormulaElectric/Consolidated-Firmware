@@ -1,11 +1,13 @@
+include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
+
 # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
-set(STM32F4_CUBE_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/STM32CubeF4)
+set(STM32F4_CUBE_DIR "${THIRD_PARTY_DIR}/STM32CubeF4")
 
 # SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
-set(SYSTEMVIEW_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/SEGGER_SystemView_Src)
+set(SYSTEMVIEW_DIR "${THIRD_PARTY_DIR}/SEGGER_SystemView_Src")
 
 # FreeRTOS patch to enable thread-safe malloc (so we can use the heap with FreeRTOS).
-set(NEWLIB_DIR ${CMAKE_SOURCE_DIR}/firmware/third_party/newlib_freertos_patch)
+set(NEWLIB_DIR "${THIRD_PARTY_DIR}/newlib_freertos_patch")
 
 if(NOT STM32CUBEMX_BIN_PATH)
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
@@ -311,4 +313,34 @@ function(stm32f412rx_cube_library
         PUBLIC
         -DSTM32F412Rx
     )
+endfunction()
+
+# Generate library with header file for commit message
+function(commit_info_library
+    LIB_NAME
+    HEADER_OUTPUT_PATH
+    SRC_OUTPUT_PATH
+    ARM_CORE
+)
+    set(GENERATE_COMMIT_INFO_SCRIPT_PY
+    ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
+    add_custom_command(
+        OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
+        COMMAND ${PYTHON_COMMAND}
+        ${GENERATE_COMMIT_INFO_SCRIPT_PY}
+        --output-header 
+        ${HEADER_OUTPUT_PATH}
+        --output-source
+        ${SRC_OUTPUT_PATH}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    )
+
+    if("${ARM_CORE}" STREQUAL "M4")
+        cm4_library(
+            "${LIB_NAME}"
+            "${SRC_OUTPUT_PATH}"
+            "${HEADER_OUTPUT_PATH}"
+            FALSE
+        )
+    endif()
 endfunction()
