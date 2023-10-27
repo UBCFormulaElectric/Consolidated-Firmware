@@ -1,4 +1,5 @@
-include("cmake/shared.cmake")
+include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
+
 set(FFF_DIR "${THIRD_PARTY_DIR}/fff")
 
 function(create_fake_library

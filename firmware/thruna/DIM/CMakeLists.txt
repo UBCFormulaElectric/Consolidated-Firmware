@@ -32,6 +32,24 @@ set(TEST_INCLUDE_DIRS
 )
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
+# Autogenerate jsoncan library.
+jsoncan_library(
+    "DIM_can"
+    "DIM"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "M4"
+)
+
+# Autogenerate git commit info header/source.
+set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+commit_info_library(
+    "DIM_commit_info"
+    "${COMMIT_INFO_HEADER_PATH}"
+    "${COMMIT_INFO_SRC_PATH}"
+    "M4"
+)
+
 if("${PLATFORM}" STREQUAL "arm")
     generate_stm32cube_code(
         "DIM"
@@ -66,23 +84,6 @@ if("${PLATFORM}" STREQUAL "arm")
         "${IOC_PATH}.md5"
     )
 
-    jsoncan_library(
-        "DIM_can"
-        "DIM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-    )
-    target_link_libraries("DIM_can" "DIM_stm32cube")
-
-    # Autogenerate git commit info header/source.
-    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-    commit_info_library(
-        "DIM_commit_info"
-        "${COMMIT_INFO_HEADER_PATH}"
-        "${COMMIT_INFO_SRC_PATH}"
-        "M4"
-    )
-
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
     cm4_binary(
@@ -91,16 +92,10 @@ if("${PLATFORM}" STREQUAL "arm")
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
     )
+    target_link_libraries("DIM_can" "DIM_stm32cube")
     target_link_libraries("DIM.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
 
 elseif("${PLATFORM}" STREQUAL "x86")
-    jsoncan_library(
-        "DIM_can"
-        "DIM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        ""
-    )
-
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )

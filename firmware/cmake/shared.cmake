@@ -1,28 +1,26 @@
 set(FIRMWARE_DIR "${CMAKE_SOURCE_DIR}/firmware")
-set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
-
 SET(SHARED_DIR "${FIRMWARE_DIR}/shared")
 SET(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
 SET(SHARED_TEST_DIR "${SHARED_DIR}/test")
 SET(THIRD_PARTY_DIR "${FIRMWARE_DIR}/third_party")
 
-file(GLOB_RECURSE SHARED_APP_SRCS 
+file(GLOB_RECURSE SHARED_APP_SRCS
     "${SHARED_EMBEDDED_DIR}/app/*.c"
 )
-file(GLOB_RECURSE SHARED_IO_SRCS 
+file(GLOB_RECURSE SHARED_IO_SRCS
     "${SHARED_EMBEDDED_DIR}/io/*.c"
     "${SHARED_EMBEDDED_DIR}/hw/*.c"
 )
-file(GLOB_RECURSE SHARED_TEST_UTILS_SRCS 
+file(GLOB_RECURSE SHARED_TEST_UTILS_SRCS
     "${SHARED_DIR}/test_utils/*.c"
     "${SHARED_DIR}/test_utils/*.cpp"
 )
 
-set(SHARED_APP_INCLUDE_DIRS 
+set(SHARED_APP_INCLUDE_DIRS
     "${SHARED_EMBEDDED_DIR}/app"
     "${SHARED_EMBEDDED_DIR}/io"
 )
-set(SHARED_IO_INCLUDE_DIR 
+set(SHARED_IO_INCLUDE_DIR
     "${SHARED_EMBEDDED_DIR}/io"
     "${SHARED_EMBEDDED_DIR}/hw"
 )
@@ -32,6 +30,7 @@ function(jsoncan_library
     LIB_NAME
     TARGET_NAME
     OUTPUT_DIR
+    ARM_CORE
 )
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(CAN_JSON_DIR ${CAN_DIR}/json)
@@ -91,7 +90,7 @@ function(jsoncan_library
     )
 
     if("${PLATFORM}" STREQUAL "arm")
-        set(CAN_SRCS 
+        set(CAN_SRCS
             ${APP_CAN_TX_SRC_OUTPUT}
             ${APP_CAN_TX_HEADER_OUTPUT}
             ${IO_CAN_TX_SRC_OUTPUT}
@@ -112,14 +111,17 @@ function(jsoncan_library
             ${SHARED_IO_INCLUDE_DIRS}
         )
 
-        cm4_library(
-            "${LIB_NAME}"
-            "${CAN_SRCS}"
-            "${CAN_INCLUDE_DIRS}"
-            TRUE
-        )
+        if("${ARM_CORE}" STREQUAL "M4")
+            cm4_library(
+                "${LIB_NAME}"
+                "${CAN_SRCS}"
+                "${CAN_INCLUDE_DIRS}"
+                TRUE
+            )
+        endif()
+
     elseif("${PLATFORM}" STREQUAL "x86")
-        set(CAN_SRCS 
+        set(CAN_SRCS
             ${APP_CAN_TX_SRC_OUTPUT}
             ${APP_CAN_TX_HEADER_OUTPUT}
             ${APP_CAN_RX_SRC_OUTPUT}
@@ -135,9 +137,48 @@ function(jsoncan_library
         )
 
         add_library(
-            "${LIB_NAME}" STATIC 
+            "${LIB_NAME}" STATIC
             "${CAN_SRCS}"
         )
         target_include_directories("${LIB_NAME}" PUBLIC "${CAN_INCLUDE_DIRS}")
+    endif()
+endfunction()
+
+# Generate library with header file for commit message
+function(commit_info_library
+    LIB_NAME
+    HEADER_OUTPUT_PATH
+    SRC_OUTPUT_PATH
+    ARM_CORE
+)
+    set(GENERATE_COMMIT_INFO_SCRIPT_PY
+        ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
+    add_custom_command(
+        OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
+        COMMAND ${PYTHON_COMMAND}
+        ${GENERATE_COMMIT_INFO_SCRIPT_PY}
+        --output-header
+        ${HEADER_OUTPUT_PATH}
+        --output-source
+        ${SRC_OUTPUT_PATH}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    )
+
+    if("${PLATFORM}" STREQUAL "arm")
+        if("${ARM_CORE}" STREQUAL "M4")
+            cm4_library(
+                "${LIB_NAME}"
+                "${SRC_OUTPUT_PATH}"
+                "${HEADER_OUTPUT_PATH}"
+                FALSE
+            )
+        endif()
+    elseif("${PLATFORM}" STREQUAL "x86")
+        get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
+        add_library(
+            "${LIB_NAME}" STATIC
+            "${SRC_OUTPUT_PATH}"
+        )
+        target_include_directories("${LIB_NAME}" PUBLIC "${HEADER_DIR}")
     endif()
 endfunction()
