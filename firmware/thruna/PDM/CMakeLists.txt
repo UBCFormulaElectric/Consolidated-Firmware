@@ -71,6 +71,16 @@ if("${PLATFORM}" STREQUAL "arm")
     )
     target_link_libraries("PDM_can" "PDM_stm32cube")
 
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+        "PDM_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "M4"
+    )
+
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
     cm4_binary(
@@ -79,7 +89,7 @@ if("${PLATFORM}" STREQUAL "arm")
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
     )
-    target_link_libraries("PDM.elf" "PDM_stm32cube" "PDM_can")
+    target_link_libraries("PDM.elf" "PDM_stm32cube" "PDM_can" "PDM_commit_info")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     jsoncan_library(
