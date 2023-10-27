@@ -649,8 +649,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
 
 TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning){
 
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
+    SetInitialState(App_GetDriveState());
+    get_high_res_current_fake.return_val = 100.0f;
+    get_low_res_current_fake.return_val  = 100.0f;
      for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
         for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
@@ -662,10 +663,11 @@ TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning){
         }
     }
     LetTimePass(state_machine, 20);
-    ASSERT_TRUE(App_CanAlerts_GetWarning(BMS_WARNING_BLOWN_CELL_FUSE));
+    ASSERT_TRUE(App_CanAlerts_BMS_BlownFuseWarning_Get());
 }
 
 TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
+    SetInitialState(App_GetDriveState());
     get_high_res_current_fake.return_val = 100.0f;
     get_low_res_current_fake.return_val  = 100.0f;
      for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
@@ -676,7 +678,7 @@ TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
         }
     }
     LetTimePass(state_machine, 20);
-    ASSERT_FALSE(App_CanAlerts_GetWarning(BMS_WARNING_BLOWN_CELL_FUSE));
+    ASSERT_FALSE(App_CanAlerts_BMS_BlownFuseWarning_Get());
 }
 
 } // namespace FaultTest

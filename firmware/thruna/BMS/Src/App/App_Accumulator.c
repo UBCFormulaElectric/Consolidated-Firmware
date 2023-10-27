@@ -435,7 +435,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
 float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulator, struct TractiveSystem *const ts){
     float cell_voltage_minimum = accumulator->voltage_stats.min_voltage.voltage;
-    float cell_voltage_sum;
+    float cell_voltage_sum = 0;
 
     for (uint8_t seg; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
     {
@@ -464,7 +464,7 @@ bool App_Accumulator_CheckWarnings(struct Accumulator *const accumulator, struct
 
     bool blown_fuse_warning = estimated_min_cells_in_parallel < BLOWN_FUSE_THRESHOLD;
 
-    App_CanAlerts_SetWarning(BMS_WARNING_BLOWN_CELL_FUSE, blown_fuse_warning);
+    App_CanAlerts_BMS_BlownFuseWarning_Set(blown_fuse_warning);
 
     return blown_fuse_warning;
 }
