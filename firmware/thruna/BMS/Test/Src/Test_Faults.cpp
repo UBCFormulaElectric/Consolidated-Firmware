@@ -647,4 +647,36 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
     ASSERT_EQ(disable_bms_ok_fake.call_count, 1);
 }
 
+TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning){
+
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+     for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE);
+            if(segment == 2 && cell == 10){
+                set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE);
+            }
+        }
+    }
+    LetTimePass(state_machine, 20);
+    ASSERT_TRUE(App_CanAlerts_GetWarning(BMS_WARNING_BLOWN_CELL_FUSE));
+}
+
+TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
+    get_high_res_current_fake.return_val = 100.0f;
+    get_low_res_current_fake.return_val  = 100.0f;
+     for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE);
+        }
+    }
+    LetTimePass(state_machine, 20);
+    ASSERT_FALSE(App_CanAlerts_GetWarning(BMS_WARNING_BLOWN_CELL_FUSE));
+}
+
 } // namespace FaultTest
