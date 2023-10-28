@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include "App_SharedMacros.h"
+#include "App_SharedDcmConstants.h"
 #include "App_SharedConstants.h"
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "torquevectoring/App_TorqueVectoring.h"
 
-#define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 #define EFFICIENCY_ESTIMATE (0.80f)
 
 static bool torque_vectoring_switch_is_on;
@@ -17,7 +17,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorSpeed_Get();
-    float       bms_torque_limit      = 0;
+    float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
@@ -31,11 +31,8 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    // Get the maximum torque request, according to the FSM
-    const float max_fsm_torque_request = App_CanRx_FSM_TorqueLimit_Get();
-
     // Calculate the actual torque request to transmit
-    const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
+    const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_request);

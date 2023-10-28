@@ -90,6 +90,7 @@ if("${TARGET}" STREQUAL "deploy")
     ) 
     target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
+    target_link_libraries(DCM.elf m)
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(

@@ -40,8 +40,6 @@
 
 #define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))
 
-
-
 #define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
 
 // Grab current gear ratio

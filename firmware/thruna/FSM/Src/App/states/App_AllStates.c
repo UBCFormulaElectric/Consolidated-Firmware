@@ -30,30 +30,8 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct HeartbeatMonitor *hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
-    static uint8_t           error_count = 0;
-
-    // Check for torque plausibility
-    float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
-    float right_torque_req = (float)App_CanRx_DCM_RightInverterTorqueCommand_Get();
-    float fsm_torque_limit = App_CanTx_FSM_TorqueLimit_Get();
-
-    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
-    {
-        // error_count++;
-    }
-    else
-    {
-        error_count = 0;
-    }
-
-    App_CanAlerts_FSM_Fault_TorquePlausabilityFailed_Set(error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
-
-    // Broadcast a new FSM torque limit based on pedal percentage
-    fsm_torque_limit =
-        0.01f * App_CanTx_FSM_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
-    App_CanTx_FSM_TorqueLimit_Set(fsm_torque_limit);
+    struct FsmWorld *        world      = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *hb_monitor = App_FsmWorld_GetHeartbeatMonitor(world);
 
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
     App_CanAlerts_FSM_Fault_MissingHeartbeat_Set(missing_hb);

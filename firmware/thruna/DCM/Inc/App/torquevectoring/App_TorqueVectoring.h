@@ -40,18 +40,6 @@ typedef struct TractionControl_Outputs
     float torque_right_final_Nm;
 } TractionControl_Outputs;
 
-typedef struct Regen_Inputs
-{
-    float wheel_speed_front_left_kph;
-    float wheel_speed_front_right_kph;
-} Regen_Inputs;
-
-typedef struct Regen_Outputs
-{
-    float regen_torque_left_Nm;
-    float regen_torque_right_Nm;
-} Regen_Outputs;
-
 void App_TorqueVectoring_Setup(void);
 void App_TorqueVectoring_Run(void);
 void App_TorqueVectoring_HandleAcceleration(void);

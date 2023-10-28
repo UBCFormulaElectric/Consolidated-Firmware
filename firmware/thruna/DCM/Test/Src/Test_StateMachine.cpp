@@ -407,7 +407,6 @@ TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
         App_CanRx_INVR_MotorSpeed_Update(test_params[i].motor_speed);
         App_CanRx_INVL_MotorSpeed_Update(test_params[i].motor_speed);
         App_CanRx_FSM_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);
-        App_CanRx_FSM_TorqueLimit_Update(test_params[i].fsm_max_torque_request);
 
         // Confirm expected torque request is set
         LetTimePass(state_machine, 10);
