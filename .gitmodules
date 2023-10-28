@@ -12,5 +12,5 @@
 	url = https://github.com/UBCFormulaElectric/SEGGER_SystemView_Src.git
 [submodule "firmware/third_party/littlefs"]
 	path = firmware/third_party/littlefs
-	url = "https://github.com/littlefs-project/littlefs"
+	url = "git@github.com:littlefs-project/littlefs.git"
 	
