@@ -39,7 +39,7 @@ void App_Run_Regen(void)
 {
     if (App_Regen_Safety(&regenAttributes))
     {
-        steering_angle_deg         = App_CanRx_FSM_Steering_SteeringAngle_Get();
+        steering_angle_deg         = App_CanRx_FSM_SteeringAngle_Get();
         activeDifferentialInputs.steering_angle_deg = steering_angle_deg;
         compute_regen_torque_request(&activeDifferentialInputs, &regenAttributes);
     } 
@@ -54,14 +54,14 @@ void App_Run_Regen(void)
 
 bool App_Regen_Safety(RegenBraking *regenAttr)
 {
-    const bool batteryTempInRange = App_CanRx_BMS_CellTemperatures_MaxCellTemperature_Get() < 45;
+    const bool batteryTempInRange = App_CanRx_BMS_MaxCellTemperature_Get() < 45;
     return batteryTempInRange && wheel_speed_in_range() && power_limit_check(regenAttr);
 }
 
 void App_Regen_Activate(float left, float right)
 {
-    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(left);
-    App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(right);
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(left);
+    App_CanTx_DCM_RightInverterTorqueCommand_Set(right);
 }
 
 // linear from 90% 3.9 taper
@@ -100,8 +100,8 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
 
 static bool wheel_speed_in_range(void)
 {
-    float right = App_CanRx_FSM_Wheels_RightWheelSpeed_Get();
-    float left  = App_CanRx_FSM_Wheels_LeftWheelSpeed_Get();
+    float right = App_CanRx_FSM_RightWheelSpeed_Get();
+    float left  = App_CanRx_FSM_LeftWheelSpeed_Get();
 
     return right > wheelSpeedThreshold && left > wheelSpeedThreshold;
 }
@@ -109,13 +109,13 @@ static bool wheel_speed_in_range(void)
 static bool power_limit_check(RegenBraking *regenAttr)
 {
     // TODO: Update check once power limiting is available @Will Chaba
-    regenAttr->current_battery_level = App_CanRx_BMS_CellVoltages_MaxCellVoltage_Get();
+    regenAttr->current_battery_level = App_CanRx_BMS_MaxCellVoltage_Get();
     return regenAttr->current_battery_level < 4.0f;
 }
 
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
-    float accelerator_pedal_percentage = App_CanRx_FSM_Apps_PappsMappedPedalPercentage_Get();
+    float accelerator_pedal_percentage = App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     inputs->accelerator_pedal_percentage = accelerator_pedal_percentage;
 
     if (accelerator_pedal_percentage >= 0) {
