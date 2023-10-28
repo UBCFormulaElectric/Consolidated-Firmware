@@ -178,29 +178,29 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     float papps_pedal_percentage = accelerator_pedals->get_primary_pedal_percent();
     float sapps_pedal_percentage = accelerator_pedals->get_secondary_pedal_percent();
-    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
-    App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
-    App_CanTx_FSM_Apps_PappsRawPedalPercentage_Set(papps_pedal_percentage);
-    App_CanTx_FSM_Apps_SappsRawPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_PappsRawPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_SappsRawPedalPercentage_Set(sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
     const bool papps_ocsc_active = papp_signal_state == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetFault(FSM_FAULT_PAPPS_IS_OCSC_IS_ACTIVE, papps_ocsc_active);
+    App_CanAlerts_FSM_PappsOCSCFault_Set(papps_ocsc_active);
 
     const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
     const bool sapps_ocsc_active = sapp_signal_state == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetFault(FSM_FAULT_SAPPS_IS_OCSC_IS_ACTIVE, sapps_ocsc_active);
+    App_CanAlerts_FSM_SappsOCSCFault_Set(sapps_ocsc_active);
 
     // torque 0
     if (papps_ocsc_active || sapps_ocsc_active)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
@@ -209,12 +209,12 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetWarning(FSM_WARNING_APPS_HAS_DISAGREEMENT, apps_disagreement);
+    App_CanAlerts_FSM_AppsDisagreementWarning_Set(apps_disagreement);
 
     if (apps_disagreement)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Accelerator Brake Plausibility (bad user input safety issues)
@@ -225,11 +225,11 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
                                              accelerator_pedals->get_secondary_pedal_percent() > 25),
         accelerator_pedals->get_primary_pedal_percent() < 5);
     const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
-    App_CanAlerts_SetWarning(FSM_WARNING_BRAKE_ACC_DISAGREEMENT, brake_acc_disagreement);
+    App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Set(brake_acc_disagreement);
 
     if (brake_acc_disagreement)
     {
-        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0.0f);
     }
 }

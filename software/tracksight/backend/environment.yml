@@ -6,3 +6,7 @@ dependencies:
     - flask-socketio
     - pandas
     - pytest
+    - asammdf 
+    - cantools
+    - python-dateutil
+    - requests

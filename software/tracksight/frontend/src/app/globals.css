@@ -60,3 +60,7 @@ a {
   align-items: center;
 }
 
+.ant-dropdown-menu {
+  max-height: 200px;
+  overflow: auto;
+}

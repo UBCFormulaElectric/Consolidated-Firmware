@@ -6,8 +6,8 @@
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-    App_CanTx_FSM_Vitals_State_Set(FSM_STATE_FAULT);
-    App_CanAlerts_SetFault(FSM_FAULT_STATE_FAULT, true);
+    App_CanTx_FSM_State_Set(FSM_STATE_FAULT);
+    App_CanAlerts_FSM_StateMachineFault_Set(true);
 }
 
 void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
@@ -19,10 +19,10 @@ void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     // Suppress accelerator pedal percentages (set to 0%)
-    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0);
-    App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0);
+    App_CanTx_FSM_PappsMappedPedalPercentage_Set(0);
+    App_CanTx_FSM_SappsMappedPedalPercentage_Set(0);
 
-    const bool hb_ok = !App_CanAlerts_GetFault(FSM_FAULT_MISSING_HEARTBEAT);
+    const bool hb_ok = !App_CanAlerts_FSM_MissingHeartbeatFault_Get();
     if (hb_ok)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
@@ -31,7 +31,7 @@ void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
 void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
-    App_CanAlerts_SetFault(FSM_FAULT_STATE_FAULT, false);
+    App_CanAlerts_FSM_StateMachineFault_Set(false);
 }
 
 const struct State *App_GetFaultState(void)

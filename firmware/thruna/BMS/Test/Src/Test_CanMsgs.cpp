@@ -45,11 +45,6 @@ TEST(CanMsgsTest, contactors_message_frequency)
     ASSERT_GE(HZ_TO_MS(100), CAN_MSG_BMS_CONTACTORS_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, mortor_shutdown_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_MOTOR_SHUTDOWN_ERRORS_CYCLE_TIME_MS);
-}
-
 TEST(CanMsgsTest, cell_temp_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_CELL_TEMPERATURES_CYCLE_TIME_MS);

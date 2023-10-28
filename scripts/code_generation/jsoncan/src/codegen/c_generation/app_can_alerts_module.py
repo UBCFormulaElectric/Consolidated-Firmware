@@ -4,8 +4,6 @@ from .c_config import *
 from .c_writer import *
 
 NUM_ALERTS = "NUM_{node}_{alert_type}S"
-SET_ALERT_FUNC_NAME = "App_CanAlerts_Set{alert_type}"
-GET_ALERT_FUNC_NAME = "App_CanAlerts_Get{alert_type}"
 BOARD_HAS_ALERT_FUNC_NAME = "App_CanAlerts_BoardHas{alert_type}"
 ANY_ALERT_FUNC_NAME = "App_CanAlerts_AnyBoardHas{alert_type}"
 ALERT_BOARD_ENUM_NAME = "{node}_ALERT_BOARD"
@@ -17,68 +15,48 @@ class AppCanAlertsModule(CModule):
         self._node = node
         self._functions = self._public_functions()
 
-    def _set_alert_func(self, alert_type: CanAlertType, comment: str):
-        set_func = CFunc(
-            SET_ALERT_FUNC_NAME.format(alert_type=alert_type),
-            "void",
-            args=[
-                CVar(
-                    "alert_id",
-                    CTypesConfig.ALERT_ENUM.format(
-                        node=self._node, alert_type=alert_type
-                    ),
-                ),
-                CVar("set_alert", "bool"),
-            ],
-            comment=f"Set or clear a {comment}.",
-        )
-
-        set_func.body.start_switch("alert_id")
+    def _set_alert_funcs(self, alert_type: CanAlertType):
+        funcs = []
         for alert in self._db.node_alerts(self._node, alert_type):
-            set_func.body.add_switch_case(alert)
-            set_func.body.start_switch_case()
-            set_func.body.add_line(
-                f"App_CanTx_{self._node}_{alert_type}s_{alert}_Set(set_alert);"
+            func = CFunc(
+                CFuncsConfig.APP_ALERTS_SET.format(alert=alert),
+                "void",
+                args=[
+                    CVar("set_alert", "bool"),
+                ],
+                comment=f"Set or clear an alert for this board.",
             )
-            set_func.body.add_switch_break()
+            func.body.add_comment("Increment alert counter.")
+            func.body.start_if(f"set_alert && !{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()")
+            func.body.add_line(
+                f"{CFuncsConfig.APP_TX_SET_SIGNAL.format(signal=f'{alert}Count')}({CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=f'{alert}Count')}() + 1);"
+            )
+            func.body.end_if()
+            func.body.add_line()
 
-        set_func.body.add_switch_default()
-        set_func.body.start_switch_case()
-        set_func.body.add_comment("Do nothing")
-        set_func.body.add_switch_break()
-        set_func.body.end_switch()
-        return set_func
+            func.body.add_comment("Set alert.")
+            func.body.add_line(
+                f"{CFuncsConfig.APP_TX_SET_SIGNAL.format(signal=alert)}(set_alert);"
+            )
+            funcs.append(func)
 
-    def _get_alert_func(self, alert_type: CanAlertType, comment: str):
-        get_func = CFunc(
-            GET_ALERT_FUNC_NAME.format(alert_type=alert_type),
-            "bool",
-            args=[
-                CVar(
-                    "alert_id",
-                    CTypesConfig.ALERT_ENUM.format(
-                        node=self._node, alert_type=alert_type
-                    ),
-                )
-            ],
-            comment=f"Return whether or not a specific {comment} transmitted by this board is set.",
-        )
+        return funcs
 
-        get_func.body.start_switch("alert_id")
+    def _get_alert_funcs(self, alert_type: CanAlertType):
+        funcs = []
         for alert in self._db.node_alerts(self._node, alert_type):
-            get_func.body.add_switch_case(alert)
-            get_func.body.start_switch_case()
-            get_func.body.add_line(
-                f"return App_CanTx_{self._node}_{alert_type}s_{alert}_Get();"
+            func = CFunc(
+                CFuncsConfig.APP_ALERTS_GET.format(alert=alert),
+                "bool",
+                args=[],
+                comment=f"Return whether or not a specific alert transmitted by this board is set.",
             )
-            get_func.body.add_switch_break()
+            func.body.add_line(
+                f"return {CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}();"
+            )
+            funcs.append(func)
 
-        get_func.body.add_switch_default()
-        get_func.body.start_switch_case()
-        get_func.body.add_line("return false;")
-        get_func.body.add_switch_break()
-        get_func.body.end_switch()
-        return get_func
+        return funcs
 
     def _board_has_alert_func(self, alert_type: CanAlertType, comment: str):
         has_alert = CFunc(
@@ -105,11 +83,11 @@ class AppCanAlertsModule(CModule):
             ):
                 if node == self._node:
                     has_alert.body.start_if(
-                        f"App_CanTx_{node}_{alert_type}s_{alert}_Get()"
+                        f"{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()"
                     )
                 else:
                     has_alert.body.start_if(
-                        f"App_CanRx_{node}_{alert_type}s_{alert}_Get()"
+                        f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
 
                 has_alert.body.add_line("return true;")
@@ -154,12 +132,12 @@ class AppCanAlertsModule(CModule):
         funcs = []
 
         # Alert setters
-        funcs.append(self._set_alert_func(CanAlertType.WARNING, "warning"))
-        funcs.append(self._set_alert_func(CanAlertType.FAULT, "fault"))
+        funcs.extend(self._set_alert_funcs(CanAlertType.WARNING))
+        funcs.extend(self._set_alert_funcs(CanAlertType.FAULT))
 
         # Alert getters
-        funcs.append(self._get_alert_func(CanAlertType.WARNING, "warning"))
-        funcs.append(self._get_alert_func(CanAlertType.FAULT, "fault"))
+        funcs.extend(self._get_alert_funcs(CanAlertType.WARNING))
+        funcs.extend(self._get_alert_funcs(CanAlertType.FAULT))
 
         # Board-specific alert set checkers
         funcs.append(self._board_has_alert_func(CanAlertType.WARNING, "warning"))

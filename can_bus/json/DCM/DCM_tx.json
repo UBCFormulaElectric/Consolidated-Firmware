@@ -1,5 +1,5 @@
 {
-    "DCM_Vitals": {
+    "Vitals": {
         "msg_id": 203,
         "cycle_time": 100,
         "description": "DCM Heartbeat signal",
@@ -7,16 +7,16 @@
             "Heartbeat": {
                 "bits": 1
             },
-            "CurrentState": {
+            "State": {
                 "enum": "DcmState"
             }
         }
     },
-    "DCM_LeftInverterCommand": {
+    "LeftInverterCommand": {
         "msg_id": 32,
         "cycle_time": 10,
         "signals": {
-            "TorqueCommand": {
+            "LeftInverterTorqueCommand": {
                 "start_bit": 0,
                 "bits": 16,
                 "signed": true,
@@ -27,7 +27,7 @@
                 "unit": "Nm",
                 "start_value": 0
             },
-            "SpeedCommand": {
+            "LeftInverterSpeedCommand": {
                 "start_bit": 16,
                 "bits": 16,
                 "signed": true,
@@ -38,27 +38,27 @@
                 "unit": "rpm",
                 "start_value": 0
             },
-            "DirectionCommand": {
+            "LeftInverterDirectionCommand": {
                 "start_bit": 32,
                 "enum": "InverterDirection",
                 "start_value": 0
             },
-            "EnableInverter": {
+            "LeftInverterEnable": {
                 "start_bit": 40,
                 "bits": 1,
                 "start_value": 0
             },
-            "EnableDischarge": {
+            "LeftInverterEnableDischarge": {
                 "start_bit": 41,
                 "bits": 1,
                 "start_value": 0
             },
-            "EnableSpeedMode": {
+            "LeftInverterEnableSpeedMode": {
                 "start_bit": 42,
                 "bits": 1,
                 "start_value": 0
             },
-            "TorqueLimit": {
+            "LeftInverterTorqueLimit": {
                 "start_bit": 48,
                 "bits": 16,
                 "signed": true,
@@ -71,11 +71,11 @@
             }
         }
     },
-    "DCM_RightInverterCommand": {
+    "RightInverterCommand": {
         "msg_id": 82,
         "cycle_time": 10,
         "signals": {
-            "TorqueCommand": {
+            "RightInverterTorqueCommand": {
                 "start_bit": 0,
                 "bits": 16,
                 "signed": true,
@@ -86,7 +86,7 @@
                 "unit": "Nm",
                 "start_value": 0
             },
-            "SpeedCommand": {
+            "RightInverterSpeedCommand": {
                 "start_bit": 16,
                 "bits": 16,
                 "signed": true,
@@ -97,27 +97,27 @@
                 "unit": "rpm",
                 "start_value": 0
             },
-            "DirectionCommand": {
+            "RightInverterDirectionCommand": {
                 "start_bit": 32,
                 "enum": "InverterDirection",
                 "start_value": 0
             },
-            "EnableInverter": {
+            "RightInverterEnable": {
                 "start_bit": 40,
                 "bits": 1,
                 "start_value": 0
             },
-            "EnableDischarge": {
+            "RightInverterEnableDischarge": {
                 "start_bit": 41,
                 "bits": 1,
                 "start_value": 0
             },
-            "EnableSpeedMode": {
+            "RightInverterEnableSpeedMode": {
                 "start_bit": 42,
                 "bits": 1,
                 "start_value": 0
             },
-            "TorqueLimit": {
+            "RightInverterTorqueLimit": {
                 "start_bit": 48,
                 "bits": 16,
                 "signed": true,
@@ -130,7 +130,7 @@
             }
         }
     },
-    "DCM_AlertsContext": {
+    "AlertsContext": {
         "msg_id": 204,
         "cycle_time": 1000,
         "description": "Context info for DCM alerts",
@@ -146,48 +146,48 @@
             }
         }
     },
-    "DCM_EllipseImuStatus": {
+    "EllipseStatus": {
         "msg_id": 208,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
-            "GeneralStatusBitmask": {
+            "EllipseGeneralStatusBitmask": {
                 "bits": 16
             },
-            "ComStatusBitmask": {
+            "EllipseComStatusBitmask": {
                 "bits": 32
             }
         }
     },
-    "DCM_EllipseImuTime": {
+    "EllipseTime": {
         "msg_id": 209,
         "cycle_time": 100,
         "description": "Timestamp from the SBG Ellipse N sensor.",
         "signals": {
-            "Timestamp": {
+            "EllipseTimestamp": {
                 "bits": 32,
                 "unit": "us"
             }
         }
     },
-    "DCM_EllipseImuAcceleration": {
+    "EllipseAcceleration": {
         "msg_id": 205,
         "cycle_time": 10,
         "description": "Acceleration from the SBG Ellipse N sensor.",
         "signals": {
-            "Forward": {
+            "AccelerationForward": {
                 "min": -30,
                 "max": 30,
                 "resolution": 0.01,
                 "unit": "m/s^2"
             },
-            "Lateral": {
+            "AccelerationLateral": {
                 "min": -30,
                 "max": 30,
                 "resolution": 0.01,
                 "unit": "m/s^2"
             },
-            "Vertical": {
+            "AccelerationVertical": {
                 "min": -30,
                 "max": 30,
                 "resolution": 0.01,
@@ -195,24 +195,24 @@
             }
         }
     },
-    "DCM_EllipseImuAngularVelocity": {
+    "EllipseAngularVelocity": {
         "msg_id": 206,
         "cycle_time": 10,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
         "signals": {
-            "Roll": {
+            "AngularVelocityRoll": {
                 "min": -360,
                 "max": 360,
                 "resolution": 1,
                 "unit": "deg/s"
             },
-            "Pitch": {
+            "AngularVelocityPitch": {
                 "min": -360,
                 "max": 360,
                 "resolution": 1,
                 "unit": "deg/s"
             },
-            "Yaw": {
+            "AngularVelocityYaw": {
                 "min": -360,
                 "max": 360,
                 "resolution": 1,
@@ -220,29 +220,42 @@
             }
         }
     },
-    "DCM_EllipseImuEulerAngles": {
+    "EllipseEulerAngles": {
         "msg_id": 207,
         "cycle_time": 10,
         "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {
-            "Roll": {
+            "EulerAnglesRoll": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
             },
-            "Pitch": {
+            "EulerAnglesPitch": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
             },
-            "Yaw": {
+            "EulerAnglesYaw": {
                 "min": -180,
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
             }
         }
+    },
+    "CommitInfo": {
+      "msg_id": 210,
+      "cycle_time": 100,
+      "description": "DCM Current Running Git Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
     }
 }

@@ -4,12 +4,13 @@ import { Card, Button, Switch } from 'antd';
 import QueryData from './query_data.tsx';
 
 const DEFAULT_LAYOUT = {
-  width: 620,
-  height: 500,
-  title: "Empty",
-  xaxis: {},
-  yaxis: {},
-};
+    width: 620, 
+    height: 500, 
+    title: "Empty",
+    xaxis: {},
+    yaxis: {},
+    legend: {"orientation": "h"},
+}
 
 // props = key (graph key), id (graph id), url(for http), socket(for socket), sync (determines if should sync), 
 // setZoomData (sets zoom data), zoomData (zoom data), onDelete (deletes a graph),
@@ -27,31 +28,23 @@ const Graph = (props) => {
     return `rgb(${r},${g},${b})`;
   };
 
-  const changeLive = (checked: boolean) => {
-    setLive(checked);
-    console.log(checked);
-  }
+    // resets data on graph
+    const clearData = () => {
+        setFormattedData([]);
+        setGraphLayout(DEFAULT_LAYOUT);
+        setData({});
+    }
 
 
-  // reset graph data
-  const clearData = () => {
-    setFormattedData([]);
-    setGraphLayout(DEFAULT_LAYOUT);
-    setData({});
-  };
-
-  // format data for graph
-  const formatData = () => {
-    const tempFormattedData = [];
-    for (const name in data) {
-      const signalData = data[name];
-      const xData = [];
-      const yData = [];
-
-      for (let date in signalData) {
-        xData.push(date);
-        yData.push(signalData[date]);
-      }
+    // creates a new graph with request signals
+    // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
+    // suggestions for improvements appreciated. 
+    useEffect(() => {
+        const tempFormattedData = [];
+        for (const name in data) {
+            let signalData = data[name];
+            let xData = signalData["time"];
+            let yData = signalData["value"];
 
       const formattedObj = {
         x: xData,

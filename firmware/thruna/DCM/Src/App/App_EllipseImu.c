@@ -38,39 +38,39 @@ void App_EllipseImu_Broadcast()
     const uint16_t general_status = sensor.get_general_status();
     const uint32_t com_status     = sensor.get_com_status();
 
-    App_CanTx_DCM_EllipseImuStatus_GeneralStatusBitmask_Set(general_status);
-    App_CanTx_DCM_EllipseImuStatus_ComStatusBitmask_Set(com_status);
+    App_CanTx_DCM_EllipseGeneralStatusBitmask_Set(general_status);
+    App_CanTx_DCM_EllipseComStatusBitmask_Set(com_status);
 
     // Time msg
     const uint32_t timestamp_us = App_EllipseImu_GetTimestampUs();
-    App_CanTx_DCM_EllipseImuTime_Timestamp_Set(timestamp_us);
+    App_CanTx_DCM_EllipseTimestamp_Set(timestamp_us);
 
     // Acceleration msg
     const float forward_accel  = sensor.get_sensor_output(ELLIPSE_OUTPUT_ACCELERATION_X);
     const float lateral_accel  = sensor.get_sensor_output(ELLIPSE_OUTPUT_ACCELERATION_Y);
     const float vertical_accel = sensor.get_sensor_output(ELLIPSE_OUTPUT_ACCELERATION_Z);
 
-    App_CanTx_DCM_EllipseImuAcceleration_Forward_Set(forward_accel);
-    App_CanTx_DCM_EllipseImuAcceleration_Lateral_Set(lateral_accel);
-    App_CanTx_DCM_EllipseImuAcceleration_Vertical_Set(vertical_accel);
+    App_CanTx_DCM_AccelerationForward_Set(forward_accel);
+    App_CanTx_DCM_AccelerationLateral_Set(lateral_accel);
+    App_CanTx_DCM_AccelerationVertical_Set(vertical_accel);
 
     // Angular velocity msg
     const float ang_vel_roll  = sensor.get_sensor_output(ELLIPSE_OUTPUT_ANGULAR_VELOCITY_ROLL);
     const float ang_vel_pitch = sensor.get_sensor_output(ELLIPSE_OUTPUT_ANGULAR_VELOCITY_PITCH);
     const float ang_vel_yaw   = sensor.get_sensor_output(ELLIPSE_OUTPUT_ANGULAR_VELOCITY_YAW);
 
-    App_CanTx_DCM_EllipseImuAngularVelocity_Roll_Set((int)ang_vel_roll);
-    App_CanTx_DCM_EllipseImuAngularVelocity_Pitch_Set((int)ang_vel_pitch);
-    App_CanTx_DCM_EllipseImuAngularVelocity_Yaw_Set((int)ang_vel_yaw);
+    App_CanTx_DCM_AngularVelocityRoll_Set((int)ang_vel_roll);
+    App_CanTx_DCM_AngularVelocityPitch_Set((int)ang_vel_pitch);
+    App_CanTx_DCM_AngularVelocityYaw_Set((int)ang_vel_yaw);
 
     // Euler angles msg
     const float euler_roll  = sensor.get_sensor_output(ELLIPSE_OUTPUT_EULER_ROLL);
     const float euler_pitch = sensor.get_sensor_output(ELLIPSE_OUTPUT_EULER_PITCH);
     const float euler_yaw   = sensor.get_sensor_output(ELLIPSE_OUTPUT_EULER_YAW);
 
-    App_CanTx_DCM_EllipseImuEulerAngles_Roll_Set(euler_roll);
-    App_CanTx_DCM_EllipseImuEulerAngles_Pitch_Set(euler_pitch);
-    App_CanTx_DCM_EllipseImuEulerAngles_Yaw_Set(euler_yaw);
+    App_CanTx_DCM_EulerAnglesRoll_Set(euler_roll);
+    App_CanTx_DCM_EulerAnglesPitch_Set(euler_pitch);
+    App_CanTx_DCM_EulerAnglesYaw_Set(euler_yaw);
 }
 
 uint32_t App_EllipseImu_GetTimestampUs()

@@ -14,8 +14,8 @@ class CFuncsConfig(StrEnum):
 
     # App Tx
     APP_TX_INIT = "App_CanTx_Init"
-    APP_TX_SET_SIGNAL = "App_CanTx_{msg}_{signal}_Set"
-    APP_TX_GET_SIGNAL = "App_CanTx_{msg}_{signal}_Get"
+    APP_TX_SET_SIGNAL = "App_CanTx_{signal}_Set"
+    APP_TX_GET_SIGNAL = "App_CanTx_{signal}_Get"
     APP_TX_GET_MSG = "App_CanTx_{msg}_GetData"
 
     # Io Rx
@@ -24,8 +24,8 @@ class CFuncsConfig(StrEnum):
 
     # App Rx
     APP_RX_INIT = "App_CanRx_Init"
-    APP_RX_SET_SIGNAL = "App_CanRx_{msg}_{signal}_Update"
-    APP_RX_GET_SIGNAL = "App_CanRx_{msg}_{signal}_Get"
+    APP_RX_SET_SIGNAL = "App_CanRx_{signal}_Update"
+    APP_RX_GET_SIGNAL = "App_CanRx_{signal}_Get"
 
     # Utils
     UTILS_PACK = "App_CanUtils_{msg}_Pack"
@@ -33,8 +33,8 @@ class CFuncsConfig(StrEnum):
 
     # Alerts
     APP_ALERTS_INIT = "App_CanAlerts_Init"
-    APP_ALERTS_SET = "App_CanAlerts_SetAlert"
-    APP_ALERTS_PUSH = "App_CanAlerts_PushAlert"
+    APP_ALERTS_SET = "App_CanAlerts_{alert}_Set"
+    APP_ALERTS_GET = "App_CanAlerts_{alert}_Get"
 
 
 class CVarsConfig(StrEnum):
