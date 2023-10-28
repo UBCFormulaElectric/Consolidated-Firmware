@@ -13,10 +13,11 @@ if("${PLATFORM}" STREQUAL "arm")
         "${SBG_ECOM_DIR}/common/platform/*.c"
         "${SBG_ECOM_DIR}/common/interfaces/sbgInterface.c"
     )
-    cm4_library(
-        "sbg_ecom"
+    embedded_library(
+        "sbg_ecom_m4"
         "${SBG_ECOM_SRCS}"
         "${SBG_ECOM_INCLUDE_DIRS}"
+        "cm4"
         TRUE
     )
 endif()
