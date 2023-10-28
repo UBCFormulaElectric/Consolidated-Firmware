@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hw_hal.h"
+#include <stm32f4xx.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -28,15 +29,6 @@ typedef enum
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
 
-/**
- * @brief Initialize and config the SDIO, initilize and figure out the card information
- * @param sdio the pointer to the SDIO peripheral registers
- * @param sd_config will configure the SDIO peripheral
- * @param card_info will hold the information about the SD card
- * @return SD_card* the pointer to the SD card structure or NULL when something goes wrong
- *
- */
-SdCard hw_sd_init(SdCardInitConfig config);
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -50,17 +42,49 @@ SdCard hw_sd_init(SdCardInitConfig config);
  */
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
+
+
+/**
+ * @brief   Read from sd card. The data size will be num_blocks * BlockSize
+ * @param   sd the state struct of sd card
+ * @param   pdata the base addr where the read data store to;
+ *                should reserve [pdata, pdata+num_blocks * BlockSize] of memory space
+ * @param   block_addr the index of the block on sd card must greater then 0
+ * @param   num_blocks number of block you want to read
+ * @return  SD_card_status the status of the opeation
+ *
+ */
+SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+
+
 /**
  * @brief   Write from the sd card
  * @param   sd the state struct of sd card
  * @param   pdata the base addr where data write to;
- *                the data in the address space [pdata, pdata + num_blocks * BlockSize] will be copy to sd card
+ *                the data in the address space [pdata, pdata + size] will be copy to sd card
  * @param   block_addr the index of the block on sd card must greater then 0
- * @param   num_blocks number of block you want to read
+ * @param   offset offset within a block [0, block_size]
+ * @param   size   size of the data read from
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+
+
+/**
+ * @brief   Write from the sd card with offset and size
+ * 
+ * @param   sd the state struct of sd card
+ * @param   pdata the base addr where data write to;
+ *                the data in the address space [pdata, pdata + size] will be copy to sd card
+ * @param   block_addr the index of the block on sd card must greater then 0
+ * @param   offset offset within a block [0, block_size]
+ * @param   size   size of the data write to, no 
+ * @return SD_card_status the status of the opeation
+ *
+ */
+SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+
 
 
 
