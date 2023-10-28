@@ -62,7 +62,6 @@ set(STM32_DEVICE_TYPE STM32F412Rx)
 #     )
 # endif()
 
-
 # INCLUDES and SOURCES from shared
 # Define the shared code that you want to use in this project
 set(SELECTED_SHARED_SRCS

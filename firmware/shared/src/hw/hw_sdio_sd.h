@@ -11,22 +11,22 @@ typedef struct
 {
     SD_HandleTypeDef *const hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t                timeout; // the timeout for the SD card operations
-} SD_card;                           // struct that included all the state about SDIO and SD card
+} SdCard;                           // struct that included all the state about SDIO and SD card
 
 typedef struct
 {
     SD_TypeDef *   sdio;        // sdio register base address
     SD_InitTypeDef sdio_config; // sdio config
     uint32_t       timeout;     // timeout config
-} SD_card_init_config;
+} SdCardInitConfig;
 
 typedef enum
 {
-    SD_card_OK      = HAL_OK,
-    SD_card_ERROR   = HAL_ERROR,
-    SD_card_BUSY    = HAL_BUSY,
-    SD_card_TIMEOUT = HAL_TIMEOUT
-} SD_card_status; // wrapper of HAL status for better interface
+    SD_CARD_OK      = HAL_OK,
+    SD_CARD_ERROR   = HAL_ERROR,
+    SD_CARD_BUSY    = HAL_BUSY,
+    SD_CARD_TIMEOUT = HAL_TIMEOUT
+} SdCardStatus; // wrapper of HAL status for better interface
 
 /**
  * @brief Initialize and config the SDIO, initilize and figure out the card information
@@ -36,7 +36,7 @@ typedef enum
  * @return SD_card* the pointer to the SD card structure or NULL when something goes wrong
  *
  */
-SD_card hw_sd_init(SD_card_init_config config);
+SdCard hw_sd_init(SdCardInitConfig config);
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -48,7 +48,7 @@ SD_card hw_sd_init(SD_card_init_config config);
  * @return  SD_card_status the status of the opeation
  *
  */
-SD_card_status hw_sd_read(SD_card *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Write from the sd card
@@ -60,7 +60,12 @@ SD_card_status hw_sd_read(SD_card *sd, uint8_t *pdata, uint32_t block_addr, uint
  * @return SD_card_status the status of the opeation
  *
  */
-SD_card_status hw_sd_write(SD_card *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+
+
+
+
+
 
 /**
  * @brief Erase data from the sd card
@@ -70,4 +75,4 @@ SD_card_status hw_sd_write(SD_card *sd, uint8_t *pdata, uint32_t block_addr, uin
  * @param end_addr start of block index
  * @return SD_card_status the status of the opeation
  */
-SD_card_status hw_sd_erase(SD_card *sd, uint32_t start_addr, uint32_t end_addr);
+SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr);
