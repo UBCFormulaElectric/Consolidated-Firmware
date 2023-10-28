@@ -114,5 +114,5 @@ elseif("${PLATFORM}" STREQUAL "x86")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DIM_test" "DIM_can" "DIM_fakes" "shared_fakes")
+    target_link_libraries("DIM_test" "DIM_can" "DIM_fakes" "DIM_commit_info" "shared_fakes")
 endif()
