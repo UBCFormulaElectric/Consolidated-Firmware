@@ -12,13 +12,14 @@
 #define MIN_POT_LENGTH (145.0f)
 
 #define MAX_POT_V (3.30f)
+// min pot voltage is 0
 
 // Raw voltage seen at the pin (used to calculate rest and max PAPPS/SAPPS length)
 #define PAPPS_FULL_PRESSED_POT_V (2.55f)
-#define PAPPS_UNPRESSED_POT_V (0.85f)
+#define PAPPS_UNPRESSED_POT_V (0.87f)
 
 #define SAPPS_FULL_PRESSED_POT_V (3.05f)
-#define SAPPS_UNPRESSED_POT_V (1.37f)
+#define SAPPS_UNPRESSED_POT_V (1.39f)
 
 // Denominator term for angle calculation using the cosine law
 #define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * LEN_B)
@@ -50,6 +51,24 @@
 
 #define DEAD_ZONE_PERCENT (10.0f)
 
+static float PAPPS_rest_angle;
+static float PAPPS_max_angle; 
+
+static float SAPPS_rest_angle;
+static float SAPPS_max_angle; 
+
+// max and min angle calculation for PAPPS/SAPPS
+void Io_AcceleratorPedals_Init(void){
+
+    PAPPS_rest_angle = (acosf(PAPPS_COS_LAW_COEFFICIENT - (powf(PAPPS_LENGTH_UNPRESSED_MM, 2) / PAPPS_COS_LAW_DENOMINATOR)));
+    PAPPS_max_angle = PAPPS_rest_angle - (acosf(PAPPS_COS_LAW_COEFFICIENT - (powf(PAPPS_LENGTH_FULLY_PRESSED_MM, 2) / PAPPS_COS_LAW_DENOMINATOR)));
+
+    SAPPS_rest_angle = (acosf(SAPPS_COS_LAW_COEFFICIENT - (powf(SAPPS_LENGTH_UNPRESSED_MM, 2) / SAPPS_COS_LAW_DENOMINATOR)));
+    SAPPS_max_angle = SAPPS_rest_angle - (acosf(SAPPS_COS_LAW_COEFFICIENT - (powf(SAPPS_LENGTH_FULLY_PRESSED_MM, 2) / SAPPS_COS_LAW_DENOMINATOR)));
+
+}
+
+
 static float calcAppsAngle(float cos_law_coefficent, float cos_law_denominator, float pot_len)
 {
     float angle = (acosf(cos_law_coefficent - (powf(pot_len, 2) / cos_law_denominator)));
@@ -64,15 +83,9 @@ float Io_AcceleratorPedals_GetPapps(void)
     // Length calculated via voltage reading from PAPPS
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
-    const float rest_angle =
-        calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_COS_LAW_DENOMINATOR, PAPPS_LENGTH_UNPRESSED_MM);
+    float pedal_angle = PAPPS_rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_COS_LAW_DENOMINATOR, pot_len_mm);
 
-    float pedal_angle = rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_COS_LAW_DENOMINATOR, pot_len_mm);
-
-    const float max_angle =
-        rest_angle - calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_COS_LAW_DENOMINATOR, PAPPS_LENGTH_FULLY_PRESSED_MM);
-
-    float pedal_percentage_raw = (pedal_angle / max_angle) * 100.0f;
+    float pedal_percentage_raw = (pedal_angle / PAPPS_max_angle) * 100.0f;
 
     if (pedal_percentage_raw <= DEAD_ZONE_PERCENT)
     {
@@ -98,15 +111,9 @@ float Io_AcceleratorPedals_GetSapps(void)
     // length calc from SAPPS voltage reading
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
-    const float rest_angle =
-        calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_COS_LAW_DENOMINATOR, SAPPS_LENGTH_UNPRESSED_MM);
+    float pedal_angle = SAPPS_rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_COS_LAW_DENOMINATOR, pot_len_mm);
 
-    float pedal_angle = rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_COS_LAW_DENOMINATOR, pot_len_mm);
-
-    const float max_angle =
-        rest_angle - calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_COS_LAW_DENOMINATOR, SAPPS_LENGTH_FULLY_PRESSED_MM);
-
-    float pedal_percentage_raw = (pedal_angle / max_angle) * 100.0f;
+    float pedal_percentage_raw = (pedal_angle / SAPPS_max_angle) * 100.0f;
 
     if (pedal_percentage_raw <= DEAD_ZONE_PERCENT)
     {
@@ -121,5 +128,6 @@ float Io_AcceleratorPedals_GetSapps(void)
 bool Io_AcceleratorPedals_SappsOCSC(void)
 {
     float pedal_voltage = Io_Adc_GetChannelVoltage(ADC1_CHANNEL_1);
+
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }
