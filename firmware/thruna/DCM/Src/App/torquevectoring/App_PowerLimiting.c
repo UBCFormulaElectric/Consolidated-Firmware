@@ -1,7 +1,7 @@
 #include <math.h>
 #include "torquevectoring/App_PowerLimiting.h"
 #include "torquevectoring/App_TorqueVectoring.h"
-#include "torquevectoring/App_TorqueVectoringConstants.h"
+#include "App_SharedDcmConstants.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 

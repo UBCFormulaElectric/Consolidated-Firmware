@@ -21,7 +21,7 @@ extern "C"
 {
 #include "torquevectoring/App_PowerLimiting.h"
 #include "torquevectoring/App_TorqueVectoring.h"
-#include "torquevectoring/App_TorqueVectoringConstants.h"
+#include "App_SharedDcmConstants.h"
 #include "math.h"
 }
 

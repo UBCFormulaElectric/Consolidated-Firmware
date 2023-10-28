@@ -1,13 +1,13 @@
 #include "torquevectoring/App_TorqueVectoring.h"
-#include "torquevectoring/App_TorqueVectoringConstants.h"
+#include "App_SharedDcmConstants.h"
 #include "torquevectoring/App_PowerLimiting.h"
 #include "torquevectoring/App_ActiveDifferential.h"
 #include "torquevectoring/App_TractionControl.h"
-#include "torquevectoring/App_Regen.h"
 #include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
+#include "App_SharedConstants.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
@@ -17,8 +17,6 @@ static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 // static TractionControl_Outputs    traction_control_outputs;
-static Regen_Inputs  regen_inputs;
-static Regen_Outputs regen_outputs;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -100,7 +98,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
     power_limit       = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
-    float torque_request_no_differential             = 0;
     active_differential_inputs.power_max_kW          = power_limit;
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
@@ -130,13 +127,13 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
     {
-        torque_left_final_Nm  = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
-        torque_right_final_Nm = accelerator_pedal_percent * MOTOR_TORQUE_LIMIT_Nm;
+        torque_left_final_Nm  = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
+        torque_right_final_Nm = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     }
 
     // CLAMPS for safety only - should never exceed torque limit
-    torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
-    torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MOTOR_TORQUE_LIMIT_Nm);
+    torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
+    torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_left_final_Nm);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(torque_right_final_Nm);
 

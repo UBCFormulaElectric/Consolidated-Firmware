@@ -1,5 +1,6 @@
 #include "torquevectoring/App_ActiveDifferential.h"
-#include "torquevectoring/App_TorqueVectoringConstants.h"
+#include "App_SharedConstants.h"
+#include "App_SharedDcmConstants.h"
 #include <math.h>
 #include "App_SharedMacros.h"
 #include <stdlib.h>
@@ -18,9 +19,9 @@ void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Act
     float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
-    if (torque_max_Nm > MOTOR_TORQUE_LIMIT_Nm)
+    if (torque_max_Nm > MAX_TORQUE_REQUEST_NM)
     {
-        scale = MOTOR_TORQUE_LIMIT_Nm / torque_max_Nm;
+        scale = MAX_TORQUE_REQUEST_NM / torque_max_Nm;
     }
 
     outputs->torque_left_Nm  = torque_left_Nm * scale;

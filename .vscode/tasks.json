@@ -11,6 +11,7 @@
             },
         },
         {
+            "label": "Load CMake: Tests",
             "type": "shell",
             "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=firmware -DTARGET=test",
             "group": "build",
