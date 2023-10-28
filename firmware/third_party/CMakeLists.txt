@@ -42,6 +42,18 @@ file(GLOB_RECURSE SBG_ECOM_SRCS
 )
 list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${SBG_ECOM_SRCS})
 
+# Import littlefs
+CPMAddPackage(
+  NAME littlefs
+  GITHUB_REPOSITORY littlefs-project/littlefs
+  GIT_TAG v2.8.0
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/littlefs  # Specify the source directory
+)
+
+list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/littlefs)
+file(GLOB_RECURSE LITTLEFS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/littlefs/lfs.c" "${CMAKE_CURRENT_SOURCE_DIR}/littlefs/lfs_util.c" )
+list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${LITTLEFS_SRCS})
+
 # Expose the following variables to the parent scope (i.e. The scope of any
 # other CMakeLists.txt that uses add_subdirectory() on this CMakeLists.txt).
 set(SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS

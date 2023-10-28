@@ -40,17 +40,6 @@ file(GLOB GOOGLETEST_TEST_SRCS
 list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 
-CPMAddPackage(
-  NAME littlefs
-  GITHUB_REPOSITORY littlefs-project/littlefs
-  GIT_TAG v2.8.0
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/littlefs  # Specify the source directory
-)
-
-list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/littlefs)
-file(GLOB_RECURSE LITTLEFS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/littlefs/lfs.c" "${CMAKE_CURRENT_SOURCE_DIR}/littlefs/lfs_util.c" )
-list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${LITTLEFS_SRCS})
-
 
 # We use `create_arm_binary_or_tests_for_board` to generate App_CanMsgs.h, which
 # is required by certain tests in SHARED_test. Since the shared library does not
