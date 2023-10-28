@@ -7,9 +7,16 @@
 
 typedef struct RegenBraking
 {
-    float left_inverter_torque;
-    float right_inverter_torque;
+    float current_battery_level;
+    float left_inverter_torque_Nm;
+    float right_inverter_torque_Nm;
 } RegenBraking;
+
+typedef struct ActiveDifferential_Inputs
+{
+    float steering_angle_deg;
+    float accelerator_pedal_percentage;
+} ActiveDifferential_Inputs;
 
 /**
  * Run safety checks before starting regenerative braking and execute
@@ -30,3 +37,5 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr);
  * @param right is the right inverter torque request
  */
 void App_Regen_Activate(float left, float right);
+
+void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr);
