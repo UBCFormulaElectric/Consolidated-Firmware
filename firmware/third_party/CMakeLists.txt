@@ -47,7 +47,6 @@ CPMAddPackage(
   NAME LITTLEFS
   GITHUB_REPOSITORY littlefs-project/littlefs
   GIT_TAG v2.8.0
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/_dep/littlefs 
 )
 # Import sources files for littlefs
 list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_INCLUDE_DIRS ${LITTLEFS_SOURCE_DIR})
