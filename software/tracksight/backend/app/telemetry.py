@@ -2,8 +2,6 @@ from flask import Flask, request
 from process.http_app import app as http_app
 from process.socket_app import socketio as socket_app
 
-from influx_handler import InfluxHandler as influx
-
 
 app = Flask(__name__)
 
