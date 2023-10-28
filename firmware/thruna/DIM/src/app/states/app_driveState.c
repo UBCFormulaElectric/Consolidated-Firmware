@@ -104,7 +104,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
 
     const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
-    const float steering_angle = App_CanRx_FSM_Steering_SteeringAngle_Get();
+    const float steering_angle   = App_CanRx_FSM_Steering_SteeringAngle_Get();
 
     if (missing_hb)
     {
@@ -120,11 +120,14 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 <<<<<<< HEAD
 =======
 
-
         // TODO: Switch between min_cell_voltage and steering angle depending on aux switch value
+<<<<<<< HEAD
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, aux_switch_on? steering_angle : min_cell_voltage);
         
 >>>>>>> 15313194 (Absolute Value of display & added test)
+=======
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, aux_switch_on ? steering_angle : min_cell_voltage);
+>>>>>>> 242f793a (fixed c formatting)
     }
 }
 

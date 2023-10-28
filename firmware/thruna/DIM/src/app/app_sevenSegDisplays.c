@@ -59,7 +59,7 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value)
     // if there is space.
     float               scaling_factor      = getScalingFactor(value);
     SevenSegSubposition decimal_subposition = getDecimalPointSubposition(value);
-    uint16_t            scaled_value        = (uint16_t)(value*scaling_factor);
+    uint16_t            scaled_value        = (uint16_t)(value * scaling_factor);
 
     for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS - 1; digit_subposition >= 0; digit_subposition--)
     {

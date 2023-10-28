@@ -180,7 +180,6 @@ static const Switch aux_switch = {
 <<<<<<< HEAD
 =======
 
-
 // TODO: Declare Start Switch Struct
 >>>>>>> dcd549b1 (temp)
 
