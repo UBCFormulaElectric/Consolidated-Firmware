@@ -23,11 +23,14 @@ SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
         return (SdCardStatus)status;
     }
 
+    // not easy case, data is in between blockes
     uint32_t end = offset + size;
-
     uint32_t total_size   = block_size + size + size % block_size; // around up the blockes
     uint8_t *local_buffer = malloc(total_size);     // temp buffer
-    status                = hw_sd_read(*sd, *local_buffer, block_addr, total_size / block_size);
+    if(local_buffer == NULL)
+        return SD_CARD_ERROR;
+
+    status = hw_sd_read(*sd, *local_buffer, block_addr, total_size / block_size);
     if (status != SD_CARD_OK)
     {
         return status;
@@ -58,14 +61,25 @@ SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr,
         return (SdCardStatus)status;
     }
 
+    // not easy case, the data is in between blocks
     uint32_t end = offset + size;
 
     // read first block and last block, put it together with write data, write to the sd card
     uint32_t total_size = block_size + size + size % block_size;
     uint8_t* local_buffer = malloc(total_size);
+    if(local_buffer == NULL) 
+        return SD_CARD_ERROR;
+
     uint32_t end_block_addr = block_addr + total_size / block_size;
-    hw_sd_read(*sd, *total_size, block_addr, 1);
+    
+    // read first block and last block 
+    status = hw_sd_read(*sd, *total_size, block_addr, 1);
+    if(status != SD_CAD_OK) 
+        return status;
     hw_sd_read(*sd, *total_size + (total_size / block_size), end_block_addr , 1);
+    if(status != SD_CAD_OK) 
+        return status;
+    // copy the middle block
     memcpy(local_buffer + offset, pdata, size);
     
     free(local_buffer);

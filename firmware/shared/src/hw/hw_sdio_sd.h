@@ -59,8 +59,8 @@ SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_
  * @param   pdata the base addr where data write to;
  *                the data in the address space [pdata, pdata + size] will be copy to sd card
  * @param   block_addr the index of the block on sd card must greater then 0
- * @param   offset offset within a block [0, block_size]
- * @param   size   size of the data read from
+ * @param   offset offset within a block value range [0, block_size)
+ * @param   size   bytes  of the data read from
  * @return SD_card_status the status of the opeation
  *
  */
@@ -73,8 +73,8 @@ SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr,
  * @param   pdata the base addr where data write to;
  *                the data in the address space [pdata, pdata + size] will be copy to sd card
  * @param   block_addr the index of the block on sd card must greater then 0
- * @param   offset offset within a block [0, block_size]
- * @param   size   size of the data write to, no
+ * @param   offset offset within a block [0, block_size)
+ * @param   size   bytes of the data write to
  * @return SD_card_status the status of the opeation
  *
  */
