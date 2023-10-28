@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from process import SignalUtil
 from influx_handler import InfluxHandler as influx
 from influx_handler import NoDataForQueryException
