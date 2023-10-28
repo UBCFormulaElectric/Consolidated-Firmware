@@ -53,7 +53,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const bool aux_switch_on = io_switch_isClosed(globals->config->aux_switch);
 
-    App_CanTx_DIM_Switches_StartSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
+    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
     const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
