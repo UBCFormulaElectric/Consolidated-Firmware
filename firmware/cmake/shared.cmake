@@ -110,15 +110,13 @@ function(jsoncan_library
             ${SHARED_APP_INCLUDE_DIRS}
             ${SHARED_IO_INCLUDE_DIRS}
         )
-
-        if("${ARM_CORE}" STREQUAL "M4")
-            cm4_library(
-                "${LIB_NAME}"
-                "${CAN_SRCS}"
-                "${CAN_INCLUDE_DIRS}"
-                TRUE
-            )
-        endif()
+        embedded_library(
+            "${LIB_NAME}"
+            "${CAN_SRCS}"
+            "${CAN_INCLUDE_DIRS}"
+            "${ARM_CORE}"
+            TRUE
+        )
 
     elseif("${PLATFORM}" STREQUAL "x86")
         set(CAN_SRCS
@@ -165,14 +163,13 @@ function(commit_info_library
     )
 
     if("${PLATFORM}" STREQUAL "arm")
-        if("${ARM_CORE}" STREQUAL "M4")
-            cm4_library(
-                "${LIB_NAME}"
-                "${SRC_OUTPUT_PATH}"
-                "${HEADER_OUTPUT_PATH}"
-                FALSE
-            )
-        endif()
+        embedded_library(
+            "${LIB_NAME}"
+            "${SRC_OUTPUT_PATH}"
+            "${HEADER_OUTPUT_PATH}"
+            "${ARM_CORE}"
+            FALSE
+        )
     elseif("${PLATFORM}" STREQUAL "x86")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(

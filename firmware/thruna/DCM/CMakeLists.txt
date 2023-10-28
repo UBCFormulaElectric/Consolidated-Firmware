@@ -1,3 +1,4 @@
+set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")
 set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
 
@@ -35,7 +36,7 @@ jsoncan_library(
     "DCM_can"
     "DCM"
     "${CMAKE_CURRENT_BINARY_DIR}"
-    "M4"
+    "${ARM_CORE}"
 )
 
 # Autogenerate git commit info header/source.
@@ -45,7 +46,7 @@ commit_info_library(
     "DCM_commit_info"
     "${COMMIT_INFO_HEADER_PATH}"
     "${COMMIT_INFO_SRC_PATH}"
-    "M4"
+    "${ARM_CORE}"
 )
 
 if("${PLATFORM}" STREQUAL "arm")
@@ -85,14 +86,15 @@ if("${PLATFORM}" STREQUAL "arm")
     
     set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS})
     set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
-    cm4_binary(
+    embedded_binary(
         "DCM.elf"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
+        "${ARM_CORE}"
     ) 
     target_link_libraries("DCM_can" "DCM_stm32cube")
-    target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom")
+    target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_m4")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     set(SRCS ${APP_SRCS} ${TEST_SRCS})

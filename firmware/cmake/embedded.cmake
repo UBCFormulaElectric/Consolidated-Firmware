@@ -15,7 +15,7 @@ if(NOT STM32CUBEMX_BIN_PATH)
     elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
         set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
     else()
-        set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
+        set(STM32CUBEMX_BIN_PATH "~/STM32CubeMX/STM32CubeMX")
     endif()
 endif()
 
@@ -66,6 +66,7 @@ function(embedded_library
     LIB_NAME
     LIB_SRCS
     LIB_INCLUDE_DIRS
+    ARM_CORE
     THIRD_PARTY
 )
     add_library(${LIB_NAME} STATIC ${LIB_SRCS})
@@ -89,45 +90,27 @@ function(embedded_library
         )
     endif()
     
+    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
+    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
+    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
+
+    if("${ARM_CORE}" STREQUAL "cm4")
+        list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
+        list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
+        list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
+    endif()
+
     target_compile_definitions(${LIB_NAME}
         PRIVATE
-        ${SHARED_COMPILER_DEFINES}
+        ${COMPILER_DEFINES}
     )
     target_compile_options(${LIB_NAME}
         PRIVATE
-        ${SHARED_COMPILER_FLAGS}
+        ${COMPILER_FLAGS}
     )
     target_link_options(${LIB_NAME}
         PRIVATE
-        ${SHARED_LINKER_FLAGS}
-    )
-endfunction()
-
-function(cm4_library
-    LIB_NAME
-    LIB_SRCS
-    LIB_INCLUDE_DIRS
-    THIRD_PARTY
-)
-    embedded_library(
-        "${LIB_NAME}"
-        "${LIB_SRCS}"
-        "${LIB_INCLUDE_DIRS}"
-        "${THIRD_PARTY}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${LIB_NAME}
-        PRIVATE
-        ${CM4_DEFINES}
-    )
-    target_compile_options(${LIB_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-    target_link_options(${LIB_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
+        ${LINKER_FLAGS}
     )
 endfunction()
 
@@ -136,6 +119,7 @@ function(embedded_binary
     BIN_SRCS
     BIN_INCLUDE_DIRS
     LINKER_SCRIPT
+    ARM_CORE
 )
     message("➕ Creating Embedded Target for ${BIN_NAME}")
     add_executable(${BIN_NAME} ${BIN_SRCS})
@@ -145,16 +129,27 @@ function(embedded_binary
         ${BIN_INCLUDE_DIRS}
     )
 
+    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
+    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
+    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
+
+    if("${ARM_CORE}" STREQUAL "cm4")
+        list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
+        list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
+        list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
+    endif()
+
     target_compile_definitions(${BIN_NAME}
         PRIVATE
-        ${SHARED_COMPILER_DEFINES}
+        ${COMPILER_DEFINES}
     )
     target_compile_options(${BIN_NAME}
         PRIVATE
-        ${SHARED_COMPILER_FLAGS}
+        ${COMPILER_FLAGS}
     )
     target_link_options(${BIN_NAME}
-        PUBLIC
+        PRIVATE
+        ${LINKER_FLAGS}
         -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.map
         -Wl,-gc-sections,--print-memory-usage
         -Wl,-T ${LINKER_SCRIPT}
@@ -177,34 +172,6 @@ function(embedded_binary
 Building ${HEX_FILE}
 Building ${BIN_FILE}
 Building ${ASM_FILE}")
-endfunction()
-
-function(cm4_binary
-    BIN_NAME
-    BIN_SRCS
-    BIN_INCLUDE_DIRS
-    LINKER_SCRIPT
-)
-    embedded_binary(
-        "${BIN_NAME}"
-        "${BIN_SRCS}"
-        "${BIN_INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-    )
-
-    # Add Cortex-M4 specific flags.
-    target_compile_definitions(${BIN_NAME}
-        PRIVATE
-        ${CM4_DEFINES}
-    )
-    target_compile_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
-    target_link_options(${BIN_NAME}
-        PRIVATE
-        ${CM4_FPU_FLAGS}
-    )
 endfunction()
 
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
@@ -303,10 +270,11 @@ function(stm32f412rx_cube_library
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
     
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
-    cm4_library(
+    embedded_library(
         "${HAL_LIB_NAME}"
         "${STM32CUBE_SRCS}"
         "${STM32CUBE_INCLUDE_DIRS}"
+        "cm4"
         TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
