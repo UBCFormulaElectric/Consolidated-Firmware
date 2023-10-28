@@ -40,7 +40,6 @@ file(GLOB GOOGLETEST_TEST_SRCS
 list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 
-
 # We use `create_arm_binary_or_tests_for_board` to generate App_CanMsgs.h, which
 # is required by certain tests in SHARED_test. Since the shared library does not
 # have an embedded target to compile for, we only call
