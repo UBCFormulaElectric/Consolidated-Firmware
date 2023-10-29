@@ -8,3 +8,5 @@ dependencies:
     - pytest
     - asammdf 
     - cantools
+    - python-dateutil
+    - requests

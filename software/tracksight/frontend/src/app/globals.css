@@ -48,7 +48,7 @@ a {
   gap: 20px;
 }
 
-.dropdown {
-  width: 100px;
-
+.ant-dropdown-menu {
+  max-height: 200px;
+  overflow: auto;
 }
