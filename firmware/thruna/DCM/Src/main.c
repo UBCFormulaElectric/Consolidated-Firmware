@@ -254,6 +254,10 @@ int main(void)
     App_CanTx_DCM_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_DCM_Clean_Set(GIT_COMMIT_CLEAN);
 
+    // Transmit aperiodic startup message.
+    App_CanTx_DCM_Startup_Set(true);
+    Io_CanTx_DCM_Startup_SendAperiodic();
+
     /* USER CODE END 2 */
 
     /* Init scheduler */

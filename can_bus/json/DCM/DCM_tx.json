@@ -1,4 +1,13 @@
 {
+    "Startup": {
+        "msg_id": 211,
+        "description": "Aperiodic message transmitted on startup.",
+        "signals": {
+            "Startup": {
+                "bits": 1
+            }
+        }        
+    },
     "Vitals": {
         "msg_id": 203,
         "cycle_time": 100,

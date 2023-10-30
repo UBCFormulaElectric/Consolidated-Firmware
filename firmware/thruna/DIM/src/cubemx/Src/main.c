@@ -367,6 +367,11 @@ int main(void)
     app_avgPower_init();
     app_globals_init(&globals_config);
     globals->heartbeat_monitor = heartbeat_monitor;
+
+    // Transmit aperiodic startup message.
+    App_CanTx_DIM_Startup_Set(true);
+    Io_CanTx_DIM_Startup_SendAperiodic();
+
     /* USER CODE END 2 */
 
     /* Init scheduler */

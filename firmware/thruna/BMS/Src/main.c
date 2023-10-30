@@ -326,6 +326,10 @@ int main(void)
     // broadcast commit info
     App_CanTx_BMS_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_BMS_Clean_Set(GIT_COMMIT_CLEAN);
+    
+    // Transmit aperiodic startup message.
+    App_CanTx_BMS_Startup_Set(true);
+    Io_CanTx_BMS_Startup_SendAperiodic();
 
     /* USER CODE END 2 */
 
