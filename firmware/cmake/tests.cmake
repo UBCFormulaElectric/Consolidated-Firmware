@@ -2,10 +2,31 @@ include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
 
 set(FFF_DIR "${THIRD_PARTY_DIR}/fff")
 
+function(compile_gtest_executable
+    TEST_EXECUTABLE_NAME
+    TEST_SRCS
+    TEST_INCLUDE_DIRS
+)
+    add_executable(${TEST_EXECUTABLE_NAME}
+        ${TEST_SRCS}
+    )
+    target_include_directories(${TEST_EXECUTABLE_NAME}
+        PRIVATE
+        ${TEST_INCLUDE_DIRS}
+    )
+    target_compile_options(${TEST_EXECUTABLE_NAME}
+        PUBLIC
+        -Wall
+        -g3
+    )
+    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    add_test(NAME ${TEST_EXECUTABLE_NAME}
+        COMMAND ${TEST_EXECUTABLE_NAME})
+endfunction()
+
 function(create_fake_library
     LIB_NAME
     HDRS_TO_FAKE
-    INCLUDE_DIRS
 )
     file(GLOB_RECURSE FAKEGEN_SRCS
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
@@ -41,28 +62,7 @@ function(create_fake_library
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${HDR_DIR}
-        ${INCLUDE_DIRS}
+        ${SHARED_APP_INCLUDE_DIR}
+        ${SHARED_IO_INCLUDE_DIR}
     )
-endfunction()
-
-function(compile_gtest_executable
-    TEST_EXECUTABLE_NAME
-    TEST_SRCS
-    TEST_INCLUDE_DIRS
-)
-    add_executable(${TEST_EXECUTABLE_NAME}
-        ${TEST_SRCS}
-    )
-    target_include_directories(${TEST_EXECUTABLE_NAME}
-        PRIVATE
-        ${TEST_INCLUDE_DIRS}
-    )
-    target_compile_options(${TEST_EXECUTABLE_NAME}
-        PUBLIC
-        -Wall
-        -g3
-    )
-    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
-    add_test(NAME ${TEST_EXECUTABLE_NAME}
-        COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()

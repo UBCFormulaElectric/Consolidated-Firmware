@@ -4,26 +4,13 @@ SET(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
 SET(SHARED_TEST_DIR "${SHARED_DIR}/test")
 SET(THIRD_PARTY_DIR "${FIRMWARE_DIR}/third_party")
 
-file(GLOB_RECURSE SHARED_APP_SRCS
-    "${SHARED_EMBEDDED_DIR}/app/*.c"
-)
-file(GLOB_RECURSE SHARED_IO_SRCS
-    "${SHARED_EMBEDDED_DIR}/io/*.c"
-    "${SHARED_EMBEDDED_DIR}/hw/*.c"
-)
-file(GLOB_RECURSE SHARED_TEST_UTILS_SRCS
-    "${SHARED_DIR}/test_utils/*.c"
-    "${SHARED_DIR}/test_utils/*.cpp"
-)
+file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_EMBEDDED_DIR}/app/*.c")
+file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_EMBEDDED_DIR}/io/*.c")
+file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/*.c")
 
-set(SHARED_APP_INCLUDE_DIRS
-    "${SHARED_EMBEDDED_DIR}/app"
-    "${SHARED_EMBEDDED_DIR}/io"
-)
-set(SHARED_IO_INCLUDE_DIR
-    "${SHARED_EMBEDDED_DIR}/io"
-    "${SHARED_EMBEDDED_DIR}/hw"
-)
+set(SHARED_APP_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/app")
+set(SHARED_IO_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/io")
+set(SHARED_HW_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/hw")
 set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test_utils")
 
 function(jsoncan_library
@@ -107,8 +94,8 @@ function(jsoncan_library
         set(CAN_INCLUDE_DIRS
             ${OUTPUT_DIR}/app
             ${OUTPUT_DIR}/io
-            ${SHARED_APP_INCLUDE_DIRS}
-            ${SHARED_IO_INCLUDE_DIRS}
+            ${SHARED_APP_INCLUDE_DIR}
+            ${SHARED_IO_INCLUDE_DIR}
         )
         embedded_library(
             "${LIB_NAME}"
