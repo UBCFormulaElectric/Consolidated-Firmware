@@ -108,7 +108,8 @@ if __name__ == "__main__":
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
     args = parser.parse_args()
     if args.board not in supported_boards:
-        raise AttributeError("Error: Invalid board name. Valid options: " + " ".join(supported_boards))
+        print("Error: Invalid board name. Valid options: " + " ".join(supported_boards))
+        # sys.exit(1)
 
     generate_cubemx_code(
         args.board,

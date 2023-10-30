@@ -13,6 +13,13 @@ if("${TARGET}" STREQUAL "deploy")
         GIT_TAG 3e907f8
     )
 
+    # STM32H7Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
+    CPMAddPackage(
+        NAME STM32CUBEH7
+        GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH7
+        GIT_TAG 3e907f8
+    )
+
     # littlefs: Filesystem for microcontrollers
     CPMAddPackage(
         NAME LITTLEFS
