@@ -10,7 +10,7 @@
 #include "App_Regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-static bool regen_switch_enabled = true;
+float apps_pedal_percentage;
 
 static bool torque_vectoring_switch_is_on;
 
@@ -30,7 +30,6 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
     // Calculate the actual torque request to transmit
@@ -92,12 +91,20 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     
     regen_switch_enabled = App_RegenTorqueVectoringStatus();
+    bool regen = false;
+
+    apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get() - 50.0f;
 
     if (regen_switch_enabled)
     {
-        App_Run_Regen();
+        App_Run_Regen(&regen, apps_pedal_percentage);
+        // convert only here
+        if (apps_pedal_percentage >= 0) {
+            apps_pedal_percentage = apps_pedal_percentage * 2;
+        }
     }
-    else
+    
+    if (all_states_ok && !regen)
     {
         App_SetPeriodicCanSignals_TorqueRequests();
     }

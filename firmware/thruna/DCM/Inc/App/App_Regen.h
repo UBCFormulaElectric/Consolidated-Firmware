@@ -22,7 +22,7 @@ typedef struct ActiveDifferential_Inputs
  * Run safety checks before starting regenerative braking and execute
  * regen if satisfied
  */
-void App_Run_Regen(void);
+void App_Run_Regen(bool *regen, float accelerator_pedal_percentage);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset

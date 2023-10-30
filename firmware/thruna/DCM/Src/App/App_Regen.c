@@ -17,8 +17,8 @@ static bool wheel_speed_in_range(void);
 static bool power_limit_check(RegenBraking *regenAttr);
 
 /**
- * Algorithm to send negative torque request
- * dependent on accelerator pedal percentage
+ * Algorithm to send negative torque request dependent
+ * on accelerator pedal percentage in range [-50,50]
  */
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr);
 float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg);
@@ -26,6 +26,7 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg);
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 #define WHEELBASE_mm 1550
 #define TRACK_WIDTH_mm 1100
+#define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f
 
 static RegenBraking regenAttributes;
 static ActiveDifferential_Inputs activeDifferentialInputs;
@@ -35,13 +36,20 @@ static float steering_angle_deg;
 const float         MAX_REGEN_Nm            = -50.0f; // TODO: find max regen torque value
 const float         wheelSpeedThreshold = 5.0f;
 
-void App_Run_Regen(void)
+void App_Run_Regen(bool *regen, float accelerator_pedal_percentage)
 {
-    if (App_Regen_Safety(&regenAttributes))
-    {
-        steering_angle_deg         = App_CanRx_FSM_SteeringAngle_Get();
+    activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage-50.0f;
+
+    if (accelerator_pedal_percentage >= 0) {
+        *regen = false;
+        return;
+    } 
+    else if (App_Regen_Safety(&regenAttributes)) {
+        steering_angle_deg         = App_CanRx_FSM_SteeringAngle_Get()*APPROX_STEERING_TO_WHEEL_ANGLE;
         activeDifferentialInputs.steering_angle_deg = steering_angle_deg;
+
         compute_regen_torque_request(&activeDifferentialInputs, &regenAttributes);
+        *regen = true;
     } 
     else {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
@@ -64,13 +72,12 @@ void App_Regen_Activate(float left, float right)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(right);
 }
 
-// linear from 90% 3.9 taper
+// TODO: linear from 90% 3.9 taper
 
 void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
     float Delta = App_ActiveDifferential_WheelAngleToSpeedDelta(inputs->steering_angle_deg);
-    float pedal_percentage = inputs->     accelerator_pedal_percentage;
-
+    float pedal_percentage = inputs->accelerator_pedal_percentage;
 
     //more regen torque on the outer wheel
 
@@ -115,13 +122,7 @@ static bool power_limit_check(RegenBraking *regenAttr)
 
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
-    float accelerator_pedal_percentage = App_CanRx_FSM_PappsMappedPedalPercentage_Get();
-    inputs->accelerator_pedal_percentage = accelerator_pedal_percentage;
 
-    if (accelerator_pedal_percentage >= 0) {
-        // App_SetPeriodicCanSignals_TorqueRequests();
-    }
-    else {
-        App_ActiveDifferential_ComputeNegativeTorque(inputs, regenAttr);
-    }
+    App_ActiveDifferential_ComputeNegativeTorque(inputs, regenAttr);
+
 }
