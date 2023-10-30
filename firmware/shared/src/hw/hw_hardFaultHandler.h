@@ -13,17 +13,17 @@
 // can be stored in either MSP (main stack pointer) or PSP (process stack
 // pointer). The following assembly function determines which stack pointer was
 // used was then hard fault occured, and passes it as an argument to
-// Io_SharedHardFaultHandler_LogInformation().
+// hw_hardFaultHandler_LogInformation().
 //
 // Note: The MSP/PSP architecture is specific to the Cortex-M microcontroller
 //       family.
-#define Io_SharedHardFaultHandler_HandleHardFault()                \
+#define hw_hardFaultHandler_handleFault()                \
     __asm volatile(" tst lr, #4                                \n" \
                    " ite eq                                    \n" \
                    " mrseq r0, msp                             \n" \
                    " mrsne r0, psp                             \n" \
                    " ldr r1, [r0, #24]                         \n" \
-                   " b Io_SharedHardFaultHandler_LogInformation   \n");
+                   " b hw_hardFaultHandler_logInfo   \n");
 
 /**
  * @brief Add the naked attributes to HardFault_Handler function declaration.
@@ -37,11 +37,11 @@ __attribute__((naked)) void HardFault_Handler(void);
  * @note  Try to call this as early as possible to catch as many exceptions as
  *        possible.
  */
-void Io_SharedHardFaultHandler_Init(void);
+void hw_hardFaultHandler_init(void);
 
 /**
  * @brief Log information that can help us identify what caused the hard fault.
  * @param fault_stack Pointer to the stack that was used when the hard fault
  *        occurred.
  */
-void Io_SharedHardFaultHandler_LogInformation(uint32_t *fault_stack);
+void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);
