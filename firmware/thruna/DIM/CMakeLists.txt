@@ -73,12 +73,12 @@ if("${PLATFORM}" STREQUAL "arm")
         "${IOC_PATH}.md5"
     )
 
-    set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
-    set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
         "DIM.elf"
-        "${EMBEDDED_SRCS}"
-        "${EMBEDDED_INCLUDE_DIRS}"
+        "${SRCS}"
+        "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )

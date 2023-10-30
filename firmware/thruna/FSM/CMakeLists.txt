@@ -69,8 +69,8 @@ if("${PLATFORM}" STREQUAL "arm")
         "${IOC_PATH}.md5"
     )
 
-    set(EMBEDDED_SRCS ${APP_SRCS} ${IO_SRCS} ${SHARED_HW_SRCS})
-    set(EMBEDDED_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_HW_INCLUDE_DIR})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${SHARED_HW_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_HW_INCLUDE_DIR})
     embedded_binary(
         "FSM.elf"
         "${SRCS}"

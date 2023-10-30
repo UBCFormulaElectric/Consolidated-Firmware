@@ -77,7 +77,7 @@ if("${PLATFORM}" STREQUAL "arm")
     embedded_binary(
         "BMS.elf"
         "${SRCS}"
-        "${EMBEDDED_INCLUDE_DIRS}"
+        "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
