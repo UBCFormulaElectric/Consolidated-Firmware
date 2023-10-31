@@ -7,6 +7,7 @@ from ...utils import *
 
 class CFuncsConfig(StrEnum):
     # Io Tx
+    IO_TX_INIT = "Io_CanTx_Init"
     IO_TX_ENABLE_MODE = "Io_CanTx_EnableMode"
     IO_TX_ENQUEUE_PERIODIC = "Io_CanTx_Enqueue{freq}Msgs"
     IO_TX_ENQUEUE_OTHER_PERIODIC = "Io_CanTx_EnqueueOtherPeriodicMsgs"

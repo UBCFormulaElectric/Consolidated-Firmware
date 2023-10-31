@@ -351,6 +351,7 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
 
     io_sevenSegDisplays_init(&seven_segs_config);
