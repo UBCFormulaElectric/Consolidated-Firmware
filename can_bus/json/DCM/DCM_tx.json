@@ -148,6 +148,7 @@
         }
     },
     
+    
     "EllipseStatus": {
         "msg_id": 208,
         "cycle_time": 100,
@@ -248,7 +249,7 @@
         }
     },
     "StackRemaining": {
-        "msg_id": 211,
+        "msg_id": 208,
         "cycle_time": 100,
         "description": "Stack Remaining for different tasks.",
         "signals": {
