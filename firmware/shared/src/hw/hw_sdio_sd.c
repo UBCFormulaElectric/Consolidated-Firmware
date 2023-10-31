@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+static uint32_t round_up_to_nearest(uint32_t number, uint32_t multiple)
+{
+    if (number % multiple == 0) {
+        return number;  // The number is already a multiple of the specified value.
+    } else {
+        return ((number / multiple) + 1) * multiple;
+    }
+}
+
+
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
@@ -32,7 +42,8 @@ SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
 
     // not easy case, data is in between blockes
     uint32_t end          = offset + size;
-    uint32_t total_size   = end + (abs(end - block_size)) % block_size; // around up the blockes
+
+    uint32_t total_size   = round_up_to_nearest(end, block_size); // around up the blockes
     uint8_t *local_buffer = malloc(total_size);                         // temp buffer
     if (local_buffer == NULL)
     {
@@ -81,7 +92,7 @@ SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr,
     uint32_t end = offset + size;
 
     // read first block and last block, put it together with write data, write to the sd card
-    uint32_t total_size   = end + (abs(end - block_size)) % block_size;
+    uint32_t total_size   = round_up_to_nearest(end, block_size); // around up the blockes
     uint8_t *local_buffer = malloc(total_size);
     if (local_buffer == NULL)
         return SD_CARD_ERROR;
