@@ -5,7 +5,6 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
 #include "App_CanTx.h"
-#include "App_CanAlerts.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;
@@ -19,72 +18,49 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1kHz_Set(true);
+    App_CanTx_GSM_StackWatermarkAboveThresholdTask1kHz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask100Hz_Set(true);
+    App_CanTx_GSM_StackWatermarkAboveThresholdTask100Hz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1Hz_Set(true);
+    App_CanTx_GSM_StackWatermarkAboveThresholdTask1Hz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanRx_Set(true);
+    App_CanTx_GSM_StackWatermarkAboveThresholdTaskCanRx_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
+    App_CanTx_GSM_StackWatermarkAboveThresholdTaskCanTx_Set(error);
 }
 
 static void logStackRemainingTask1Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackRemainingTask1Hz_Set(error);
+    App_CanTx_GSM_StackRemainingTask1Hz_Set(error);
 
 }
 static void logStackRemainingTask100Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackRemainingTask100Hz_Set(error);
+    App_CanTx_GSM_StackRemainingTask100Hz_Set(error);
 }
 static void logStackRemainingTask1kHz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackRemainingTask1kHz_Set(error);
+    App_CanTx_GSM_StackRemainingTask1kHz_Set(error);
 }
 static void logStackRemainingTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_PDM_StackRemainingTaskCanRx_Set(error);
+    App_CanTx_GSM_StackRemainingTaskCanRx_Set(error);
 }
 static void logStackRemainingTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_PDM_StackRemainingTaskCanTx_Set(error);
-}
-
-
-static void logStackRemainingTask1Hz(uint8_t error)
-{
-    App_CanTx_PDM_StackRemainingTask1Hz_Set(error);
-
-}
-static void logStackRemainingTask100Hz(uint8_t error)
-{
-    App_CanTx_PDM_StackRemainingTask100Hz_Set(error);
-}
-static void logStackRemainingTask1kHz(uint8_t error)
-{
-    App_CanTx_PDM_StackRemainingTask1kHz_Set(error);
-}
-static void logStackRemainingTaskCanRx(uint8_t error)
-{
-    App_CanTx_PDM_StackRemainingTaskCanRx_Set(error);
-}
-static void logStackRemainingTaskCanTx(uint8_t error)
-{
-    App_CanTx_PDM_StackRemainingTaskCanTx_Set(error);
+    App_CanTx_GSM_StackRemainingTaskCanTx_Set(error);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

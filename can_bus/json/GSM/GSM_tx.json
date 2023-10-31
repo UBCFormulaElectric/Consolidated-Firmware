@@ -1,21 +1,18 @@
 {
-    "Vitals": {
-        "msg_id": 402,
+    "GSM_Vitals": {
+        "msg_id": 603,
         "cycle_time": 100,
-        "description": "PDM vitals message.",
+        "description": "Vitals message for the GSM.",
         "signals": {
             "Heartbeat": {
                 "bits": 1
-            },
-            "State": {
-                "enum": "PdmState"
             }
         }
     },
-    "AlertsContext": {
-        "msg_id": 404,
+    "GSM_Warnings": {
+        "msg_id": 604,
         "cycle_time": 1000,
-        "description": "Context info for PDM alerts",
+        "description": "Warning flags for the GSM.",
         "signals": {
             "StackWatermarkAboveThresholdTask1Hz": {
                 "bits": 1
@@ -46,34 +43,8 @@
             }
         }
     },
-    "Voltages": {
-        "msg_id": 405,
-        "cycle_time": 100,
-        "description": "PDM voltages.",
-        "signals": {
-            "BatVoltage": {
-                "resolution": 0.01,
-                "min": 0,
-                "max": 10,
-                "unit": "V"
-            },
-            "BoostVoltage": {
-                "resolution": 0.01,
-                "min": 0,
-                "max": 30,
-                "unit": "V"
-            },
-            "AccVoltage": {
-                "resolution": 0.01,
-                "min": 0,
-                "max": 30,
-                "unit": "V"
-            }
-        }
-    },
-
     "StackRemaining": {
-        "msg_id": 407,
+        "msg_id": 606,
         "cycle_time": 100,
         "description": "Stack Remaining for different tasks.",
         "signals": {
@@ -111,9 +82,9 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 406,
+      "msg_id": 605,
       "cycle_time": 100,
-      "description": "PDM Current Running Git Commit Info",
+      "description": "GSM Current Running Git Commit Info",
       "signals": {
           "Hash": {
               "bits": 32
