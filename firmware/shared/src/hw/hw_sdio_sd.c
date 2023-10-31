@@ -6,13 +6,15 @@
 
 static uint32_t round_up_to_nearest(uint32_t number, uint32_t multiple)
 {
-    if (number % multiple == 0) {
-        return number;  // The number is already a multiple of the specified value.
-    } else {
+    if (number % multiple == 0)
+    {
+        return number; // The number is already a multiple of the specified value.
+    }
+    else
+    {
         return ((number / multiple) + 1) * multiple;
     }
 }
-
 
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
@@ -41,10 +43,10 @@ SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
     }
 
     // not easy case, data is in between blockes
-    uint32_t end          = offset + size;
+    uint32_t end = offset + size;
 
     uint32_t total_size   = round_up_to_nearest(end, block_size); // around up the blockes
-    uint8_t *local_buffer = malloc(total_size);                         // temp buffer
+    uint8_t *local_buffer = malloc(total_size);                   // temp buffer
     if (local_buffer == NULL)
     {
         status = SD_CARD_ERROR;
