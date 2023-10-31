@@ -102,7 +102,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
 };
 
-void io_stackWaterMark_check(void)
+void Io_StackWaterMark_Check(void)
 {
     Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
     Io_SharedStackSize_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
