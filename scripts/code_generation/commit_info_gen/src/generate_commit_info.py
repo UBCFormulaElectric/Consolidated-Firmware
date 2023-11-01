@@ -34,6 +34,9 @@ if __name__ == "__main__":
   header_template = env.get_template("./App_CommitInfo.h.j2")
   source_template = env.get_template("./App_CommitInfo.c.j2")
 
+  print("-------COMMIT-INFO-----")
+  os.system('git status')
+  print("-------COMMIT-INFO-----")
   # data to expose to header
   data = {}
 
