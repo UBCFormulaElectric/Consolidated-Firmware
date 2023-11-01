@@ -1,8 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "Io_Hal.h"
-#include IO_HAL_ADC
+#include "hw_hal.h"
 
 /**
  * Convert the given raw ADC value measured by the given ADC handle into voltage

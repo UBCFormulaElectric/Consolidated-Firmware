@@ -1,8 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "Io_Hal.h"
-#include IO_HAL_SPI
+#include "hw_hal.h"
 
 struct SharedSpi;
 
