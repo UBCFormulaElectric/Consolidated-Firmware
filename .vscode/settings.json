@@ -9,8 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
-	"files.associations": {
-		"stm32f4xx.h": "c"
-	}
+	"cmake.configureOnOpen": true
 }
