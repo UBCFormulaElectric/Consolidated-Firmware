@@ -34,36 +34,25 @@ if __name__ == "__main__":
   header_template = env.get_template("./App_CommitInfo.h.j2")
   source_template = env.get_template("./App_CommitInfo.c.j2")
 
-  print("-------COMMIT-INFO-----")
-
-  print("--- SYSTEM ---")
-  os.system('git status')
-  os.system('echo hello')
-
-  print("--- POPEN ---")
-  stream = os.popen('git status')
-  output = stream.read()
-  print(output)
-
-  stream = os.popen('echo hello')
-  output = stream.read()
-  print(output)
-
-  print("-------COMMIT-INFO-----")
   # data to expose to header
   data = {}
 
   # return dummy data if gitpython throws any error
-  # get commit info
-  repo = git.Repo(search_parent_directories=True)
-  commit = repo.head.commit
-  clean = not repo.is_dirty(untracked_files=True)
+  try: 
+    # get commit info
+    repo = git.Repo(search_parent_directories=True)
+    commit = repo.head.commit
+    clean = not repo.is_dirty(untracked_files=True)
 
-  # short hash is the first 7 chars of the long hash
-  short_hash = commit.hexsha[0:7]
+    # short hash is the first 7 chars of the long hash
+    short_hash = commit.hexsha[0:7]
 
-  data["hash"] = short_hash
-  data["clean"] = "true" if clean else "false"
+    data["hash"] = short_hash
+    data["clean"] = "true" if clean else "false"
+
+  except:
+    data = DUMMY_DATA
+    print("⚠️ commit_info_gen: GitPython failed to fetch data, returning dummy data.")
 
   # also generate dummy data if data is not valid
   if not validateData(data):

@@ -32,6 +32,11 @@ jobs:
     env:
       BUILD_DIR: build_arm
     steps:
+      # Fix to ensure that commands like git status work in child directories 
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+        
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
