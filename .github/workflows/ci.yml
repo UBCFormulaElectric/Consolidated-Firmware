@@ -17,7 +17,7 @@ jobs:
       # Fix to get git diff working in a Docker container
       # https://github.com/actions/checkout/issues/363
       - name: Setup git
-        run: git config --global --add safe.directory '*'
+        run: git config --global --add safe.directory $(realpath .)
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -111,6 +111,12 @@ jobs:
       BUILD_DIR: build_x86
 
     steps:
+
+      # Fix to ensure that commands like git status work in child directories 
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -140,6 +146,11 @@ jobs:
       BUILD_DIR: build_x86
 
     steps:
+      # Fix to ensure that commands like git status work in child directories 
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -169,6 +180,11 @@ jobs:
       BUILD_DIR: build_x86
 
     steps:
+      # Fix to ensure that commands like git status work in child directories 
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+        
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
