@@ -1,9 +1,9 @@
 file(GLOB_RECURSE ARM_BINARY_APP_SRCS "Src/App/*.*")
 set(ARM_BINARY_APP_INCLUDE_DIRS "Inc/App")
-file(GLOB ARM_BINARY_IO_SRCS
+file(GLOB_RECURSE ARM_BINARY_IO_SRCS
     "Src/*.c"
     "Src/Io/*.c"
-    "startup/*.s"
+    "Startup/*.s"
 )
 set(ARM_BINARY_IO_INCLUDE_DIRS
     "Inc"
@@ -24,23 +24,31 @@ set(ARM_BINARY_INCLUDE_DIRS
 
 set(ARM_BINARY_IO_SYSCALLS_SRC "Src/syscalls.c")
 list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${ARM_BINARY_IO_SYSCALLS_SRC})
-set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F412RGTx_FLASH.ld")
+set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F412RGTX_FLASH.ld")
 
+set(DRIVERS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Drivers")
+set(FREERTOS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
 set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
-    "Drivers/STM32F4xx_HAL_Driver/Inc"
-    "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"
-    "Middlewares/Third_Party/FreeRTOS/Source/include"
-    "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
-    "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
-    "Drivers/CMSIS/Device/ST/STM32F4xx/Include"
-    "Drivers/CMSIS/Include"
+    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc"
+    "${DRIVERS_SRC_DIR}/CMSIS/Include"
+    "${DRIVERS_SRC_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
+    "${DRIVERS_SRC_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
+    "${FREERTOS_SRC_DIR}/include"
+    "${FREERTOS_SRC_DIR}/CMSIS_RTOS_V2"
+    "${FREERTOS_SRC_DIR}/portable/GCC/ARM_CM4F"
 )
 list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
-    "Middlewares/*.c"
-    "Drivers/*.c"
+    "${DRIVERS_SRC_DIR}/*.c"
+    "${FREERTOS_SRC_DIR}/*.c"
 )
 list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
+
+# We use heap_useNewlib.c for a thread-safe heap implementation, so we can use malloc with FreeRTOS.
+# FreeRTOS also provides heap implementations, and when using the CMSIS_V2 interface we are required to pick one.
+# FreeRTOS's heap will cause linker errors with heap_useNewlib.c, so remove the FreeRTOS heap implementation from the build.
+# Source: https://nadler.com/embedded/newlibAndFreeRTOS.html
+list(REMOVE_ITEM ARM_BINARY_THIRD_PARTY_SRCS "${FREERTOS_SRC_DIR}/portable/MemMang/heap_4.c")
 
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/PDM.ioc")
 set(STM32_DEVICE_TYPE STM32F412Rx)
@@ -48,8 +56,7 @@ set(STM32_DEVICE_TYPE STM32F412Rx)
 file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
-)
+    "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 
 # INCLUDES and SOURCES from shared
 # Define the shared code that you want to use in this project 

@@ -2,5 +2,5 @@
 
 uint32_t Io_HeartbeatMonitor_GetCurrentMs(void)
 {
-    return osKernelSysTick() * portTICK_RATE_MS;
+    return osKernelGetTickCount() * portTICK_RATE_MS;
 }

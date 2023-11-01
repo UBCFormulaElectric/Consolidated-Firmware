@@ -68,11 +68,12 @@ jobs:
       # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
       - name: Generate code
         run: |
+          echo "test: $GITHUB_WORKSPACE"
           xvfb-run python3 scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc ${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir ${{ matrix.ioc_dir }} \
+            --ioc $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            --codegen_output_dir $GITHUB_WORKSPACE/${{ matrix.ioc_dir }} \
             --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
 
       - name: Fix formatting
@@ -86,7 +87,7 @@ jobs:
     name: Build Firmware Binaries
     uses: ./.github/workflows/build.yml # https://github.blog/changelog/2022-01-25-github-actions-reusable-workflows-can-be-referenced-locally/ God is good
     secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
 
   test-thruna:
     needs: [ clang-format ]

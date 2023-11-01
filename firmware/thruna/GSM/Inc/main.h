@@ -64,6 +64,7 @@ extern "C"
 #define IWDG_RESET_FREQUENCY 5
 #define LSI_FREQUENCY 40000
 #define TASK_STACK_SIZE 512
+
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
@@ -73,5 +74,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
