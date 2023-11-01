@@ -3,7 +3,14 @@
 #include <stdbool.h>
 
 /**
- * @return Percentage of press of accelerator pedal
+ * Performs initial calculations for the rest and max angle of PAPPS and SAPPS
+ * @return
+ */
+void Io_AcceleratorPedals_Init(void);
+
+/**
+ * Calculates pedal percentage by comparing the current angle to the max angle
+ * @return pedal percentage based on primary accelerator pedal sensor
  */
 float Io_AcceleratorPedals_GetPapps(void);
 /**
@@ -12,10 +19,11 @@ float Io_AcceleratorPedals_GetPapps(void);
 bool Io_AcceleratorPedals_PappsOCSC(void);
 
 /**
- * Gets the percentage of the accelerator pedal
- * @return The reported percentage travel of the secondary accelerator pedal sensor
+ * Calculates pedal percentage by comparing the current angle to the max angle
+ * @return pedal percentage based on secondary accelerator pedal sensor
  */
 float Io_AcceleratorPedals_GetSapps(void);
+
 /**
  * @return whether or not the secondary accelerator pedal sensor is open or short circuit
  */

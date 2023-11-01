@@ -252,6 +252,7 @@ int main(void)
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    Io_AcceleratorPedals_Init();
 
     App_CanTx_Init();
     App_CanRx_Init();
