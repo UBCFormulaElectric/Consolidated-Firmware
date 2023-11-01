@@ -38,21 +38,16 @@ if __name__ == "__main__":
   data = {}
 
   # return dummy data if gitpython throws any error
-  try: 
-    # get commit info
-    repo = git.Repo(search_parent_directories=True)
-    commit = repo.head.commit
-    clean = not repo.is_dirty(untracked_files=True)
+  # get commit info
+  repo = git.Repo(search_parent_directories=True)
+  commit = repo.head.commit
+  clean = not repo.is_dirty(untracked_files=True)
 
-    # short hash is the first 7 chars of the long hash
-    short_hash = commit.hexsha[0:7]
+  # short hash is the first 7 chars of the long hash
+  short_hash = commit.hexsha[0:7]
 
-    data["hash"] = short_hash
-    data["clean"] = "true" if clean else "false"
-
-  except:
-    data = DUMMY_DATA
-    print("⚠️ commit_info_gen: GitPython failed to fetch data, returning dummy data.")
+  data["hash"] = short_hash
+  data["clean"] = "true" if clean else "false"
 
   # also generate dummy data if data is not valid
   if not validateData(data):
