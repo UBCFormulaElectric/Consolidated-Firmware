@@ -35,7 +35,20 @@ if __name__ == "__main__":
   source_template = env.get_template("./App_CommitInfo.c.j2")
 
   print("-------COMMIT-INFO-----")
+
+  print("--- SYSTEM ---")
   os.system('git status')
+  os.system('echo hello')
+
+  print("--- POPEN ---")
+  stream = os.popen('git status')
+  output = stream.read()
+  print(output)
+
+  stream = os.popen('echo hello')
+  output = stream.read()
+  print(output)
+
   print("-------COMMIT-INFO-----")
   # data to expose to header
   data = {}
