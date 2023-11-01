@@ -17,7 +17,7 @@ jobs:
       # Fix to get git diff working in a Docker container
       # https://github.com/actions/checkout/issues/363
       - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
+        run: git config --global --add safe.directory '*'
 
       - name: Checkout repository
         uses: actions/checkout@v4
