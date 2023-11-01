@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CI container image.
-IMAGE="ubcformulaelectric/environment:new_cube"
+IMAGE="ubcformulaelectric/environment:latest"
 
 # Check if the image exists locally.
 if [[ "$(docker images -q ${IMAGE} 2> /dev/null)" == "" ]]; then
