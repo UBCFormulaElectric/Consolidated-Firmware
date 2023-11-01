@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Io_Hal.h"
+#include "hw_hal.h"
 
 struct FreqOnlyPwmInput;
 

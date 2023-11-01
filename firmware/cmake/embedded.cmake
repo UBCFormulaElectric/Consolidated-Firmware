@@ -1,8 +1,5 @@
 include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
 
-# STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
-set(STM32F4_CUBE_DIR "${THIRD_PARTY_DIR}/STM32CubeF4")
-
 # SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
 set(SYSTEMVIEW_DIR "${THIRD_PARTY_DIR}/SEGGER_SystemView_Src")
 
@@ -222,8 +219,8 @@ function(stm32f412rx_cube_library
     SYSCALLS
     IOC_CHECKSUM
 )
-    set(DRIVERS_DIR "${STM32F4_CUBE_DIR}/Drivers")
-    set(FREERTOS_DIR "${STM32F4_CUBE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
+    set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
+    set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS

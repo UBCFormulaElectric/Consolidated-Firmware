@@ -8,15 +8,7 @@
 #pragma once
 
 #if defined(STM32F302xC)
-
 #include <stm32f3xx.h>
-#define HW_HAL_SPI <stm32f3xx_hal_spi.h>
-#define HW_HAL_ADC <stm32f3xx_hal_adc.h>
-
 #elif defined(STM32F412Rx)
-
-#define HW_HAL_SPI <stm32f4xx_hal_spi.h>
-#define HW_HAL_ADC <stm32f4xx_hal_adc.h>
 #include <stm32f4xx.h>
-
 #endif

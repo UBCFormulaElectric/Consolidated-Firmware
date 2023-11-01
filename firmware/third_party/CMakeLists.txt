@@ -1,16 +1,5 @@
 include(../cmake/embedded.cmake)
 
-# Import littlefs
-CPMAddPackage(
-  NAME LITTLEFS
-  GITHUB_REPOSITORY littlefs-project/littlefs
-  GIT_TAG v2.8.0
-)
-# # Import sources files for littlefs
-# list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_INCLUDE_DIRS ${LITTLEFS_SOURCE_DIR})
-# file(GLOB_RECURSE LITTLEFS_SRC "${LITTLEFS_SOURCE_DIR}/lfs.c" "${LITTLEFS_SOURCE_DIR}/lfs_util.c" )
-# list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${LITTLEFS_SRC})
-
 if("${PLATFORM}" STREQUAL "arm")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
@@ -25,11 +14,10 @@ if("${PLATFORM}" STREQUAL "arm")
         "${SBG_ECOM_DIR}/common/interfaces/sbgInterface.c"
     )
     embedded_library(
-        "sbg_ecom_m4"
+        "sbg_ecom_cm4"
         "${SBG_ECOM_SRCS}"
         "${SBG_ECOM_INCLUDE_DIRS}"
         "cm4"
         TRUE
     )
 endif()
->>>>>>> fd95e62c (actually works)

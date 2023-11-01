@@ -11,6 +11,8 @@ file(GLOB_RECURSE IO_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
 )
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
+list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
+list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
@@ -80,7 +82,7 @@ if("${PLATFORM}" STREQUAL "arm")
         "${ARM_CORE}"
     ) 
     target_link_libraries("DCM_can" "DCM_stm32cube")
-    target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_m4")
+    target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     set(SRCS ${APP_SRCS} ${TEST_SRCS})

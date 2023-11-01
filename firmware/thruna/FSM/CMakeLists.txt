@@ -11,6 +11,7 @@ file(GLOB_RECURSE IO_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
 )
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
+list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
@@ -79,7 +80,7 @@ if("${PLATFORM}" STREQUAL "arm")
         "${ARM_CORE}"
     )
     target_link_libraries("FSM_can" "FSM_stm32cube")
-    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info")
+    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
 
 elseif("${PLATFORM}" STREQUAL "x86")
     set(SRCS ${APP_SRCS} ${TEST_SRCS})

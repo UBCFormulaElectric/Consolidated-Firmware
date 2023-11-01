@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "main.h"
 #include "Io_Efuse.h"
-#include "Io_Hal.h"
+#include "hw_hal.h"
 #include "Io_Adc.h"
 
 // TODO: Test ADC voltage -> output current transfer function

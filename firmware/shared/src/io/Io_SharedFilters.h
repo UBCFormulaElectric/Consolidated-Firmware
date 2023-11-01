@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include "Io_Hal.h"
+#include "hw_hal.h"
 
 /**
  * @brief Apply low pass filter on a given array of values based on the
