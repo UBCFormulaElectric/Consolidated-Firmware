@@ -29,31 +29,31 @@ ELSEIF("${TARGET}" STREQUAL "test")
 ENDIF()
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(Qt-Demo
+    qt_add_executable(Dimos
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
             ${IO_Headers}
             ${IO_Sources}
     )
     # Define target properties for Android with Qt 6 as:
-    #    set_property(TARGET Qt-Demo APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+    #    set_property(TARGET Dimos APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
     #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
     # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else ()
     if (ANDROID)
-        add_library(Qt-Demo SHARED
+        add_library(Dimos SHARED
                 ${PROJECT_SOURCES}
         )
         # Define properties for Android with Qt 5 after find_package() calls as:
         #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else ()
-        add_executable(Qt-Demo
+        add_executable(Dimos
                 ${PROJECT_SOURCES}
         )
     endif ()
 endif ()
 
-target_link_libraries(Qt-Demo
+target_link_libraries(Dimos
         PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
@@ -64,9 +64,9 @@ target_link_libraries(Qt-Demo
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if (${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.Qt-Demo)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.Dimos)
 endif ()
-set_target_properties(Qt-Demo PROPERTIES
+set_target_properties(Dimos PROPERTIES
         ${BUNDLE_ID_OPTION}
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -75,14 +75,14 @@ set_target_properties(Qt-Demo PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS Qt-Demo
+install(TARGETS Dimos
         BUNDLE DESTINATION .
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if (QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(Qt-Demo)
+    qt_finalize_executable(Dimos)
 endif ()
 
-target_include_directories(Qt-Demo PRIVATE src/shared src/io src/ui src/dev_io)
+target_include_directories(Dimos PRIVATE src/shared src/io src/ui src/dev_io)
