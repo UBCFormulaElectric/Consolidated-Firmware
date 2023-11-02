@@ -37,7 +37,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "arm")
     generate_stm32cube_code(
         "FSM"
         "${IOC_PATH}"
@@ -83,7 +83,7 @@ if("${PLATFORM}" STREQUAL "arm")
     target_link_libraries("FSM_can" "FSM_stm32cube")
     target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
 
-elseif("${PLATFORM}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "x86")
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
     compile_gtest_executable(

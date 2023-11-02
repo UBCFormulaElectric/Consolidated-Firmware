@@ -37,7 +37,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "arm")
     generate_stm32cube_code(
         "DCM"
         "${IOC_PATH}"
@@ -84,7 +84,7 @@ if("${PLATFORM}" STREQUAL "arm")
     target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
 
-elseif("${PLATFORM}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "x86")
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
     compile_gtest_executable(

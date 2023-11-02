@@ -11,21 +11,6 @@ set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
-# On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
-# However, it is equally mysteriously required for building embedded binaries.
-# So, only run this if loading the embedded configuration.
-# TODO: Look into what is causing this.
-IF ("${PLATFORM}" STREQUAL "arm")
-    project("UBC Formula Electric Software" C ASM)
-    set(CMAKE_SYSTEM_NAME Generic)
-ELSEIF ("${PLATFORM}" STREQUAL "x86")
-    project("UBC Formula Electric Software" C CXX)
-ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    project("Dimos" C CXX)
-ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'x86' or 'arm'. To do this, set the -DPLATFORM=<platform>")
-ENDIF()
-message("⚙️ Configuring for ${PLATFORM} build target")
 
 # ======== CPM ========
 option(HANDLE_DEPS "Build build on the server" OFF)
@@ -33,7 +18,7 @@ option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (HANDLE_DEPS)
     message("🏠 Handling the dependencies locally")
 ELSE ()
-    message("🏗️ Using your your dependencies")
+    message("🏗️ Using your dependencies")
     set(NO_VENV ON)
 ENDIF ()
 file(
@@ -44,6 +29,62 @@ file(
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
+
+# ======== Host system specific settings ========
+IF ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+    set(BINARY_SUFFIX ".exe")
+ELSEIF (APPLE)
+    set(BINARY_SUFFIX "")
+ELSEIF (UNIX)
+    set(BINARY_SUFFIX "")
+ELSE ()
+    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+ENDIF ()
+
+message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
+IF ("${PLATFORM}" STREQUAL "firmware")
+    # ======== Dependency Handling ========
+    IF (HANDLE_DEPS)
+        include(firmware/cmake/dependencies.cmake)
+    ENDIF()
+
+    # ======== Compiler ========
+    IF("${TARGET}" STREQUAL "arm")
+        # On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
+        # However, it is equally mysteriously required for building embedded binaries.
+        # So, only run this if loading the embedded configuration.
+        # TODO: Look into what is causing this.
+        set(CMAKE_C_COMPILER_WORKS 1)
+        message("${TOOLCHAIN_PREFIX}")
+        set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX}arm-none-eabi)
+        set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+        set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${BINARY_SUFFIX})
+        set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+        set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy${BINARY_SUFFIX})
+        set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump${BINARY_SUFFIX})
+        set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
+        message("✅ ARM Toolchain Included")
+        set(CMAKE_SYSTEM_NAME Generic)
+        project("UBC Formula Electric Software" C ASM)
+    ELSEIF ("${TARGET}" STREQUAL "x86")
+        project("UBC Formula Electric Software" C CXX)
+    ELSE()
+        message(FATAL_ERROR "❌ Please set the TARGET variable to 'arm' or 'x86'. To do this, set the -DTARGET=<target>")
+    ENDIF()
+ELSEIF ("${PLATFORM}" STREQUAL "dimos")
+    set(DIMOS_VERSION 0.1)
+    IF("${TARGET}" STREQUAL "dev")
+        project("Dimos Local Dev" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+    ELSEIF ("${TARGET}" STREQUAL "deploy")
+        project("Dimos Deploy" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+    ELSEIF ("${TARGET}" STREQUAL "test")
+        project("Dimos Test" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+    ELSE()
+        message(FATAL_ERROR "❌ Please set the TARGET variable to 'dev', 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
+    ENDIF()
+ELSE ()
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+ENDIF()
 
 # ======== Python Checks ========
 IF (NO_VENV)
@@ -74,11 +115,13 @@ message("🐍 Found Python ${Python3_VERSION}")
 
 # ======== Python Checks ========
 
-IF ("${PLATFORM}" STREQUAL "x86" OR "${PLATFORM}" STREQUAL "arm")
+IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
-    IF ("${PLATFORM}" STREQUAL "x86")
+    IF ("${TARGET}" STREQUAL "x86")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    add_subdirectory(host)
+    add_subdirectory(software/dimos)
 ENDIF ()
+
+message(${CMAKE_PROJECT_NAME})

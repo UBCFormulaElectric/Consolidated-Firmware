@@ -42,7 +42,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "arm")
     generate_stm32cube_code(
         "DIM"
         "${IOC_PATH}"
@@ -88,7 +88,7 @@ if("${PLATFORM}" STREQUAL "arm")
     target_link_libraries("DIM_can" "DIM_stm32cube")
     target_link_libraries("DIM.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
 
-elseif("${PLATFORM}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "x86")
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )

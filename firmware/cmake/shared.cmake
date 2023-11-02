@@ -76,7 +76,7 @@ function(jsoncan_library
         WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    if("${PLATFORM}" STREQUAL "arm")
+    if("${TARGET}" STREQUAL "arm")
         set(CAN_SRCS
             ${APP_CAN_TX_SRC_OUTPUT}
             ${APP_CAN_TX_HEADER_OUTPUT}
@@ -106,7 +106,7 @@ function(jsoncan_library
             TRUE
         )
 
-    elseif("${PLATFORM}" STREQUAL "x86")
+    elseif("${TARGET}" STREQUAL "x86")
         set(CAN_SRCS
             ${APP_CAN_TX_SRC_OUTPUT}
             ${APP_CAN_TX_HEADER_OUTPUT}
@@ -150,7 +150,7 @@ function(commit_info_library
         WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    if("${PLATFORM}" STREQUAL "arm")
+    if("${TARGET}" STREQUAL "arm")
         embedded_library(
             "${LIB_NAME}"
             "${SRC_OUTPUT_PATH}"
@@ -158,7 +158,7 @@ function(commit_info_library
             "${ARM_CORE}"
             FALSE
         )
-    elseif("${PLATFORM}" STREQUAL "x86")
+    elseif("${TARGET}" STREQUAL "x86")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(
             "${LIB_NAME}" STATIC
