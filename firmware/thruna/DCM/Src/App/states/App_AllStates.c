@@ -52,12 +52,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
-    App_CanAlerts_DCM_MissingHeartbeatFault_Set(is_missing_hb);
+    App_CanAlerts_DCM_Fault_MissingHeartbeat_Set(is_missing_hb);
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     const bool right_inverter_fault = App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
-    App_CanAlerts_DCM_LeftInverterFault_Set(left_inverter_fault);
-    App_CanAlerts_DCM_RightInverterFault_Set(right_inverter_fault);
+    App_CanAlerts_DCM_Fault_LeftInverterFault_Set(left_inverter_fault);
+    App_CanAlerts_DCM_Fault_RightInverterFault_Set(right_inverter_fault);
 
     const bool bms_fault           = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD);
     const bool dcm_fault           = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);

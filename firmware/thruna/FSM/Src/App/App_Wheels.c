@@ -56,11 +56,11 @@ void App_Wheels_Broadcast(const struct FsmWorld *world)
     enum InRangeCheck_Status left_wheel_status =
         App_InRangeCheck_GetValue(left_wheel_speed_in_range_check, &left_wheel_speed);
     App_CanTx_FSM_LeftWheelSpeed_Set(left_wheel_speed);
-    App_CanAlerts_FSM_LeftWheelSpeedOutOfRangeWarning_Set(left_wheel_status != VALUE_IN_RANGE);
+    App_CanAlerts_FSM_Warning_LeftWheelSpeedOutOfRange_Set(left_wheel_status != VALUE_IN_RANGE);
 
     float                    right_wheel_speed;
     enum InRangeCheck_Status right_wheel_status =
         App_InRangeCheck_GetValue(right_wheel_speed_in_range_check, &right_wheel_speed);
     App_CanTx_FSM_RightWheelSpeed_Set(right_wheel_speed);
-    App_CanAlerts_FSM_RightWheelSpeedOutOfRangeWarning_Set(right_wheel_status != VALUE_IN_RANGE);
+    App_CanAlerts_FSM_Warning_RightWheelSpeedOutOfRange_Set(right_wheel_status != VALUE_IN_RANGE);
 }

@@ -453,11 +453,11 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    App_CanAlerts_BMS_CellUndervoltageFault_Set(undervoltage_fault);
-    App_CanAlerts_BMS_CellOvervoltageFault_Set(overvoltage_fault);
-    App_CanAlerts_BMS_CellUndertempFault_Set(undertemp_fault);
-    App_CanAlerts_BMS_CellOvertempFault_Set(overtemp_fault);
-    App_CanAlerts_BMS_ModuleCommunicationFault_Set(communication_fault);
+    App_CanAlerts_BMS_Fault_CellUndervoltage_Set(undervoltage_fault);
+    App_CanAlerts_BMS_Fault_CellOvervoltage_Set(overvoltage_fault);
+    App_CanAlerts_BMS_Fault_CellUndertemp_Set(undertemp_fault);
+    App_CanAlerts_BMS_Fault_CellOvertemp_Set(overtemp_fault);
+    App_CanAlerts_BMS_Fault_ModuleCommunicationError_Set(communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

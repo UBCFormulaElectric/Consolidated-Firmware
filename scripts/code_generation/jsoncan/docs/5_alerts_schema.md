@@ -25,13 +25,13 @@ Example:
     "faults_id": 352,
     "faults_counts_id": 353,
     "warnings": [
-        "LeftWheelSpeedOutOfRangeWarning",
-        "RightWheelSpeedOutOfRangeWarning",
-        "SteeringAngleOutOfRangeWarning",
+        "Warning_LeftWheelSpeedOutOfRange",
+        "Warning_RightWheelSpeedOutOfRange",
+        "Warning_SteeringAngleOutOfRange",
     ],
     "faults": [
-        "MissingHeartbeatFault",
-        "StateMachineFault",
+        "Fault_MissingHeartbeat",
+        "Fault_StateMachine",
     ]
 }
 ```

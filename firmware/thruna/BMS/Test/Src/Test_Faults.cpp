@@ -263,23 +263,23 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
             // Let accumulator startup count expire
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_FALSE(App_CanAlerts_BMS_CellOvervoltageFault_Get());
+            ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
 
             // Set cell voltage critically high and confirm fault is set
             set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE + 0.1f);
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_CellOvervoltageFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
 
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_CellOvervoltageFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
 
             // Clear fault, should transition back to init
             set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE - 0.1f);
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_FALSE(App_CanAlerts_BMS_CellOvervoltageFault_Get());
+            ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
         }
     }
 }
@@ -298,23 +298,23 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             // Let accumulator startup count expire
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_FALSE(App_CanAlerts_BMS_CellUndervoltageFault_Get());
+            ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
 
             // Set cell voltage critically low and confirm fault is set
             set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE - 0.1f);
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_CellUndervoltageFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
 
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_CellUndervoltageFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
 
             // Clear fault, should transition back to init
             set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE + 0.1f);
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_FALSE(App_CanAlerts_BMS_CellUndervoltageFault_Get());
+            ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
         }
     }
 }
@@ -334,13 +334,13 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
     get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     LetTimePass(state_machine, 1000);
 
@@ -348,12 +348,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // Clear fault, should transition back to init
     get_max_temp_degc_fake.return_val      = MAX_CELL_DISCHARGE_TEMP_DEGC - 1.0f;
@@ -361,7 +361,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
@@ -381,25 +381,25 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // In Charge state acceptible temp range is (0, 45)
     get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 
     // Clear fault, should transition back to init
     get_max_temp_degc_fake.return_val      = MAX_CELL_CHARGE_TEMP_DEGC - 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellOvertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvertemp_Get());
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_init_state)
@@ -414,32 +414,32 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of -1 C
     get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     LetTimePass(state_machine, 1000);
 
     get_min_temp_degc_fake.return_val = MIN_CELL_DISCHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // Clear fault, should transition back to init
     get_min_temp_degc_fake.return_val      = MIN_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state)
@@ -460,25 +460,25 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // In Charge state acceptable temp range is (0, 45)
     get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 
     // Clear fault, should transition back to init
     get_min_temp_degc_fake.return_val      = MIN_CELL_CHARGE_TEMP_DEGC + 1.0f;
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_CellUndertempFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndertemp_Get());
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
@@ -492,26 +492,26 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Max acceptable discharge current is -88.5A*3 = -265.5A
     get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS - 1.0f;
     get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Clear fault, should transition back to init
     get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
     get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent)
@@ -531,19 +531,19 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
     get_high_res_current_fake.return_val = MAX_TS_CHARGE_CURRENT_AMPS + 1.0f;
     get_low_res_current_fake.return_val  = MAX_TS_CHARGE_CURRENT_AMPS + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Confirm stays in fault indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 
     // Clear fault, should transition back to init
     get_high_res_current_fake.return_val   = MAX_TS_CHARGE_CURRENT_AMPS - 1.0f;
@@ -551,7 +551,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     is_air_negative_closed_fake.return_val = false; // Negative contactor has to open to go back to init
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_BMS_TractiveSystemOvercurrentFault_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Get());
 }
 
 TEST_F(BmsFaultTest, check_precharge_fault_combinations)
@@ -574,7 +574,7 @@ TEST_F(BmsFaultTest, check_precharge_fault_combinations)
 
         const bool precharge_limit_geq_3 = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3;
         ASSERT_EQ(precharge_fault_limit_exceeded, precharge_limit_geq_3);
-        ASSERT_EQ(App_CanAlerts_BMS_PrechargeFailureFault_Get(), precharge_limit_geq_3);
+        ASSERT_EQ(App_CanAlerts_BMS_Fault_PrechargeFailure_Get(), precharge_limit_geq_3);
     }
     // Check to see if counter is non-zero before resetting
     ASSERT_NE(App_PrechargeRelay_GetFaultCounterVal(precharge_relay), 0);
@@ -599,7 +599,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         App_CanRx_Debug_StartCharging_Update(false);
         LetTimePass(state_machine, 10U);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
-        ASSERT_FALSE(App_CanAlerts_BMS_PrechargeFailureFault_Get());
+        ASSERT_FALSE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
         // trying to fool precahrge into thinking that ts_voltage is rising too quickly
@@ -610,7 +610,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         {
             // 3x precharge attempts haven't been exceeded, so back to init
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_FALSE(App_CanAlerts_BMS_PrechargeFailureFault_Get());
+            ASSERT_FALSE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
             // reset ts_voltage to 0 so state will transition from init to pre-charge
             get_ts_voltage_fake.return_val = 0;
@@ -619,10 +619,10 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         {
             // 3x precharge attempts have failed, so back transition to fault state indefinitely
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_PrechargeFailureFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
             LetTimePass(state_machine, 1000U);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-            ASSERT_TRUE(App_CanAlerts_BMS_PrechargeFailureFault_Get());
+            ASSERT_TRUE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
             // Can't transition out of fault state due to precharge failure!
         }
