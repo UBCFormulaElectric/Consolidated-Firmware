@@ -75,10 +75,8 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
     # Generate STM32CubeMX code
     cubemx_dir = os.path.dirname(cubemx)
     cubemx_bin = os.path.basename(cubemx)
-    proc = subprocess.Popen(
-        [f"./{cubemx_bin}", "-q", cube_script_f.name], cwd=cubemx_dir
-    )
-    
+    proc = subprocess.Popen([f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name])
+
     # Note: If the STM32CubeMX script encounters an exception (e.g. It can't
     # find the a valid script), the process may never exit so there is no status
     # code to check at all. Account for this by setting a time out.
