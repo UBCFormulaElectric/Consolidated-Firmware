@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Space } from 'antd';
 
-import DropdownMenu from './dropdown_menu.tsx';
-import TimeStampPicker from './timestamp_picker.tsx';
+import DropdownMenu from './dropdown_menu';
+import TimeStampPicker from './timestamp_picker';
 
 // pass in bool to determine how to query (live or not)
 // add a guard for each (i.e if true then query live, else query http)

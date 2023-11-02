@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response, request
 from process import SignalUtil
 from influx_handler import InfluxHandler as influx
 
@@ -20,6 +20,7 @@ def return_all_available_signals():
 
 @app.route('/signal/measurement', methods=['GET'])
 def return_all_measurements():
+    print(influx.get_measurements())
     measurements = influx.get_measurements()
 
     return responsify(measurements)

@@ -5,8 +5,8 @@ import { Layout } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
-import Dashboard from './components/dashboard.tsx';
-import NavBar from './components/navbar.tsx';
+import Dashboard from './components/dashboard';
+import NavBar from './components/navbar';
 import Visualize from './components/visualize';
 
 const FLASK_URL = "http://localhost:5000"
@@ -16,26 +16,28 @@ const Home = () => {
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
+    const [liveGraphs, setLiveGraphs] = useState([]);
 
-    // determines if all graphs are supposed to zoom together or not
-    const [sync, setSync] = useState(false);
-    
 
     //add a new graph
-    const addGraph = () => {
+    const addGraph = (live) => {
         const newGraphId = Date.now();  
-        setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+        if (live) {
+            setLiveGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+        } else {
+            setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+        }
     };
+
 
     //delete a graph
-    const deleteGraph = (graphId) => {
-        setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+    const deleteGraph = (graphId, live) => {
+        if (live) {
+            setLiveGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+        } else {
+            setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+        }
     };
-
-    //set sync for all graphs
-    const setSyncAll = (sync) => {
-        setSync(!sync);
-    }
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
@@ -72,6 +74,7 @@ const Home = () => {
                         <Visualize
                             addGraph={addGraph}
                             graphs={graphs}
+                            liveGraphs={liveGraphs}
                             deleteGraph={deleteGraph}
                             url={FLASK_URL}
                             socket={socketInstance}

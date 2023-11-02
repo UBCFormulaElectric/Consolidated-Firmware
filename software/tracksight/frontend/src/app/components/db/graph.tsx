@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
-import { Card, Button, Switch } from 'antd';
-import QueryData from './query_data.tsx';
+import { Card, Button } from 'antd';
+import QueryData from './query_data';
 
 const DEFAULT_LAYOUT = {
     width: 620, 
@@ -16,7 +16,6 @@ const DEFAULT_LAYOUT = {
 // setZoomData (sets zoom data), zoomData (zoom data), onDelete (deletes a graph),
 const Graph = (props) => {
   const [data, setData] = useState({});
-  const [live, setLive] = useState(false);
   const [formattedData, setFormattedData] = useState([]);
   const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
 
@@ -36,10 +35,7 @@ const Graph = (props) => {
     }
 
 
-    // creates a new graph with request signals
-    // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
-    // suggestions for improvements appreciated. 
-    useEffect(() => {
+    const formatData = () => {
         const tempFormattedData = [];
         for (const name in data) {
             let signalData = data[name];
@@ -92,14 +88,7 @@ const Graph = (props) => {
 
   return (
     <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-        <div className="space-between">
-      <QueryData url={props.url} socket={props.socket} live={live} setData={setData} />
-      <div className="center-align">
-        <p>Use Live Data</p>
-      <Switch onChange={changeLive}></Switch>
-      </div>
-
-      </div>
+      <QueryData url={props.url} socket={props.socket} setData={setData} />
       <Plot
         data={formattedData}
         layout={graphLayout}

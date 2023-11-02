@@ -54,12 +54,6 @@ a {
   padding: 0 1%;
 }
 
-.center-align {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .ant-dropdown-menu {
   max-height: 200px;
   overflow: auto;
