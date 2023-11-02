@@ -4,17 +4,17 @@
     "warnings_counts_id": 250,
     "faults_counts_id": 251,
     "warnings": [
-        "StackWaterMarkHighTask1HzWarning",
-        "StackWaterMarkHighTask100HzWarning",
-        "StackWaterMarkHighTask1kHzWarning",
-        "StackWaterMarkHighTaskCanRxWarning",
-        "StackWaterMarkHighTaskCanTxWarning",
-        "WatchdogTimeoutWarning",
-        "TxOverflowWarning",
-        "RxOverflowWarning"
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx",
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow"
     ],
     "faults": [
-        "MissingHeartbeatFault",
+        "MissingHeartbeat",
         "LeftInverterFault",
         "RightInverterFault"
     ]
