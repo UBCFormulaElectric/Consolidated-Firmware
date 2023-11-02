@@ -54,8 +54,8 @@ void App_Run_Regen(bool *regen, float accelerator_pedal_percentage)
     else {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
         regenAttributes.right_inverter_torque_Nm = 0.0;
+        App_CanTx_DCM_RegenNotAvailable_Set(true);
     }
-    // TODO: else statement to send warning?
 
     App_Regen_Activate(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }

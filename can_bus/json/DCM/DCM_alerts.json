@@ -11,7 +11,8 @@
         "StackWaterMarkHighTaskCanTx",
         "WatchdogTimeout",
         "TxOverflow",
-        "RxOverflow"
+        "RxOverflow",
+        "RegenNotAvailable"
     ],
     "faults": [
         "MissingBMSHeartbeat",

@@ -98,7 +98,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (regen_switch_enabled)
     {
         App_Run_Regen(&regen, apps_pedal_percentage);
-        // convert only here
+        
         if (apps_pedal_percentage >= 0) {
             apps_pedal_percentage = apps_pedal_percentage * 2;
         }
