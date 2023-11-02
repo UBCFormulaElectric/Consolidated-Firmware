@@ -8,13 +8,15 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
+list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
+list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND IO_SRCS "${SHARED_HW_SRCS}")
+list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
 list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedSetPeriodicCanSignals.c")
@@ -38,7 +40,6 @@ if("${PLATFORM}" STREQUAL "arm")
         "stm32h7xx_hal_pwr_ex.c"
         "stm32h7xx_hal_rcc_ex.c"
         "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_spi.c"
         "stm32h7xx_hal_tim_ex.c"
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal.c"

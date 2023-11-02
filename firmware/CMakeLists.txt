@@ -10,14 +10,14 @@ if("${TARGET}" STREQUAL "deploy")
     CPMAddPackage(
         NAME STM32CUBEF4
         GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
-        GIT_TAG 3e907f8
+        GIT_TAG master
     )
 
     # STM32H7Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
         NAME STM32CUBEH7
         GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH7
-        GIT_TAG 3e907f8
+        GIT_TAG master
     )
 
     # littlefs: Filesystem for microcontrollers
