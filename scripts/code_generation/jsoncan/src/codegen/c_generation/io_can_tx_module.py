@@ -21,6 +21,19 @@ class IoCanTxModule(CModule):
         public_funcs = []
         static_funcs = []
 
+        # Init the IO module
+        func_init = CFunc(
+            CFuncsConfig.IO_TX_INIT,
+            "void",
+            args=[CVar(
+                "(*transmit_tx_msg_func)(const struct CanMsg*)",
+                "void",
+            )],
+            comment="Initialzie the IO CAN TX module."
+        )
+        func_init.body.add_line("transmit_func = transmit_tx_msg_func;")
+        public_funcs.append(func_init)
+
         # Set the current CAN mode
         func_set_mode = CFunc(
             CFuncsConfig.IO_TX_ENABLE_MODE,
@@ -99,16 +112,20 @@ class IoCanTxModule(CModule):
             func.body.add_comment(
                 "Prepare CAN msg payload (The packing function isn't thread-safe so we must guard it)"
             )
+            func.body.add_line("#ifndef THREAD_SAFE_CAN_PACKING")
             func.body.add_line("vPortEnterCritical();")
+            func.body.add_line("#endif")
             func.body.add_line(
                 f"{CFuncsConfig.UTILS_PACK.format(msg=msg.name)}({CFuncsConfig.APP_TX_GET_MSG.format(msg=msg.name)}(), tx_msg.data);"
             )
+            func.body.add_line("#ifndef THREAD_SAFE_CAN_PACKING")
             func.body.add_line("vPortExitCritical();")
+            func.body.add_line("#endif")
             func.body.add_line()
 
             # Push to TX FIFO
             func.body.add_comment("Append msg to TX FIFO")
-            func.body.add_line("Io_SharedCan_TxMessageQueueSendtoBack(&tx_msg);")
+            func.body.add_line("transmit_func(&tx_msg);")
             func.body.end_if()
 
             # If aperiodic, make function public. Otherwise it can be static.
@@ -132,6 +149,7 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
+        cw.add_include('"Io_SharedCanMsg.h"')
 
         cw.add_line()
         cw.add_header_comment("Enums")
@@ -166,17 +184,21 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include('"Io_CanTx.h"')
         cw.add_include("<string.h>")
-        cw.add_include("<FreeRTOS.h>")
-        cw.add_include("<portmacro.h>")
-        cw.add_include('"Io_SharedCanMsg.h"')
-        cw.add_include('"Io_SharedCan.h"')
         cw.add_include('"App_CanTx.h"')
         cw.add_include('"App_CanUtils.h"')
+
+        cw.add_line()
+        cw.add_line("#ifndef THREAD_SAFE_CAN_PACKING")
+        cw.add_include("<FreeRTOS.h>")
+        cw.add_include("<portmacro.h>")
+        cw.add_line("#endif")
+        cw.add_line()
 
         # Static variables
         cw.add_header_comment("Static Variables")
         cw.add_line()
         cw.add_line("static uint32_t can_mode;")
+        cw.add_line("static void (*transmit_func)(const struct CanMsg* tx_msg);")
         cw.add_line()
 
         # Add static function definitions
