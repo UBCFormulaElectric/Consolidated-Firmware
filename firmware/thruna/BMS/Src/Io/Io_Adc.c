@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "hw_hal.h"
-#include "Io_SharedAdc.h"
+#include "hw_adcConversions.h"
 #include "Io_Adc.h"
 #include "Io_SharedMacros.h"
 
@@ -9,20 +9,16 @@ static float    adc_voltages[NUM_ADC_CHANNELS];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    adc_voltages[ADC1_CHANNEL_3] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_3]);
-    adc_voltages[ADC1_CHANNEL_7] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_7]);
-    adc_voltages[ADC1_CHANNEL_8] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_8]);
-    adc_voltages[ADC1_CHANNEL_9] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_9]);
+    adc_voltages[ADC1_CHANNEL_3] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_3]);
+    adc_voltages[ADC1_CHANNEL_7] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_7]);
+    adc_voltages[ADC1_CHANNEL_8] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_8]);
+    adc_voltages[ADC1_CHANNEL_9] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_9]);
     adc_voltages[ADC1_CHANNEL_10] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_10]);
+        hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_10]);
     adc_voltages[ADC1_CHANNEL_11] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_11]);
+        hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_11]);
     adc_voltages[ADC1_CHANNEL_14] =
-        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_14]);
+        hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_14]);
 }
 
 uint16_t *Io_Adc_GetRawAdcValues(void)
