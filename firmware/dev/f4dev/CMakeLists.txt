@@ -66,6 +66,7 @@ if("${PLATFORM}" STREQUAL "arm")
         "stm32f4xx_hal_tim.c"
         "stm32f4xx_hal.c"
         "stm32f4xx_hal_sd.c"
+        "stm32f4xx_ll_sdmmc.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
