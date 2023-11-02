@@ -33,7 +33,7 @@ Result<std::monostate, CanConnectionError> Can_Init() {
 }
 
 
-Result<can_frame, CanReadError> Can_Read() {
+Result<TEMP_FAKE_CAN_FRAME, CanReadError> Can_Read() {
 	if (!CanInterface.has_value())
 		return CanReadError::ReadInterfaceNotCreated;
 
@@ -44,7 +44,8 @@ Result<can_frame, CanReadError> Can_Read() {
 		return CanReadError::SocketReadError;
 	if (readLengthBytes < sizeof(struct can_frame))
 		return CanReadError::IncompleteCanFrame;
-	return frame;
+//	return frame;
+        return TEMP_FAKE_CAN_FRAME{};
 }
 
 Result<std::monostate, CanWriteError> Can_Write() {

@@ -37,8 +37,8 @@ WORKDIR /app
 #    cd build && \
 #    make
 
-RUN cmake -DCMAKE_BUILD_TYPE=Debug -G 'Unix Makefiles' -S . -B ./build
-RUN cmake --build ./build --target Qt-Demo -- -j 14
+RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DTARGET=deploy
+RUN cmake --build ./build --target Dimos -- -j 14
 
 # Deploy ------------------------------------------------------------------------
 ##
@@ -107,4 +107,4 @@ COPY --from=Build /app/build /app
 USER torizon
 WORKDIR /app
 
-CMD [ "./Qt-Demo" ]
+CMD [ "./Dimos" ]

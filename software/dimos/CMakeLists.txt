@@ -1,4 +1,16 @@
-message("💡 Building Dimos")
+cmake_minimum_required(VERSION 3.24)
+set(DIMOS_VERSION 0.1)
+IF("${TARGET}" STREQUAL "dev")
+    project("Dimos Local Dev" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+ELSEIF ("${TARGET}" STREQUAL "deploy")
+    project("Dimos Deploy" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+ELSEIF ("${TARGET}" STREQUAL "test")
+    project("Dimos Test" VERSION ${DIMOS_VERSION} LANGUAGES CXX)
+ELSE()
+    message(FATAL_ERROR "❌ Please set the TARGET variable to 'dev', 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
+ENDIF()
+
+message("💡 Building ${CMAKE_PROJECT_NAME}")
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
