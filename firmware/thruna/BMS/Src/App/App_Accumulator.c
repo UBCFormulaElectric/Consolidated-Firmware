@@ -459,7 +459,10 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
     App_CanAlerts_BMS_CellOvertempFault_Set(overtemp_fault);
     App_CanAlerts_BMS_ModuleCommunicationFault_Set(communication_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
+    const bool acc_fault =
+        overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault;
+
+    return acc_fault;
 }
 
 void App_Accumulator_BroadcastLatchedFaults(struct Accumulator *const accumulator)

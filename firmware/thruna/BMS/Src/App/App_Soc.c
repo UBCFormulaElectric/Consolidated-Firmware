@@ -94,10 +94,12 @@ struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_ad
     if (initial_charge_value < 0.0f)
     {
         App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
+        soc_stats->is_corrupt = true;
     }
     else
     {
-        soc_stats->charge_c = (double)initial_charge_value;
+        soc_stats->charge_c   = (double)initial_charge_value;
+        soc_stats->is_corrupt = false;
     }
 
     App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
@@ -113,6 +115,11 @@ void App_SocStats_Destroy(struct SocStats *soc_stats)
 uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats)
 {
     return soc_stats->soc_address;
+}
+
+bool App_SocStats_GetCorrupt(struct SocStats *soc_stats)
+{
+    return soc_stats->is_corrupt;
 }
 
 void App_SocStats_UpdateSocStats(struct SocStats *soc_stats, float current)

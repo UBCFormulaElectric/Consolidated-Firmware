@@ -12,9 +12,11 @@
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
-#define NUM_CYCLES_TO_SETTLE (30U)
+// TODO: Investigate why this needs to be increased, move inside accumulator so that fault is not broadcast if
+// false-positive
+#define NUM_CYCLES_TO_SETTLE (500U)
 
-static uint8_t acc_meas_settle_count = 0U;
+static uint16_t acc_meas_settle_count = 0U;
 
 static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
@@ -116,6 +118,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
+    App_CanTx_BMS_SocCorrupt_Set(App_SocStats_GetCorrupt(soc_stats));
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -130,7 +133,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct SocStats *        soc_stats   = App_BmsWorld_GetSocStats(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
-    struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     bool status = true;
 
@@ -147,6 +149,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
+    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_Soc_Set(App_SocStats_GetMinSocPercent(soc_stats));
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
@@ -179,9 +182,5 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *      world     = App_SharedStateMachine_GetWorld(state_machine);
-    struct TractiveSystem *ts        = App_BmsWorld_GetTractiveSystem(world);
-    struct SocStats *      soc_stats = App_BmsWorld_GetSocStats(world);
-
-    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
+    UNUSED(state_machine);
 }

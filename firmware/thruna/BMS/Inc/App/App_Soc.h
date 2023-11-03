@@ -30,6 +30,9 @@ struct SocStats
     // Charge loss at time t-1
     float prev_current_A;
 
+    // Indicates if SOC from EEPROM was corrupt at startup
+    bool is_corrupt;
+
     TimerChannel soc_timer;
 };
 
@@ -86,6 +89,13 @@ void App_SocStats_Destroy(struct SocStats *soc_stats);
  * @return page being used to store SOC values
  */
 uint16_t App_SocStats_GetSocAddress(struct SocStats *soc_stats);
+
+/**
+ * Return if the SOC value was corrupt on startup
+ * @param soc_stats soc_stats object to retrieve corrupt status from
+ * @return corrupt status
+ */
+bool App_SocStats_GetCorrupt(struct SocStats *soc_stats);
 
 /**
  * Update the state of charge of all series elements using coulomb counting.

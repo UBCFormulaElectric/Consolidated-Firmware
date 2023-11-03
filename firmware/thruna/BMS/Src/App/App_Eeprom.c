@@ -1,7 +1,7 @@
 #include "App_Eeprom.h"
 #include "string.h"
 
-#define NUM_PAGES (128U)
+#define NUM_PAGES (16U)
 #define SAVED_COPIES 4U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)

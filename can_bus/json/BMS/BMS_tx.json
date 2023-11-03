@@ -347,6 +347,9 @@
                 "min": 0,
                 "max": 100,
                 "unit": "%"
+            },
+            "SocCorrupt": {
+                "bits": 1
             }
         }
     }
