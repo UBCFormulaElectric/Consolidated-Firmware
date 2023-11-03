@@ -98,12 +98,13 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (regen_switch_enabled)
     {
         App_Run_Regen(&regen, apps_pedal_percentage);
-        
-        if (apps_pedal_percentage >= 0) {
+
+        if (apps_pedal_percentage >= 0)
+        {
             apps_pedal_percentage = apps_pedal_percentage * 2;
         }
     }
-    
+
     if (all_states_ok && !regen)
     {
         App_SetPeriodicCanSignals_TorqueRequests();
