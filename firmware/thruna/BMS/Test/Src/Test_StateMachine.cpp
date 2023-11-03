@@ -991,7 +991,7 @@ TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
 
     LetTimePass(state_machine, 30000);
 
-    float soc = App_SocStats_GetMinSoc(soc_stats);
+    float soc = App_SocStats_GetMinSocPercent(soc_stats);
     ASSERT_FLOAT_EQ(soc, 99.0f);
 }
 

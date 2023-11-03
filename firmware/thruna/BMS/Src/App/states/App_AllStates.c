@@ -14,9 +14,9 @@
 // Num of cycles for voltage and cell temperature values to settle
 // TODO: Investigate why this needs to be increased, move inside accumulator so that fault is not broadcast if
 // false-positive
-#define NUM_CYCLES_TO_SETTLE (500U)
+#define NUM_CYCLES_TO_SETTLE (100U)
 
-static uint16_t acc_meas_settle_count = 0U;
+static uint8_t acc_meas_settle_count = 0U;
 
 static bool App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
