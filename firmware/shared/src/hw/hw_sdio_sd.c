@@ -4,17 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static uint32_t round_up_to_nearest(uint32_t number, uint32_t multiple)
-{
-    if (number % multiple == 0)
-    {
-        return number; // The number is already a multiple of the specified value.
-    }
-    else
-    {
-        return ((number / multiple) + 1) * multiple;
-    }
-}
 
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
@@ -42,27 +31,16 @@ SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
         return (SdCardStatus)status;
     }
 
-    // not easy case, data is in between blockes
-    uint32_t end = offset + size;
+    uint8_t local_buffer[block_size];
+    if(status != SD_CARD_OK) return status;
 
-    uint32_t total_size   = round_up_to_nearest(end, block_size); // around up the blockes
-    uint8_t *local_buffer = malloc(total_size);                   // temp buffer
-    if (local_buffer == NULL)
-    {
-        status = SD_CARD_ERROR;
-        goto free_done;
-    }
+    status = hw_sd_read(sd, local_buffer, block_addr, 1); // write the whole
+    
+    memcpy(pdata, local_buffer+offset, size); // copy a section of data out
 
-    status = (SdCardStatus)hw_sd_read(sd, local_buffer, block_addr, total_size / block_size);
-    if (status != SD_CARD_OK)
-    {
-        goto free_done;
-    }
-
-    memcpy(pdata, local_buffer + offset, size);
-free_done:
-    free(local_buffer);
     return status;
+
+    
 }
 
 SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
@@ -90,40 +68,17 @@ SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr,
         return status;
     }
 
-    // not easy case, the data is in between blocks
-    uint32_t end = offset + size;
+    uint8_t local_buffer[block_size]; 
 
-    // read first block and last block, put it together with write data, write to the sd card
-    uint32_t total_size   = round_up_to_nearest(end, block_size); // around up the blockes
-    uint8_t *local_buffer = malloc(total_size);
-    if (local_buffer == NULL)
-        return SD_CARD_ERROR;
+    status = hw_sd_read(sd, local_buffer, block_addr, 1); // read the whole block
+    if(status != SD_CARD_OK) return status;
 
-    if (total_size == block_size) // only one block
-    {
-        status = hw_sd_read(sd, local_buffer, block_addr, 1);
-        memcpy(local_buffer + offset, pdata, size);
-        status = hw_sd_write(sd, local_buffer, block_addr, 1);
-        goto free_done;
-    }
+    memcpy(local_buffer+offset, pdata, size); // write to local buffer from offet to offset + size
+    status = hw_sd_write(sd, local_buffer, block_addr, 1); // write back
 
-    uint32_t last_block_addr = block_addr + total_size / block_size - 1; // last
-
-    // read first block and last block
-    status = hw_sd_read(sd, local_buffer, block_addr, 1); // first block
-    if (status != SD_CARD_OK)
-        goto free_done;
-    status =
-        hw_sd_read(sd, local_buffer + (last_block_addr - block_addr) * block_size, last_block_addr, 1); // last block
-    if (status != SD_CARD_OK)
-        goto free_done;
-    // copy the middle block
-    memcpy(local_buffer + offset, pdata, size);
-    status = hw_sd_write(sd, local_buffer, block_addr, total_size / block_size);
-
-free_done:
-    free(local_buffer);
     return status;
+
+
 }
 
 SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
