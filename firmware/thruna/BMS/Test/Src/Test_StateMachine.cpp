@@ -913,7 +913,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                 // Precharge successful, enter drive
                 ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 1);
-                
+
                 LetTimePass(state_machine, 1000);
                 ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 1);
