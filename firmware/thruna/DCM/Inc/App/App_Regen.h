@@ -12,13 +12,13 @@
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f
 typedef struct RegenBraking
 {
+    bool  enable_active_differential;
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
     float wheel_speed_left_rpm;
     float wheel_speed_right_rpm;
     float prev_torque_request_Nm;
-    bool  enable_active_differential;
 } RegenBraking;
 
 typedef struct ActiveDifferential_Inputs
