@@ -179,8 +179,3 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     return status;
 }
-
-void App_AllStatesRunOnTick1kHz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-}

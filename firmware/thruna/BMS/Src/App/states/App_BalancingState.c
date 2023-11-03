@@ -33,11 +33,6 @@ static void BalancingStateRunOnTick100Hz(struct StateMachine *const state_machin
     }
 }
 
-static void BalancingStateRunOnTick1kHz(struct StateMachine *const state_machine)
-{
-    App_AllStatesRunOnTick1kHz(state_machine);
-}
-
 static void BalancingStateRunOnExit(struct StateMachine *const state_machine)
 {
     struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
@@ -52,7 +47,6 @@ const struct State *App_GetBalancingState(void)
         .run_on_entry      = BalancingStateRunOnEntry,
         .run_on_tick_1Hz   = BalancingStateRunOnTick1Hz,
         .run_on_tick_100Hz = BalancingStateRunOnTick100Hz,
-        .run_on_tick_1kHz  = BalancingStateRunOnTick1kHz,
         .run_on_exit       = BalancingStateRunOnExit,
     };
 
