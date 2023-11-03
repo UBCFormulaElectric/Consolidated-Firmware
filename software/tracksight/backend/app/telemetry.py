@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, Response, request
+from flask import jsonify, request, Flask, Response
 from flask_socketio import SocketIO, emit
 from process import SignalUtil  # Assuming SignalUtil is in a module named 'process'
 
 from influx_handler import InfluxHandler as influx
+from influx_handler import NoDataForQueryException
 
 
 app = Flask(__name__)
@@ -45,7 +46,11 @@ def return_query():
     start_epoch = params.get("start_epoch")
     end_epoch = params.get("end_epoch")
 
-    data = influx.query(measurement, fields, [start_epoch, end_epoch])
+    try:
+        data = influx.query(measurement, fields, [start_epoch, end_epoch])
+    except NoDataForQueryException as e:
+        return responsify({"error": str(e)}), 400
+
     return responsify(data)
 
 @app.route('/signal/<string:name>', methods=['GET'])

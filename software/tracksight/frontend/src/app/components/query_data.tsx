@@ -44,9 +44,8 @@ const QueryData = (props) => {
     }, [measurement]);
 
     const handleSubmit = () => {
-
-        if (!startEpoch || !endEpoch || !measurement || !fields) {
-            console.log("TODO: Implement proper error handling");
+        if (!startEpoch || !endEpoch || !measurement || !fields.length) {
+            props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
             return;
         }
         fetch(props.url + "/query?" + new URLSearchParams({
@@ -54,9 +53,20 @@ const QueryData = (props) => {
             'fields': fields,
             'start_epoch': startEpoch,
             'end_epoch': endEpoch,
-        })).then((response) => response.json())
-           .then((data) => props.setData(data))
-           .catch((error) => console.log(error));
+        })).then((response) => {
+                return new Promise((resolve) => response.json()
+                                                        .then((json) => resolve({
+                                                            status: response.status,
+                                                            ok: response.ok,
+                                                            json,
+                                                        })));
+         }).then(({ status, json, ok }) => {
+                if (!ok) {
+                    props.messageApi.open({type: "error", content: json["error"]})
+                } else {
+                    props.setData(json);
+                }
+        }).catch((error) => console.log(error));
     };
 
     return (

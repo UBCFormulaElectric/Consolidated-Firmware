@@ -99,7 +99,7 @@ const Graph = (props) => {
     return (
         <Card
         bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryData url={props.url} setData={setData}></QueryData>
+            <QueryData url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
