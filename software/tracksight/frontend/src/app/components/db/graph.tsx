@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 import { PlotRelayoutEvent } from 'plotly.js';
 
-import { Card, Button } from 'antd';
+import { Card, Button, Space } from 'antd';
 
 import QueryData from './query_data';
 import { MessageInstance } from 'antd/es/message/interface';
@@ -78,17 +78,6 @@ const Graph = (props: GraphProps) => {
         const newGraphName = Object.keys(data).join(" + ");
     }, [data]);
 
-// changes zoom data if sync is on
-  useEffect(() => {
-    if (props.zoomData && 'xaxis.range[0]' in props.zoomData) {
-      const { 'xaxis.range[0]': xaxisRange0, 'xaxis.range[1]': xaxisRange1, 'yaxis.range[0]': yaxisRange0, 'yaxis.range[1]': yaxisRange1 } = props.zoomData;
-      setGraphLayout((prevLayout) => ({
-        ...prevLayout,
-        title: newGraphName,
-       }));
-        setFormattedData(tempFormattedData);
-    }
-}, [data]);
 
     // updates graph layout when zoomed 
     useEffect(() => {
@@ -111,6 +100,8 @@ const Graph = (props: GraphProps) => {
         }
     }, [props.zoomData]);
 
+
+
     const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
         if (props.sync) {
             props.setZoomData(e);
@@ -132,8 +123,10 @@ const Graph = (props: GraphProps) => {
                   onRelayout={handleZoom}
             />
             <br></br>
-            <Button onClick={clearData}>Clear</Button>
-            <Button onClick={props.onDelete}>Delete This Graph</Button>
+            <Space.Compact size={"middle"}>
+      <Button block={true} className="clear" onClick={clearData}>Clear</Button>
+      <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
+      </Space.Compact>
         </Card>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { Divider, Button, Switch } from 'antd';
+import { Divider, Button, Switch, Space } from 'antd';
 import Graph from './db/graph'
 import LiveGraph from './live/livegraph';
 
@@ -18,16 +18,22 @@ const Visualize = (props) => {
 
     return (
         <div className="layout">
+            <Space direction={"vertical"} size={"large"}>
+            <div>
             <h1>Visualize</h1>
             <p>Select a graph to provide live data or data from InfluxDB.</p>
-            <div>
-                <Switch onChange={changeSync} checked={sync}></Switch>
-                <p>Sync Zoom</p>
-                <Button onClick={() => props.addGraph(false)}>Add Another Graph</Button>
-            <Button onClick={() => props.addGraph(true)}>Add Live Graph</Button>
-            <Divider></Divider>
             </div>
-            <div className="flex-container">
+            <Space size={"middle"}>
+                <Space direction={"vertical"}  size={"small"}>
+                <p>Sync Zoom</p>
+                <Switch onChange={changeSync} checked={sync}></Switch>
+                </Space>
+                <Button onClick={() => props.addGraph(false)}>Add Influx Graph</Button>
+                <Button onClick={() => props.addGraph(true)}>Add Live Graph</Button>
+            <Divider></Divider>
+            </Space>
+            </Space>
+            <div className="graph-container">
             {props.graphs.map(graphId => (
                   <Graph
                   id={graphId}
@@ -49,6 +55,6 @@ const Visualize = (props) => {
             </div>
         </div>
     );
-            };
+};
 
 export default Visualize;

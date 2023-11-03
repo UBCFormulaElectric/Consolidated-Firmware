@@ -7,7 +7,7 @@ export interface NavBarProps {
 
 const NavBar = (props: NavBarProps) => (
     <Menu 
-      theme="light" 
+      theme="dark" 
       mode="horizontal" 
       defaultSelectedKeys={['visualize']}
       onClick={(e) => props.updateFunction(e.key)}
