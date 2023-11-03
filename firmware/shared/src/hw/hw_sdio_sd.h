@@ -8,18 +8,13 @@
 // Check here for documentation about the type defined by HAL
 // https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
 
+
+
 typedef struct
 {
     SD_HandleTypeDef *const hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t                timeout; // the timeout for the SD card operations
 } SdCard;                            // struct that included all the state about SDIO and SD card
-
-typedef struct
-{
-    SD_TypeDef *   sdio;        // sdio register base address
-    SD_InitTypeDef sdio_config; // sdio config
-    uint32_t       timeout;     // timeout config
-} SdCardInitConfig;
 
 typedef enum
 {
@@ -28,6 +23,8 @@ typedef enum
     SD_CARD_BUSY    = HAL_BUSY,
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
+
+/* Assume sdio and sd card is initilized, SdCard have desired member*/
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
