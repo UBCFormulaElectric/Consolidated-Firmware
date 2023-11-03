@@ -21,12 +21,16 @@ def handle_available_signals(message):
 # returns signal data to client based on signal name
 @socketio.on('signal')
 def handle_signal_message(message):
+    id = message["graph"]
     ids = message["ids"]
     signals = {}
     for id_ in ids:
         signal_data = signal_util.get_signal(id_).to_dict()
         signals[id_] = signal_data
-    emit("signal_response", signals)
+    ret = {}
+    ret["id"] = id
+    ret["signals"] = signals
+    emit("signal_response", ret)
 
 if __name__ == '__main__':
     socketio.run(debug=True)

@@ -76,14 +76,19 @@ const Graph = (props: GraphProps) => {
         }
 
         const newGraphName = Object.keys(data).join(" + ");
+    }, [data]);
 
-        setGraphLayout(prevLayout => ({
+// changes zoom data if sync is on
+  useEffect(() => {
+    if (props.zoomData && 'xaxis.range[0]' in props.zoomData) {
+      const { 'xaxis.range[0]': xaxisRange0, 'xaxis.range[1]': xaxisRange1, 'yaxis.range[0]': yaxisRange0, 'yaxis.range[1]': yaxisRange1 } = props.zoomData;
+      setGraphLayout((prevLayout) => ({
         ...prevLayout,
         title: newGraphName,
        }));
         setFormattedData(tempFormattedData);
-    }, [data]);
-
+    }
+}, [data]);
 
     // updates graph layout when zoomed 
     useEffect(() => {
@@ -107,7 +112,9 @@ const Graph = (props: GraphProps) => {
     }, [props.zoomData]);
 
     const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
-        props.setZoomData(e);
+        if (props.sync) {
+            props.setZoomData(e);
+        }
     }
 
     return (
