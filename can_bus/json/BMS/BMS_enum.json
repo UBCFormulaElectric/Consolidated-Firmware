@@ -6,7 +6,7 @@
     "BMS_DRIVE_STATE": 3,
     "BMS_BALANCING_STATE": 4,
     "BMS_FAULT_STATE": 5,
-    "BMS_INVERTER_STATE": 6
+    "BMS_INVERTER_ON_STATE": 6
   },
   "ImdCondition": {
     "IMD_CONDITION_SHORT_CIRCUIT": 0,

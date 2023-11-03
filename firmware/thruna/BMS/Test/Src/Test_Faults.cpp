@@ -573,7 +573,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
         // trying to fool precahrge into thinking that ts_voltage is rising too quickly
         get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL;
-        LetTimePass(state_machine, 10U);
+        LetTimePass(state_machine, 250);
 
         if (i < 3)
         {

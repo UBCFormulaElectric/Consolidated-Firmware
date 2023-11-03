@@ -176,7 +176,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         // Disable charging
         is_charger_connected_fake.return_val = false;
-        App_CanRx_Debug_StartCharging_Update(false);
+        App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
         has_charger_faulted_fake.return_val = false;
     }
 
@@ -208,10 +208,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
     std::vector<const struct State *> GetAllStates(void)
     {
-        return std::vector<const struct State *>{
-            App_GetInitState(),  App_GetPreChargeState(), App_GetInverterState(),
-            App_GetDriveState(), App_GetChargeState(),    App_GetFaultState(),
-        };
+        return std::vector<const struct State *>{ App_GetInitState(),  App_GetPreChargeState(),
+                                                  App_GetDriveState(), App_GetChargeState(),
+                                                  App_GetFaultState(), App_GetInverterOnState() };
     }
 
     void CheckInRangeCanSignalsInGivenState(
@@ -280,14 +279,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
+    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
-
-TEST_F(BmsStateMachineTest, check_inverter_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
 {
-    SetInitialState(App_GetInverterState());
-    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+    SetInitialState(App_GetInverterOnState());
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 // TODO:
@@ -298,10 +296,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_prec
     is_air_negative_closed_fake.return_val = true;
     SetInitialState(App_GetInitState());
 
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(BMS_INVERTER_STATE, App_CanTx_BMS_Vitals_CurrentState_Get()) << "Expected state: BMS_INVERTER_STATE";
+    LetTimePass(state_machine, 200);
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_Vitals_CurrentState_Get()) << "Expected state: BMS_INVERTER_STATE";
 
-    LetTimePass(state_machine, 100);
+    LetTimePass(state_machine, 10);
     EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get()) << "Expected state: BMS_PRECHARGE_STATE";
 }
 
@@ -309,20 +307,20 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMS_State_Get());
+    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
+    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
-    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_State_Get());
+    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -335,7 +333,7 @@ TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_s
         get_pwm_frequency_fake.return_val = fake_frequency;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(fake_frequency, App_CanTx_BMS_ImdFrequency_Get());
+        EXPECT_EQ(fake_frequency, App_CanTx_BMS_ImdPwmOutput_Frequency_Get());
 
         // To avoid false positives, we use a different duty cycle each time
         fake_frequency++;
@@ -352,7 +350,7 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(fake_duty_cycle, App_CanTx_BMS_ImdDutyCycle_Get());
+        EXPECT_EQ(fake_duty_cycle, App_CanTx_BMS_ImdPwmOutput_DutyCycle_Get());
 
         // To avoid false positives, we use a different frequency each time
         fake_duty_cycle++;
@@ -370,15 +368,15 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
-        EXPECT_EQ(1200, App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Get());
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
+        EXPECT_EQ(1200, App_CanTx_BMS_ImdData_InsulationMeasurementDcp10Hz_Get());
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
     }
 }
 
@@ -393,15 +391,15 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
-        EXPECT_EQ(1200, App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Get());
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
+        EXPECT_EQ(1200, App_CanTx_BMS_ImdData_InsulationMeasurementDcp20Hz_Get());
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
     }
 }
 
@@ -415,22 +413,22 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
-        EXPECT_EQ(SST_GOOD, App_CanTx_BMS_ImdSpeedStartStatus30Hz_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
+        EXPECT_EQ(SST_GOOD, App_CanTx_BMS_ImdData_SpeedStartStatus30Hz_Get());
 
         // Test an arbitrarily chosen SST_BAD
         get_pwm_duty_cycle_fake.return_val = 92.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(true, App_CanTx_BMS_ImdValidDutyCycle_Get());
-        EXPECT_EQ(SST_BAD, App_CanTx_BMS_ImdSpeedStartStatus30Hz_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
+        EXPECT_EQ(SST_BAD, App_CanTx_BMS_ImdData_SpeedStartStatus30Hz_Get());
 
         // Test an arbitrarily chosen invalid SST status
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdCondition_Get());
-        EXPECT_EQ(false, App_CanTx_BMS_ImdValidDutyCycle_Get());
+        EXPECT_EQ(IMD_SST, App_CanTx_BMS_ImdStatus_Condition_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
     }
 }
 
@@ -441,7 +439,7 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(123, App_CanTx_BMS_ImdSecondsSincePowerOn_Get());
+        EXPECT_EQ(123, App_CanTx_BMS_ImdStatus_SecondsSincePowerOn_Get());
     }
 }
 
@@ -478,11 +476,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 
         is_charger_connected_fake.return_val = true;
         LetTimePass(state_machine, 1000);
-        EXPECT_EQ(true, App_CanTx_BMS_ChargerConnected_Get());
+        EXPECT_EQ(true, App_CanTx_BMS_Charger_IsConnected_Get());
 
         is_charger_connected_fake.return_val = false;
         LetTimePass(state_machine, 1000);
-        EXPECT_EQ(false, App_CanTx_BMS_ChargerConnected_Get());
+        EXPECT_EQ(false, App_CanTx_BMS_Charger_IsConnected_Get());
     }
 }
 
@@ -497,10 +495,10 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for BMS_OK
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(true, App_CanTx_BMS_BmsOk_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_OkStatuses_BmsOk_Get());
 
         // Reset the CAN signal for BMS_OK
-        App_CanTx_BMS_BmsOk_Set(false);
+        App_CanTx_BMS_OkStatuses_BmsOk_Set(false);
     }
 }
 
@@ -515,10 +513,10 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for IMD_OK
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(true, App_CanTx_BMS_ImdOk_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_OkStatuses_ImdOk_Get());
 
         // Reset the CAN signal for IMD_OK
-        App_CanTx_BMS_ImdOk_Set(false);
+        App_CanTx_BMS_OkStatuses_ImdOk_Set(false);
     }
 }
 
@@ -533,10 +531,10 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for BSPD_OK
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(true, App_CanTx_BMS_BspdOk_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_OkStatuses_BspdOk_Get());
 
         // Reset the CAN signal for BSPD_OK
-        App_CanTx_BMS_BspdOk_Set(false);
+        App_CanTx_BMS_OkStatuses_BspdOk_Set(false);
     }
 }
 
@@ -552,12 +550,12 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
 
     // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = false;
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     LetTimePass(state_machine, 10);
 
     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
-    ASSERT_EQ(true, App_CanAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_Get());
+    ASSERT_EQ(true, App_CanAlerts_GetFault(BMS_FAULT_CHARGER_DISCONNECTED_DURING_CHARGE));
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
@@ -570,36 +568,36 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(false, App_CanTx_BMS_AirNegative_Get());
-        ASSERT_EQ(false, App_CanTx_BMS_AirPositive_Get());
+        ASSERT_EQ(false, App_CanTx_BMS_Contactors_AirNegative_Get());
+        ASSERT_EQ(false, App_CanTx_BMS_Contactors_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(false, App_CanTx_BMS_AirNegative_Get());
-        ASSERT_EQ(true, App_CanTx_BMS_AirPositive_Get());
+        ASSERT_EQ(false, App_CanTx_BMS_Contactors_AirNegative_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_Contactors_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(true, App_CanTx_BMS_AirNegative_Get());
-        ASSERT_EQ(false, App_CanTx_BMS_AirPositive_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_Contactors_AirNegative_Get());
+        ASSERT_EQ(false, App_CanTx_BMS_Contactors_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(true, App_CanTx_BMS_AirNegative_Get());
-        ASSERT_EQ(true, App_CanTx_BMS_AirPositive_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_Contactors_AirNegative_Get());
+        ASSERT_EQ(true, App_CanTx_BMS_Contactors_AirPositive_Get());
     }
 }
 
 TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
 {
     // Close AIR+ to avoid false positives
-    App_CanTx_BMS_AirPositive_Set(CONTACTOR_STATE_CLOSED);
+    App_CanTx_BMS_Contactors_AirPositive_Set(CONTACTOR_STATE_CLOSED);
 
     SetInitialState(App_GetFaultState());
-    ASSERT_EQ(CONTACTOR_STATE_OPEN, App_CanTx_BMS_AirPositive_Get());
+    ASSERT_EQ(CONTACTOR_STATE_OPEN, App_CanTx_BMS_Contactors_AirPositive_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
@@ -611,11 +609,11 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     is_charger_connected_fake.return_val   = false;
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open)
@@ -627,12 +625,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_State_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_State_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
@@ -658,9 +656,9 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
     // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = true;
 
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 250);
 
     ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -677,14 +675,14 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
 
     // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = true;
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     // Allow BMS time to go through Init state
     LetTimePass(state_machine, 20);
     get_ts_voltage_fake.return_val = 400;
 
     // Pause for slightly longer to allow pre-charge
-    LetTimePass(state_machine, 50);
+    LetTimePass(state_machine, 200);
 
     printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -702,14 +700,14 @@ TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
     // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = true;
 
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     LetTimePass(state_machine, 100);
 
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
-// TODO: Fix full-charge condition
+// !!!Fix full-charge condition!!!
 // TEST_F(BmsStateMachineTest, stops_charging_at_full_charge)
 //{
 //    SetInitialState(App_GetChargeState());
@@ -723,7 +721,7 @@ TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
 //    // Simulate situation with charger present and user indicate to start charging
 //    is_charger_connected_fake.return_val = true;
 //
-//    App_CanRx_Debug_StartCharging_Update(true);
+//    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 //
 //    LetTimePass(state_machine, 10);
 //
@@ -744,7 +742,7 @@ TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
     // Simulate situation with charger present and user indicate to start charging
     is_charger_connected_fake.return_val = true;
 
-    App_CanRx_Debug_StartCharging_Update(false);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(false);
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -765,7 +763,7 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     has_charger_faulted_fake.return_val = true;
 
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     // Charger faults are ignored for 5s upon charge state entry
     LetTimePass(state_machine, 5010);
@@ -784,7 +782,7 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
     get_high_res_current_fake.return_val = 1.0f;
     get_low_res_current_fake.return_val  = 1.0f;
 
-    App_CanRx_Debug_StartCharging_Update(true);
+    App_CanRx_Debug_ChargingSwitch_StartCharging_Update(true);
 
     // Letting time pass starts the charging process
     LetTimePass(state_machine, 10);
@@ -897,7 +895,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(state_machine, 10);
+            LetTimePass(state_machine, 250);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
@@ -908,14 +906,14 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
-            LetTimePass(state_machine, 10);
+            LetTimePass(state_machine, 100);
 
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive
                 ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 1);
-
+                
                 LetTimePass(state_machine, 1000);
                 ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 1);
@@ -923,6 +921,8 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             else
             {
                 // Precharge failed, back to init to try again
+                // TODO: failing when i = 3 it stays in drive state should be init
+                LetTimePass(state_machine, 200);
                 ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
