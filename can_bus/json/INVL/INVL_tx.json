@@ -279,7 +279,7 @@
         "msg_id": 9,
         "cycle_time": 100,
         "signals": {
-            "1V5_ReferenceVoltage": {
+            "ReferenceVoltage_1V5": {
                 "start_bit": 0,
                 "bits": 16,
                 "signed": true,
@@ -289,7 +289,7 @@
                 "max": 327.67,
                 "unit": "V"
             },
-            "2V5_ReferenceVoltage": {
+            "ReferenceVoltage_2V5": {
                 "start_bit": 16,
                 "bits": 16,
                 "signed": true,
@@ -299,7 +299,7 @@
                 "max": 327.67,
                 "unit": "V"
             },
-            "5V_ReferenceVoltage": {
+            "ReferenceVoltage_5V": {
                 "start_bit": 32,
                 "bits": 16,
                 "signed": true,
@@ -309,7 +309,7 @@
                 "max": 327.67,
                 "unit": "V"
             },
-            "12V_ReferenceVoltage": {
+            "ReferenceVoltage_12V": {
                 "start_bit": 48,
                 "bits": 16,
                 "signed": true,
