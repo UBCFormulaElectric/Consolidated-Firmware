@@ -681,4 +681,22 @@ TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
     ASSERT_FALSE(App_CanAlerts_BMS_BlownFuseWarning_Get());
 }
 
+TEST_F(BmsFaultTest, check_blown_fuse_doesnt_trigger_when_below_current_threshold){
+    SetInitialState(App_GetDriveState());
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+     for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+           set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE);
+            if(segment == 2 && cell == 10){
+                set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE);
+            }
+        }
+    }
+    LetTimePass(state_machine, 20);
+    ASSERT_FALSE(App_CanAlerts_BMS_BlownFuseWarning_Get());
+}
+
 } // namespace FaultTest
