@@ -399,7 +399,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
         case GET_CELL_VOLTAGE_STATE:
         {
             // Attempt to read voltages from the LTCs, write output to cell voltages array
-            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages, accumulator->num_comm_tries);
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries);
 
             // Calculate min/max/segment voltages
             App_Accumulator_CalculateVoltageStats(accumulator);
