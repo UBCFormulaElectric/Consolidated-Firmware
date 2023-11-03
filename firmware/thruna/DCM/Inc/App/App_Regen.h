@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "App_CanRx.h"
 #include "App_CanTx.h"
+#include "App_SharedMacros.h"
 
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 #define WHEELBASE_mm 1550
@@ -14,6 +15,9 @@ typedef struct RegenBraking
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
+    float wheel_speed_left_rpm;
+    float wheel_speed_right_rpm;
+    float prev_torque_request_Nm;
     bool  enable_active_differential;
 } RegenBraking;
 
@@ -29,7 +33,7 @@ typedef struct ActiveDifferential_Inputs
  * @param *regen is a bool that indicates if regen is active
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-void App_Run_Regen(bool *regen, float accelerator_pedal_percentage);
+void App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pedal_percentage);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset

@@ -4,10 +4,11 @@
 
 /**
  * Check if left or right wheel is greater than 5.0km/hr
+ * @param RegenBraking struct to populate data
  * @return true if wheel speed meets this condition, false
  * otherwise
  */
-static bool wheel_speed_in_range(void);
+static bool wheel_speed_in_range(RegenBraking *regenAttr);
 
 /**
  * Check if battery cells are less than 4.0V
@@ -32,10 +33,13 @@ static ActiveDifferential_Inputs activeDifferentialInputs;
 const float MAX_REGEN_Nm        = -50.0f; // TODO: find max regen torque value
 const float wheelSpeedThreshold = 5.0f;
 const float MAX_PEDAL_POS       = 50.0f;
+const float MAX_CHANGE_TORQUE   = 10.0f;
+const float min_scaling_speed   = 35.0f;
 
-void App_Run_Regen(bool *regen, float accelerator_pedal_percentage)
+    void
+    App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pedal_percentage)
 {
-    activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage - 50.0f;
+    activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
 
     if (accelerator_pedal_percentage >= 0)
     {
@@ -46,6 +50,7 @@ void App_Run_Regen(bool *regen, float accelerator_pedal_percentage)
         activeDifferentialInputs.steering_angle_deg =
             App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
         regenAttributes.enable_active_differential = true;
+        regenAttributes.prev_torque_request_Nm     = *prev_torque_request;
 
         compute_regen_torque_request(&activeDifferentialInputs, &regenAttributes);
         *regen = true;
@@ -54,16 +59,19 @@ void App_Run_Regen(bool *regen, float accelerator_pedal_percentage)
     {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
         regenAttributes.right_inverter_torque_Nm = 0.0;
+        regenAttributes.prev_torque_request_Nm   = 0.0;
         App_CanTx_DCM_RegenNotAvailable_Set(true);
     }
+
+    *prev_torque_request = regenAttributes.prev_torque_request_Nm;
 
     App_Regen_Activate(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
 
 bool App_Regen_Safety(RegenBraking *regenAttr)
 {
-    const bool batteryTempInRange = App_CanRx_BMS_MaxCellTemperature_Get() < 45;
-    return batteryTempInRange && wheel_speed_in_range() && power_limit_check(regenAttr);
+    bool batteryTempInRange = App_CanRx_BMS_MaxCellTemperature_Get() < 45;
+    return batteryTempInRange && wheel_speed_in_range(regenAttr) && power_limit_check(regenAttr);
 }
 
 void App_Regen_Activate(float left, float right)
@@ -101,12 +109,13 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
     return TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_deg)) / (2 * WHEELBASE_mm);
 }
 
-static bool wheel_speed_in_range(void)
+static bool wheel_speed_in_range(RegenBraking *regenAttr)
 {
-    float right = App_CanRx_FSM_RightWheelSpeed_Get();
-    float left  = App_CanRx_FSM_LeftWheelSpeed_Get();
+    regenAttr->wheel_speed_right_rpm = App_CanRx_FSM_RightWheelSpeed_Get();
+    regenAttr->wheel_speed_left_rpm  = App_CanRx_FSM_LeftWheelSpeed_Get();
 
-    return right > wheelSpeedThreshold && left > wheelSpeedThreshold;
+    return regenAttr->wheel_speed_right_rpm > wheelSpeedThreshold &&
+           regenAttr->wheel_speed_left_rpm > wheelSpeedThreshold;
 }
 
 static bool power_limit_check(RegenBraking *regenAttr)
@@ -119,12 +128,25 @@ static bool power_limit_check(RegenBraking *regenAttr)
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
     float pedal_percentage = inputs->accelerator_pedal_percentage;
-    float torqueRequest    = (MAX_PEDAL_POS + pedal_percentage) * MAX_REGEN_Nm;
+    float max_wheel_speed  = MIN(regenAttr->wheel_speed_right_rpm, regenAttr->wheel_speed_left_rpm);
+    float max_negative_torque_scale =
+        (MAX_REGEN_Nm * CLAMP(max_wheel_speed, 0.0f, min_scaling_speed) / min_scaling_speed);
+    float torqueRequest = (MAX_PEDAL_POS + pedal_percentage) * max_negative_torque_scale;
+    float torqueChange;
 
     if (regenAttr->current_battery_level > 3.9f)
     {
         torqueRequest = torqueRequest * 0.75f;
     }
+
+    torqueChange = torqueRequest - regenAttr->prev_torque_request_Nm;
+
+    if ((float)fabs(torqueChange) > MAX_CHANGE_TORQUE)
+    {
+        torqueRequest = regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * MAX_CHANGE_TORQUE;
+    }
+
+    regenAttr->prev_torque_request_Nm = torqueRequest;
 
     if (regenAttr->enable_active_differential)
     {
