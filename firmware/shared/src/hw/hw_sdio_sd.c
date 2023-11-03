@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
@@ -32,15 +31,14 @@ SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
     }
 
     uint8_t local_buffer[block_size];
-    if(status != SD_CARD_OK) return status;
+    if (status != SD_CARD_OK)
+        return status;
 
     status = hw_sd_read(sd, local_buffer, block_addr, 1); // write the whole
-    
-    memcpy(pdata, local_buffer+offset, size); // copy a section of data out
+
+    memcpy(pdata, local_buffer + offset, size); // copy a section of data out
 
     return status;
-
-    
 }
 
 SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
@@ -68,17 +66,16 @@ SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr,
         return status;
     }
 
-    uint8_t local_buffer[block_size]; 
+    uint8_t local_buffer[block_size];
 
     status = hw_sd_read(sd, local_buffer, block_addr, 1); // read the whole block
-    if(status != SD_CARD_OK) return status;
+    if (status != SD_CARD_OK)
+        return status;
 
-    memcpy(local_buffer+offset, pdata, size); // write to local buffer from offet to offset + size
+    memcpy(local_buffer + offset, pdata, size);            // write to local buffer from offet to offset + size
     status = hw_sd_write(sd, local_buffer, block_addr, 1); // write back
 
     return status;
-
-
 }
 
 SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
