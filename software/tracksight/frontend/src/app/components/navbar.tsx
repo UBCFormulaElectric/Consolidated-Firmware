@@ -4,7 +4,7 @@ import { Menu } from 'antd';
 
 const NavBar = (props) => (
     <Menu 
-      theme="light" 
+      theme="dark" 
       mode="horizontal" 
       defaultSelectedKeys={['visualize']}
       onClick={(e) => props.updateFunction(e.key)}

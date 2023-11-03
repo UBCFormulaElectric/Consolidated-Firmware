@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
-import { Button, Card, Switch } from 'antd';
+import { Button, Card, Switch, Space } from 'antd';
 
 import LiveDropdownMenu from './dropdown_live.tsx';
 import WebSocketComponent from './web_socket.tsx';
@@ -126,19 +126,23 @@ const LiveGraph = (props) => {
 
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <div>
+            <Space direction={"vertical"} size={"small"}>
             <p>Turn live signal on/off</p>
             <Switch onChange={changeLive} checked={useLive} />
-            </div>
+            <Space size={"middle"}>
             <LiveDropdownMenu setSignal={setSignals} signals={signals} avail={avail} />
             <WebSocketComponent id={props.id} socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
+            </Space>
+            </Space>
             <Plot
                 data={formattedData}
                 layout={graphLayout}
             />
             <br></br>
-            <Button onClick={clearData}>Clear</Button>
-            <Button onClick={props.onDelete}>Delete This Graph</Button>
+            <Space.Compact size={"middle"}>
+      <Button block={true} className="clear" onClick={clearData}>Clear</Button>
+      <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
+      </Space.Compact>
         </Card>
     );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
-import { Card, Button } from 'antd';
+import { Card, Button, Space } from 'antd';
 import QueryData from './query_data';
 
 const DEFAULT_LAYOUT = {
@@ -102,9 +102,10 @@ const Graph = (props) => {
         onRelayout={handleZoom}
       />
       <br />
-
-      <Button onClick={clearData}>Clear</Button>
-      <Button onClick={props.onDelete}>Delete This Graph</Button>
+      <Space.Compact size={"middle"}>
+      <Button block={true} className="clear" onClick={clearData}>Clear</Button>
+      <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
+      </Space.Compact>
     </Card>
   );
 };
