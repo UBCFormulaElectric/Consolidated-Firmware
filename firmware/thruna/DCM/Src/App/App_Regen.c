@@ -27,12 +27,10 @@ static bool power_limit_check(RegenBraking *regenAttr);
  */
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr);
 
-static RegenBraking              regenAttributes = {
-    .enable_active_differential = true
-};
+static RegenBraking              regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
 
-const float max_regen_nm              = -50.0f; 
+const float max_regen_nm              = -50.0f;
 const float wheel_speed_threshold_kph = 5.0f;
 const float max_pedal_position        = -50.0f;
 const float max_torque_delta          = 10.0f;
@@ -48,7 +46,7 @@ void App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pe
     }
     else if (App_Regen_Safety(&regenAttributes))
     {
-        regenAttributes.prev_torque_request_Nm     = *prev_torque_request;
+        regenAttributes.prev_torque_request_Nm = *prev_torque_request;
         activeDifferentialInputs.steering_angle_deg =
             App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
@@ -61,7 +59,7 @@ void App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pe
         regenAttributes.right_inverter_torque_Nm = 0.0;
         regenAttributes.prev_torque_request_Nm   = 0.0;
 
-        App_CanTx_DCM_RegenNotAvailable_Set(true);
+        App_CanTx_DCM_Warning_RegenNotAvailable_Set(true);
     }
 
     *prev_torque_request = regenAttributes.prev_torque_request_Nm;
@@ -112,11 +110,11 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
 
 static bool wheel_speed_in_range(RegenBraking *regenAttr)
 {
-    regenAttr->wheel_speed_right_rpm = App_CanRx_FSM_RightWheelSpeed_Get();
-    regenAttr->wheel_speed_left_rpm  = App_CanRx_FSM_LeftWheelSpeed_Get();
+    regenAttr->wheel_speed_right_kph = MOTOR_RPM_TO_KMH((float)App_CanRx_INVR_MotorSpeed_Get());
+    regenAttr->wheel_speed_left_kph  = MOTOR_RPM_TO_KMH((float)App_CanRx_INVL_MotorSpeed_Get());
 
-    return regenAttr->wheel_speed_right_rpm > wheel_speed_threshold_kph &&
-           regenAttr->wheel_speed_left_rpm > wheel_speed_threshold_kph;
+    return regenAttr->wheel_speed_right_kph > wheel_speed_threshold_kph &&
+           regenAttr->wheel_speed_left_kph > wheel_speed_threshold_kph;
 }
 
 static bool power_limit_check(RegenBraking *regenAttr)
@@ -129,9 +127,9 @@ static bool power_limit_check(RegenBraking *regenAttr)
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
     float pedal_percentage          = inputs->accelerator_pedal_percentage;
-    float max_wheel_speed           = MIN(regenAttr->wheel_speed_right_rpm, regenAttr->wheel_speed_left_rpm);
+    float max_vehicle_speed         = MIN(regenAttr->wheel_speed_right_kph, regenAttr->wheel_speed_left_kph);
     float max_negative_torque_scale =
-        (max_regen_nm * CLAMP(max_wheel_speed, 0.0f, min_scaling_speed_kph) / min_scaling_speed_kph);
+        (max_regen_nm * CLAMP(max_vehicle_speed, 0.0f, min_scaling_speed_kph) / min_scaling_speed_kph);
     float torqueRequest             = pedal_percentage / max_pedal_position * max_negative_torque_scale;
     float torqueChange;
 
@@ -144,7 +142,8 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
 
     if ((float)fabs(torqueChange) > max_torque_delta)
     {
-        torqueRequest = regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * max_torque_delta;
+        torqueRequest =
+            regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * max_torque_delta;
     }
 
     regenAttr->prev_torque_request_Nm = torqueRequest;

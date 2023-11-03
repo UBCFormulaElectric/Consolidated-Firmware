@@ -16,8 +16,8 @@ typedef struct RegenBraking
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
-    float wheel_speed_left_rpm;
-    float wheel_speed_right_rpm;
+    float wheel_speed_left_kph;
+    float wheel_speed_right_kph;
     float prev_torque_request_Nm;
 } RegenBraking;
 
