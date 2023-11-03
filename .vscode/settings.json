@@ -10,19 +10,4 @@
 	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}",
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
-	"files.associations": {
-		"*.c": "c",
-		"*.html": "html",
-		"*_repl": "cpp",
-		"*.tcc": "c",
-		"array": "c",
-		"string_view": "c",
-		"initializer_list": "c",
-		"ranges": "c",
-		"utility": "c",
-		"deque": "c",
-		"string": "c",
-		"unordered_map": "c",
-		"vector": "c"
-	}
 }
