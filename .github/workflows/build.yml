@@ -23,7 +23,6 @@ jobs:
           - BMS
           - DCM
           - DIM
-          - GSM
           - f4dev
 
     container:
