@@ -21,7 +21,7 @@ const Visualize = (props) => {
             <h1>Visualize</h1>
             <p>Select a graph to provide live data or data from InfluxDB.</p>
             <div>
-                <Switch onChange={changeSync}></Switch>
+                <Switch onChange={changeSync} checked={sync}></Switch>
                 <p>Sync Zoom</p>
                 <Button onClick={() => props.addGraph(false)}>Add Another Graph</Button>
             <Button onClick={() => props.addGraph(true)}>Add Live Graph</Button>

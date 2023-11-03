@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
-import { Button, Card } from 'antd';
+import { Button, Card, Switch } from 'antd';
 
 import LiveDropdownMenu from './dropdown_live.tsx';
 import WebSocketComponent from './web_socket.tsx';
@@ -10,15 +10,15 @@ const DEFAULT_LAYOUT = {
     height: 500,
     title: "Live Data",
     xaxis: {
-        // for formatting time 
-        tickformat: "%H:%M:%S.%L", 
+        // for formatting time
+        tickformat: "%H:%M:%S.%L",
+        automargin: true,
     },
     yaxis: {},
     legend: { "orientation": "h" },
 };
-
-const UPDATE_INTERVAL_MS = 100; // changes update spped
-const MAX_DATA_POINTS = 100; // max amount of data points on graph at a time 
+const UPDATE_INTERVAL_MS = 100; // changes update speed
+const MAX_DATA_POINTS = 100; // max amount of data points on the graph at a time
 
 const LiveGraph = (props) => {
     const [data, setData] = useState({});
@@ -26,6 +26,13 @@ const LiveGraph = (props) => {
     const [signals, setSignals] = useState([]);
     const [avail, setAvail] = useState([]);
     const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
+
+    // for live data simulation, remove when live signals are actually implemented
+    const [useLive, setUseLive] = useState(false);
+
+    const changeLive = (checked) => {
+        setUseLive(checked);
+    }
 
     const clearData = () => {
         setFormattedData([]);
@@ -35,23 +42,24 @@ const LiveGraph = (props) => {
     }
 
     const formatData = () => {
-        let len = Object.keys(data).length;
-        if (len !== 0) {
-            let newFormattedData = [];
+        if (data['id'] === props.id && data['signals']) {
+            const signals = data['signals'];
+            const newFormattedData = [];
+    
+            for (const signalName in signals) {
+                const signalData = signals[signalName];
+                const xData = [];
+                const yData = [];
 
-            for (let signalName in data) {
-                let signalData = data[signalName];
-                let xData = [];
-                let yData = [];
-
+                //extracts the most recent 100 data points to display to ensure the graph doesn't get too cluttered
                 const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a) - new Date(b));
-                const lastNItems = sortedDates.slice(-MAX_DATA_POINTS);
-
-                for (let date of lastNItems) {
-                    xData.push(new Date(date)); 
+                const maxDataPoints = sortedDates.slice(-MAX_DATA_POINTS);
+    
+                for (const date of maxDataPoints) {
+                    xData.push(new Date(date));
                     yData.push(signalData[date]);
                 }
-
+    
                 const formattedObj = {
                     x: xData,
                     y: yData,
@@ -59,18 +67,19 @@ const LiveGraph = (props) => {
                     mode: 'lines+markers',
                     name: signalName,
                 };
-
+    
                 newFormattedData.push(formattedObj);
             }
-
-            const newGraphName = Object.keys(data).join(" + ");
+    
+            const newGraphName = Object.keys(signals).join(" + ");
             setGraphLayout((prevLayout) => ({
                 ...prevLayout,
                 title: newGraphName,
             }));
             setFormattedData(newFormattedData);
         }
-    }
+    };
+    
 
     useEffect(() => {
         formatData();
@@ -88,34 +97,41 @@ const LiveGraph = (props) => {
         };
     }, [props.socket]);
 
-    // for live data simulation 
-
     useEffect(() => {
-        const interval = setInterval(() => {
-            const time = new Date().toISOString(); 
-            const value = Math.random() * 0.5; 
+        if (useLive) {
+            const interval = setInterval(() => {
+                const time = new Date().toISOString();
+                const value = Math.random() * 0.5;
 
-            // Update the data state with the new point
-            setData((prevData) => {
-                const updatedData = { ...prevData };
-                // Update the signal you want to mimic live data for
-                updatedData['LiveTest'] = {
-                    ...updatedData['LiveTest'],
-                    [time]: value,
-                };
-                return updatedData;
-            });
-        }, UPDATE_INTERVAL_MS);
+                // Update the data state with the new point
+                setData((prevData) => {
+                    let updatedData = { ...prevData };
+                    updatedData = { ...updatedData['signals'] };
+                    // Update the signal you want to mimic live data for
+                    updatedData['LiveTest'] = {
+                        ...updatedData['LiveTest'],
+                        [time]: value,
+                    };
+                    const ret = {'id': props.id, 'signals': updatedData};
+                    console.log(ret);
+                    return ret;
+                });
+            }, UPDATE_INTERVAL_MS);
 
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
+            return () => {
+                clearInterval(interval);
+            };
+        }
+    }, [useLive]);
 
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
+            <div>
+            <p>Turn live signal on/off</p>
+            <Switch onChange={changeLive} checked={useLive} />
+            </div>
             <LiveDropdownMenu setSignal={setSignals} signals={signals} avail={avail} />
-            <WebSocketComponent socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
+            <WebSocketComponent id={props.id} socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
             <Plot
                 data={formattedData}
                 layout={graphLayout}

@@ -14,7 +14,7 @@ const [currId, setCurrId] = useState('');
 const handleSubmit = () => {
   setCurrId(props.id);
   console.log(props.signals)
-  props.socket.emit("signal", { "ids": props.signals });  
+  props.socket.emit("signal", {"graph": props.id, "ids": props.signals });  
 };
 
 
