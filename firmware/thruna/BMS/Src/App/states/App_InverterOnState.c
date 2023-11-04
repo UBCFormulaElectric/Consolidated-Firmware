@@ -7,12 +7,10 @@
 
 #define CHARGING_MILLISECONDS 200
 TimerChannel timer;
-TimerChannel exit_timer;
 
 static void InverterOnStateRunOnEntry(struct StateMachine *const state_machine)
 {
-        App_CanTx_BMS_State_Set(BMS_DRIVE_STATE);
-(BMS_INVERTER_ON_STATE);
+    App_CanTx_BMS_State_Set(BMS_INVERTER_ON_STATE);
     App_Timer_InitTimer(&timer, CHARGING_MILLISECONDS);
     App_Timer_Restart(&timer);
 }

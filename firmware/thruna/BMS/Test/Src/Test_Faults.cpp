@@ -566,7 +566,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         is_air_negative_closed_fake.return_val = true;
         is_charger_connected_fake.return_val   = false;
         App_CanRx_Debug_StartCharging_Update(false);
-        LetTimePass(state_machine, 10U);
+        LetTimePass(state_machine, 250);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
