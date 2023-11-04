@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { Divider, Button, Switch, Space } from 'antd';
 import Graph from './db/graph'
 import LiveGraph from './live/livegraph';
+import { PlotRelayoutEvent } from 'plotly.js';
 
 const Visualize = (props) => {
     // Determines if all graphs are supposed to zoom together or not
     const [sync, setSync] = useState(false);
-    const [zoomData, setZoomData] = useState([]);
+    const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
 
-    const changeSync = (checked) => {
+    const changeSync = (checked: boolean) => {
         setSync(checked);
     }
 

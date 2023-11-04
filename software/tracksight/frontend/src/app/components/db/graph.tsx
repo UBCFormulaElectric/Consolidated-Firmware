@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import dynamic from "next/dynamic";
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
-import { PlotRelayoutEvent } from 'plotly.js';
-
+import Plotly, { PlotRelayoutEvent } from 'plotly.js';
+import createPlotlyComponent from "react-plotly.js/factory";
+const Plot = createPlotlyComponent(Plotly);
 import { Card, Button, Space } from 'antd';
 
 import QueryData from './query_data';
@@ -76,6 +75,12 @@ const Graph = (props: GraphProps) => {
         }
 
         const newGraphName = Object.keys(data).join(" + ");
+
+        setGraphLayout(prevLayout => ({
+        ...prevLayout,
+        title: newGraphName,
+       }));
+        setFormattedData(tempFormattedData);
     }, [data]);
 
 
@@ -100,12 +105,8 @@ const Graph = (props: GraphProps) => {
         }
     }, [props.zoomData]);
 
-
-
     const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
-        if (props.sync) {
-            props.setZoomData(e);
-        }
+        props.setZoomData(e);
     }
 
     return (
