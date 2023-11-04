@@ -10,7 +10,7 @@
 
 typedef struct
 {
-    SD_HandleTypeDef *const hsd;     // the HAL SD handle that will hold the state of the SD card
+    SD_HandleTypeDef * hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t                timeout; // the timeout for the SD card operations
 } SdCard;                            // struct that included all the state about SDIO and SD card
 
