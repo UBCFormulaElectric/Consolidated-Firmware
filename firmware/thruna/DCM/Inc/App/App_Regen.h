@@ -7,17 +7,21 @@
 #include "App_SharedMacros.h"
 
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
-#define WHEELBASE_mm 1550
-#define TRACK_WIDTH_mm 1100
+#define WHEELBASE_mm                   1550
+#define TRACK_WIDTH_mm                 1100
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f
+#define MAX_TORQUE_CHANGE              10.0f
+#define MIN_SCALING_SPEED_kph          35.0f
+#define SPEED_MIN_kph                  5.0f
+#define MAX_PEDAL_POSITION             -100.0f
+#define MAX_REGEN_nm                   -50.0f
+
 typedef struct RegenBraking
 {
     bool  enable_active_differential;
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
-    float wheel_speed_left_kph;
-    float wheel_speed_right_kph;
     float prev_torque_request_Nm;
 } RegenBraking;
 

@@ -23,4 +23,4 @@ class TestRegen : public testing::Test
     BinaryLed led = {};
 };
 
-TEST_F()
+TEST_F(TestRegen, positiveCase)
