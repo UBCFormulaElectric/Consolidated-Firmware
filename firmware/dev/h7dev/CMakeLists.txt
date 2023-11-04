@@ -42,6 +42,8 @@ if("${PLATFORM}" STREQUAL "arm")
         "stm32h7xx_hal_rcc.c"
         "stm32h7xx_hal_tim_ex.c"
         "stm32h7xx_hal_tim.c"
+        "stm32h7xx_hal_uart_ex.c"
+        "stm32h7xx_hal_uart.c"
         "stm32h7xx_hal.c"
     )
 

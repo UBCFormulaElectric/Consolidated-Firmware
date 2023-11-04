@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Embedded: BMS",
+      "name": "Debug J-Link: BMS",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.elf",
       "request": "launch",
@@ -16,7 +16,7 @@
       "preLaunchTask": "Build: BMS.elf"
     },
     {
-      "name": "Debug Embedded: DCM",
+      "name": "Debug J-Link: DCM",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.elf",
       "request": "launch",
@@ -30,7 +30,7 @@
       "preLaunchTask": "Build: DCM.elf"
     },
     {
-      "name": "Debug Embedded: FSM",
+      "name": "Debug J-Link: FSM",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.elf",
       "request": "launch",
@@ -44,7 +44,7 @@
       "preLaunchTask": "Build: FSM.elf"
     },
     {
-      "name": "Debug Embedded: PDM",
+      "name": "Debug J-Link: PDM",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.elf",
       "request": "launch",
@@ -58,7 +58,7 @@
       "preLaunchTask": "Build: PDM.elf"
     },
     {
-      "name": "Debug Embedded: DIM",
+      "name": "Debug J-Link: DIM",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.elf",
       "request": "launch",
@@ -70,6 +70,32 @@
       "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
       "preLaunchTask": "Build: DIM.elf"
+    },
+    {
+      "name": "Debug J-Link: h7dev",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_arm/firmware/dev/h7dev/h7dev.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f7x.cfg"
+      ],
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: h7dev.elf"
+    },
+    {
+      "name": "Debug DAPLink: h7dev",
+      "cwd": "${workspaceFolder}",
+      "executable": "build_arm/firmware/dev/h7dev/h7dev.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "pyocd",
+      "targetId": "stm32h733vgtx",
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: h7dev.elf"
     },
     {
       "name": "Debug Tests: BMS",
