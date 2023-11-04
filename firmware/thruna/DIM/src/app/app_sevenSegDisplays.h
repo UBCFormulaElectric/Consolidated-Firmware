@@ -17,6 +17,15 @@ void app_sevenSegDisplays_init(void);
 bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value);
 
 /**
+ * Set the fault code recieved from the board
+ * @param group The group to write to.
+ * @param board the board we are getting the fault form.
+ * @param fault the fault or warning that was called.  
+ * @return If the fault code could be written sucessfully.
+*/
+bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, int FaultCode);
+
+/**
  * Disable the specified group (turn off).
  * @param group The group to disable.
  */

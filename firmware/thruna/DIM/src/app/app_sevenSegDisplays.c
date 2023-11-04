@@ -82,3 +82,25 @@ void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
     io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_M);
     io_sevenSegDisplays_disable(group, SEVEN_SEG_SUBPOSITION_R);
 }
+
+//the faultcoding we are getting from can is basically looking at fault codes which have a count of  [1,INF)
+//and cycle through the warinings or faults
+
+bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, int FaultCode){
+
+    if (FaultCode > 600){
+        return false;
+    }
+
+    uint16_t faultValue = FaultCode;
+
+     for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS - 7; digit_subposition >= 0; digit_subposition--)
+    {
+        uint16_t digitToDisplay = faultValue % 10;
+        faultValue /=10;
+
+        void io_sevenSegDisplays_setValue(
+            group, (SevenSegSubposition)digit_subposition, (HexDigit)digitToDisplay, false);
+    }
+    return true;
+}
