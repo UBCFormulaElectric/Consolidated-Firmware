@@ -1,12 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Plot from 'react-plotly.js';
+import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
+import dynamic from "next/dynamic";
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+import { PlotRelayoutEvent } from 'plotly.js';
+
 import { Card, Button } from 'antd';
 
-import QueryData from './query_data.tsx';
+import QueryData from './query_data';
+import { MessageInstance } from 'antd/es/message/interface';
 
-const DEFAULT_LAYOUT = {
+const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620, 
     height: 500, 
     title: "Empty",
@@ -15,12 +19,23 @@ const DEFAULT_LAYOUT = {
     legend: {"orientation": "h"},
 }
 
-const Graph = (props) => {
-    const [data, setData] = useState({});
-    const [formattedData, setFormattedData] = useState([]);
+export interface GraphProps {
+    graphid: string,
+    id: string,
+    url: string,
+    sync: boolean,
+    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
+    zoomData: PlotRelayoutEvent,
+    onDelete: MouseEventHandler<HTMLElement>,
+    messageApi: MessageInstance,
+}
+
+const Graph = (props: GraphProps) => {
+    const [data, setData] = useState<{[name: string]: {time: Array<string>, value: Array<number>}}>({});
+    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
 
     //default graph layout
-    const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
+    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
 
      // randomizes colour for graph lines 
     const getRandomColor = () => {
@@ -42,13 +57,13 @@ const Graph = (props) => {
     // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
     // suggestions for improvements appreciated. 
     useEffect(() => {
-        const tempFormattedData = [];
+        const tempFormattedData: Plotly.Data[] = [];
         for (const name in data) {
             let signalData = data[name];
             let xData = signalData["time"];
             let yData = signalData["value"];
 
-            const formattedObj = {
+            const formattedObj: Plotly.Data = {
                 x: xData,
                 y: yData,
                 type: 'scatter',
@@ -91,10 +106,9 @@ const Graph = (props) => {
         }
     }, [props.zoomData]);
 
-    const handleZoom = (e) => {
+    const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
         props.setZoomData(e);
     }
-
 
     return (
         <Card
@@ -103,8 +117,8 @@ const Graph = (props) => {
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
-                config={{ 
-                    displayModeBar: true, 
+                config={{
+                    displayModeBar: true,
                     displaylogo: false,
                     scrollZoom: true,
                   }}
@@ -118,4 +132,3 @@ const Graph = (props) => {
 }
 
 export default Graph;
-

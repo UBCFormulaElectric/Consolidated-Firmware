@@ -1,28 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { Button, Space } from 'antd';
 
-import DropdownMenu from './dropdown_menu.tsx';
-import TimeStampPicker from './timestamp_picker.tsx';
+import DropdownMenu from './dropdown_menu';
+import TimeStampPicker from './timestamp_picker';
+import { MessageInstance } from 'antd/es/message/interface';
 
-const QueryData = (props) => {
-    const [measurement, setMeasurement] = useState([]);
-    const [allMeasurements, setAllMeasurements] = useState([]);
+export interface QueryDataProps {
+   url: string,
+   setData: Dispatch<{[name: string]: {time: Array<string>, value: Array<number>}}>,
+   messageApi: MessageInstance, 
+}
 
-    const [fields, setFields] = useState([]);
-    const [allFields, setAllFields] = useState([]);
+const QueryData = (props: QueryDataProps) => {
+    const [measurement, setMeasurement] = useState<string[]>([]);
+    const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
 
-    const [startEpoch, setStartEpoch] = useState(null);
-    const [endEpoch, setEndEpoch] = useState(null);
+    const [fields, setFields] = useState<string[]>([]);
+    const [allFields, setAllFields] = useState<string[]>([]);
+
+    const [startEpoch, setStartEpoch] = useState<string>("");
+    const [endEpoch, setEndEpoch] = useState<string>("");
 
     useEffect(() => {
-        fetch(props.url + "/signal", {
-            method: 'GET',
-        }).then((response) => response.json())
-          .then((data) => setAvail(data))
-          .catch((error) => console.log(error));
-
         fetch(props.url + "/signal/measurement", {
             method: 'get',
         }).then((response) => response.json())
@@ -48,31 +49,27 @@ const QueryData = (props) => {
             props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
             return;
         }
-        fetch(props.url + "/query?" + new URLSearchParams({
-            'measurement': measurement[0],
-            'fields': fields,
-            'start_epoch': startEpoch,
-            'end_epoch': endEpoch,
-        })).then((response) => {
-                return new Promise((resolve) => response.json()
-                                                        .then((json) => resolve({
-                                                            status: response.status,
-                                                            ok: response.ok,
-                                                            json,
-                                                        })));
-         }).then(({ status, json, ok }) => {
-                if (!ok) {
-                    props.messageApi.open({type: "error", content: json["error"]})
-                } else {
-                    props.setData(json);
-                }
-        }).catch((error) => console.log(error));
+        const newParams = new URLSearchParams({measurement: measurement[0],  start_epoch: startEpoch, end_epoch: endEpoch });
+        for (const field in fields) {
+            newParams.append('fields', fields[field]);
+        }
+        fetch(props.url + "/query?" + newParams)
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then(json => {throw new Error(json["error"])});
+            } else {
+                return response.json()
+            }
+        })
+        .then((data) => props.setData(data))
+        .catch((error) => props.messageApi.open({type: "error", content: error.toString()}));
+
     };
 
     return (
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"}/>
-            <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} name={"Fields"}/>
+            <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} single={false} name={"Fields"}/>
             <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
             <Button onClick={handleSubmit}>submit</Button>
         </div>);
