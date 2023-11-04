@@ -11,6 +11,7 @@ import Dashboard from './components/dashboard';
 import { PlotRelayoutEvent } from 'plotly.js';
 
 const FLASK_URL = "http://evanyl.pythonanywhere.com";
+//const FLASK_URL = "http://localhost:3000";
 
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
@@ -54,7 +55,7 @@ const Home = () => {
             <div className="flex-container">
             {graphs.map(graphId => (
                  <Graph 
-                    key={graphId} id={graphId} url={FLASK_URL} sync={sync} setZoomData={setZoomData} zoomData={zoomData}
+                    graphid={graphId} id={graphId} url={FLASK_URL} sync={sync} setZoomData={setZoomData} zoomData={zoomData}
                     onDelete={() => deleteGraph(graphId)} messageApi={messageApi}
                  />
             ))}

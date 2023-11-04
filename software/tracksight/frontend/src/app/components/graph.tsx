@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import Plotly, { PlotRelayoutEvent } from 'plotly.js';
-import createPlotlyComponent from "react-plotly.js/factory";
-const Plot = createPlotlyComponent(Plotly);
+import dynamic from "next/dynamic";
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+import { PlotRelayoutEvent } from 'plotly.js';
+
 import { Card, Button } from 'antd';
 
 import QueryData from './query_data';
