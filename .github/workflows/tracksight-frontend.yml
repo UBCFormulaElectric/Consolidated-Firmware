@@ -1,18 +1,39 @@
 name: Tracksight Frontend CI
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+run-name: Tracksight Frontend CI 🚀
+on:
+  push:
+    paths:
+      - "software/tracksight/frontend/**"
 jobs:
-  Explore-GitHub-Actions:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          ls
+      - name: Setup up node JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Dependancies
+        run: |
+          cd software/tracksight/frontend
+          npm install
+      - name: Build project
+        run: |
+          cd software/tracksight/frontend
+          npm run build
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
