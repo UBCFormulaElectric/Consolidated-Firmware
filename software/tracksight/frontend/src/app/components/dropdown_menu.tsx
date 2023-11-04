@@ -1,8 +1,16 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect, Dispatch, SetStateAction } from 'react'; 
 import { Select } from 'antd';
 
-const DropdownMenu = (props) => {
-    const [items, setItems] = useState([]);
+export interface DropdownMenuProps {
+    setOption: Dispatch<SetStateAction<string[]>>,
+    selectedOptions: string[],
+    options: string[],
+    single: boolean,
+    name: string,
+}
+
+const DropdownMenu = (props: DropdownMenuProps) => {
+    const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
 
     useEffect(() => {
         const updatedItems = props.options.map((name, index) => ({
@@ -33,7 +41,4 @@ const DropdownMenu = (props) => {
     );
 };
 
-DropdownMenu.defaultProps = {
-    single: false
-};
 export default DropdownMenu;
