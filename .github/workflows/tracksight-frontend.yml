@@ -1,6 +1,9 @@
 name: Tracksight Frontend CI
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+on:
+  push:
+    paths:
+      - "software/tracksight/frontend"
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -14,5 +17,5 @@ jobs:
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
-          ls ${{ github.workspace }}
+          ls ${{ github.workspace }}/software/tracksight/frontend
       - run: echo "🍏 This job's status is ${{ job.status }}."
