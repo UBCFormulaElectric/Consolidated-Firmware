@@ -19,7 +19,7 @@ Define a  message as below:
             },
             "signal_name_2": {
                 "bits": 3,
-            },
+                },
         }
     },
 }
