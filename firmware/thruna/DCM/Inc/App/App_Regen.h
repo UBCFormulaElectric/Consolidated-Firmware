@@ -30,10 +30,9 @@ typedef struct ActiveDifferential_Inputs
 /**
  * Run safety checks before starting regenerative braking and execute
  * regen if satisfied
- * @param *regen is a bool that indicates if regen is active
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-void App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pedal_percentage);
+void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentage);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset

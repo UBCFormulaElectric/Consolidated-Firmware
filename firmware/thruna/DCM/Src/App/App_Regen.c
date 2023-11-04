@@ -30,28 +30,23 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
 static RegenBraking              regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
 
-const float max_regen_nm              = -50.0f;
-const float wheel_speed_threshold_kph = 5.0f;
-const float max_pedal_position        = -50.0f;
-const float max_torque_delta          = 10.0f;
-const float min_scaling_speed_kph     = 35.0f;
+#define MAX_REGEN_nm         -50.0f
+#define SPEED_MIN_kph         5.0f
+#define MAX_PEDAL_POSITION   -100.0f
+#define MAX_TORQUE_CHANGE     10.0f
+#define MIN_SCALING_SPEED_kph 35.0f
 
-void App_Run_Regen(bool *regen, float *prev_torque_request, float accelerator_pedal_percentage)
+void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentage)
 {
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
 
-    if (accelerator_pedal_percentage >= 0)
-    {
-        return;
-    }
-    else if (App_Regen_Safety(&regenAttributes))
+    if (App_Regen_Safety(&regenAttributes))
     {
         regenAttributes.prev_torque_request_Nm = *prev_torque_request;
         activeDifferentialInputs.steering_angle_deg =
             App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
         compute_regen_torque_request(&activeDifferentialInputs, &regenAttributes);
-        *regen = true;
     }
     else
     {
@@ -91,9 +86,9 @@ void App_ActiveDifferential_ComputeNegativeTorque(
     float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
-    if (torque_max_Nm > -max_regen_nm)
+    if (torque_max_Nm > -MAX_REGEN_nm)
     {
-        scale = max_regen_nm / torque_max_Nm;
+        scale = MAX_REGEN_nm / torque_max_Nm;
     }
 
     regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
@@ -113,8 +108,8 @@ static bool wheel_speed_in_range(RegenBraking *regenAttr)
     regenAttr->wheel_speed_right_kph = MOTOR_RPM_TO_KMH((float)App_CanRx_INVR_MotorSpeed_Get());
     regenAttr->wheel_speed_left_kph  = MOTOR_RPM_TO_KMH((float)App_CanRx_INVL_MotorSpeed_Get());
 
-    return regenAttr->wheel_speed_right_kph > wheel_speed_threshold_kph &&
-           regenAttr->wheel_speed_left_kph > wheel_speed_threshold_kph;
+    return regenAttr->wheel_speed_right_kph > SPEED_MIN_kph &&
+           regenAttr->wheel_speed_left_kph > SPEED_MIN_kph;
 }
 
 static bool power_limit_check(RegenBraking *regenAttr)
@@ -126,11 +121,11 @@ static bool power_limit_check(RegenBraking *regenAttr)
 
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
-    float pedal_percentage          = inputs->accelerator_pedal_percentage;
-    float max_vehicle_speed         = MIN(regenAttr->wheel_speed_right_kph, regenAttr->wheel_speed_left_kph);
-    float max_negative_torque_scale =
-        (max_regen_nm * CLAMP(max_vehicle_speed, 0.0f, min_scaling_speed_kph) / min_scaling_speed_kph);
-    float torqueRequest             = pedal_percentage / max_pedal_position * max_negative_torque_scale;
+    float pedal_percentage          = inputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
+    float vehicle_speed             = MIN(regenAttr->wheel_speed_right_kph, regenAttr->wheel_speed_left_kph);
+    float max_torque_ratio          = CLAMP(vehicle_speed, 0.0f, MIN_SCALING_SPEED_kph) / MIN_SCALING_SPEED_kph;
+    float max_negative_torque_value = MAX_REGEN_nm * max_torque_ratio;
+    float torqueRequest             = max_negative_torque_value * pedal_percentage;
     float torqueChange;
 
     if (regenAttr->current_battery_level > 3.9f)
@@ -140,10 +135,10 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
 
     torqueChange = torqueRequest - regenAttr->prev_torque_request_Nm;
 
-    if ((float)fabs(torqueChange) > max_torque_delta)
+    if ((float)fabs(torqueChange) > MAX_TORQUE_CHANGE)
     {
         torqueRequest =
-            regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * max_torque_delta;
+            regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * MAX_TORQUE_CHANGE;
     }
 
     regenAttr->prev_torque_request_Nm = torqueRequest;

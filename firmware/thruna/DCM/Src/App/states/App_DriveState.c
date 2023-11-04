@@ -79,7 +79,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool start_switch_off     = !App_IsStartSwitchOn();
     const bool bms_not_in_drive     = !App_IsBmsInDriveState();
     bool       exit_drive           = !all_states_ok || start_switch_off || bms_not_in_drive;
-    bool       regen                = false;
     bool       regen_switch_enabled = App_RegenTorqueVectoringStatus();
     apps_pedal_percentage           = App_CanRx_FSM_PappsMappedPedalPercentage_Get();
 
@@ -99,16 +98,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (regen_switch_enabled)
     {
-        apps_pedal_percentage = apps_pedal_percentage - 50.0f;
-        App_Run_Regen(&regen, &prev_torque_request, apps_pedal_percentage);
-
-        if (apps_pedal_percentage >= 0)
-        {
-            apps_pedal_percentage = apps_pedal_percentage * 2;
-        }
+        apps_pedal_percentage = (apps_pedal_percentage - 50.0f) * 2;
     }
 
-    if (all_states_ok && !regen)
+    if (apps_pedal_percentage < 0)
+    {
+        App_Run_Regen(&prev_torque_request, apps_pedal_percentage);  
+    }
+    else 
     {
         App_SetPeriodicCanSignals_TorqueRequests();
     }
