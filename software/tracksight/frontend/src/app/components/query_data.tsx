@@ -49,6 +49,7 @@ const QueryData = (props: QueryDataProps) => {
             props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
             return;
         }
+      
         let urlWithSearchParams = new URLSearchParams(props.url + "/query");
         urlWithSearchParams.append('measurement', measurement[0]);
         for (const field in fields) {
@@ -66,6 +67,7 @@ const QueryData = (props: QueryDataProps) => {
         })
         .then((data) => props.setData(data))
         .catch((error) => props.messageApi.open({type: "error", content: error.toString()}));
+
     };
 
     return (
