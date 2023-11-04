@@ -6,7 +6,7 @@
 // Use the voltage to SoC lookup table to get the index. Use this index to look up the state of charge
 
 // index 0 represents 5.0% soc, final index represents 100%. 0.5% increments.
-static const float voc_soc_lut[V_TO_SOC_LUT_SIZE] = {
+static const float ocv_soc_lut[V_TO_SOC_LUT_SIZE] = {
     3.648025f, 3.66161f,  3.67358f,  3.683925f, 3.692495f, 3.697345f, 3.70026f,  3.7022f,   3.70382f,  3.7056f,
     3.707215f, 3.70867f,  3.71045f,  3.71239f,  3.71417f,  3.71659f,  3.71918f,  3.72177f,  3.725f,    3.72791f,
     3.730665f, 3.73357f,  3.73616f,  3.73891f,  3.741335f, 3.744085f, 3.74635f,  3.74894f,  3.7512f,   3.753465f,

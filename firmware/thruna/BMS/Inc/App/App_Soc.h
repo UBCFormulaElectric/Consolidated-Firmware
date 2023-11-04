@@ -6,17 +6,17 @@
 
 /**
  * Function to retrieve soc closest to given open circuit voltage
- * @param voc open circuit voltage
+ * @param voltage open circuit voltage
  * @return soc related to open circuit voltage
  */
-float App_Soc_GetSocFromVoc(float voltage);
+float App_Soc_GetSocFromOcv(float voltage);
 
 /**
  * Function to retrieve open circuit voltage closest to given soc
  * @param soc_percent state of charge in percent
  * @return open circuit voltage closest to given state of charge
  */
-float App_Soc_GetVocFromSoc(float soc_percent);
+float App_Soc_GetOcvFromSoc(float soc_percent);
 
 struct SocStats
 {
@@ -123,7 +123,7 @@ float App_SocStats_GetMinSocPercent(struct SocStats *soc_stats);
  * @param soc_stats current SOC of each series element in pack
  * @return float minimum series element open circuit voltage approximation
  */
-float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats);
+float App_SOC_GetMinOcvFromSoc(struct SocStats *soc_stats);
 
 /**
  * Reset SOC value based on current minimum cell voltage

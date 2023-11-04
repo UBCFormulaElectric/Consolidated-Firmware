@@ -11,11 +11,11 @@
 #define MS_TO_S (0.001f)
 #define SOC_TIMER_DURATION (100U)
 
-float App_Soc_GetSocFromVoc(float voltage)
+float App_Soc_GetSocFromOcv(float voltage)
 {
     uint8_t lut_index = 0;
 
-    while ((voltage > voc_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
+    while ((voltage > ocv_soc_lut[lut_index]) && (lut_index < V_TO_SOC_LUT_SIZE))
     {
         lut_index++;
     }
@@ -28,7 +28,7 @@ float App_Soc_GetSocFromVoc(float voltage)
     return LUT_BASE_SOC + lut_index * 0.5f;
 }
 
-float App_Soc_GetVocFromSoc(float soc_percent)
+float App_Soc_GetOcvFromSoc(float soc_percent)
 {
     uint8_t lut_index = 0;
 
@@ -43,7 +43,7 @@ float App_Soc_GetVocFromSoc(float soc_percent)
         lut_index--;
     }
 
-    return voc_soc_lut[lut_index];
+    return ocv_soc_lut[lut_index];
 }
 
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result)
@@ -152,10 +152,10 @@ float App_SocStats_GetMinSocPercent(struct SocStats *soc_stats)
     return soc_percent;
 }
 
-float App_SOC_GetMinVocFromSoc(struct SocStats *soc_stats)
+float App_SOC_GetMinOcvFromSoc(struct SocStats *soc_stats)
 {
     float soc_percent = App_SocStats_GetMinSocPercent(soc_stats);
-    return App_Soc_GetVocFromSoc(soc_percent);
+    return App_Soc_GetOcvFromSoc(soc_percent);
 }
 
 void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator)
@@ -165,7 +165,7 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
 
     const float min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &segment, &cell);
 
-    float soc_percent = App_Soc_GetSocFromVoc(min_cell_voltage);
+    float soc_percent = App_Soc_GetSocFromOcv(min_cell_voltage);
 
     // convert from percent to coulombs
     soc_stats->charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);

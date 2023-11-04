@@ -17,7 +17,6 @@ struct State
     void (*run_on_entry)(struct StateMachine *state_machine);
     void (*run_on_tick_1Hz)(struct StateMachine *state_machine);
     void (*run_on_tick_100Hz)(struct StateMachine *state_machine);
-    void (*run_on_tick_1kHz)(struct StateMachine *state_machine);
     void (*run_on_exit)(struct StateMachine *state_machine);
 };
 

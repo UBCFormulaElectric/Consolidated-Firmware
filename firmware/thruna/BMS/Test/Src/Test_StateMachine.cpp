@@ -995,12 +995,12 @@ TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
     ASSERT_FLOAT_EQ(soc, 99.0f);
 }
 
-TEST_F(BmsStateMachineTest, voc_to_soc_lut_test)
+TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
 {
     // Check that soc saturates at 5.0% lower bound
     float test_voltage = 0.0f;
 
-    float soc = App_Soc_GetSocFromVoc(test_voltage);
+    float soc = App_Soc_GetSocFromOcv(test_voltage);
 
     float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
 
@@ -1009,7 +1009,7 @@ TEST_F(BmsStateMachineTest, voc_to_soc_lut_test)
     // Check middle of the range
     test_voltage = 4.0f;
 
-    soc = App_Soc_GetSocFromVoc(test_voltage);
+    soc = App_Soc_GetSocFromOcv(test_voltage);
 
     expected_soc = 81.5f;
 
@@ -1018,40 +1018,40 @@ TEST_F(BmsStateMachineTest, voc_to_soc_lut_test)
     // Check that SOC saturates at 100.0%
     test_voltage = 5.0f;
 
-    soc = App_Soc_GetSocFromVoc(test_voltage);
+    soc = App_Soc_GetSocFromOcv(test_voltage);
 
     expected_soc = 100.0;
 
     ASSERT_FLOAT_EQ(soc, expected_soc);
 }
 
-TEST_F(BmsStateMachineTest, soc_to_voc_lut_test)
+TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
 {
     float test_soc = 0.0f;
 
-    float voc = App_Soc_GetVocFromSoc(test_soc);
+    float ocv = App_Soc_GetOcvFromSoc(test_soc);
 
-    float expected_voc = 3.648025f; // LUT does not contain SOC values below 5%
+    float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc, expected_voc);
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check middle of the range
     test_soc = 68.5f;
 
-    voc = App_Soc_GetVocFromSoc(test_soc);
+    ocv = App_Soc_GetOcvFromSoc(test_soc);
 
-    expected_voc = 3.924725; // LUT does not contain SOC values below 5%
+    expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc, expected_voc);
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check that voltage saturates at value associated with 100.0% soc
     test_soc = 101.0f;
 
-    voc = App_Soc_GetVocFromSoc(test_soc);
+    ocv = App_Soc_GetOcvFromSoc(test_soc);
 
-    expected_voc = 4.194519f; // LUT does not contain SOC values below 5%
+    expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
 
-    ASSERT_FLOAT_EQ(voc, expected_voc);
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
 }
 
 } // namespace StateMachineTest
