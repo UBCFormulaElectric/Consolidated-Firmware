@@ -119,6 +119,12 @@ candump can0 -c -t d | cantools decode --single-line can_bus/dbcs/CanMsgs.dbc
 cantools monitor scripts/codegen/CAN/App_CanMsgs.dbc -b socketcan -c can0 -B 500000
 ```
 
+On Mac:
+
+```
+cantools monitor can_bus/dbcs/CanMsgs.dbc -b pcan -c PCAN_USBBUS1 -B 500000
+```
+
 ## Continuous Integration (CI)
 
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the

@@ -9,8 +9,7 @@
  * @param cell_voltages Buffer to write out the read voltages to
  * @return True if cell voltages are read back successfully. Else, false
  */
-bool Io_LTC6813CellVoltages_ReadVoltages(
-    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+bool Io_LTC6813CellVoltages_ReadVoltages(void);
 
 /**
  * Start an ADC conversion on the LTC6813 for measured cell voltages
@@ -18,3 +17,9 @@ bool Io_LTC6813CellVoltages_ReadVoltages(
  * false
  */
 bool Io_LTC6813CellVoltages_StartAdcConversion(void);
+
+/**
+ * @brief Read cell voltages from the previously stored values
+ * @return Cell Voltage Value
+ */
+float Io_LTC6813CellVoltages_GetCellVoltage(uint8_t segement, uint8_t cell);

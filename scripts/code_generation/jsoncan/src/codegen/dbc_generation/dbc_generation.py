@@ -17,10 +17,6 @@ BS_:
 
 {attribute_definitions}
 
-{start_value_attributes}
-
-{cycle_time_attributes}
-
 {value_tables}
 
 """
