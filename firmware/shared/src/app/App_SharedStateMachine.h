@@ -71,9 +71,3 @@ void App_SharedStateMachine_Tick1Hz(struct StateMachine *state_machine);
  * @param state_machine The state machine to tick
  */
 void App_SharedStateMachine_Tick100Hz(struct StateMachine *state_machine);
-
-/**
- * Tick the 1kHz function of the given state machine
- * @param state_machine The state machine to tick
- */
-void App_SharedStateMachine_Tick1kHz(struct StateMachine *state_machine);
