@@ -49,15 +49,11 @@ const QueryData = (props: QueryDataProps) => {
             props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
             return;
         }
-      
-        let urlWithSearchParams = new URLSearchParams(props.url + "/query");
-        urlWithSearchParams.append('measurement', measurement[0]);
+        const newParams = new URLSearchParams({measurement: measurement[0],  start_epoch: startEpoch, end_epoch: endEpoch });
         for (const field in fields) {
-            urlWithSearchParams.append('fields', field);
+            newParams.append('fields', fields[field]);
         }
-        urlWithSearchParams.append('start_epoch', startEpoch);
-        urlWithSearchParams.append('end_epoch', endEpoch);
-        fetch(urlWithSearchParams.toString())
+        fetch(props.url + "/query?" + newParams)
         .then((response) => {
             if (!response.ok) {
                 return response.json().then(json => {throw new Error(json["error"])});
