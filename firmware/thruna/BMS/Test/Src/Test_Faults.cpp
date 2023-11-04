@@ -663,7 +663,7 @@ TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning){
         }
     }
     LetTimePass(state_machine, 20);
-    ASSERT_TRUE(App_CanAlerts_BMS_BlownFuseWarning_Get());
+    ASSERT_TRUE(App_CanAlerts_BMS_Warning_BlownCellFuse_Get());
 }
 
 TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
@@ -678,7 +678,7 @@ TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger){
         }
     }
     LetTimePass(state_machine, 20);
-    ASSERT_FALSE(App_CanAlerts_BMS_BlownFuseWarning_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Warning_BlownCellFuse_Get());
 }
 
 TEST_F(BmsFaultTest, check_blown_fuse_doesnt_trigger_when_below_current_threshold){
@@ -696,7 +696,7 @@ TEST_F(BmsFaultTest, check_blown_fuse_doesnt_trigger_when_below_current_threshol
         }
     }
     LetTimePass(state_machine, 20);
-    ASSERT_FALSE(App_CanAlerts_BMS_BlownFuseWarning_Get());
+    ASSERT_FALSE(App_CanAlerts_BMS_Warning_BlownCellFuse_Get());
 }
 
 } // namespace FaultTest

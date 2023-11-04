@@ -468,7 +468,7 @@ bool App_Accumulator_CheckWarnings(struct Accumulator *const accumulator, struct
 
     bool blown_fuse_warning = estimated_min_cells_in_parallel < BLOWN_FUSE_THRESHOLD;
 
-    App_CanAlerts_BMS_BlownFuseWarning_Set(blown_fuse_warning);
+    App_CanAlerts_BMS_Warning_BlownCellFuse_Set(blown_fuse_warning);
 
     return blown_fuse_warning;
 }
