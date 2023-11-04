@@ -16,7 +16,6 @@ PREAMBLE = """\
  */
 // clang-format off"""
 
-
 class CModule(ABC):
     """
     ABC for a C module (i.e. pair of header .h and source .c files)
