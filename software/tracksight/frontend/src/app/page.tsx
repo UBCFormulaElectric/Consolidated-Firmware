@@ -2,7 +2,7 @@
 
 import { useEffect, useState, React } from 'react';
 import { io } from "socket.io-client";
-import { Layout, Divider, Button, Switch } from 'antd';
+import { message, Button, Divider, Layout, Switch } from 'antd';
 const { Header, Content } = Layout;
 
 import styles from './page.module.css';
@@ -20,7 +20,7 @@ const Home = () => {
     const [zoomData, setZoomData] = useState([]);
     // determines if all graphs are supposed to zoom together or not
     const [sync, setSync] = useState(false);
-    
+    const [messageApi, contextHolder] = message.useMessage();
 
     //add a new graph
     const addGraph = () => {
@@ -78,7 +78,7 @@ const Home = () => {
             {graphs.map(graphId => (
                  <Graph 
                     key={graphId} id={graphId} url={FLASK_URL} sync={sync} setZoomData={setZoomData} zoomData={zoomData}
-                    onDelete={() => deleteGraph(graphId)}
+                    onDelete={() => deleteGraph(graphId)} messageApi={messageApi}
                  />
             ))}
             </div>
@@ -93,6 +93,7 @@ const Home = () => {
                 <NavBar updateFunction={setComponentToDisplay}/>
             </Header>
             <Content>
+                {contextHolder}
                 {!loading && componentToRender}
             </Content>
         </Layout>
