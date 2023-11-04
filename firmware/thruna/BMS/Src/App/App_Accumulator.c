@@ -434,9 +434,10 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
     }
 }
 
-float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulator, struct TractiveSystem *const ts){
+float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
+{
     float cell_voltage_minimum = accumulator->voltage_stats.min_voltage.voltage;
-    float cell_voltage_sum = 0;
+    float cell_voltage_sum     = 0;
 
     for (uint8_t seg; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
     {
@@ -449,7 +450,7 @@ float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulato
 
     float denom_min_cells_in_parallel =
         cell_voltage_avg - cell_voltage_minimum +
-        segment_current * INTERNAL_CELL_RESISTANCE / (float)ACCUMULATOR_NUM_CELLS_PER_SEGMENT;
+        segment_current * INTERNAL_CELL_RESISTANCE / (float)ACCUMULATOR_NUM_PARALLEL_CELLS;
 
     if (denom_min_cells_in_parallel == 0)
     {
@@ -461,7 +462,8 @@ float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulato
 
 bool App_Accumulator_CheckWarnings(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
 {
-    if(App_TractiveSystem_GetCurrent(ts) < FUSE_CHECK_CURRENT_THRESHOLD){
+    if (App_TractiveSystem_GetCurrent(ts) < FUSE_CHECK_CURRENT_THRESHOLD_AMPS)
+    {
         return false;
     }
     float estimated_min_cells_in_parallel = App_Accumulator_BlownFuseCheck_Helper(accumulator, ts);
