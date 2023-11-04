@@ -30,6 +30,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
 )
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
