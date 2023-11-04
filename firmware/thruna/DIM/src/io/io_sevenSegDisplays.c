@@ -52,6 +52,24 @@ static const CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
+static const CommandLookupTable faultCodes = 
+{
+    .disable = 0x0,
+    .values = 
+    {
+        0xFC, // 0x0
+        0x60, // 0x1
+        0xDA, // 0x2
+        0xF2, // 0x3
+        0x66, // 0x4
+        0xB6, // 0x5
+        0xBE, // 0x6
+        0xE0, // 0x7
+        0xFE, // 0x8
+        0xE6, // 0x9
+    }
+};
+
 static const SevenSegsConfig *config;
 static uint8_t                commands[NUM_SEVEN_SEGS];
 
