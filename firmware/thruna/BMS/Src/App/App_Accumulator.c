@@ -13,7 +13,7 @@
 // less than three cells in parallel. We calculate number of cells and compare.
 // TODO: TUNING AND TESTING REQUIRED, STILL A WORK IN PROGRESS THRESHOLD.
 #define BLOWN_FUSE_THRESHOLD (2.5f)
-#define FUSE_CHECK_CURRENT_THRESHOLD (40.0f)
+#define FUSE_CHECK_CURRENT_THRESHOLD_AMPS (40.0f)
 
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
