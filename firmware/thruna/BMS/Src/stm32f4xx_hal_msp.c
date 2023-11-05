@@ -21,6 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -314,7 +315,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
         PB6     ------> I2C1_SCL
         PB9     ------> I2C1_SDA
         */
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6 | GPIO_PIN_9);
+        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6);
+
+        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9);
 
         /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
@@ -530,5 +533,3 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

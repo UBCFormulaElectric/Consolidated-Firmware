@@ -1,5 +1,5 @@
 #include "main.h"
-#include "Io_Hal.h"
+#include "hw_hal.h"
 #include "Io_LatchedFaults.h"
 
 bool Io_LatchedFaults_CheckImdLatchedFault(void)

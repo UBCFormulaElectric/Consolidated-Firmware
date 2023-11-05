@@ -232,10 +232,10 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
     // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_front_pressure_fake.return_val,
-        App_CanTx_FSM_FrontBrakePressure_Get, App_CanAlerts_FSM_FrontBrakePressureOutOfRangeWarning_Get);
+        App_CanTx_FSM_FrontBrakePressure_Get, App_CanAlerts_FSM_Warning_FrontBrakePressureOutOfRange_Get);
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_rear_pressure_fake.return_val,
-        App_CanTx_FSM_RearBrakePressure_Get, App_CanAlerts_FSM_RearBrakePressureOutOfRangeWarning_Get);
+        App_CanTx_FSM_RearBrakePressure_Get, App_CanAlerts_FSM_Warning_RearBrakePressureOutOfRangeWarning_Get);
 
     // actuation
     // TODO: Update this once potentiometer is fixed
@@ -254,7 +254,7 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
-        App_CanTx_FSM_CoolantFlowRate_Get, App_CanAlerts_FSM_FlowRateOutOfRangeWarning_Get);
+        App_CanTx_FSM_CoolantFlowRate_Get, App_CanAlerts_FSM_Warning_FlowRateOutOfRange_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states)
@@ -280,21 +280,21 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG, get_steering_angle_fake.return_val,
-        App_CanTx_FSM_SteeringAngle_Get, App_CanAlerts_FSM_SteeringAngleOutOfRangeWarning_Get);
+        App_CanTx_FSM_SteeringAngle_Get, App_CanAlerts_FSM_Warning_SteeringAngleOutOfRange_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, wheel_get_left_speed_fake.return_val,
-        App_CanTx_FSM_LeftWheelSpeed_Get, App_CanAlerts_FSM_LeftWheelSpeedOutOfRangeWarning_Get);
+        App_CanTx_FSM_LeftWheelSpeed_Get, App_CanAlerts_FSM_Warning_LeftWheelSpeedOutOfRange_Get);
 }
 
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, wheel_get_right_speed_fake.return_val,
-        App_CanTx_FSM_RightWheelSpeed_Get, App_CanAlerts_FSM_RightWheelSpeedOutOfRangeWarning_Get);
+        App_CanTx_FSM_RightWheelSpeed_Get, App_CanAlerts_FSM_Warning_RightWheelSpeedOutOfRange_Get);
 }
 
 //========================OTHERS========================

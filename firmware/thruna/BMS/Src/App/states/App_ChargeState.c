@@ -58,7 +58,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_Charger_IncrementFaultCounterVal(charger);
         }
 
-        App_CanAlerts_BMS_ChargerFault_Set(has_charger_faulted);
+        App_CanAlerts_BMS_Fault_Charger_Set(has_charger_faulted);
 
         if (has_charger_faulted)
         {
@@ -72,8 +72,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
             App_CanRx_Debug_StartCharging_Update(false);
-            App_CanAlerts_BMS_ChargerDisconnectedDuringChargeFault_Set(!is_charger_connected);
-            App_CanAlerts_BMS_ChargerExternalShutdownFault_Set(external_shutdown_occurred);
+            App_CanAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_Set(!is_charger_connected);
+            App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(external_shutdown_occurred);
         }
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
         if (!charging_enabled || (charging_completed && timeout_passed))

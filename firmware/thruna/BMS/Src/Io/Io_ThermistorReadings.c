@@ -1,5 +1,5 @@
 #include "Io_ThermistorReadings.h"
-#include "Io_Hal.h"
+#include "hw_hal.h"
 #include "Io_Adc.h"
 #include "main.h"
 

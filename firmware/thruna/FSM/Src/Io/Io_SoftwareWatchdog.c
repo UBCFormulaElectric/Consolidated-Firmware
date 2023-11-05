@@ -1,4 +1,4 @@
-#include "Io_Hal.h"
+#include "hw_hal.h"
 #include <string.h>
 #include "App_FsmWorld.h"
 #include "Io_SoftwareWatchdog.h"
@@ -16,6 +16,6 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
     BREAK_IF_DEBUGGER_CONNECTED()
 
     const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
-    App_CanAlerts_FSM_WatchdogTimeoutWarning_Set(true);
+    App_CanAlerts_FSM_Warning_WatchdogTimeout_Set(true);
     App_CanTx_FSM_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }

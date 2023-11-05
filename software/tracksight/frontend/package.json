@@ -13,17 +13,24 @@
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
     "antd": "^5.9.2",
+    "buffer": "^6.0.3",
     "bufferutil": "^4.0.7",
+    "dayjs": "^1.11.10",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.2",
+    "moment-timezone": "^0.5.43",
     "next": "13.5.4",
-    "package.json": "^2.0.1",
-    "plotly.js": "^2.26.0",
+    "package.json": "^0.0.0",
+    "plotly.js": "^2.27.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-plotly.js": "^2.6.0",
     "socket.io-client": "^4.7.2",
     "typescript": "5.2.2",
     "utf-8-validate": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/plotly.js": "^2.12.29",
+    "@types/react-plotly.js": "^2.6.2"
   }
 }

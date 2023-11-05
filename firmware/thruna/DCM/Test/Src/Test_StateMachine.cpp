@@ -321,32 +321,32 @@ TEST_F(DcmStateMachineTest, drive_to_init_state_on_right_inverter_fault)
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_bms_fault)
 {
-    auto set_fault   = []() { App_CanRx_BMS_CellOvervoltageFault_Update(true); };
-    auto clear_fault = []() { App_CanRx_BMS_CellOvervoltageFault_Update(false); };
+    auto set_fault   = []() { App_CanRx_BMS_Fault_CellOvervoltage_Update(true); };
+    auto clear_fault = []() { App_CanRx_BMS_Fault_CellOvervoltage_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_fsm_fault)
 {
-    auto set_fault   = []() { App_CanRx_FSM_FlowMeterUnderflowFault_Update(true); };
-    auto clear_fault = []() { App_CanRx_FSM_FlowMeterUnderflowFault_Update(false); };
+    auto set_fault   = []() { App_CanRx_FSM_Fault_FlowMeterUnderflow_Update(true); };
+    auto clear_fault = []() { App_CanRx_FSM_Fault_FlowMeterUnderflow_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_pdm_fault)
 {
-    auto set_fault   = []() { App_CanRx_PDM_DummyFault_Update(true); };
-    auto clear_fault = []() { App_CanRx_PDM_DummyFault_Update(false); };
+    auto set_fault   = []() { App_CanRx_PDM_Fault_DummyFault_Update(true); };
+    auto clear_fault = []() { App_CanRx_PDM_Fault_DummyFault_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_dim_fault)
 {
-    auto set_fault   = []() { App_CanRx_DIM_MissingHeartbeatFault_Update(true); };
-    auto clear_fault = []() { App_CanRx_DIM_MissingHeartbeatFault_Update(false); };
+    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(true); };
+    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }

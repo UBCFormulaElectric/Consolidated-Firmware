@@ -4,27 +4,27 @@
     "warnings_counts_id": 152,
     "faults_counts_id": 153,
     "warnings": [
-        "StackWaterMarkHighTask1HzWarning",
-        "StackWaterMarkHighTask100HzWarning",
-        "StackWaterMarkHighTask1kHzWarning",
-        "StackWaterMarkHighTaskCanRxWarning",
-        "StackWaterMarkHighTaskCanTxWarning",
-        "WatchdogTimeoutWarning",
-        "TxOverflowWarning",
-        "RxOverflowWarning"
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx",
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow"
     ],
     "faults": [
-        "MissingHeartbeatFault",
-        "StateMachineFault",
-        "CellUndervoltageFault",
-        "CellOvervoltageFault",
-        "ModuleCommunicationFault",
-        "CellUndertempFault",
-        "CellOvertempFault",
-        "ChargerFault",
-        "ChargerDisconnectedDuringChargeFault",
-        "ChargerExternalShutdownFault",
-        "TractiveSystemOvercurrentFault",
-        "PrechargeFailureFault"
+        "MissingHeartbeat",
+        "StateMachine",
+        "CellUndervoltage",
+        "CellOvervoltage",
+        "ModuleCommunicationError",
+        "CellUndertemp",
+        "CellOvertemp",
+        "Charger",
+        "ChargerDisconnectedDuringCharge",
+        "ChargerExternalShutdown",
+        "TractiveSystemOvercurrent",
+        "PrechargeFailure"
     ]
 }

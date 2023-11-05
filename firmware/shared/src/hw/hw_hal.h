@@ -8,19 +8,7 @@
 #pragma once
 
 #if defined(STM32F302xC)
-#define _TARGET_STM32F3
-#elif defined(STM32F412Rx)
-#define _TARGET_STM32F4
-#endif
-
-#if defined(_TARGET_STM32F3)
-
 #include <stm32f3xx.h>
-#define IO_HAL_FREERTOS_VERSION TRC_FREERTOS_VERSION_9_0_0
-
-#elif defined(_TARGET_STM32F4)
-
+#elif defined(STM32F412Rx)
 #include <stm32f4xx.h>
-#define IO_HAL_FREERTOS_VERSION TRC_FREERTOS_VERSION_10_0_1
-
 #endif

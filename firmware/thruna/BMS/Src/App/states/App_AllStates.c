@@ -138,7 +138,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // ignore heartbeat when charging, other boards likely disconnected
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
-    App_CanAlerts_BMS_MissingHeartbeatFault_Set(missing_hb);
+    App_CanAlerts_BMS_Fault_MissingHeartbeat_Set(missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);
