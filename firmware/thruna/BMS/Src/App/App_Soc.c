@@ -9,7 +9,7 @@
 #define STATE_OF_HEALTH (1.0f)
 #define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
 #define MS_TO_S (0.001f)
-#define SOC_TIMER_DURATION (100U)
+#define SOC_TIMER_DURATION (110U)
 
 float App_Soc_GetSocFromOcv(float voltage)
 {
