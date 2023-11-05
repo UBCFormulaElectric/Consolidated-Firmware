@@ -11,7 +11,6 @@ signal_util = SignalUtil.SignalUtil()
 def hello_world():
     return "Wireless 2.0"
 
-
 # function set for returning signal names
 @app.route('/signal', methods=['GET'])
 def return_all_available_signals():

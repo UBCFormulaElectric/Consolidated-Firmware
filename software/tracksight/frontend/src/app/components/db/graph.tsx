@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import Plotly, { PlotRelayoutEvent } from 'plotly.js';
-import createPlotlyComponent from "react-plotly.js/factory";
-const Plot = createPlotlyComponent(Plotly);
+import dynamic from "next/dynamic";
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+import { PlotRelayoutEvent } from 'plotly.js';
+
 import { Card, Button, Space } from 'antd';
 
 import QueryData from './query_data';
@@ -19,8 +20,7 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
 }
 
 export interface GraphProps {
-    graphid: string,
-    id: string,
+    id: number,
     url: string,
     sync: boolean,
     setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>

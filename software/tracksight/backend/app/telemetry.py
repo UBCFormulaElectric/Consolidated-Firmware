@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask
 from process.http_app import app as http_app
 from process.socket_app import socketio as socket_app
 

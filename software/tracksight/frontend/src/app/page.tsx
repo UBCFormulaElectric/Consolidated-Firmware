@@ -1,23 +1,22 @@
 'use client';
-import { useEffect, useState, React } from 'react';
-import { message, Button, Divider, Layout, Switch } from 'antd';
-import { Layout } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { message, Layout } from 'antd';
 const { Header, Content } = Layout;
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import styles from './page.module.css';
 import NavBar from './components/navbar';
 import Dashboard from './components/dashboard';
 import Visualize from './components/visualize';
 
-const FLASK_URL = "http://evanyl.pythonanywhere.com";
-//const FLASK_URL = "http://localhost:3000";
+//const FLASK_URL = "http://evanyl.pythonanywhere.com";
+const FLASK_URL = "http://127.0.0.1:5000/";
 const Home = () => {
-    const [componentToDisplay, setComponentToDisplay] = useState("visualize");
-    const [socketInstance, setSocketInstance] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [graphs, setGraphs] = useState([]);
+    const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize'); 
+    const [socketInstance, setSocketInstance] = useState<Socket | null>(null); 
+    const [loading, setLoading] = useState<boolean>(true);
+    const [graphs, setGraphs] = useState<number[]>([]);
+    const [liveGraphs, setLiveGraphs] = useState<number[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
-    const [liveGraphs, setLiveGraphs] = useState([]);
 
     //add a new graph
     const addGraph = (live: boolean) => {
@@ -31,7 +30,7 @@ const Home = () => {
 
 
     //delete a graph
-    const deleteGraph = (graphId: string, live: boolean) => {
+    const deleteGraph = (graphId: number, live: boolean) => {
         if (live) {
             setLiveGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
         } else {
@@ -43,20 +42,20 @@ const Home = () => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
         const socket = io(FLASK_URL, {
             transports: ["websocket"],
-            cors: {
+            transportOptions: {
                 origin: "http://localhost:3000/",
             },
         });
 
         setSocketInstance(socket)
-        socket.on("connect", (data) => {
-            console.log(data);
+
+        socket.on("connect", () => {
             setLoading(false);
         });
 
 
-        socket.on("disconnect", (data) => {
-            console.log(data);
+        socket.on("disconnect", () => {
+            setLoading(true);
         });
         return () => {
             socket.disconnect();
@@ -78,7 +77,7 @@ const Home = () => {
                             liveGraphs={liveGraphs}
                             deleteGraph={deleteGraph}
                             url={FLASK_URL}
-                            socket={socketInstance}
+                            socket={socketInstance!}
                             messageApi={messageApi}
                         />
                     ) : (

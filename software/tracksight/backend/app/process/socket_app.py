@@ -10,6 +10,16 @@ def handle_connect():
     print("Client Connected")
     emit('message', 'You are connected to the server connect')
 
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Client Disconnected")
+    emit('message', 'You are disconnected from the server disconnect')
+    
+@socketio.on('data')
+def handle_message(message):
+    socketio.emit('message_from_server', f'Server received: {message}')
+
+
 # returns all available signals to the client
 @socketio.on('available_signals')
 def handle_available_signals(message):

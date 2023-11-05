@@ -1,9 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
 import Plot from 'react-plotly.js';
 import { Button, Card, Switch, Space } from 'antd';
 
-import LiveDropdownMenu from './dropdown_live.tsx';
-import WebSocketComponent from './web_socket.tsx';
+import LiveDropdownMenu from './dropdown_live';
+import WebSocketComponent from './web_socket';
+import { Socket } from "socket.io-client";
+
+interface FormattedData {
+    x: Date[];
+    y: number[];
+    type: string;
+    mode: string;
+    name: string;
+}
+
+interface Data {
+    id: number;
+    signals: Record<string, Record<string, number>>;
+}
+
 
 const DEFAULT_LAYOUT = {
     width: 620,
@@ -20,48 +35,53 @@ const DEFAULT_LAYOUT = {
 const UPDATE_INTERVAL_MS = 100; // changes update speed
 const MAX_DATA_POINTS = 100; // max amount of data points on the graph at a time
 
-const LiveGraph = (props) => {
-    const [data, setData] = useState({});
-    const [formattedData, setFormattedData] = useState([]);
-    const [signals, setSignals] = useState([]);
-    const [avail, setAvail] = useState([]);
+export interface LiveGraphProps {
+    id: number,
+    onDelete: MouseEventHandler<HTMLElement>,
+    socket: Socket,
+}
+const LiveGraph = (props: LiveGraphProps) => {
+    const [data, setData] = useState<Data>({ id: 0, signals: {} });
+    const [formattedData, setFormattedData] = useState<FormattedData[]>([]);
+    const [signals, setSignals] = useState<string[]>([]);
+    const [avail, setAvail] = useState<string[]>([]);
     const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
 
     // for live data simulation, remove when live signals are actually implemented
-    const [useLive, setUseLive] = useState(false);
+    const [useLive, setUseLive] = useState<boolean>(false);
 
-    const changeLive = (checked) => {
+    const changeLive = (checked: boolean) => {
         setUseLive(checked);
     }
 
     const clearData = () => {
         setFormattedData([]);
         setGraphLayout(DEFAULT_LAYOUT);
-        setData({});
+        setData({ id: 0, signals: {} });
         setSignals([]);
     }
 
     const formatData = () => {
         if (data['id'] === props.id && data['signals']) {
             const signals = data['signals'];
-            const newFormattedData = [];
+            const newFormattedData: FormattedData[] = [];
     
             for (const signalName in signals) {
                 const signalData = signals[signalName];
-                const xData = [];
-                const yData = [];
+                const xData: Date[] = [];
+                const yData: number[] = [];
 
                 //extracts the most recent 100 data points to display to ensure the graph doesn't get too cluttered
-                const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a) - new Date(b));
+                const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
                 const maxDataPoints = sortedDates.slice(-MAX_DATA_POINTS);
-    
+
                 for (const date of maxDataPoints) {
                     xData.push(new Date(date));
                     yData.push(signalData[date]);
                 }
     
-                const formattedObj = {
-                    x: xData,
+                const formattedObj: FormattedData = {
+                    x: xData, 
                     y: yData,
                     type: 'scatter',
                     mode: 'lines+markers',
@@ -97,6 +117,8 @@ const LiveGraph = (props) => {
         };
     }, [props.socket]);
 
+    // for testing purposes only. uncomment to see live data simulation
+    /*
     useEffect(() => {
         if (useLive) {
             const interval = setInterval(() => {
@@ -123,6 +145,7 @@ const LiveGraph = (props) => {
             };
         }
     }, [useLive]);
+    */
 
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
@@ -134,10 +157,8 @@ const LiveGraph = (props) => {
             <WebSocketComponent id={props.id} socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
             </Space>
             </Space>
-            <Plot
-                data={formattedData}
-                layout={graphLayout}
-            />
+            {/*data and layout data were having overload issues, so the "as any" is a temp fix.*/}
+            <Plot data={formattedData as any} layout={graphLayout as any} />
             <br></br>
             <Space.Compact size={"middle"}>
       <Button block={true} className="clear" onClick={clearData}>Clear</Button>
