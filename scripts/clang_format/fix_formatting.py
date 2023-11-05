@@ -6,7 +6,7 @@ import multiprocessing
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the command line input
-CLANG_FORMAT_VERSION = "10.0"
+CLANG_FORMAT_VERSION = "18.0"
 CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
 CLANG_FORMAT_OPTIONS = " -i --style=file "
 
