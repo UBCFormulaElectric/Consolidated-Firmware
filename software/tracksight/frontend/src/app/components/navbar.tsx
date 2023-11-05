@@ -1,8 +1,11 @@
-import * as React from 'react';
-
 import { Menu } from 'antd';
+import { Dispatch, SetStateAction } from 'react';
 
-const NavBar = (props) => (
+export interface NavBarProps {
+  updateFunction: Dispatch<SetStateAction<string>>,
+}
+
+const NavBar = (props: NavBarProps) => (
     <Menu 
       theme="dark" 
       mode="horizontal" 

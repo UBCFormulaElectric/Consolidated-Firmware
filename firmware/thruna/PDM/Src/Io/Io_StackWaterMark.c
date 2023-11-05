@@ -19,27 +19,27 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackWaterMarkHighTask1kHzWarning_Set(true);
+    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1kHz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackWaterMarkHighTask100HzWarning_Set(true);
+    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask100Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_StackWaterMarkHighTask1HzWarning_Set(true);
+    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_PDM_StackWaterMarkHighTaskCanRxWarning_Set(true);
+    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanRx_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_PDM_StackWaterMarkHighTaskCanTxWarning_Set(true);
+    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

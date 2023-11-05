@@ -1,26 +1,26 @@
 'use client';
 import { useEffect, useState, React } from 'react';
-import { io } from "socket.io-client";
+import { message, Button, Divider, Layout, Switch } from 'antd';
 import { Layout } from 'antd';
 const { Header, Content } = Layout;
-
+import { io } from "socket.io-client";
 import styles from './page.module.css';
-import Dashboard from './components/dashboard';
 import NavBar from './components/navbar';
+import Dashboard from './components/dashboard';
 import Visualize from './components/visualize';
 
-const FLASK_URL = "http://localhost:5000"
-
+const FLASK_URL = "http://evanyl.pythonanywhere.com";
+//const FLASK_URL = "http://localhost:3000";
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState("visualize");
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
+    const [messageApi, contextHolder] = message.useMessage();
     const [liveGraphs, setLiveGraphs] = useState([]);
 
-
     //add a new graph
-    const addGraph = (live) => {
+    const addGraph = (live: boolean) => {
         const newGraphId = Date.now();  
         if (live) {
             setLiveGraphs(prevGraphs => [...prevGraphs, newGraphId]);
@@ -31,7 +31,7 @@ const Home = () => {
 
 
     //delete a graph
-    const deleteGraph = (graphId, live) => {
+    const deleteGraph = (graphId: string, live: boolean) => {
         if (live) {
             setLiveGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
         } else {
@@ -69,6 +69,7 @@ const Home = () => {
                 <NavBar updateFunction={setComponentToDisplay} />
             </Header>
             <Content>
+            {contextHolder}
                 {!loading && (
                     componentToDisplay === "visualize" ? (
                         <Visualize
@@ -78,6 +79,7 @@ const Home = () => {
                             deleteGraph={deleteGraph}
                             url={FLASK_URL}
                             socket={socketInstance}
+                            messageApi={messageApi}
                         />
                     ) : (
                         <Dashboard />

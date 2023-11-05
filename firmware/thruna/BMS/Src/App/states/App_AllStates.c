@@ -121,13 +121,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
-    struct Charger *         charger     = App_BmsWorld_GetCharger(world);
 
     bool status = true;
 
     // ignore heartbeat when charging, other boards likely disconnected
     const bool missing_hb = App_SendAndReceiveHeartbeat(hb_monitor);
-    App_CanAlerts_BMS_MissingHeartbeatFault_Set(missing_hb);
+    App_CanAlerts_BMS_Fault_MissingHeartbeat_Set(missing_hb);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(accumulator);

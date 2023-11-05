@@ -140,6 +140,7 @@ extern "C"
 #define AUX_TSENSE_MUX3_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_8
 #define LED_GPIO_Port GPIOB
+
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
@@ -149,5 +150,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

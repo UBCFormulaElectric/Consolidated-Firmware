@@ -86,7 +86,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             // TODO: Consider reworking this transition.
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
             App_CanRx_Debug_StartCharging_Update(false);
-            App_CanAlerts_BMS_ChargerExternalShutdownFault_Set(!is_charger_connected);
+            App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(!is_charger_connected);
         }
     }
 }

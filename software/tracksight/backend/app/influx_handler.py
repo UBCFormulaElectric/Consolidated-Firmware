@@ -7,6 +7,10 @@ BUCKET = "testing"
 
 TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
 
+class NoDataForQueryException(Exception):
+    "Raised when no data was found for a specific query"
+    pass
+
 # This requires the influx dbrc mapping to have db name == bucket name
 # TODO: Implement proper error handling for things like no data available.
 class InfluxHandler:
@@ -89,7 +93,11 @@ class InfluxHandler:
             params=params
         )
 
-        results = response.json()["results"][0]["series"][0]
+        results = response.json()["results"][0]
+        if "series" not in results:
+            raise NoDataForQueryException("No data found for this query")
+
+        results = results["series"][0]
         columns = results["columns"]
         values = results["values"]
 

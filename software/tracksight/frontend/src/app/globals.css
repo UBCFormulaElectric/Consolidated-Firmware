@@ -49,6 +49,11 @@ a {
   margin-bottom: 1rem;
 }
 
+.ant-dropdown-menu {
+  max-height: 200px;
+  overflow: auto;
+}
+
 .controls p {
   margin: 0;
 }
@@ -67,7 +72,9 @@ a {
   padding: 0 1%;
 }
 
-.ant-dropdown-menu {
-  max-height: 200px;
-  overflow: auto;
+.center-align {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+

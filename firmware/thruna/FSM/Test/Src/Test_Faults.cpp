@@ -150,7 +150,7 @@ TEST_F(FsmFaultTest, check_state_transition_fault_state_heartbeat_timeout)
     get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
 
@@ -158,7 +158,7 @@ TEST_F(FsmFaultTest, check_state_transition_fault_state_heartbeat_timeout)
     get_current_ms_fake.return_val += 10;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
 
@@ -166,14 +166,14 @@ TEST_F(FsmFaultTest, check_state_transition_fault_state_heartbeat_timeout)
     get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
 
     get_current_ms_fake.return_val += 20;
     LetTimePass(state_machine, 20);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
 
@@ -181,7 +181,7 @@ TEST_F(FsmFaultTest, check_state_transition_fault_state_heartbeat_timeout)
     get_current_ms_fake.return_val += 1000;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
 
@@ -190,7 +190,7 @@ TEST_F(FsmFaultTest, check_state_transition_fault_state_heartbeat_timeout)
     get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
     ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_FALSE(App_CanAlerts_FSM_MissingHeartbeatFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
 }
@@ -214,19 +214,19 @@ TEST_F(FsmFaultTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     LetTimePass(state_machine, PAPPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-    ASSERT_FALSE(App_CanAlerts_FSM_PappsOCSCFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_PappsOCSC_Get());
 
     // Check after signal time has elapsed
     LetTimePass(state_machine, 1);
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-    ASSERT_TRUE(App_CanAlerts_FSM_PappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_PappsOCSC_Get());
 
     // Check faulted indefinitely
     LetTimePass(state_machine, 1000);
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-    ASSERT_TRUE(App_CanAlerts_FSM_PappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_PappsOCSC_Get());
 
     // Clear condition, confirm fault resets
     papps_ocsc_fake.return_val = false;
@@ -234,12 +234,12 @@ TEST_F(FsmFaultTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     LetTimePass(state_machine, 10 + PAPPS_OCSC_TIME_TO_CLEAR - 1);
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-    ASSERT_TRUE(App_CanAlerts_FSM_PappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_PappsOCSC_Get());
 
     LetTimePass(state_machine, 1);
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-    ASSERT_FALSE(App_CanAlerts_FSM_PappsOCSCFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_PappsOCSC_Get());
 }
 
 TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fault)
@@ -259,13 +259,13 @@ TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
 
     // Check before signal time has elapsed
     LetTimePass(state_machine, SAPPS_OCSC_TIME_TO_FAULT - 1);
-    ASSERT_FALSE(App_CanAlerts_FSM_SappsOCSCFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_SappsOCSCFault_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
 
     // Check after signal time has elapsed
     LetTimePass(state_machine, 1);
-    ASSERT_TRUE(App_CanAlerts_FSM_SappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_SappsOCSCFault_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
 
@@ -273,7 +273,7 @@ TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     LetTimePass(state_machine, 1000);
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-    ASSERT_TRUE(App_CanAlerts_FSM_SappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_SappsOCSCFault_Get());
 
     // Clear condition, confirm fault resets
     sapps_ocsc_fake.return_val = false;
@@ -281,12 +281,12 @@ TEST_F(FsmFaultTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero_and_sets_fa
     LetTimePass(state_machine, 10 + PAPPS_OCSC_TIME_TO_CLEAR - 1);
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
     ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-    ASSERT_TRUE(App_CanAlerts_FSM_SappsOCSCFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_SappsOCSCFault_Get());
 
     LetTimePass(state_machine, 1);
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-    ASSERT_FALSE(App_CanAlerts_FSM_SappsOCSCFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_SappsOCSCFault_Get());
 }
 
 TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_sets_fault)
@@ -352,7 +352,7 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
         LetTimePass(state_machine, 10 + AGREEMENT_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_NEAR(test_params[i].sapps_percentage, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-        ASSERT_FALSE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+        ASSERT_FALSE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
 
         if (test_params[i].expect_fault)
         {
@@ -360,13 +360,13 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
 
             // Clear condition, confirm fault resets
             get_papps_fake.return_val = test_params[i].papps_percentage;
@@ -375,12 +375,12 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 10 + AGREEMENT_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
 
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+            ASSERT_FALSE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
         }
         else
         {
@@ -388,7 +388,7 @@ TEST_F(FsmFaultTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and_
             LetTimePass(state_machine, 1000);
             ASSERT_NEAR(test_params[i].papps_percentage, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].sapps_percentage, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_FSM_AppsDisagreementWarning_Get());
+            ASSERT_FALSE(App_CanAlerts_FSM_Warning_AppsDisagreement_Get());
         }
     }
 }
@@ -420,7 +420,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
         LetTimePass(state_machine, 10 + APP_BRAKE_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
         ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-        ASSERT_FALSE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+        ASSERT_FALSE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
 
         if (test_params[i].expect_fault)
         {
@@ -428,13 +428,13 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 1);
             ASSERT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
 
             // Check faulted indefinitely
             LetTimePass(state_machine, 1000);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
 
             // Clear condition, confirm fault resets
             get_papps_fake.return_val = 4; // Primary must be <5% to clear
@@ -443,12 +443,12 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 10 + APP_BRAKE_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_PappsMappedPedalPercentage_Get());
             ASSERT_FLOAT_EQ(0, App_CanTx_FSM_SappsMappedPedalPercentage_Get());
-            ASSERT_TRUE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+            ASSERT_TRUE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
 
             LetTimePass(state_machine, 1);
             ASSERT_NEAR(4, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(4, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+            ASSERT_FALSE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
         }
         else
         {
@@ -456,7 +456,7 @@ TEST_F(FsmFaultTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_set
             LetTimePass(state_machine, 1000);
             ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
             ASSERT_NEAR(test_params[i].apps_percentage, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
-            ASSERT_FALSE(App_CanAlerts_FSM_BrakeAppsDisagreementWarning_Get());
+            ASSERT_FALSE(App_CanAlerts_FSM_Warning_BrakeAppsDisagreement_Get());
         }
     }
 }
@@ -469,21 +469,21 @@ TEST_F(FsmFaultTest, primary_flow_rate_underflow_sets_fault)
     coolant_get_flow_rate_fake.return_val = std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest());
 
     LetTimePass(state_machine, 10 + FLOW_METER_TIME_TO_FAULT - 1);
-    ASSERT_FALSE(App_CanAlerts_FSM_FlowMeterUnderflowFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_FlowMeterUnderflow_Get());
     LetTimePass(state_machine, 1);
-    ASSERT_TRUE(App_CanAlerts_FSM_FlowMeterUnderflowFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_FlowMeterUnderflow_Get());
 
     // Confirm fault set indefinitely
     LetTimePass(state_machine, 1000);
-    ASSERT_TRUE(App_CanAlerts_FSM_FlowMeterUnderflowFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_FlowMeterUnderflow_Get());
 
     // Clear condition, confirm fault resets
     coolant_get_flow_rate_fake.return_val = std::nextafter(underflow_threshold, std::numeric_limits<float>::max());
 
     LetTimePass(state_machine, 10 + FLOW_METER_TIME_TO_CLEAR - 1);
-    ASSERT_TRUE(App_CanAlerts_FSM_FlowMeterUnderflowFault_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Fault_FlowMeterUnderflow_Get());
     LetTimePass(state_machine, 1);
-    ASSERT_FALSE(App_CanAlerts_FSM_FlowMeterUnderflowFault_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Fault_FlowMeterUnderflow_Get());
 }
 
 TEST_F(FsmFaultTest, brake_pedal_ocsc_sets_warning_and_brake_travel_to_zero)
@@ -514,21 +514,21 @@ TEST_F(FsmFaultTest, brake_pedal_ocsc_sets_warning_and_brake_travel_to_zero)
 TEST_F(FsmFaultTest, steering_sensor_ocsc_sets_warning)
 {
     LetTimePass(state_machine, 10);
-    ASSERT_FALSE(App_CanAlerts_FSM_SteeringAngleOCSCWarning_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Warning_SteeringAngleOCSC_Get());
 
     // Set steering wheel OCSC
     steering_OCSC_fake.return_val = true;
     LetTimePass(state_machine, 10);
-    ASSERT_TRUE(App_CanAlerts_FSM_SteeringAngleOCSCWarning_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Warning_SteeringAngleOCSC_Get());
 
     // Confirm set indefinitely
     LetTimePass(state_machine, 1000);
-    ASSERT_TRUE(App_CanAlerts_FSM_SteeringAngleOCSCWarning_Get());
+    ASSERT_TRUE(App_CanAlerts_FSM_Warning_SteeringAngleOCSC_Get());
 
     // Clear condition, confirm warning resets
     steering_OCSC_fake.return_val = false;
     LetTimePass(state_machine, 10);
-    ASSERT_FALSE(App_CanAlerts_FSM_SteeringAngleOCSCWarning_Get());
+    ASSERT_FALSE(App_CanAlerts_FSM_Warning_SteeringAngleOCSC_Get());
 }
 
 } // namespace FaultTest

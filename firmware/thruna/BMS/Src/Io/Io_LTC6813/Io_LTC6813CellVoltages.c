@@ -32,6 +32,8 @@ enum CellVoltageRegGroup
 
 extern struct SharedSpi *ltc6813_spi;
 
+static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+
 static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
     [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB, [CELL_V_REG_GROUP_C] = RDCVC,
     [CELL_V_REG_GROUP_D] = RDCVD, [CELL_V_REG_GROUP_E] = RDCVE, [CELL_V_REG_GROUP_F] = RDCVF,
@@ -46,15 +48,9 @@ static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
  * @param cell_voltages Buffer to write out the read voltages to
  * @return True if the data is read back successfully. Else, false
  */
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
-    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
 
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
-    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
 {
     bool status = true;
 
@@ -114,8 +110,7 @@ static bool Io_ParseCellVoltageFromAllSegments(
     return status;
 }
 
-bool Io_LTC6813CellVoltages_ReadVoltages(
-    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+bool Io_LTC6813CellVoltages_ReadVoltages(void)
 {
     // Exit early if ADC conversion fails
     if (!Io_LTC6813Shared_PollAdcConversions())
@@ -138,7 +133,7 @@ bool Io_LTC6813CellVoltages_ReadVoltages(
         // Transmit the command and receive data stored in register group.
         bool voltage_read_success = Io_SharedSpi_TransmitAndReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
-        voltage_read_success &= Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer, cell_voltages);
+        voltage_read_success &= Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register
         // groups
@@ -156,4 +151,9 @@ uint16_t Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegment segment)
 bool Io_LTC6813CellVoltages_StartAdcConversion(void)
 {
     return Io_LTC6813Shared_SendCommand(ADCV);
+}
+
+float Io_LTC6813CellVoltages_GetCellVoltage(uint8_t segement, uint8_t cell)
+{
+    return cell_voltages[segement][cell];
 }

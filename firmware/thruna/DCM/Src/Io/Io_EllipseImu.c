@@ -5,6 +5,7 @@
 #include "Io_EllipseImu.h"
 #include "App_RingQueue.h"
 #include "App_SharedMacros.h"
+#include "FreeRTOS.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
