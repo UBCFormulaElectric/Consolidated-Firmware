@@ -151,7 +151,7 @@ ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address)
 
     uint16_t             num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t              byte_array[num_bytes];
-    uint16_t             address_array[SAVED_COPIES];
+    uint16_t             address_copies[SAVED_COPIES];
     EEPROM_StatusTypeDef read_status;
 
     // Read saved address
@@ -160,7 +160,7 @@ ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address)
     // Convert read bytes to shorts
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        address_array[i] = convert_bytes_to_short(&byte_array[i * sizeof(uint16_t)]);
+        address_copies[i] = convert_bytes_to_short(&byte_array[i * sizeof(uint16_t)]);
     }
 
     // Determine if read was successful and if address is uncorrupted
@@ -169,34 +169,34 @@ ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address)
         *address = 1;
         return EXIT_CODE_ERROR;
     }
-    else if (address_array[0] == address_array[1])
+    else if (address_copies[0] == address_copies[1])
     {
-        *address = address_array[0];
+        *address = address_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (address_array[1] == address_array[2])
+    else if (address_copies[1] == address_copies[2])
     {
-        *address = address_array[1];
+        *address = address_copies[1];
         return EXIT_CODE_OK;
     }
-    else if (address_array[0] == address_array[2])
+    else if (address_copies[0] == address_copies[2])
     {
-        *address = address_array[0];
+        *address = address_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (address_array[0] == address_array[3])
+    else if (address_copies[0] == address_copies[3])
     {
-        *address = address_array[0];
+        *address = address_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (address_array[1] == address_array[3])
+    else if (address_copies[1] == address_copies[3])
     {
-        *address = address_array[1];
+        *address = address_copies[1];
         return EXIT_CODE_OK;
     }
-    else if (address_array[2] == address_array[3])
+    else if (address_copies[2] == address_copies[3])
     {
-        *address = address_array[2];
+        *address = address_copies[2];
         return EXIT_CODE_OK;
     }
     else
@@ -220,42 +220,42 @@ EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc
 
 ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *min_soc)
 {
-    float                float_arr[SAVED_COPIES];
-    EEPROM_StatusTypeDef read_status = App_Eeprom_ReadFloats(eeprom, address, DEFAULT_OFFSET, float_arr, SAVED_COPIES);
+    float                soc_copies[SAVED_COPIES];
+    EEPROM_StatusTypeDef read_status = App_Eeprom_ReadFloats(eeprom, address, DEFAULT_OFFSET, soc_copies, SAVED_COPIES);
 
     if (read_status != EEPROM_OK)
     {
         *min_soc = -1;
         return EXIT_CODE_ERROR;
     }
-    else if (float_arr[0] == float_arr[1])
+    else if (soc_copies[0] == soc_copies[1])
     {
-        *min_soc = float_arr[0];
+        *min_soc = soc_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (float_arr[1] == float_arr[2])
+    else if (soc_copies[1] == soc_copies[2])
     {
-        *min_soc = float_arr[1];
+        *min_soc = soc_copies[1];
         return EXIT_CODE_OK;
     }
-    else if (float_arr[0] == float_arr[2])
+    else if (soc_copies[0] == soc_copies[2])
     {
-        *min_soc = float_arr[0];
+        *min_soc = soc_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (float_arr[0] == float_arr[3])
+    else if (soc_copies[0] == soc_copies[3])
     {
-        *min_soc = float_arr[0];
+        *min_soc = soc_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (float_arr[1] == float_arr[3])
+    else if (soc_copies[1] == soc_copies[3])
     {
-        *min_soc = float_arr[1];
+        *min_soc = soc_copies[1];
         return EXIT_CODE_OK;
     }
-    else if (float_arr[2] == float_arr[3])
+    else if (soc_copies[2] == soc_copies[3])
     {
-        *min_soc = float_arr[2];
+        *min_soc = soc_copies[2];
         return EXIT_CODE_OK;
     }
     else
