@@ -38,6 +38,7 @@ FAKE_VALUE_FUNC(float, get_low_res_current);
 FAKE_VALUE_FUNC(float, get_high_res_current);
 FAKE_VALUE_FUNC(bool, start_temp_conv);
 FAKE_VALUE_FUNC(bool, read_cell_temperatures);
+FAKE_VALUE_FUNC(float, get_cell_voltage, uint8_t, uint8_t);
 FAKE_VOID_FUNC(thermistor_mux_select, uint8_t);
 FAKE_VALUE_FUNC(float, read_thermistor_temp);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
@@ -60,38 +61,9 @@ static bool
     return true;
 }
 
-static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
-
-static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+static bool read_cell_voltages(void)
 {
-    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-        {
-            voltages[segment][cell] = cell_voltages[segment][cell];
-        }
-    }
-
     return true;
-}
-
-static void set_cell_voltage(AccumulatorSegment segment, uint8_t cell, float voltage)
-{
-    if (segment < ACCUMULATOR_NUM_SEGMENTS && cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
-    {
-        cell_voltages[segment][cell] = voltage;
-    }
-}
-
-static void set_all_cell_voltages(float voltage)
-{
-    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
-    {
-        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-        {
-            set_cell_voltage((AccumulatorSegment)segment, cell, voltage);
-        }
-    }
 }
 
 class BmsFaultTest : public BaseStateMachineTest
@@ -121,9 +93,9 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_balance,
-            disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
+            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
+            enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
             thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
@@ -173,9 +145,10 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(read_page);
         RESET_FAKE(write_page);
         RESET_FAKE(page_erase);
+        RESET_FAKE(get_cell_voltage);
 
         // Set initial voltages to nominal value
-        set_all_cell_voltages(3.8);
+        get_cell_voltage_fake.return_val   = 3.8;
         start_voltage_conv_fake.return_val = true;
 
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
@@ -266,7 +239,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
             ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
 
             // Set cell voltage critically high and confirm fault is set
-            set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE + 0.1f);
+            get_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 0.1f;
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
@@ -276,7 +249,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
             ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
 
             // Clear fault, should transition back to init
-            set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE - 0.1f);
+            get_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE - 0.1f;
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellOvervoltage_Get());
@@ -301,7 +274,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
 
             // Set cell voltage critically low and confirm fault is set
-            set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE - 0.1f);
+            get_cell_voltage_fake.return_val = MIN_CELL_VOLTAGE - 0.1f;
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
@@ -311,7 +284,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
 
             // Clear fault, should transition back to init
-            set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE + 0.1f);
+            get_cell_voltage_fake.return_val = MIN_CELL_VOLTAGE + 0.1f;
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_FALSE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
@@ -638,7 +611,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
     ASSERT_EQ(disable_bms_ok_fake.call_count, 0);
 
     // Set cell voltage critically high and confirm fault is set
-    set_cell_voltage((AccumulatorSegment)0U, 0U, MAX_CELL_VOLTAGE + 0.1f);
+    get_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 0.1f;
     LetTimePass(state_machine, 20);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
