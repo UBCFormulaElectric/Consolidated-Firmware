@@ -7,7 +7,6 @@ import { io } from "socket.io-client";
 import styles from './page.module.css';
 import NavBar from './components/navbar';
 import Dashboard from './components/dashboard';
-import { PlotRelayoutEvent } from 'plotly.js';
 import Visualize from './components/visualize';
 
 const FLASK_URL = "http://evanyl.pythonanywhere.com";
@@ -17,25 +16,28 @@ const Home = () => {
     const [socketInstance, setSocketInstance] = useState("");
     const [loading, setLoading] = useState(true);
     const [graphs, setGraphs] = useState([]);
-    // determines if all graphs are supposed to zoom together or not
-    const [sync, setSync] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
+    const [liveGraphs, setLiveGraphs] = useState([]);
 
     //add a new graph
-    const addGraph = () => {
-        const newGraphId = Date.now().toString();  
-        setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+    const addGraph = (live: boolean) => {
+        const newGraphId = Date.now();  
+        if (live) {
+            setLiveGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+        } else {
+            setGraphs(prevGraphs => [...prevGraphs, newGraphId]);
+        }
     };
+
 
     //delete a graph
-    const deleteGraph = (graphId: string) => {
-        setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+    const deleteGraph = (graphId: string, live: boolean) => {
+        if (live) {
+            setLiveGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+        } else {
+            setGraphs(prevGraphs => prevGraphs.filter(id => id !== graphId));
+        }
     };
-
-    //set sync for all graphs
-    const setSyncAll = (sync: boolean) => {
-        setSync(!sync);
-    }
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
@@ -73,9 +75,11 @@ const Home = () => {
                         <Visualize
                             addGraph={addGraph}
                             graphs={graphs}
+                            liveGraphs={liveGraphs}
                             deleteGraph={deleteGraph}
                             url={FLASK_URL}
                             socket={socketInstance}
+                            messageApi={messageApi}
                         />
                     ) : (
                         <Dashboard />

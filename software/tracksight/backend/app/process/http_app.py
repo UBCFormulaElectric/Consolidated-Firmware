@@ -22,6 +22,7 @@ def return_all_available_signals():
 
 @app.route('/signal/measurement', methods=['GET'])
 def return_all_measurements():
+    print(influx.get_measurements())
     measurements = influx.get_measurements()
 
     return responsify(measurements)
