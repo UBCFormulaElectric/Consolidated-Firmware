@@ -59,11 +59,6 @@ FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, read_page, uint16_t, uint8_t, uint8_t *, u
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, write_page, uint16_t, uint8_t, uint8_t *, uint16_t);
 FAKE_VALUE_FUNC(EEPROM_StatusTypeDef, page_erase, uint16_t);
 
-#define STATE_OF_HEALTH (1.0f)
-#define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
-
-static double saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
-
 static bool
     write_cfg_registers(bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
@@ -87,8 +82,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        saved_soc = SERIES_ELEMENT_FULL_CHARGE_C;
-
         imd =
             App_Imd_Create(get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
@@ -111,7 +104,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
             enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
             thermistor_mux_select, read_thermistor_temp);
 
-        soc_stats = App_SocStats_Create(saved_soc, DEFAULT_SOC_ADDR, accumulator);
+        soc_stats = App_SocStats_Create(SERIES_ELEMENT_FULL_CHARGE_C, DEFAULT_SOC_ADDR, accumulator);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -287,7 +280,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct Clock *            clock;
     struct Eeprom *           eeprom;
 };
-#include <assert.h>
+
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
@@ -935,7 +928,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
 TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
 {
-    saved_soc                              = SERIES_ELEMENT_FULL_CHARGE_C;
     is_air_negative_closed_fake.return_val = true;
     get_low_res_current_fake.return_val    = 0.0f;
     get_high_res_current_fake.return_val   = 0.0f;
@@ -971,58 +963,40 @@ TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
 {
     // Check that soc saturates at 5.0% lower bound
     float test_voltage = 0.0f;
-
     float soc = App_Soc_GetSocFromOcv(test_voltage);
-
     float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
-
     ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check middle of the range
     test_voltage = 4.0f;
-
     soc = App_Soc_GetSocFromOcv(test_voltage);
-
     expected_soc = 81.5f;
-
     ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check that SOC saturates at 100.0%
     test_voltage = 5.0f;
-
     soc = App_Soc_GetSocFromOcv(test_voltage);
-
     expected_soc = 100.0;
-
     ASSERT_FLOAT_EQ(soc, expected_soc);
 }
 
 TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
 {
     float test_soc = 0.0f;
-
     float ocv = App_Soc_GetOcvFromSoc(test_soc);
-
     float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
-
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check middle of the range
     test_soc = 68.5f;
-
     ocv = App_Soc_GetOcvFromSoc(test_soc);
-
     expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
-
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check that voltage saturates at value associated with 100.0% soc
     test_soc = 101.0f;
-
     ocv = App_Soc_GetOcvFromSoc(test_soc);
-
     expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
-
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 }
 

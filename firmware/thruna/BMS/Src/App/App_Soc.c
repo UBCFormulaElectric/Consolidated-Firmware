@@ -6,8 +6,6 @@
 #include "App_SharedProcessing.h"
 #include "lut/App_Lut_CellVoltageToSoc.h"
 
-#define STATE_OF_HEALTH (1.0f)
-#define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
 #define MS_TO_S (0.001f)
 #define SOC_TIMER_DURATION (110U)
 
@@ -93,7 +91,7 @@ struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_ad
     // input a negative initial value if EEPROM reading corrupted. Reset SOC values based on cell voltages.
     if (initial_charge_value < 0.0f)
     {
-        App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
+        App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
         soc_stats->is_corrupt = true;
     }
     else
@@ -152,13 +150,13 @@ float App_SocStats_GetMinSocPercent(struct SocStats *soc_stats)
     return soc_percent;
 }
 
-float App_SOC_GetMinOcvFromSoc(struct SocStats *soc_stats)
+float App_Soc_GetMinOcvFromSoc(struct SocStats *soc_stats)
 {
     float soc_percent = App_SocStats_GetMinSocPercent(soc_stats);
     return App_Soc_GetOcvFromSoc(soc_percent);
 }
 
-void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator)
+void App_Soc_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator *accumulator)
 {
     uint8_t segment;
     uint8_t cell;
@@ -171,7 +169,7 @@ void App_SOC_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
     soc_stats->charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
 }
 
-void App_SOC_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
+void App_Soc_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
 {
     soc_stats->charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 }

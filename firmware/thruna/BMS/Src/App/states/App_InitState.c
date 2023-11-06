@@ -39,11 +39,11 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
     {
-        App_SOC_ResetSocFromVoltage(soc_stats, accumulator);
+        App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
     }
     else if (App_CanRx_Debug_ResetSoc_CustomEnable_Get())
     {
-        App_SOC_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_CustomVal_Get());
+        App_Soc_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_CustomVal_Get());
     }
 }
 

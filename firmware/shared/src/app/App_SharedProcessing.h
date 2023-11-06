@@ -10,7 +10,8 @@
 static inline void App_SharedProcessing_TrapezoidalRule(double *integral, float *f_prev, float f_curr, float d_x)
 {
     // Calculate the trapezoid and add to the previous integral
-    *integral = *integral + (double)(d_x * (*f_prev + f_curr) * 0.5f);
+    // Double is used here as the extra precision is needed when adding a small delta to a large integral amount
+    *integral = *integral + (double)(d_x * (*f_prev + f_curr) * 0.5);
     *f_prev   = f_curr;
 }
 
