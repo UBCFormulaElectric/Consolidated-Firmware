@@ -2,7 +2,7 @@
 #define QT_DEMO_CAN_H
 
 #include <optional>
-#include "../shared/types.h"
+#include "types.h"
 
 enum CanConnectionError {
 	SocketError,

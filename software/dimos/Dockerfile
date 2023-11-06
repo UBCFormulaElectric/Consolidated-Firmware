@@ -37,8 +37,8 @@ WORKDIR /app
 #    cd build && \
 #    make
 
-RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DTARGET=deploy
-RUN cmake --build ./build --target Dimos -- -j 14
+RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos
+RUN cmake --build ./build --target dimos -- -j 14
 
 # Deploy ------------------------------------------------------------------------
 ##
@@ -107,4 +107,4 @@ COPY --from=Build /app/build /app
 USER torizon
 WORKDIR /app
 
-CMD [ "./Dimos" ]
+CMD [ "./dimos" ]
