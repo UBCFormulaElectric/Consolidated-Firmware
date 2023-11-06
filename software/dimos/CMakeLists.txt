@@ -2,7 +2,6 @@ include(cmake/qt.cmake)
 include(cmake/jsoncan.cmake)
 
 cmake_minimum_required(VERSION 3.24)
-project("Dimos" VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -28,12 +27,12 @@ set(SHARED_FILES src/shared/types.cpp src/shared/types.h)
 set(DEPLOY_IO_SOURCES src/io/can.cpp)
 set(DEV_IO_SOURCES src/dev_io/can.cpp)
 
+# jsoncan
+jsoncan_library(dimos_can dimos "${CMAKE_BINARY_DIR}")
+
 # define targets
 set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 
-ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}")
-ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}")
-
-# jsoncan
-jsoncan_library(dimos_dev_can dimos "${CMAKE_BINARY_DIR}")
+ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "dimos_can")
+ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "dimos_can")

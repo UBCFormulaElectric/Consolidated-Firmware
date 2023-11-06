@@ -1,7 +1,7 @@
-function(ADD_QT_EXECUTABLE executable_name PROJECT_SOURCES)
-    message("➕ Adding build target ${executable_name}")
+function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
+    message("➕ Adding build target ${EXECUTABLE_NAME}")
     if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-        qt_add_executable(${executable_name} MANUAL_FINALIZATION ${PROJECT_SOURCES})
+        qt_add_executable(${EXECUTABLE_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
         # Define target properties for Android with Qt 6 as:
         #    set_property(TARGET Dimos APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
         #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -16,20 +16,21 @@ function(ADD_QT_EXECUTABLE executable_name PROJECT_SOURCES)
         endif ()
     endif ()
 
-    target_link_libraries(${executable_name}
+    target_link_libraries(${EXECUTABLE_NAME}
             PRIVATE
             Qt${QT_VERSION_MAJOR}::Widgets
             Qt${QT_VERSION_MAJOR}::Core
             Qt${QT_VERSION_MAJOR}::Gui
-            Qt${QT_VERSION_MAJOR}::QuickWidgets)
+            Qt${QT_VERSION_MAJOR}::QuickWidgets
+            ${LIBRARIES})
 
     # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
     # If you are developing for iOS or macOS you should consider setting an
     # explicit, fixed bundle identifier manually though.
     if (${QT_VERSION} VERSION_LESS 6.1.0)
-        set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${executable_name})
+        set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${EXECUTABLE_NAME})
     endif ()
-    set_target_properties(${executable_name} PROPERTIES
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
             ${BUNDLE_ID_OPTION}
             MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
             MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -38,15 +39,15 @@ function(ADD_QT_EXECUTABLE executable_name PROJECT_SOURCES)
     )
 
     include(GNUInstallDirs)
-    install(TARGETS ${executable_name}
+    install(TARGETS ${EXECUTABLE_NAME}
             BUNDLE DESTINATION .
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
     if (QT_VERSION_MAJOR EQUAL 6)
-        qt_finalize_executable(${executable_name})
+        qt_finalize_executable(${EXECUTABLE_NAME})
     endif ()
 
-    target_include_directories(${executable_name} PRIVATE src/shared src/ui src/io)
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE src/shared src/ui src/io)
 endfunction()

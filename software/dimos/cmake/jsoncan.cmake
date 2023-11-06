@@ -1,5 +1,5 @@
 function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR)
-    message("📚 JSONCAN Libray Added for ${TARGET_NAME} to ${OUTPUT_DIR}")
+    message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/App_CanTx.c")
     set(APP_CAN_TX_HEADER_OUTPUT "${OUTPUT_DIR}/app/App_CanTx.h")
     set(IO_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/io/Io_CanTx.c")
@@ -91,5 +91,5 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR)
     )
 
     add_library("${LIB_NAME}" STATIC ${CAN_SRCS})
-    #    target_include_directories("${TARGET}" PUBLIC "${CAN_INCLUDE_DIRS}")
+    target_include_directories(${LIB_NAME} PUBLIC ${CAN_INCLUDE_DIRS})
 endfunction()

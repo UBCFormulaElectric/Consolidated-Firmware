@@ -72,7 +72,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         message(FATAL_ERROR "❌ Please set the TARGET variable to 'arm' or 'x86'. To do this, set the -DTARGET=<target>")
     ENDIF()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    # Handled inside the dimos subdirectory
+    project("Dimos" VERSION 0.1 LANGUAGES CXX)
 ELSE ()
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF()
