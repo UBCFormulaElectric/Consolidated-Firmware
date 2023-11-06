@@ -23,6 +23,7 @@ jobs:
           - BMS
           - DCM
           - DIM
+          - f4dev
 
     container:
       image: ubcformulaelectric/environment:latest
