@@ -18,8 +18,15 @@ def get_board_names() -> Tuple[str]:
     Return a tuple of board names supported in our current build, whose STM code can be generated (only usage)
     """
     path_to_boards = path.join(path.dirname(__file__), '..', '..', 'firmware', 'thruna')
-    supported_board_names: tuple[str, ...] = tuple(
-        filter(lambda x: path_is_folder_and_has_ioc_file(os.path.join(path_to_boards, x)), listdir(path_to_boards)))
+    path_to_dev_boards = path.join(path.dirname(__file__), '..', '..', 'firmware', 'dev')
+    list_of_boards_subdirs = list(map(lambda x: os.path.join(path_to_boards, x), listdir(path_to_boards)))
+    list_of_dev_subdirs = list(map(lambda x: os.path.join(path_to_dev_boards, x), listdir(path_to_dev_boards)))
+
+    supported_board_names: tuple[str, ...] = tuple(filter(path_is_folder_and_has_ioc_file, list_of_boards_subdirs + list_of_dev_subdirs))
+    
+    # split the dir 
+    supported_board_names = tuple(map(lambda p: p.split("/")[-1], supported_board_names))
+     
     return supported_board_names
 
 
