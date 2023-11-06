@@ -9,5 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
+	"cmake.configureOnOpen": true
 }

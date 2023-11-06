@@ -1,0 +1,36 @@
+# Query: hw_sdio_sd.c
+# ContextLines: 1
+
+6 results - 6 files
+
+firmware/dev/f4dev/CMakeLists.txt:
+  16  
+  17: list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
+  18  set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+
+firmware/thruna/BMS/CMakeLists.txt:
+  17  list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+  18  list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+  19: list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+  19  # Autogenerate jsoncan library.
+  20  # Autogenerate jsoncan library.
+
+firmware/thruna/DCM/CMakeLists.txt:
+  20  list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+  21: list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+  22  # Autogenerate jsoncan library.
+
+firmware/thruna/DIM/CMakeLists.txt:
+  18  list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
+  19: list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+  20  
+
+firmware/thruna/FSM/CMakeLists.txt:
+  20  
+  21: list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+  22  # Autogenerate jsoncan library.
+
+firmware/thruna/PDM/CMakeLists.txt:
+  19  list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+  20: list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+  21  # Autogenerate jsoncan library.
