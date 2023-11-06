@@ -1,4 +1,4 @@
 #pragma once
 
-struct F7World;
-#define World F7World
+struct H7DevWorld;
+#define World H7DevWorld
