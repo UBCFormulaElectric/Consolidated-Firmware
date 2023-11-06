@@ -15,7 +15,7 @@ SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_
     return (SdCardStatus)status;
 }
 
-SdCardStatus hw_sd_read_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_readOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
     uint32_t     block_size = sd->hsd->SdCard.BlockSize;
     SdCardStatus status     = SD_CARD_OK;
@@ -52,7 +52,7 @@ SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32
     return (SdCardStatus)status;
 }
 
-SdCardStatus hw_sd_write_offset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_writeOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
     uint32_t     block_size = sd->hsd->SdCard.BlockSize;
     SdCardStatus status     = SD_CARD_OK;

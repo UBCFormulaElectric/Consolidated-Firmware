@@ -24,8 +24,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_sdio_sd.h"
-#define LFS_NO_MALLOC
 #include "lfs.h"
+#define LFS_NO_MALLOC
+#define LFS_CACHE_SIZE 16
+#define LFS_LOOKAHEAD_SIZE 16
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,16 +41,20 @@
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM         */
-SdCard *sd;
-uint8_t read_buffer[16];
-uint8_t prog_buffer[16];
-uint8_t lookahead_buffer[16];
+/* USER CODE BEGIN PM */
+SdCard* sd;
+uint8_t read_buffer[LFS_CACHE_SIZE];
+uint8_t prog_buffer[LFS_CACHE_SIZE];
+uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan1;
 CAN_HandleTypeDef hcan2;
-ADC_HandleTypeDef hadc1;
-SD_HandleTypeDef  hsd;
+
+SD_HandleTypeDef hsd;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
@@ -77,21 +83,20 @@ void        StartDefaultTask(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-
 int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
 int lfs_erase(const struct lfs_config *c, lfs_block_t block);
 int lfs_sync(const struct lfs_config *c);
 
 int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_read_offset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
 
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
 int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_write_offset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
@@ -118,8 +123,8 @@ struct lfs_config cfg = {
     .prog_size        = 16,
     .block_size       = 4096,
     .block_count      = 128,
-    .cache_size       = 16,
-    .lookahead_size   = 16,
+    .cache_size       = LFS_CACHE_SIZE,
+    .lookahead_size   = LFS_LOOKAHEAD_SIZE,
     .block_cycles     = 500,
     .read_buffer      = (void *)read_buffer,
     .prog_buffer      = (void *)prog_buffer,
