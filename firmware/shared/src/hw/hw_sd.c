@@ -1,7 +1,7 @@
 
 // interface read  write
 // using HAL layer
-#include "hw_sdio_sd.h"
+#include "hw_sd.h"
 #include <stdlib.h>
 #include <string.h>
 

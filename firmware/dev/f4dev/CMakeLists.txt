@@ -14,7 +14,7 @@ file(GLOB_RECURSE HW_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 
-list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sdio_sd.c")
+list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
 # Autogenerate git commit info header/source.

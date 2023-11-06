@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_sdio_sd.h"
+#include "hw_sd.h"
 #include "lfs.h"
 #define LFS_NO_MALLOC
 #define LFS_CACHE_SIZE 16
