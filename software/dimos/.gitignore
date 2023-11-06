@@ -57,4 +57,4 @@ compile_commands.json
 
 # for my mac user
 **/.DS_Store
-build_demo*
+!.dockerignore
