@@ -19,15 +19,15 @@ set(PROJECT_SOURCES
         src/ui/mainwindow/mainwindow.cpp
         src/ui/mainwindow/mainwindow.h
         src/ui/mainwindow/mainwindow.ui
-        src/shared/types.cpp src/shared/types.h
 )
-
 set(IO_INC src/io/can.h)
+set(SHARED_FILES src/shared/types.cpp src/shared/types.h)
+
 set(DEPLOY_IO_SOURCES src/io/can.cpp)
 set(DEV_IO_SOURCES src/dev_io/can.cpp)
 
-set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC})
-set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC})
+set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 
 ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}")
 ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}")
