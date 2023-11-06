@@ -42,7 +42,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-SdCard* sd;
+SdCard *sd;
 uint8_t read_buffer[LFS_CACHE_SIZE];
 uint8_t prog_buffer[LFS_CACHE_SIZE];
 uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
