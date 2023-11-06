@@ -9,10 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/build_${env:PLATFORM}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
-	"files.associations": {
-		"*.llc_repl": "cpp",
-		"hw_hal.h": "c",
-		"hw_hardfaulthandler.h": "c"
-	}
+	"cmake.configureOnOpen": true
 }
