@@ -1,7 +1,7 @@
 message("💡 Starting UBC Formula Electric Generate")
 
 cmake_minimum_required(VERSION 3.24)
-set(CMAKE_SYSTEM_VERSION 1)
+# set(CMAKE_SYSTEM_VERSION 1) not necessarily required?
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -16,9 +16,9 @@ Set(FETCHCONTENT_QUIET FALSE)
 option(HANDLE_DEPS "Build build on the server" OFF)
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (HANDLE_DEPS)
-    message("🏠 Handling the dependencies locally")
+    message("🏗️ Handling the dependencies")
 ELSE ()
-    message("🏗️ Using your dependencies")
+    message("🏠 Using your dependencies")
     set(NO_VENV ON)
 ENDIF ()
 file(
@@ -31,10 +31,6 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
 
 # ======== Host system specific settings ========
-# set(WIN32 "${CMAKE_HOST_SYSTEM_NAME} STREQUAL \"Windows\"")
-# set(APPLE "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin" )
-# set(UNIX "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
-message(${CMAKE_HOST_SYSTEM_NAME})
 IF (WIN32)
     message("🪟 Building for Windows")
     set(BINARY_SUFFIX ".exe")
@@ -62,7 +58,6 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         # So, only run this if loading the embedded configuration.
         # TODO: Look into what is causing this.
         set(CMAKE_C_COMPILER_WORKS 1)
-        message("${TOOLCHAIN_PREFIX}")
         set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX}arm-none-eabi)
         set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
         set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${BINARY_SUFFIX})
@@ -70,10 +65,8 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy${BINARY_SUFFIX})
         set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump${BINARY_SUFFIX})
         set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
-        message("✅ ARM Toolchain Included")
-        IF(APPLE)
-            set(CMAKE_SYSTEM_NAME Generic)
-        ENDIF(APPLE)
+        message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")
+        set(CMAKE_SYSTEM_NAME Generic)
         project("UBC Formula Electric Software" C ASM)
     ELSEIF ("${TARGET}" STREQUAL "x86")
         project("UBC Formula Electric Software" C CXX)
@@ -110,7 +103,7 @@ IF (Python3_VERSION VERSION_LESS 3.8)
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
     message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
-message("🐍 Found Python ${Python3_VERSION}")
+message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 # ======== Python Checks ========
 

@@ -19,14 +19,13 @@ def get_board_names() -> Tuple[str]:
     """
     path_to_boards = path.join(path.dirname(__file__), '..', '..', 'firmware', 'thruna')
     path_to_dev_boards = path.join(path.dirname(__file__), '..', '..', 'firmware', 'dev')
-    list_of_boards_subdirs = list(map(lambda x: os.path.join(path_to_boards, x), listdir(path_to_boards)))
-    list_of_dev_subdirs = list(map(lambda x: os.path.join(path_to_dev_boards, x), listdir(path_to_dev_boards)))
+    list_of_boards_subdirs = [os.path.join(path_to_boards, subdir) for subdir in listdir(path_to_boards)]
+    list_of_dev_subdirs = [os.path.join(path_to_dev_boards, subdir) for subdir in listdir(path_to_dev_boards)]
 
-    supported_board_names: tuple[str, ...] = tuple(filter(path_is_folder_and_has_ioc_file, list_of_boards_subdirs + list_of_dev_subdirs))
-    
+    supported_board_names: tuple[str, ...] = tuple(
+        filter(path_is_folder_and_has_ioc_file, list_of_boards_subdirs + list_of_dev_subdirs))
     # split the dir 
-    supported_board_names = tuple(map(lambda p: p.split("/")[-1], supported_board_names))
-     
+    supported_board_names = tuple(path.basename(board) for board in supported_board_names)
     return supported_board_names
 
 
