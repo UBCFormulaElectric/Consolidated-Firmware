@@ -104,6 +104,10 @@ jobs:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}

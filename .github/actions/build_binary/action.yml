@@ -17,11 +17,6 @@ runs:
       shell: bash
       run: git config --global --add safe.directory $(realpath .)
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
     # xvfb-run is required to prefix any commands that run STM32CubeMX
     # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
     # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
