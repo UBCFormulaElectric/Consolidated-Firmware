@@ -20,8 +20,6 @@ extern "C"
 
 namespace StateMachineTest
 {
-FAKE_VOID_FUNC(send_non_periodic_msg_DCM_STARTUP, const struct CanMsgs_dcm_startup_t *);
-FAKE_VOID_FUNC(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT, const struct CanMsgs_dcm_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 FAKE_VOID_FUNC(turn_on_red_led);
@@ -78,8 +76,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-        RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
-        RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(get_acceleration_x);
         RESET_FAKE(get_acceleration_y);

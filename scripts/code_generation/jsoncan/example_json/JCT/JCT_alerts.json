@@ -1,8 +1,10 @@
 {
     "warnings_id": 51,
     "faults_id": 52,
+    "warnings_counts_id": 53,
+    "faults_counts_id": 54,
     "warnings": [
-        "JCT_TEST"
+        "Warning_Test"
     ],
     "faults": []
 }

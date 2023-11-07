@@ -52,6 +52,7 @@ class CTypesConfig(StrEnum):
     MSG_STRUCT = "{msg}_Signals"
     ALERT_ENUM = "{node}_{alert_type}Id"
     CAN_ALERT_BOARD_ENUM = "CanAlertBoard"
+    CAN_MSG_STRUCT = "CanMsg"
 
 
 class CMacrosConfig(StrEnum):

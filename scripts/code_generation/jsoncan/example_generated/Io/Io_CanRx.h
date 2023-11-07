@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "Io_SharedCanMsg.h"
+#include "Io_CanTx.h"
 
 /* ------------------------- Function Prototypes -------------------------- */
 
@@ -21,5 +21,5 @@ bool Io_CanRx_FilterMessageId(uint32_t std_id);
 /**
  * Unpack a received message and update the CAN RX table.
  */
-void Io_CanRx_UpdateRxTableWithMessage(struct CanMsg* msg);
+void Io_CanRx_UpdateRxTableWithMessage(CanMsg* msg);
 

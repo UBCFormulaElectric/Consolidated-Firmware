@@ -19,50 +19,50 @@ void App_CanRx_Init(void);
 /**
  * Update value stored in RX table of signal FSM_PappsMappedPedalPercentage in msg FSM_Apps.
  */
-void App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Update(float value);
+void App_CanRx_FSM_PappsMappedPedalPercentage_Update(float value);
 
 /**
  * Update value stored in RX table of signal FSM_SappsMappedPedalPercentage in msg FSM_Apps.
  */
-void App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Update(float value);
+void App_CanRx_FSM_SappsMappedPedalPercentage_Update(float value);
 
 /**
- * Update value stored in RX table of signal FSM_TEST1 in msg FSM_Warnings.
+ * Update value stored in RX table of signal FSM_Warning_Warning_Test1 in msg FSM_Warnings.
  */
-void App_CanRx_FSM_TEST1_Update(bool value);
+void App_CanRx_FSM_Warning_Warning_Test1_Update(bool value);
 
 /**
- * Update value stored in RX table of signal FSM_TEST2 in msg FSM_Warnings.
+ * Update value stored in RX table of signal FSM_Warning_Warning_Test2 in msg FSM_Warnings.
  */
-void App_CanRx_FSM_TEST2_Update(bool value);
+void App_CanRx_FSM_Warning_Warning_Test2_Update(bool value);
 
 /**
- * Update value stored in RX table of signal FSM_FAULT_TEST3 in msg FSM_Faults.
+ * Update value stored in RX table of signal FSM_Fault_Fault_Test3 in msg FSM_Faults.
  */
-void App_CanRx_FSM_FAULT_TEST3_Update(bool value);
+void App_CanRx_FSM_Fault_Fault_Test3_Update(bool value);
 
 /**
  * Return value from RX table of signal FSM_PappsMappedPedalPercentage in msg FSM_Apps.
  */
-float App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Get(void);
+float App_CanRx_FSM_PappsMappedPedalPercentage_Get(void);
 
 /**
  * Return value from RX table of signal FSM_SappsMappedPedalPercentage in msg FSM_Apps.
  */
-float App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Get(void);
+float App_CanRx_FSM_SappsMappedPedalPercentage_Get(void);
 
 /**
- * Return value from RX table of signal FSM_TEST1 in msg FSM_Warnings.
+ * Return value from RX table of signal FSM_Warning_Warning_Test1 in msg FSM_Warnings.
  */
-bool App_CanRx_FSM_TEST1_Get(void);
+bool App_CanRx_FSM_Warning_Warning_Test1_Get(void);
 
 /**
- * Return value from RX table of signal FSM_TEST2 in msg FSM_Warnings.
+ * Return value from RX table of signal FSM_Warning_Warning_Test2 in msg FSM_Warnings.
  */
-bool App_CanRx_FSM_TEST2_Get(void);
+bool App_CanRx_FSM_Warning_Warning_Test2_Get(void);
 
 /**
- * Return value from RX table of signal FSM_FAULT_TEST3 in msg FSM_Faults.
+ * Return value from RX table of signal FSM_Fault_Fault_Test3 in msg FSM_Faults.
  */
-bool App_CanRx_FSM_FAULT_TEST3_Get(void);
+bool App_CanRx_FSM_Fault_Fault_Test3_Get(void);
 

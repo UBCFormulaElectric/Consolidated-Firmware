@@ -17,11 +17,6 @@ extern "C"
 
 namespace StateMachineTest
 {
-FAKE_VOID_FUNC(send_non_periodic_msg_PDM_STARTUP, const struct CanMsgs_pdm_startup_t *);
-FAKE_VOID_FUNC(send_non_periodic_msg_PDM_AIR_SHUTDOWN, const struct CanMsgs_pdm_air_shutdown_t *);
-FAKE_VOID_FUNC(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN, const struct CanMsgs_pdm_motor_shutdown_t *);
-FAKE_VOID_FUNC(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT, const struct CanMsgs_pdm_watchdog_timeout_t *);
-
 FAKE_VALUE_FUNC(float, get_bat_voltage);
 FAKE_VALUE_FUNC(float, get_acc_voltage);
 FAKE_VALUE_FUNC(float, get_boost_voltage);
@@ -96,10 +91,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
         // Reset fake functions
-        RESET_FAKE(send_non_periodic_msg_PDM_STARTUP);
-        RESET_FAKE(send_non_periodic_msg_PDM_AIR_SHUTDOWN);
-        RESET_FAKE(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN);
-        RESET_FAKE(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
         RESET_FAKE(GetAux1Current);
         RESET_FAKE(GetAux2Current);
         RESET_FAKE(GetLeftInverterCurrent);
