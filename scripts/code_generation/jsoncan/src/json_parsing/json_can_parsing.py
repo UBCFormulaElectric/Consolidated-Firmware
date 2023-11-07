@@ -14,7 +14,6 @@ from .schema_validation import (
 )
 from ..utils import max_uint_for_bits, pascal_to_screaming_snake_case
 
-
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
 
@@ -28,7 +27,7 @@ class InvalidCanJson(Exception):
 
 
 def calc_signal_scale_and_offset(
-    max_val: int, min_val: int, num_bits: int
+        max_val: int, min_val: int, num_bits: int
 ) -> Tuple[float, float]:
     """
     Calculate scale and offset for DBC file.
@@ -194,9 +193,7 @@ class JsonCanParser:
                 if rx_msg not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node)
 
-    def _get_parsed_can_message(
-        self, msg_name: str, msg_json_data: Dict, node: str
-    ) -> CanMessage:
+    def _get_parsed_can_message(self, msg_name: str, msg_json_data: Dict, node: str) -> CanMessage:
         """
         Parse JSON data dictionary representing a CAN message.
         """
@@ -277,11 +274,11 @@ class JsonCanParser:
         )
 
     def _get_parsed_can_signal(
-        self,
-        signal_name: str,
-        signal_json_data: Dict,
-        next_available_bit: int,
-        msg_name: str,
+            self,
+            signal_name: str,
+            signal_json_data: Dict,
+            next_available_bit: int,
+            msg_name: str,
     ) -> CanSignal:
         """
         Parse JSON data dictionary representing a CAN signal.
@@ -310,8 +307,8 @@ class JsonCanParser:
         # Get signal value data. Method depends on which data provided in JSON file.
         # Option 1: Provide DBC data
         if all(
-            datum in signal_json_data
-            for datum in ("min", "max", "scale", "offset", "bits")
+                datum in signal_json_data
+                for datum in ("min", "max", "scale", "offset", "bits")
         ):
             bits = signal_json_data["bits"]
             max_val = signal_json_data["max"]
@@ -447,11 +444,14 @@ class JsonCanParser:
         faults_counts_id = alerts_json["faults_counts_id"]
 
         if any(
-            msg_id in {msg.id for msg in self._messages.values()}
-            for msg_id in [warnings_id, faults_id]
+                msg_id in {msg.id for msg in self._messages.values()}
+                for msg_id in (warnings_id, faults_id)
         ):
+            conflicting_node = \
+                [msg for msg in self._messages.values() for i in (warnings_id, faults_id) if msg.id == i][0]
             raise InvalidCanJson(
-                f"ID for alerts message transmitted by '{node}' is a duplicate, messages must have unique IDs."
+                f"ID for alerts message transmitted by '{node}' is a duplicate with '{conflicting_node.name}'. Messages "
+                f"must have unique IDs."
             )
 
         # Check if message name is unique
@@ -461,13 +461,13 @@ class JsonCanParser:
         faults_counts_name = f"{node}_FaultsCounts"
 
         if any(
-            msg_name in self._messages
-            for msg_name in [
-                warnings_name,
-                faults_name,
-                warnings_counts_name,
-                faults_counts_name,
-            ]
+                msg_name in self._messages
+                for msg_name in [
+                    warnings_name,
+                    faults_name,
+                    warnings_counts_name,
+                    faults_counts_name,
+                ]
         ):
             raise InvalidCanJson(
                 f"Name for alerts message transmitted by '{node}' is a duplicate, messages must have unique names."
@@ -560,7 +560,7 @@ class JsonCanParser:
                 scale=1,
                 offset=0,
                 min_val=0,
-                max_val=2**COUNT_BITS - 1,
+                max_val=2 ** COUNT_BITS - 1,
                 start_val=0,
                 enum=None,
                 unit="",
