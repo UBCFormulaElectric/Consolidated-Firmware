@@ -29,11 +29,11 @@ jobs:
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
-        
+
   codegen:
     name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
-    needs: [clang-format]
+    needs: [ clang-format ]
     strategy:
       fail-fast: false
       matrix:
@@ -87,9 +87,27 @@ jobs:
   build-firmware-thruna:
     needs: [ clang-format ]
     name: Build Firmware Binaries
-    uses: ./.github/workflows/build.yml # https://github.blog/changelog/2022-01-25-github-actions-reusable-workflows-can-be-referenced-locally/ God is good
-    secrets:
-      docker_token: ${{ secrets.DOCKER_TOKEN }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - f4dev
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.docker_token }}
+    steps:
+      - uses: ./.github/actions/build_binary
+        with:
+          board: ${{ matrix.board }}
+          upload_artifact: 'false'
 
   test-thruna:
     needs: [ clang-format ]
@@ -188,7 +206,7 @@ jobs:
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
-        
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:

@@ -1,0 +1,39 @@
+name: Build Firmware Binaries Action
+description: Builds the bianry for a given board
+inputs:
+  board:
+    description: The board for which to build a binary
+    required: true
+  upload_artifact:
+    required: false
+    description: Whether to upload the binary as an artifact
+
+runs:
+  using: "composite"
+  steps:
+    # Fix to ensure that commands like git status work in child directories
+    # for gitpython in git_commit_info
+    - name: Setup git
+      shell: bash
+      run: git config --global --add safe.directory $(realpath .)
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    # xvfb-run is required to prefix any commands that run STM32CubeMX
+    # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
+    # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
+    - name: Build
+      shell: bash
+      run: |
+        cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=arm -DHANDLE_DEPS=OFF
+        xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ inputs.board }}.elf
+    # Uploads .elf binary to Github Actions workflow
+    - name: Save built artifact
+      if: ${{ inputs.upload_artifact == 'true' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.board }}.elf
+        path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ inputs.board }}/${{ inputs.board }}.elf
