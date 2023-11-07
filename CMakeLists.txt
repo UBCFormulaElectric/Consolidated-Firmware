@@ -32,8 +32,8 @@ message("✅ Download CPM.cmake")
 
 # ======== Host system specific settings ========
 # set(WIN32 "${CMAKE_HOST_SYSTEM_NAME} STREQUAL \"Windows\"")
-set(APPLE "${CMAKE_HOST_SYSTEM_NAME} STREQUAL \"Darwin\"")
-set(UNIX "${CMAKE_HOST_SYSTEM_NAME} STREQUAL \"Linux\"")
+# set(APPLE "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Darwin" )
+# set(UNIX "${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 message(${CMAKE_HOST_SYSTEM_NAME})
 IF (WIN32)
     message("🪟 Building for Windows")
