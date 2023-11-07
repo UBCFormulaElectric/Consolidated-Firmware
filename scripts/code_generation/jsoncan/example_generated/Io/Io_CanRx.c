@@ -33,7 +33,7 @@ bool Io_CanRx_FilterMessageId(uint32_t std_id)
     return is_found;
 }
 
-void Io_CanRx_UpdateRxTableWithMessage(struct CanMsg* msg)
+void Io_CanRx_UpdateRxTableWithMessage(CanMsg* msg)
 {
     switch (msg->std_id)
     {

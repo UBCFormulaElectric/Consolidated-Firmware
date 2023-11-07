@@ -24,8 +24,8 @@ static void Io_CanTx_JCT_Vitals_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT | CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_VITALS_ID;
         tx_msg.dlc = CAN_MSG_JCT_VITALS_BYTES;
         
@@ -44,8 +44,8 @@ static void Io_CanTx_JCT_AirShutdownErrors_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_BYTES;
         
@@ -64,8 +64,8 @@ static void Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_BYTES;
         
@@ -84,8 +84,8 @@ static void Io_CanTx_JCT_Status_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_STATUS_ID;
         tx_msg.dlc = CAN_MSG_JCT_STATUS_BYTES;
         
@@ -104,8 +104,8 @@ static void Io_CanTx_JCT_Warnings_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_BYTES;
         
@@ -124,8 +124,8 @@ static void Io_CanTx_JCT_Faults_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_FAULTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_FAULTS_BYTES;
         
@@ -189,8 +189,8 @@ void Io_CanTx_JCT_WarningsTest_SendAperiodic()
     if (can_mode & (CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        struct CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(struct CanMsg));
+        CanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(CanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_TEST_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_TEST_BYTES;
         
