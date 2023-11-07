@@ -107,7 +107,7 @@ find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
 IF (Python3_VERSION VERSION_LESS 3.8)
     message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
-    message(WARNING "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
+    message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
 message("🐍 Found Python ${Python3_VERSION}")
 
