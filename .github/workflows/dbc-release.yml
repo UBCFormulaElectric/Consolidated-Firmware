@@ -1,6 +1,8 @@
 name: DBC Release
 on:
   pull_request:
+    paths-ignore:
+      - 'software/**'
     branches:
       - master
 
