@@ -56,8 +56,9 @@ jobs:
         with:
           name: ${{ matrix.board }}.elf
           path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
+  
   build-firmware-dev:
-    name: Build Thruna Firmware
+    name: Build Dev Firmware
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
