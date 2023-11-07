@@ -1,8 +1,8 @@
 {
-	"warnings_id": 700,
-	"faults_id": 701,
-	"warnings_counts_id": 750,
-	"faults_counts_id": 751,
+	"warnings_id": 800,
+	"faults_id": 801,
+	"warnings_counts_id": 850,
+	"faults_counts_id": 851,
 	"warnings": [],
 	"faults": []
 }
