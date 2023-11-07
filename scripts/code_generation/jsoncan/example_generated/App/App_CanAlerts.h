@@ -19,7 +19,7 @@ typedef enum
 } CanAlertBoard;
 typedef enum
 {
-    JCT_TEST = 0,
+    JCT_Warning_Warning_Test = 0,
     NUM_JCT_WARNINGS = 1,
 } JCT_WarningId;
 
@@ -32,24 +32,14 @@ typedef enum
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
- * Set or clear a warning.
+ * Set or clear an alert for this board.
  */
-void App_CanAlerts_SetWarning(JCT_WarningId alert_id, bool set_alert);
+void App_CanAlerts_JCT_Warning_Warning_Test_Set(bool set_alert);
 
 /**
- * Set or clear a fault.
+ * Return whether or not a specific alert transmitted by this board is set.
  */
-void App_CanAlerts_SetFault(JCT_FaultId alert_id, bool set_alert);
-
-/**
- * Return whether or not a specific warning transmitted by this board is set.
- */
-bool App_CanAlerts_GetWarning(JCT_WarningId alert_id);
-
-/**
- * Return whether or not a specific fault transmitted by this board is set.
- */
-bool App_CanAlerts_GetFault(JCT_FaultId alert_id);
+bool App_CanAlerts_JCT_Warning_Warning_Test_Get(void);
 
 /**
  * Return whether or not a board has set a warning.
