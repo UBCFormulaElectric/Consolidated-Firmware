@@ -10,6 +10,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* ------------------------------- Structs -------------------------------- */
+
+/**
+ * Standard CAN message type.
+ */
+typedef struct
+{
+    uint32_t std_id;
+    uint32_t dlc;
+    uint8_t data[8];
+} CanMsg;
+
 /* -------------------------------- Enums --------------------------------- */
 
 typedef enum
@@ -19,6 +31,11 @@ typedef enum
 } CanMode;
 
 /* ------------------------- Function Prototypes -------------------------- */
+
+/**
+ * Initialzie the IO CAN TX module.
+ */
+void Io_CanTx_Init(void (*transmit_tx_msg_func)(const CanMsg*));
 
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).

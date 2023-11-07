@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "Io_SharedCanMsg.h"
+#include "Io_CanTx.h"
 
 /* ------------------------- Function Prototypes -------------------------- */
 
