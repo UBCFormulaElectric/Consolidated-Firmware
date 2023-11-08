@@ -108,7 +108,7 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
-        soc_stats = App_SocStats_Create(SERIES_ELEMENT_FULL_CHARGE_C, DEFAULT_SOC_ADDR, accumulator);
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
 
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
@@ -117,6 +117,8 @@ class BmsFaultTest : public BaseStateMachineTest
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);

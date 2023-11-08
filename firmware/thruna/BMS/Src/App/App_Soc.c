@@ -79,26 +79,35 @@ ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float 
     return EXIT_CODE_OK;
 }
 
-struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_address, struct Accumulator *accumulator)
+struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *accumulator)
 {
     struct SocStats *soc_stats = malloc(sizeof(struct SocStats));
     assert(soc_stats != NULL);
     soc_stats->prev_current_A = 0.0f;
 
-    // RESETTING ON INSTANTIATION, UPDATE THIS WITH EEPROM VALUES IF AVAILABLE
-    soc_stats->soc_address = soc_address;
-
-    // input a negative initial value if EEPROM reading corrupted. Reset SOC values based on cell voltages.
-    if (initial_charge_value < 0.0f)
+    // A negative soc value will indicate to App_SocStats_Create that saved SOC value is corrupted
+    float saved_soc_c = -1.0f;
+    if (App_Eeprom_ReadSocAddress(eeprom, &soc_stats->soc_address) == EXIT_CODE_OK)
     {
-        App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
-        soc_stats->is_corrupt = true;
+        if (App_Eeprom_ReadMinSoc(eeprom, soc_stats->soc_address, &saved_soc_c) == EXIT_CODE_OK)
+        {
+            soc_stats->charge_c   = (double)saved_soc_c;
+            soc_stats->is_corrupt = false;
+        }
+        else
+        {
+            App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+            soc_stats->is_corrupt = true;
+        }
     }
     else
     {
-        soc_stats->charge_c   = (double)initial_charge_value;
-        soc_stats->is_corrupt = false;
+        // If address corrupted, revert to default SOC address location
+        soc_stats->soc_address = DEFAULT_SOC_ADDR;
     }
+
+    // Update the active address that SOC is stored at
+    App_Eeprom_UpdateSavedSocAddress(eeprom, &soc_stats->soc_address);
 
     App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
 

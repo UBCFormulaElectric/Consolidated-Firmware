@@ -71,7 +71,7 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page);
  * @param address pointer to the the address to store on the EEPROM
  * @return EEPROM_StatusTypeDef returns success status for debug
  */
-EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t *address);
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedSocAddress(struct Eeprom *eeprom, uint16_t *address);
 
 /**
  * Read stored copies of last SOC address and perform error checking
@@ -79,7 +79,7 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16
  * @param address address where stored SOC values can be found
  * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
  */
-ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address);
+ExitCode App_Eeprom_ReadSocAddress(struct Eeprom *eeprom, uint16_t *address);
 
 /**
  * Write SOC value of cell with lowest voltage to EEPROM (writes 4 identical copies to protect against data corruption)

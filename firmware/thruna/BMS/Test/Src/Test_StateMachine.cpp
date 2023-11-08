@@ -104,8 +104,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
             enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
             thermistor_mux_select, read_thermistor_temp);
 
-        soc_stats = App_SocStats_Create(SERIES_ELEMENT_FULL_CHARGE_C, DEFAULT_SOC_ADDR, accumulator);
-
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
         ts = App_TractiveSystem_Create(get_ts_voltage, get_high_res_current, get_low_res_current);
@@ -116,6 +114,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
+
         world = App_BmsWorld_Create(
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
@@ -123,6 +123,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -963,39 +965,39 @@ TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
 {
     // Check that soc saturates at 5.0% lower bound
     float test_voltage = 0.0f;
-    float soc = App_Soc_GetSocFromOcv(test_voltage);
+    float soc          = App_Soc_GetSocFromOcv(test_voltage);
     float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
     ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check middle of the range
     test_voltage = 4.0f;
-    soc = App_Soc_GetSocFromOcv(test_voltage);
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
     expected_soc = 81.5f;
     ASSERT_FLOAT_EQ(soc, expected_soc);
 
     // Check that SOC saturates at 100.0%
     test_voltage = 5.0f;
-    soc = App_Soc_GetSocFromOcv(test_voltage);
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
     expected_soc = 100.0;
     ASSERT_FLOAT_EQ(soc, expected_soc);
 }
 
 TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
 {
-    float test_soc = 0.0f;
-    float ocv = App_Soc_GetOcvFromSoc(test_soc);
+    float test_soc     = 0.0f;
+    float ocv          = App_Soc_GetOcvFromSoc(test_soc);
     float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check middle of the range
-    test_soc = 68.5f;
-    ocv = App_Soc_GetOcvFromSoc(test_soc);
+    test_soc     = 68.5f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
     expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
     // Check that voltage saturates at value associated with 100.0% soc
-    test_soc = 101.0f;
-    ocv = App_Soc_GetOcvFromSoc(test_soc);
+    test_soc     = 101.0f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
     expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 }

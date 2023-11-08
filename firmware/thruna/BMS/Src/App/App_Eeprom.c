@@ -117,7 +117,7 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page)
     return eeprom->page_erase(page);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16_t *address)
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedSocAddress(struct Eeprom *eeprom, uint16_t *address)
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
@@ -129,7 +129,7 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16
     }
     else
     {
-        *address = (uint16_t)(*address + 1);
+        *address = *address + 1;
     }
 
     // convert address to bytes and write 4 copies to page 0
@@ -142,7 +142,7 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedAddress(struct Eeprom *eeprom, uint16
     return eeprom->write_page(ADDRESS_PAGE, DEFAULT_OFFSET, byte_array, num_bytes);
 }
 
-ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address)
+ExitCode App_Eeprom_ReadSocAddress(struct Eeprom *eeprom, uint16_t *address)
 {
     if (*address >= NUM_PAGES)
     {
@@ -169,27 +169,14 @@ ExitCode App_Eeprom_ReadAddress(struct Eeprom *eeprom, uint16_t *address)
         *address = 1;
         return EXIT_CODE_ERROR;
     }
-    else if (address_copies[0] == address_copies[1])
+    else if (
+        address_copies[0] == address_copies[1] || address_copies[0] == address_copies[2] ||
+        address_copies[0] == address_copies[3])
     {
         *address = address_copies[0];
         return EXIT_CODE_OK;
     }
-    else if (address_copies[1] == address_copies[2])
-    {
-        *address = address_copies[1];
-        return EXIT_CODE_OK;
-    }
-    else if (address_copies[0] == address_copies[2])
-    {
-        *address = address_copies[0];
-        return EXIT_CODE_OK;
-    }
-    else if (address_copies[0] == address_copies[3])
-    {
-        *address = address_copies[0];
-        return EXIT_CODE_OK;
-    }
-    else if (address_copies[1] == address_copies[3])
+    else if (address_copies[1] == address_copies[2] || address_copies[1] == address_copies[3])
     {
         *address = address_copies[1];
         return EXIT_CODE_OK;
@@ -226,41 +213,24 @@ ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *m
     if (read_status != EEPROM_OK)
     {
         *min_soc = -1;
-        return EXIT_CODE_ERROR;
     }
-    else if (soc_copies[0] == soc_copies[1])
+    else if (soc_copies[0] == soc_copies[1] || soc_copies[0] == soc_copies[2] || soc_copies[0] == soc_copies[3])
     {
         *min_soc = soc_copies[0];
-        return EXIT_CODE_OK;
     }
-    else if (soc_copies[1] == soc_copies[2])
+    else if (soc_copies[1] == soc_copies[2] || soc_copies[1] == soc_copies[3])
     {
         *min_soc = soc_copies[1];
-        return EXIT_CODE_OK;
-    }
-    else if (soc_copies[0] == soc_copies[2])
-    {
-        *min_soc = soc_copies[0];
-        return EXIT_CODE_OK;
-    }
-    else if (soc_copies[0] == soc_copies[3])
-    {
-        *min_soc = soc_copies[0];
-        return EXIT_CODE_OK;
-    }
-    else if (soc_copies[1] == soc_copies[3])
-    {
-        *min_soc = soc_copies[1];
-        return EXIT_CODE_OK;
     }
     else if (soc_copies[2] == soc_copies[3])
     {
         *min_soc = soc_copies[2];
-        return EXIT_CODE_OK;
     }
     else
     {
         *min_soc = -1;
         return EXIT_CODE_ERROR;
     }
+
+    return EXIT_CODE_OK;
 }

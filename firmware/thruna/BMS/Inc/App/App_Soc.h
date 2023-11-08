@@ -3,23 +3,10 @@
 #include "App_SharedExitCode.h"
 #include "App_Accumulator.h"
 #include "App_Timer.h"
+#include "App_Eeprom.h"
 
 #define STATE_OF_HEALTH (1.0f)
 #define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
-
-/**
- * Function to retrieve soc closest to given open circuit voltage
- * @param voltage open circuit voltage
- * @return soc related to open circuit voltage
- */
-float App_Soc_GetSocFromOcv(float voltage);
-
-/**
- * Function to retrieve open circuit voltage closest to given soc
- * @param soc_percent state of charge in percent
- * @return open circuit voltage closest to given state of charge
- */
-float App_Soc_GetOcvFromSoc(float soc_percent);
 
 struct SocStats
 {
@@ -40,10 +27,26 @@ struct SocStats
 };
 
 /**
+ * Function to retrieve soc closest to given open circuit voltage
+ * @param voltage open circuit voltage
+ * @return soc related to open circuit voltage
+ */
+float App_Soc_GetSocFromOcv(float voltage);
+
+/**
+ * Function to retrieve open circuit voltage closest to given soc
+ * @param soc_percent state of charge in percent
+ * @return open circuit voltage closest to given state of charge
+ */
+float App_Soc_GetOcvFromSoc(float soc_percent);
+
+/**
  * Create the SocStats object
+ * @param eeprom Eeprom to read stored SOC value from
+ * @param accumulator Accumulator to get min cell voltage from
  * @return struct SocStats pointer to object
  */
-struct SocStats *App_SocStats_Create(float initial_charge_value, uint16_t soc_address, struct Accumulator *accumulator);
+struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *accumulator);
 
 /**
  * Destroy the SocStats object
