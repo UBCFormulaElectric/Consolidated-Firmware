@@ -23,7 +23,8 @@ jobs:
           conda env list
       - name: Build and test
         run: |
-          source activate /usr/share/miniconda/envs/tracksight-backend 
+          conda init
+          conda activate tracksight-backend 
 
       - name: Deactivate Conda environment
         run: conda deactivate
