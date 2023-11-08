@@ -20,10 +20,10 @@ jobs:
 
       - name: List Conda Envs
         run: |
-          source env list
+          conda env list
       - name: Build and test
         run: |
-          conda activate tracksight-backend
+          source activate tracksight-backend
 
       - name: Deactivate Conda environment
         run: conda deactivate
