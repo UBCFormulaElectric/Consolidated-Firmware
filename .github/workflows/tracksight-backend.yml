@@ -7,19 +7,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
 
     steps:
+      - name: checkout code
       - uses: actions/checkout@v4
+
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           environment-file: software/tracksight/backend/environment.yml
-          activate-environment: myenv
+          activate-environment: tracksight-backend
+
       - name: Build and test
         run: |
-          source activate myenv  # Activate the Conda environment
-          # Run any build and test commands here, e.g., npm install, npm test, etc.
+          source activate mtracksight-backend
 
       - name: Deactivate Conda environment
         run: conda deactivate
