@@ -20,7 +20,7 @@ jobs:
 
       - name: List Conda Envs
         run: |
-          conda env list
+          source env list
       - name: Build and test
         run: |
           conda activate tracksight-backend
