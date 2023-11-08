@@ -9,6 +9,12 @@
 
 #define NUM_AUX_THERMISTORS (6U)
 
+// What we will compare against to determine if a segment has a blown fuse and is
+// less than three cells in parallel. We calculate number of cells and compare.
+// TODO: TUNING AND TESTING REQUIRED, STILL A WORK IN PROGRESS THRESHOLD.
+#define BLOWN_FUSE_THRESHOLD (2.5f)
+#define FUSE_CHECK_CURRENT_THRESHOLD_AMPS (40.0f)
+
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
@@ -427,6 +433,47 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             break;
         }
     }
+}
+
+float App_Accumulator_BlownFuseCheck_Helper(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
+{
+    float cell_voltage_minimum = accumulator->voltage_stats.min_voltage.voltage;
+    float cell_voltage_sum     = 0;
+
+    for (uint8_t seg; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
+    {
+        float cell_voltage = App_Accumulator_GetAverageCellVoltage(accumulator, seg);
+        cell_voltage_sum += cell_voltage;
+    }
+
+    float cell_voltage_avg = cell_voltage_sum / (float)ACCUMULATOR_NUM_SEGMENTS;
+    float segment_current  = App_TractiveSystem_GetCurrent(ts);
+
+    float denom_min_cells_in_parallel =
+        cell_voltage_avg - cell_voltage_minimum +
+        segment_current * INTERNAL_CELL_RESISTANCE / (float)ACCUMULATOR_NUM_PARALLEL_CELLS;
+
+    if (denom_min_cells_in_parallel == 0)
+    {
+        return -1;
+    }
+
+    return (segment_current)*INTERNAL_CELL_RESISTANCE / denom_min_cells_in_parallel;
+}
+
+bool App_Accumulator_CheckWarnings(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
+{
+    if (App_TractiveSystem_GetCurrent(ts) < FUSE_CHECK_CURRENT_THRESHOLD_AMPS)
+    {
+        return false;
+    }
+    float estimated_min_cells_in_parallel = App_Accumulator_BlownFuseCheck_Helper(accumulator, ts);
+
+    bool blown_fuse_warning = estimated_min_cells_in_parallel < BLOWN_FUSE_THRESHOLD;
+
+    App_CanAlerts_BMS_Warning_BlownCellFuse_Set(blown_fuse_warning);
+
+    return blown_fuse_warning;
 }
 
 bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
