@@ -23,7 +23,7 @@ jobs:
           conda env list
       - name: Build and test
         run: |
-          source activate mtracksight-backend
+          conda activate mtracksight-backend
 
       - name: Deactivate Conda environment
         run: conda deactivate
