@@ -1,5 +1,4 @@
-#ifndef QT_DEMO_CAN_H
-#define QT_DEMO_CAN_H
+#pragma once
 
 #include <optional>
 #include <cstdint>
@@ -30,5 +29,3 @@ Result<std::monostate, CanConnectionError> Can_Init();
 Result<CanMsg, CanReadError> Can_Read();
 
 Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg);
-
-#endif //QT_DEMO_CAN_H

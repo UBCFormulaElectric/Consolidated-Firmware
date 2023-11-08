@@ -6,7 +6,7 @@
 #include <sys/ioctl.h>
 #include <linux/can.h>
 
-std::optional<int> CanInterface;
+static std::optional<int> CanInterface;
 
 Result<std::monostate, CanConnectionError> Can_Init() {
 	// Create a socket
@@ -48,12 +48,12 @@ Result<CanMsg, CanReadError> Can_Read() {
 	return CanMsg{};
 }
 
-Result<std::monostate, CanWriteError> Can_Write(CanMsg msg) {
+Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg) {
 	if (!CanInterface.has_value())
 		return CanWriteError::WriteInterfaceNotCreated;
 
 	try {
-		ssize_t nbytes = write(CanInterface.value(), &frame, sizeof(struct can_frame));
+		ssize_t nbytes = write(CanInterface.value(), msg, sizeof(struct can_frame));
 	} catch (...) {
 		return CanWriteError::SocketWriteError;
 	}
