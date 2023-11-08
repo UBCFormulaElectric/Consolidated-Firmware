@@ -18,6 +18,9 @@ jobs:
           environment-file: software/tracksight/backend/environment.yml
           activate-environment: tracksight-backend
 
+      - name: List Conda Envs
+        run: |
+          conda env list
       - name: Build and test
         run: |
           source activate mtracksight-backend
