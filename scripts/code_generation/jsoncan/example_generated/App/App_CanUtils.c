@@ -193,14 +193,36 @@ void App_CanUtils_JCT_Warnings_Pack(const JCT_Warnings_Signals* const in_msg, ui
         return;
     }
     
-    // Pack 1-bit signal JCT_TEST into payload (at bit 0 to bit 1).
-    const bool JCT_TEST_val = in_msg->JCT_TEST_value;
-    const uint32_t JCT_TEST_raw = CAN_ENCODE(JCT_TEST_val, CANSIG_JCT_WARNINGS_JCT_TEST_SCALE, CANSIG_JCT_WARNINGS_JCT_TEST_OFFSET, uint32_t);
-    out_data[0] |= packShiftRight(JCT_TEST_raw, 0, 0x1);   // Packs bits _______# of byte 0
+    // Pack 1-bit signal JCT_Warning_Warning_Test into payload (at bit 0 to bit 1).
+    const bool JCT_Warning_Warning_Test_val = in_msg->JCT_Warning_Warning_Test_value;
+    const uint32_t JCT_Warning_Warning_Test_raw = CAN_ENCODE(JCT_Warning_Warning_Test_val, CANSIG_JCT_WARNINGS_JCT_WARNING_WARNING_TEST_SCALE, CANSIG_JCT_WARNINGS_JCT_WARNING_WARNING_TEST_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(JCT_Warning_Warning_Test_raw, 0, 0x1);   // Packs bits _______# of byte 0
     
 }
 
 void App_CanUtils_JCT_Faults_Pack(const JCT_Faults_Signals* const in_msg, uint8_t* const out_data)
+{
+    // No data to pack!
+}
+
+void App_CanUtils_JCT_WarningsCounts_Pack(const JCT_WarningsCounts_Signals* const in_msg, uint8_t* const out_data)
+{
+    // Pack 1-byte payload for message JCT_WarningsCounts.
+    // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_____AAA|
+    
+    if (in_msg == NULL || out_data == NULL)
+    {
+        return;
+    }
+    
+    // Pack 3-bit signal JCT_Warning_Warning_TestCount into payload (at bit 0 to bit 3).
+    const uint32_t JCT_Warning_Warning_TestCount_val = in_msg->JCT_Warning_Warning_TestCount_value;
+    const uint32_t JCT_Warning_Warning_TestCount_raw = CAN_ENCODE(JCT_Warning_Warning_TestCount_val, CANSIG_JCT_WARNINGS_COUNTS_JCT_WARNING_WARNING_TEST_COUNT_SCALE, CANSIG_JCT_WARNINGS_COUNTS_JCT_WARNING_WARNING_TEST_COUNT_OFFSET, uint32_t);
+    out_data[0] |= packShiftRight(JCT_Warning_Warning_TestCount_raw, 0, 0x7);   // Packs bits _____### of byte 0
+    
+}
+
+void App_CanUtils_JCT_FaultsCounts_Pack(const JCT_FaultsCounts_Signals* const in_msg, uint8_t* const out_data)
 {
     // No data to pack!
 }
@@ -245,17 +267,17 @@ void App_CanUtils_FSM_Warnings_Unpack(const uint8_t* const in_data, FSM_Warnings
         return;
     }
     
-    // Unpack 1-bit signal FSM_TEST1 from payload (at bit 0 to bit 1).
-    uint32_t FSM_TEST1_raw = 0;
-    FSM_TEST1_raw |= unpackShiftRight(in_data[0], 0, 0x1);   // Unpacks bits _______# of msg byte 0
-    bool FSM_TEST1_val = CAN_DECODE(FSM_TEST1_raw, CANSIG_FSM_WARNINGS_FSM_TEST1_SCALE, CANSIG_FSM_WARNINGS_FSM_TEST1_OFFSET, uint32_t);
-    out_msg->FSM_TEST1_value = FSM_TEST1_val;
+    // Unpack 1-bit signal FSM_Warning_Warning_Test1 from payload (at bit 0 to bit 1).
+    uint32_t FSM_Warning_Warning_Test1_raw = 0;
+    FSM_Warning_Warning_Test1_raw |= unpackShiftRight(in_data[0], 0, 0x1);   // Unpacks bits _______# of msg byte 0
+    bool FSM_Warning_Warning_Test1_val = CAN_DECODE(FSM_Warning_Warning_Test1_raw, CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST1_SCALE, CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST1_OFFSET, uint32_t);
+    out_msg->FSM_Warning_Warning_Test1_value = FSM_Warning_Warning_Test1_val;
     
-    // Unpack 1-bit signal FSM_TEST2 from payload (at bit 1 to bit 2).
-    uint32_t FSM_TEST2_raw = 0;
-    FSM_TEST2_raw |= unpackShiftRight(in_data[0], 1, 0x2);   // Unpacks bits ______#_ of msg byte 0
-    bool FSM_TEST2_val = CAN_DECODE(FSM_TEST2_raw, CANSIG_FSM_WARNINGS_FSM_TEST2_SCALE, CANSIG_FSM_WARNINGS_FSM_TEST2_OFFSET, uint32_t);
-    out_msg->FSM_TEST2_value = FSM_TEST2_val;
+    // Unpack 1-bit signal FSM_Warning_Warning_Test2 from payload (at bit 1 to bit 2).
+    uint32_t FSM_Warning_Warning_Test2_raw = 0;
+    FSM_Warning_Warning_Test2_raw |= unpackShiftRight(in_data[0], 1, 0x2);   // Unpacks bits ______#_ of msg byte 0
+    bool FSM_Warning_Warning_Test2_val = CAN_DECODE(FSM_Warning_Warning_Test2_raw, CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST2_SCALE, CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST2_OFFSET, uint32_t);
+    out_msg->FSM_Warning_Warning_Test2_value = FSM_Warning_Warning_Test2_val;
     
 }
 
@@ -269,11 +291,11 @@ void App_CanUtils_FSM_Faults_Unpack(const uint8_t* const in_data, FSM_Faults_Sig
         return;
     }
     
-    // Unpack 1-bit signal FSM_FAULT_TEST3 from payload (at bit 0 to bit 1).
-    uint32_t FSM_FAULT_TEST3_raw = 0;
-    FSM_FAULT_TEST3_raw |= unpackShiftRight(in_data[0], 0, 0x1);   // Unpacks bits _______# of msg byte 0
-    bool FSM_FAULT_TEST3_val = CAN_DECODE(FSM_FAULT_TEST3_raw, CANSIG_FSM_FAULTS_FSM_FAULT_TEST3_SCALE, CANSIG_FSM_FAULTS_FSM_FAULT_TEST3_OFFSET, uint32_t);
-    out_msg->FSM_FAULT_TEST3_value = FSM_FAULT_TEST3_val;
+    // Unpack 1-bit signal FSM_Fault_Fault_Test3 from payload (at bit 0 to bit 1).
+    uint32_t FSM_Fault_Fault_Test3_raw = 0;
+    FSM_Fault_Fault_Test3_raw |= unpackShiftRight(in_data[0], 0, 0x1);   // Unpacks bits _______# of msg byte 0
+    bool FSM_Fault_Fault_Test3_val = CAN_DECODE(FSM_Fault_Fault_Test3_raw, CANSIG_FSM_FAULTS_FSM_FAULT_FAULT_TEST3_SCALE, CANSIG_FSM_FAULTS_FSM_FAULT_FAULT_TEST3_OFFSET, uint32_t);
+    out_msg->FSM_Fault_Fault_Test3_value = FSM_Fault_Fault_Test3_val;
     
 }
 

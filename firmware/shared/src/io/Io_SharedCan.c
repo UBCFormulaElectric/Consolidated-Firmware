@@ -5,10 +5,10 @@
 #include "Io_SharedCan.h"
 #include "Io_SharedFreeRTOS.h"
 
-#define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
+#define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(CanMsg)
 #define CAN_TX_MSG_FIFO_LENGTH 20
 
-#define CAN_RX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
+#define CAN_RX_MSG_FIFO_ITEM_SIZE sizeof(CanMsg)
 #define CAN_RX_MSG_FIFO_LENGTH 20
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
@@ -78,7 +78,7 @@ static struct StaticSemaphore CanTxBinarySemaphore = {
  * @brief Transmits a CAN message
  * @param message CAN message to transmit
  */
-static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
+static HAL_StatusTypeDef Io_TransmitCanMessage(CanMsg *message);
 
 /**
  * @brief  Shared callback function to be used in each RX FIFO callback
@@ -124,7 +124,7 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
         return SUCCESS;
 }
 
-static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
+static HAL_StatusTypeDef Io_TransmitCanMessage(CanMsg *message)
 {
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
@@ -158,7 +158,7 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     static uint32_t canrx_overflow_count = { 0 };
 
     CAN_RxHeaderTypeDef header;
-    struct CanMsg       message;
+    CanMsg              message;
 
     if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) == HAL_OK)
     {
@@ -235,7 +235,7 @@ void Io_SharedCan_Init(
     sharedcan_hcan = hcan;
 }
 
-void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
+void Io_SharedCan_TxMessageQueueSendtoBack(const CanMsg *message)
 {
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };
@@ -276,7 +276,7 @@ void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
     }
 }
 
-void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
+void Io_SharedCan_DequeueCanRxMessage(CanMsg *message)
 {
     // Get a message from the RX queue and process it, else block forever.
     while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) != pdTRUE)
@@ -289,7 +289,7 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 
     while (uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
-        struct CanMsg message;
+        CanMsg message;
 
         while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) == 0U)
             ;

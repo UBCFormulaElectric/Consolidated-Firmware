@@ -32,14 +32,14 @@ static JCT_RxMsgs rx_table;
 void App_CanRx_Init()
 {
     memset(&rx_table, 0, sizeof(JCT_RxMsgs));
-    App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Update(CANSIG_FSM_APPS_FSM_PAPPS_MAPPED_PEDAL_PERCENTAGE_START_VAL);
-    App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Update(CANSIG_FSM_APPS_FSM_SAPPS_MAPPED_PEDAL_PERCENTAGE_START_VAL);
-    App_CanRx_FSM_TEST1_Update(CANSIG_FSM_WARNINGS_FSM_TEST1_START_VAL);
-    App_CanRx_FSM_TEST2_Update(CANSIG_FSM_WARNINGS_FSM_TEST2_START_VAL);
-    App_CanRx_FSM_FAULT_TEST3_Update(CANSIG_FSM_FAULTS_FSM_FAULT_TEST3_START_VAL);
+    App_CanRx_FSM_PappsMappedPedalPercentage_Update(CANSIG_FSM_APPS_FSM_PAPPS_MAPPED_PEDAL_PERCENTAGE_START_VAL);
+    App_CanRx_FSM_SappsMappedPedalPercentage_Update(CANSIG_FSM_APPS_FSM_SAPPS_MAPPED_PEDAL_PERCENTAGE_START_VAL);
+    App_CanRx_FSM_Warning_Warning_Test1_Update(CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST1_START_VAL);
+    App_CanRx_FSM_Warning_Warning_Test2_Update(CANSIG_FSM_WARNINGS_FSM_WARNING_WARNING_TEST2_START_VAL);
+    App_CanRx_FSM_Fault_Fault_Test3_Update(CANSIG_FSM_FAULTS_FSM_FAULT_FAULT_TEST3_START_VAL);
 }
 
-void App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Update(float value)
+void App_CanRx_FSM_PappsMappedPedalPercentage_Update(float value)
 {
     if (value == NAN)
     {
@@ -50,7 +50,7 @@ void App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Update(float value)
     rx_table.FSM_Apps_signals.FSM_PappsMappedPedalPercentage_value = tmp > CANSIG_FSM_APPS_FSM_PAPPS_MAPPED_PEDAL_PERCENTAGE_MAX ? CANSIG_FSM_APPS_FSM_PAPPS_MAPPED_PEDAL_PERCENTAGE_MAX : tmp;
 }
 
-void App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Update(float value)
+void App_CanRx_FSM_SappsMappedPedalPercentage_Update(float value)
 {
     if (value == NAN)
     {
@@ -61,43 +61,43 @@ void App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Update(float value)
     rx_table.FSM_Apps_signals.FSM_SappsMappedPedalPercentage_value = tmp > CANSIG_FSM_APPS_FSM_SAPPS_MAPPED_PEDAL_PERCENTAGE_MAX ? CANSIG_FSM_APPS_FSM_SAPPS_MAPPED_PEDAL_PERCENTAGE_MAX : tmp;
 }
 
-void App_CanRx_FSM_TEST1_Update(bool value)
+void App_CanRx_FSM_Warning_Warning_Test1_Update(bool value)
 {
-    rx_table.FSM_Warnings_signals.FSM_TEST1_value = value;
+    rx_table.FSM_Warnings_signals.FSM_Warning_Warning_Test1_value = value;
 }
 
-void App_CanRx_FSM_TEST2_Update(bool value)
+void App_CanRx_FSM_Warning_Warning_Test2_Update(bool value)
 {
-    rx_table.FSM_Warnings_signals.FSM_TEST2_value = value;
+    rx_table.FSM_Warnings_signals.FSM_Warning_Warning_Test2_value = value;
 }
 
-void App_CanRx_FSM_FAULT_TEST3_Update(bool value)
+void App_CanRx_FSM_Fault_Fault_Test3_Update(bool value)
 {
-    rx_table.FSM_Faults_signals.FSM_FAULT_TEST3_value = value;
+    rx_table.FSM_Faults_signals.FSM_Fault_Fault_Test3_value = value;
 }
 
-float App_CanRx_FSM_FSM_PappsMappedPedalPercentage_Get()
+float App_CanRx_FSM_PappsMappedPedalPercentage_Get()
 {
     return rx_table.FSM_Apps_signals.FSM_PappsMappedPedalPercentage_value;
 }
 
-float App_CanRx_FSM_FSM_SappsMappedPedalPercentage_Get()
+float App_CanRx_FSM_SappsMappedPedalPercentage_Get()
 {
     return rx_table.FSM_Apps_signals.FSM_SappsMappedPedalPercentage_value;
 }
 
-bool App_CanRx_FSM_TEST1_Get()
+bool App_CanRx_FSM_Warning_Warning_Test1_Get()
 {
-    return rx_table.FSM_Warnings_signals.FSM_TEST1_value;
+    return rx_table.FSM_Warnings_signals.FSM_Warning_Warning_Test1_value;
 }
 
-bool App_CanRx_FSM_TEST2_Get()
+bool App_CanRx_FSM_Warning_Warning_Test2_Get()
 {
-    return rx_table.FSM_Warnings_signals.FSM_TEST2_value;
+    return rx_table.FSM_Warnings_signals.FSM_Warning_Warning_Test2_value;
 }
 
-bool App_CanRx_FSM_FAULT_TEST3_Get()
+bool App_CanRx_FSM_Fault_Fault_Test3_Get()
 {
-    return rx_table.FSM_Faults_signals.FSM_FAULT_TEST3_value;
+    return rx_table.FSM_Faults_signals.FSM_Fault_Fault_Test3_value;
 }
 

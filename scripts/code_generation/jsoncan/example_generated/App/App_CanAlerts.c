@@ -12,62 +12,21 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 
-void App_CanAlerts_SetWarning(JCT_WarningId alert_id, bool set_alert)
+void App_CanAlerts_JCT_Warning_Warning_Test_Set(bool set_alert)
 {
-    switch (alert_id)
+    // Increment alert counter.
+    if (set_alert && !App_CanTx_JCT_Warning_Warning_Test_Get())
     {
-        case JCT_TEST:
-        {
-            App_CanTx_JCT_Warnings_JCT_TEST_Set(set_alert);
-            break;
-        }
-        default:
-        {
-            // Do nothing
-            break;
-        }
+        App_CanTx_JCT_Warning_Warning_TestCount_Set(App_CanTx_JCT_Warning_Warning_TestCount_Get() + 1);
     }
+    
+    // Set alert.
+    App_CanTx_JCT_Warning_Warning_Test_Set(set_alert);
 }
 
-void App_CanAlerts_SetFault(JCT_FaultId alert_id, bool set_alert)
+bool App_CanAlerts_JCT_Warning_Warning_Test_Get()
 {
-    switch (alert_id)
-    {
-        default:
-        {
-            // Do nothing
-            break;
-        }
-    }
-}
-
-bool App_CanAlerts_GetWarning(JCT_WarningId alert_id)
-{
-    switch (alert_id)
-    {
-        case JCT_TEST:
-        {
-            return App_CanTx_JCT_Warnings_JCT_TEST_Get();
-            break;
-        }
-        default:
-        {
-            return false;
-            break;
-        }
-    }
-}
-
-bool App_CanAlerts_GetFault(JCT_FaultId alert_id)
-{
-    switch (alert_id)
-    {
-        default:
-        {
-            return false;
-            break;
-        }
-    }
+    return App_CanTx_JCT_Warning_Warning_Test_Get();
 }
 
 bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
@@ -76,12 +35,12 @@ bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_TEST1_Get())
+            if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
                 return true;
             }
             
-            if (App_CanRx_FSM_TEST2_Get())
+            if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
                 return true;
             }
@@ -90,7 +49,7 @@ bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
         }
         case JCT_ALERT_BOARD:
         {
-            if (App_CanTx_JCT_Warnings_JCT_TEST_Get())
+            if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
                 return true;
             }
@@ -113,7 +72,7 @@ bool App_CanAlerts_BoardHasFault(CanAlertBoard board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_FAULT_TEST3_Get())
+            if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
                 return true;
             }

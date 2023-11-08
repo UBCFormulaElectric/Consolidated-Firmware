@@ -50,7 +50,7 @@ class IoCanRxModule(CModule):
             CFuncsConfig.IO_RX_UPDATE_TABLE,
             "void",
             args=[
-                CVar("msg", "struct CanMsg*"),
+                CVar("msg", "CanMsg*"),
             ],
             comment=f"Unpack a received message and update the CAN RX table.",
         )
@@ -96,7 +96,7 @@ class IoCanRxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-        cw.add_include('"Io_SharedCanMsg.h"')
+        cw.add_include('"Io_CanTx.h"')
 
         # Add function prototypes
         cw.add_line()
