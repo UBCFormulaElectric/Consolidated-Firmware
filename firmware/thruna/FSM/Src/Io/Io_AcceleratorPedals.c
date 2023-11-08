@@ -62,7 +62,7 @@ static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_la
 {
     float angle = acosf(cos_law_coefficent - (powf(pot_len, 2) / cos_law_denominator));
 
-    return angle;
+    return CLAMP(angle, 0.0f, 3.141592653589793f);
 }
 
 void Io_AcceleratorPedals_Init(void)
