@@ -12,11 +12,19 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          environment-file: software/tracksight/backend/environment.yml
-          activate-environment: tracksight-backend
+          #- name: Set up Conda
+          #  uses: conda-incubator/setup-miniconda@v2
+          #  with:
+          #    environment-file: software/tracksight/backend/environment.yml
+          #    activate-environment: tracksight-backend
+      - name: Install Anaconda
+        run: |
+          wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+          bash Anaconda3-2021.11-Linux-x86_64.sh -b -p $HOME/anaconda
+          export PATH="$HOME/anaconda/bin:$PATH
+
+      - name: Create Conda environment
+        run: conda env create -f environment.yml
 
       - name: List Conda Envs
         run: |
