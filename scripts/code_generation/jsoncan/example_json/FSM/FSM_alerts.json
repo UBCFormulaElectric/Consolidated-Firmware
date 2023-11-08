@@ -1,11 +1,13 @@
 {
     "warnings_id": 41,
     "faults_id": 42,
+    "warnings_counts_id": 43,
+    "faults_counts_id": 44,
     "warnings": [
-        "FSM_TEST1",
-        "FSM_TEST2"
+        "Warning_Test1",
+        "Warning_Test2"
     ],
     "faults": [
-        "FSM_FAULT_TEST3"
+        "Fault_Test3"
     ]
 }

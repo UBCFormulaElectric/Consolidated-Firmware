@@ -83,6 +83,15 @@
             }
         },
         {
+            "label": "Build: f4dev.elf",
+            "type": "shell",
+            "command": "make -j`nproc` f4dev.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_arm"
+            }
+        },
+        {
             "label": "Build: BMS_test",
             "type": "shell",
             "command": "make -j`nproc` BMS_test",

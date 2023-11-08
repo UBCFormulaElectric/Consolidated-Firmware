@@ -617,7 +617,7 @@ void RunTaskCanRx(void *argument)
 
     for (;;)
     {
-        struct CanMsg message;
+        CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(&message);
     }

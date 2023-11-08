@@ -2,7 +2,7 @@
 
 #include "hw_hal.h"
 #include "App_CanTx.h"
-#include "Io_SharedCanMsg.h"
+#include "Io_CanTx.h"
 
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0            // Set CAN Extended ID to 0 because we are not using it
@@ -28,14 +28,14 @@ void Io_SharedCan_Init(
  * Send a message to the back of the CAN TX queue
  * @param message CAN message to send
  */
-void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message);
+void Io_SharedCan_TxMessageQueueSendtoBack(const CanMsg *message);
 
 /**
  * Read a message from the CAN RX queue
  * @note If there is no message in the CAN RX queue, this function will block
  *       indefinitely until a message becomes available
  */
-void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message);
+void Io_SharedCan_DequeueCanRxMessage(CanMsg *message);
 
 /**
  * Transmit messages in the CAN TX queue over CAN bus

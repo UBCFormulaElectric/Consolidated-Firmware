@@ -103,11 +103,18 @@ BO_ 318 FSM_SteeringAngleSensor: 4 FSM
 SG_ FSM_SteeringAngle : 0|32@1+ (5.122274161577754e-08,-110) [-110|110] "km/h" DEBUG
 
 BO_ 41 FSM_Warnings: 1 FSM
-SG_ FSM_TEST1 : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT,JCT
-SG_ FSM_TEST2 : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT,JCT
+SG_ FSM_Warning_Warning_Test1 : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT,JCT
+SG_ FSM_Warning_Warning_Test2 : 1|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT,JCT
 
 BO_ 42 FSM_Faults: 1 FSM
-SG_ FSM_FAULT_TEST3 : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT
+SG_ FSM_Fault_Fault_Test3 : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,JCT
+
+BO_ 43 FSM_WarningsCounts: 1 FSM
+SG_ FSM_Warning_Warning_Test1Count : 0|3@1+ (1,0) [0|7] "" DEBUG
+SG_ FSM_Warning_Warning_Test2Count : 3|3@1+ (1,0) [0|7] "" DEBUG
+
+BO_ 44 FSM_FaultsCounts: 1 FSM
+SG_ FSM_Fault_Fault_Test3Count : 0|3@1+ (1,0) [0|7] "" DEBUG
 
 BO_ 601 JCT_Vitals: 5 JCT
 SG_ JCT_Heartbeat : 0|1@1+ (1.0,0) [0|1] "" DEBUG
@@ -131,117 +138,20 @@ SG_ JCT_Voltage : 13|12@1+ (0.1221001221001221,0) [0|500] "V" DEBUG
 SG_ JCT_UnsignedTester : 25|12@1- (1,0) [-2047|2046] "V" DEBUG
 
 BO_ 51 JCT_Warnings: 1 JCT
-SG_ JCT_TEST : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,FSM
+SG_ JCT_Warning_Warning_Test : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,FSM
 
 BO_ 52 JCT_Faults: 0 JCT
+
+BO_ 53 JCT_WarningsCounts: 1 JCT
+SG_ JCT_Warning_Warning_TestCount : 0|3@1+ (1,0) [0|7] "" DEBUG
+
+BO_ 54 JCT_FaultsCounts: 0 JCT
 
 
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_DEF_  "BusType" "CAN";
 BA_ "BusType" "CAN";
-
-
-BA_ "GenSigStartValue" SG_ 200 DCM_Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 201 DCM_TxOverflowCount 0;
-BA_ "GenSigStartValue" SG_ 201 DCM_RxOverflowCount 0;
-BA_ "GenSigStartValue" SG_ 203 DCM_Task 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_StackWatermarkAboveThresholdTask1Hz 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_StackWatermarkAboveThresholdTask1kHz 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_StackWatermarkAboveThresholdTaskCanRx 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_StackWatermarkAboveThresholdTaskCanTx 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_WatchdogTimeout 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_AccelXOutofRange 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_AccelYOutofRange 0;
-BA_ "GenSigStartValue" SG_ 204 DCM_AccelZOutofRange 0;
-BA_ "GenSigStartValue" SG_ 205 DCM_State 0;
-BA_ "GenSigStartValue" SG_ 207 DCM_MissingHeartbeat 0;
-BA_ "GenSigStartValue" SG_ 212 DCM_RightInverterSwitch 0;
-BA_ "GenSigStartValue" SG_ 212 DCM_LeftInverterSwitch 0;
-BA_ "GenSigStartValue" SG_ 13 FSM_MappedPedalPercentage 0;
-BA_ "GenSigStartValue" SG_ 90 FSM_TorqueLimit 0;
-BA_ "GenSigStartValue" SG_ 151 FSM_PappsMappedPedalPercentage 0;
-BA_ "GenSigStartValue" SG_ 151 FSM_SappsMappedPedalPercentage 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_PappsOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_SappsOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_StackWatermarkAboveThresholdTask1Hz 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_StackWatermarkAboveThresholdTask1kHz 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_StackWatermarkAboveThresholdTaskCanRx 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_StackWatermarkAboveThresholdTaskCanTx 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_WatchdogFault 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_BspdFault 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_LeftWheelSpeedOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_RightWheelSpeedOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_FlowRateOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_SteeringAngleOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_BrakePressureOutOfRange 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_BrakePressureSc 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_BrakePressureOc 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_SteeringWheelBroke 0;
-BA_ "GenSigStartValue" SG_ 301 FSM_Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 302 FSM_TxOverflowCount 0;
-BA_ "GenSigStartValue" SG_ 302 FSM_RxOverflowCount 0;
-BA_ "GenSigStartValue" SG_ 304 FSM_TaskName 0;
-BA_ "GenSigStartValue" SG_ 305 FSM_State 0;
-BA_ "GenSigStartValue" SG_ 307 FSM_FlowRate 0;
-BA_ "GenSigStartValue" SG_ 14 FSM_BrakePressure 0;
-BA_ "GenSigStartValue" SG_ 14 FSM_BrakeIsActuated 0;
-BA_ "GenSigStartValue" SG_ 14 FSM_PressureSensorIsOcOrSc 0;
-BA_ "GenSigStartValue" SG_ 310 FSM_MissingHeartbeat 0;
-BA_ "GenSigStartValue" SG_ 315 FSM_AppsHasDisagreement 0;
-BA_ "GenSigStartValue" SG_ 315 FSM_PappsAlarmIsActive 0;
-BA_ "GenSigStartValue" SG_ 315 FSM_SappsAlarmIsActive 0;
-BA_ "GenSigStartValue" SG_ 315 FSM_FlowMeterHasUnderflow 0;
-BA_ "GenSigStartValue" SG_ 315 FSM_TorquePlausibilityCheckFailed 0;
-BA_ "GenSigStartValue" SG_ 317 FSM_LeftWheelSpeed 0;
-BA_ "GenSigStartValue" SG_ 317 FSM_RightWheelSpeed 0;
-BA_ "GenSigStartValue" SG_ 318 FSM_SteeringAngle -110;
-BA_ "GenSigStartValue" SG_ 41 FSM_TEST1 0;
-BA_ "GenSigStartValue" SG_ 41 FSM_TEST2 0;
-BA_ "GenSigStartValue" SG_ 42 FSM_FAULT_TEST3 0;
-BA_ "GenSigStartValue" SG_ 601 JCT_Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 601 JCT_Timestamp 0;
-BA_ "GenSigStartValue" SG_ 602 JCT_WatchdogTimeout 0;
-BA_ "GenSigStartValue" SG_ 602 JCT_BoardOvertemp 0;
-BA_ "GenSigStartValue" SG_ 602 JCT_BoardOvervoltage 0;
-BA_ "GenSigStartValue" SG_ 603 JCT_DummyAirShutdown 0;
-BA_ "GenSigStartValue" SG_ 604 JCT_DummyMotorShutdown 0;
-BA_ "GenSigStartValue" SG_ 608 JCT_ContactorsClosed 0;
-BA_ "GenSigStartValue" SG_ 608 JCT_Current 50;
-BA_ "GenSigStartValue" SG_ 608 JCT_Voltage 0;
-BA_ "GenSigStartValue" SG_ 608 JCT_UnsignedTester -2047;
-BA_ "GenSigStartValue" SG_ 51 JCT_TEST 0;
-
-
-BA_ "GenMsgCycleTime" BO_ 200  1000;
-BA_ "GenMsgCycleTime" BO_ 201  1000;
-BA_ "GenMsgCycleTime" BO_ 203  1000;
-BA_ "GenMsgCycleTime" BO_ 204  1000;
-BA_ "GenMsgCycleTime" BO_ 205  1000;
-BA_ "GenMsgCycleTime" BO_ 207  1000;
-BA_ "GenMsgCycleTime" BO_ 212  1000;
-BA_ "GenMsgCycleTime" BO_ 13  1000;
-BA_ "GenMsgCycleTime" BO_ 90  1000;
-BA_ "GenMsgCycleTime" BO_ 151  1000;
-BA_ "GenMsgCycleTime" BO_ 300  100;
-BA_ "GenMsgCycleTime" BO_ 301  1000;
-BA_ "GenMsgCycleTime" BO_ 302  1000;
-BA_ "GenMsgCycleTime" BO_ 304  1000;
-BA_ "GenMsgCycleTime" BO_ 305  1000;
-BA_ "GenMsgCycleTime" BO_ 307  1000;
-BA_ "GenMsgCycleTime" BO_ 14  1000;
-BA_ "GenMsgCycleTime" BO_ 310  1000;
-BA_ "GenMsgCycleTime" BO_ 315  1000;
-BA_ "GenMsgCycleTime" BO_ 317  1000;
-BA_ "GenMsgCycleTime" BO_ 318  1000;
-BA_ "GenMsgCycleTime" BO_ 41  1000;
-BA_ "GenMsgCycleTime" BO_ 42  100;
-BA_ "GenMsgCycleTime" BO_ 601  1000;
-BA_ "GenMsgCycleTime" BO_ 603  1000;
-BA_ "GenMsgCycleTime" BO_ 604  100;
-BA_ "GenMsgCycleTime" BO_ 608  100;
-BA_ "GenMsgCycleTime" BO_ 51  1000;
-BA_ "GenMsgCycleTime" BO_ 52  100;
 
 
 VAL_ 200 DCM_Heartbeat 0 "FALSE" 1 "TRUE";
