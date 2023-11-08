@@ -5,10 +5,10 @@ Result<std::monostate, CanConnectionError> Can_Init() {
 	return std::monostate{};
 }
 
-Result<TEMP_FAKE_CAN_FRAME, CanReadError> Can_Read() {
-	return TEMP_FAKE_CAN_FRAME{};
+Result<CanMsg, CanReadError> Can_Read() {
+	return CanMsg{};
 }
 
-Result<std::monostate, CanWriteError> Can_Write() {
+Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg) {
 	return std::monostate{};
 }

@@ -27,12 +27,15 @@ set(SHARED_FILES src/shared/types.cpp src/shared/types.h)
 set(DEPLOY_IO_SOURCES src/io/can.cpp)
 set(DEV_IO_SOURCES src/dev_io/can.cpp)
 
+
 # jsoncan
 jsoncan_library(dimos_can dimos "${CMAKE_BINARY_DIR}")
+target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 
 # define targets
 set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
-set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+#set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 
 ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "dimos_can")
-ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "dimos_can")
+#ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "dimos_can")
+

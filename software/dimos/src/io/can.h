@@ -2,7 +2,12 @@
 #define QT_DEMO_CAN_H
 
 #include <optional>
+#include <cstdint>
 #include "types.h"
+
+extern "C" {
+#include "Io_CanTx.h"
+};
 
 enum CanConnectionError {
 	SocketError,
@@ -20,12 +25,10 @@ enum CanWriteError {
 	SocketWriteError,
 };
 
-struct TEMP_FAKE_CAN_FRAME {};
-
 Result<std::monostate, CanConnectionError> Can_Init();
 
-Result<TEMP_FAKE_CAN_FRAME, CanReadError> Can_Read();
+Result<CanMsg, CanReadError> Can_Read();
 
-Result<std::monostate, CanWriteError> Can_Write();
+Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg);
 
 #endif //QT_DEMO_CAN_H
