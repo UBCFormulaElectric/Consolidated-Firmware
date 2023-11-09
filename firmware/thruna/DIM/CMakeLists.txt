@@ -24,14 +24,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# Autogenerate jsoncan library.
-jsoncan_library(
-    "DIM_can"
-    "DIM"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    "${ARM_CORE}"
-)
-
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
@@ -43,6 +35,20 @@ commit_info_library(
 )
 
 if("${TARGET}" STREQUAL "arm")
+    jsoncan_library(
+            "DIM_can"
+            "DIM"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            TRUE
+    )
+    embedded_library(
+            DIM_can
+            "${CAN_SRCS}"
+            "${CAN_INCLUDE_DIRS}"
+            "${ARM_CORE}"
+            TRUE
+    )
+
     generate_stm32cube_code(
         "DIM"
         "${IOC_PATH}"
@@ -96,6 +102,15 @@ elseif("${TARGET}" STREQUAL "x86")
         "DIM_fakes"
         "${HEADERS_TO_FAKE}"
     )
+
+    jsoncan_library(
+            "DIM_can"
+            "DIM"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            FALSE
+    )
+    add_library(DIM_can STATIC "${CAN_SRCS}")
+    target_include_directories(DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})

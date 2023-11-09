@@ -1,4 +1,4 @@
-function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR)
+function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO)
     message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/App_CanTx.c")
     set(APP_CAN_TX_HEADER_OUTPUT "${OUTPUT_DIR}/app/App_CanTx.h")
@@ -33,7 +33,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR)
             ${APP_CAN_ALERTS_HEADER_OUTPUT}
             COMMAND ${PYTHON_COMMAND}
             ${SCRIPTS_DIR}/code_generation/jsoncan/generate_can_from_json.py
-            --board ${TARGET_NAME} # TODO Check
+            --board ${TARGET_NAME}
             --can_data_dir ${CAN_JSON_DIR}
             --app_can_tx_header_output ${APP_CAN_TX_HEADER_OUTPUT}
             --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
@@ -52,30 +52,46 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR)
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    set(CAN_SRCS
-            ${APP_CAN_TX_SRC_OUTPUT}
-            ${APP_CAN_TX_HEADER_OUTPUT}
-            ${IO_CAN_TX_SRC_OUTPUT} #UNIQUE
-            ${IO_CAN_TX_HEADER_OUTPUT} #UNIQUE
-            ${APP_CAN_RX_SRC_OUTPUT}
-            ${APP_CAN_RX_HEADER_OUTPUT}
-            ${IO_CAN_RX_SRC_OUTPUT} #UNIQUE
-            ${IO_CAN_RX_HEADER_OUTPUT} #UNIQUE
-            ${APP_CAN_UTILS_SRC_OUTPUT}
-            ${APP_CAN_UTILS_HEADER_OUTPUT}
-            ${APP_CAN_ALERTS_SRC_OUTPUT}
-            ${APP_CAN_ALERTS_HEADER_OUTPUT}
-    )
-    set(CAN_INCLUDE_DIRS
-            ${OUTPUT_DIR}/app
-            ${OUTPUT_DIR}/io # For IO
-            ${SHARED_APP_INCLUDE_DIR}
-            ${SHARED_IO_INCLUDE_DIR} # For IO
-            ${SHARED_HW_INCLUDE_DIR} # For IO
-    )
-
-    add_library("${LIB_NAME}" STATIC ${CAN_SRCS})
-    message("Adding CAN Library ${LIB_NAME} with sources ${CAN_SRCS}")
-    target_include_directories(${LIB_NAME} PUBLIC ${CAN_INCLUDE_DIRS})
-    message("Adding CAN Library ${LIB_NAME} with include dirs ${CAN_INCLUDE_DIRS}")
+    if(${USE_IO})
+        set(CAN_SRCS
+                ${APP_CAN_TX_SRC_OUTPUT}
+                ${APP_CAN_TX_HEADER_OUTPUT}
+                ${IO_CAN_TX_SRC_OUTPUT}
+                ${IO_CAN_TX_HEADER_OUTPUT}
+                ${APP_CAN_RX_SRC_OUTPUT}
+                ${APP_CAN_RX_HEADER_OUTPUT}
+                ${IO_CAN_RX_SRC_OUTPUT}
+                ${IO_CAN_RX_HEADER_OUTPUT}
+                ${APP_CAN_UTILS_SRC_OUTPUT}
+                ${APP_CAN_UTILS_HEADER_OUTPUT}
+                ${APP_CAN_ALERTS_SRC_OUTPUT}
+                ${APP_CAN_ALERTS_HEADER_OUTPUT}
+                PARENT_SCOPE
+        )
+        set(CAN_INCLUDE_DIRS
+                ${OUTPUT_DIR}/app
+                ${OUTPUT_DIR}/io
+                ${SHARED_APP_INCLUDE_DIR}
+                ${SHARED_IO_INCLUDE_DIR}
+                ${SHARED_HW_INCLUDE_DIR}
+                PARENT_SCOPE
+        )
+    else()
+        set(CAN_SRCS
+                ${APP_CAN_TX_SRC_OUTPUT}
+                ${APP_CAN_TX_HEADER_OUTPUT}
+                ${APP_CAN_RX_SRC_OUTPUT}
+                ${APP_CAN_RX_HEADER_OUTPUT}
+                ${APP_CAN_UTILS_SRC_OUTPUT}
+                ${APP_CAN_UTILS_HEADER_OUTPUT}
+                ${APP_CAN_ALERTS_SRC_OUTPUT}
+                ${APP_CAN_ALERTS_HEADER_OUTPUT}
+                PARENT_SCOPE
+        )
+        set(CAN_INCLUDE_DIRS
+                ${OUTPUT_DIR}/app
+                ${SHARED_APP_INCLUDE_DIRS}
+                PARENT_SCOPE
+        )
+    endif()
 endfunction()

@@ -11,6 +11,7 @@ set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
+include(scripts/code_generation/jsoncan/jsoncan.cmake)
 
 # ======== CPM ========
 option(HANDLE_DEPS "Build build on the server" OFF)

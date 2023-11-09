@@ -19,13 +19,6 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
-# Autogenerate jsoncan library.
-jsoncan_library(
-    "FSM_can"
-    "FSM"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    "${ARM_CORE}"
-)
 
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
@@ -38,6 +31,20 @@ commit_info_library(
 )
 
 if("${TARGET}" STREQUAL "arm")
+    jsoncan_library(
+            "FSM_can"
+            "FSM"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            TRUE
+    )
+    embedded_library(
+            FSM_can
+            "${CAN_SRCS}"
+            "${CAN_INCLUDE_DIRS}"
+            "${ARM_CORE}"
+            TRUE
+    )
+
     generate_stm32cube_code(
         "FSM"
         "${IOC_PATH}"
@@ -84,6 +91,15 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
 
 elseif("${TARGET}" STREQUAL "x86")
+    jsoncan_library(
+            "FSM_can"
+            "FSM"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            FALSE
+    )
+    add_library(FSM_can STATIC "${CAN_SRCS}")
+    target_include_directories(FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
     compile_gtest_executable(

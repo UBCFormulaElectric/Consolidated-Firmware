@@ -17,13 +17,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
-# Autogenerate jsoncan library.
-jsoncan_library(
-    "BMS_can"
-    "BMS"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    "${ARM_CORE}"
-)
 
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
@@ -36,6 +29,20 @@ commit_info_library(
 )
 
 if("${TARGET}" STREQUAL "arm")
+    jsoncan_library(
+            "BMS_can"
+            "BMS"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            TRUE
+    )
+    embedded_library(
+            BMS_can
+            "${CAN_SRCS}"
+            "${CAN_INCLUDE_DIRS}"
+            "${ARM_CORE}"
+            TRUE
+    )
+
     generate_stm32cube_code(
         "BMS"
         "${IOC_PATH}"
@@ -85,6 +92,15 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("BMS.elf" "BMS_stm32cube" "BMS_can" "BMS_commit_info")
 
 elseif("${TARGET}" STREQUAL "x86")
+    jsoncan_library(
+            "BMS_can"
+            "BMS"
+            "${CMAKE_CURRENT_BINARY_DIR}"
+            FALSE
+    )
+    add_library(BMS_can STATIC "${CAN_SRCS}")
+    target_include_directories(BMS_can PUBLIC "${CAN_INCLUDE_DIRS}")
+
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
     compile_gtest_executable(

@@ -1,5 +1,4 @@
 include(cmake/qt.cmake)
-include(cmake/jsoncan.cmake)
 
 cmake_minimum_required(VERSION 3.24)
 set(CMAKE_AUTOUIC ON)
@@ -29,7 +28,9 @@ set(DEV_IO_SOURCES src/dev_io/can.cpp)
 
 
 # jsoncan
-jsoncan_library(dimos_can dimos "${CMAKE_BINARY_DIR}")
+jsoncan_library(dimos_can dimos "${CMAKE_BINARY_DIR}" TRUE)
+add_library(dimos_can STATIC ${CAN_SRCS})
+target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
 target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 
 # define targets
