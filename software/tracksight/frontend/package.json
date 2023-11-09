@@ -30,6 +30,7 @@
     "utf-8-validate": "^6.0.3"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^4.41.1",
     "@types/plotly.js": "^2.12.29",
     "@types/react-plotly.js": "^2.6.2"
   }

@@ -10,7 +10,7 @@ import Graph from './components/graph';
 import Dashboard from './components/dashboard';
 import { PlotRelayoutEvent } from 'plotly.js';
 
-const FLASK_URL = "http://evanyl.pythonanywhere.com";
+const FLASK_URL = "https://evanyl.pythonanywhere.com";
 //const FLASK_URL = "http://localhost:3000";
 
 const Home = () => {
