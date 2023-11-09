@@ -3,7 +3,7 @@ run-name: Tracksight Backend CI 🚀
 on:
   push:
     paths:
-      #- "software/tracksight/backend/**"
+      - "software/tracksight/backend/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
           python-version: 3
           auto-activate-base: false
 
-      - name: Activate Conda environment
+      - name: Conda Environment Information 
         shell: bash -l {0}
         run: |
           conda info
@@ -28,15 +28,12 @@ jobs:
       - name: Start Flask app
         run: |
           cd software/tracksight/backend
-          conda env list
           source /usr/share/miniconda/bin/activate tracksight-backend
-          conda env list
-          which python
           python app/telemetry.py &
           sleep 10
           curl --fail http://localhost:5000
         env:
-          FLASK_ENV: development  # Set to development or production as necessary
+          FLASK_ENV: development
 
       - name: Kill Flask process
         if: always()
