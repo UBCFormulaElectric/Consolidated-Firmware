@@ -48,9 +48,6 @@ void io_can_init(const CanConfig *can_config)
     // Initialize CAN queues.
     tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
     rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
-
-    // Init config-specific CAN.
-    io_can_initConfig(config);
 }
 
 void io_can_pushTxMsgToQueue(const CanMsg *msg)
@@ -69,7 +66,7 @@ void io_can_transmitMsgFromQueue(void)
     // Pop a msg of the TX queue, then transmit it onto the bus.
     CanMsg tx_msg;
     osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
-    io_can_transmit(&tx_msg);
+    hw_can_transmit(&tx_msg);
 }
 
 void io_can_popRxMsgFromQueue(CanMsg *msg)
@@ -78,18 +75,18 @@ void io_can_popRxMsgFromQueue(CanMsg *msg)
     osMessageQueueGet(rx_queue_id, &msg, NULL, osWaitForever);
 }
 
-void io_can_msgRceivedCallback(uint32_t rx_fifo)
+void io_can_msgReceivedCallback(uint32_t rx_fifo)
 {
     static uint32_t rx_overflow_count = 0;
 
     CanMsg rx_msg;
-    if (!io_can_receive(rx_fifo, &rx_msg))
+    if (!hw_can_receive(rx_fifo, &rx_msg))
     {
         // Early return if RX msg is unavailable.
         return;
     }
 
-    if (config->rx_overflow_callback && !config->rx_msg_filter(rx_msg.msg_id))
+    if (config->rx_overflow_callback && !config->rx_msg_filter(rx_msg.std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;

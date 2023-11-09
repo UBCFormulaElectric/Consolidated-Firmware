@@ -106,13 +106,8 @@ class IoCanTxModule(CModule):
             func.body.add_comment("Prepare msg header")
             func.body.add_var_declaration(CVar("tx_msg", "CanMsg"))
             func.body.add_line("memset(&tx_msg, 0, sizeof(CanMsg));")
-<<<<<<< HEAD
             func.body.add_line(f"tx_msg.std_id = {CMacrosConfig.id(msg.name)};")
             func.body.add_line(f"tx_msg.dlc = {CMacrosConfig.bytes(msg.name)};")
-=======
-            func.body.add_line(f"tx_msg.msg_id = {CMacrosConfig.id(msg.name)};")
-            func.body.add_line(f"tx_msg.length = {CMacrosConfig.bytes(msg.name)};")
->>>>>>> 8507a611 (refactor can driver)
             func.body.add_line()
 
             # Pack payload
@@ -132,11 +127,7 @@ class IoCanTxModule(CModule):
 
             # Push to TX FIFO
             func.body.add_comment("Append msg to TX FIFO")
-<<<<<<< HEAD
             func.body.add_line("transmit_func(&tx_msg);")
-=======
-            func.body.add_line("hw_can_pushTxMsgToQueue(&tx_msg);")
->>>>>>> 8507a611 (refactor can driver)
             func.body.end_if()
 
             # If aperiodic, make function public. Otherwise it can be static.
@@ -160,19 +151,7 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-
-        cw.add_line()
-        cw.add_header_comment("Structs")
-        cw.add_line()
-
-        can_msg_struct = CStruct(
-            name=CTypesConfig.CAN_MSG_STRUCT,
-            comment="Standard CAN message type.",
-        )
-        can_msg_struct.add_member(CVar(name="std_id", type="uint32_t"))
-        can_msg_struct.add_member(CVar(name="dlc", type="uint32_t"))
-        can_msg_struct.add_member(CVar(name="data[8]", type="uint8_t"))
-        cw.add_struct(can_msg_struct)
+        cw.add_include('"hw_can.h"')
 
         cw.add_line()
         cw.add_header_comment("Enums")

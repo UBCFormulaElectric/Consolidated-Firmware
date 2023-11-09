@@ -49,10 +49,11 @@
 #include "io_watchdogConfig.h"
 #include "io_stackWaterMark.h"
 #include "io_sevenSegDisplays.h"
+#include "io_can.h"
+#include "io_canConfig.h"
 
 #include "hw_gpio.h"
 #include "hw_can.h"
-#include "hw_canConfig.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -141,10 +142,9 @@ const osThreadAttr_t Task1Hz_attributes = {
 };
 /* USER CODE BEGIN PV */
 static const CanConfig can_config = {
-    .handle               = &hcan1,
     .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = hw_canConfig_txOverflowCallback,
-    .rx_overflow_callback = hw_canConfig_rxOverflowCallback,
+    .tx_overflow_callback = io_canConfig_txOverflowCallback,
+    .rx_overflow_callback = io_canConfig_rxOverflowCallback,
 };
 
 struct StateMachine *    state_machine;
@@ -349,8 +349,10 @@ int main(void)
     hw_can_init(&can_config);
 
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
+    Io_CanTx_Init(io_can_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_sevenSegDisplays_init(&seven_segs_config);
+    io_can_init(&can_config);
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -734,7 +736,7 @@ void RunTaskCanRx(void *argument)
     for (;;)
     {
         CanMsg rx_msg;
-        hw_can_popRxMsgFromQueue(&rx_msg);
+        io_can_popRxMsgFromQueue(&rx_msg);
         Io_CanRx_UpdateRxTableWithMessage(&rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
@@ -755,7 +757,7 @@ void RunTaskCanTx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        hw_can_transmitMsgFromQueue();
+        io_can_transmitMsgFromQueue();
     }
     /* USER CODE END RunTaskCanTx */
 }

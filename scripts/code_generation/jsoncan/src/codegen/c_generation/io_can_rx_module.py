@@ -15,14 +15,14 @@ class IoCanRxModule(CModule):
             CFuncsConfig.IO_RX_FILTER_ID,
             "bool",
             args=[
-                CVar("msg_id", "uint32_t"),
+                CVar("std_id", "uint32_t"),
             ],
             comment=f"Returns true if {self._node} receives the specified message ID.",
         )
 
         # Add cases
         func.body.add_line("bool is_found = false;")
-        func.body.start_switch("msg_id")
+        func.body.start_switch("std_id")
 
         if len(self._db.rx_msgs_for_node(self._node)) > 0:
             for msg in self._db.rx_msgs_for_node(self._node):
@@ -55,7 +55,7 @@ class IoCanRxModule(CModule):
             comment=f"Unpack a received message and update the CAN RX table.",
         )
 
-        func.body.start_switch("msg->msg_id")
+        func.body.start_switch("msg->std_id")
         for msg in self._db.rx_msgs_for_node(self._node):
             func.body.add_switch_case(CMacrosConfig.id(msg.name))
             func.body.start_switch_case()

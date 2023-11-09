@@ -47,6 +47,8 @@
 #include "Io_Eeprom.h"
 #include "Io_LatchedFaults.h"
 #include "Io_ThermistorReadings.h"
+#include "io_can.h"
+#include "hw_can.h"
 
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
@@ -219,7 +221,6 @@ static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
 }
 
 static const CanConfig can_config = {
-    .handle               = &hcan1,
     .rx_msg_filter        = Io_CanRx_FilterMessageId,
     .tx_overflow_callback = CanTxQueueOverflowCallBack,
     .rx_overflow_callback = CanRxQueueOverflowCallBack,
@@ -276,7 +277,9 @@ int main(void)
     hw_can_init(&can_config);
 
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_CanTx_Init(io_can_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -1019,7 +1022,7 @@ void RunTaskCanRx(void *argument)
     for (;;)
     {
         CanMsg rx_msg;
-        hw_can_popRxMsgFromQueue(&rx_msg);
+        io_can_popRxMsgFromQueue(&rx_msg);
         Io_CanRx_UpdateRxTableWithMessage(&rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
@@ -1040,7 +1043,7 @@ void RunTaskCanTx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        hw_can_transmitMsgFromQueue();
+        io_can_transmitMsgFromQueue();
     }
     /* USER CODE END RunTaskCanTx */
 }

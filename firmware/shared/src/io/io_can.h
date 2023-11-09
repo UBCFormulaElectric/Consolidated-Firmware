@@ -24,15 +24,6 @@
  * 3. Pop msgs off the RX queue via `io_can_dequeueRxMsg`, which blocks until a CAN RX msg is successfully dequeued.
  */
 
-#define CAN_PAYLOAD_BYTES 8
-
-typedef struct
-{
-    uint32_t msg_id;
-    uint32_t length;
-    uint8_t  data[CAN_PAYLOAD_BYTES];
-} CanMsg;
-
 typedef struct
 {
     bool (*const rx_msg_filter)(uint32_t);        // Optional func to filter RX msgs by ID.
@@ -68,4 +59,4 @@ void io_can_popRxMsgFromQueue(CanMsg *msg);
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param msg CAN msg to be populated by RXed msg.
  */
-void io_can_msgRceivedCallback(uint32_t rx_fifo);
+void io_can_msgReceivedCallback(uint32_t rx_fifo);
