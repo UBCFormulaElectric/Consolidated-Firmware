@@ -1,4 +1,5 @@
 'use client';
+
 import { Dispatch, useEffect, useState } from 'react';
 import { Button, Space } from 'antd';
 
@@ -6,14 +7,21 @@ import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import { MessageInstance } from 'antd/es/message/interface';
 
-// pass in bool to determine how to query (live or not)
-// add a guard for each (i.e if true then query live, else query http)
+export interface QueryDataProps {
+   url: string,
+   setData: Dispatch<{[name: string]: {time: Array<string>, value: Array<number>}}>,
+   messageApi: MessageInstance, 
+}
 
-// props = url(for http), socket(for socket), live(bool for live or http),
-// setData(for setting a graph's data)
-const QueryData = (props) => {
-    const [signals, setSignals] = useState([]);
-    const [avail, setAvail] = useState([]);
+const QueryData = (props: QueryDataProps) => {
+    const [measurement, setMeasurement] = useState<string[]>([]);
+    const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
+
+    const [fields, setFields] = useState<string[]>([]);
+    const [allFields, setAllFields] = useState<string[]>([]);
+
+    const [startEpoch, setStartEpoch] = useState<string>("");
+    const [endEpoch, setEndEpoch] = useState<string>("");
 
     useEffect(() => {
         fetch(props.url + "/signal/measurement", {
