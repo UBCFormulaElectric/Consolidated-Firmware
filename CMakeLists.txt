@@ -47,15 +47,24 @@ ELSE ()
 ENDIF ()
 
 # ======== Python Checks ========
-IF (NO_VENV)
-    IF (WIN32)
-        set(PIP_COMMAND pip)
-        set(PYTHON_COMMAND python)
-    ELSE ()
-        set(PIP_COMMAND pip3)
-        set(PYTHON_COMMAND python3)
-    ENDIF ()
+IF (WIN32)
+    set(PIP_RAW_COMMAND pip)
+    set(PYTHON_COMMAND python)
 ELSE ()
+    set(PIP_RAW_COMMAND pip3)
+    set(PYTHON_RAW_COMMAND python3)
+ENDIF ()
+IF (NO_VENV)
+    set(PIP_COMMAND PIP_RAW_COMMAND)
+    set(PYTHON_COMMAND PYTHON_RAW_COMMAND)
+ELSE ()
+    execute_process(COMMAND ${PYTHON_COMMAND} -m pipenv --venv
+            RESULT_VARIABLE PIPENV_RESULT
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    message(${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR})
     IF (WIN32)
         set(PYTHON_COMMAND pipenv run python)
     ELSE ()
