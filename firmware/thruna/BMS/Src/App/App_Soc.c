@@ -91,8 +91,16 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
     {
         if (App_Eeprom_ReadMinSoc(eeprom, soc_stats->soc_address, &saved_soc_c) == EXIT_CODE_OK)
         {
-            soc_stats->charge_c   = (double)saved_soc_c;
-            soc_stats->is_corrupt = false;
+            if(IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+            {
+                soc_stats->charge_c   = (double)saved_soc_c;
+                soc_stats->is_corrupt = false;
+            }
+            else
+            {
+                App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+                soc_stats->is_corrupt = true;
+            }
         }
         else
         {
@@ -108,7 +116,6 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
 
     // Update the active address that SOC is stored at
     App_Eeprom_UpdateSavedSocAddress(eeprom, &soc_stats->soc_address);
-
     App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
 
     return soc_stats;

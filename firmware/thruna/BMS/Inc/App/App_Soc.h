@@ -5,7 +5,7 @@
 #include "App_Timer.h"
 #include "App_Eeprom.h"
 
-#define STATE_OF_HEALTH (1.0f)
+#define STATE_OF_HEALTH (0.94f)
 #define SERIES_ELEMENT_FULL_CHARGE_C (5.9f * 3600.0f * 3.0f * STATE_OF_HEALTH)
 
 struct SocStats
