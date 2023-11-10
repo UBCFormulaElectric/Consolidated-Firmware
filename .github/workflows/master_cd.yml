@@ -34,7 +34,12 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
-          upload_artifact: 'true'
+      # Uploads .elf binary to Github Actions workflow
+      - name: Save built artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ inputs.board }}.elf
 
   generate-dbc:
     name: Call DBC Generation

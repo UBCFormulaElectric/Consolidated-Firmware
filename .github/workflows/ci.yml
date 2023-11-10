@@ -3,7 +3,7 @@ on:
   pull_request:
     paths-ignore:
       - 'software/**'
-  
+
 jobs:
   clang-format:
     name: Check C Formatting
@@ -111,7 +111,6 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
-          upload_artifact: 'false'
 
   test-thruna:
     needs: [ clang-format ]
