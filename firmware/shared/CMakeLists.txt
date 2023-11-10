@@ -15,8 +15,12 @@ if("${TARGET}" STREQUAL "test")
         "shared_can"
         "shared"
         "${CMAKE_CURRENT_BINARY_DIR}"
-        ""
+        FALSE
     )
+
+    set(CAN_INCLUDE_DIRS shared/app ${SHARED_APP_INCLUDE_DIRS})
+    add_library("shared_can" STATIC "${CAN_SRCS}")
+    target_include_directories("shared_can" PUBLIC "${CAN_INCLUDE_DIRS}")
 
     file(GLOB_RECURSE SHARED_TEST_SRCS 
         "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
