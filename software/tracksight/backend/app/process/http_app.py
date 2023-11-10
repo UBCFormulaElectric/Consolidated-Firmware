@@ -22,9 +22,7 @@ def return_all_available_signals():
 @app.route('/signal/measurement', methods=['GET'])
 def return_all_measurements():
     measurements = influx.get_measurements()
-
     return responsify(measurements)
-
 
 @app.route('/signal/fields/<string:measurement>', methods=['GET'])
 def return_all_fields_for_measurement(measurement):

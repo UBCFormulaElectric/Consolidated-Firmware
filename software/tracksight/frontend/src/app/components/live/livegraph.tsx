@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
 import Plot from 'react-plotly.js';
-import { Button, Card, Space, Switch } from 'antd';
+import { Button, Card, Switch, Space } from 'antd';
 
 import LiveDropdownMenu from './dropdown_live';
 import WebSocketComponent from './web_socket';

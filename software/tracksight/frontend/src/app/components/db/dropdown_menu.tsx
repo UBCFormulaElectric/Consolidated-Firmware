@@ -1,5 +1,6 @@
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'; 
 import { Select } from 'antd';
+import React from 'react';
 
 export interface DropdownMenuProps {
     setOption: Dispatch<SetStateAction<string[]>>,
@@ -42,3 +43,4 @@ const DropdownMenu = (props: DropdownMenuProps) => {
 };
 
 export default DropdownMenu;
+
