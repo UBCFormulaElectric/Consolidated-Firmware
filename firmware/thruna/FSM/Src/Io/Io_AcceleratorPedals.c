@@ -60,9 +60,12 @@ static float sapps_max_angle;
 // max and min angle calculation for PAPPS/SAPPS
 static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_law_denominator)
 {
-    float angle = acosf(cos_law_coefficent - (powf(pot_len, 2) / cos_law_denominator));
+    // clamping input of acos from cos law ((a^2 + b^2 - c^2) / 2ab))
+    float acosf_input = CLAMP((cos_law_coefficent - (powf(pot_len, 2) / cos_law_denominator)), -1.0f, 1.0f);
 
-    return CLAMP(angle, 0.0f, 3.141592653589793f);
+    float angle = acosf(acosf_input);
+
+    return angle;
 }
 
 void Io_AcceleratorPedals_Init(void)
