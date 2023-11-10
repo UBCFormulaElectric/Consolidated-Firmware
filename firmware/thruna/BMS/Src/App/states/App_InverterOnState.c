@@ -7,12 +7,18 @@
 
 #define CHARGING_MILLISECONDS 200
 TimerChannel timer;
+static bool  hasTimePassed;
 
 static void InverterOnStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_INVERTER_ON_STATE);
     App_Timer_InitTimer(&timer, CHARGING_MILLISECONDS);
     App_Timer_Restart(&timer);
+}
+
+void App_InverterOnState_Init()
+{
+    hasTimePassed = false;
 }
 
 static void InverterOnStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -26,9 +32,10 @@ static void InverterOnStateRunOnTick100Hz(struct StateMachine *const state_machi
     {
         TimerState timer_state = App_Timer_UpdateAndGetState(&timer);
 
-        if (timer_state == TIMER_STATE_EXPIRED)
+        if (timer_state == TIMER_STATE_EXPIRED || hasTimePassed)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            hasTimePassed = true;
         }
     }
 }

@@ -121,6 +121,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+        App_InverterOnState_Init();
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -839,6 +840,8 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         float precharge_duration;
         bool  expect_precharge_starts;
         bool  expect_precharge_successful;
+        bool  expect_hv;
+
     } test_params[5] = { {
                              // Precharge doesn't start, AIR- doesn't close
                              .air_negative_closes         = false,
@@ -846,6 +849,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = false,
                              .expect_precharge_successful = false,
+                             .expect_hv                   = false,
                          },
                          {
                              // Precharge doesn't start, TS voltage too high
@@ -854,6 +858,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = false,
                              .expect_precharge_successful = false,
+                             .expect_hv                   = false,
                          },
                          {
                              // Nominal precharge, success
@@ -862,22 +867,25 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = true,
+                             .expect_hv                   = true,
                          },
                          {
                              // Fast precharge, fails
                              .air_negative_closes         = true,
                              .initial_ts_voltage          = 0.0,
-                             .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 80,
+                             .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
+                             .expect_hv                   = false,
                          },
                          {
                              // Slow precharge, fails
                              .air_negative_closes         = true,
                              .initial_ts_voltage          = 0.0,
-                             .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 200,
+                             .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 30,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
+                             .expect_hv                   = false,
                          } };
 
     for (int i = 0; i < 5; i++)
@@ -895,7 +903,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(state_machine, 250);
+            LetTimePass(state_machine, 210);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
@@ -906,8 +914,8 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
-
-            LetTimePass(state_machine, 10);
+            
+            LetTimePass(state_machine, 10); 
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive
@@ -920,6 +928,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             }
             else
             {
+                // Precharge failed, back to init to try again
                 ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
                 ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
