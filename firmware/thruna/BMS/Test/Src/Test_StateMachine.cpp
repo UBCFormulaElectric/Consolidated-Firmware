@@ -840,7 +840,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         float precharge_duration;
         bool  expect_precharge_starts;
         bool  expect_precharge_successful;
-        bool  expect_hv;
 
     } test_params[5] = { {
                              // Precharge doesn't start, AIR- doesn't close
@@ -849,7 +848,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = false,
                              .expect_precharge_successful = false,
-                             .expect_hv                   = false,
                          },
                          {
                              // Precharge doesn't start, TS voltage too high
@@ -858,7 +856,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = false,
                              .expect_precharge_successful = false,
-                             .expect_hv                   = false,
                          },
                          {
                              // Nominal precharge, success
@@ -867,7 +864,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_MS,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = true,
-                             .expect_hv                   = true,
                          },
                          {
                              // Fast precharge, fails
@@ -876,7 +872,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
-                             .expect_hv                   = false,
                          },
                          {
                              // Slow precharge, fails
@@ -885,7 +880,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                              .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 30,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
-                             .expect_hv                   = false,
                          } };
 
     for (int i = 0; i < 5; i++)
@@ -914,8 +908,8 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
-            
-            LetTimePass(state_machine, 10); 
+
+            LetTimePass(state_machine, 10);
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive
