@@ -10,7 +10,7 @@ inputs:
   build_dir:
     required: false
     description: The directory in which to build the binary
-    default: build_arm
+    default: build_fw_deploy
 
 runs:
   using: "composite"

@@ -28,7 +28,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${TARGET}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
             "BMS_can"
             "BMS"
@@ -91,7 +91,7 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("BMS_can" "BMS_stm32cube")
     target_link_libraries("BMS.elf" "BMS_stm32cube" "BMS_can" "BMS_commit_info")
 
-elseif("${TARGET}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
             "BMS_can"
             "BMS"

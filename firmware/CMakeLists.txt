@@ -3,7 +3,7 @@ include(cmake/tests.cmake)
 include(cmake/shared.cmake)
 
 # ======== Libraries ========
-if("${TARGET}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     add_compile_definitions(TARGET_EMBEDDED)
 
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
@@ -30,7 +30,7 @@ if("${TARGET}" STREQUAL "arm")
         "cm4"
         TRUE
     )
-elseif("${TARGET}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
 
     # We assume this cmake is running on a x86 TARGET, so the

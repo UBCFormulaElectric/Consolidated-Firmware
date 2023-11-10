@@ -30,7 +30,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${TARGET}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
             "FSM_can"
             "FSM"
@@ -90,7 +90,7 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("FSM_can" "FSM_stm32cube")
     target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
 
-elseif("${TARGET}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
             "FSM_can"
             "FSM"

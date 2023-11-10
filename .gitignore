@@ -129,8 +129,8 @@ hooksl
 can_bus/**/*.dbc
 
 # CMake build directories
-build_arm
-build_x86
+build_fw_deploy
+build_fw_test
 build_dimos_deploy
 build_dimos_dev
 build_dimos_test

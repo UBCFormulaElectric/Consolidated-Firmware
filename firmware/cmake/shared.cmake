@@ -33,7 +33,7 @@ function(commit_info_library
         WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    if("${TARGET}" STREQUAL "arm")
+    if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"
             "${SRC_OUTPUT_PATH}"
@@ -41,7 +41,7 @@ function(commit_info_library
             "${ARM_CORE}"
             FALSE
         )
-    elseif("${TARGET}" STREQUAL "x86")
+    elseif("${TARGET}" STREQUAL "test")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(
             "${LIB_NAME}" STATIC

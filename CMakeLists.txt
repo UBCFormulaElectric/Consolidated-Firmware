@@ -81,7 +81,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ENDIF()
 
     # ======== Compiler ========
-    IF("${TARGET}" STREQUAL "arm")
+    IF("${TARGET}" STREQUAL "deploy")
         # On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
         # However, it is equally mysteriously required for building embedded binaries.
         # So, only run this if loading the embedded configuration.
@@ -97,10 +97,10 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")
         set(CMAKE_SYSTEM_NAME Generic)
         project("UBC Formula Electric Software" C ASM)
-    ELSEIF ("${TARGET}" STREQUAL "x86")
+    ELSEIF ("${TARGET}" STREQUAL "test")
         project("UBC Formula Electric Software" C CXX)
     ELSE()
-        message(FATAL_ERROR "❌ Please set the TARGET variable to 'arm' or 'x86'. To do this, set the -DTARGET=<target>")
+        message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
     ENDIF()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
@@ -110,7 +110,7 @@ ENDIF()
 
 IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
-    IF ("${TARGET}" STREQUAL "x86")
+    IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")

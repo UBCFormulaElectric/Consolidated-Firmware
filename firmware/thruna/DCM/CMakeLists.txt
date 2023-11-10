@@ -30,7 +30,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${TARGET}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
             "DCM_can"
             "DCM"
@@ -91,7 +91,7 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
 
-elseif("${TARGET}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
             "DCM_can"
             "DCM"

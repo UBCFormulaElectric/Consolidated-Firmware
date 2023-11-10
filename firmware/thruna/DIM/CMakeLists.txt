@@ -34,7 +34,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${TARGET}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
             "DIM_can"
             "DIM"
@@ -94,7 +94,7 @@ if("${TARGET}" STREQUAL "arm")
     target_link_libraries("DIM_can" "DIM_stm32cube")
     target_link_libraries("DIM.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
 
-elseif("${TARGET}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )
