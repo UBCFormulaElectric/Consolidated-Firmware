@@ -1,855 +1,0 @@
-Script started on 2023-05-26 19:51:29-07:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="80" LINES="24"]
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ cd scripts/
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts[00m$ ls
-[?2004l[0m[01;34mci[0m  [01;34mcodegen[0m  [01;34menvironment_setup[0m  __init__.py  shared_funcs.sh  [01;34mutilities[0m
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts[00m$ cd coe[Kdegen/
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd [K[K[Kls
-[?2004l[0m[01;34mCAN[0m  [01;34mErrorId[0m  [01;34mGitHash[0m  __init__.py  [01;34mjson2can[0m
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen[00m$ cd json2can/
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ ls
-[?2004l[0m[01;34mdocs[0m               [01;34mexample_json[0m               __init__.py  run_example.sh
-[01;34mexample_generated[0m  generate_can_from_json.py  README.md    [01;34msrc[0m
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git status
-[?2004l[31mHEAD detached at [m2c5e312
-nothing to commit, working tree clean
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff scripts/[K[K[K[K[K[K[K[K-h
-[?2004l[?1h=usage: git diff [<options>] [<commit>] [--] [<path>...][m
-   or: git diff [<options>] --cached [--merge-base] [<commit>] [--] [<path>...][m
-   or: git diff [<options>] [--merge-base] <commit> [<commit>...] <commit> [--] [m [<path>...][m
-   or: git diff [<options>] <commit>...<commit>] [--] [<path>...][m
-   or: git diff [<options>] <blob> <blob>][m
-   or: git diff [<options>] --no-index [--] <path> <path>][m
-[m
-common diff options:[m
-  -z            output diff-raw with lines terminated with NUL.[m
-  -p            output patch format.[m
-  -u            synonym for -p.[m
-  --patch-with-raw[m
-                output both a patch and the diff-raw format.[m
-  --stat        show diffstat instead of patch.[m
-  --numstat     show numeric diffstat instead of patch.[m
-  --patch-with-stat[m
-                output a patch and prepend its diffstat.[m
-  --name-only   show only names of changed files.[m
-  --name-status show names and status of changed files.[m
-  --full-index  show full object name on index lines.[m
-  --abbrev=<n>  abbreviate object names in diff-tree header and diff-raw.[m
-  -R            swap input file pairs.[m
-:[K[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff sciprts/[K[K[K[K[K[Kc[Kri[K[K[K[Kjson2[K[K[K[K[Kf4[K[K[K matsre[K[K[K[K[Kster[K[K[K[Kaster
-[?2004l[?1h=[1mdiff --git a/.gitignore b/.gitignore[m[m
-[1mnew file mode 100644[m[m
-[1mindex 0000000..ecc00b7[m[m
-[1m--- /dev/null[m[m
-[1m+++ b/.gitignore[m[m
-[36m@@ -0,0 +1,3 @@[m[m
-[32m+[m[32m__pycache__/[m[m
-[32m+[m[32m*.py[cod][m[m
-[32m+[m[32m.vscode[m[m
-\ No newline at end of file[m[m
-[1mdiff --git a/README.md b/README.md[m[m
-[1mindex fe144c3..3ab2172 100644[m[m
-[1m--- a/README.md[m[m
-[1m+++ b/README.md[m[m
-[36m@@ -1,2 +1,37 @@[m[m
-[31m-# json-can[m[m
-[31m-CAN stuff generated from JSON schema.[m[m
-[32m+[m[32m# json2can[m[41m [m[m
-[32m+[m[m
-[32m+[m[32mjson2can is a project to generate embedded CAN drivers and a CAN DBC file from [m [32m[m[32mJSON data. To modify the CAN bus, developers will only need to modify the JSON d[m [32m[m[32mata, and the CAN drivers and DBC will be auto-generated upon building.[m[41m [m[m
-[32m+[m[m
-:[K[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ clear
-[?2004l[H[2J[3J[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff f4-port scrip[Kpts/codegen/json2can'
-[?2004l[?2004h> ^C[?2004l[?2004h[?2004l
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ 
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff f4-port scripts/codegen/json2can'[K
-[?2004lfatal: ambiguous argument 'f4-port': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff scirpts/[K[K[K[K[K[Kripts/codegen/json2can f4-port
-[?2004lfatal: ambiguous argument 'scripts/codegen/json2can': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff f4-op[K[Kport
-[?2004lfatal: ambiguous argument 'f4-port': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff^C[?2004l[?2004h[?2004l
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git git [K[K[K[Kdiff kyle/torque-ve[K[K[K[K[K[K[K[K[K[K[K[K[K[K
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff 
-FETCH_HEAD 
-HEAD 
-master 
-origin/develop 
-origin/edwinZ/python-311-strEnum-breaking 
-origin/gus/fix_signed_rx 
-origin/gus/strenum_and_testing_alerts 
-origin/HEAD 
-origin/master 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git diff ^C[?2004l[?2004h[?2004l
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ ^C[?2004l[?2004h[?2004l
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ gti ceh[K[K[K[K[K[Kit eh[K[Kcheckout fr[K4-port
-[?2004lerror: pathspec 'f4-port' did not match any file(s) known to git
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git checkout f4-port
-[?2004lerror: pathspec 'f4-port' did not match any file(s) known to git
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git [K[K[K[Kcd ../../..
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ ls
-[?2004l[0m[01;34mauto_generated[0m  [01;34mclang-format[0m            Pipfile       specs.md
-[01;34mboards[0m          [01;34mimages[0m                  Pipfile.lock  [01;34mtools[0m
-[01;32mbuild[0m           [01;34minverter-eeprom-config[0m  README.md     [01;34mtutorials[0m
-[01;34mcan-bus[0m         LICENSE                 [01;34mscripts[0m       typescript
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ pwd
-[?2004l/home/formulae/Documents/Consolidated-Firmware
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ gir [K[Kt diff f4-port
-[?2004l[?1h=warning: CRLF will be replaced by LF in boards/DCM/Inc/main.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Inc/stm32f4xx_hal_conf.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Inc/stm32f4xx_it.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/main.c.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_hal_msp.c.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_it.c.[m
-The file will have its original line endings in your working directory[m
-[1mdiff --git a/.vscode/settings.json b/.vscode/settings.json[m[m
-[1mdeleted file mode 100644[m[m
-[1mindex 083db510..00000000[m[m
-[1m--- a/.vscode/settings.json[m[m
-[1m+++ /dev/null[m[m
-[36m@@ -1,10 +0,0 @@[m[m
-[31m-{[m[m
-[31m-       "json.schemas": [[m[m
-[31m-               {[m[m
-[31m-                       "fileMatch": [[m[m
-[31m-                               "/can-bus/json/**/*tx.json"[m[m
-:[K[K[31m-                       ],[m[m
-:[K[K[31m-                       "url": "/can-bus/json/schema_tx.json"[m[m
-:[K[K[31m-               }[m[m
-:[K[K[31m-       ][m[m
-:[K[K[31m-}[m[m
-:[K[K\ No newline at end of file[m[m
-:[K[K[1mdiff --git a/boards/CMakeLists.txt b/boards/CMakeLists.txt[m[m
-:[K[K[1mindex f6cd03e8..a566dcdf 100644[m[m
-:[K[K[1m--- a/boards/CMakeLists.txt[m[m
-:[K[K[1m+++ b/boards/CMakeLists.txt[m[m
-:[K[K[36m@@ -201,6 +201,8 @@[m [mfunction(create_arm_binary[m[m
-:[K[K[HMwarning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_it.c.[m
-[24;1H[K:[K[K[HMThe file will have its original line endings in your working directory[m
-[24;1H[K:[K[K[HMwarning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_hal_msp.c.[m
-[24;1H[K:[K[K[HMThe file will have its original line endings in your working directory[m
-[24;1H[K:[K[K[1mindex f6cd03e8..a566dcdf 100644[m[m
-:[K[K[1m--- a/boards/CMakeLists.txt[m[m
-:[K[K[1m+++ b/boards/CMakeLists.txt[m[m
-:[K[K[36m@@ -201,6 +201,8 @@[m [mfunction(create_arm_binary[m[m
-:[K[K             --specs=nano.specs[m[m
-:[K[K         )[m[m
-:[K[K [m[m
-:[K[K[32m+[m[32m    target_link_libraries(${BOARD_NAME}.elf m)[m[m
-:[K[K[32m+[m[m
-:[K[K     set(HEX_FILE "${BOARD_NAME}.hex")[m[m
-:[K[K     set(BIN_FILE "${BOARD_NAME}.bin")[m[m
-:[K[K     set(ASM_FILE "${BOARD_NAME}.asm")[m[m
-:[K[K[1mdiff --git a/boards/DCM/CMakeLists.txt b/boards/DCM/CMakeLists.txt[m[m
-:[K[K[1mindex 86b510a6..d3e94030 100644[m[m
-:[K[K[1m--- a/boards/DCM/CMakeLists.txt[m[m
-:[K[K[1m+++ b/boards/DCM/CMakeLists.txt[m[m
-:[K[K[36m@@ -45,7 +45,7 @@[m [mlist(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_S[m :[K[K[36m[m[mRCS})[m[m
-:[K[K set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")[m[m
-:[K[K set(STM32_DEVICE_TYPE STM32F412Rx)[m[m
-:[K[K [m[m
-:[K[K[31m-file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")[m[m
-:[K[K[32m+[m[32mfile(GLOB_RECURSE GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.[m :[K[K[32m[m[32mcpp" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/torquevectoring/*.cpp")[m[m
-:[K[K list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/mai[m :[K[Kn.cpp")[m[m
-:[K[K set(GOOGLETEST_TEST_INCLUDE_DIRS[m[m
-:[K[K         "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h b/board[m :[K[K[1ms/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..1ef7b7a6[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-:[K[K[36m@@ -0,0 +1,13 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Ac[m :[K[K[32m[m[32mtiveDifferential_Outputs *outputs);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_ActiveDifferential_PowerToTorque([m[m
-:[K[K[32m+[m[32m    float power_kW,[m[m
-:[K[K[32m+[m[32m    float left_motor_speed_rpm,[m[m
-:[K[K[32m+[m[32m    float right_motor_speed_rpm,[m[m
-:[K[K[32m+[m[32m    float cl,[m[m
-:[K[K[32m+[m[32m    float cr);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PID.h b/boards/DCM/Inc/App/t[m :[K[K[1morquevectoring/App_PID.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..6b3bf9d8[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PID.h[m[m
-:[K[K[36m@@ -0,0 +1,29 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float Kp;[m[m
-:[K[K[32m+[m[32m    float Ki;[m[m
-:[K[K[32m+[m[32m    float Kd;[m[m
-:[K[K[32m+[m[32m    float error;[m[m
-:[K[K[32m+[m[32m    float derivative;[m[m
-:[K[K[32m+[m[32m    float integral;[m[m
-:[K[K[32m+[m[32m    float prev_input;[m[m
-:[K[K[32m+[m[32m    float out_min;[m[m
-:[K[K[32m+[m[32m    float out_max;[m[m
-:[K[K[32m+[m[32m} PID;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    const float Kp;[m[m
-:[K[K[32m+[m[32m    const float Ki;[m[m
-:[K[K[32m+[m[32m    const float Kd;[m[m
-:[K[K[32m+[m[32m    const float out_min;[m[m
-:[K[K[32m+[m[32m    const float out_max;[m[m
-:[K[K[32m+[m[32m} PID_Config;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_PID_Init(PID *pid, const PID_Config *conf);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_PID_Compute(PID *pid, float setpoint, float input);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_PID_RequestReset(PID *pid);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h b/boards/DCM[m :[K[K[1m/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..2f31eea4[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-:[K[K[36m@@ -0,0 +1,10 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32m/**[m[m
-:[K[K[32m+[m[32m * Computes the max allowable power draw from the battery based on motor temps,[m[m
-:[K[K[32m+[m[32m * the battery power limit (calculated by BMS), and accelerator pedal position.[m[m
-:[K[K[32m+[m[32m * @note[m[m
-:[K[K[32m+[m[32m * @return A float (pointer?) for the maximum power allowed from the motor,[m[m
-:[K[K[32m+[m[32m */[m[m
-:[K[K[32m+[m[32mfloat App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_Regen.h b/boards/DCM/Inc/App[m :[K[K[1m/torquevectoring/App_Regen.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..ab60f4d7[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_Regen.h[m[m
-:[K[K[36m@@ -0,0 +1,4 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_Regen_ComputeTorque(struct Regen_Inputs *inputs, struct Regen_Outputs [m :[K[K[32m[m[32m*outputs);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoring.h b/boards/D[m :[K[K[1mCM/Inc/App/torquevectoring/App_TorqueVectoring.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..cd8020d6[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoring.h[m[m
-:[K[K[36m@@ -0,0 +1,58 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_PID.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct PowerLimiting_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float left_motor_temp_C;[m[m
-:[K[K[32m+[m[32m    float right_motor_temp_C;[m[m
-:[K[K[32m+[m[32m    float available_battery_power_kW;[m[m
-:[K[K[32m+[m[32m    float accelerator_pedal_percent;[m[m
-:[K[K[32m+[m[32m} PowerLimiting_Inputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct ActiveDifferential_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float wheel_angle_deg;[m[m
-:[K[K[32m+[m[32m    float motor_speed_left_rpm;[m[m
-:[K[K[32m+[m[32m    float motor_speed_right_rpm;[m[m
-:[K[K[HM[32m[m[32m*outputs);[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mvoid App_Regen_ComputeTorque(struct Regen_Inputs *inputs, struct Regen_Outputs [m[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#pragma once[m[m
-[24;1H[K:[K[K[HM[36m@@ -0,0 +1,4 @@[m[m
-[24;1H[K:[K[K[HM[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_Regen.h[m[m
-[24;1H[K:[K[K[HM[1m--- /dev/null[m[m
-[24;1H[K:[K[K[HM[1mindex 00000000..ab60f4d7[m[m
-[24;1H[K:[K[K[HM[1mnew file mode 100644[m[m
-[24;1H[K:[K[K[HM[1m/torquevectoring/App_Regen.h[m[m
-[24;1H[K:[K[K[HM[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_Regen.h b/boards/DCM/Inc/App[m[24;1H[K:[K[K[HM[32m+[m[32mfloat App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs);[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m */[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m * @return A float (pointer?) for the maximum power allowed from the motor,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m * @note[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m * the battery power limit (calculated by BMS), and accelerator pedal position.[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m * Computes the max allowable power draw from the battery based on motor temps,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m/**[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#pragma once[m[m
-[24;1H[K:[K[K[HM[36m@@ -0,0 +1,10 @@[m[m
-[24;1H[K:[K[K[HM[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-[24;1H[K:[K[K[HM[1m--- /dev/null[m[m
-[24;1H[K:[K[K[HM[1mindex 00000000..2f31eea4[m[m
-[24;1H[K:[K[K[HM[1mnew file mode 100644[m[m
-[24;1H[K:[K[K[HM[1m/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-[24;1H[K:[K[K[HM[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h b/boards/DCM[m[24;1H[K:[K[K[HM[32m+[m[32mvoid App_PID_RequestReset(PID *pid);[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mfloat App_PID_Compute(PID *pid, float setpoint, float input);[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mvoid App_PID_Init(PID *pid, const PID_Config *conf);[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m} PID_Config;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    const float out_max;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    const float out_min;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    const float Kd;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    const float Ki;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    const float Kp;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m{[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mtypedef struct[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m} PID;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float out_max;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float out_min;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float prev_input;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float integral;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float derivative;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float error;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float Kd;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float Ki;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float Kp;[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m{[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mtypedef struct[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#pragma once[m[m
-[24;1H[K:[K[K[HM[36m@@ -0,0 +1,29 @@[m[m
-[24;1H[K:[K[K[HM[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PID.h[m[m
-[24;1H[K:[K[K[HM[1m--- /dev/null[m[m
-[24;1H[K:[K[K[HM[1mindex 00000000..6b3bf9d8[m[m
-[24;1H[K:[K[K[HM[1mnew file mode 100644[m[m
-[24;1H[K:[K[K[HM[1morquevectoring/App_PID.h[m[m
-[24;1H[K:[K[K[HM[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PID.h b/boards/DCM/Inc/App/t[m[24;1H[K:[K[K[HM[32m+[m[32m    float cr);[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float cl,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float right_motor_speed_rpm,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float left_motor_speed_rpm,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m    float power_kW,[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mfloat App_ActiveDifferential_PowerToTorque([m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mfloat App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle);[m[m
-[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m[m[32mtiveDifferential_Outputs *outputs);[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mvoid App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Ac[m[24;1H[K:[K[K[HM[32m+[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-[24;1H[K:[K[K[HM[32m+[m[32m#pragma once[m[m
-[24;1H[K:[K[K[HM[36m@@ -0,0 +1,13 @@[m[m
-[24;1H[K:[K[K[HM[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-[24;1H[K:[K[K[HM[1m--- /dev/null[m[m
-[24;1H[K:[K[K[HM[1mindex 00000000..1ef7b7a6[m[m
-[24;1H[K:[K[K[HM[1mnew file mode 100644[m[m
-[24;1H[K:[K[K[HM[1ms/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-[24;1H[K:[K[K[HM[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h b/board[m[24;1H[K:[K[K[HM         "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"[m[m
-[24;1H[K:[K[K[HM set(GOOGLETEST_TEST_INCLUDE_DIRS[m[m
-[24;1H[K:[K[K[HMn.cpp")[m[m
-[24;1H[K:[K[K[HM list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/mai[m[24;1H[K:[K[K[HM[32m[m[32mcpp" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/torquevectoring/*.cpp")[m[m
-[24;1H[K:[K[K[HM[32m+[m[32mfile(GLOB_RECURSE GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.[m[24;1H[K:[K[K[HM[31m-file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")[m[m
-[24;1H[K:[K[K[HM [m[m
-[24;1H[K:[K[K[HM set(STM32_DEVICE_TYPE STM32F412Rx)[m[m
-[24;1H[K:[K[K[HM set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")[m[m
-[24;1H[K:[K[K[HM[36m[m[mRCS})[m[m
-[24;1H[K:[K[K[HM[36m@@ -45,7 +45,7 @@[m [mlist(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_S[m[24;1H[K:[K[K[HM[1m+++ b/boards/DCM/CMakeLists.txt[m[m
-[24;1H[K:[K[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ git status
-[?2004lOn branch kyle/torque-vectoring/car-testing
-Your branch is up to date with 'origin/kyle/torque-vectoring/car-testing'.
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	[31mmodified:   boards/DCM/Inc/main.h[m
-	[31mmodified:   boards/DCM/Inc/stm32f4xx_hal_conf.h[m
-	[31mmodified:   boards/DCM/Inc/stm32f4xx_it.h[m
-	[31mmodified:   boards/DCM/Src/App/torquevectoring/App_TorqueVectoring.c[m
-	[31mmodified:   boards/DCM/Src/main.c[m
-	[31mmodified:   boards/DCM/Src/stm32f4xx_hal_msp.c[m
-	[31mmodified:   boards/DCM/Src/stm32f4xx_it.c[m
-	[31mmodified:   boards/DCM/Test/Src/torquevectoring/Test_ActiveDifferential.cpp[m
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	[31mtypescript[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ git log
-[?2004l[?1h=[33mcommit a020503a35d3d5aa82277d9ee193a91b1ea21d5d[m[33m ([m[1;36mHEAD -> [m[1;32mkyle/torque-vectoring/c[m [33m[m[33m[m[1;36m[m[1;32mar-testing[m[33m, [m[1;31morigin/kyle/torque-vectoring/car-testing[m[33m)[m[m
-Merge: d698ee06 1823a278[m
-Author: Kyle Mackenzie <1mackenziekyle@gmail.com>[m
-Date:   Fri May 26 19:21:01 2023 -0700[m
-[m
-    Merged in f4-port[m
-[m
-[33mcommit d698ee061cdf5e9bef96ee292638f29d48ae1f53[m[m
-Author: Kyle Mackenzie <1mackenziekyle@gmail.com>[m
-Date:   Tue May 23 19:16:07 2023 -0700[m
-[m
-    Updated torque vectoring main file for first test running on car[m
-[m
-[33mcommit 96b03f7767729f3f9d3b8f54b49a9db24cd119ed[m[m
-Author: Kyle Mackenzie <1mackenziekyle@gmail.com>[m
-Date:   Tue May 23 18:57:05 2023 -0700[m
-[m
-    Fixed incorrect test[m
-[m
-[33mcommit 6744772aafda88fc8ad9e79ebf3d1befd49fe9b6[m[m
-Author: Kyle Mackenzie <1mackenziekyle@gmail.com>[m
-Date:   Sat May 20 15:06:47 2023 -0700[m
-:[K[K[K:[K[K[K:[K[K:[K[K[7mNo next tag  (press RETURN)[27m[24;1H[K[K:[K[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ git merge f4-port
-[?2004lAlready up to date.
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ git diff f45-[K[Ko[K-port
-[?2004l[?1h=warning: CRLF will be replaced by LF in boards/DCM/Inc/main.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Inc/stm32f4xx_hal_conf.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Inc/stm32f4xx_it.h.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/main.c.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_hal_msp.c.[m
-The file will have its original line endings in your working directory[m
-warning: CRLF will be replaced by LF in boards/DCM/Src/stm32f4xx_it.c.[m
-The file will have its original line endings in your working directory[m
-[1mdiff --git a/.vscode/settings.json b/.vscode/settings.json[m[m
-[1mdeleted file mode 100644[m[m
-[1mindex 083db510..00000000[m[m
-[1m--- a/.vscode/settings.json[m[m
-[1m+++ /dev/null[m[m
-[36m@@ -1,10 +0,0 @@[m[m
-[31m-{[m[m
-[31m-       "json.schemas": [[m[m
-[31m-               {[m[m
-[31m-                       "fileMatch": [[m[m
-[31m-                               "/can-bus/json/**/*tx.json"[m[m
-:[K[K[31m-                       ],[m[m
-:[K[K[31m-                       "url": "/can-bus/json/schema_tx.json"[m[m
-:[K[K[31m-               }[m[m
-:[K[K[31m-       ][m[m
-:[K[K[31m-}[m[m
-:[K[K\ No newline at end of file[m[m
-:[K[K[1mdiff --git a/boards/CMakeLists.txt b/boards/CMakeLists.txt[m[m
-:[K[K[1mindex f6cd03e8..a566dcdf 100644[m[m
-:[K[K[1m--- a/boards/CMakeLists.txt[m[m
-:[K[K[1m+++ b/boards/CMakeLists.txt[m[m
-:[K[K[36m@@ -201,6 +201,8 @@[m [mfunction(create_arm_binary[m[m
-:[K[K             --specs=nano.specs[m[m
-:[K[K         )[m[m
-:[K[K [m[m
-:[K[K[32m+[m[32m    target_link_libraries(${BOARD_NAME}.elf m)[m[m
-:[K[K[32m+[m[m
-:[K[K     set(HEX_FILE "${BOARD_NAME}.hex")[m[m
-:[K[K     set(BIN_FILE "${BOARD_NAME}.bin")[m[m
-:[K[K     set(ASM_FILE "${BOARD_NAME}.asm")[m[m
-:[K[K[1mdiff --git a/boards/DCM/CMakeLists.txt b/boards/DCM/CMakeLists.txt[m[m
-:[K[K[1mindex 86b510a6..d3e94030 100644[m[m
-:[K[K[1m--- a/boards/DCM/CMakeLists.txt[m[m
-:[K[K[1m+++ b/boards/DCM/CMakeLists.txt[m[m
-:[K[K[36m@@ -45,7 +45,7 @@[m [mlist(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_S[m :[K[K[36m[m[mRCS})[m[m
-:[K[K set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")[m[m
-:[K[K set(STM32_DEVICE_TYPE STM32F412Rx)[m[m
-:[K[K [m[m
-:[K[K[31m-file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")[m[m
-:[K[K[32m+[m[32mfile(GLOB_RECURSE GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.[m :[K[K[32m[m[32mcpp" "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/torquevectoring/*.cpp")[m[m
-:[K[K list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/mai[m :[K[Kn.cpp")[m[m
-:[K[K set(GOOGLETEST_TEST_INCLUDE_DIRS[m[m
-:[K[K         "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h b/board[m :[K[K[1ms/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..1ef7b7a6[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_ActiveDifferential.h[m[m
-:[K[K[36m@@ -0,0 +1,13 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, Ac[m :[K[K[32m[m[32mtiveDifferential_Outputs *outputs);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_ActiveDifferential_PowerToTorque([m[m
-:[K[K[32m+[m[32m    float power_kW,[m[m
-:[K[K[32m+[m[32m    float left_motor_speed_rpm,[m[m
-:[K[K[32m+[m[32m    float right_motor_speed_rpm,[m[m
-:[K[K[32m+[m[32m    float cl,[m[m
-:[K[K[32m+[m[32m    float cr);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PID.h b/boards/DCM/Inc/App/t[m :[K[K[1morquevectoring/App_PID.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..6b3bf9d8[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PID.h[m[m
-:[K[K[36m@@ -0,0 +1,29 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float Kp;[m[m
-:[K[K[32m+[m[32m    float Ki;[m[m
-:[K[K[32m+[m[32m    float Kd;[m[m
-:[K[K[32m+[m[32m    float error;[m[m
-:[K[K[32m+[m[32m    float derivative;[m[m
-:[K[K[32m+[m[32m    float integral;[m[m
-:[K[K[32m+[m[32m    float prev_input;[m[m
-:[K[K[32m+[m[32m    float out_min;[m[m
-:[K[K[32m+[m[32m    float out_max;[m[m
-:[K[K[32m+[m[32m} PID;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    const float Kp;[m[m
-:[K[K[32m+[m[32m    const float Ki;[m[m
-:[K[K[32m+[m[32m    const float Kd;[m[m
-:[K[K[32m+[m[32m    const float out_min;[m[m
-:[K[K[32m+[m[32m    const float out_max;[m[m
-:[K[K[32m+[m[32m} PID_Config;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_PID_Init(PID *pid, const PID_Config *conf);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_PID_Compute(PID *pid, float setpoint, float input);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_PID_RequestReset(PID *pid);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h b/boards/DCM[m :[K[K[1m/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..2f31eea4[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_PowerLimiting.h[m[m
-:[K[K[36m@@ -0,0 +1,10 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32m/**[m[m
-:[K[K[32m+[m[32m * Computes the max allowable power draw from the battery based on motor temps,[m[m
-:[K[K[32m+[m[32m * the battery power limit (calculated by BMS), and accelerator pedal position.[m[m
-:[K[K[32m+[m[32m * @note[m[m
-:[K[K[32m+[m[32m * @return A float (pointer?) for the maximum power allowed from the motor,[m[m
-:[K[K[32m+[m[32m */[m[m
-:[K[K[32m+[m[32mfloat App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_Regen.h b/boards/DCM/Inc/App[m :[K[K[1m/torquevectoring/App_Regen.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..ab60f4d7[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_Regen.h[m[m
-:[K[K[36m@@ -0,0 +1,4 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_Regen_ComputeTorque(struct Regen_Inputs *inputs, struct Regen_Outputs [m :[K[K[32m[m[32m*outputs);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoring.h b/boards/D[m :[K[K[1mCM/Inc/App/torquevectoring/App_TorqueVectoring.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..cd8020d6[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoring.h[m[m
-:[K[K[36m@@ -0,0 +1,58 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_PID.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct PowerLimiting_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float left_motor_temp_C;[m[m
-:[K[K[32m+[m[32m    float right_motor_temp_C;[m[m
-:[K[K[32m+[m[32m    float available_battery_power_kW;[m[m
-:[K[K[32m+[m[32m    float accelerator_pedal_percent;[m[m
-:[K[K[32m+[m[32m} PowerLimiting_Inputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct ActiveDifferential_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float wheel_angle_deg;[m[m
-:[K[K[32m+[m[32m    float motor_speed_left_rpm;[m[m
-:[K[K[32m+[m[32m    float motor_speed_right_rpm;[m[m
-:[K[K[32m+[m[32m    float power_max_kW;[m[m
-:[K[K[32m+[m[32m} ActiveDifferential_Inputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct ActiveDifferential_Outputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float torque_left_Nm;[m[m
-:[K[K[32m+[m[32m    float torque_right_Nm;[m[m
-:[K[K[32m+[m[32m} ActiveDifferential_Outputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct TractionControl_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float torque_left_Nm;[m[m
-:[K[K[32m+[m[32m    float torque_right_Nm;[m[m
-:[K[K[32m+[m[32m    float motor_speed_left_rpm;[m[m
-:[K[K[32m+[m[32m    float motor_speed_right_rpm;[m[m
-:[K[K[32m+[m[32m    float wheel_speed_front_left_kph;[m[m
-:[K[K[32m+[m[32m    float wheel_speed_front_right_kph;[m[m
-:[K[K[32m+[m[32m    PID * pid;[m[m
-:[K[K[32m+[m[32m} TractionControl_Inputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct TractionControl_Outputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float torque_left_final_Nm;[m[m
-:[K[K[32m+[m[32m    float torque_right_final_Nm;[m[m
-:[K[K[32m+[m[32m} TractionControl_Outputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct Regen_Inputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float wheel_speed_front_left_kph;[m[m
-:[K[K[32m+[m[32m    float wheel_speed_front_right_kph;[m[m
-:[K[K[32m+[m[32m} Regen_Inputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mtypedef struct Regen_Outputs[m[m
-:[K[K[32m+[m[32m{[m[m
-:[K[K[32m+[m[32m    float regen_torque_left_Nm;[m[m
-:[K[K[32m+[m[32m    float regen_torque_right_Nm;[m[m
-:[K[K[32m+[m[32m} Regen_Outputs;[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_TorqueVectoring_Setup(void);[m[m
-:[K[K[32m+[m[32mvoid App_TorqueVectoring_Run(void);[m[m
-:[K[K[32m+[m[32mvoid App_TorqueVectoring_HandleAcceleration(void);[m[m
-:[K[K[32m+[m[32mvoid App_TorqueVectoring_HandleRegen(void);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoringConstants.h b[m :[K[K[1m/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoringConstants.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..36d9205b[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_TorqueVectoringConstants.h[m[m
-:[K[K[36m@@ -0,0 +1,30 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "App_PID.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32m// Conversions[m[m
-:[K[K[32m+[m[32m#define IN_TO_M 0.0254f[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32m// Constants[m[m
-:[K[K[32m+[m[32m#define SMALL_EPSILON .000001f // to avoid divide by zero error[m[m
-:[K[K[32m+[m[32m#define PLANETARY_GEAR_RATIO 4.241f[m[m
-:[K[K[32m+[m[32m#define SLIP_RATIO_IDEAL 0.05f // TODO(akoen) Calculate a more correct value[m[m
-:[K[K[32m+[m[32m#define WHEELBASE_mm 1550[m[m
-:[K[K[32m+[m[32m#define TRACK_WIDTH_mm 1100[m[m
-:[K[K[32m+[m[32m#define TIRE_DIAMETER_in 18.0f[m[m
-:[K[K[32m+[m[32m#define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual fo[m :[K[K[32m[m[32mr the emrax 188 motors[m[m
-:[K[K[32m+[m[32m#define POWER_LIMIT_CAR_kW 80.0f               // max power we can use by FSAE [m :[K[K[32m[m[32mrules[m[m
-:[K[K[32m+[m[32m#define MOTOR_TORQUE_LIMIT_Nm 90.0f[m[m
-:[K[K[32m+[m[32m#define MOTOR_TEMP_CUTOFF_c 90.0f[m[m
-:[K[K[32m+[m[32m#define MOTOR_TEMP_POWER_DECREMENTING_RATIO \[m[m
-:[K[K[32m+[m[32m    80.0f / 30.0f // amount to decrease max power by for every degree celsius o[m :[K[K[32m[m[32mver motor cutoff temp (we got this number[m[m
-:[K[K[32m+[m[32m                  // by looking at the emrax 188 manual)[m[m
-:[K[K[32m+[m[32m#define REGEN_TORQUE_REQUEST_Nm -10.0f // TODO(akoen): Decide on appropriate va[m :[K[K[32m[m[32mlue[m[m
-:[K[K[32m+[m[32m#define PID_TIMEOUT_ms 1000            // Time after witch PID values[m[m
-:[K[K[32m+[m[32m// TODO(akoen): Power factors limits may need to be adjusted[m[m
-:[K[K[32m+[m[32m#define PID_POWER_FACTOR_MIN (-0.9f)[m[m
-:[K[K[32m+[m[32m#define PID_POWER_FACTOR_MAX 0.1f[m[m
-:[K[K[32m+[m[32m#define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles >[m :[K[K[32m[m[32m 40deg. See Confluence/Steering System[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32m// Tunable parameters[m[m
-:[K[K[32m+[m[32mextern const PID_Config PID_POWER_CORRECTION_CONFIG;[m[m
-:[K[K[32m+[m[32mextern const PID_Config PID_TRACTION_CONTROL_CONFIG;[m[m
-:[K[K[1mdiff --git a/boards/DCM/Inc/App/torquevectoring/App_TractionControl.h b/boards/D[m :[K[K[1mCM/Inc/App/torquevectoring/App_TractionControl.h[m[m
-:[K[K[1mnew file mode 100644[m[m
-:[K[K[1mindex 00000000..0783964a[m[m
-:[K[K[1m--- /dev/null[m[m
-:[K[K[1m+++ b/boards/DCM/Inc/App/torquevectoring/App_TractionControl.h[m[m
-:[K[K[36m@@ -0,0 +1,8 @@[m[m
-:[K[K[32m+[m[32m#pragma once[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mvoid App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, Traction[m :[K[K[32m[m[32mControl_Outputs *outputs);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_TractionControl_ComputeSlip(float motor_speed_rpm, float front_wheel_[m :[K[K[32m[m[32mspeed_rpm);[m[m
-:[K[K[32m+[m[m
-:[K[K[32m+[m[32mfloat App_TractionControl_WheelSpeedKPHToRPM(float speed_kph);[m[m
-:[K[K[1mdiff --git a/boards/DCM/Src/App/states/App_DriveState.c b/boards/DCM/Src/App/sta[m :[K[K[1mtes/App_DriveState.c[m[m
-:[K[K[1mindex 11b4a607..43fb6c38 100644[m[m
-:[K[K[1m--- a/boards/DCM/Src/App/states/App_DriveState.c[m[m
-:[K[K[1m+++ b/boards/DCM/Src/App/states/App_DriveState.c[m[m
-:[K[K[36m@@ -1,43 +1,13 @@[m[m
-:[K[K #include <stdlib.h>[m[m
-:[K[K #include <math.h>[m[m
-:[K[K[31m-#include "App_SharedMacros.h"[m[m
-:[K[K #include "states/App_AllStates.h"[m[m
-:[K[K #include "states/App_InitState.h"[m[m
-:[K[K #include "App_SetPeriodicCanSignals.h"[m[m
-:[K[K[31m-#include "App_SharedConstants.h"[m[m
-:[K[K[32m+[m[32m#include "torquevectoring/App_TorqueVectoring.h"[m[m
-:[K[K [m[m
-:[K[K[32m+[m[32m#define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)[m[m
-:[K[K #define EFFICIENCY_ESTIMATE (0.80f)[m[m
-:[K[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ git cehck[K[K[K[K[K[K[K[K[Kcd scripts/
-ci/                codegen/           environment_setup/ utilities/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ cd scripts/codegen/
-CAN/      ErrorId/  GitHash/  json2can/ 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ cd scripts/codegen/
-CAN/      ErrorId/  GitHash/  json2can/ 
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ cd scripts/codegen/json2can/
-docs/              example_generated/ example_json/      src/
-]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware[00m$ cd scripts/codegen/json2can/
-[?2004l[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git status
-[?2004l[31mHEAD detached at [m2c5e312
-nothing to commit, working tree clean
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git git [K[K[K[Kpull[K[K[K[Kstatus
-[?2004l[31mHEAD detached at [m2c5e312
-nothing to commit, working tree clean
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git [K[K[Kigt [K[K[Kt log
-[?2004l[?1h=[33mcommit 2c5e312542c83fa4cbc73e78327009dd54bf4ff6[m[33m ([m[1;36mHEAD[m[33m)[m[m
-Author: Gus Tahara-Edmonds <gtaharaedmonds@gmail.com>[m
-Date:   Fri Mar 3 18:26:36 2023 -0800[m
-[m
-    Fixed signed message RXing (#9)[m
-[m
-[33mcommit aac0f610717b363ef078931e9d89b4bcdeb158c7[m[m
-Author: Gus Tahara-Edmonds <gtaharaedmonds@gmail.com>[m
-Date:   Fri Mar 3 18:21:33 2023 -0800[m
-[m
-    JSON CAN[m
-[m
-[33mcommit e808efcdb368839f115fff029202767e1f666852[m[33m ([m[1;32mmaster[m[33m)[m[m
-Author: Gus Tahara-Edmonds <gtaharaedmonds@gmail.com>[m
-Date:   Mon Sep 5 17:45:52 2022 -0700[m
-[m
-    Initial commit[m
-[K[?1l>[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ qigt[K[K[K[Kgit pull master
-[?2004lfatal: 'master' does not appear to be a git repository
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-[?2004h]0;formulae@formulae-USB: ~/Documents/Consolidated-Firmware/scripts/codegen/json2can[01;32mformulae@formulae-USB[00m:[01;34m~/Documents/Consolidated-Firmware/scripts/codegen/json2can[00m$ git pull origin master
-[?2004lFrom https://github.com/UBCFormulaElectric/json2can
- * branch            master     -> FETCH_HEAD
-Updating 2c5e312..2f79503
-Fast-forward
- calc_bus_load.py                                  |  40 [32m++++[m
- docs/1_overview.md                                |   2 [32m+[m[31m-[m
- docs/2_tx_schema.md                               |   6 [32m+[m[31m-[m
- docs/5_alerts_schema.md                           |  24 [32m+[m[31m-[m
- example_generated/App/App_CanAlerts.c             | 150 [32m+++++++++[m[31m---[m
- example_generated/App/App_CanAlerts.h             |  59 [32m+++[m[31m--[m
- example_generated/App/App_CanRx.c                 |  35 [32m+++[m
- example_generated/App/App_CanRx.h                 |  30 [32m+++[m
- example_generated/App/App_CanTx.c                 |  44 [32m++[m[31m--[m
- example_generated/App/App_CanTx.h                 |  37 [32m+[m[31m--[m
- example_generated/App/App_CanUtils.c              | 111 [32m++++++[m[31m---[m
- example_generated/App/App_CanUtils.h              | 111 [32m++++++[m[31m---[m
- example_generated/Dbc/example.dbc                 |  30 [32m++[m[31m-[m
- example_generated/Io/Io_CanRx.c                   |  19 [32m++[m
- example_generated/Io/Io_CanTx.c                   | 178 [32m+++++++++[m[31m-----[m
- example_generated/Io/Io_CanTx.h                   |  19 [32m+[m[31m-[m
- example_json/FSM/FSM_alerts.json                  |  11 [32m+[m[31m-[m
- example_json/JCT/JCT_alerts.json                  |  12 [32m+[m[31m-[m
- example_json/JCT/JCT_tx.json
