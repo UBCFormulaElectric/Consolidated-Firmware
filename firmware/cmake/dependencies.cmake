@@ -39,7 +39,7 @@ ELSE ()
 ENDIF ()
 
 # arm toolchain
-IF ("${PLATFORM}" STREQUAL "arm")
+IF ("${TARGET}" STREQUAL "deploy")
     # arm binary
     CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9)
     set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)

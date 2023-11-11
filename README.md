@@ -5,19 +5,19 @@ A repository for all software and firmware from UBC Formula Electric.
 ## Table of Contents
 
 - [Consolidated-Firmware](#consolidated-firmware)
-  - [Table of Contents](#table-of-contents)
-  - [Environment Setup](#environment-setup)
-  - [Building](#building)
-    - [Load CMake](#load-cmake)
-    - [Build Embedded Binaries](#build-embedded-binaries)
-    - [Build Tests](#build-tests)
-  - [Debugging](#debugging)
-    - [Embedded](#embedded)
-    - [Tests](#tests)
-  - [CAN Bus](#can-bus)
-    - [Windows](#windows)
-    - [Linux](#linux)
-  - [Continuous Integration (CI)](#continuous-integration-ci)
+    - [Table of Contents](#table-of-contents)
+    - [Environment Setup](#environment-setup)
+    - [Building](#building)
+        - [Load CMake](#load-cmake)
+        - [Build Embedded Binaries](#build-embedded-binaries)
+        - [Build Tests](#build-tests)
+    - [Debugging](#debugging)
+        - [Embedded](#embedded)
+        - [Tests](#tests)
+    - [CAN Bus](#can-bus)
+        - [Windows](#windows)
+        - [Linux](#linux)
+    - [Continuous Integration (CI)](#continuous-integration-ci)
 
 ## Environment Setup
 
@@ -40,8 +40,10 @@ This is necessary because a specific compiler (`arm-none-eabi-gcc` from
 the [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)) is required for building binaries for
 the ARM Cortex-M microcontrollers that we use.
 
-Press `Ctrl+Shift+B` and run "Load CMake: Embedded" and "Load CMake: Tests". This should create a `build_arm` folder for
-the embedded CMake output, and `build_x86` for the unit test CMake output.
+Press `Ctrl+Shift+B` and run "Load CMake: Embedded" and "Load CMake: Tests". This should create a `build_fw_deploy`
+folder
+for
+the embedded CMake output, and `build_fw_test` for the unit test CMake output.
 
 ### Build Embedded Binaries
 

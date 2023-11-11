@@ -14,7 +14,6 @@ from .schema_validation import (
 )
 from ..utils import max_uint_for_bits, pascal_to_screaming_snake_case
 
-
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
 
@@ -448,10 +447,17 @@ class JsonCanParser:
 
         if any(
             msg_id in {msg.id for msg in self._messages.values()}
-            for msg_id in [warnings_id, faults_id]
+            for msg_id in (warnings_id, faults_id)
         ):
+            conflicting_node = [
+                msg
+                for msg in self._messages.values()
+                for i in (warnings_id, faults_id)
+                if msg.id == i
+            ][0]
             raise InvalidCanJson(
-                f"ID for alerts message transmitted by '{node}' is a duplicate, messages must have unique IDs."
+                f"ID for alerts message transmitted by '{node}' is a duplicate with '{conflicting_node.name}'. Messages "
+                f"must have unique IDs."
             )
 
         # Check if message name is unique
@@ -476,7 +482,9 @@ class JsonCanParser:
         # Make alert signals
         warnings_signals = self._node_alert_signals(node, warnings, "Warning")
         faults_signals = self._node_alert_signals(node, faults, "Fault")
-        warnings_counts_signals = self._node_alert_count_signals(node, warnings, "Warning")
+        warnings_counts_signals = self._node_alert_count_signals(
+            node, warnings, "Warning"
+        )
         faults_counts_signals = self._node_alert_count_signals(node, faults, "Fault")
 
         # Make CAN msg for alerts
@@ -525,7 +533,9 @@ class JsonCanParser:
 
         return alerts_msgs
 
-    def _node_alert_signals(self, node: str, alerts: List[str], type: str) -> List[CanSignal]:
+    def _node_alert_signals(
+        self, node: str, alerts: List[str], type: str
+    ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
         """
@@ -546,7 +556,9 @@ class JsonCanParser:
             for i, alert in enumerate(alerts)
         ]
 
-    def _node_alert_count_signals(self, node: str, alerts: List[str], type: str) -> List[CanSignal]:
+    def _node_alert_count_signals(
+        self, node: str, alerts: List[str], type: str
+    ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals.
         Each signal will represent the number of times the corresponding alert has been set.
