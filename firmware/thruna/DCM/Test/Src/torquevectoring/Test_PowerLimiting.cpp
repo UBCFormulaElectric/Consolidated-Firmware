@@ -56,8 +56,6 @@ TEST(PowerLimitingTest, motor_temps_limit_power)
  */
 TEST(PowerLimitingTest, bms_limits_power)
 {
-    // struct PowerLimiting_Inputs* test1_inputs = (struct PowerLimiting_Inputs *)malloc(sizeof(struct
-    // PowerLimiting_Inputs));
     PowerLimiting_Inputs test2_inputs               = { 10.0, 10.0, 50.0, 1.00 };
     float                expected_power_limit_test2 = 50.0;
     float                actual_power_limit_test2   = App_PowerLimiting_ComputeMaxPower(&test2_inputs);
