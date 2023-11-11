@@ -131,7 +131,6 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     }
 
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
-    App_CanTx_BMS_SocCorrupt_Set(App_SocStats_GetCorrupt(soc_stats));
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)

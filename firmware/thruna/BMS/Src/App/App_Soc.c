@@ -115,6 +115,7 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
         soc_stats->soc_address = DEFAULT_SOC_ADDR;
     }
     App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
+    App_CanTx_BMS_SocCorrupt_Set(soc_stats->is_corrupt);
 
     return soc_stats;
 }
@@ -177,13 +178,21 @@ void App_Soc_ResetSocFromVoltage(struct SocStats *soc_stats, struct Accumulator 
 
     const float min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &segment, &cell);
 
-    float soc_percent = App_Soc_GetSocFromOcv(min_cell_voltage);
+    const float soc_percent = App_Soc_GetSocFromOcv(min_cell_voltage);
 
     // convert from percent to coulombs
     soc_stats->charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
+
+    // Mark SOC as corrupt anytime SOC is reset
+    soc_stats->is_corrupt = true;
+    App_CanTx_BMS_SocCorrupt_Set(soc_stats->is_corrupt);
 }
 
 void App_Soc_ResetSocCustomValue(struct SocStats *soc_stats, float soc_percent)
 {
     soc_stats->charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+
+    // Mark SOC as corrupt anytime SOC is reset
+    soc_stats->is_corrupt = true;
+    App_CanTx_BMS_SocCorrupt_Set(soc_stats->is_corrupt);
 }

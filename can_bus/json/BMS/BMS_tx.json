@@ -9,6 +9,15 @@
             },
             "State": {
                 "enum": "BmsState"
+            },
+            "Soc": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "SocCorrupt": {
+                "bits": 1
             }
         }
     },
@@ -336,21 +345,5 @@
               "bits": 1
           }
       }
-    },
-    "Soc": {
-        "msg_id": 123,
-        "cycle_time": 100,
-        "description": "BMS State of Charge",
-        "signals": {
-            "Soc": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "%"
-            },
-            "SocCorrupt": {
-                "bits": 1
-            }
-        }
     }
 }
