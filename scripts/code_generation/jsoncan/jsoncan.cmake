@@ -90,7 +90,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO)
         )
         set(CAN_INCLUDE_DIRS
                 ${OUTPUT_DIR}/app
-                ${SHARED_APP_INCLUDE_DIRS}
+                ${SHARED_APP_INCLUDE_DIR}
                 PARENT_SCOPE
         )
     endif()
