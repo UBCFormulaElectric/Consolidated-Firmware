@@ -49,14 +49,14 @@ ENDIF ()
 # ======== Python Checks ========
 IF (WIN32)
     set(PIP_RAW_COMMAND pip)
-    set(PYTHON_COMMAND python)
+    set(PYTHON_RAW_COMMAND python)
 ELSE ()
     set(PIP_RAW_COMMAND pip3)
     set(PYTHON_RAW_COMMAND python3)
 ENDIF ()
 IF (NO_VENV)
-    set(PIP_COMMAND PIP_RAW_COMMAND)
-    set(PYTHON_COMMAND PYTHON_RAW_COMMAND)
+    set(PIP_COMMAND ${PIP_RAW_COMMAND})
+    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
 ELSE ()
     execute_process(COMMAND ${PYTHON_COMMAND} -m pipenv --venv
             RESULT_VARIABLE PIPENV_RESULT
