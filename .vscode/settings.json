@@ -9,13 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
-	"files.associations": {
-		"llc_repl": "cpp",
-		"": "",
-		"*.llc_repl": "cpp",
-		"app_sharedprocessing.h": "c",
-		"float.h": "c",
-		"math.h": "c"
-	}
+	"cmake.configureOnOpen": true
 }
