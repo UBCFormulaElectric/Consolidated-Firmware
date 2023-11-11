@@ -16,7 +16,7 @@ static PowerLimiting_Inputs       power_limiting_inputs;
 static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
-// static TractionControl_Outputs    traction_control_outputs;
+static TractionControl_Outputs    traction_control_outputs;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -101,23 +101,20 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_ActiveDiffTorqueLeft_Set(active_differential_outputs.torque_left_Nm);
     App_CanTx_DCM_ActiveDiffTorqueRight_Set(active_differential_outputs.torque_right_Nm);
 
-    /**
-     *  TRACTION CONTROL NOT TESTED ON CAR YET
-     */
     // Traction Control
-    // traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
-    // traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
-    // traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
-    // traction_control_inputs.torque_right_Nm             = active_differential_outputs.torque_right_Nm;
-    // traction_control_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
-    // traction_control_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
-    // App_TractionControl_ComputeTorque(&traction_control_inputs, &traction_control_outputs);
+    traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
+    traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
+    traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
+    traction_control_inputs.torque_right_Nm             = active_differential_outputs.torque_right_Nm;
+    traction_control_inputs.wheel_speed_front_left_kph  = wheel_speed_front_left_kph;
+    traction_control_inputs.wheel_speed_front_right_kph = wheel_speed_front_right_kph;
+    App_TractionControl_ComputeTorque(&traction_control_inputs, &traction_control_outputs);
 
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
-    torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
+    torque_left_final_Nm  = traction_control_outputs.torque_left_Nm;
+    torque_right_final_Nm = traction_control_outputs.torque_right_Nm;
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
@@ -134,11 +131,6 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
-
-    // Commented out: Method for calculating power consumed from traction control outputs
-    // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
-    //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
-    //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
 
     float power_consumed_ideal =
         (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
