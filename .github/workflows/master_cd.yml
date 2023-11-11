@@ -4,6 +4,7 @@ on:
     paths-ignore:
       - 'software/**'
     branches:
+      - jiajun/workflow_fix
       - master
 
 jobs:
@@ -14,13 +15,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - f4dev
+        include:
+          - board: DIM
+            build_dir: firmware/thruna/DIM/DIM.elf
+          - board: FSM
+            build_dir: firmware/thruna/FSM/FSM.elf
+          - board: PDM
+            build_dir: firmware/thruna/PDM/PDM.elf
+          - board: DCM
+            build_dir: firmware/thruna/DCM/DCM.elf
+          - board: BMS
+            build_dir: firmware/thruna/BMS/BMS.elf
+          - board: f4dev
+            build_dir: firmware/dev/f4dev/f4dev.elf
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -39,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ inputs.board }}.elf
+          path: ${{ env.BUILD_DIR }}/${{matrix.build_dir}}
 
   generate-dbc:
     name: Call DBC Generation
