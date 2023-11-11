@@ -38,7 +38,6 @@ static float battery_voltage;
 static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
-static float available_battery_power_kW;
 static float steering_angle_deg;
 
 void App_TorqueVectoring_Setup(void)
@@ -63,10 +62,7 @@ void App_TorqueVectoring_Run(void)
     current_consumption         = App_CanRx_BMS_TractiveSystemCurrent_Get();
     left_motor_temp_C           = App_CanRx_INVL_MotorTemperature_Get();
     right_motor_temp_C          = App_CanRx_INVR_MotorTemperature_Get();
-    // TODO (akoen): Available power will soon be replaced by current + voltage messages
-    // available_battery_power_kW = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
-    available_battery_power_kW = 44.0f; // Tentative
-    steering_angle_deg         = App_CanRx_FSM_SteeringAngle_Get();
+    steering_angle_deg          = App_CanRx_FSM_SteeringAngle_Get();
 
     if (accelerator_pedal_percent > 0.0f)
     {
@@ -88,14 +84,13 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Power Limiting
     power_limiting_inputs.left_motor_temp_C          = left_motor_temp_C;
     power_limiting_inputs.right_motor_temp_C         = right_motor_temp_C;
-    power_limiting_inputs.available_battery_power_kW = available_battery_power_kW;
+    power_limiting_inputs.available_battery_power_kW = POWER_LIMIT_CAR_kW;
     power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
     float estimated_power_limit;
     estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
     // Power limit correction
-    float power_limit = 0;
-    power_limit       = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    float power_limit       = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
@@ -107,7 +102,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_CanTx_DCM_ActiveDiffTorqueRight_Set(active_differential_outputs.torque_right_Nm);
 
     /**
-     * SKIP TRACTION CONTROL FOR NOW
+     *  TRACTION CONTROL NOT TESTED ON CAR YET
      */
     // Traction Control
     // traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
@@ -139,11 +134,12 @@ void App_TorqueVectoring_HandleAcceleration(void)
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
-    // TODO: Change this to use the traction control outputs
 
+    // Commented out: Method for calculating power consumed from traction control outputs
     // float power_consumed_ideal    = (motor_speed_left_rpm * traction_control_outputs.torque_left_final_Nm +
     //                             motor_speed_right_rpm * traction_control_outputs.torque_right_final_Nm) /
     //                             POWER_TO_TORQUE_CONVERSION_FACTOR;
+
     float power_consumed_ideal =
         (motor_speed_left_rpm * torque_left_final_Nm + motor_speed_right_rpm * torque_right_final_Nm) /
         POWER_TO_TORQUE_CONVERSION_FACTOR;
