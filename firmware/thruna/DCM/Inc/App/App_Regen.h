@@ -6,15 +6,14 @@
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
-#define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
-#define WHEELBASE_mm                   1550
-#define TRACK_WIDTH_mm                 1100
+#define WHEELBASE_mm 1550
+#define TRACK_WIDTH_mm 1100
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f
-#define MAX_TORQUE_CHANGE              10.0f
-#define MIN_SCALING_SPEED_kph          35.0f
-#define SPEED_MIN_kph                  5.0f
-#define MAX_PEDAL_POSITION             -100.0f
-#define MAX_REGEN_nm                   -50.0f
+#define MAX_TORQUE_CHANGE 10.0f
+#define MIN_SCALING_SPEED_kph 35.0f
+#define SPEED_MIN_kph 5.0f
+#define MAX_PEDAL_POSITION -100.0f
+#define MAX_REGEN_nm -50.0f
 
 typedef struct RegenBraking
 {
@@ -51,7 +50,7 @@ bool App_Regen_Safety(struct RegenBraking *regenAttr);
  * @param left is the left inverter torque request
  * @param right is the right inverter torque request
  */
-void App_Regen_Activate(float left, float right);
+void App_Regen_Send_Torque_Request(float left, float right);
 
 /**
  * Activate torque requests for regen

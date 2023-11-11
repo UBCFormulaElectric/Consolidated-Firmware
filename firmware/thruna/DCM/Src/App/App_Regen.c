@@ -52,7 +52,7 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
 
     *prev_torque_request = regenAttributes.prev_torque_request_Nm;
 
-    App_Regen_Activate(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
+    App_Regen_Send_Torque_Request(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
 
 bool App_Regen_Safety(RegenBraking *regenAttr)
@@ -61,7 +61,7 @@ bool App_Regen_Safety(RegenBraking *regenAttr)
     return battery_temp_in_range && wheel_speed_in_range() && power_limit_check(regenAttr);
 }
 
-void App_Regen_Activate(float left, float right)
+void App_Regen_Send_Torque_Request(float left, float right)
 {
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(left);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(right);
@@ -113,8 +113,8 @@ static bool power_limit_check(RegenBraking *regenAttr)
 
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)
 {
-    float pedal_percentage          = inputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
-    float torqueRequest             = MAX_REGEN_nm * pedal_percentage;
+    float pedal_percentage = inputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
+    float torqueRequest    = MAX_REGEN_nm * pedal_percentage;
     float torqueChange;
 
     if (regenAttr->current_battery_level > 3.9f)
