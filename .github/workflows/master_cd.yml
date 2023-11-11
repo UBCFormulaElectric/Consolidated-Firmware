@@ -14,8 +14,8 @@ jobs:
   build:
     name: Build Firmware Binaries
     runs-on: ubuntu-latest
-    env:
-      BUILD_DIR: 'path/to/your/build/directory'
+     env:
+      BUILD_DIR: build_fw_deploy
     strategy:
       fail-fast: false
       matrix:
