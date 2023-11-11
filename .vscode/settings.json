@@ -14,6 +14,8 @@
 		"llc_repl": "cpp",
 		"": "",
 		"*.llc_repl": "cpp",
-		"app_sharedprocessing.h": "c"
+		"app_sharedprocessing.h": "c",
+		"float.h": "c",
+		"math.h": "c"
 	}
 }

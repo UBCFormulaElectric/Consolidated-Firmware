@@ -935,6 +935,9 @@ TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
     get_high_res_current_fake.return_val   = 0.0f;
     soc_stats->prev_current_A              = 0.0f;
 
+    float soc = App_SocStats_GetMinSocPercent(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 100.0f);
+
     // Allow Timer time to initialize before drawing current
     SetInitialState(App_GetDriveState());
     LetTimePass(state_machine, 10);
@@ -945,19 +948,21 @@ TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
      *
      * dt = 30s
      *
-     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells
+     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells * STATE_OF_HEALTH
      *
-     * I = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30 = 21.24A
+     * current (I) = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30
      */
 
+    float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
+
     is_air_negative_closed_fake.return_val = true;
-    get_low_res_current_fake.return_val    = -21.24f;
-    get_high_res_current_fake.return_val   = -21.24f;
-    soc_stats->prev_current_A              = -21.24f;
+    get_low_res_current_fake.return_val    = current;
+    get_high_res_current_fake.return_val   = current;
+    soc_stats->prev_current_A              = current;
 
     LetTimePass(state_machine, 30000);
 
-    float soc = App_SocStats_GetMinSocPercent(soc_stats);
+    soc = App_SocStats_GetMinSocPercent(soc_stats);
     ASSERT_FLOAT_EQ(soc, 99.0f);
 }
 
