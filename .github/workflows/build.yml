@@ -17,12 +17,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
+        include:
+          - board: DIM
+            binary_dir: firmware/thruna/DIM/DIM.elf
+          - board: FSM
+            binary_dir: firmware/thruna/FSM/FSM.elf
+          - board: PDM
+            binary_dir: firmware/thruna/PDM/PDM.elf
+          - board: DCM
+            binary_dir: firmware/thruna/DCM/DCM.elf
+          - board: BMS
+            binary_dir: firmware/thruna/BMS/BMS.elf
+          - board: f4dev
+            binary_dir: firmware/dev/f4dev/f4dev.elf
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -55,48 +62,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ matrix.board }}.elf
-  
-  build-firmware-dev:
-    name: Build Dev Firmware
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        board:
-          - f4dev
-          
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.docker_token }}
-    env:
-      BUILD_DIR: build_arm
-    steps:
-      # Fix to ensure that commands like git status work in child directories 
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-        
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
-      # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
-      - name: Build
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=arm -DHANDLE_DEPS=OFF
-          xvfb-run make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}.elf
-      # Uploads .elf binary to Github Actions workflow
-      - name: Save built artifact
-        if: ${{ inputs.upload_artifact }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/firmware/dev/${{ matrix.board }}/${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/${{ matrix.binary_dir}}
 
 
