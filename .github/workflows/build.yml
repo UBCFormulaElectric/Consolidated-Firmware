@@ -6,7 +6,7 @@ on:
         required: true
     inputs:
       upload_artifact:
-        required: false
+        required: true
         type: boolean
         default: false
 
