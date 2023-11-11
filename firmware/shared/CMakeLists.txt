@@ -1,5 +1,5 @@
 
-if("${PLATFORM}" STREQUAL "x86")
+if("${TARGET}" STREQUAL "test")
     list(APPEND HDRS_TO_FAKE 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
@@ -15,8 +15,12 @@ if("${PLATFORM}" STREQUAL "x86")
         "shared_can"
         "shared"
         "${CMAKE_CURRENT_BINARY_DIR}"
-        ""
+        FALSE
     )
+
+    set(CAN_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/app)
+    add_library("shared_can" STATIC "${CAN_SRCS}")
+    target_include_directories("shared_can" PUBLIC "${CAN_INCLUDE_DIRS}")
 
     file(GLOB_RECURSE SHARED_TEST_SRCS 
         "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"

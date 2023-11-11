@@ -10,11 +10,37 @@ jobs:
   # Build DBC and Binaries
   build:
     name: Build Firmware Binaries
-    uses: ./.github/workflows/build.yml
-    secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
-    with:
-      upload_artifact: true
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+          - f4dev
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.docker_token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/build_binary
+        with:
+          board: ${{ matrix.board }}
+      # Uploads .elf binary to Github Actions workflow
+      - name: Save built artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.board }}.elf
+          path: ${{ env.BUILD_DIR }}/firmware/thruna/${{ matrix.board }}/${{ inputs.board }}.elf
+
   generate-dbc:
     name: Call DBC Generation
     uses: ./.github/workflows/dbc-gen.yml

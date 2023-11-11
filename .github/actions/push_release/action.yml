@@ -14,10 +14,9 @@ inputs:
     description: The body of the release
     required: true
   latest:
-    description: Determine if this commit 
+    description: Determine if this release should be marked as latest
     required: false
-    type: boolean
-    default: false
+    default: 'false'
 
 runs:
   using: "composite"

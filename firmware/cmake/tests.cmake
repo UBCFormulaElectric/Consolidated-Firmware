@@ -47,7 +47,7 @@ function(create_fake_library
             --header ${HDR_TO_FAKE}
             --output-header ${FAKE_HDR}
             --output-source ${FAKE_SRC}
-            WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
+            WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${FAKEGEN_SRCS} ${HDR_TO_FAKE}
         )
     endforeach()

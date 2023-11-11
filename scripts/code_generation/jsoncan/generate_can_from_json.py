@@ -68,7 +68,9 @@ if __name__ == "__main__":
         help="Path to the output header file for aperiodic alerts",
     )
     parser.add_argument("--dbc_output", help="Path to the DBC file")
-    parser.add_argument("--only_dbc", action='store_true', help="Only generate DBC file")
+    parser.add_argument(
+        "--only_dbc", action="store_true", help="Only generate DBC file"
+    )
     args = parser.parse_args()
 
     # Parse JSON
