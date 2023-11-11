@@ -76,12 +76,12 @@ void App_ActiveDifferential_ComputeNegativeTorque(
 
     float torque_left_Nm  = torqueRequest * (1 + Delta);
     float torque_right_Nm = torqueRequest * (1 - Delta);
-    float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
+    float torque_negative_max_Nm   = fminf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
-    if (torque_max_Nm > -MAX_REGEN_nm)
+    if (-torque_negative_max_Nm > -MAX_REGEN_nm)
     {
-        scale = MAX_REGEN_nm / torque_max_Nm;
+        scale = MAX_REGEN_nm / torque_negative_max_Nm;
     }
 
     regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;

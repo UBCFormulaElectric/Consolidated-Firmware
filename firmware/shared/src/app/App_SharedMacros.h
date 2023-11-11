@@ -62,7 +62,7 @@
 
 
 #define MOTOR_RPM_TO_KMH(kmh) ((kmh) * (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO) //take rpm of whell to kph
-#define MOTOR_KMH_TO_RPM(rpm) ((int)((rpm) / (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO))
+#define MOTOR_KMH_TO_RPM(rpm) ((int)((rpm) / ((float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO)))
 
 #define EMPTY_STRUCT(name)\
 typedef struct \
