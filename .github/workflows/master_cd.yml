@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.board }}.elf
-          path: ${{ env.BUILD_DIR }}/${{matrix.build_dir}}
+          path: ${{ env.BUILD_DIR }}/${{ matrix.build_dir }}
 
   generate-dbc:
     name: Call DBC Generation
