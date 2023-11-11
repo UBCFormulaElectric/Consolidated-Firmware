@@ -4,7 +4,7 @@
     {
       "name": "Debug Embedded: BMS",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/BMS/BMS.elf",
+      "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -18,7 +18,7 @@
     {
       "name": "Debug Embedded: DCM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/DCM/DCM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -32,7 +32,7 @@
     {
       "name": "Debug Embedded: FSM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/FSM/FSM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -46,7 +46,7 @@
     {
       "name": "Debug Embedded: PDM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/PDM/PDM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -60,7 +60,7 @@
     {
       "name": "Debug Embedded: DIM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/DIM/DIM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -83,7 +83,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: DCM",
@@ -97,7 +97,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: FSM",
@@ -111,7 +111,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: PDM",
@@ -125,7 +125,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: DIM",
@@ -139,7 +139,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: Shared",
@@ -153,7 +153,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
-    },
+      }
+    }
   ]
 }

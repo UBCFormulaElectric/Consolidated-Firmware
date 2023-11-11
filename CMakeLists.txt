@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.24)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_VERBOSE_MAKEFILE on)
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
@@ -11,29 +12,15 @@ set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
-# On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
-# However, it is equally mysteriously required for building embedded binaries.
-# So, only run this if loading the embedded configuration.
-# TODO: Look into what is causing this.
-IF ("${PLATFORM}" STREQUAL "arm")
-    project("UBC Formula Electric Software" C ASM)
-    set(CMAKE_SYSTEM_NAME Generic)
-ELSEIF ("${PLATFORM}" STREQUAL "x86")
-    project("UBC Formula Electric Software" C CXX)
-ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    project("Dimos" C CXX)
-ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'x86' or 'arm'. To do this, set the -DPLATFORM=<platform>")
-ENDIF()
-message("⚙️ Configuring for ${PLATFORM} build target")
+include(scripts/code_generation/jsoncan/jsoncan.cmake)
 
 # ======== CPM ========
 option(HANDLE_DEPS "Build build on the server" OFF)
 option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (HANDLE_DEPS)
-    message("🏠 Handling the dependencies locally")
+    message("🏗️ Handling the dependencies")
 ELSE ()
-    message("🏗️ Using your your dependencies")
+    message("🏠 Using your dependencies")
     set(NO_VENV ON)
 ENDIF ()
 file(
@@ -45,17 +32,40 @@ file(
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
 
-# ======== Python Checks ========
-IF (NO_VENV)
-    IF ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-        set(PIP_COMMAND pip)
-        set(PYTHON_COMMAND python)
-    ELSE ()
-        set(PIP_COMMAND pip3)
-        set(PYTHON_COMMAND python3)
-    ENDIF ()
+# ======== Host system specific settings ========
+IF (WIN32)
+    message("🪟 Building for Windows")
+    set(BINARY_SUFFIX ".exe")
+ELSEIF (APPLE)
+    message("🍎 Building for Apples")
+    set(BINARY_SUFFIX "")
+ELSEIF (UNIX)
+    message("🐧 Building for Linux")
+    set(BINARY_SUFFIX "")
 ELSE ()
-    IF ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+ENDIF ()
+
+# ======== Python Checks ========
+IF (WIN32)
+    set(PIP_RAW_COMMAND pip)
+    set(PYTHON_RAW_COMMAND python)
+ELSE ()
+    set(PIP_RAW_COMMAND pip3)
+    set(PYTHON_RAW_COMMAND python3)
+ENDIF ()
+IF (NO_VENV)
+    set(PIP_COMMAND ${PIP_RAW_COMMAND})
+    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
+ELSE ()
+    execute_process(COMMAND ${PYTHON_COMMAND} -m pipenv --venv
+            RESULT_VARIABLE PIPENV_RESULT
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    message(${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR})
+    IF (WIN32)
         set(PYTHON_COMMAND pipenv run python)
     ELSE ()
         set(PYTHON_COMMAND pipenv run python3)
@@ -63,22 +73,56 @@ ELSE ()
 ENDIF ()
 
 find_package(Python3 COMPONENTS Interpreter)
-message("Python Command Set to ${PYTHON_COMMAND}")
 find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
 IF (Python3_VERSION VERSION_LESS 3.8)
     message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
-    message(WARNING "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
+    message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
-message("🐍 Found Python ${Python3_VERSION}")
+message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 # ======== Python Checks ========
 
-IF ("${PLATFORM}" STREQUAL "x86" OR "${PLATFORM}" STREQUAL "arm")
+message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
+IF ("${PLATFORM}" STREQUAL "firmware")
+    # ======== Dependency Handling ========
+    IF (HANDLE_DEPS)
+        include(firmware/cmake/dependencies.cmake)
+    ENDIF()
+
+    # ======== Compiler ========
+    IF("${TARGET}" STREQUAL "deploy")
+        # On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
+        # However, it is equally mysteriously required for building embedded binaries.
+        # So, only run this if loading the embedded configuration.
+        # TODO: Look into what is causing this.
+        set(CMAKE_C_COMPILER_WORKS 1)
+        set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX}arm-none-eabi)
+        set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+        set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${BINARY_SUFFIX})
+        set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
+        set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy${BINARY_SUFFIX})
+        set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump${BINARY_SUFFIX})
+        set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
+        message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")
+        set(CMAKE_SYSTEM_NAME Generic)
+        project("UBC Formula Electric Software" C ASM)
+    ELSEIF ("${TARGET}" STREQUAL "test")
+        project("UBC Formula Electric Software" C CXX)
+    ELSE()
+        message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
+    ENDIF()
+ELSEIF ("${PLATFORM}" STREQUAL "dimos")
+    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
+ELSE ()
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+ENDIF()
+
+IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
-    IF ("${PLATFORM}" STREQUAL "x86")
+    IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    add_subdirectory(host)
+    add_subdirectory(software/dimos)
 ENDIF ()

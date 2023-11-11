@@ -66,6 +66,7 @@ function(embedded_library
     ARM_CORE
     THIRD_PARTY
 )
+#    message("Library ${LIB_NAME} with srcs: ${LIB_SRCS}")
     add_library(${LIB_NAME} STATIC ${LIB_SRCS})
 
     if(THIRD_PARTY)

@@ -27,7 +27,7 @@ commit_info_library(
     "${ARM_CORE}"
 )
 
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
         "f4dev"
         "${IOC_PATH}"

@@ -1,0 +1,28 @@
+name: Build Firmware Binaries Action
+description: Builds the bianry for a given board
+inputs:
+  board:
+    description: The board for which to build a binary
+    required: true
+  build_dir:
+    required: false
+    description: The directory in which to build the binary
+    default: build_fw_deploy
+
+runs:
+  using: "composite"
+  steps:
+    # Fix to ensure that commands like git status work in child directories
+    # for gitpython in git_commit_info
+    - name: Setup git
+      shell: bash
+      run: git config --global --add safe.directory $(realpath .)
+
+    # xvfb-run is required to prefix any commands that run STM32CubeMX
+    # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
+    # Don't use Pipenv for Cmake since python packages are installed system-wide in the container
+    - name: Build
+      shell: bash
+      run: |
+        cmake -B ${{ inputs.build_dir }} -DPLATFORM=firmware -DTARGET=deploy -DHANDLE_DEPS=OFF
+        xvfb-run make --directory=${{ inputs.build_dir }} -j`nproc` ${{ inputs.board }}.elf

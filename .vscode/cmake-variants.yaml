@@ -1,17 +1,19 @@
 platform:
     default: arm
     choices:
-        arm: 
-            short: Embedded
+        firmware_deploy:
+            short: Firmware Deploy
             settings:
-                PLATFORM: arm
+                PLATFORM: firmware
+                TARGET: deploy
             env:
-                PLATFORM: arm
+                BUILD_DIR: build_fw_deploy
             buildType: Debug
-        x86: 
-            short: Tests
+        firmware_test:
+            short: Firmware Tests
             settings:
-                PLATFORM: x86
+                PLATFORM: firmware
+                TARGET: test
             env:
-                PLATFORM: x86
+                BUILD_DIR: build_fw_test
             buildType: Debug

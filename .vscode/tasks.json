@@ -4,7 +4,7 @@
         {
             "label": "Load CMake: Embedded",
             "type": "shell",
-            "command": "mkdir -p build_arm && cmake -S . -B build_arm -DPLATFORM=arm",
+            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=firmware -DTARGET=deploy",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -13,7 +13,7 @@
         {
             "label": "Load CMake: Tests",
             "type": "shell",
-            "command": "mkdir -p build_x86 && cmake -S . -B build_x86 -DPLATFORM=x86",
+            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=firmware -DTARGET=test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -25,7 +25,7 @@
             "command": "cmake --build . --target clean",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             },
         },
         {
@@ -34,7 +34,7 @@
             "command": "cmake --build . --target clean",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             },
         },
         {
@@ -43,7 +43,7 @@
             "command": "make -j`nproc` BMS.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -52,7 +52,7 @@
             "command": "make -j`nproc` DCM.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -61,7 +61,7 @@
             "command": "make -j`nproc` FSM.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -70,7 +70,7 @@
             "command": "make -j`nproc` PDM.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -79,7 +79,7 @@
             "command": "make -j`nproc` DIM.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -88,7 +88,7 @@
             "command": "make -j`nproc` f4dev.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -97,7 +97,7 @@
             "command": "make -j`nproc` BMS_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -106,7 +106,7 @@
             "command": "make -j`nproc` DCM_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -115,7 +115,7 @@
             "command": "make -j`nproc` FSM_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -124,7 +124,7 @@
             "command": "make -j`nproc` PDM_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -133,7 +133,7 @@
             "command": "make -j`nproc` DIM_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -142,7 +142,7 @@
             "command": "make -j`nproc` shared_test",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
@@ -151,7 +151,7 @@
             "command": "make -j`nproc`",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
@@ -160,7 +160,7 @@
             "command": "make -j`nproc`",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_x86"
+                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {

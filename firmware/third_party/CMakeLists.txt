@@ -1,6 +1,6 @@
 include(../cmake/embedded.cmake)
 
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
     set(SBG_ECOM_INCLUDE_DIRS 
