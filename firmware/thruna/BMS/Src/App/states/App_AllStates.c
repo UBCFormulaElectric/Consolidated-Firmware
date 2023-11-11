@@ -108,6 +108,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct Charger *       charger          = App_BmsWorld_GetCharger(world);
     struct Eeprom *        eeprom           = App_BmsWorld_GetEeprom(world);
     struct SocStats *      soc_stats        = App_BmsWorld_GetSocStats(world);
+    struct Accumulator *   accumulator      = App_BmsWorld_GetAccumulator(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
@@ -116,7 +117,19 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     const float    min_soc  = App_SocStats_GetMinSocCoulombs(soc_stats);
     const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
 
-    App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
+    // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
+    if (min_soc < 0)
+    {
+        if (acc_meas_settle_count >= NUM_CYCLES_TO_SETTLE)
+        {
+            App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+        }
+    }
+    else
+    {
+        App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
+    }
+
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
     App_CanTx_BMS_SocCorrupt_Set(App_SocStats_GetCorrupt(soc_stats));
 }

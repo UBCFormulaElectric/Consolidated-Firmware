@@ -337,7 +337,7 @@
           }
       }
     },
-    "BMS_Soc": {
+    "Soc": {
         "msg_id": 123,
         "cycle_time": 100,
         "description": "BMS State of Charge",

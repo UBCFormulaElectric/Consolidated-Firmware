@@ -144,6 +144,8 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedSocAddress(struct Eeprom *eeprom, uin
 
 ExitCode App_Eeprom_ReadSocAddress(struct Eeprom *eeprom, uint16_t *address)
 {
+    ExitCode retval = EXIT_CODE_OK;
+
     if (*address >= NUM_PAGES)
     {
         return EXIT_CODE_ERROR;
@@ -167,30 +169,32 @@ ExitCode App_Eeprom_ReadSocAddress(struct Eeprom *eeprom, uint16_t *address)
     if (read_status != EEPROM_OK)
     {
         *address = 1;
-        return EXIT_CODE_ERROR;
+        retval   = EXIT_CODE_ERROR;
     }
     else if (
         address_copies[0] == address_copies[1] || address_copies[0] == address_copies[2] ||
         address_copies[0] == address_copies[3])
     {
         *address = address_copies[0];
-        return EXIT_CODE_OK;
+        retval   = EXIT_CODE_OK;
     }
     else if (address_copies[1] == address_copies[2] || address_copies[1] == address_copies[3])
     {
         *address = address_copies[1];
-        return EXIT_CODE_OK;
+        retval   = EXIT_CODE_OK;
     }
     else if (address_copies[2] == address_copies[3])
     {
         *address = address_copies[2];
-        return EXIT_CODE_OK;
+        retval   = EXIT_CODE_OK;
     }
     else
     {
         *address = 1;
-        return EXIT_CODE_ERROR;
+        retval   = EXIT_CODE_ERROR;
     }
+
+    return retval;
 }
 
 EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc, uint16_t address)

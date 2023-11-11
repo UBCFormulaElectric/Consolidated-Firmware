@@ -84,6 +84,11 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
     struct SocStats *soc_stats = malloc(sizeof(struct SocStats));
     assert(soc_stats != NULL);
     soc_stats->prev_current_A = 0.0f;
+    soc_stats->soc_address    = DEFAULT_SOC_ADDR;
+
+    // Asoc assumed corrupt until proven otherwise
+    soc_stats->is_corrupt = true;
+    soc_stats->charge_c   = -1;
 
     // A negative soc value will indicate to App_SocStats_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
@@ -91,21 +96,11 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
     {
         if (App_Eeprom_ReadMinSoc(eeprom, soc_stats->soc_address, &saved_soc_c) == EXIT_CODE_OK)
         {
-            if(IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+            if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
             {
                 soc_stats->charge_c   = (double)saved_soc_c;
                 soc_stats->is_corrupt = false;
             }
-            else
-            {
-                App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
-                soc_stats->is_corrupt = true;
-            }
-        }
-        else
-        {
-            App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
-            soc_stats->is_corrupt = true;
         }
     }
     else
@@ -115,7 +110,10 @@ struct SocStats *App_SocStats_Create(struct Eeprom *eeprom, struct Accumulator *
     }
 
     // Update the active address that SOC is stored at
-    App_Eeprom_UpdateSavedSocAddress(eeprom, &soc_stats->soc_address);
+    if (App_Eeprom_UpdateSavedSocAddress(eeprom, &soc_stats->soc_address) != EEPROM_OK)
+    {
+        soc_stats->soc_address = DEFAULT_SOC_ADDR;
+    }
     App_Timer_InitTimer(&soc_stats->soc_timer, SOC_TIMER_DURATION);
 
     return soc_stats;
