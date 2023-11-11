@@ -14,6 +14,7 @@
 #define SPEED_MIN_kph 5.0f
 #define MAX_PEDAL_POSITION -100.0f
 #define MAX_REGEN_nm -50.0f
+#define MAX_BATTERY_TEMP 45
 
 typedef struct RegenBraking
 {
@@ -31,8 +32,9 @@ typedef struct ActiveDifferential_Inputs
 } ActiveDifferential_Inputs;
 
 /**
- * Run safety checks before starting regenerative braking and execute
- * regen if satisfied
+ * Runs when pedal percentage is in range [-100, 0] and does safety checks 
+ * before calculating and sending regenerative braking negative torque requests
+ * @param *prev_torque_request is the previous cycle's torque request
  * @param accelerator_pedal_percentage is the pedal percentage
  */
 void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentage);
@@ -43,7 +45,7 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
  * @param regenAttr struct provides for torque request
  * @return true or false depending on if it is safe to run regen
  */
-bool App_Regen_Safety(struct RegenBraking *regenAttr);
+bool App_Regen_SafetyCheck(struct RegenBraking *regenAttr);
 
 /**
  * Activate torque requests for regen

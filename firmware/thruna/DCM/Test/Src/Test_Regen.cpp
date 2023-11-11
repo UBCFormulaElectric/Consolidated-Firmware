@@ -121,7 +121,7 @@ TEST_F(TestRegen, battery_full_torque_request)
   // make battery full
   App_CanRx_BMS_MaxCellVoltage_Update(4.1f);
 
-  bool isSafe = App_Regen_Safety(&regenAttributes);
+  bool isSafe = App_Regen_SafetyCheck(&regenAttributes);
 
   ASSERT_TRUE(isSafe == false);
 }

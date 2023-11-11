@@ -33,7 +33,7 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
 {
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
 
-    if (App_Regen_Safety(&regenAttributes))
+    if (App_Regen_SafetyCheck(&regenAttributes))
     {
         regenAttributes.prev_torque_request_Nm = *prev_torque_request;
         activeDifferentialInputs.steering_angle_deg =
@@ -55,9 +55,9 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
     App_Regen_Send_Torque_Request(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
 
-bool App_Regen_Safety(RegenBraking *regenAttr)
+bool App_Regen_SafetyCheck(RegenBraking *regenAttr)
 {
-    bool battery_temp_in_range = App_CanRx_BMS_MaxCellTemperature_Get() < 45;
+    bool battery_temp_in_range = App_CanRx_BMS_MaxCellTemperature_Get() < MAX_BATTERY_TEMP;
     return battery_temp_in_range && wheel_speed_in_range() && power_limit_check(regenAttr);
 }
 
@@ -84,8 +84,8 @@ void App_ActiveDifferential_ComputeNegativeTorque(
         scale = MAX_REGEN_nm / torque_negative_max_Nm;
     }
 
-    regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
-    regenAttr->right_inverter_torque_Nm = torque_right_Nm * scale;
+    regenAttr->left_inverter_torque_Nm  = MIN(torque_left_Nm * scale, 0.0f); //ensure torque request is never > 0
+    regenAttr->right_inverter_torque_Nm = MIN(torque_right_Nm * scale, 0.0f);
 }
 
 float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
