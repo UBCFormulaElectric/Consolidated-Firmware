@@ -5,16 +5,13 @@ on:
       - 'software/**'
     branches:
       - master
-
-
+      - jiajun/workflow_fix
 
 jobs:
   # Build DBC and Binaries
   build:
     name: Build Firmware Binaries
     runs-on: ubuntu-latest
-    env:
-      BUILD_DIR: build_fw_deploy
     strategy:
       fail-fast: false
       matrix:
@@ -47,6 +44,8 @@ jobs:
       # Uploads .elf binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v3
+        env:
+          BUILD_DIR: build_fw_deploy
         with:
           name: ${{ matrix.board }}.elf
           path: ${{ env.BUILD_DIR }}/${{ matrix.build_dir }}
