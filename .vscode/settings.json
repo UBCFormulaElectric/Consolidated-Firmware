@@ -10,6 +10,6 @@
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
-	"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-15",
+	"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-18.0",
 	"C_Cpp.clang_format_style": "file:${workspaceFolder}/scripts/clang_format/.clang-format"
 }
