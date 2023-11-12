@@ -247,6 +247,7 @@ TEST_F(TestRegen, taper_torque_request)
   ASSERT_FLOAT_EQ(expected_right_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 }
 
+// max as in max negative torque = -50.0f
 TEST_F(TestRegen, active_differential_exceeds_max) {   
   static RegenBraking              regenAttributes = { .enable_active_differential = true };
   static ActiveDifferential_Inputs inputs;

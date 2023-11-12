@@ -84,8 +84,8 @@ void App_ActiveDifferential_ComputeNegativeTorque(
         scale = MAX_REGEN_nm / torque_negative_max_Nm;
     }
 
-    regenAttr->left_inverter_torque_Nm  = MIN(torque_left_Nm * scale, 0.0f); //ensure torque request is never > 0
-    regenAttr->right_inverter_torque_Nm = MIN(torque_right_Nm * scale, 0.0f);
+    regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
+    regenAttr->right_inverter_torque_Nm = torque_right_Nm * scale;
 }
 
 float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
