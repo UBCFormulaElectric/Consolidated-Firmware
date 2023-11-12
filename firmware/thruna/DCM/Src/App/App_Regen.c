@@ -40,6 +40,7 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
             App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
         compute_regen_torque_request(&activeDifferentialInputs, &regenAttributes);
+        App_CanTx_DCM_Warning_RegenNotAvailable_Set(false);
     }
     else
     {
@@ -74,9 +75,9 @@ void App_ActiveDifferential_ComputeNegativeTorque(
 {
     float Delta = App_ActiveDifferential_WheelAngleToSpeedDelta(inputs->steering_angle_deg);
 
-    float torque_left_Nm  = torqueRequest * (1 + Delta);
-    float torque_right_Nm = torqueRequest * (1 - Delta);
-    float torque_negative_max_Nm   = fminf(torque_left_Nm, torque_right_Nm);
+    float torque_left_Nm         = torqueRequest * (1 + Delta);
+    float torque_right_Nm        = torqueRequest * (1 - Delta);
+    float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
     if (-torque_negative_max_Nm > -MAX_REGEN_nm)
@@ -98,7 +99,7 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
 
 static bool wheel_speed_in_range()
 {
-    float motor_speed_right_kph = MOTOR_RPM_TO_KMH((float)App_CanRx_INVR_MotorSpeed_Get());
+    float motor_speed_right_kph = MOTOR_RPM_TO_KMH(-(float)App_CanRx_INVR_MotorSpeed_Get());
     float motor_speed_left_kph  = MOTOR_RPM_TO_KMH((float)App_CanRx_INVL_MotorSpeed_Get());
 
     return motor_speed_right_kph > SPEED_MIN_kph && motor_speed_left_kph > SPEED_MIN_kph;
@@ -108,7 +109,7 @@ static bool power_limit_check(RegenBraking *regenAttr)
 {
     // TODO: Update check once power limiting is available
     regenAttr->current_battery_level = App_CanRx_BMS_MaxCellVoltage_Get();
-    return regenAttr->current_battery_level < 4.0f;
+    return regenAttr->current_battery_level < 4.1f;
 }
 
 static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, RegenBraking *regenAttr)

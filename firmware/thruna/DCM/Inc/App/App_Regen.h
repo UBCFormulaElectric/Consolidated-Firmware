@@ -9,11 +9,11 @@
 #define WHEELBASE_mm 1550
 #define TRACK_WIDTH_mm 1100
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f
-#define MAX_TORQUE_CHANGE 10.0f
+#define MAX_TORQUE_CHANGE 5.0f
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
 #define MAX_PEDAL_POSITION -100.0f
-#define MAX_REGEN_nm -50.0f
+#define MAX_REGEN_nm -10.0f
 #define MAX_BATTERY_TEMP 45
 
 typedef struct RegenBraking
@@ -32,7 +32,7 @@ typedef struct ActiveDifferential_Inputs
 } ActiveDifferential_Inputs;
 
 /**
- * Runs when pedal percentage is in range [-100, 0] and does safety checks 
+ * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests
  * @param *prev_torque_request is the previous cycle's torque request
  * @param accelerator_pedal_percentage is the pedal percentage
