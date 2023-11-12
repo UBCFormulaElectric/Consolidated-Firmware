@@ -5,7 +5,6 @@ on:
       - 'software/**'
     branches:
       - master
-      - jiajun/workflow_fix
 
 jobs:
   # Build DBC and Binaries
