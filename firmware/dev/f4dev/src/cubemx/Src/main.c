@@ -42,7 +42,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-SdCard *sd;
+SdCard  sd;
 uint8_t read_buffer[LFS_CACHE_SIZE];
 uint8_t prog_buffer[LFS_CACHE_SIZE];
 uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
@@ -89,21 +89,21 @@ int lfs_sync(const struct lfs_config *c);
 
 int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    SdCardStatus status = hw_sd_readOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
 
-    return (status != SD_CARD_OK) ? 0 : 1;
+    return 0;
 }
 
 int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
-    return (status != SD_CARD_OK) ? 0 : 1;
+    SdCardStatus status = hw_sd_writeOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    return 0;
 }
 
 int lfs_erase(const struct lfs_config *c, lfs_block_t block)
 {
-    SdCardStatus status = hw_sd_erase(sd, (uint32_t)block, (uint32_t)block);
-    return (status != SD_CARD_OK) ? 0 : 1;
+    SdCardStatus status = hw_sd_erase(&sd, (uint32_t)block, (uint32_t)block);
+    return 0;
 }
 
 int lfs_sync(const struct lfs_config *c)
@@ -169,12 +169,12 @@ int main(void)
     MX_ADC1_Init();
     MX_CAN2_Init();
     /* USER CODE BEGIN 2 */
-    sd->hsd     = &hsd;
-    sd->timeout = 1000;
+    sd.hsd     = &hsd;
+    sd.timeout = 1000000;
 
     // config littlefs
-    cfg.block_size  = sd->hsd->SdCard.BlockSize;
-    cfg.block_count = sd->hsd->SdCard.BlockNbr;
+    cfg.block_size  = sd.hsd->SdCard.BlockSize;
+    cfg.block_count = sd.hsd->SdCard.BlockNbr;
 
     // mount the filesystem
     int err = lfs_mount(&lfs, &cfg);
