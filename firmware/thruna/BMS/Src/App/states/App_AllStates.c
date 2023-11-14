@@ -161,7 +161,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
-    App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
+    if (App_Airs_IsAirNegativeClosed(airs) == CONTACTOR_STATE_CLOSED &&
+        App_Airs_IsAirPositiveClosed(airs) == CONTACTOR_STATE_CLOSED)
+    {
+        App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
+    }
+
     App_CanTx_BMS_Soc_Set(App_SocStats_GetMinSocPercent(soc_stats));
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
