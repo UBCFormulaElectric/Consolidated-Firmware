@@ -930,7 +930,8 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
 TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
 {
-    is_air_negative_closed_fake.return_val = true;
+    is_air_negative_closed_fake.return_val = false;
+    is_air_positive_closed_fake.return_val = false;
     get_low_res_current_fake.return_val    = 0.0f;
     get_high_res_current_fake.return_val   = 0.0f;
     soc_stats->prev_current_A              = 0.0f;
@@ -956,6 +957,7 @@ TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
     float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
 
     is_air_negative_closed_fake.return_val = true;
+    is_air_positive_closed_fake.return_val = true;
     get_low_res_current_fake.return_val    = current;
     get_high_res_current_fake.return_val   = current;
     soc_stats->prev_current_A              = current;
