@@ -309,7 +309,6 @@ TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
     EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_State_Get());
 }
 
-// TODO:
 TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
 {
     is_charger_connected_fake.return_val   = false;
@@ -659,7 +658,7 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
 
     App_CanRx_Debug_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 250);
+    LetTimePass(state_machine, 210U);
 
     ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -679,11 +678,11 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     App_CanRx_Debug_StartCharging_Update(true);
 
     // Allow BMS time to go through Init state
-    LetTimePass(state_machine, 250);
+    LetTimePass(state_machine, 210U);
     get_ts_voltage_fake.return_val = 400;
 
     // Pause for slightly longer to allow pre-charge
-    LetTimePass(state_machine, 250);
+    LetTimePass(state_machine, 210U);
 
     printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -840,7 +839,6 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         float precharge_duration;
         bool  expect_precharge_starts;
         bool  expect_precharge_successful;
-
     } test_params[5] = { {
                              // Precharge doesn't start, AIR- doesn't close
                              .air_negative_closes         = false,
@@ -897,7 +895,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(state_machine, 210);
+            LetTimePass(state_machine, 210U);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 

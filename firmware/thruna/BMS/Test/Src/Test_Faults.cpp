@@ -566,14 +566,14 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         is_air_negative_closed_fake.return_val = true;
         is_charger_connected_fake.return_val   = false;
         App_CanRx_Debug_StartCharging_Update(false);
-        LetTimePass(state_machine, 250);
+        LetTimePass(state_machine, 210U);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
         // trying to fool precahrge into thinking that ts_voltage is rising too quickly
         get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL;
-        LetTimePass(state_machine, 250);
+        LetTimePass(state_machine, 210U);
 
         if (i < 3)
         {
