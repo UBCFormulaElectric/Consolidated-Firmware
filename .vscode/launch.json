@@ -75,7 +75,7 @@
       "name": "Debug Tests: BMS",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/BMS/BMS_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/BMS_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: BMS_test",
       "linux": {
@@ -89,7 +89,7 @@
       "name": "Debug Tests: DCM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DCM/DCM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DCM_test",
       "linux": {
@@ -103,7 +103,7 @@
       "name": "Debug Tests: FSM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/FSM/FSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/FSM/FSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: FSM_test",
       "linux": {
@@ -117,7 +117,7 @@
       "name": "Debug Tests: PDM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/PDM/PDM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/PDM/PDM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: PDM_test",
       "linux": {
@@ -131,7 +131,7 @@
       "name": "Debug Tests: DIM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/DIM/DIM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/DIM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DIM_test",
       "linux": {
@@ -145,7 +145,7 @@
       "name": "Debug Tests: Shared",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/shared/shared_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: shared_test",
       "linux": {
