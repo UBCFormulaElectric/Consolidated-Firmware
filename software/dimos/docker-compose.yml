@@ -2,8 +2,8 @@ version: "3.9"
 services:
   dimos-debug:
     build:
-      context: .
-      dockerfile: Dockerfile.debug
+      context: ../../
+      dockerfile: software/dimos/Dockerfile.debug
     image: dimos-debug:latest
     ports:
       # SSH debug
@@ -36,8 +36,8 @@ services:
   dimos:
     container_name: dimos-container
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: software/dimos/Dockerfile
     image: dimos:latest
     volumes:
       - type: bind

@@ -17,6 +17,9 @@ RUN sed -i 's/sid/bookworm/g' /etc/apt/sources.list.d/debian.sources
 # __deps__
 RUN apt-get -q -y update && \
     apt-get -q -y install \
+    gcc \
+    python3-dev \
+    python3-pip \
     build-essential \
     qmake6 \
     libgl-dev \
@@ -30,14 +33,21 @@ RUN apt-get -q -y update && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
 
-COPY . /app
+COPY software/dimos /app/software/dimos
+COPY can_bus /app/can_bus
+COPY scripts /app/scripts
+COPY CMakeLists.txt /app/CMakeLists.txt
+COPY Pipfile /app/Pipfile
 WORKDIR /app
 
 #RUN qmake6 -o build/Makefile && \
 #    cd build && \
 #    make
 
-RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos
+RUN pip install pipenv --break-system-packages
+RUN pipenv install
+
+RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DHANDLE_DEPS=ON
 RUN cmake --build ./build --target dimos -- -j 14
 
 # Deploy ------------------------------------------------------------------------
