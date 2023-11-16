@@ -15,16 +15,22 @@ typedef struct
 
 #ifdef CANFD
 // STM32 HAL CAN FD handle.
-#define CAN_HANDLE FDCAN_HandleTypeDef
+typedef FDCAN_HandleTypeDef CanHandle;
 #else
 // STM32 HAL CAN handle.
-#define CAN_HANDLE CAN_HandleTypeDef
+typedef CAN_HandleTypeDef CanHandle;
 #endif
 
 /**
- * Config-specific initialization.
+ * Initialize CAN driver.
+ * @param can_handle STM32 HAL CAN handle.
  */
-void hw_can_init(CAN_HANDLE *can_handle);
+void hw_can_init(CanHandle *can_handle);
+
+/**
+ * Stop and deinitialize the CAN peripheral.
+ */
+void hw_can_deinit(void);
 
 /**
  * Transmit a CAN msg on the bus, blocking until completed.

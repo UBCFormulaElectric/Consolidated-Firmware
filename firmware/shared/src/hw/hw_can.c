@@ -29,9 +29,9 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static CAN_HANDLE *handle;
+static CanHandle *handle;
 
-void hw_can_init(CAN_HANDLE *can_handle)
+void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -57,6 +57,12 @@ void hw_can_init(CAN_HANDLE *can_handle)
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle) == HAL_OK);
+}
+
+void hw_can_deinit()
+{
+    assert(HAL_CAN_Stop(handle) == HAL_OK);
+    assert(HAL_CAN_DeInit(handle) == HAL_OK);
 }
 
 bool hw_can_transmit(const CanMsg *msg)
@@ -94,7 +100,7 @@ bool hw_can_transmit(const CanMsg *msg)
 bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 {
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg->data) == HAL_OK)
+    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg->data) != HAL_OK)
     {
         return false;
     }

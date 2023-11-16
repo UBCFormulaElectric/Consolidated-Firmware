@@ -40,9 +40,6 @@ static const osMessageQueueAttr_t rx_queue_attr = {
 void io_can_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
-    assert(can_config->tx_overflow_callback != NULL);
-    assert(can_config->tx_overflow_callback != NULL);
-
     config = can_config;
 
     // Initialize CAN queues.
@@ -54,7 +51,7 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
 {
     static uint32_t tx_overflow_count = 0;
 
-    if (osMessageQueuePut(tx_queue_id, &msg, 0, 0) != osOK)
+    if (osMessageQueuePut(tx_queue_id, msg, 0, 0) != osOK && config->tx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
         config->tx_overflow_callback(++tx_overflow_count);
@@ -72,7 +69,7 @@ void io_can_transmitMsgFromQueue(void)
 void io_can_popRxMsgFromQueue(CanMsg *msg)
 {
     // Pop a message off the RX queue.
-    osMessageQueueGet(rx_queue_id, &msg, NULL, osWaitForever);
+    osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
 }
 
 void io_can_msgReceivedCallback(uint32_t rx_fifo)
@@ -86,7 +83,7 @@ void io_can_msgReceivedCallback(uint32_t rx_fifo)
         return;
     }
 
-    if (config->rx_overflow_callback && !config->rx_msg_filter(rx_msg.std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg.std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
@@ -94,7 +91,7 @@ void io_can_msgReceivedCallback(uint32_t rx_fifo)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(rx_queue_id, &rx_msg, 0, 0) != osOK)
+    if (osMessageQueuePut(rx_queue_id, &rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         config->rx_overflow_callback(++rx_overflow_count);
