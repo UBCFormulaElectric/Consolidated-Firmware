@@ -97,7 +97,7 @@
             "command": "make -j`nproc` h7dev.elf",
             "group": "build",
             "options": {
-                "cwd": "${workspaceFolder}/build_arm"
+                "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
