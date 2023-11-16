@@ -1,1 +1,15 @@
-{}
+{
+	"CommitInfo": {
+		"msg_id": 819,
+		"cycle_time": 100,
+		"description": "Dimos Current Running Commit Info",
+		"signals": {
+			"Hash": {
+				"bits": 32
+			},
+			"Clean": {
+				"bits": 1
+			}
+		}
+	}
+}
