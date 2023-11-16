@@ -18,7 +18,5 @@ Result<CanMsg, CanReadError> Can_Read() {
 
 Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg) {
 	cout << "Can with id " << msg->std_id << " Written" << endl;
-
-	//	free((void *) msg);
 	return std::monostate{};
 }
