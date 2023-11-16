@@ -4,7 +4,7 @@
     {
       "name": "Debug Embedded: BMS",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/BMS/BMS.elf",
+      "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -18,7 +18,7 @@
     {
       "name": "Debug Embedded: DCM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/DCM/DCM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -32,7 +32,7 @@
     {
       "name": "Debug Embedded: FSM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/FSM/FSM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -46,7 +46,7 @@
     {
       "name": "Debug Embedded: PDM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/PDM/PDM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -60,7 +60,7 @@
     {
       "name": "Debug Embedded: DIM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_arm/firmware/thruna/DIM/DIM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -75,7 +75,7 @@
       "name": "Debug Tests: BMS",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/BMS/BMS_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/BMS_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: BMS_test",
       "linux": {
@@ -83,13 +83,13 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: DCM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DCM/DCM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DCM_test",
       "linux": {
@@ -97,13 +97,13 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: FSM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/FSM/FSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/FSM/FSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: FSM_test",
       "linux": {
@@ -111,13 +111,13 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: PDM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/PDM/PDM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/PDM/PDM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: PDM_test",
       "linux": {
@@ -125,13 +125,13 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: DIM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/DIM/DIM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/DIM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DIM_test",
       "linux": {
@@ -139,13 +139,13 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
+      }
     },
     {
       "name": "Debug Tests: Shared",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/shared/shared_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: shared_test",
       "linux": {
@@ -153,7 +153,7 @@
       },
       "osx": {
         "MIMode": "lldb"
-      },
-    },
+      }
+    }
   ]
 }

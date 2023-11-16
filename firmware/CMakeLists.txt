@@ -2,39 +2,8 @@ include(cmake/embedded.cmake)
 include(cmake/tests.cmake)
 include(cmake/shared.cmake)
 
-# ======== Host system specific settings ========
-IF ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-    set(BINARY_SUFFIX ".exe")
-ELSEIF (APPLE)
-    set(BINARY_SUFFIX "")
-ELSEIF ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
-    set(BINARY_SUFFIX "")
-ELSEIF (UNIX)
-    set(BINARY_SUFFIX "")
-ELSE ()
-    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
-ENDIF ()
-
-# ======== Dependency Handling ========
-IF (HANDLE_DEPS)
-    include(cmake/dependencies.cmake)
-ENDIF()
-
-# ======== Compiler ========
-IF ("${PLATFORM}" STREQUAL "arm")
-    set(CMAKE_C_COMPILER_WORKS 1)
-    set(TOOLCHAIN_PREFIX ${TOOLCHAIN_PREFIX}arm-none-eabi)
-    set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
-    set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++${BINARY_SUFFIX})
-    set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}-gcc${BINARY_SUFFIX})
-    set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy${BINARY_SUFFIX})
-    set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump${BINARY_SUFFIX})
-    set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
-    message("✅ ARM Toolchain Included")
-ENDIF ()
-
 # ======== Libraries ========
-if("${PLATFORM}" STREQUAL "arm")
+if("${TARGET}" STREQUAL "deploy")
     add_compile_definitions(TARGET_EMBEDDED)
 
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
@@ -61,10 +30,10 @@ if("${PLATFORM}" STREQUAL "arm")
         "cm4"
         TRUE
     )
-elseif("${PLATFORM}" STREQUAL "x86")
+elseif("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
 
-    # We assume this cmake is running on a x86 platform, so the
+    # We assume this cmake is running on a x86 TARGET, so the
     # *default compiler* settings should be fine
 
     # If compiling on x86, fetch GoogleTest for unit testing.
@@ -83,6 +52,8 @@ elseif("${PLATFORM}" STREQUAL "x86")
     enable_testing()
     message("✅ GTest Included")
 endif()
+
+
 
 add_subdirectory(third_party)
 add_subdirectory(shared)

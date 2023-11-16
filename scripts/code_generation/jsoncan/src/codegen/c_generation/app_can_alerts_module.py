@@ -27,7 +27,9 @@ class AppCanAlertsModule(CModule):
                 comment=f"Set or clear an alert for this board.",
             )
             func.body.add_comment("Increment alert counter.")
-            func.body.start_if(f"set_alert && !{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()")
+            func.body.start_if(
+                f"set_alert && !{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()"
+            )
             func.body.add_line(
                 f"{CFuncsConfig.APP_TX_SET_SIGNAL.format(signal=f'{alert}Count')}({CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=f'{alert}Count')}() + 1);"
             )
