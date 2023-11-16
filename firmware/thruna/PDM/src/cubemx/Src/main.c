@@ -29,7 +29,6 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedHardFaultHandler.h"
 #include "io_stackWaterMark.h"
 #include "io_watchdogConfig.h"
 #include "Io_SharedHeartbeatMonitor.h"
@@ -344,8 +343,6 @@ int main(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hcan1);
 
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
-    Io_SharedHardFaultHandler_Init();
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
