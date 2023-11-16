@@ -9,10 +9,5 @@
 	],
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": true,
-	"files.associations": {
-		"*.llc_repl": "cpp",
-		"*.ld": "mapfile",
-		"hw_hal.h": "c"
-	}
+	"cmake.configureOnOpen": true
 }
