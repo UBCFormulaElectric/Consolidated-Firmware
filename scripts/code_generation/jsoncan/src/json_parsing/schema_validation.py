@@ -69,6 +69,7 @@ tx_msg_schema = Schema(
         Optional("num_bytes"): Or(int, lambda x: x >= 0 and x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): [str],
+        Optional("dbc_only"): bool,
     }
 )
 

@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_sd.h"
+#include "hw_bootup.h"
 #include "lfs.h"
 #define LFS_NO_MALLOC
 #define LFS_CACHE_SIZE 16
@@ -64,7 +65,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -143,7 +143,8 @@ lfs_file_t file;
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/

@@ -38,45 +38,45 @@
             },
         },
         {
-            "label": "Build: BMS.elf",
+            "label": "Build: BMS",
             "type": "shell",
-            "command": "make -j`nproc` BMS.elf",
+            "command": "make -j`nproc` BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DCM.elf",
+            "label": "Build: DCM",
             "type": "shell",
-            "command": "make -j`nproc` DCM.elf",
+            "command": "make -j`nproc` DCM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: FSM.elf",
+            "label": "Build: FSM",
             "type": "shell",
-            "command": "make -j`nproc` FSM.elf",
+            "command": "make -j`nproc` FSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: PDM.elf",
+            "label": "Build: PDM",
             "type": "shell",
-            "command": "make -j`nproc` PDM.elf",
+            "command": "make -j`nproc` PDM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DIM.elf",
+            "label": "Build: DIM",
             "type": "shell",
-            "command": "make -j`nproc` DIM.elf",
+            "command": "make -j`nproc` DIM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"

@@ -58,5 +58,10 @@
 		"RANGE_CHECK_OK": 0,
 		"RANGE_CHECK_UNDERFLOW": 1,
 		"RANGE_CHECK_OVERFLOW": 2
-	}
+	},
+    "BootStatus": {
+        "BOOT_STATUS_NO_APP": 0,
+        "BOOT_STATUS_APP_INVALID": 1,
+        "BOOT_STATUS_APP_VALID": 2
+    }
 }

@@ -1,0 +1,52 @@
+{
+    "BMS": {
+        "msg_id": 1109,
+        "cycle_time": 100,
+        "dbc_only": true,
+        "signals": {
+            "BMS_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "DCM": {
+        "msg_id": 1119,
+        "cycle_time": 100,
+        "dbc_only": true,
+        "signals": {
+            "DCM_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "FSM": {
+        "msg_id": 1129,
+        "cycle_time": 100,
+        "dbc_only": true,
+        "signals": {
+            "FSM_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "PDM": {
+        "msg_id": 1139,
+        "cycle_time": 100,
+        "dbc_only": true,
+        "signals": {
+            "PDM_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "DIM": {
+        "msg_id": 1149,
+        "cycle_time": 100,
+        "dbc_only": true,
+        "signals": {
+            "DIM_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    }
+}
