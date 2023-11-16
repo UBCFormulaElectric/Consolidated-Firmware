@@ -83,7 +83,6 @@ void io_apps_init(void)
 
 float io_apps_getPrimary(void)
 {
-    // Length calculated via voltage
     float pedal_voltage = hw_adc_getVoltage(ADC1_CHANNEL_2);
 
     // Length calculated via voltage reading from PAPPS
@@ -113,7 +112,6 @@ bool io_apps_isPrimaryOCSC(void)
 
 float io_apps_getSecondary(void)
 {
-    // Length calculated via voltage
     float pedal_voltage = hw_adc_getVoltage(ADC1_CHANNEL_1);
 
     // length calc from SAPPS voltage reading
