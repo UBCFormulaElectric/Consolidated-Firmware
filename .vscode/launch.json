@@ -79,7 +79,7 @@
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
-        "tools/openocd/stm32f7x.cfg"
+        "tools/openocd/stm32h7x.cfg"
       ],
       "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
