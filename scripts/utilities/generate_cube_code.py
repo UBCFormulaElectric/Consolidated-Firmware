@@ -6,9 +6,6 @@ import sys
 import os
 import subprocess
 import argparse
-import can
-
-from supported_boards import get_board_names
 
 CUBE_SCRIPT = """\
 ###############################################################################
@@ -96,10 +93,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
-    supported_boards = get_board_names()
-    parser.add_argument(
-        "--board", help="Choose one of the following: " + " ".join(supported_boards)
-    )
+    parser.add_argument("--board", help="The board to generate STM32CubeMX code for")
     parser.add_argument(
         "--log4j_properties_output", help="Path to output file storing log4j properties"
     )
@@ -107,8 +101,6 @@ if __name__ == "__main__":
     parser.add_argument("--codegen_output_dir", help="Code generation output folder")
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
     args = parser.parse_args()
-    if args.board not in supported_boards:
-        raise AttributeError("Error: Invalid board name. Valid options: " + " ".join(supported_boards))
 
     generate_cubemx_code(
         args.board,
