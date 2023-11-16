@@ -25,11 +25,13 @@ class IoCanTxModule(CModule):
         func_init = CFunc(
             CFuncsConfig.IO_TX_INIT,
             "void",
-            args=[CVar(
-                "(*transmit_tx_msg_func)(const struct CanMsg*)",
-                "void",
-            )],
-            comment="Initialzie the IO CAN TX module."
+            args=[
+                CVar(
+                    "(*transmit_tx_msg_func)(const CanMsg*)",
+                    "void",
+                )
+            ],
+            comment="Initialzie the IO CAN TX module.",
         )
         func_init.body.add_line("transmit_func = transmit_tx_msg_func;")
         public_funcs.append(func_init)
@@ -149,7 +151,6 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-        cw.add_include('"Io_SharedCanMsg.h"')
 
         cw.add_line()
         cw.add_header_comment("Structs")
@@ -211,11 +212,7 @@ class IoCanTxModule(CModule):
         cw.add_header_comment("Static Variables")
         cw.add_line()
         cw.add_line("static uint32_t can_mode;")
-<<<<<<< HEAD
         cw.add_line("static void (*transmit_func)(const CanMsg* tx_msg);")
-=======
-        cw.add_line("static void (*transmit_func)(const struct CanMsg* tx_msg);")
->>>>>>> 59e1d0b4 (Platform Independent JSONCAN (#1058))
         cw.add_line()
 
         # Add static function definitions
