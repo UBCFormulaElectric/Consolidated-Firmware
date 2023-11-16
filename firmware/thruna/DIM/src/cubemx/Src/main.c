@@ -346,7 +346,7 @@ int main(void)
     SEGGER_SYSVIEW_Conf();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can_config);
+    hw_can_init(&hcan1);
 
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_CanTx_Init(io_can_pushTxMsgToQueue);

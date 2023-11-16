@@ -35,7 +35,6 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "hw_hardFaultHandler.h"
-#include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Coolant.h"
@@ -257,7 +256,7 @@ int main(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can_config);
+    hw_can_init(&hcan1);
 
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_CanTx_Init(io_can_pushTxMsgToQueue);
