@@ -29,6 +29,20 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct SocStats *   soc_stats   = App_BmsWorld_GetSocStats(world);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+
+    // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
+    if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
+    {
+        App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+    }
+    else if (App_CanRx_Debug_ResetSoc_CustomEnable_Get())
+    {
+        App_Soc_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_CustomVal_Get());
+    }
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)

@@ -114,14 +114,18 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
+
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
         App_InverterOnState_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -193,6 +197,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -249,6 +254,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
         struct Clock *   clock = App_BmsWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
     void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
@@ -270,6 +276,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
@@ -940,6 +947,87 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
         }
     }
+}
+
+TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
+{
+    is_air_negative_closed_fake.return_val = true;
+    is_air_positive_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = 0.0f;
+    get_high_res_current_fake.return_val   = 0.0f;
+    soc_stats->prev_current_A              = 0.0f;
+
+    float soc = App_SocStats_GetMinSocPercent(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 100.0f);
+
+    // Allow Timer time to initialize before drawing current
+    SetInitialState(App_GetDriveState());
+    LetTimePass(state_machine, 10);
+
+    /* Simulate drawing current.
+     * Constant current over 30s span for 1% drop in SOC (0.01)
+     * 0.01 = I * dt / (SERIES_ELEMENT_FULL_CHARGE_C)
+     *
+     * dt = 30s
+     *
+     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells * STATE_OF_HEALTH
+     *
+     * current (I) = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30
+     */
+
+    float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
+
+    is_air_negative_closed_fake.return_val = true;
+    is_air_positive_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = current;
+    get_high_res_current_fake.return_val   = current;
+    soc_stats->prev_current_A              = current;
+
+    LetTimePass(state_machine, 30000);
+
+    soc = App_SocStats_GetMinSocPercent(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 99.0f);
+}
+
+TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
+{
+    // Check that soc saturates at 5.0% lower bound
+    float test_voltage = 0.0f;
+    float soc          = App_Soc_GetSocFromOcv(test_voltage);
+    float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+
+    // Check middle of the range
+    test_voltage = 4.0f;
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
+    expected_soc = 81.5f;
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+
+    // Check that SOC saturates at 100.0%
+    test_voltage = 5.0f;
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
+    expected_soc = 100.0;
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+}
+
+TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
+{
+    float test_soc     = 0.0f;
+    float ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+
+    // Check middle of the range
+    test_soc     = 68.5f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+
+    // Check that voltage saturates at value associated with 100.0% soc
+    test_soc     = 101.0f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
 }
 
 } // namespace StateMachineTest

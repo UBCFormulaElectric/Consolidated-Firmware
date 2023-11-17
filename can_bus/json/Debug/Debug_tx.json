@@ -52,5 +52,24 @@
                 "unit": "%"
             }
         }
+    },
+    "ResetSoc": {
+        "msg_id": 704,
+        "cycle_time": 100,
+        "description": "Value set by user to set SOC based on min cell voltage.",
+        "signals": {
+            "ResetSoc_MinCellV": {
+                "bits": 1
+            },
+            "ResetSoc_CustomEnable": {
+                "bits": 1
+            },
+            "ResetSoc_CustomVal": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
     }
 }
