@@ -11,8 +11,4 @@
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
 	"cortex-debug.variableUseNaturalFormat": false
-	"files.associations": {
-		"app_timer.h": "c",
-		"app_sharedstatemachine.h": "c"
-	}
 }
