@@ -40,7 +40,7 @@
 #include "Io_CanRx.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
-#include "Io_SharedHardFaultHandler.h"
+#include "hw_hardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
 
 #include "io_time.h"
@@ -348,7 +348,7 @@ int main(void)
 
     SEGGER_SYSVIEW_Conf();
 
-    Io_SharedHardFaultHandler_Init();
+    hw_hardFaultHandler_init();
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);

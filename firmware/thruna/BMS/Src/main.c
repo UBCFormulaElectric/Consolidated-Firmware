@@ -29,7 +29,7 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedHardFaultHandler.h"
+#include "hw_hardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Imd.h"
@@ -58,9 +58,8 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-
 #include "App_CommitInfo.h"
-
+#include "App_Timer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -268,7 +267,7 @@ int main(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);
 
-    Io_SharedHardFaultHandler_Init();
+    hw_hardFaultHandler_init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
@@ -1075,6 +1074,7 @@ void RunTask1kHz(void *argument)
 
         App_Timer_SetCurrentTimeMS(task_start_ms);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the

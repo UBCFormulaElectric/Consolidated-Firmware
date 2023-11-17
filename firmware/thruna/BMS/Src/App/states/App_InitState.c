@@ -1,9 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "states/App_BalancingState.h"
-#include "states/App_DriveState.h"
-#include "states/App_PreChargeState.h"
-
+#include "states/App_InverterOnState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
@@ -67,7 +65,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             // if charger disconnected, proceed directly to precharge state
             if (precharge_for_charging || (!is_charger_connected && !cell_balancing_enabled))
             {
-                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+                App_SharedStateMachine_SetNextState(state_machine, App_GetInverterOnState());
             }
             else if (cell_balancing_enabled)
             {
