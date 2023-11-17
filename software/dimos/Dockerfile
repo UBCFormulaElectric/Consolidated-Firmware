@@ -33,22 +33,22 @@ RUN apt-get -q -y update && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
 
+COPY Pipfile /app/Pipfile
+WORKDIR /app
+RUN pip install pipenv --break-system-packages
+RUN pipenv install
+
 COPY software/dimos /app/software/dimos
 COPY can_bus /app/can_bus
 COPY scripts /app/scripts
 COPY CMakeLists.txt /app/CMakeLists.txt
-COPY Pipfile /app/Pipfile
-WORKDIR /app
 
 #RUN qmake6 -o build/Makefile && \
 #    cd build && \
 #    make
 
-RUN pip install pipenv --break-system-packages
-RUN pipenv install
-
-RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DHANDLE_DEPS=ON
-RUN cmake --build ./build --target dimos -- -j 14
+RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DHANDLE_DEPS=ON && \
+    cmake --build ./build --target dimos -- -j 14
 
 # Deploy ------------------------------------------------------------------------
 ##
