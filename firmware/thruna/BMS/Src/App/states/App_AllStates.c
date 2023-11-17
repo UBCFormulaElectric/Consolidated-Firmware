@@ -5,13 +5,16 @@
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
+#include "App_Soc.h"
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
-#define NUM_CYCLES_TO_SETTLE (30U)
+// TODO: Investigate why this needs to be increased, move inside accumulator so that fault is not broadcast if
+// false-positive
+#define NUM_CYCLES_TO_SETTLE (100U)
 
 static uint8_t acc_meas_settle_count = 0U;
 
@@ -92,7 +95,7 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
     App_CanTx_BMS_AvailablePower_Set(available_power);
 }
 
-void App_AllStates_Init()
+void App_AllStates_Init(void)
 {
     // Reset accumulator settle count
     acc_meas_settle_count = 0U;
@@ -103,10 +106,30 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
     struct RgbLedSequence *rgb_led_sequence = App_BmsWorld_GetRgbLedSequence(world);
     struct Charger *       charger          = App_BmsWorld_GetCharger(world);
+    struct Eeprom *        eeprom           = App_BmsWorld_GetEeprom(world);
+    struct SocStats *      soc_stats        = App_BmsWorld_GetSocStats(world);
+    struct Accumulator *   accumulator      = App_BmsWorld_GetAccumulator(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
+
+    const float    min_soc  = App_SocStats_GetMinSocCoulombs(soc_stats);
+    const uint16_t soc_addr = App_SocStats_GetSocAddress(soc_stats);
+
+    // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
+    if (min_soc < 0)
+    {
+        if (acc_meas_settle_count >= NUM_CYCLES_TO_SETTLE)
+        {
+            App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+        }
+    }
+    else
+    {
+        App_Eeprom_WriteMinSoc(eeprom, min_soc, soc_addr);
+    }
+
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
 }
 
@@ -119,6 +142,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *        bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Airs *            airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *     accumulator = App_BmsWorld_GetAccumulator(world);
+    struct SocStats *        soc_stats   = App_BmsWorld_GetSocStats(world);
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
@@ -137,6 +161,13 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
     App_Accumulator_BroadcastLatchedFaults(accumulator);
 
+    if (App_Airs_IsAirNegativeClosed(airs) == CONTACTOR_STATE_CLOSED &&
+        App_Airs_IsAirPositiveClosed(airs) == CONTACTOR_STATE_CLOSED)
+    {
+        App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
+    }
+
+    App_CanTx_BMS_Soc_Set(App_SocStats_GetMinSocPercent(soc_stats));
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystemCurrent_Set(App_TractiveSystem_GetCurrent(ts));

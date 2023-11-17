@@ -106,13 +106,17 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
+
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -164,6 +168,7 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -211,6 +216,7 @@ class BmsFaultTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;

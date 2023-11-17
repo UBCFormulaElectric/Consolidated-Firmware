@@ -14,6 +14,7 @@
 #include "App_TractiveSystem.h"
 #include "App_SharedClock.h"
 #include "App_Eeprom.h"
+#include "App_Soc.h"
 
 struct BmsWorld;
 
@@ -35,6 +36,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *        imd_ok,
     struct OkStatus *        bspd_ok,
     struct Accumulator *     accumulator,
+    struct SocStats *const   soc_stats,
     struct Airs *            airs,
     struct PrechargeRelay *  precharge_relay,
     struct TractiveSystem *  tractive_system,
@@ -102,6 +104,13 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
  * @return The accumulator for the given world
  */
 struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
+
+/**
+ * Get the soc_stats for the given world
+ * @param world The world to get the accumulator for
+ * @return The accumulator for the given world
+ */
+struct SocStats *App_BmsWorld_GetSocStats(const struct BmsWorld *const world);
 
 /**
  * Get the AIRs for the given world
