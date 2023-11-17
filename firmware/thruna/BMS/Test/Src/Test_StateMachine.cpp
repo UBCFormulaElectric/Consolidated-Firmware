@@ -121,6 +121,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+        App_InverterOnState_Init();
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -300,6 +301,26 @@ TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
     EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_State_Get());
+}
+
+TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetInverterOnState());
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_State_Get());
+}
+
+TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
+{
+    is_charger_connected_fake.return_val   = false;
+    get_ts_voltage_fake.return_val         = 2.0f;
+    is_air_negative_closed_fake.return_val = true;
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, 200);
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_State_Get()) << "Expected state: BMS_INVERTER_STATE";
+
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_State_Get()) << "Expected state: BMS_PRECHARGE_STATE";
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -637,7 +658,7 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
 
     App_CanRx_Debug_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 210U);
 
     ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -657,11 +678,11 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     App_CanRx_Debug_StartCharging_Update(true);
 
     // Allow BMS time to go through Init state
-    LetTimePass(state_machine, 20);
+    LetTimePass(state_machine, 210U);
     get_ts_voltage_fake.return_val = 400;
 
     // Pause for slightly longer to allow pre-charge
-    LetTimePass(state_machine, 50);
+    LetTimePass(state_machine, 210U);
 
     printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -874,19 +895,19 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(state_machine, 10);
+            LetTimePass(state_machine, 210U);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
             // Let precharge duration elapse, confirm still in precharge state and AIR+ open
-            LetTimePass(state_machine, test_params[i].precharge_duration - 10);
+            LetTimePass(state_machine, test_params[i].precharge_duration);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
-            LetTimePass(state_machine, 10);
 
+            LetTimePass(state_machine, 10);
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive

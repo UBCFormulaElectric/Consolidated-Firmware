@@ -58,9 +58,8 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-
 #include "App_CommitInfo.h"
-
+#include "App_Timer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -1071,6 +1070,7 @@ void RunTask1kHz(void *argument)
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
