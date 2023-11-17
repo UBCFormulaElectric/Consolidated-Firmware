@@ -14,7 +14,6 @@ class SignalUtil:
             try:
                 self.df = pd.read_csv(MOCK_DATA_PATH)
                 self.df = self.df.set_index("date_time")
-                print(self.df.head())
             except:
                 print("Error reading mock data file")
         else:
