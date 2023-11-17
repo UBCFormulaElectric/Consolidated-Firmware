@@ -35,7 +35,7 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedHardFaultHandler.h"
+#include "hw_hardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Coolant.h"
@@ -248,7 +248,7 @@ int main(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
-    Io_SharedHardFaultHandler_Init();
+    hw_hardFaultHandler_init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);

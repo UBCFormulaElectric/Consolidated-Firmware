@@ -9,6 +9,15 @@
             },
             "State": {
                 "enum": "BmsState"
+            },
+            "Soc": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "SocCorrupt": {
+                "bits": 1
             }
         }
     },

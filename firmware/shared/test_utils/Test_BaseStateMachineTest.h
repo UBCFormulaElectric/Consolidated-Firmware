@@ -6,6 +6,7 @@ extern "C"
 {
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
+#include "App_Timer.h"
 }
 
 class BaseStateMachineTest : public testing::Test
@@ -69,6 +70,8 @@ class BaseStateMachineTest : public testing::Test
 
             UpdateSignals(state_machine, current_time_ms);
             UpdateClock(state_machine, current_time_ms);
+            App_Timer_SetCurrentTimeMS(current_time_ms);
+
             current_time_ms++;
         }
     }

@@ -16,4 +16,5 @@ extern "C"
 #include "states/App_ChargeState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
+#include "states/App_InverterOnState.h"
 }

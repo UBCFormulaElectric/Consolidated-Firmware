@@ -29,7 +29,7 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedHardFaultHandler.h"
+#include "hw_hardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Imd.h"
@@ -58,9 +58,8 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-
 #include "App_CommitInfo.h"
-
+#include "App_Timer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -170,6 +169,7 @@ struct Charger *         charger;
 struct OkStatus *        bms_ok;
 struct OkStatus *        imd_ok;
 struct OkStatus *        bspd_ok;
+struct SocStats *        soc_stats;
 struct Accumulator *     accumulator;
 struct CellMonitors *    cell_monitors;
 struct Airs *            airs;
@@ -267,7 +267,7 @@ int main(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);
 
-    Io_SharedHardFaultHandler_Init();
+    hw_hardFaultHandler_init();
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
@@ -312,15 +312,17 @@ int main(void)
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
+    eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
+
+    soc_stats = App_SocStats_Create(eeprom, accumulator);
+
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
     clock = App_SharedClock_Create();
 
-    eeprom = App_Eeprom_Create(Io_Eeprom_WritePage, Io_Eeprom_ReadPage, Io_Eeprom_PageErase);
-
     world = App_BmsWorld_Create(
-        imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
-        ts, clock, eeprom);
+        imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
+        precharge_relay, ts, clock, eeprom);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();
@@ -1070,7 +1072,9 @@ void RunTask1kHz(void *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the

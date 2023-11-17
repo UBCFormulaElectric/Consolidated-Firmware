@@ -1,9 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "states/App_BalancingState.h"
-#include "states/App_DriveState.h"
-#include "states/App_PreChargeState.h"
-
+#include "states/App_InverterOnState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
@@ -31,6 +29,20 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct SocStats *   soc_stats   = App_BmsWorld_GetSocStats(world);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+
+    // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
+    if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
+    {
+        App_Soc_ResetSocFromVoltage(soc_stats, accumulator);
+    }
+    else if (App_CanRx_Debug_ResetSoc_CustomEnable_Get())
+    {
+        App_Soc_ResetSocCustomValue(soc_stats, App_CanRx_Debug_ResetSoc_CustomVal_Get());
+    }
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -53,7 +65,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             // if charger disconnected, proceed directly to precharge state
             if (precharge_for_charging || (!is_charger_connected && !cell_balancing_enabled))
             {
-                App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+                App_SharedStateMachine_SetNextState(state_machine, App_GetInverterOnState());
             }
             else if (cell_balancing_enabled)
             {

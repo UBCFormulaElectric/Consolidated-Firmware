@@ -18,6 +18,15 @@ public:
 
 private:
 	std::unique_ptr<Ui::MainWindow> ui;
+
+	[[noreturn]] static void CanRXTask();
+
+	[[noreturn]] static void CanPeriodicTXTask();
+
+	QTimer tx100Hz{};
+	QTimer tx1Hz{};
+	QThread *CanRxTaskThread;
+	QThread *CanTxPeriodicTaskThread;
 };
 
 #endif // MAINWINDOW_H

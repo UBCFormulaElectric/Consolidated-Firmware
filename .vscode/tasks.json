@@ -92,6 +92,15 @@
             }
         },
         {
+            "label": "Build: h7dev.elf",
+            "type": "shell",
+            "command": "make -j`nproc` h7dev.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
             "label": "Build: BMS_test",
             "type": "shell",
             "command": "make -j`nproc` BMS_test",
@@ -166,7 +175,7 @@
         {
             "label": "Launch: STM32CubeMX",
             "type": "shell",
-            "command": "java -jar STM32CubeMX",
+            "command": "./STM32CubeMX",
             "group": "build",
             "linux": {
                 "options": {
