@@ -108,11 +108,7 @@ class FsmFaultTest : public BaseStateMachineTest
         TearDownObject(wheels, App_Wheels_Destroy);
     }
 
-    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
-    {
-        UNUSED(state_machine);
-        App_Timer_SetCurrentTimeMS(current_time_ms);
-    }
+    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override { UNUSED(state_machine); }
 
     void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
