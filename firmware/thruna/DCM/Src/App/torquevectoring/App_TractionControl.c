@@ -7,6 +7,8 @@
 void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)
 {
     PID *pid = inputs->pid;
+    torque_left = inputs->torque_left_Nm;
+    torque_right = inputs->torque_right_Nm;
 
     float wheel_speed_front_left_rpm  = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
     float wheel_speed_front_right_rpm = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
@@ -16,7 +18,8 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
         App_TractionControl_ComputeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
 
     float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = App_PID_Compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    
+    float k              = App_PID_Compute(pid, (1.0 + SLIP_RATIO_IDEAL) * (wheel_speed_front_left_rpm + wheel_speed_front_right_rpm) / 2, (wheel_speed_front_left_rpm + wheel_speed_front_right_rpm) / 2);
 
     // Send debug messages over CAN
     App_CanTx_DCM_SlipRatioLeft_Set(slip_ratio_left);

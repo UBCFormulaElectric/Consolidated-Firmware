@@ -86,8 +86,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     power_limiting_inputs.right_motor_temp_C         = right_motor_temp_C;
     power_limiting_inputs.available_battery_power_kW = POWER_LIMIT_CAR_kW;
     power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
-    float estimated_power_limit;
-    estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
+    float estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
     // Power limit correction
     float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
