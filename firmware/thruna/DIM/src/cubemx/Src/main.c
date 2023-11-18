@@ -166,10 +166,6 @@ static const Switch start_switch = {
     },
     .closed_state = true,
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> dcd549b1 (temp)
 static const Switch aux_switch = {
     .gpio = {
         .port = AUX_IN_GPIO_Port,
@@ -177,11 +173,6 @@ static const Switch aux_switch = {
     },
     .closed_state = true,
 };
-<<<<<<< HEAD
-=======
-
-// TODO: Declare Start Switch Struct
->>>>>>> dcd549b1 (temp)
 
 static const RgbLed bms_status_led = {
     .red_gpio = {
