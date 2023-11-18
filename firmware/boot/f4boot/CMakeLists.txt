@@ -16,7 +16,7 @@ list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c")
 list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/io" "${SHARED_IO_INCLUDE_DIR}")
 
-file(GLOB_RECURSE HW_SRCS
+file(GLOB HW_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c"
     "${BOOT_DIR}/*.c"
 )
@@ -80,7 +80,7 @@ if("${TARGET}" STREQUAL "deploy")
     stm32f4rx_bootloader("BMS_boot" "BMS" "")
     stm32f4rx_bootloader("DCM_boot" "DCM" "")
     stm32f4rx_bootloader("FSM_boot" "FSM" "")
-    stm32f4rx_bootloader("PDM_boot" "PDM" "${CMAKE_CURRENT_SOURCE_DIR}/PDM/boot_PDM.c")
+    stm32f4rx_bootloader("PDM_boot" "PDM" "${CMAKE_CURRENT_SOURCE_DIR}/boot_PDM.c")
     stm32f4rx_bootloader("DIM_boot" "DIM" "")
     stm32f4rx_bootloader("f4dev_boot" "f4dev" "")
 endif()

@@ -37,9 +37,9 @@ typedef struct
 
 typedef enum
 {
-    BOOT_STATUS_NO_APP,
+    BOOT_STATUS_APP_VALID,
     BOOT_STATUS_APP_INVALID,
-    BOOT_STATUS_APP_VALID
+    BOOT_STATUS_NO_APP
 } BootStatus;
 
 static void canRxOverflow(uint32_t unused)
