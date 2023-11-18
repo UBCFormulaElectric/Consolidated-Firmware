@@ -89,7 +89,7 @@
       "name": "Debug Tests: DCM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_x86/firmware/thruna/DCM/DCM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DCM/DCM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DCM_test",
       "linux": {

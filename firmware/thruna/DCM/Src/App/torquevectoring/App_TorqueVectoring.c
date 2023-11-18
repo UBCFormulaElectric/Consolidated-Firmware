@@ -90,7 +90,7 @@ void App_TorqueVectoring_HandleAcceleration(void)
     estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 
     // Power limit correction
-    float power_limit       = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
