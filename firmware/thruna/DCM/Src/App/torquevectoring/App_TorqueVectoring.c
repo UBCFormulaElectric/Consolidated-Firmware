@@ -113,8 +113,8 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    torque_left_final_Nm  = traction_control_outputs.torque_left_Nm;
-    torque_right_final_Nm = traction_control_outputs.torque_right_Nm;
+    torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
+    torque_right_final_Nm = traction_control_outputs.torque_right_final_Nm;
 
     // Limit asymptotic torques at zero speed
     if (motor_speed_left_rpm < MOTOR_NOT_SPINNING_SPEED_RPM || motor_speed_right_rpm < MOTOR_NOT_SPINNING_SPEED_RPM)
