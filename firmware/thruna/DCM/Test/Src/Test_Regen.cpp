@@ -58,7 +58,7 @@ TEST_F(TestRegen, battery_over_temp_torque_request)
     App_CanRx_BMS_MaxCellTemperature_Update(47);
 
     // make motor speed in range
-    App_CanRx_INVR_MotorSpeed_Update(MOTOR_KMH_TO_RPM(15.0f));
+    App_CanRx_INVR_MotorSpeed_Update(-MOTOR_KMH_TO_RPM(15.0f));
     App_CanRx_INVL_MotorSpeed_Update(MOTOR_KMH_TO_RPM(15.0f));
 
     // make battery not full
@@ -128,7 +128,7 @@ TEST_F(TestRegen, battery_full_torque_request)
 
 TEST_F(TestRegen, regular_active_differential_torque_request)
 {
-    static float prev_torque_request = -5.0f;
+    static float prev_torque_request = -10.0f;
     float        pedal_percentage    = -50.0f;
     float        steering_angle      = 21.0f;
 
@@ -168,51 +168,52 @@ TEST_F(TestRegen, regular_active_differential_torque_request)
     ASSERT_FLOAT_EQ(expected_right_torque, actual_torque_right_nM);
 }
 
-// // tapers torque request due to being too close to a full battery
-// TEST_F(TestRegen, limit_change_in_torque)
-// {
-//   static float prev_torque_request = -5.0f;
-//   float        pedal_percentage    = -65.0f;
-//   float steering_angle      = -15.0f;
+// tapers torque request due to being too close to a full battery
+TEST_F(TestRegen, limit_change_in_torque)
+{
+  static float prev_torque_request = -5.0f;
+  float        pedal_percentage    = -65.0f;
+  float steering_angle      = -15.0f;
 
-//   // set torque to prev_torque_request first
-//   App_CanTx_DCM_RightInverterTorqueCommand_Set(prev_torque_request);
-//   App_CanTx_DCM_LeftInverterTorqueCommand_Set(prev_torque_request);
+  // set torque to prev_torque_request first
+  App_CanTx_DCM_RightInverterTorqueCommand_Set(prev_torque_request);
+  App_CanTx_DCM_LeftInverterTorqueCommand_Set(prev_torque_request);
 
-//   // set steering wheel angle
-//   App_CanRx_FSM_SteeringAngle_Update(steering_angle);
+  // set steering wheel angle
+  App_CanRx_FSM_SteeringAngle_Update(steering_angle);
 
-//   // make motor speed in range
-//   App_CanRx_INVR_MotorSpeed_Update(MOTOR_KMH_TO_RPM(30.0f));
-//   App_CanRx_INVL_MotorSpeed_Update(MOTOR_KMH_TO_RPM(30.0f));
+  // make motor speed in range
+  App_CanRx_INVR_MotorSpeed_Update(MOTOR_KMH_TO_RPM(-30.0f));
+  App_CanRx_INVL_MotorSpeed_Update(MOTOR_KMH_TO_RPM(30.0f));
 
-//   // make battery in temp range
-//   App_CanRx_BMS_MaxCellTemperature_Update(40);
+  // make battery in temp range
+  App_CanRx_BMS_MaxCellTemperature_Update(40);
 
-//   // make battery not full
-//   App_CanRx_BMS_MaxCellVoltage_Update(3.8f);
+  // make battery not full
+  App_CanRx_BMS_MaxCellVoltage_Update(3.8f);
 
-//   float torque_request      = MAX_REGEN_nm * pedal_percentage / MAX_PEDAL_POSITION;
-//   float torqueChange = torque_request - prev_torque_request;
-//   torque_request = prev_torque_request + (torqueChange) / (float)(fabs(torqueChange)) * MAX_TORQUE_CHANGE;
+  float torque_request      = MAX_REGEN_nm * pedal_percentage / MAX_PEDAL_POSITION;
+  float torqueChange = torque_request - prev_torque_request;
+  torque_request = prev_torque_request + SIGN(torqueChange) * MAX_TORQUE_CHANGE;
 
-//   App_Run_Regen(&prev_torque_request, pedal_percentage);
+  App_Run_Regen(&prev_torque_request, pedal_percentage);
 
-//   // make sure RegenNotAvailable alert occurs
-//   bool  alert                      = App_CanAlerts_DCM_Warning_RegenNotAvailable_Get();
-//   float expected_delta                = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle *
-//   APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm); float expected_left_torque_request  = torque_request * (1 +
-//   expected_delta); float expected_right_torque_request = torque_request * (1 - expected_delta);
+  // make sure RegenNotAvailable alert occurs
+  bool  alert                      = App_CanAlerts_DCM_Warning_RegenNotAvailable_Get();
+  float expected_delta                = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm); 
+  float expected_left_torque_request  = torque_request * (1 + expected_delta);
+  float expected_right_torque_request = torque_request * (1 - expected_delta);
 
-//   ASSERT_TRUE(alert == false);
-//   ASSERT_FLOAT_EQ(torque_request, prev_torque_request);
-//   ASSERT_FLOAT_EQ(expected_left_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
-//   ASSERT_FLOAT_EQ(expected_right_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
-// }
+  ASSERT_TRUE(alert == false);
+  ASSERT_FLOAT_EQ(torque_request, prev_torque_request);
+  ASSERT_FLOAT_EQ(expected_left_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+  ASSERT_FLOAT_EQ(expected_right_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
+}
+
 // tapers torque request due to being too close to a full battery
 TEST_F(TestRegen, taper_torque_request)
 {
-    static float prev_torque_request = -5.0f;
+    static float prev_torque_request = -10.0f;
     float        pedal_percentage    = -50.0f;
     float        steering_angle      = 21.0f;
 
@@ -271,4 +272,45 @@ TEST_F(TestRegen, active_differential_exceeds_max)
 
     ASSERT_FLOAT_EQ(expected_left_torque_request * scale, regenAttributes.left_inverter_torque_Nm);
     ASSERT_FLOAT_EQ(expected_right_torque_request * scale, regenAttributes.right_inverter_torque_Nm);
+}
+
+// tapers torque request due to being too close to a full battery
+TEST_F(TestRegen, taper_torque_request_transition_point)
+{
+    static float prev_torque_request = -30.0f;
+    float        pedal_percentage    = -100.0f;
+    float        steering_angle      = 21.0f;
+
+    // set torque to prev_torque_request first
+    App_CanTx_DCM_RightInverterTorqueCommand_Set(prev_torque_request);
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(prev_torque_request);
+
+    // set steering wheel angle
+    App_CanRx_FSM_SteeringAngle_Update(steering_angle);
+
+    // make motor speed in range
+    App_CanRx_INVR_MotorSpeed_Update(-MOTOR_KMH_TO_RPM(9.0f));
+    App_CanRx_INVL_MotorSpeed_Update(MOTOR_KMH_TO_RPM(9.0f));
+
+    // make battery in temp range
+    App_CanRx_BMS_MaxCellTemperature_Update(40);
+
+    // make battery clost to full so start tapering torque request
+    App_CanRx_BMS_MaxCellVoltage_Update(3.8f);
+
+    App_Run_Regen(&prev_torque_request, pedal_percentage);
+
+    // make sure RegenNotAvailable alert occurs
+    bool  alert          = App_CanAlerts_DCM_Warning_RegenNotAvailable_Get();
+    float torque_request = MAX_REGEN_nm * pedal_percentage / MAX_PEDAL_POSITION; 
+    torque_request = (9.0f - SPEED_MIN_kph) / (SPEED_MIN_kph) * torque_request; 
+    float expected_delta =
+        TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm);
+    float expected_left_torque_request  = torque_request * (1 + expected_delta);
+    float expected_right_torque_request = torque_request * (1 - expected_delta);
+
+    ASSERT_TRUE(alert == false);
+    ASSERT_FLOAT_EQ(torque_request, prev_torque_request);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
+    ASSERT_FLOAT_EQ(expected_right_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 }

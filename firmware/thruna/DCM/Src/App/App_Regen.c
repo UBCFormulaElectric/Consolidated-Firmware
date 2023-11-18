@@ -7,7 +7,7 @@
  * @return true if wheel speed meets this condition, false
  * otherwise
  */
-static bool wheel_speed_in_range();
+static bool wheel_speed_in_range(RegenBraking *regenAttr);
 
 /**
  * Check if battery cells are less than 4.0V
@@ -59,7 +59,7 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
 bool App_Regen_SafetyCheck(RegenBraking *regenAttr)
 {
     bool battery_temp_in_range = App_CanRx_BMS_MaxCellTemperature_Get() < MAX_BATTERY_TEMP;
-    return battery_temp_in_range && wheel_speed_in_range() && power_limit_check(regenAttr);
+    return battery_temp_in_range && wheel_speed_in_range(regenAttr) && power_limit_check(regenAttr);
 }
 
 void App_Regen_Send_Torque_Request(float left, float right)
@@ -97,12 +97,12 @@ float App_ActiveDifferential_WheelAngleToSpeedDelta(float wheel_angle_deg)
     return TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_deg)) / (2 * WHEELBASE_mm);
 }
 
-static bool wheel_speed_in_range()
+static bool wheel_speed_in_range(RegenBraking *regenAttr)
 {
-    float motor_speed_right_kph = MOTOR_RPM_TO_KMH(-(float)App_CanRx_INVR_MotorSpeed_Get());
-    float motor_speed_left_kph  = MOTOR_RPM_TO_KMH((float)App_CanRx_INVL_MotorSpeed_Get());
+    regenAttr->motor_speed_right_kph = MOTOR_RPM_TO_KMH(-(float)App_CanRx_INVR_MotorSpeed_Get());
+    regenAttr->motor_speed_left_kph  = MOTOR_RPM_TO_KMH((float)App_CanRx_INVL_MotorSpeed_Get());
 
-    return motor_speed_right_kph > SPEED_MIN_kph && motor_speed_left_kph > SPEED_MIN_kph;
+    return regenAttr->motor_speed_right_kph > SPEED_MIN_kph && regenAttr->motor_speed_left_kph > SPEED_MIN_kph;
 }
 
 static bool power_limit_check(RegenBraking *regenAttr)
@@ -117,10 +117,15 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
     float pedal_percentage = inputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
     float torqueRequest    = MAX_REGEN_nm * pedal_percentage;
     float torqueChange;
+    float min_motor_speed  = MIN(regenAttr->motor_speed_right_kph, regenAttr->motor_speed_left_kph);
 
     if (regenAttr->current_battery_level > 3.9f)
     {
         torqueRequest = torqueRequest * 0.75f;
+    }
+
+    if (min_motor_speed <= 10.0f) {
+        torqueRequest = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph) * torqueRequest; 
     }
 
     torqueChange = torqueRequest - regenAttr->prev_torque_request_Nm;
@@ -128,7 +133,7 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
     if ((float)fabs(torqueChange) > MAX_TORQUE_CHANGE)
     {
         torqueRequest =
-            regenAttr->prev_torque_request_Nm + (torqueChange) / (float)(fabs(torqueChange)) * MAX_TORQUE_CHANGE;
+            regenAttr->prev_torque_request_Nm + SIGN(torqueChange) * MAX_TORQUE_CHANGE;
     }
 
     regenAttr->prev_torque_request_Nm = torqueRequest;
