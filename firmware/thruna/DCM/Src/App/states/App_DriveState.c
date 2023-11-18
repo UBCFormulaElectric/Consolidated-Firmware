@@ -14,6 +14,8 @@
 static bool torque_vectoring_switch_is_on;
 static float apps_pedal_percentage = 0.0f;
 static float prev_torque_request   = 0.0f;
+#define PEDAL_SCALE 30.0f
+#define MAX_PEDAL_PERCENT 100.0f
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
@@ -82,10 +84,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool       regen_switch_enabled = App_RegenTorqueVectoringStatus();
     apps_pedal_percentage           = App_CanRx_FSM_PappsMappedPedalPercentage_Get();
 
-    // regen switched pedal percentage from [0, 100] to [-100, 100]
+    // regen switched pedal percentage from [0, 100] to [-30, 70] and then scaled to [-100,100]
     if (regen_switch_enabled)
     {
-        apps_pedal_percentage = (apps_pedal_percentage - 50.0f) * 2;
+        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+        apps_pedal_percentage = apps_pedal_percentage < 0.0f ? apps_pedal_percentage / PEDAL_SCALE : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
     if (exit_drive)
@@ -94,7 +97,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         return;
     }
 
-    if (apps_pedal_percentage < 0)
+    if (apps_pedal_percentage < 0.0f)
     {
         App_Run_Regen(&prev_torque_request, apps_pedal_percentage);
     } 
@@ -132,3 +135,4 @@ const struct State *app_driveState_get(void)
 
     return &drive_state;
 }
+

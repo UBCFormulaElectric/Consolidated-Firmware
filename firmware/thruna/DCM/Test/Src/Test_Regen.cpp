@@ -303,7 +303,7 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
     // make sure RegenNotAvailable alert occurs
     bool  alert          = App_CanAlerts_DCM_Warning_RegenNotAvailable_Get();
     float torque_request = MAX_REGEN_nm * pedal_percentage / MAX_PEDAL_POSITION; 
-    torque_request = (9.0f - SPEED_MIN_kph) / (SPEED_MIN_kph) * torque_request; 
+    torque_request = (9.0f - SPEED_MIN_kph) / (SPEED_MIN_kph) * torque_request; //will always be +/-6nm from previous torque request
     float expected_delta =
         TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm);
     float expected_left_torque_request  = torque_request * (1 + expected_delta);
