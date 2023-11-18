@@ -206,6 +206,15 @@ class AppCanAlertsModule(CModule):
             )
             cw.add_enum(alerts_enum)
             cw.add_line()
+            
+            
+        #Board enumaration:
+        
+        for board in BoardNumbering:
+            board_enum = CEnum("BoardEnum")
+            
+            for i,boardnum in enumerate()
+        
 
         # Add function prototypes
         cw.add_line()
