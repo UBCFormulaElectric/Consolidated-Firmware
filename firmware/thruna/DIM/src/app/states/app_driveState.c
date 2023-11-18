@@ -51,10 +51,6 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_DIM_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const bool aux_switch_on = io_switch_isClosed(globals->config->aux_switch);
-
-    App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
-
     const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
         [DIM_LED] = globals->config->dim_status_led, [FSM_LED] = globals->config->fsm_status_led,
@@ -103,8 +99,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const float instant_power =
         App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
 
-    const float min_cell_voltage = App_CanRx_BMS_CellVoltages_MinCellVoltage_Get();
-    const float steering_angle   = App_CanRx_FSM_Steering_SteeringAngle_Get();
+    const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 
     if (missing_hb)
     {
@@ -117,17 +112,6 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, instant_power);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, min_cell_voltage);
-<<<<<<< HEAD
-=======
-
-        // TODO: Switch between min_cell_voltage and steering angle depending on aux switch value
-<<<<<<< HEAD
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, aux_switch_on? steering_angle : min_cell_voltage);
-        
->>>>>>> 15313194 (Absolute Value of display & added test)
-=======
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, aux_switch_on ? steering_angle : min_cell_voltage);
->>>>>>> 242f793a (fixed c formatting)
     }
 }
 
