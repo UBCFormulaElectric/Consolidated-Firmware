@@ -7,7 +7,34 @@
   min-height: 100vh;
 }
 
-.header {
+.light {
   background: #fff;
+  color: #121212; 
+}
+
+.dark {
+  background: #121212;
+  color: #fff;
+}
+
+
+.header {
   padding: 0;
+}
+
+.main p {
+  color: #7c7c7c;
+}
+
+.clear {
+    background: '#1890ff';
+    color: '#fff';
+    border: 'none';
+}
+
+.delete {
+  background: '#ff4d4f';
+  color: '#fff';
+  border: 'none';
+
 }
