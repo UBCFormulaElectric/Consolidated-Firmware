@@ -27,6 +27,8 @@ jobs:
             build_dir: firmware/thruna/BMS/BMS.elf
           - board: f4dev
             build_dir: firmware/dev/f4dev/f4dev.elf
+          - board: h7dev
+            build_dir: firmware/dev/f4dev/h7dev.elf
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -72,7 +74,7 @@ jobs:
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          files: "FSM.elf/FSM.elf BMS.elf/BMS.elf DCM.elf/DCM.elf DIM.elf/DIM.elf PDM.elf/PDM.elf f4dev.elf/f4dev.elf CanMsgs.dbc/CanMsgs.dbc"
+          files: "FSM.elf/FSM.elf BMS.elf/BMS.elf DCM.elf/DCM.elf DIM.elf/DIM.elf PDM.elf/PDM.elf f4dev.elf/f4dev.elf h7dev.elf/h7dev.elf CanMsgs.dbc/CanMsgs.dbc"
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
