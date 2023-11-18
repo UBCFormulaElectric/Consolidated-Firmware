@@ -28,7 +28,7 @@ jobs:
           - board: f4dev
             build_dir: firmware/dev/f4dev/f4dev.elf
           - board: h7dev
-            build_dir: firmware/dev/f4dev/h7dev.elf
+            build_dir: firmware/dev/h7dev/h7dev.elf
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
