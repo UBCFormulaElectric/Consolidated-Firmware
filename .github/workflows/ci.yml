@@ -71,7 +71,7 @@ jobs:
       - name: Generate checksum
         run: |
           python3 scripts/utilities/generate_md5_checksum.py \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
             $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
 
       - name: Check for differences
