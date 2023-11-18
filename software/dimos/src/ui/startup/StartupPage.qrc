@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../../assets/fe_logo.svg</file>
+    </qresource>
+</RCC>
