@@ -3,6 +3,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "can.h"
 
 extern "C" {
@@ -10,7 +11,13 @@ extern "C" {
 #include "Io_CanRx.h"
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow) {
+	setupCan();
+	ui->setupUi(this);
+	l = std::make_unique<LandingPage>(this);
+}
+
+void MainWindow::setupCan() {
 	// CANTX TASK
 	tx100Hz.setInterval(10);
 	tx100Hz.setSingleShot(false);
@@ -26,8 +33,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	CanTxPeriodicTaskThread = QThread::create(&MainWindow::CanPeriodicTXTask);
 	CanRxTaskThread->start();
 	CanTxPeriodicTaskThread->start();
-
-	ui->setupUi(this);
 }
 
 [[noreturn]] void MainWindow::CanRXTask() {

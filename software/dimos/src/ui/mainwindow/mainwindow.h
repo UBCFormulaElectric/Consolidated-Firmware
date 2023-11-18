@@ -1,11 +1,11 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QTimer>
+#include "landing/LandingPage.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace ui { class MainWindow; }
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
@@ -17,16 +17,14 @@ public:
 	~MainWindow() override;
 
 private:
-	std::unique_ptr<Ui::MainWindow> ui;
+	std::unique_ptr<LandingPage> l;
+	std::unique_ptr<ui::MainWindow> ui;
 
+	void setupCan();
 	[[noreturn]] static void CanRXTask();
-
 	[[noreturn]] static void CanPeriodicTXTask();
-
 	QTimer tx100Hz{};
 	QTimer tx1Hz{};
 	QThread *CanRxTaskThread;
 	QThread *CanTxPeriodicTaskThread;
 };
-
-#endif // MAINWINDOW_H
