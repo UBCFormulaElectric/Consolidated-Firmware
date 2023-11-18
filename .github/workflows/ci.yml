@@ -2,7 +2,7 @@ name: UBC Formula Electric CI
 on:
   pull_request:
     paths-ignore:
-      - 'software/**'
+      #- 'software/**'
 
 jobs:
   clang-format:

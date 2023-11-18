@@ -67,4 +67,4 @@ if __name__ == '__main__':
     # app.run(debug=True)  # This starts another server
 
     # Start the Socket.IO server
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
