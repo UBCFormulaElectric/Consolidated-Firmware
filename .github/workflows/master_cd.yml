@@ -2,7 +2,7 @@ name: Binary and DBC Generation
 on:
   push:
     paths-ignore:
-      - 'software/**'
+      #- 'software/**'
     branches:
       - master
 
