@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import Plot from 'react-plotly.js';
+import dynamic from "next/dynamic";
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 import { Button, Card, Switch, Space } from 'antd';
 
 import LiveDropdownMenu from './dropdown_live';
