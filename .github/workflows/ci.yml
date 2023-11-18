@@ -31,7 +31,7 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   codegen:
-    name: Check CubeMX Code Gen
+    name: Check CubeMX Code Was Generated
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     strategy:
@@ -68,20 +68,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # xvfb-run is required to prefix any commands that run STM32CubeMX
-      # It fakes out a display, since STM32CubeMX throws an error if it doesn't detect a display
-      - name: Generate code
+      - name: Generate checksum
         run: |
-          echo "test: $GITHUB_WORKSPACE"
-          xvfb-run python3 scripts/utilities/generate_cube_code.py \
-            --board ${{ matrix.board }} \
-            --log4j_properties_output ~/.stm32cubemx/log4j.properties \
-            --ioc $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            --codegen_output_dir $GITHUB_WORKSPACE/${{ matrix.ioc_dir }} \
-            --cube_bin /usr/local/STM32CubeMX/STM32CubeMX
-
-      - name: Fix formatting
-        run: python3 scripts/clang_format/fix_formatting.py
+          python3 scripts/utilities/generate_md5_checksum.py \
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
@@ -136,7 +127,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
-      BUILD_DIR: build_x86
+      BUILD_DIR: build_fw_test
 
     steps:
 
@@ -171,7 +162,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
-      BUILD_DIR: build_x86
+      BUILD_DIR: build_fw_test
 
     steps:
       # Fix to ensure that commands like git status work in child directories 
@@ -205,7 +196,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     env:
-      BUILD_DIR: build_x86
+      BUILD_DIR: build_fw_test
 
     steps:
       # Fix to ensure that commands like git status work in child directories 
