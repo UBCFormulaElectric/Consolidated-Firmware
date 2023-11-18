@@ -68,6 +68,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we 
+      # we also generate a checksum from the .ioc file when code is generated during builds.
+      # During CI, we re-generate the checksum. If it matches, then the code is up to date, 
+      # otherwise, you need to re-generate STM32CubeMX code locally.
       - name: Generate checksum
         run: |
           python3 scripts/utilities/generate_md5_checksum.py \
