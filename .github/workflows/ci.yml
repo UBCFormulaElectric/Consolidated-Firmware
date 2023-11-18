@@ -31,7 +31,7 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   codegen:
-    name: Check CubeMX Code Was Generated
+    name: Check CubeMX Code Generated
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     strategy:
