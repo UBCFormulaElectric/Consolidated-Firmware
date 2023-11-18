@@ -101,7 +101,6 @@ cmake-build-*
 *.l1p
 *.l2p
 *.iex
-*.md5
 
 # STM32CubeMX
 .mxproject

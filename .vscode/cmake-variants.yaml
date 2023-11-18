@@ -1,5 +1,5 @@
 platform:
-    default: arm
+    default: firmware_deploy
     choices:
         firmware_deploy:
             short: Firmware Deploy
