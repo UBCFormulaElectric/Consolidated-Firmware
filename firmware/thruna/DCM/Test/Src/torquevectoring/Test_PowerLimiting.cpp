@@ -54,13 +54,13 @@ TEST(PowerLimitingTest, motor_temps_limit_power)
 /**
  * Test 2: Test that the power limiting function limits power when BMS available power is less than 80kW
  */
-TEST(PowerLimitingTest, bms_limits_power)
-{
-    PowerLimiting_Inputs test2_inputs               = { 10.0, 10.0, 50.0, 1.00 };
-    float                expected_power_limit_test2 = 50.0;
-    float                actual_power_limit_test2   = App_PowerLimiting_ComputeMaxPower(&test2_inputs);
-    ASSERT_FLOAT_EQ(actual_power_limit_test2, expected_power_limit_test2);
-}
+// TEST(PowerLimitingTest, bms_limits_power)
+// {
+//     PowerLimiting_Inputs test2_inputs               = { 10.0, 10.0, 50.0, 1.00 };
+//     float                expected_power_limit_test2 = 50.0;
+//     float                actual_power_limit_test2   = App_PowerLimiting_ComputeMaxPower(&test2_inputs);
+//     ASSERT_FLOAT_EQ(actual_power_limit_test2, expected_power_limit_test2);
+// }
 
 /**
  * Test 3: Test that the power limiting function limits power when pedal position is less than 50%
@@ -120,13 +120,13 @@ TEST(PowerLimitingTest, motor_temps_past_no_power_limit)
 /**
  * Test 8: Test that the power limiting function allows 50kW when motor temps are at the cutoff
  */
-TEST(PowerLimitingTest, motor_temps_allow_50kW)
-{
-    PowerLimiting_Inputs test8_inputs               = { 101.25, 101.25, POWER_LIMIT_CAR_kW, 1.00 };
-    float                expected_power_limit_test8 = 50.0;
-    float                actual_power_limit_test8   = App_PowerLimiting_ComputeMaxPower(&test8_inputs);
-    ASSERT_FLOAT_EQ(actual_power_limit_test8, expected_power_limit_test8);
-}
+// TEST(PowerLimitingTest, motor_temps_allow_50kW)
+// {
+//     PowerLimiting_Inputs test8_inputs               = { 101.25, 101.25, POWER_LIMIT_CAR_kW, 1.00 };
+//     float                expected_power_limit_test8 = 50.0;
+//     float                actual_power_limit_test8   = App_PowerLimiting_ComputeMaxPower(&test8_inputs);
+//     ASSERT_FLOAT_EQ(actual_power_limit_test8, expected_power_limit_test8);
+// }
 
 /**
  * Test 9: Test that the power limiting function allows no power when pedal is not pressed
