@@ -1,4 +1,4 @@
-    #include <QThread>
+#include <QThread>
 #include <chrono>
 
 #include "mainwindow.h"
@@ -11,10 +11,12 @@ extern "C" {
 #include "Io_CanRx.h"
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow),
+										CanRxTaskThread(QThread::create(&MainWindow::CanRXTask)),
+										CanTxPeriodicTaskThread(QThread::create(&MainWindow::CanPeriodicTXTask))
+{
 	setupCan();
 	ui->setupUi(this);
-	l = std::make_unique<LandingPage>(this);
 }
 
 void MainWindow::setupCan() {
@@ -29,8 +31,6 @@ void MainWindow::setupCan() {
 	QTimer::connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
 	tx1Hz.start();
 
-	CanRxTaskThread = QThread::create(&MainWindow::CanRXTask);
-	CanTxPeriodicTaskThread = QThread::create(&MainWindow::CanPeriodicTXTask);
 	CanRxTaskThread->start();
 	CanTxPeriodicTaskThread->start();
 }

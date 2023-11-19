@@ -12,31 +12,17 @@ QT_BEGIN_NAMESPACE
 class ui_StartupPage
 {
 public:
-    QLabel *BootLogoLabel;
-
-    void f(std::array<int, 4> a);
-
-    void setupUi(QWidget *landing)
+    void setupUi(QWidget *parent)
     {
-        if (landing->objectName().isEmpty())
-            landing->setObjectName("landing");
-        landing->resize(1024, 600);
+        if (parent->objectName().isEmpty())
+            parent->setObjectName("landing");
+        parent->resize(1024, 600);
 
-        auto gridLayout = new QGridLayout(landing);
-        gridLayout->setAlignment(Qt::AlignCenter);
+		auto label = new QLabel(parent);
+		label->setObjectName("label");
+		label->setText("Hello World!");
 
-        BootLogoLabel = new QLabel(landing);
-        BootLogoLabel->setObjectName("BootLogoLabel");
-        gridLayout->addWidget(BootLogoLabel);
-
-        auto pixmap = QIcon(":/assets/fe_logo.svg").pixmap(QSize(375, 375), Qt::KeepAspectRatio);
-        BootLogoLabel->setPixmap(pixmap);
-//		auto svg = QSvgWidget(":/assets/fe_logo.svg");
-
-
-        landing->setLayout(gridLayout);
-
-        QMetaObject::connectSlotsByName(landing);
+        QMetaObject::connectSlotsByName(parent);
     }
 };
 

@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
-#include "landing/LandingPage.h"
+#include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
 namespace ui { class MainWindow; }
@@ -17,7 +17,6 @@ public:
 	~MainWindow() override;
 
 private:
-	std::unique_ptr<LandingPage> l;
 	std::unique_ptr<ui::MainWindow> ui;
 
 	void setupCan();
@@ -25,6 +24,6 @@ private:
 	[[noreturn]] static void CanPeriodicTXTask();
 	QTimer tx100Hz{};
 	QTimer tx1Hz{};
-	QThread *CanRxTaskThread;
-	QThread *CanTxPeriodicTaskThread;
+	QThread *CanRxTaskThread{};
+	QThread *CanTxPeriodicTaskThread{};
 };

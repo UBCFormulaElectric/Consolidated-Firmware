@@ -1,9 +1,8 @@
 #pragma once
 
-#include <QFrame>
 #include "ui_LandingPage.h"
 
-class LandingPage: public QFrame {
+class LandingPage: public QWidget {
 Q_OBJECT
 public:
 	explicit LandingPage(QWidget *parent = nullptr);
