@@ -37,8 +37,8 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 
 /**
- * Erase a sector of flash. See the microcontroller's reference manual for a list of 
- * the available flash sectors and their size. For example, for STM32F412 MCUs see page 59 of: 
+ * Erase a sector of flash. See the microcontroller's reference manual for a list of
+ * the available flash sectors and their size. For example, for STM32F412 MCUs see page 59 of:
  * https://www.st.com/resource/en/reference_manual/dm00180369-stm32f412-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf
  * @param sector Sector to erase.
  * @return True if successful, otherwise false.

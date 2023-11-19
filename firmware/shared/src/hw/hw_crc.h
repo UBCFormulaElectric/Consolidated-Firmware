@@ -12,7 +12,7 @@
  * Initialize the CRC driver.
  * @param crc_handle Handle to CRC peripheral.
  */
-void     hw_crc_init(CRC_HandleTypeDef *crc_handle);
+void hw_crc_init(CRC_HandleTypeDef *crc_handle);
 
 /**
  * Calculate a checksum using the CRC peripheral.
