@@ -10,6 +10,7 @@ UNPACK_SHIFT_LEFT_FUNC = "unpackShiftLeft"
 UNPACK_SHIFT_RIGHT_FUNC = "unpackShiftRight"
 
 CAN_ENCODE_MACRO = "CAN_ENCODE"
+CAN_SIGNED_ENCODE_MACRO = "CAN_SIGNED_ENCODE"
 CAN_DECODE_MACRO = "CAN_DECODE"
 SIGNED_DECODE_MACRO = "SIGNED_DECODE"
 
@@ -338,9 +339,16 @@ class AppCanUtilsModule(CModule):
 
         cw.add_macro(
             CAN_ENCODE_MACRO,
-            "(uint32_t)((type)(input - offset) / (type)scale)",
+            "(uint32_t)((input - offset) / scale)",
             args=["input", "scale", "offset", "type"],
-            comment="Encode real signal value to payload representation, w/ scale and offset.",
+            comment="Encode real signal value to payload representation, w/ scale and offset (unsigned).",
+        )
+        cw.add_line()
+        cw.add_macro(
+            CAN_SIGNED_ENCODE_MACRO,
+            "(int32_t)((input - offset) / scale)",
+            args=["input", "scale", "offset", "type"],
+            comment="Encode real signal value to payload representation, w/ scale and offset (signed).",
         )
         cw.add_line()
         cw.add_macro(
@@ -405,8 +413,10 @@ def pack_signal_code(signal: CanSignal, msg: CanMessage):
     # Encode signal value
     scale_macro = CMacrosConfig.scale(msg.name, signal.name)
     offset_macro = CMacrosConfig.offset(msg.name, signal.name)
+    encode_macro = CAN_SIGNED_ENCODE_MACRO if signal.signed else CAN_ENCODE_MACRO
+    raw_type = "int32_t" if signal.signed else "uint32_t"
     cw.add_line(
-        f"const uint32_t {signal_raw_var_name} = {CAN_ENCODE_MACRO}({signal_val_var_name}, {scale_macro}, {offset_macro}, {signal.representation()});"
+        f"const {raw_type} {signal_raw_var_name} = {encode_macro}({signal_val_var_name}, {scale_macro}, {offset_macro}, {signal.representation()});"
     )
 
     while packed_bits < signal.bits:
