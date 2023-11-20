@@ -12,6 +12,7 @@ SIGNAL_DEF_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "customSignals"
 
 class ExpressionParser:
     def parse(s):
+        # Convert to some expression tree to evaluate
         pass
 
     def save_signal(signal_dict, file_name):
