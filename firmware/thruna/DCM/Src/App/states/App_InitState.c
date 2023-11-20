@@ -9,7 +9,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     // Disable inverters and apply zero torque upon entering init state
     App_CanTx_DCM_LeftInverterEnable_Set(false);
     App_CanTx_DCM_RightInverterEnable_Set(false);
-    App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(-0.63f);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
