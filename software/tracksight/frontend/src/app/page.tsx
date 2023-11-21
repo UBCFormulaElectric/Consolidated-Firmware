@@ -6,13 +6,14 @@ import { io, Socket } from "socket.io-client";
 import styles from './page.module.css';
 import NavBar from './components/navbar';
 import Dashboard from './components/dashboard';
+import EditSignals from './components/editSignals';
 import Visualize from './components/visualize';
 
 //const FLASK_URL = "http://evanyl.pythonanywhere.com";
 const FLASK_URL = "http://localhost:5000";
 const Home = () => {
-    const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize'); 
-    const [socketInstance, setSocketInstance] = useState<Socket | null>(null); 
+    const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize');
+    const [socketInstance, setSocketInstance] = useState<Socket | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [graphs, setGraphs] = useState<number[]>([]);
     const [liveGraphs, setLiveGraphs] = useState<number[]>([]);
@@ -21,7 +22,7 @@ const Home = () => {
 
     //add a new graph
     const addGraph = (live: boolean) => {
-        const newGraphId = Date.now();  
+        const newGraphId = Date.now();
         if (live) {
             setLiveGraphs(prevGraphs => [...prevGraphs, newGraphId]);
         } else {
@@ -69,7 +70,7 @@ const Home = () => {
                 <NavBar updateFunction={setComponentToDisplay} theme={theme} setTheme={setTheme} />
             </Header>
             <Content>
-            {contextHolder}
+                {contextHolder}
                 {!loading && (
                     componentToDisplay === "visualize" ? (
                         <Visualize
@@ -82,7 +83,11 @@ const Home = () => {
                             messageApi={messageApi}
                         />
                     ) : (
-                        <Dashboard />
+                        componentToDisplay === "editSignals" ? (
+                            <EditSignals />
+                        ) : (
+                            <Dashboard />
+                        )
                     )
                 )}
             </Content>
