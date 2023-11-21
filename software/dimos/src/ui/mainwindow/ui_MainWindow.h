@@ -32,6 +32,11 @@ public:
         MainWindow->resize(1024, 600);
         MainWindow->setMinimumSize(QSize(1024, 600));
 		MainWindow->setStyleSheet("QMainWindow {background-color: #141414;}");
+		#if USING_dimos_dev
+		MainWindow->setWindowTitle("Dimos Development");
+		#elif USING_dimos
+		MainWindow->setWindowTitle("Dimos");
+		#endif
 
 		// mainframe
 		MainStack = std::make_unique<QStackedWidget>(MainWindow);
@@ -67,6 +72,10 @@ public:
 			switcherBackgroundEffect->setEnabled(true);
 		}
 		isSwitcherOpen = !isSwitcherOpen;
+	}
+
+	bool getSwitcherOpen() {
+		return isSwitcherOpen;
 	}
 };
 

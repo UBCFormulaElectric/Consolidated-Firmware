@@ -19,8 +19,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWi
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event) {
-	if (event->key() == Qt::Key_Space) {
-		ui->toggleSwitcher();
+	switch (event->key()) {
+		case Qt::Key_Space:
+			ui->toggleSwitcher();
+			break;
+		default:
+			// TODO print debug message saying unhandled key
+			break;
 	}
 }
 

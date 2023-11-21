@@ -50,4 +50,6 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
     endif ()
 
     target_include_directories(${EXECUTABLE_NAME} PRIVATE src/shared src/ui src/io assets)
+
+    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}")
 endfunction()
