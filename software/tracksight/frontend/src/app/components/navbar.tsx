@@ -1,20 +1,37 @@
-import { Menu } from 'antd';
-import { Dispatch, SetStateAction } from 'react';
+import React from 'react';
+import { Menu, Switch, Space } from 'antd';
 
 export interface NavBarProps {
-  updateFunction: Dispatch<SetStateAction<string>>,
+  updateFunction: (key: string) => void;
+  theme: boolean;
+  setTheme: (theme: boolean) => void;
 }
 
-const NavBar = (props: NavBarProps) => (
-    <Menu 
-      theme="light" 
-      mode="horizontal" 
-      defaultSelectedKeys={['visualize']}
-      onClick={(e) => props.updateFunction(e.key)}
-    >
+const NavBar = (props: NavBarProps) => {
+  const changeTheme = (checked: boolean) => {
+    props.setTheme(checked);
+  };
+
+  return (
+      <Menu
+        theme={props.theme ? 'dark' : 'light'}
+        mode="horizontal"
+        defaultSelectedKeys={['visualize']}
+        onClick={(e) => props.updateFunction(e.key)}
+        style={{ flexGrow: 1 }} // To occupy available space
+      >
         <Menu.Item key="visualize">Visualize</Menu.Item>
         <Menu.Item key="dashboards">Dashboards</Menu.Item>
-    </Menu>
-);
+        <Menu.Item key="theme">
+        <Switch
+        checked={props.theme}
+        onChange={changeTheme}
+        checkedChildren="Dark"
+        unCheckedChildren="Light"
+      />
+        </Menu.Item>
+      </Menu>
+  );
+};
 
 export default NavBar;
