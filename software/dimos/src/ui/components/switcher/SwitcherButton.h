@@ -3,21 +3,22 @@
 #include <QPushButton>
 #include <QLabel>
 
-enum SwitcherButtonEvent {
+enum SwitcherButtonOption {
 	ENDURANCE,
 	ACCELERATION,
 	SKIDPAD,
 	AUTOCROSS,
-	BRAKING
+	BRAKING,
+	SwitcherButtonOptionSize
 };
 
 class SwitcherButton : public QPushButton {
 Q_OBJECT
 public:
-	explicit SwitcherButton(SwitcherButtonEvent event, QWidget *parent = nullptr);
-	void setupUI(SwitcherButtonEvent event);
+	explicit SwitcherButton(SwitcherButtonOption event, QWidget *parent = nullptr);
+	void setupUI(SwitcherButtonOption event);
 private:
-	inline static std::map<SwitcherButtonEvent, QString> eventToImagePath = {
+	inline static std::map<SwitcherButtonOption, QString> optionToImagePath = {
 			{ENDURANCE, ":/SwitcherEventIcons/Endurance.svg"},
 			{ACCELERATION, ":/SwitcherEventIcons/Acceleration.svg"},
 			{SKIDPAD, ":/SwitcherEventIcons/Skidpad.svg"},

@@ -2,7 +2,6 @@
 // libraries
 #include <QThread>
 #include <chrono>
-#include <QtLogging>
 //can
 #include "can.h"
 extern "C" {
@@ -22,6 +21,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 	switch (event->key()) {
 		case Qt::Key_Space:
 			ui->toggleSwitcher();
+			break;
+		case Qt::Key_Enter:
+			ui->forceCloseSwitcher();
+			break;
+		case Qt::Key_Right:
+			ui->switcherRight();
+			break;
+		case Qt::Key_Left:
+			ui->switcherLeft();
 			break;
 		default:
 			// TODO print debug message saying unhandled key

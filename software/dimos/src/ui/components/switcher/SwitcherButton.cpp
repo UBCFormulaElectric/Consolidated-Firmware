@@ -1,11 +1,11 @@
 #include <QGridLayout>
 #include "SwitcherButton.h"
 
-SwitcherButton::SwitcherButton(SwitcherButtonEvent event, QWidget *parent) : QPushButton(parent) {
+SwitcherButton::SwitcherButton(SwitcherButtonOption event, QWidget *parent) : QPushButton(parent) {
 	setupUI(event);
 }
 
-void SwitcherButton::setupUI(SwitcherButtonEvent event) {
+void SwitcherButton::setupUI(SwitcherButtonOption event) {
 	this->setFixedSize(QSize(200, 200));
 	this->setStyleSheet("QPushButton {"
 						"	background-color:#002D67;"
@@ -15,7 +15,7 @@ void SwitcherButton::setupUI(SwitcherButtonEvent event) {
 
 	auto gridLayout = new QGridLayout(this);
 	iconLabel = std::make_unique<QLabel>();
-	auto icon = QIcon(eventToImagePath[event]);
+	auto icon = QIcon(optionToImagePath[event]);
 	auto iconPixmap = icon.pixmap(QSize(140, 130));
 	iconLabel->setPixmap(iconPixmap);
 	gridLayout->addWidget(iconLabel.get(), 0, 0, Qt::AlignCenter);

@@ -21,7 +21,7 @@ public:
 	std::unique_ptr<LandingPage> landingPage;
 	std::unique_ptr<StartupPage> startupPage;
 
-    std::unique_ptr<QFrame> SwitcherFrame;
+    std::unique_ptr<Switcher> SwitcherFrame;
 	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
 	bool isSwitcherOpen = false;
 
@@ -72,6 +72,21 @@ public:
 			switcherBackgroundEffect->setEnabled(true);
 		}
 		isSwitcherOpen = !isSwitcherOpen;
+	}
+
+	void forceCloseSwitcher() {
+		SwitcherFrame->hide();
+		switcherBackgroundEffect->setEnabled(false);
+		isSwitcherOpen = false;
+	}
+
+	void switcherRight() const {
+		if(!isSwitcherOpen) return;
+		SwitcherFrame->toggleRight();
+	}
+	void switcherLeft() const {
+		if(!isSwitcherOpen) return;
+		SwitcherFrame->toggleLeft();
 	}
 
 	bool getSwitcherOpen() {
