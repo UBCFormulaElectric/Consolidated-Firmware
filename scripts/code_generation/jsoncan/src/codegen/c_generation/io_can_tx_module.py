@@ -27,7 +27,7 @@ class IoCanTxModule(CModule):
             "void",
             args=[
                 CVar(
-                    "(*transmit_tx_msg_func)(const CanMsg*)",
+                    f"(*transmit_tx_msg_func)(const {CTypesConfig.CAN_MSG_STRUCT}*)",
                     "void",
                 )
             ],
@@ -104,8 +104,8 @@ class IoCanTxModule(CModule):
 
             # Prepare header
             func.body.add_comment("Prepare msg header")
-            func.body.add_var_declaration(CVar("tx_msg", "CanMsg"))
-            func.body.add_line("memset(&tx_msg, 0, sizeof(CanMsg));")
+            func.body.add_var_declaration(CVar("tx_msg", CTypesConfig.CAN_MSG_STRUCT))
+            func.body.add_line(f"memset(&tx_msg, 0, sizeof({CTypesConfig.CAN_MSG_STRUCT}));")
             func.body.add_line(f"tx_msg.std_id = {CMacrosConfig.id(msg.name)};")
             func.body.add_line(f"tx_msg.dlc = {CMacrosConfig.bytes(msg.name)};")
             func.body.add_line()
@@ -151,7 +151,19 @@ class IoCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-        cw.add_include('"hw_can.h"')
+
+        cw.add_line()
+        cw.add_header_comment("Structs")
+        cw.add_line()
+
+        can_msg_struct = CStruct(
+            name=CTypesConfig.CAN_MSG_STRUCT,
+            comment="Standard CAN message type.",
+        )
+        can_msg_struct.add_member(CVar(name="std_id", type="uint32_t"))
+        can_msg_struct.add_member(CVar(name="dlc", type="uint32_t"))
+        can_msg_struct.add_member(CVar(name="data[8]", type="uint8_t"))
+        cw.add_struct(can_msg_struct)
 
         cw.add_line()
         cw.add_header_comment("Enums")
@@ -200,7 +212,7 @@ class IoCanTxModule(CModule):
         cw.add_header_comment("Static Variables")
         cw.add_line()
         cw.add_line("static uint32_t can_mode;")
-        cw.add_line("static void (*transmit_func)(const CanMsg* tx_msg);")
+        cw.add_line(f"static void (*transmit_func)(const {CTypesConfig.CAN_MSG_STRUCT}* tx_msg);")
         cw.add_line()
 
         # Add static function definitions

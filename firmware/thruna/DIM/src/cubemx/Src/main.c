@@ -50,6 +50,7 @@
 #include "io_stackWaterMark.h"
 #include "io_sevenSegDisplays.h"
 #include "io_can.h"
+#include "io_jsoncan.h"
 #include "io_canConfig.h"
 
 #include "hw_gpio.h"
@@ -349,7 +350,7 @@ int main(void)
     hw_can_init(&hcan1);
 
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_can_pushTxMsgToQueue);
+    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_sevenSegDisplays_init(&seven_segs_config);
     io_can_init(&can_config);
@@ -737,7 +738,10 @@ void RunTaskCanRx(void *argument)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&rx_msg);
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
 }
