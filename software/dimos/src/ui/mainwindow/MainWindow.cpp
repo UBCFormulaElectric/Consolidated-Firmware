@@ -1,11 +1,9 @@
+#include "MainWindow.h"
+// libraries
 #include <QThread>
 #include <chrono>
-
-#include "MainWindow.h"
-#include "ui_MainWindow.h"
-
+//can
 #include "can.h"
-
 extern "C" {
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -15,11 +13,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWi
 										CanRxTaskThread(QThread::create(&MainWindow::CanRXTask)),
 										CanTxPeriodicTaskThread(QThread::create(&MainWindow::CanPeriodicTXTask))
 {
-	setupCan();
+//	setupCanBroadcasting();
 	ui->setupUi(this);
 }
 
-void MainWindow::setupCan() {
+void MainWindow::setupCanBroadcasting() {
 	// CANTX TASK
 	tx100Hz.setInterval(10);
 	tx100Hz.setSingleShot(false);

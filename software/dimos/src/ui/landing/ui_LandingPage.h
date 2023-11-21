@@ -26,7 +26,7 @@ public:
 
         BootLogoLabel = new QLabel(landing);
         BootLogoLabel->setObjectName("BootLogoLabel");
-		auto pixmap = QIcon(":/assets/fe_logo.svg").pixmap(QSize(350, 400));
+		auto pixmap = QIcon(":/fe_logo.svg").pixmap(QSize(350, 400));
 		BootLogoLabel->setPixmap(pixmap);
 
 		gridLayout->addWidget(BootLogoLabel);

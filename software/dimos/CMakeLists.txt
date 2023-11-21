@@ -16,7 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Svg)
 file(GLOB_RECURSE PROJECT_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.qrc")
+        "${CMAKE_CURRENT_SOURCE_DIR}/assets/resources.qrc")
 file(GLOB_RECURSE SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.cpp")
 
 file(GLOB_RECURSE IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")

@@ -4,9 +4,7 @@
 #include <QTimer>
 #include <QStackedWidget>
 
-QT_BEGIN_NAMESPACE
-namespace ui { class MainWindow; }
-QT_END_NAMESPACE
+#include "ui_MainWindow.h"
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -19,7 +17,7 @@ public:
 private:
 	std::unique_ptr<ui::MainWindow> ui;
 
-	void setupCan();
+	void setupCanBroadcasting();
 	[[noreturn]] static void CanRXTask();
 	[[noreturn]] static void CanPeriodicTXTask();
 	QTimer tx100Hz{};

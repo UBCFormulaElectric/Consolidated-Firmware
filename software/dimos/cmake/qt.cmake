@@ -49,5 +49,5 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
         qt_finalize_executable(${EXECUTABLE_NAME})
     endif ()
 
-    target_include_directories(${EXECUTABLE_NAME} PRIVATE src/shared src/ui src/io)
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE src/shared src/ui src/io assets)
 endfunction()

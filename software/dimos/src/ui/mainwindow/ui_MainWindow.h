@@ -5,46 +5,46 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QMainWindow>
 #include <iostream>
+
+
 #include "landing/LandingPage.h"
 #include "startup/StartupPage.h"
+#include "components/switcher/Switcher.h"
 
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
 public:
-    QStackedWidget *MainFrame;
-    QFrame *ContextFrame;
-
+    std::unique_ptr<QStackedWidget> MainStack;
 	std::unique_ptr<LandingPage> landingPage;
 	std::unique_ptr<StartupPage> startupPage;
+
+    std::unique_ptr<QFrame> SwitcherFrame;
 
     void setupUi(QMainWindow *MainWindow)
     {
 		// MainWindow Setup
-        if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName("MainWindow");
+        if (MainWindow->objectName().isEmpty()) MainWindow->setObjectName("MainWindow");
         MainWindow->resize(1024, 600);
         MainWindow->setMinimumSize(QSize(1024, 600));
 		MainWindow->setStyleSheet("QMainWindow {background-color: #141414;}");
 
 		// mainframe
-		MainFrame = new QStackedWidget(MainWindow);
-        MainFrame->setObjectName("MainFrame");
-        MainFrame->setGeometry(QRect(0, 0, 1024, 600));
+		MainStack = std::make_unique<QStackedWidget>(MainWindow);
+        MainStack->setObjectName("MainFrame");
+        MainStack->setGeometry(QRect(0, 0, 1024, 600));
 
 		//populating mainframe
 		landingPage = std::make_unique<LandingPage>();
 		startupPage = std::make_unique<StartupPage>();
-		MainFrame->addWidget(landingPage.get());
-		MainFrame->addWidget(startupPage.get());
-		MainFrame->setCurrentIndex(1);
-		std::cout << MainFrame->currentIndex() << std::endl;
+		MainStack->addWidget(landingPage.get());
+		MainStack->addWidget(startupPage.get());
+		std::cout << MainStack->currentIndex() << std::endl;
 
 		//context frame
-        ContextFrame = new QFrame(MainWindow);
-        ContextFrame->setObjectName("ContextFrame");
-        ContextFrame->setGeometry(QRect(0, 0, 1024, 600));
+		SwitcherFrame = std::make_unique<Switcher>(MainWindow);
+//		SwitcherFrame->hide();
 
         QMetaObject::connectSlotsByName(MainWindow);
     }
