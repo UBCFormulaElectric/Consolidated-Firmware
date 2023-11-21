@@ -5,6 +5,7 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QMainWindow>
 #include <iostream>
+#include <QGraphicsBlurEffect>
 
 
 #include "landing/LandingPage.h"
@@ -21,6 +22,8 @@ public:
 	std::unique_ptr<StartupPage> startupPage;
 
     std::unique_ptr<QFrame> SwitcherFrame;
+	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
+	bool isSwitcherOpen = false;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -44,10 +47,27 @@ public:
 
 		//context frame
 		SwitcherFrame = std::make_unique<Switcher>(MainWindow);
-//		SwitcherFrame->hide();
+		SwitcherFrame->hide();
+
+		switcherBackgroundEffect = std::make_unique<QGraphicsBlurEffect>();
+		switcherBackgroundEffect->setBlurRadius(30);
+		switcherBackgroundEffect->setBlurHints(QGraphicsBlurEffect::QualityHint);
+		MainStack->setGraphicsEffect(switcherBackgroundEffect.get());
+		switcherBackgroundEffect->setEnabled(false);
 
         QMetaObject::connectSlotsByName(MainWindow);
     }
+
+	void toggleSwitcher() {
+		if(isSwitcherOpen) {
+			SwitcherFrame->hide();
+			switcherBackgroundEffect->setEnabled(false);
+		} else {
+			SwitcherFrame->show();
+			switcherBackgroundEffect->setEnabled(true);
+		}
+		isSwitcherOpen = !isSwitcherOpen;
+	}
 };
 
 namespace ui {

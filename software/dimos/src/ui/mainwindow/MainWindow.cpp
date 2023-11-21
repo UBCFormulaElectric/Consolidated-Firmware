@@ -2,6 +2,7 @@
 // libraries
 #include <QThread>
 #include <chrono>
+#include <QtLogging>
 //can
 #include "can.h"
 extern "C" {
@@ -15,6 +16,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWi
 {
 //	setupCanBroadcasting();
 	ui->setupUi(this);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+	if (event->key() == Qt::Key_Space) {
+		ui->toggleSwitcher();
+	}
 }
 
 void MainWindow::setupCanBroadcasting() {
