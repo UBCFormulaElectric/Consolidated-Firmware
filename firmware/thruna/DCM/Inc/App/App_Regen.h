@@ -22,7 +22,6 @@ typedef struct RegenBraking
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
-    float prev_torque_request_Nm;
     float motor_speed_left_kph;
     float motor_speed_right_kph;
 } RegenBraking;
@@ -36,10 +35,9 @@ typedef struct ActiveDifferential_Inputs
 /**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests
- * @param *prev_torque_request is the previous cycle's torque request
  * @param accelerator_pedal_percentage is the pedal percentage
  */
-void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentage);
+void App_Run_Regen(float accelerator_pedal_percentage);
 
 /**
  * Check if conditions allow for regenerative braking, if not reset

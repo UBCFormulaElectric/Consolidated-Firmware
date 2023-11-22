@@ -4,6 +4,7 @@
 
 /**
  * Check if left or right wheel is greater than 5.0km/hr
+ * @param RegenBraking struct to populate data
  * @return true if wheel speed meets this condition, false
  * otherwise
  */
@@ -29,13 +30,12 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
 static RegenBraking              regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
 
-void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentage)
+void App_Run_Regen(float accelerator_pedal_percentage)
 {
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
 
     if (App_Regen_SafetyCheck(&regenAttributes))
     {
-        regenAttributes.prev_torque_request_Nm = *prev_torque_request;
         activeDifferentialInputs.steering_angle_deg =
             App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
@@ -46,12 +46,9 @@ void App_Run_Regen(float *prev_torque_request, float accelerator_pedal_percentag
     {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
         regenAttributes.right_inverter_torque_Nm = 0.0;
-        regenAttributes.prev_torque_request_Nm   = 0.0;
 
         App_CanTx_DCM_Warning_RegenNotAvailable_Set(true);
     }
-
-    *prev_torque_request = regenAttributes.prev_torque_request_Nm;
 
     App_Regen_Send_Torque_Request(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
@@ -116,7 +113,6 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
 {
     float pedal_percentage = inputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
     float torqueRequest    = MAX_REGEN_nm * pedal_percentage;
-    float torqueChange;
     float min_motor_speed  = MIN(regenAttr->motor_speed_right_kph, regenAttr->motor_speed_left_kph);
 
     if (regenAttr->current_battery_level > 3.9f)
@@ -127,16 +123,6 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
     if (min_motor_speed <= 10.0f) {
         torqueRequest = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph) * torqueRequest; 
     }
-
-    torqueChange = torqueRequest - regenAttr->prev_torque_request_Nm;
-
-    if ((float)fabs(torqueChange) > MAX_TORQUE_CHANGE)
-    {
-        torqueRequest =
-            regenAttr->prev_torque_request_Nm + SIGN(torqueChange) * MAX_TORQUE_CHANGE;
-    }
-
-    regenAttr->prev_torque_request_Nm = torqueRequest;
 
     if (regenAttr->enable_active_differential)
     {
