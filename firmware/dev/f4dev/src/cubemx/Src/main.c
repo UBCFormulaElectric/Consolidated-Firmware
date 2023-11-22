@@ -143,8 +143,6 @@ lfs_file_t file;
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/

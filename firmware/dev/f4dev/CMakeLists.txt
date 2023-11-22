@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -66,19 +66,11 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS  ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "f4dev_app"
+        "f4dev"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("f4dev_app.elf" "f4dev_stm32cube" "f4dev_commit_info" "littlefs_cm4")
-
-    embedded_image(
-        "f4dev"
-        "f4dev_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/f4dev_app.hex"
-        "f4dev_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/f4dev_boot.hex"
-    )
+    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "littlefs_cm4")
 endif()
