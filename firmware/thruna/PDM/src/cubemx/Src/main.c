@@ -28,7 +28,6 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCan.h"
 #include "io_stackWaterMark.h"
 #include "io_watchdogConfig.h"
 #include "Io_SharedHeartbeatMonitor.h"
@@ -154,9 +153,9 @@ static const LvBatteryConfig lv_battery_config = {
         .port = PGOOD_GPIO_Port,
         .pin = PGOOD_Pin,
     },
-    .vbat_vsense_adc_channel = ADC_CHANNEL_10,
-    .boost_vsense_adc_channel = ADC_CHANNEL_12,
-    .acc_vsense_adc_channel = ADC_CHANNEL_11
+    .vbat_vsense_adc_channel = ADC_1_CHANNEL_10,
+    .boost_vsense_adc_channel = ADC_1_CHANNEL_12,
+    .acc_vsense_adc_channel = ADC_1_CHANNEL_11
 };
 
 static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
@@ -169,7 +168,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_AIR_LVPWR_GPIO_Port,
             .pin = FR_STBY_AIR_LVPWR_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_9,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_9,
     },
     [EFUSE_CHANNEL_LVPWR] = {
         .enable_gpio = {
@@ -180,7 +179,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_AIR_LVPWR_GPIO_Port,
             .pin = FR_STBY_AIR_LVPWR_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_8,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_8,
     },
     [EFUSE_CHANNEL_EMETER] = {
         .enable_gpio = {
@@ -191,7 +190,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_EMETER_AUX_GPIO_Port,
             .pin = FR_STBY_EMETER_AUX_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_15,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_15,
     },
     [EFUSE_CHANNEL_AUX] = {
         .enable_gpio = {
@@ -202,7 +201,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_EMETER_AUX_GPIO_Port,
             .pin = FR_STBY_EMETER_AUX_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_14,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_14,
     },
     [EFUSE_CHANNEL_DRS] = {
         .enable_gpio = {
@@ -213,7 +212,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_DRS_FAN_GPIO_Port,
             .pin = FR_STBY_DRS_FAN_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_7,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_7,
     },
     [EFUSE_CHANNEL_FAN] = {
         .enable_gpio = {
@@ -224,7 +223,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_DRS_FAN_GPIO_Port,
             .pin = FR_STBY_DRS_FAN_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_6,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_6,
     },
     [EFUSE_CHANNEL_DI_LHS] = {
         .enable_gpio = {
@@ -235,7 +234,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_DIS_GPIO_Port,
             .pin = FR_STBY_DIS_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_5,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_5,
     },
     [EFUSE_CHANNEL_DI_RHS] = {
         .enable_gpio = {
@@ -246,7 +245,7 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
             .port = FR_STBY_DIS_GPIO_Port,
             .pin = FR_STBY_DIS_Pin,
         },
-        .cur_sns_adc_channel = ADC1_CHANNEL_4,
+        .cur_sns_adc_channel = ADC_1_CHANNEL_4,
     }
 };
 
@@ -368,6 +367,11 @@ int main(void)
     io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
     io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
     io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
+
+    // broadcast commit info
+    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
+
     /* USER CODE END 2 */
 
     /* Init scheduler */
