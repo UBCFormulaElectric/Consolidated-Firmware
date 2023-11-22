@@ -29,6 +29,7 @@ set(SHARED_COMPILER_FLAGS
     -ffunction-sections
     -fdata-sections
     -g3
+    -O0
     -fno-common
     -fmessage-length=0
     -Wall
@@ -47,7 +48,8 @@ set(SHARED_COMPILER_FLAGS
 )
 set(SHARED_LINKER_FLAGS
     -Wl,-gc-sections,--print-memory-usage
-    --specs=nano.specs    
+    -L${FIRMWARE_DIR}/linker
+    --specs=nano.specs
 )
 
 set(CM4_DEFINES
@@ -75,7 +77,6 @@ function(embedded_library
     ARM_CORE
     THIRD_PARTY
 )
-#    message("Library ${LIB_NAME} with srcs: ${LIB_SRCS}")
     add_library(${LIB_NAME} STATIC ${LIB_SRCS})
 
     if(THIRD_PARTY)
@@ -96,7 +97,7 @@ function(embedded_library
             ${LIB_INCLUDE_DIRS}
         )
     endif()
-    
+
     set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
     set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
     set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
@@ -133,9 +134,10 @@ function(embedded_binary
     ARM_CORE
 )
     message("➕ Creating Embedded Target for ${BIN_NAME}")
-    add_executable(${BIN_NAME} ${BIN_SRCS})
+    set(ELF_NAME "${BIN_NAME}.elf")
+    add_executable(${ELF_NAME} ${BIN_SRCS})
 
-    target_include_directories(${BIN_NAME}
+    target_include_directories(${ELF_NAME}
         PRIVATE
         ${BIN_INCLUDE_DIRS}
     )
@@ -154,15 +156,15 @@ function(embedded_binary
         list(APPEND LINKER_FLAGS ${CM7_FPU_FLAGS})
     endif()
 
-    target_compile_definitions(${BIN_NAME}
+    target_compile_definitions(${ELF_NAME}
         PRIVATE
         ${COMPILER_DEFINES}
     )
-    target_compile_options(${BIN_NAME}
+    target_compile_options(${ELF_NAME}
         PRIVATE
         ${COMPILER_FLAGS}
     )
-    target_link_options(${BIN_NAME}
+    target_link_options(${ELF_NAME}
         PRIVATE
         ${LINKER_FLAGS}
         -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.map
@@ -172,21 +174,64 @@ function(embedded_binary
     )
 
     set(HEX_FILE "${BIN_NAME}.hex")
-    set(BIN_FILE "${BIN_NAME}.bin")
     set(ASM_FILE "${BIN_NAME}.asm")
+    set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
+    set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
+    add_custom_target(${HEX_FILE} ALL DEPENDS ${HEX_PATH})
+    add_custom_target(${ASM_FILE} ALL DEPENDS ${ASM_PATH})
 
-    # objcoopy is used to create a binary, hex, and assembly file from the elf
-    add_custom_command(TARGET ${BIN_NAME} POST_BUILD
+    # objcoopy is used to create a hex, and assembly file from the elf.
+    add_custom_command(
+        OUTPUT ${HEX_PATH}
         COMMAND ${CMAKE_OBJCOPY}
-        -Oihex $<TARGET_FILE:${BIN_NAME}> $<TARGET_FILE_DIR:${BIN_NAME}>/${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY}
-        -Obinary $<TARGET_FILE:${BIN_NAME}> $<TARGET_FILE_DIR:${BIN_NAME}>/${BIN_FILE}
+        -Oihex ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} ${HEX_PATH}
+        DEPENDS ${ELF_NAME}
+        COMMENT "Building ${HEX_FILE}"
+    )
+    add_custom_command(
+        OUTPUT ${ASM_PATH}
         COMMAND ${CMAKE_OBJDUMP}
-        -DS $<TARGET_FILE:${BIN_NAME}> > $<TARGET_FILE_DIR:${BIN_NAME}>/${ASM_FILE}
-        COMMENT "
-Building ${HEX_FILE}
-Building ${BIN_FILE}
-Building ${ASM_FILE}")
+        -DS ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} > ${ASM_PATH}
+        DEPENDS ${ELF_NAME}
+        COMMENT "Building ${ASM_FILE}"
+    )
+endfunction()
+
+# Generate firmware image package (merged app + bootloader).
+function(embedded_image
+    IMAGE_NAME
+    APP_HEX_TARGET
+    APP_HEX_PATH
+    BOOT_HEX_TARGET
+    BOOT_HEX_PATH
+)
+    message("🖼️ Creating Embedded Image for ${IMAGE_NAME}")
+
+    set(APP_METADATA_HEX "${IMAGE_NAME}_app_metadata.hex")
+    set(IMAGE_HEX "${IMAGE_NAME}.hex")
+    set(APP_METADATA_HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${APP_METADATA_HEX}")
+    set(IMAGE_HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${IMAGE_HEX}")
+
+    add_custom_target(${APP_METADATA_HEX} ALL
+        DEPENDS ${APP_METADATA_HEX_PATH}
+    )
+    add_custom_target(${IMAGE_HEX} ALL
+        DEPENDS ${IMAGE_HEX_PATH} 
+    )
+
+    set(GENERATE_IMAGE_SCRIPT "${SCRIPTS_DIR}/utilities/generate_image.py")
+    add_custom_command(
+        OUTPUT ${APP_METADATA_HEX_PATH} ${IMAGE_HEX_PATH}
+        COMMAND ${PYTHON_COMMAND} ${GENERATE_IMAGE_SCRIPT}
+        --app-hex ${APP_HEX_PATH}
+        --boot-hex ${BOOT_HEX_PATH}
+        --app-metadata-hex-out ${APP_METADATA_HEX_PATH}
+        --image-hex-out ${IMAGE_HEX_PATH}
+        DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    )
+    add_dependencies(${APP_METADATA_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
+    add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
@@ -254,8 +299,10 @@ function(stm32f412rx_cube_library
         "${SYSTEMVIEW_DIR}/Config"
         "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10"
     )
+
     # HAL sources.
     set(STM32_HAL_SRCS)
+
     foreach(HAL_SRC ${HAL_SRCS})
         list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Src/${HAL_SRC}")
     endforeach()
@@ -266,15 +313,17 @@ function(stm32f412rx_cube_library
         "${FREERTOS_DIR}/CMSIS_RTOS_V2/*.c"
         "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/*.c"
     )
-    
+
     # SEGGER SystemView sources.
-    file(GLOB SYSTEMVIEW_SRCS 
-        "${SYSTEMVIEW_DIR}/SEGGER/*.c" 
+    file(GLOB SYSTEMVIEW_SRCS
+        "${SYSTEMVIEW_DIR}/SEGGER/*.c"
         "${SYSTEMVIEW_DIR}/SEGGER/*.S"
     )
+
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
-    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1. 
+
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
     file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
@@ -283,7 +332,7 @@ function(stm32f412rx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
-    
+
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     embedded_library(
         "${HAL_LIB_NAME}"

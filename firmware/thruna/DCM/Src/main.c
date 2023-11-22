@@ -38,6 +38,7 @@
 #include "Io_EllipseImu.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
+#include "hw_bootup.h"
 #include "hw_can.h"
 
 #include "App_SharedMacros.h"
@@ -192,7 +193,8 @@ static const CanConfig can_config = {
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -201,7 +203,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -691,7 +692,7 @@ void RunTask100Hz(void *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -702,7 +703,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

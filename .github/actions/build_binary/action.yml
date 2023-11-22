@@ -25,4 +25,4 @@ runs:
       shell: bash
       run: |
         cmake -B ${{ inputs.build_dir }} -DPLATFORM=firmware -DTARGET=deploy -DHANDLE_DEPS=OFF
-        xvfb-run make --directory=${{ inputs.build_dir }} -j`nproc` ${{ inputs.board }}.elf
+        xvfb-run make --directory=${{ inputs.build_dir }} -j`nproc` ${{ inputs.board }}.hex

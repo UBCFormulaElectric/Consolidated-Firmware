@@ -1,6 +1,7 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
-set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32H733VGTX_FLASH.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_flash.ld")
+
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -26,6 +27,8 @@ file(GLOB_RECURSE HW_SRCS
 list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_sd.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_can.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_crc.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_flash.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
 
@@ -67,7 +70,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "h7dev.elf"
+        "h7dev"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"

@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DIM.ioc")
-set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -17,6 +17,8 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
 list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_crc.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_flash.c")
 
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -36,17 +38,17 @@ commit_info_library(
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-            "DIM_can"
-            "DIM"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            TRUE
+        "DIM_can"
+        "DIM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        TRUE
     )
     embedded_library(
-            DIM_can
-            "${CAN_SRCS}"
-            "${CAN_INCLUDE_DIRS}"
-            "${ARM_CORE}"
-            TRUE
+        DIM_can
+        "${CAN_SRCS}"
+        "${CAN_INCLUDE_DIRS}"
+        "${ARM_CORE}"
+        TRUE
     )
 
     generate_stm32cube_code(
@@ -85,14 +87,22 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "DIM.elf"
+        "DIM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
     target_link_libraries("DIM_can" "DIM_stm32cube")
-    target_link_libraries("DIM.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
+    target_link_libraries("DIM_app.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
+    
+    embedded_image(
+        "DIM"
+        "DIM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/DIM_app.hex"
+        "DIM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/DIM_boot.hex"
+    )
 
 elseif("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
@@ -104,10 +114,10 @@ elseif("${TARGET}" STREQUAL "test")
     )
 
     jsoncan_library(
-            "DIM_can"
-            "DIM"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            FALSE
+        "DIM_can"
+        "DIM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
     )
     add_library(DIM_can STATIC "${CAN_SRCS}")
     target_include_directories(DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")
