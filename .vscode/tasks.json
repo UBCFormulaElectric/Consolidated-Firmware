@@ -83,7 +83,7 @@
             }
         },
         {
-            "label": "Build: f4dev.elf",
+            "label": "Build: f4dev",
             "type": "shell",
             "command": "make -j`nproc` f4dev.elf",
             "group": "build",
@@ -92,7 +92,7 @@
             }
         },
         {
-            "label": "Build: h7dev.elf",
+            "label": "Build: h7dev",
             "type": "shell",
             "command": "make -j`nproc` h7dev.elf",
             "group": "build",

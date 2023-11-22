@@ -84,7 +84,20 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DIM"
+      "preLaunchTask": "Build: f4dev"
+    },
+    {
+      "name": "Debug Embedded: f4dev",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/dev/f4dev/f4dev.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: f4dev"
     },
     {
       "name": "Debug Embedded: h7dev",
