@@ -19,6 +19,7 @@ EXCLUDE_FILES = [
     # Ignore them from clang-format as a workaround.
     "stm32f3xx_hal_conf.h",
     "system_stm32f3xx.c",
+    *"ioc.md5",
 ]
 
 # Directories ignored by clang-format
