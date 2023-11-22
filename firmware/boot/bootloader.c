@@ -148,6 +148,11 @@ void bootloader_init()
     HAL_GPIO_Init(BOOT_GPIO_PORT, &bootloader_gpio_init);
 #endif
 
+    hw_hardFaultHandler_init();
+    hw_crc_init(&hcrc);
+    hw_can_init(&hcan1);
+    io_can_init(&can_config);
+
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO
@@ -167,10 +172,6 @@ void bootloader_init()
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    hw_hardFaultHandler_init();
-    hw_crc_init(&hcrc);
-    hw_can_init(&hcan1);
-    io_can_init(&can_config);
     bootloader_boardSpecific_init();
 }
 
