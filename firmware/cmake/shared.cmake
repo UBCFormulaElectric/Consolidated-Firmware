@@ -1,4 +1,6 @@
 set(FIRMWARE_DIR "${CMAKE_SOURCE_DIR}/firmware")
+set(LINKER_DIR "${FIRMWARE_DIR}/linker")
+set(BOOT_DIR "${FIRMWARE_DIR}/boot")
 set(SHARED_DIR "${FIRMWARE_DIR}/shared")
 set(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
 set(SHARED_TEST_DIR "${SHARED_DIR}/test")

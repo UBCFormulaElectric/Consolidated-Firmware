@@ -48,6 +48,7 @@
 #include "Io_SecondaryScancon2RMHF.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
+#include "hw_bootup.h"
 #include "hw_can.h"
 
 // world/state
@@ -219,7 +220,8 @@ static const CanConfig can_config = {
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/

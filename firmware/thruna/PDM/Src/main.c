@@ -42,6 +42,7 @@
 #include "Io_VoltageSense.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
+#include "hw_bootup.h"
 #include "hw_can.h"
 
 #include "App_CanAlerts.h"
@@ -217,7 +218,8 @@ static const CanConfig can_config = {
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -233,7 +235,6 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */

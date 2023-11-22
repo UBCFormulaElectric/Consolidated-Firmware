@@ -2,7 +2,6 @@
 Generate a script that can be used by STM32CubeMX command line interface. And
 generate STM32CubeMX code accordingy.
 """
-import sys
 import os
 import subprocess
 import argparse
