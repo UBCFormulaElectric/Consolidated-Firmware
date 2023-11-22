@@ -82,6 +82,7 @@ ENDIF ()
 message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 # ======== Python Checks ========
+
 message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Dependency Handling ========
