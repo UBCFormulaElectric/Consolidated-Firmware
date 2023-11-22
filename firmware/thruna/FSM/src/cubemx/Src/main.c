@@ -256,24 +256,16 @@ int main(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-<<<<<<< HEAD:firmware/thruna/FSM/Src/main.c
     hw_can_init(&hcan1);
 
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    Io_AcceleratorPedals_Init();
     io_can_init(&can_config);
-=======
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_apps_init();
 
+    io_apps_init();
     io_coolant_init(&htim8);
     io_wheels_init(&htim12, &htim12);
->>>>>>> 5a6a29fb (refactor fsm):firmware/thruna/FSM/src/cubemx/Src/main.c
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -289,6 +281,10 @@ int main(void)
 
     state_machine              = App_SharedStateMachine_Create(NULL, app_driveState_get());
     globals->heartbeat_monitor = heartbeat_monitor;
+
+    // broadcast commit info
+    App_CanTx_FSM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_FSM_Clean_Set(GIT_COMMIT_CLEAN);
     /* USER CODE END 2 */
 
     /* Init scheduler */
