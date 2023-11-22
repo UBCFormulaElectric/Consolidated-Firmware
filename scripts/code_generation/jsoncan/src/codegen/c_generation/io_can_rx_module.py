@@ -50,7 +50,7 @@ class IoCanRxModule(CModule):
             CFuncsConfig.IO_RX_UPDATE_TABLE,
             "void",
             args=[
-                CVar("msg", "CanMsg*"),
+                CVar("msg", f"{CTypesConfig.CAN_MSG_STRUCT}*"),
             ],
             comment=f"Unpack a received message and update the CAN RX table.",
         )

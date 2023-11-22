@@ -38,7 +38,6 @@
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
-#include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
 #include "hw_hardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
@@ -50,8 +49,12 @@
 #include "io_watchdogConfig.h"
 #include "io_stackWaterMark.h"
 #include "io_sevenSegDisplays.h"
+#include "io_can.h"
+#include "io_jsoncan.h"
+#include "io_canConfig.h"
 
 #include "hw_gpio.h"
+#include "hw_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -139,6 +142,12 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
+static const CanConfig can_config = {
+    .rx_msg_filter        = Io_CanRx_FilterMessageId,
+    .tx_overflow_callback = io_canConfig_txOverflowCallback,
+    .rx_overflow_callback = io_canConfig_rxOverflowCallback,
+};
+
 struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
 
@@ -299,17 +308,6 @@ void        RunTask1Hz(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void CanRxQueueOverflowCallBack(size_t overflow_count)
-{
-    App_CanTx_DIM_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_DIM_Warning_RxOverflow_Set(true);
-}
-
-static void CanTxQueueOverflowCallBack(size_t overflow_count)
-{
-    App_CanTx_DIM_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_DIM_Warning_TxOverflow_Set(true);
-}
 /* USER CODE END 0 */
 
 /**
@@ -349,12 +347,13 @@ int main(void)
     SEGGER_SYSVIEW_Conf();
 
     hw_hardFaultHandler_init();
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    hw_can_init(&hcan1);
 
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
+    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_sevenSegDisplays_init(&seven_segs_config);
+    io_can_init(&can_config);
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -740,9 +739,12 @@ void RunTaskCanRx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -762,7 +764,7 @@ void RunTaskCanTx(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        io_can_transmitMsgFromQueue();
     }
     /* USER CODE END RunTaskCanTx */
 }
