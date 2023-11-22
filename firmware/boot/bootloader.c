@@ -128,7 +128,7 @@ static const Gpio bootloader_pin = {
 };
 
 static uint32_t current_address;
-static bool     loading_binary;
+static bool     update_in_progress;
 
 void bootloader_init()
 {
@@ -148,6 +148,25 @@ void bootloader_init()
     HAL_GPIO_Init(BOOT_GPIO_PORT, &bootloader_gpio_init);
 #endif
 
+    // Some boards don't have a "boot mode" GPIO and just jump directly to app.
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
+#ifndef BOOT_AUTO
+        && hw_gpio_readPin(&bootloader_pin)
+#endif
+    )
+    {
+        // Deinit peripherals.
+#ifndef BOOT_AUTO
+        HAL_GPIO_DeInit(BOOT_GPIO_PORT, BOOT_GPIO_PIN);
+#endif
+        HAL_TIM_Base_Stop_IT(&htim6);
+        HAL_CRC_DeInit(&hcrc);
+        hw_can_deinit();
+
+        // Jump to app.
+        modifyStackPointerAndStartApp(&__app_code_start__);
+    }
+
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     hw_can_init(&hcan1);
@@ -165,14 +184,14 @@ void bootloader_runInterfaceTask()
         if (command.std_id == START_UPDATE_ID)
         {
             // Reset current address to program and update state.
-            current_address = (uint32_t)&__app_metadata_start__;
-            loading_binary  = true;
+            current_address    = (uint32_t)&__app_metadata_start__;
+            update_in_progress = true;
 
             // Send ACK message that programming has started.
             CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
             io_can_pushTxMsgToQueue(&reply);
         }
-        if (command.std_id == ERASE_SECTOR_ID && loading_binary)
+        else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
         {
             // Erase a flash sector.
             uint8_t sector = command.data[0];
@@ -185,7 +204,7 @@ void bootloader_runInterfaceTask()
             };
             io_can_pushTxMsgToQueue(&reply);
         }
-        else if (command.std_id == PROGRAM_ID && loading_binary)
+        else if (command.std_id == PROGRAM_ID && update_in_progress)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
@@ -195,7 +214,7 @@ void bootloader_runInterfaceTask()
             hw_flash_programWord(current_address + sizeof(uint32_t), msb_word);
             current_address += 2 * sizeof(uint32_t);
         }
-        else if (command.std_id == VERIFY_ID && loading_binary)
+        else if (command.std_id == VERIFY_ID && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
@@ -206,7 +225,7 @@ void bootloader_runInterfaceTask()
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
-            loading_binary = false;
+            update_in_progress = false;
         }
     }
 }
@@ -217,26 +236,6 @@ void bootloader_runTickTask()
 
     for (;;)
     {
-        // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-        if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && !loading_binary
-#ifndef BOOT_AUTO
-            && hw_gpio_readPin(&bootloader_pin)
-#endif
-        )
-        {
-            // Deinit peripherals.
-#ifndef BOOT_AUTO
-            HAL_GPIO_DeInit(BOOT_GPIO_PORT, BOOT_GPIO_PIN);
-#endif
-            HAL_TIM_Base_Stop_IT(&htim6);
-            HAL_CRC_DeInit(&hcrc);
-            hw_can_deinit();
-            bootloader_boardSpecific_deinit();
-
-            // Jump to app.
-            modifyStackPointerAndStartApp(&__app_code_start__);
-        }
-
         // Broadcast a message at 1Hz so we can check status over CAN.
         CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
         status_msg.data[0] = verifyAppCodeChecksum();
@@ -258,7 +257,5 @@ void bootloader_runCanTxTask()
 }
 
 __WEAK void bootloader_boardSpecific_init() {}
-
-__WEAK void bootloader_boardSpecific_deinit() {}
 
 __WEAK void bootloader_boardSpecific_tick() {}

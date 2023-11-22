@@ -61,7 +61,6 @@ void hw_can_init(CanHandle *can_handle)
 
 void hw_can_deinit()
 {
-    assert(HAL_CAN_Stop(handle) == HAL_OK);
     assert(HAL_CAN_DeInit(handle) == HAL_OK);
 }
 

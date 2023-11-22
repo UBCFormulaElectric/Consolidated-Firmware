@@ -14,7 +14,7 @@ import math
 import struct
 
 
-APP_METADATA_START = 0x8040000
+APP_METADATA_START = 0x8020000
 
 
 class Crc32:
