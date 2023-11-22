@@ -83,11 +83,11 @@ message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 # ======== Python Checks ========
 
-message("⚙️ Run Clang-Formatting for ${PLATFORM}-${TARGET} build target")
+message("⚙️ Run Clang-Formatting for all boards")
 set(PYTHON_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
 
 execute_process(
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}  ${PYTHON_COMMAND}  ${PYTHON_SCRIPT}
+    COMMAND ${PYTHON_COMMAND}  ${PYTHON_SCRIPT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
