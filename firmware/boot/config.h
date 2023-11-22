@@ -52,15 +52,6 @@
 #define BOOT_GPIO_PORT GPIOB
 #define BOOT_GPIO_PIN GPIO_PIN_4
 
-#elif defined(f4dev)
-
-#define START_UPDATE_ID 1150
-#define UPDATE_ACK_ID 1151
-#define STATUS_10HZ_ID 1159
-#define BOOT_AUTO
-#define BOOT_GPIO_PORT NULL
-#define BOOT_GPIO_PIN 0
-
 #else
 
 #error "Board not defined!"
