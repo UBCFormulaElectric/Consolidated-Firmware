@@ -120,8 +120,9 @@ static void compute_regen_torque_request(ActiveDifferential_Inputs *inputs, Rege
         torqueRequest = torqueRequest * 0.75f;
     }
 
-    if (min_motor_speed <= 10.0f) {
-        torqueRequest = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph) * torqueRequest; 
+    if (min_motor_speed <= 10.0f)
+    {
+        torqueRequest = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph)*torqueRequest;
     }
 
     if (regenAttr->enable_active_differential)

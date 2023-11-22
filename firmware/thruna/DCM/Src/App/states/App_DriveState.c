@@ -86,7 +86,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (regen_switch_enabled)
     {
         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-        apps_pedal_percentage = apps_pedal_percentage < 0.0f ? apps_pedal_percentage / PEDAL_SCALE : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+        apps_pedal_percentage = apps_pedal_percentage < 0.0f
+                                    ? apps_pedal_percentage / PEDAL_SCALE
+                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
     if (exit_drive)
@@ -133,4 +135,3 @@ const struct State *app_driveState_get(void)
 
     return &drive_state;
 }
-
