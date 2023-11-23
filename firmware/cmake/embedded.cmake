@@ -180,6 +180,11 @@ function(embedded_binary
     add_custom_target(${HEX_FILE} ALL DEPENDS ${HEX_PATH})
     add_custom_target(${ASM_FILE} ALL DEPENDS ${ASM_PATH})
 
+    add_custom_command(TARGET ${BIN_NAME} POST_BUILD
+    COMMAND ${PYTHON_COMMAND} ${SCRIPTS_DIR}/clang_format/fix_formatting.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Formatting Source Files")
+
     # objcoopy is used to create a hex, and assembly file from the elf.
     add_custom_command(
         OUTPUT ${HEX_PATH}
