@@ -63,6 +63,14 @@ public:
         QMetaObject::connectSlotsByName(MainWindow);
     }
 
+    // Frames should only be switching when indicated by switcher
+	void toggleFrame() {
+		// TODO toggle properly LMAO
+		int nextIdx = MainStack->currentIndex() + 1;
+		if (nextIdx == MainStack->count()) nextIdx = 0;
+        MainStack->setCurrentIndex(nextIdx);
+	}
+
 	void toggleSwitcher() {
 		if(isSwitcherOpen) {
 			SwitcherFrame->hide();

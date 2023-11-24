@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWi
 	ui->setupUi(this);
 }
 
+// Testing purposes (GPIO dummy)
 void MainWindow::keyPressEvent(QKeyEvent *event) {
 	switch (event->key()) {
 		case Qt::Key_Space:
@@ -31,8 +32,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Left:
 			ui->switcherLeft();
 			break;
+        case Qt::Key_Up:
+            ui->toggleFrame();
 		default:
-			// TODO print debug message saying unhandled key
+            std::cout<< "UNHANDLED KEY" << "\n";
 			break;
 	}
 }

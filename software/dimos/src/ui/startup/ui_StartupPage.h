@@ -9,20 +9,47 @@
 
 QT_BEGIN_NAMESPACE
 
+struct DriverProfile {
+    QString name;
+    QString imagePath;
+    int height;
+    int width;
+};
+
 class ui_StartupPage
 {
 public:
-    void setupUi(QWidget *parent)
+    // TODO Maybe format into data structure?
+    DriverProfile driverOne = {"ZEDWIN", ":/Zheng_Edwin.png", 400, 400};
+
+    QLabel *DriverPhoto;
+    QLabel *DriverName;
+
+    void setupUi(QWidget *startup)
     {
-        if (parent->objectName().isEmpty())
-            parent->setObjectName("landing");
-        parent->resize(1024, 600);
+        if (startup->objectName().isEmpty())
+            startup->setObjectName("startup");
+        startup->resize(1024, 600);
 
-		auto label = new QLabel(parent);
-		label->setObjectName("label");
-		label->setText("Hello World!");
+        auto gridLayout = new QGridLayout(startup);
+        gridLayout->setAlignment(Qt::AlignCenter);
 
-        QMetaObject::connectSlotsByName(parent);
+		DriverPhoto = new QLabel(startup);
+        DriverPhoto->setObjectName("Driver Photo");
+
+        // TODO SETUP INPUT FOR SPECIFIC DRIVER
+        QPixmap image(driverOne.imagePath);
+        DriverPhoto->setPixmap(image);
+        gridLayout->addWidget(DriverPhoto);
+
+        DriverName = new QLabel(startup);
+        DriverName->setText(driverOne.name);
+        gridLayout->addWidget(DriverName);
+
+
+        startup->setLayout(gridLayout);
+
+        QMetaObject::connectSlotsByName(startup);
     }
 };
 

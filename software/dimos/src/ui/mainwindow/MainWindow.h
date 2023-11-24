@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QStackedWidget>
 #include <QKeyEvent>
+#include <iostream>
 
 #include "ui_MainWindow.h"
 
