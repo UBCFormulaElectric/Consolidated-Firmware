@@ -4,6 +4,8 @@
 #include "App_SharedDcmConstants.h"
 #include <math.h>
 
+static float k = 0.0;
+
 void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)
 {
     PID *pid = inputs->pid;
@@ -16,7 +18,7 @@ void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionC
         App_TractionControl_ComputeSlip(inputs->motor_speed_right_rpm, wheel_speed_front_right_rpm);
 
     float slip_ratio_max = fmaxf(slip_ratio_left, slip_ratio_right);
-    float k              = App_PID_Compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    k                    += App_PID_Compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
     App_CanTx_DCM_SlipRatioLeft_Set(slip_ratio_left);
