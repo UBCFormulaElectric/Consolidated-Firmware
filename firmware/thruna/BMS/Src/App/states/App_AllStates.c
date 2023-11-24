@@ -174,6 +174,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SetPeriodicCanSignals_Imd(imd);
     App_Accumulator_BroadcastThermistorTemps(accumulator);
 
+    float segment4_cell2_temp, segment4_cell8_temp;
+    App_Accumulator_GetSpecifiedCellTemps(accumulator, &segment4_cell2_temp, &segment4_cell8_temp);
+    App_CanTx_BMS_Seg4Cell2Temp_Set(segment4_cell2_temp);
+    App_CanTx_BMS_Seg4Cell8Temp_Set(segment4_cell8_temp);
+
     App_AdvertisePackPower(accumulator, ts);
 
     App_CanTx_BMS_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));

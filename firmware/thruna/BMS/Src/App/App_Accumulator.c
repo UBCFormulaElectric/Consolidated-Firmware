@@ -82,6 +82,7 @@ struct Accumulator
     float (*get_min_cell_temp)(uint8_t *, uint8_t *);
     float (*get_max_cell_temp)(uint8_t *, uint8_t *);
     float (*get_avg_cell_temp)(void);
+    void (*get_specified_cell_temps)(float *, float *);
 
     bool (*enable_balance)(void);
     bool (*disable_balance)(void);
@@ -231,6 +232,7 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
+    void (*get_specified_cell_temps)(float *, float *),
     bool (*enable_balance)(void),
     bool (*disable_balance)(void),
     bool (*check_imd_latched_fault)(void),
@@ -256,11 +258,12 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->state = GET_CELL_VOLTAGE_STATE;
 
     // Cell temperature monitoring functions
-    accumulator->start_cell_temp_conv   = start_cell_temp_conv;
-    accumulator->read_cell_temperatures = read_cell_temperatures;
-    accumulator->get_min_cell_temp      = get_min_cell_temp;
-    accumulator->get_max_cell_temp      = get_max_cell_temp;
-    accumulator->get_avg_cell_temp      = get_avg_cell_temp;
+    accumulator->start_cell_temp_conv     = start_cell_temp_conv;
+    accumulator->read_cell_temperatures   = read_cell_temperatures;
+    accumulator->get_min_cell_temp        = get_min_cell_temp;
+    accumulator->get_max_cell_temp        = get_max_cell_temp;
+    accumulator->get_avg_cell_temp        = get_avg_cell_temp;
+    accumulator->get_specified_cell_temps = get_specified_cell_temps;
 
     // Balancing information
     memset(&accumulator->cells_to_balance, 0U, sizeof(accumulator->cells_to_balance));
@@ -507,4 +510,9 @@ void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumula
     App_CanTx_BMS_ThermTemp3_Set(accumulator->aux_thermistor_temps[3]);
     App_CanTx_BMS_ThermTemp4_Set(accumulator->aux_thermistor_temps[4]);
     App_CanTx_BMS_ThermTemp5_Set(accumulator->aux_thermistor_temps[5]);
+}
+
+void App_Accumulator_GetSpecifiedCellTemps(struct Accumulator *const accumulator, float *cell1, float *cell2)
+{
+    accumulator->get_specified_cell_temps(cell1, cell2);
 }

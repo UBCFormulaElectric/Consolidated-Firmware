@@ -80,6 +80,9 @@ struct LTC6813TempStatistics
     float avg;
 };
 
+static float seg4cell2_temp = 0;
+static float seg4cell8_temp = 0;
+
 struct LTC6813Temperatures
 {
     struct LTC6813TempStatistics stats;
@@ -111,7 +114,6 @@ static bool Io_ParseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
 
 /**
  * Update cell temperature
- * @param raw_thermistor_voltage
  * @return
  */
 static void Io_UpdateCellTemperatureStatistics(void)
@@ -150,6 +152,18 @@ static void Io_UpdateCellTemperatureStatistics(void)
                         temp_stats.max.temp       = curr_cell_temp;
                         temp_stats.max.segment    = curr_segment;
                         temp_stats.max.thermistor = curr_cell_index;
+                    }
+
+                    if (curr_segment == 4U)
+                    {
+                        if (curr_cell_index == 2U)
+                        {
+                            seg4cell2_temp = curr_cell_temp;
+                        }
+                        else if (curr_cell_index == 8U)
+                        {
+                            seg4cell8_temp = curr_cell_temp;
+                        }
                     }
 
                     sum_temp += curr_cell_temp;
@@ -321,4 +335,10 @@ float Io_LTC6813CellTemperatures_GetMaxTempDegC(uint8_t *segment, uint8_t *therm
 float Io_LTC6813CellTemperatures_GetAverageTempDegC(void)
 {
     return ltc6813_temp.stats.avg;
+}
+
+void Io_LTC6813CellTemperatures_GetSpecifiedTempDegC(float *celltemp2, float *celltemp8)
+{
+    *celltemp2 = seg4cell2_temp * DECI_DEGC_TO_DEGC;
+    *celltemp8 = seg4cell8_temp * DECI_DEGC_TO_DEGC;
 }
