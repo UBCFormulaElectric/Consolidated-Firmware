@@ -6,6 +6,11 @@ class Interpreter:
 
     def visit_NumberNode(self, node):
         return node.value
+
+    def visit_SignalNode(self, node):
+        if node.value:
+            return node.value
+        # To do look up the signal data
     
     def visit_BinaryOperatorNode(self, node):
         left = self.visit(node.left)

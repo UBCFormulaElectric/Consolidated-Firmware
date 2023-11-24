@@ -3,7 +3,10 @@ import sys
 from pathlib import Path
 import json
 
-import Definitions 
+import Definitions
+from interpreter import Interpreter
+from parser import Parser
+from lexer import Lexer
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
@@ -11,17 +14,27 @@ MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_dat
 SIGNAL_DEF_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "customSignals"
 
 class ExpressionParser:
-    def parse(s):
-        # Convert to some expression tree to evaluate
-        pass
+    """
+    Class for handling read, writes for custom signals
+    """
+    def __init__(self, local_debug=True):
+        self.lexer = Lexer() 
+        self.interpreter = Interpreter
+        self.local_debug = local_debug
+        self.signal_dict = {}
+        self.mock_signal_database_file = SIGNAL_DEF_PATH / "test_cust_sig.json"
 
-    def save_signal(signal_dict, file_name):
-        with open(SIGNAL_DEF_PATH / file_name, 'w') as file:
-            json.dump(signal_dict, file)
+    def parse(self, s):
+        tok = self.lexer.generate_tokens(s)
+        parser = Parser(tok)
+        tree = parser.expression()
+        return self.interpreter.visit(tree)
 
-    def read_signal(file_name):
-        full_file_path = SIGNAL_DEF_PATH / file_name
-        signal_dict = None
-        with open(full_file_path, 'r') as file:
-            signal_dict = json.load(file)
-        return signal_dict
+    def save_signal(self):
+        if self.local_debug:
+            with open(self.mock_signal_database_file, 'w') as file:
+                json.dump(self.signal_dict, file)
+
+    def read_signal(self):
+        with open(self.mock_signal_database_file, 'r') as file:
+            self.singal_dict = json.load(file)

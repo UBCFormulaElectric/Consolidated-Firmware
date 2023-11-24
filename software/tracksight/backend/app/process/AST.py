@@ -8,6 +8,14 @@ class NumberNode(ASTNode):
     def __repr__(self):
         return f"Number : {self.value}"
 
+class SignalNode(ASTNode):
+    def __init__(self, signalName):
+        self.signalName = signalName
+        self.value = None
+
+    def __repr__(self):
+        return f"{self.signal}"
+
 class BinaryOperatorNode(ASTNode):
     def __init__(self, left, op, right):
         self.left = left
