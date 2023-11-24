@@ -14,9 +14,6 @@ void Switcher::toggleLeft() {
 	repositionSwitcherButtons();
 }
 
-constexpr int BUTTON_CENTER_X = 1024 / 2, BUTTON_BOTTOM_Y = 600, R = 1910, BUTTON_GAP = 10, OVAL_COEFFICIENT = 1, BUTTON_WIDTH = 200;
-constexpr double VERTICAL_CORRECTION = 0.975 * R;
-
 void Switcher::setupUI() {
 	this->resize(1024, 600);
 	this->setMinimumSize(QSize(1024, 600));
@@ -47,6 +44,8 @@ void Switcher::setupUI() {
 	repositionSwitcherButtons();
 }
 
+
+constexpr int SCREEN_CENTER_X = 1024 / 2, SCREEN_BOTTOM_Y = 600;
 /**
  * \brief Repositions the buttons
  * TODO consider making this part of the update event
@@ -62,10 +61,12 @@ void Switcher::repositionSwitcherButtons() {
 	// adjust label
 	selectedEventLabel->setText(switcherOptionToName[selectedEvent]);
 	selectedEventLabel->adjustSize();
-	selectedEventLabel->move(BUTTON_CENTER_X - selectedEventLabel->width() / 2,
-							 BUTTON_BOTTOM_Y - selectedEventLabel->height() - 10);
+	selectedEventLabel->move(SCREEN_CENTER_X - selectedEventLabel->width() / 2,
+							 SCREEN_BOTTOM_Y - selectedEventLabel->height() - 10);
 }
 
+constexpr int R = 1910, BUTTON_GAP = 10, OVAL_COEFFICIENT = 1, BUTTON_WIDTH = 200;
+constexpr double VERTICAL_CORRECTION = 50;
 /**
  * Places a button at a certain angle
  * @param ii The index of the button
@@ -74,10 +75,10 @@ void Switcher::repositionSwitcherButtons() {
 QPoint Switcher::place_circle_from_index(const int ii) {
 	const int uncorrected_x = ii * (BUTTON_WIDTH + BUTTON_GAP);
 	return  {
-		BUTTON_CENTER_X + uncorrected_x,
-		BUTTON_BOTTOM_Y -
+		SCREEN_CENTER_X + uncorrected_x,
+		SCREEN_BOTTOM_Y -
 			static_cast<int>(std::round(sqrt(pow(R,2) - pow(uncorrected_x,2)/pow(OVAL_COEFFICIENT,2)))
-			- VERTICAL_CORRECTION)
+			- (R - VERTICAL_CORRECTION))
 	};
 }
 
