@@ -3,6 +3,8 @@
 #include <QFrame>
 #include <QLabel>
 
+#include <vector>
+
 #include "SwitcherButton.h"
 
 class Switcher: public QFrame {
@@ -21,6 +23,8 @@ private:
 	std::unique_ptr<SwitcherButton> enduranceOption, accelerationOption, skidpadOption, autoCrossOption, brakingOption;
 	std::unique_ptr<QLabel> selectedEventLabel;
 
+	std::vector<SwitcherButton *> activeButtons;
+
 	inline static double BUTTON_ANGLE_OFFSETS[] = {0, 13, 26, -26, -13};
 
 	inline static std::map<SwitcherButtonOption, QString> switcherOptionToName = {
@@ -33,7 +37,7 @@ private:
 
 	void repositionSwitcherButtons();
 
-	static QPoint place_center(double angle_deg);
-	static QPoint c_2_tl(QWidget * w, QPoint p);
+	QPoint place_circle_from_index(int ii);
+	static QPoint c_2_tl(QRect dims, QPoint p);
 
 };

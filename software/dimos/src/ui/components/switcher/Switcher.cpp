@@ -1,13 +1,21 @@
 #include "Switcher.h"
 
-const int BUTTON_CENTER_X = 1024 / 2;
-const int BUTTON_BOTTOM_Y = 600;
-const int OFFSET = 50;
-const int R = 955;
-
 Switcher::Switcher(QWidget *parent): QFrame(parent) {
 	setupUI();
 }
+
+void Switcher::toggleRight() {
+	selectedEvent = static_cast<SwitcherButtonOption>((selectedEvent + 1) % SwitcherButtonOptionSize);
+	repositionSwitcherButtons();
+}
+
+void Switcher::toggleLeft() {
+	selectedEvent = static_cast<SwitcherButtonOption>((selectedEvent - 1 + SwitcherButtonOptionSize) % SwitcherButtonOptionSize);
+	repositionSwitcherButtons();
+}
+
+constexpr int BUTTON_CENTER_X = 1024 / 2, BUTTON_BOTTOM_Y = 600, R = 1910, BUTTON_GAP = 10, OVAL_COEFFICIENT = 1, BUTTON_WIDTH = 200;
+constexpr double VERTICAL_CORRECTION = 0.975 * R;
 
 void Switcher::setupUI() {
 	this->resize(1024, 600);
@@ -19,6 +27,14 @@ void Switcher::setupUI() {
 	autoCrossOption 	= std::make_unique<SwitcherButton>(AUTOCROSS, this);
 	brakingOption 		= std::make_unique<SwitcherButton>(BRAKING, 	this);
 
+	activeButtons = {
+		enduranceOption.get(),
+		accelerationOption.get(),
+		skidpadOption.get(),
+		autoCrossOption.get(),
+		brakingOption.get()
+	};
+
 	selectedEvent = ENDURANCE;
 	selectedEventLabel = std::make_unique<QLabel>(this);
 	selectedEventLabel->setStyleSheet(
@@ -28,32 +44,22 @@ void Switcher::setupUI() {
 			 "	font-weight: bold;"
 			 "}");
 
-
 	repositionSwitcherButtons();
 }
 
-void Switcher::toggleRight() {
-	selectedEvent = (SwitcherButtonOption) ((selectedEvent + 1) % SwitcherButtonOptionSize);
-	repositionSwitcherButtons();
-}
-
-void Switcher::toggleLeft() {
-	selectedEvent = (SwitcherButtonOption) ((selectedEvent - 1 + SwitcherButtonOptionSize) % SwitcherButtonOptionSize);
-	repositionSwitcherButtons();
-}
-
+/**
+ * \brief Repositions the buttons
+ * TODO consider making this part of the update event
+ */
 void Switcher::repositionSwitcherButtons() {
-	enduranceOption->move(c_2_tl(enduranceOption.get(),
-								 place_center(BUTTON_ANGLE_OFFSETS[(selectedEvent - ENDURANCE  + SwitcherButtonOptionSize) % SwitcherButtonOptionSize])));
-	accelerationOption->move(c_2_tl(accelerationOption.get(),
-									place_center(BUTTON_ANGLE_OFFSETS[(selectedEvent - ACCELERATION + SwitcherButtonOptionSize) % SwitcherButtonOptionSize])));
-	skidpadOption->move(c_2_tl(skidpadOption.get(),
-							   place_center(BUTTON_ANGLE_OFFSETS[(selectedEvent - SKIDPAD + SwitcherButtonOptionSize) % SwitcherButtonOptionSize])));
-	autoCrossOption->move(c_2_tl(autoCrossOption.get(),
-								 place_center(BUTTON_ANGLE_OFFSETS[(selectedEvent - AUTOCROSS + SwitcherButtonOptionSize) % SwitcherButtonOptionSize])));
-	brakingOption->move(c_2_tl(brakingOption.get(),
-							   place_center(BUTTON_ANGLE_OFFSETS[(selectedEvent - BRAKING + SwitcherButtonOptionSize) % SwitcherButtonOptionSize])));
+	for(int ii = -2; ii <= 2; ii++) {
+		const uint objIndex = (selectedEvent + ii + activeButtons.size()) % activeButtons.size();
+		const auto button = activeButtons[objIndex];
+		const QPoint centerLoc = place_circle_from_index(ii), loc = c_2_tl(enduranceOption->rect(), centerLoc);
+		button->move(loc);
+	}
 
+	// adjust label
 	selectedEventLabel->setText(switcherOptionToName[selectedEvent]);
 	selectedEventLabel->adjustSize();
 	selectedEventLabel->move(BUTTON_CENTER_X - selectedEventLabel->width() / 2,
@@ -62,25 +68,29 @@ void Switcher::repositionSwitcherButtons() {
 
 /**
  * Places a button at a certain angle
- * @param angle_deg The angle in degrees
+ * @param ii The index of the button
  * @return The center point of the button
  */
-QPoint Switcher::place_center(double angle_deg) {
+QPoint Switcher::place_circle_from_index(const int ii) {
+	const int uncorrected_x = ii * (BUTTON_WIDTH + BUTTON_GAP);
 	return  {
-		(int) round(BUTTON_CENTER_X + R * sin(angle_deg * M_PI / 180)),
-		(int) round(BUTTON_BOTTOM_Y + R - R * cos(angle_deg * M_PI / 180) - OFFSET)
+		BUTTON_CENTER_X + uncorrected_x,
+		BUTTON_BOTTOM_Y -
+			static_cast<int>(std::round(sqrt(pow(R,2) - pow(uncorrected_x,2)/pow(OVAL_COEFFICIENT,2)))
+			- VERTICAL_CORRECTION)
 	};
 }
 
 /**
  * Converts a center point to a top left point
- * @param w The widget for which to convert it
+ *
+ * @param dims The dimensions of the object
  * @param p The point to convert
  * @return The top left point
  */
-QPoint Switcher::c_2_tl(QWidget * w, QPoint p) {
+QPoint Switcher::c_2_tl(const QRect dims, const QPoint p) {
 	return {
-		p.x() - w->width() / 2,
-		p.y() - w->height()
+		p.x() - dims.width() / 2,
+		p.y() - dims.height()
 	};
 }

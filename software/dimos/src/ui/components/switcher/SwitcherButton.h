@@ -3,6 +3,10 @@
 #include <QPushButton>
 #include <QLabel>
 
+#include <QPalette>
+#include <QPainter>
+#include <QTime>
+
 enum SwitcherButtonOption {
 	ENDURANCE,
 	ACCELERATION,
@@ -17,6 +21,8 @@ Q_OBJECT
 public:
 	explicit SwitcherButton(SwitcherButtonOption event, QWidget *parent = nullptr);
 	void setupUI(SwitcherButtonOption event);
+protected:
+	void paintEvent(QPaintEvent *event) override;
 private:
 	inline static std::map<SwitcherButtonOption, QString> optionToImagePath = {
 			{ENDURANCE, ":/SwitcherEventIcons/Endurance.svg"},
