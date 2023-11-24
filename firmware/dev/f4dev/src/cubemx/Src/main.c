@@ -169,7 +169,7 @@ int main(void)
     MX_CAN2_Init();
     /* USER CODE BEGIN 2 */
     sd.hsd     = &hsd;
-    sd.timeout = 1000000;
+    sd.timeout = 100;
 
     // config littlefs
     cfg.block_size  = sd.hsd->SdCard.BlockSize;
@@ -277,7 +277,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLM       = 8;
     RCC_OscInitStruct.PLL.PLLN       = 192;
     RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 4;
+    RCC_OscInitStruct.PLL.PLLQ       = 15;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -436,6 +436,7 @@ static void MX_SDIO_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDIO_Init 2 */
+
     /* USER CODE END SDIO_Init 2 */
 }
 
