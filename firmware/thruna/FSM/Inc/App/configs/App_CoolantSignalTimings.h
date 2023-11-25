@@ -1,3 +1,0 @@
-#pragma once
-#define FLOW_METER_TIME_TO_FAULT (1000U)
-#define FLOW_METER_TIME_TO_CLEAR (1000U)
