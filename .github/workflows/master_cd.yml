@@ -1,8 +1,6 @@
 name: Binary and DBC Generation
 on:
   push:
-    paths-ignore:
-      #- 'software/**'
     branches:
       - master
 
@@ -16,19 +14,26 @@ jobs:
       matrix:
         include:
           - board: DIM
-            build_dir: firmware/thruna/DIM/DIM.elf
+            bin_name: DIM_app_metadata.hex
+            build_dir: firmware/thruna/DIM/DIM_app_metadata.hex
           - board: FSM
-            build_dir: firmware/thruna/FSM/FSM.elf
+            bin_name: FSM_app_metadata.hex
+            build_dir: firmware/thruna/FSM/FSM_app_metadata.hex
           - board: PDM
-            build_dir: firmware/thruna/PDM/PDM.elf
+            bin_name: PDM_app_metadata.hex
+            build_dir: firmware/thruna/PDM/PDM_app_metadata.hex
           - board: DCM
-            build_dir: firmware/thruna/DCM/DCM.elf
+            bin_name: DCM_app_metadata.hex
+            build_dir: firmware/thruna/DCM/DCM_app_metadata.hex
           - board: BMS
-            build_dir: firmware/thruna/BMS/BMS.elf
+            bin_name: BMS_app_metadata.hex
+            build_dir: firmware/thruna/BMS/BMS_app_metadata.hex
           - board: f4dev
-            build_dir: firmware/dev/f4dev/f4dev.elf
+            bin_name: f4dev.hex
+            build_dir: firmware/dev/f4dev/f4dev.hex
           - board: h7dev
-            build_dir: firmware/dev/h7dev/h7dev.elf
+            bin_name: h7dev.hex
+            build_dir: firmware/dev/h7dev/h7dev.hex
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -42,13 +47,13 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
-      # Uploads .elf binary to Github Actions workflow
+      # Uploads .hex binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v3
         env:
           BUILD_DIR: build_fw_deploy
         with:
-          name: ${{ matrix.board }}.elf
+          name: ${{ matrix.bin_name }}
           path: ${{ env.BUILD_DIR }}/${{ matrix.build_dir }}
 
   generate-dbc:
@@ -74,7 +79,7 @@ jobs:
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          files: "FSM.elf/FSM.elf BMS.elf/BMS.elf DCM.elf/DCM.elf DIM.elf/DIM.elf PDM.elf/PDM.elf f4dev.elf/f4dev.elf h7dev.elf/h7dev.elf CanMsgs.dbc/CanMsgs.dbc"
+          files: "FSM_app_metadata.hex/FSM_app_metadata.hex BMS_app_metadata.hex/BMS_app_metadata.hex DCM_app_metadata.hex/DCM_app_metadata.hex DIM_app_metadata.hex/DIM_app_metadata.hex PDM_app_metadata.hex/PDM_app_metadata.hex f4dev.hex/f4dev.hex h7dev.hex/h7dev.hex CanMsgs.dbc/CanMsgs.dbc"
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
