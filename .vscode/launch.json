@@ -4,72 +4,100 @@
     {
       "name": "Debug Embedded: BMS",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.elf",
+      "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.hex",
+      "symbolFiles": [
+        "build_fw_deploy/firmware/thruna/BMS/BMS_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/BMS_boot.elf"
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: BMS.elf"
+      "preLaunchTask": "Build: BMS"
     },
     {
       "name": "Debug Embedded: DCM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.hex",
+      "symbolFiles": [
+        "build_fw_deploy/firmware/thruna/DCM/DCM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/DCM_boot.elf"
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DCM.elf"
+      "preLaunchTask": "Build: DCM"
     },
     {
       "name": "Debug Embedded: FSM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.hex",
+      "symbolFiles": [
+        "build_fw_deploy/firmware/thruna/FSM/FSM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/FSM_boot.elf"
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: FSM.elf"
+      "preLaunchTask": "Build: FSM"
     },
     {
       "name": "Debug Embedded: PDM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.hex",
+      "symbolFiles": [
+        "build_fw_deploy/firmware/thruna/PDM/PDM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/PDM_boot.elf"
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: PDM.elf"
+      "preLaunchTask": "Build: PDM"
     },
     {
       "name": "Debug Embedded: DIM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.elf",
+      "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.hex",
+      "symbolFiles": [
+        "build_fw_deploy/firmware/thruna/DIM/DIM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/DIM_boot.elf"
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
         "tools/openocd/stm32f4x.cfg"
       ],
-      "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DIM.elf"
+      "preLaunchTask": "Build: f4dev"
+    },
+    {
+      "name": "Debug Embedded: f4dev",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/dev/f4dev/f4dev.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: f4dev"
     },
     {
       "name": "Debug Embedded: h7dev",

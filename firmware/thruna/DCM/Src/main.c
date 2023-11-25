@@ -28,7 +28,6 @@
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
-#include "Io_SharedCan.h"
 #include "hw_hardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -37,6 +36,10 @@
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
 #include "Io_EllipseImu.h"
+#include "io_can.h"
+#include "io_jsoncan.h"
+#include "hw_bootup.h"
+#include "hw_can.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -157,25 +160,30 @@ void        RunTask100Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
-static void CanRxQueueOverflowCallBack(size_t overflow_count);
-static void CanTxQueueOverflowCallBack(size_t overflow_count);
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void CanRxQueueOverflowCallBack(size_t overflow_count)
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_DCM_RxOverflowCount_Set(overflow_count);
     App_CanAlerts_DCM_Warning_RxOverflow_Set(true);
 }
 
-static void CanTxQueueOverflowCallBack(size_t overflow_count)
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_DCM_TxOverflowCount_Set(overflow_count);
     App_CanAlerts_DCM_Warning_TxOverflow_Set(true);
 }
 
+static const CanConfig can_config = {
+    .rx_msg_filter        = Io_CanRx_FilterMessageId,
+    .tx_overflow_callback = CanTxQueueOverflowCallBack,
+    .rx_overflow_callback = CanRxQueueOverflowCallBack,
+};
 /* USER CODE END 0 */
 
 /**
@@ -185,7 +193,8 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -194,7 +203,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -216,10 +224,12 @@ int main(void)
     SEGGER_SYSVIEW_Conf();
 
     hw_hardFaultHandler_init();
+    hw_can_init(&hcan1);
+
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    Io_CanTx_Init(Io_SharedCan_TxMessageQueueSendtoBack);
+    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
 
     if (!Io_EllipseImu_Init())
     {
@@ -617,9 +627,12 @@ void RunTaskCanRx(void *argument)
 
     for (;;)
     {
-        CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -638,7 +651,7 @@ void RunTaskCanTx(void *argument)
 
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        io_can_transmitMsgFromQueue();
     }
     /* USER CODE END RunTaskCanTx */
 }
@@ -679,7 +692,7 @@ void RunTask100Hz(void *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -690,7 +703,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 [[noreturn]] void MainWindow::CanRXTask() {
 	while (true) {
-		Result<CanMsg, CanReadError> res = Can_Read();
+		Result<JsonCanMsg, CanReadError> res = Can_Read();
 		if (res.index() == 1) {
 			switch (get<CanReadError>(res)) {
 				case ReadInterfaceNotCreated:
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		}
 
 		// success
-		CanMsg message = get<CanMsg>(res);
+		JsonCanMsg message = get<JsonCanMsg>(res);
 		// acquire lock
 		Io_CanRx_UpdateRxTableWithMessage(&message);
 		// release lock

@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")
-set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/App/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -11,14 +11,18 @@ file(GLOB_RECURSE IO_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
 )
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
-list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
 list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
+
+set(HW_SRCS "${SHARED_HW_SRCS}")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_crc.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_flash.c")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-list(REMOVE_ITEM SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
 
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
@@ -32,17 +36,17 @@ commit_info_library(
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-            "DCM_can"
-            "DCM"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            TRUE
+        "DCM_can"
+        "DCM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        TRUE
     )
     embedded_library(
-            DCM_can
-            "${CAN_SRCS}"
-            "${CAN_INCLUDE_DIRS}"
-            "${ARM_CORE}"
-            TRUE
+        DCM_can
+        "${CAN_SRCS}"
+        "${CAN_INCLUDE_DIRS}"
+        "${ARM_CORE}"
+        TRUE
     )
 
     generate_stm32cube_code(
@@ -79,24 +83,32 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}.md5"
     )
     
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${SHARED_HW_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_HW_INCLUDE_DIR})
     embedded_binary(
-        "DCM.elf"
+        "DCM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     ) 
     target_link_libraries("DCM_can" "DCM_stm32cube")
-    target_link_libraries("DCM.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
+    target_link_libraries("DCM_app.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
+
+    embedded_image(
+        "DCM"
+        "DCM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/DCM_app.hex"
+        "DCM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/DCM_boot.hex"
+    )
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
-            "DCM_can"
-            "DCM"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            FALSE
+        "DCM_can"
+        "DCM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
     )
     add_library(DCM_can STATIC "${CAN_SRCS}")
     target_include_directories(DCM_can PUBLIC "${CAN_INCLUDE_DIRS}")

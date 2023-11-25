@@ -6,3 +6,4 @@ cantools
 pyclibrary
 jinja2
 gitpython
+intelhex
