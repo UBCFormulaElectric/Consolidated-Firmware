@@ -38,20 +38,6 @@ typedef enum
 void io_efuse_init(const EfuseConfig configs[NUM_EFUSE_CHANNELS]);
 #endif
 
-#ifdef TARGET_EMBEDDED
-/**
- * Initialize the efuses.
- * @param configs Array of configs for each efuse, with indices corresponding to EfuseChannel values.
- */
-void io_efuse_init(const EfuseConfig configs[NUM_EFUSE_CHANNELS]);
-#endif
-
-/**
- * Initialize the efuses.
- * @param configs Array of configs for each efuse, with indices corresponding to EfuseChannel values.
- */
-void io_efuse_init(const EfuseConfig configs[NUM_EFUSE_CHANNELS]);
-
 /**
  * Enable or disable the provided efuse channel.
  * @param channel Channel to enable/disable
