@@ -63,7 +63,6 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
             types += "*"
         else:
             types += part
-            
     return f"{qualifiers} {types}" if qualifiers != "" else types
 
 
