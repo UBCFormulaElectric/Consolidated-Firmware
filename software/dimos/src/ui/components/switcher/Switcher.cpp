@@ -65,8 +65,8 @@ void Switcher::repositionSwitcherButtons() {
 							 SCREEN_BOTTOM_Y - selectedEventLabel->height() - 10);
 }
 
-constexpr int R = 1910, BUTTON_GAP = 10, OVAL_COEFFICIENT = 1, BUTTON_WIDTH = 200;
-constexpr double VERTICAL_CORRECTION = 50;
+constexpr int R = 955, BUTTON_GAP = 15, BUTTON_WIDTH = 200;
+constexpr double VERTICAL_CORRECTION = 50, OVAL_COEFFICIENT = 1.3;
 /**
  * Places a button at a certain angle
  * @param ii The index of the button
