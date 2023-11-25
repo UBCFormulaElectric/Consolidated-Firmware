@@ -10,4 +10,11 @@
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
+	"files.associations": {
+		"*.c": "c",
+		"*.html": "html",
+		"*_repl": "cpp",
+		"hw_bootup.h": "c",
+		"lfs.h": "c"
+	},
 }
