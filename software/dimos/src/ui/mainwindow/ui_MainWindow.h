@@ -4,24 +4,55 @@
 #include <QtWidgets/QMainWindow>
 #include <QGraphicsBlurEffect>
 
-
+//pages
 #include "landing/LandingPage.h"
 #include "startup/StartupPage.h"
+#include "acceleration/AccelerationPage.h"
+//components
 #include "components/switcher/Switcher.h"
 
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
-public:
     std::unique_ptr<QStackedWidget> MainStack;
 	std::unique_ptr<LandingPage> landingPage;
 	std::unique_ptr<StartupPage> startupPage;
+	std::unique_ptr<AccelerationPage> acceleration_page;
 
+	// switcher logic
     std::unique_ptr<Switcher> SwitcherFrame;
 	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
 	bool isSwitcherOpen = false;
 
+	// Frames should only be switching when indicated by switcher
+	enum Frames {
+		LandingFrame,
+		LVFrame,
+		EnduranceFrame,
+		AcclerationFrame,
+		SkidpadFrame,
+		AutocrossFrame,
+		BrakeFrame,
+	};
+	static inline std::map<Frames, int> frameToMainstackIndex = {
+		{LandingFrame, 0},
+		{LVFrame, 1},
+		{EnduranceFrame, 2},
+		{AcclerationFrame, 3},
+		{SkidpadFrame, 4},
+		{AutocrossFrame, 5},
+		{BrakeFrame, 6},
+	};
+	static inline std::map<SwitcherButtonOption, Frames> switcherOptionToFrame = {
+		{ENDURANCE, EnduranceFrame},
+		{ACCELERATION, AcclerationFrame},
+		{SKIDPAD, SkidpadFrame},
+		{AUTOCROSS, AutocrossFrame},
+		{BRAKING, BrakeFrame},
+	};
+
+public:
     void setupUi(QMainWindow *MainWindow)
     {
 		// MainWindow Setup
@@ -59,12 +90,16 @@ public:
         QMetaObject::connectSlotsByName(MainWindow);
     }
 
-    // Frames should only be switching when indicated by switcher
-	// TODO toggle properly LMAO
-	void toggleFrame() const {
-		const int nextIdx = (MainStack->currentIndex() + 1) % MainStack->count();
+	void toggleFrame(Frames toFrame) const {
+		const int nextIdx = frameToMainstackIndex[toFrame];
         MainStack->setCurrentIndex(nextIdx);
 	}
+
+	void setSwitcherSelectionToFrame() const {
+    	const auto a = SwitcherFrame->getSelectedOption();
+    	const auto b = switcherOptionToFrame[a];
+    	toggleFrame(b);
+    }
 
 	void toggleSwitcher() {
 		if(isSwitcherOpen) {

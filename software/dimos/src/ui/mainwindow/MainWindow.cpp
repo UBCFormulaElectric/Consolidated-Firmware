@@ -25,7 +25,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 			ui->toggleSwitcher();
 			break;
 		case Qt::Key_Enter:
-			ui->forceCloseSwitcher();
+			if(ui->getSwitcherOpen()) {
+				ui->toggleSwitcher();
+				ui->setSwitcherSelectionToFrame();
+			} else {}
 			break;
 		case Qt::Key_Right:
 			ui->switcherRight();
@@ -33,8 +36,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Left:
 			ui->switcherLeft();
 			break;
-        case Qt::Key_Up:
-            ui->toggleFrame();
 		default:
             std::cout<< "UNHANDLED KEY" << "\n";
 			break;

@@ -1,6 +1,6 @@
 #include "Switcher.h"
 
-Switcher::Switcher(QWidget *parent): QFrame(parent) {
+Switcher::Switcher(QWidget *parent): QFrame(parent), selectedEvent(ENDURANCE) {
 	setupUI();
 }
 
@@ -32,7 +32,6 @@ void Switcher::setupUI() {
 		brakingOption.get()
 	};
 
-	selectedEvent = ENDURANCE;
 	selectedEventLabel = std::make_unique<QLabel>(this);
 	selectedEventLabel->setStyleSheet(
 			"QLabel {"
