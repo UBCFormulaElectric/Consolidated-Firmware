@@ -165,10 +165,15 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SocStats_UpdateSocStats(soc_stats, App_TractiveSystem_GetCurrent(ts));
     }
 
+    const float ts_voltage_V = App_TractiveSystem_GetVoltage(ts);
+    const float ts_current_A = App_TractiveSystem_GetCurrent(ts);
+    const float ts_power_kW  = ts_voltage_V * ts_current_A / 1000.0f;
+
     App_CanTx_BMS_Soc_Set(App_SocStats_GetMinSocPercent(soc_stats));
     App_CanTx_BMS_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
-    App_CanTx_BMS_TractiveSystemVoltage_Set(App_TractiveSystem_GetVoltage(ts));
-    App_CanTx_BMS_TractiveSystemCurrent_Set(App_TractiveSystem_GetCurrent(ts));
+    App_CanTx_BMS_TractiveSystemVoltage_Set(ts_voltage_V);
+    App_CanTx_BMS_TractiveSystemCurrent_Set(ts_current_A);
+    App_CanTx_BMS_TractiveSystemPower_Set(ts_power_kW);
     App_CanTx_BMS_AirNegative_Set(App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_CanTx_BMS_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
