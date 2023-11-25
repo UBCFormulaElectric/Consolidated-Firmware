@@ -1,10 +1,7 @@
 #pragma once
 
-#include <QMainWindow>
 #include <QTimer>
-#include <QStackedWidget>
 #include <QKeyEvent>
-#include <iostream>
 
 #include "ui_MainWindow.h"
 
@@ -13,7 +10,6 @@ Q_OBJECT
 
 public:
 	explicit MainWindow(QWidget *parent = nullptr);
-	~MainWindow() override;
 
 protected:
 	void keyPressEvent(QKeyEvent *event) override;

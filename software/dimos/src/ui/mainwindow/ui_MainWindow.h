@@ -1,10 +1,7 @@
 #pragma once
 
-#include <QtCore/QVariant>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QFrame>
+#include <QStackedWidget>
 #include <QtWidgets/QMainWindow>
-#include <iostream>
 #include <QGraphicsBlurEffect>
 
 
@@ -64,7 +61,7 @@ public:
 
     // Frames should only be switching when indicated by switcher
 	// TODO toggle properly LMAO
-	void toggleFrame() {
+	void toggleFrame() const {
 		const int nextIdx = (MainStack->currentIndex() + 1) % MainStack->count();
         MainStack->setCurrentIndex(nextIdx);
 	}
@@ -95,7 +92,7 @@ public:
 		SwitcherFrame->toggleLeft();
 	}
 
-	bool getSwitcherOpen() {
+	[[nodiscard]] bool getSwitcherOpen() const {
 		return isSwitcherOpen;
 	}
 };

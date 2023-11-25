@@ -2,6 +2,7 @@
 // libraries
 #include <QThread>
 #include <chrono>
+#include <iostream>
 //can
 #include "can.h"
 extern "C" {
@@ -85,5 +86,3 @@ void MainWindow::setupCanBroadcasting() {
 		Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
 	}
 }
-
-MainWindow::~MainWindow() = default;
