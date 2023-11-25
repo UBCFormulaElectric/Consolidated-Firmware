@@ -27,6 +27,30 @@ typedef struct
     float yaw;
 } Attitude;
 
+typedef struct 
+{
+    float velocity_n; // North 
+    float velocity_e; // East 
+    float velocity_d; // Down 
+    float velocity_accuracy_n; 
+    float velocity_accuracy_e;
+    float velocity_accuracy_d;
+}GpsVelocityData;
+typedef struct 
+{
+    double   latitude; 
+    double   longitude;  
+    double   altitude;
+    float    latitude_accuracy;  
+    float    longitude_accuracy;
+    float    altitude_accuracy;
+}GpsPositionData;
+typedef struct
+{
+    GpsVelocityData gps1_velocity; 
+    GpsPositionData gps1_position;
+}Gps1Data;
+
 typedef struct
 {
     Vector3  acceleration;
@@ -50,6 +74,7 @@ typedef struct
     ImuPacketData    imu_data;
     EulerPacketData  euler_data;
     StatusPacketData status_data;
+    Gps1Data         gps_data;
 } SensorData;
 
 /* --------------------------------- Variables ---------------------------------- */
@@ -90,6 +115,8 @@ static SbgErrorCode Io_EllipseImu_LogReceivedCallback(
 static void Io_EllipseImu_ProcessMsg_Imu(const SbgBinaryLogData *log_data);
 static void Io_EllipseImu_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data);
 static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data);
+static void Io_EllipseImu_ProcessMsg_GpsVel(const SbgBinaryLogData *log_data);
+static void Io_EllipseImu_ProcessMsg_GpsPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
@@ -197,6 +224,16 @@ SbgErrorCode Io_EllipseImu_LogReceivedCallback(
                 Io_EllipseImu_ProcessMsg_Status(log_data);
                 break;
             }
+            case SBG_ECOM_LOG_GPS1_VEL:
+            {
+                Io_EllipseImu_ProcessMsg_GpsVel(log_data);
+                break;
+            }
+            case SBG_ECOM_LOG_GPS1_POS:
+            {
+                Io_EllipseImu_ProcessMsg_GpsPos(log_data);
+                break;
+            }
             default:
             {
                 // Do nothing
@@ -243,6 +280,33 @@ static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data)
     sensor_data.status_data.timestamp_us   = log_data->statusData.timeStamp;
     sensor_data.status_data.general_status = log_data->statusData.generalStatus;
     sensor_data.status_data.com_status     = log_data->statusData.comStatus;
+}
+
+/*
+ * Process and save a relevant GPS Velocity information.
+ */
+static void Io_EllipseImu_ProcessMsg_GpsVel(const SbgBinaryLogData *log_data)
+{
+    sensor_data.gps_data.gps1_velocity.velocity_n = log_data->gpsVelData.velocity[0];
+    sensor_data.gps_data.gps1_velocity.velocity_e = log_data->gpsVelData.velocity[1];
+    sensor_data.gps_data.gps1_velocity.velocity_d = log_data->gpsVelData.velocity[2];
+
+    sensor_data.gps_data.gps1_velocity.velocity_accuracy_n = log_data->gpsVelData.velocityAcc[0];
+    sensor_data.gps_data.gps1_velocity.velocity_accuracy_e = log_data->gpsVelData.velocityAcc[1];
+    sensor_data.gps_data.gps1_velocity.velocity_accuracy_d = log_data->gpsVelData.velocityAcc[2];
+}
+
+/*
+ * Process and save a relevant GPS Position information.
+ */
+static void Io_EllipseImu_ProcessMsg_GpsPos(const SbgBinaryLogData *log_data){
+    sensor_data.gps_data.gps1_position.altitude = log_data->gpsPosData.altitude;
+    sensor_data.gps_data.gps1_position.latitude = log_data->gpsPosData.latitude;
+    sensor_data.gps_data.gps1_position.longitude = log_data->gpsPosData.longitude;
+
+    sensor_data.gps_data.gps1_position.altitude_accuracy = log_data->gpsPosData.altitudeAccuracy;
+    sensor_data.gps_data.gps1_position.latitude_accuracy = log_data->gpsPosData.latitudeAccuracy;
+    sensor_data.gps_data.gps1_position.longitude_accuracy = log_data->gpsPosData.longitudeAccuracy;
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
