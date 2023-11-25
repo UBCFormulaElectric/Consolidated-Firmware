@@ -48,7 +48,6 @@ public:
 		startupPage = std::make_unique<StartupPage>();
 		MainStack->addWidget(landingPage.get());
 		MainStack->addWidget(startupPage.get());
-		std::cout << MainStack->currentIndex() << std::endl;
 
 		//context frame
 		SwitcherFrame = std::make_unique<Switcher>(MainWindow);
@@ -64,10 +63,9 @@ public:
     }
 
     // Frames should only be switching when indicated by switcher
+	// TODO toggle properly LMAO
 	void toggleFrame() {
-		// TODO toggle properly LMAO
-		int nextIdx = MainStack->currentIndex() + 1;
-		if (nextIdx == MainStack->count()) nextIdx = 0;
+		const int nextIdx = (MainStack->currentIndex() + 1) % MainStack->count();
         MainStack->setCurrentIndex(nextIdx);
 	}
 
