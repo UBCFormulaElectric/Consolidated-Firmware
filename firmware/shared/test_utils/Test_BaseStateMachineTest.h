@@ -45,7 +45,7 @@ class BaseStateMachineTest : public testing::Test
     virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms)
     {
         UNUSED(state_machine);
-        UNUSED(current_time_ms);
+        App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
     virtual void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms)

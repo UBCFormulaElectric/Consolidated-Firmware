@@ -17,7 +17,7 @@
         "SteeringAngleOCSC",
         "SteeringAngleOutOfRange",
         "FrontBrakePressureOutOfRange",
-        "RearBrakePressureOutOfRangeWarning",
+        "RearBrakePressureOutOfRange",
         "FlowRateOutOfRange",
         "BrakeAppsDisagreement",
         "AppsDisagreement"
@@ -26,7 +26,7 @@
         "MissingHeartbeat",
         "StateMachine",
         "PappsOCSC",
-        "SappsOCSCFault",
+        "SappsOCSC",
         "FlowMeterUnderflow",
         "TorquePlausabilityFailed"
     ]
