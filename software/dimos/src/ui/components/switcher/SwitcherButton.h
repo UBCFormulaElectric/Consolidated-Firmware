@@ -3,24 +3,32 @@
 #include <QPushButton>
 #include <QLabel>
 
-#include <QPalette>
 #include <QPainter>
 #include <QTime>
-
-enum SwitcherButtonOption {
-	ENDURANCE,
-	ACCELERATION,
-	SKIDPAD,
-	AUTOCROSS,
-	BRAKING,
-	SwitcherButtonOptionSize
-};
 
 class SwitcherButton : public QPushButton {
 Q_OBJECT
 public:
+	enum SwitcherButtonOption {
+		ENDURANCE,
+		ACCELERATION,
+		SKIDPAD,
+		AUTOCROSS,
+		BRAKING,
+		SwitcherButtonOptionSize
+	};
+
+	inline static std::map<SwitcherButtonOption, QString> switcherOptionToName = {
+		{ENDURANCE, "ENDURANCE"},
+		{ACCELERATION, "ACCELERATION"},
+		{SKIDPAD, "SKIDPAD"},
+		{AUTOCROSS, "AUTOCROSS"},
+		{BRAKING, "BRAKING"}
+	};
+
+
 	explicit SwitcherButton(SwitcherButtonOption event, QWidget *parent = nullptr);
-	void setupUI(SwitcherButtonOption event);
+	void setupUi(SwitcherButtonOption event);
 protected:
 	void paintEvent(QPaintEvent *event) override;
 private:
@@ -32,5 +40,5 @@ private:
 			{BRAKING, ":/SwitcherEventIcons/Brake.svg"}
 	};
 
-	std::unique_ptr<QLabel> iconLabel;
+	QLabel * iconLabel;
 };

@@ -7,8 +7,8 @@
 class RacingBase: public QFrame {
 Q_OBJECT
 public:
-	explicit RacingBase(QWidget *parent, std::unique_ptr<QFrame> innerElements);
+	explicit RacingBase(QWidget *parent, QFrame * innerElements, const QString& pageName);
 
 private:
-	std::unique_ptr<ui::RacingBase> ui;
+	std::unique_ptr<ui::RacingBase> ui = std::make_unique<ui::RacingBase>();
 };

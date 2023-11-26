@@ -1,6 +1,7 @@
 #include "LandingPage.h"
+#include "constants.h"
 
-LandingPage::LandingPage(QWidget *parent): QWidget(parent), ui(new ui::LandingPage()) {
-	this->setGeometry(QRect(0, 0, 1024, 600));
+LandingPage::LandingPage(QWidget *parent): QFrame(parent) {
+	this->setGeometry(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 	ui->setupUi(this);
 }

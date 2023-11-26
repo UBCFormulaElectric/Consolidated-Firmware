@@ -4,9 +4,9 @@
 namespace ui {
 	class EndurancePage {
 	public:
-		static std::unique_ptr<QFrame> setupUi() {
-			auto itemFrame = std::make_unique<QFrame>();
-			auto * itemLayout = new QVBoxLayout(itemFrame.get());
+		static QFrame * setupUi() {
+			const auto itemFrame = new QFrame();
+			auto * itemLayout = new QVBoxLayout(itemFrame);
 			auto * itemLabel = new QLabel("Endurance Page");
 			itemLabel->setAlignment(Qt::AlignCenter);
 			itemLabel->setStyleSheet("color: white;");

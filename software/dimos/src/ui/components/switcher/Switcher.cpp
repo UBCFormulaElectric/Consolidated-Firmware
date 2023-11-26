@@ -1,28 +1,29 @@
 #include "Switcher.h"
+#include "constants.h"
 
-Switcher::Switcher(QWidget *parent): QFrame(parent), selectedEvent(ENDURANCE) {
+Switcher::Switcher(QWidget *parent): QFrame(parent), selectedEvent(SwitcherButton::ENDURANCE) {
 	setupUI();
 }
 
 void Switcher::toggleRight() {
-	selectedEvent = static_cast<SwitcherButtonOption>((selectedEvent + 1) % SwitcherButtonOptionSize);
+	selectedEvent = static_cast<SwitcherButton::SwitcherButtonOption>((selectedEvent + 1) % SwitcherButton::SwitcherButtonOptionSize);
 	repositionSwitcherButtons();
 }
 
 void Switcher::toggleLeft() {
-	selectedEvent = static_cast<SwitcherButtonOption>((selectedEvent - 1 + SwitcherButtonOptionSize) % SwitcherButtonOptionSize);
+	selectedEvent = static_cast<SwitcherButton::SwitcherButtonOption>((selectedEvent - 1 + SwitcherButton::SwitcherButtonOptionSize) %SwitcherButton::SwitcherButtonOptionSize);
 	repositionSwitcherButtons();
 }
 
 void Switcher::setupUI() {
-	this->resize(1024, 600);
-	this->setMinimumSize(QSize(1024, 600));
+	this->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	this->setObjectName("Switcher");
 
-	enduranceOption 	= std::make_unique<SwitcherButton>(ENDURANCE, this);
-	accelerationOption 	= std::make_unique<SwitcherButton>(ACCELERATION,this);
-	skidpadOption 		= std::make_unique<SwitcherButton>(SKIDPAD, 	this);
-	autoCrossOption 	= std::make_unique<SwitcherButton>(AUTOCROSS, this);
-	brakingOption 		= std::make_unique<SwitcherButton>(BRAKING, 	this);
+	enduranceOption 	= std::make_unique<SwitcherButton>(SwitcherButton::ENDURANCE, this);
+	accelerationOption 	= std::make_unique<SwitcherButton>(SwitcherButton::ACCELERATION,this);
+	skidpadOption 		= std::make_unique<SwitcherButton>(SwitcherButton::SKIDPAD, 	this);
+	autoCrossOption 	= std::make_unique<SwitcherButton>(SwitcherButton::AUTOCROSS, this);
+	brakingOption 		= std::make_unique<SwitcherButton>(SwitcherButton::BRAKING, 	this);
 
 	activeButtons = {
 		enduranceOption.get(),
@@ -39,12 +40,13 @@ void Switcher::setupUI() {
 			 "	font-size: 20px;"
 			 "	font-weight: bold;"
 			 "}");
+	selectedEventLabel->setObjectName("Switcher_EventLabel");
 
 	repositionSwitcherButtons();
 }
 
 
-constexpr int SCREEN_CENTER_X = 1024 / 2, SCREEN_BOTTOM_Y = 600;
+constexpr int SCREEN_CENTER_X = SCREEN_WIDTH / 2, SCREEN_BOTTOM_Y = SCREEN_HEIGHT;
 /**
  * \brief Repositions the buttons
  * TODO consider making this part of the update event
@@ -58,7 +60,7 @@ void Switcher::repositionSwitcherButtons() {
 	}
 
 	// adjust label
-	selectedEventLabel->setText(switcherOptionToName[selectedEvent]);
+	selectedEventLabel->setText(SwitcherButton::switcherOptionToName[selectedEvent]);
 	selectedEventLabel->adjustSize();
 	selectedEventLabel->move(SCREEN_CENTER_X - selectedEventLabel->width() / 2,
 							 SCREEN_BOTTOM_Y - selectedEventLabel->height() - 10);

@@ -2,6 +2,6 @@
 
 
 EndurancePage::EndurancePage(QWidget * parent):
-	RacingBase(parent, std::move(ui::EndurancePage::setupUi()))
+	RacingBase(parent, ui::EndurancePage::setupUi(), "Endurance_Page")
 {
 }

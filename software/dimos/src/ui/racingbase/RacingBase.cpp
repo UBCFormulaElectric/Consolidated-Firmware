@@ -1,5 +1,7 @@
 #include "RacingBase.h"
 
-RacingBase::RacingBase(QWidget *parent, std::unique_ptr<QFrame> innerElements) : QFrame(parent), ui(new ui::RacingBase) {
-	ui->setupUi(this, std::move(innerElements));
+RacingBase::RacingBase(QWidget *parent, QFrame* innerElements, const QString& pageName) : QFrame(parent) {
+	this->setObjectName(pageName);
+	this->setGeometry(QRect(0, 0, 1024, 600));
+	ui->setupUi(this, innerElements);
 }

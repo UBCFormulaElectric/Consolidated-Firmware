@@ -9,5 +9,5 @@ public:
     explicit StartupPage(QWidget *parent = nullptr);
 
 private:
-    std::unique_ptr<ui::StartupPage> ui;
+    std::unique_ptr<ui::StartupPage> ui = std::make_unique<ui::StartupPage>();
 };

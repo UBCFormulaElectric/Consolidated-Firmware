@@ -2,23 +2,26 @@
 #include "SwitcherButton.h"
 
 SwitcherButton::SwitcherButton(SwitcherButtonOption event, QWidget *parent) : QPushButton(parent) {
-	setupUI(event);
+	setupUi(event);
 }
 
-void SwitcherButton::setupUI(SwitcherButtonOption event) {
+void SwitcherButton::setupUi(SwitcherButtonOption event) {
 	this->setFixedSize(QSize(200, 200));
 	this->setStyleSheet("QPushButton {"
 						"	background-color:#002D67;"
 						"	border-radius: 50px;"
 						"}");
 	this->setContentsMargins(0, 0, 0, 0);
+	this->setObjectName("SwitcherButton_"+switcherOptionToName[event]);
 
 	auto gridLayout = new QGridLayout(this);
-	iconLabel = std::make_unique<QLabel>();
+	gridLayout->setObjectName("SwitcherButton_"+switcherOptionToName[event]+"_gridLayout");
+	iconLabel = new QLabel();
+	iconLabel->setObjectName("SwitcherButton_"+switcherOptionToName[event]+"_iconLabel");
 	auto icon = QIcon(optionToImagePath[event]);
 	auto iconPixmap = icon.pixmap(QSize(140, 130));
 	iconLabel->setPixmap(iconPixmap);
-	gridLayout->addWidget(iconLabel.get(), 0, 0, Qt::AlignCenter);
+	gridLayout->addWidget(iconLabel, 0, 0, Qt::AlignCenter);
 	this->setLayout(gridLayout);
 }
 

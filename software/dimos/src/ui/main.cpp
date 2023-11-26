@@ -1,5 +1,3 @@
-// qt
-#include <QApplication>
 // ui
 #include "mainwindow/MainWindow.h"
 // can
@@ -18,11 +16,13 @@ constexpr bool GIT_COMMIT_CLEAN = false;
 void init_can();
 
 int main(int argc, char *argv[]) {
-	// init_can();
+	init_can();
 
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
+	w.dumpObjectTree();
+
 	return QApplication::exec();
 }
 

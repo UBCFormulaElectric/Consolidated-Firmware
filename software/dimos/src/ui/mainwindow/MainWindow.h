@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QKeyEvent>
+#include <QThread>
 
 #include "ui_MainWindow.h"
 
@@ -22,6 +23,6 @@ private:
 	[[noreturn]] static void CanPeriodicTXTask();
 	QTimer tx100Hz{};
 	QTimer tx1Hz{};
-	QThread *CanRxTaskThread{};
-	QThread *CanTxPeriodicTaskThread{};
+	std::unique_ptr<QThread>CanRxTaskThread{};
+	std::unique_ptr<QThread>CanTxPeriodicTaskThread{};
 };

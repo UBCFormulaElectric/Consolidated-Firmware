@@ -12,28 +12,20 @@ Q_OBJECT
 public:
 	explicit Switcher(QWidget *parent = nullptr);
 	void setupUI();
-	SwitcherButtonOption getSelectedOption() {
+	SwitcherButton::SwitcherButtonOption getSelectedOption() {
 		return selectedEvent;
 	}
 	void toggleRight();
 	void toggleLeft();
 
 private:
-	SwitcherButtonOption selectedEvent;
+	SwitcherButton::SwitcherButtonOption selectedEvent;
 	std::unique_ptr<SwitcherButton> enduranceOption, accelerationOption, skidpadOption, autoCrossOption, brakingOption;
 	std::unique_ptr<QLabel> selectedEventLabel;
 
 	std::vector<SwitcherButton *> activeButtons;
 
 	inline static double BUTTON_ANGLE_OFFSETS[] = {0, 13, 26, -26, -13};
-
-	inline static std::map<SwitcherButtonOption, QString> switcherOptionToName = {
-			{ENDURANCE, "ENDURANCE"},
-			{ACCELERATION, "ACCELERATION"},
-			{SKIDPAD, "SKIDPAD"},
-			{AUTOCROSS, "AUTOCROSS"},
-			{BRAKING, "BRAKING"}
-	};
 
 	void repositionSwitcherButtons();
 

@@ -46,12 +46,12 @@ void MainWindow::setupCanBroadcasting() {
 	// CANTX TASK
 	tx100Hz.setInterval(10);
 	tx100Hz.setSingleShot(false);
-	QTimer::connect(&tx100Hz, &QTimer::timeout, Io_CanTx_Enqueue100HzMsgs);
+	connect(&tx100Hz, &QTimer::timeout, Io_CanTx_Enqueue100HzMsgs);
 	tx100Hz.start();
 
 	tx1Hz.setInterval(1000);
 	tx1Hz.setSingleShot(false);
-	QTimer::connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
+	connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
 	tx1Hz.start();
 
 	CanRxTaskThread->start();
@@ -73,7 +73,7 @@ void MainWindow::setupCanBroadcasting() {
 		}
 
 		// success
-		CanMsg message = get<CanMsg>(res);
+		auto message = get<CanMsg>(res);
 		// acquire lock
 		Io_CanRx_UpdateRxTableWithMessage(&message);
 		// release lock

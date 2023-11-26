@@ -3,7 +3,8 @@
 #include <QStackedWidget>
 #include <QtWidgets/QMainWindow>
 #include <QGraphicsBlurEffect>
-#include <iostream>
+
+#include "constants.h"
 
 //pages
 #include "landing/LandingPage.h"
@@ -14,8 +15,8 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_MainWindow
-{
+
+class ui_MainWindow {
 public:
     // Frames should only be switching when indicated by switcher
     enum Frames {
@@ -29,17 +30,10 @@ public:
         FramesCount
     };
 private:
-    std::unique_ptr<QStackedWidget> MainStack;
-	std::unique_ptr<LandingPage> landingPage;
-	std::unique_ptr<StartupPage> startupPage;
-	std::unique_ptr<EndurancePage> endurance_page;
-	// std::unique_ptr<AccelerationPage> acceleration_page;
+	QMainWindow * mw{};
+    QStackedWidget* MainStack{};
 
-	// switcher logic
-    std::unique_ptr<Switcher> SwitcherFrame;
-	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
-	bool isSwitcherOpen = false;
-
+	// pages
 	static inline std::map<Frames, int> frameToMainstackIndex = {
 		{LandingFrame, 0},
 		{LVFrame, 1},
@@ -49,22 +43,37 @@ private:
 		{AutocrossFrame, 5},
 		{BrakeFrame, 6},
 	};
-	static inline std::map<SwitcherButtonOption, Frames> switcherOptionToFrame = {
-		{ENDURANCE, EnduranceFrame},
-		{ACCELERATION, AcclerationFrame},
-		{SKIDPAD, SkidpadFrame},
-		{AUTOCROSS, AutocrossFrame},
-		{BRAKING, BrakeFrame},
+	LandingPage* landingPage{};
+	StartupPage* startupPage{};
+	EndurancePage* endurance_page{};
+	// AccelerationPage* acceleration_page;
+
+	// switcher logic
+    Switcher* SwitcherFrame{};
+	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
+	bool isSwitcherOpen = false;
+	static inline std::map<SwitcherButton::SwitcherButtonOption, Frames> switcherOptionToFrame = {
+		{SwitcherButton::ENDURANCE, EnduranceFrame},
+		{SwitcherButton::ACCELERATION, AcclerationFrame},
+		{SwitcherButton::SKIDPAD, SkidpadFrame},
+		{SwitcherButton::AUTOCROSS, AutocrossFrame},
+		{SwitcherButton::BRAKING, BrakeFrame},
 	};
 
 public:
     void setupUi(QMainWindow *MainWindow)
     {
+    	mw = MainWindow;
 		// MainWindow Setup
         if (MainWindow->objectName().isEmpty()) MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(1024, 600);
-        MainWindow->setMinimumSize(QSize(1024, 600));
-		MainWindow->setStyleSheet("QMainWindow {background-color: #141414;}");
+        MainWindow->resize(SCREEN_WIDTH,SCREEN_HEIGHT);
+        MainWindow->setMinimumSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+		MainWindow->setStyleSheet("QMainWindow {"
+									"	background-color: #141414;"
+									"}"
+									"QLabel {"
+									"	color:white;"
+									"}");
 		#if USING_dimos_dev
 		MainWindow->setWindowTitle("Dimos Development");
 		#elif USING_dimos
@@ -72,48 +81,52 @@ public:
 		#endif
 
 		// mainframe
-		MainStack = std::make_unique<QStackedWidget>(MainWindow);
-        MainStack->setObjectName("MainFrame");
+		MainStack = new QStackedWidget(MainWindow);
+        MainStack->setObjectName("MainStack");
         MainStack->setGeometry(QRect(0, 0, 1024, 600));
 
 		//populating mainframe
-		landingPage = std::make_unique<LandingPage>();
-		startupPage = std::make_unique<StartupPage>();
-		MainStack->addWidget(landingPage.get());
-		MainStack->addWidget(startupPage.get());
+		landingPage = new LandingPage();
+    	// apparently it does not like it when you add it in the constructor
+    	MainStack->addWidget(landingPage);
 
-    	endurance_page = std::make_unique<EndurancePage>();
-    	MainStack->addWidget(endurance_page.get());
-
-		//context frame
-		SwitcherFrame = std::make_unique<Switcher>(MainWindow);
-		SwitcherFrame->hide();
-
-		switcherBackgroundEffect = std::make_unique<QGraphicsBlurEffect>();
-		switcherBackgroundEffect->setBlurRadius(30);
-		switcherBackgroundEffect->setBlurHints(QGraphicsBlurEffect::QualityHint);
-		MainStack->setGraphicsEffect(switcherBackgroundEffect.get());
-		switcherBackgroundEffect->setEnabled(false);
+    	asyncSetup();
 
         QMetaObject::connectSlotsByName(MainWindow);
+
     }
 
-	void toggleFrame(Frames toFrame) const {
+	void asyncSetup() {
+    	//context frame
+    	SwitcherFrame = new Switcher(mw);
+    	SwitcherFrame->hide();
+
+    	switcherBackgroundEffect = std::make_unique<QGraphicsBlurEffect>();
+    	switcherBackgroundEffect->setBlurRadius(30);
+    	switcherBackgroundEffect->setBlurHints(QGraphicsBlurEffect::QualityHint);
+    	MainStack->setGraphicsEffect(switcherBackgroundEffect.get());
+    	switcherBackgroundEffect->setEnabled(false);
+
+    	startupPage = new StartupPage();
+    	endurance_page = new EndurancePage();
+
+    	MainStack->addWidget(startupPage);
+    	MainStack->addWidget(endurance_page);
+    }
+
+	void toggleFrame(const Frames toFrame) const {
 		const int nextIdx = frameToMainstackIndex[toFrame];
     	if(nextIdx >= MainStack->count()) {
-    		std::cerr << "ERROR: Invalid frame index " << nextIdx << " with last index " << MainStack->count() - 1 << std::endl;
+    		qWarning() << "ERROR: Invalid frame index " << nextIdx << " with last index " << MainStack->count() - 1;
     		return;
     	}
-
-    	std::cout << "Switching to frame " << nextIdx << std::endl;
         MainStack->setCurrentIndex(nextIdx);
-    	std::cout << MainStack->currentIndex() << std::endl;
 	}
 
 	void setSwitcherSelectionToFrame() const {
-    	const auto a = SwitcherFrame->getSelectedOption();
-    	const auto b = switcherOptionToFrame[a];
-    	toggleFrame(b);
+    	const auto switcher_option = SwitcherFrame->getSelectedOption();
+    	const auto frame_id = switcherOptionToFrame[switcher_option];
+    	toggleFrame(frame_id);
     }
 
 	void toggleSwitcher() {
@@ -148,7 +161,7 @@ public:
 };
 
 namespace ui {
-    class MainWindow: public Ui_MainWindow {};
+	class MainWindow: public ui_MainWindow{};
 }
 
 QT_END_NAMESPACE
