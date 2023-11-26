@@ -1,7 +1,9 @@
-#include "mainwindow/MainWindow.h"
+// qt
 #include <QApplication>
+// ui
+#include "mainwindow/MainWindow.h"
+// can
 #include "can.h"
-
 extern "C"
 {
 #include "App_CanTx.h"
@@ -16,7 +18,7 @@ const bool GIT_COMMIT_CLEAN = false;
 void init_can();
 
 int main(int argc, char *argv[]) {
-	init_can();
+	// init_can();
 
 	QApplication a(argc, argv);
 	MainWindow w;
