@@ -3,6 +3,7 @@
 #include <QStackedWidget>
 #include <QtWidgets/QMainWindow>
 #include <QGraphicsBlurEffect>
+#include <iostream>
 
 //pages
 #include "landing/LandingPage.h"
@@ -10,6 +11,7 @@
 #include "acceleration/AccelerationPage.h"
 //components
 #include "components/switcher/Switcher.h"
+#include "endurance/EndurancePage.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -18,7 +20,8 @@ class Ui_MainWindow
     std::unique_ptr<QStackedWidget> MainStack;
 	std::unique_ptr<LandingPage> landingPage;
 	std::unique_ptr<StartupPage> startupPage;
-	std::unique_ptr<AccelerationPage> acceleration_page;
+	std::unique_ptr<EndurancePage> endurance_page;
+	// std::unique_ptr<AccelerationPage> acceleration_page;
 
 	// switcher logic
     std::unique_ptr<Switcher> SwitcherFrame;
@@ -34,6 +37,7 @@ class Ui_MainWindow
 		SkidpadFrame,
 		AutocrossFrame,
 		BrakeFrame,
+		FramesCount
 	};
 	static inline std::map<Frames, int> frameToMainstackIndex = {
 		{LandingFrame, 0},
@@ -77,6 +81,9 @@ public:
 		MainStack->addWidget(landingPage.get());
 		MainStack->addWidget(startupPage.get());
 
+    	endurance_page = std::make_unique<EndurancePage>();
+    	MainStack->addWidget(endurance_page.get());
+
 		//context frame
 		SwitcherFrame = std::make_unique<Switcher>(MainWindow);
 		SwitcherFrame->hide();
@@ -92,7 +99,14 @@ public:
 
 	void toggleFrame(Frames toFrame) const {
 		const int nextIdx = frameToMainstackIndex[toFrame];
+    	if(nextIdx >= MainStack->count()) {
+    		std::cerr << "ERROR: Invalid frame index " << nextIdx << " with last index " << MainStack->count() - 1 << std::endl;
+    		return;
+    	}
+
+    	std::cout << "Switching to frame " << nextIdx << std::endl;
         MainStack->setCurrentIndex(nextIdx);
+    	std::cout << MainStack->currentIndex() << std::endl;
 	}
 
 	void setSwitcherSelectionToFrame() const {

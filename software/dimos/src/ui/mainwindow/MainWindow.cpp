@@ -24,7 +24,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 		case Qt::Key_Space:
 			ui->toggleSwitcher();
 			break;
-		case Qt::Key_Enter:
+		case Qt::Key_Return:
 			if(ui->getSwitcherOpen()) {
 				ui->toggleSwitcher();
 				ui->setSwitcherSelectionToFrame();
@@ -37,7 +37,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 			ui->switcherLeft();
 			break;
 		default:
-            std::cout<< "UNHANDLED KEY" << "\n";
+			std::cout << "UNHANDLED KEY " << event->text().toStdString() << std::endl;
 			break;
 	}
 }
