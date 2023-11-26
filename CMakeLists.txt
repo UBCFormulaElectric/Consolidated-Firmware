@@ -58,18 +58,22 @@ IF (NO_VENV)
     set(PIP_COMMAND ${PIP_RAW_COMMAND})
     set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
 ELSE ()
-    execute_process(COMMAND ${PYTHON_COMMAND} -m pipenv --venv
-            RESULT_VARIABLE PIPENV_RESULT
-            OUTPUT_VARIABLE PIPENV_OUTPUT
-            ERROR_VARIABLE PIPENV_ERROR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE)
-    message(${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR})
     IF (WIN32)
         set(PYTHON_COMMAND pipenv run python)
     ELSE ()
         set(PYTHON_COMMAND pipenv run python3)
     ENDIF ()
+    execute_process(COMMAND pipenv --venv
+            RESULT_VARIABLE PIPENV_RESULT
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    if(${PIPENV_RESULT})
+        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT}")
+    else ()
+        message("Pipenv path: ${PIPENV_OUTPUT}")
+    endif ()
 ENDIF ()
 
 find_package(Python3 COMPONENTS Interpreter)
