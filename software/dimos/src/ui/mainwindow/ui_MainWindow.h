@@ -8,7 +8,6 @@
 //pages
 #include "landing/LandingPage.h"
 #include "startup/StartupPage.h"
-#include "acceleration/AccelerationPage.h"
 //components
 #include "components/switcher/Switcher.h"
 #include "endurance/EndurancePage.h"
