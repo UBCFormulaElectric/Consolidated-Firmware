@@ -16,6 +16,19 @@ QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
+public:
+    // Frames should only be switching when indicated by switcher
+    enum Frames {
+        LandingFrame,
+        LVFrame,
+        EnduranceFrame,
+        AcclerationFrame,
+        SkidpadFrame,
+        AutocrossFrame,
+        BrakeFrame,
+        FramesCount
+    };
+private:
     std::unique_ptr<QStackedWidget> MainStack;
 	std::unique_ptr<LandingPage> landingPage;
 	std::unique_ptr<StartupPage> startupPage;
@@ -27,17 +40,6 @@ class Ui_MainWindow
 	std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
 	bool isSwitcherOpen = false;
 
-	// Frames should only be switching when indicated by switcher
-	enum Frames {
-		LandingFrame,
-		LVFrame,
-		EnduranceFrame,
-		AcclerationFrame,
-		SkidpadFrame,
-		AutocrossFrame,
-		BrakeFrame,
-		FramesCount
-	};
 	static inline std::map<Frames, int> frameToMainstackIndex = {
 		{LandingFrame, 0},
 		{LVFrame, 1},
