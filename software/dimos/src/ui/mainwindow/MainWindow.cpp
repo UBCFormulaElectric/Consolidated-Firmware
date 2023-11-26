@@ -2,7 +2,6 @@
 // libraries
 #include <QThread>
 #include <chrono>
-#include <iostream>
 //can
 #include "can.h"
 extern "C" {
@@ -37,7 +36,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 			ui->switcherLeft();
 			break;
 		default:
-			std::cout << "UNHANDLED KEY " << event->text().toStdString() << std::endl;
+			qWarning() << "UNHANDLED KEY " << event->text().toStdString();
 			break;
 	}
 }
