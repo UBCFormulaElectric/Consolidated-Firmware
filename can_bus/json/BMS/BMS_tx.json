@@ -176,6 +176,18 @@
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
+            },
+            "Seg4Cell2Temp":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg4Cell8Temp":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
             }
         }
     },
