@@ -25,10 +25,10 @@
 /* USER CODE BEGIN Includes */
 #include "hw_sd.h"
 #include "hw_bootup.h"
-// #define LFS_NO_MALLOC
+#define LFS_NO_MALLOC
 #include "lfs.h"
-#define LFS_CACHE_SIZE 256
-#define LFS_LOOKAHEAD_SIZE 256
+#define LFS_CACHE_SIZE 512
+#define LFS_LOOKAHEAD_SIZE 512
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -122,7 +122,7 @@ struct lfs_config cfg = {
     .read_size = 512,
     .prog_size = 512,
     .block_size = 512,
-    .block_count = 1024,
+    .block_count = 128,
     .cache_size = LFS_CACHE_SIZE,
     .lookahead_size = LFS_LOOKAHEAD_SIZE,
     .block_cycles = 500,
@@ -173,18 +173,9 @@ int main(void)
 
     HAL_SD_CardStateTypeDef sd_state = HAL_SD_GetCardState(&hsd);
 
-    // uint8_t write_buffer[512];
-    // memset(write_buffer, 0U, sizeof(write_buffer));
-    // write_buffer[0] = 7;
-    // uint8_t buffer[512];
-
-    // SdCardStatus status_write = hw_sd_read(&sd, (uint8_t *)write_buffer, 0, 1);
-    // SdCardStatus status_read = hw_sd_read(&sd, (uint8_t *)buffer, 0, 1);
-
     // config littlefs
     cfg.block_size = sd.hsd->SdCard.BlockSize;
-    // cfg.block_count = sd.hsd->SdCard.BlockNbr;
-
+    cfg.block_count = sd.hsd->SdCard.BlockNbr;
 
     int err = lfs_mount(&lfs, &cfg);
     // write the hello world
@@ -197,39 +188,25 @@ int main(void)
     }
 
     // read current count
-    uint32_t boot_count = 0;
-    uint32_t boot_count1 = 0;
+    char string[512];
     char buffer[512];
-    err = lfs_file_open(&lfs, &file, "boot_count.txt", LFS_O_RDWR | LFS_O_CREAT);
-    err = lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+    uint32_t boot_count = 0;
+    const struct lfs_file_config fcfg = {
+        .buffer = buffer,
+    };
+
+    err = lfs_file_opencfg(&lfs, &file, "boot_count.txt", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    err = lfs_file_read(&lfs, &file, &boot_count, sizeof(uint32_t));
     err = lfs_file_rewind(&lfs, &file);
     err = lfs_file_close(&lfs, &file);
-
-    err = lfs_mkdir(&lfs, "j");
-    err = lfs_file_open(&lfs, &file, "j/boot_count.txt", LFS_O_RDWR | LFS_O_CREAT);
-    err = lfs_file_read(&lfs, &file, &boot_count1, sizeof(boot_count));
-    err = lfs_file_rewind(&lfs, &file);
-    err = lfs_file_close(&lfs, &file);
-
-    // err = lfs_file_open(&lfs, &file, "first-file.txt", LFS_O_RDWR);
-    // err = lfs_file_read(&lfs, &file, &buffer, sizeof(boot_count));
-    // err = lfs_file_rewind(&lfs, &file);
-    // err = lfs_file_close(&lfs, &file);
 
     // update boot count
     boot_count += 1;
-    boot_count1 += 1;
 
-    err = lfs_file_open(&lfs, &file, "boot_count.txt", LFS_O_RDWR);
+    err = lfs_file_opencfg(&lfs, &file, "boot_count.txt", LFS_O_RDWR, &fcfg);
     err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
     err = lfs_file_rewind(&lfs, &file);
     err = lfs_file_close(&lfs, &file);
-
-    err = lfs_file_open(&lfs, &file, "j/boot_count.txt", LFS_O_RDWR);
-    err = lfs_file_write(&lfs, &file, &boot_count1, sizeof(boot_count));
-    err = lfs_file_rewind(&lfs, &file);
-    err = lfs_file_close(&lfs, &file);
-
     // remember the storage is not updated until the file is closed successfully
     // release any resources we were using
     lfs_unmount(&lfs);
