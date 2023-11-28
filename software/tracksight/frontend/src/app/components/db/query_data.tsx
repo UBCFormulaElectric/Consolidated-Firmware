@@ -3,11 +3,12 @@ import { Dispatch, useEffect, useState } from 'react';
 import { Button } from 'antd';
 
 import DropdownMenu from './dropdown_menu';
-import TimeStampPicker from './timestamp_picker';
 import { MessageInstance } from 'antd/es/message/interface';
 
 export interface QueryDataProps {
    url: string,
+   startEpoch: string,
+   endEpoch: string,
    setData: Dispatch<{[name: string]: {time: Array<string>, value: Array<number>}}>,
    messageApi: MessageInstance, 
 }
@@ -18,9 +19,6 @@ const QueryData = (props: QueryDataProps) => {
 
     const [fields, setFields] = useState<string[]>([]);
     const [allFields, setAllFields] = useState<string[]>([]);
-
-    const [startEpoch, setStartEpoch] = useState<string>("");
-    const [endEpoch, setEndEpoch] = useState<string>("");
 
     useEffect(() => {
         fetch(props.url + "/signal/measurement", {
@@ -44,11 +42,11 @@ const QueryData = (props: QueryDataProps) => {
     }, [measurement]);
 
     const handleSubmit = () => {
-        if (!startEpoch || !endEpoch || !measurement || !fields.length) {
+        if (!props.startEpoch || !props.endEpoch || !measurement || !fields.length) {
             props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
             return;
         }
-        const newParams = new URLSearchParams({measurement: measurement[0],  start_epoch: startEpoch, end_epoch: endEpoch });
+        const newParams = new URLSearchParams({measurement: measurement[0],  start_epoch: props.startEpoch, end_epoch: props.endEpoch });
         for (const field in fields) {
             newParams.append('fields', fields[field]);
         }
@@ -69,7 +67,6 @@ const QueryData = (props: QueryDataProps) => {
         <div style={{display: 'flex', flexDirection: 'column'}}>
             <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"}/>
             <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} single={false} name={"Fields"}/>
-            <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
             <Button onClick={handleSubmit}>submit</Button>
         </div>);
 }

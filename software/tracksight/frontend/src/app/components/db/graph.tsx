@@ -23,6 +23,8 @@ export interface GraphProps {
     id: number,
     url: string,
     sync: boolean,
+    startEpoch: string,
+    endEpoch: string,
     setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
     zoomData: PlotRelayoutEvent,
     onDelete: MouseEventHandler<HTMLElement>,
@@ -114,7 +116,7 @@ const Graph = (props: GraphProps) => {
     return (
         <Card
         bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryData url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
+            <QueryData startEpoch={props.startEpoch} endEpoch={props.endEpoch} url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
