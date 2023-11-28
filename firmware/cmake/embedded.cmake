@@ -179,7 +179,7 @@ function(embedded_binary
     set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
     add_custom_target(${HEX_FILE} ALL DEPENDS ${HEX_PATH})
     add_custom_target(${ASM_FILE} ALL DEPENDS ${ASM_PATH})
-    
+
     # objcoopy is used to create a hex, and assembly file from the elf.
     add_custom_command(
         OUTPUT ${HEX_PATH}
