@@ -11,4 +11,6 @@ public:
 
 private:
 	std::unique_ptr<ui::RacingBase> ui = std::make_unique<ui::RacingBase>();
+
+	void resizeEvent(QResizeEvent* event) override;
 };

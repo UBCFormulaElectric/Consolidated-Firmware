@@ -2,7 +2,6 @@
 
 #include <QStackedWidget>
 #include <QtWidgets/QMainWindow>
-#include <QGraphicsBlurEffect>
 
 #include "constants.h"
 
@@ -117,7 +116,7 @@ public:
 	void toggleFrame(const Frames toFrame) const {
 		const int nextIdx = frameToMainstackIndex[toFrame];
     	if(nextIdx >= MainStack->count()) {
-    		qWarning() << "ERROR: Invalid frame index " << nextIdx << " with last index " << MainStack->count() - 1;
+    		qWarning() << "ERROR: Invalid frame index" << nextIdx << "with last index " << MainStack->count() - 1;
     		return;
     	}
         MainStack->setCurrentIndex(nextIdx);
