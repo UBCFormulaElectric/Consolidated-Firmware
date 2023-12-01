@@ -6,6 +6,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QWidget>
+#include "components/squircle/Squircle.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -38,7 +39,7 @@ namespace ui {
         QFrame * DriverPhotoFrame{};
         QFrame * LogoFrame{};
         QFrame * LowVoltageFrame{};
-        QFrame * ShutdownLoopFrame{};
+        Squircle * ShutdownLoopFrame{};
 
         QLabel  * DriverPhoto{};
         QLabel  * DriverName{};
@@ -48,6 +49,9 @@ namespace ui {
         QLabel  * LowVoltageName{};
         QWidget * ShutdownLoopIcon{};
         QLabel  * ShutdownLoopName{};
+
+        const int PADDING = 50;
+        const int MARGIN = 25;
 
     public:
         // Outer setup
@@ -63,7 +67,7 @@ namespace ui {
             DriverPhotoFrame = new QFrame();
             LogoFrame = new QFrame();
             LowVoltageFrame = new QFrame();
-            ShutdownLoopFrame = new QFrame();
+            ShutdownLoopFrame = new Squircle(100);
 
             initDriverPhotoFrame();
             initLogoFrame();
@@ -75,6 +79,9 @@ namespace ui {
             gridLayout->addWidget(LowVoltageFrame, 1, 1, 1, 1);
             gridLayout->addWidget(ShutdownLoopFrame, 0, 1, 2, 2);
 
+            gridLayout->setSpacing(MARGIN);
+            gridLayout->setContentsMargins(PADDING, PADDING, PADDING, PADDING);
+
             startup->setLayout(gridLayout);
             QMetaObject::connectSlotsByName(startup);
         }
@@ -82,14 +89,13 @@ namespace ui {
 
         // Initialize visual components for driver photo
         void initDriverPhotoFrame() {
-            // Trying to round corners?
-            DriverPhotoFrame->setStyleSheet("border-radius: 20px;");
-
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, DriverPhotoFrame);
             layout->setAlignment(Qt::AlignCenter);
 
             DriverPhoto = new QLabel(DriverPhotoFrame);
             DriverName = new QLabel(DriverPhotoFrame);
+
+            DriverPhoto->setStyleSheet("border-radius: 20px;");
 
             const DriverProfile *selectedDriver = &driverProfiles[selectedDriverProfile];
             auto driverImage = QPixmap(selectedDriver->imagePath);
@@ -104,8 +110,6 @@ namespace ui {
 
         // Initialize visual components for Logo
         void initLogoFrame() {
-            // Trying to round corners?
-            LogoFrame->setStyleSheet("border-radius: 20px; background-color: #E4E4E4;");
 
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, LogoFrame);
             layout->setAlignment(Qt::AlignCenter);
@@ -114,6 +118,7 @@ namespace ui {
             LogoName = new QLabel(LogoFrame);
             auto logoImage = QIcon(":/fe_logo.svg").pixmap(QSize(350, 400));
 
+            LogoPhoto->setStyleSheet("border-radius: 20px; background-color: #E4E4E4;");
             LogoPhoto->setPixmap(logoImage);
             LogoName->setText("UBC Solar");
 
@@ -126,6 +131,7 @@ namespace ui {
         void initLowVoltageFrame() {
             // Trying to round corners?
             LowVoltageFrame->setStyleSheet("border-radius: 20px; background-color: #013372;");
+            LowVoltageFrame->setFixedSize(100, 100);
 
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, LowVoltageFrame);
             layout->setAlignment(Qt::AlignCenter);
@@ -139,6 +145,7 @@ namespace ui {
 
         // Initialize visual components for Shutdown Loop
         void initShutdownLoopFrame() {
+
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, ShutdownLoopFrame);
             layout->setAlignment(Qt::AlignCenter);
 
