@@ -1,6 +1,5 @@
 #include <QGridLayout>
 #include "squircle.h"
-#include <iostream>
 
 Squircle::Squircle(int radius, QWidget *parent) : QWidget(parent) {
     this->radius = radius;
@@ -21,16 +20,32 @@ void Squircle::paintEvent(QPaintEvent *event) {
 
     QPainter painter(this);
 
-    for (int x = 1; x*x*x*x <= radius; x++) {
-        int y = radius - x*x*x*x;
-        int prevX = x-1;
-        int prevY = radius - prevX*prevX*prevX*prevX;
-        painter.drawLine(prevX, prevY, x, radius - y);
-        painter.drawLine(prevX + radius, prevY, x + radius, radius - y);
-        painter.drawLine(prevX, prevY, x, radius + y);
-        painter.drawLine(prevX + radius, prevY, x + radius, radius + y);
+    double r_four, x, y, x_four, y_four, prevX, prevY, prevX_four, prevY_four;
+
+    // LMAO R4
+    r_four = std::pow(radius, 4);
+
+    for (double i = 0.1; i < radius; i += 0.1) {
+        x = i;
+        x_four = std::pow(x, 4);
+        y_four = r_four - x_four;
+        y = std::pow(y_four, 1.0/4.0);
+        std::cout << y_four << " " << y <<  "\n";
+
+        prevX = x-0.1;
+        prevX_four = std::pow(prevX, 4);
+        prevY_four = r_four - prevX_four;
+        prevY = std::pow(prevY_four, 1.0/4.0);
+
+        // right side
+        painter.drawLine(prevX + radius, radius - prevY, x + radius, radius - y);
+        painter.drawLine(prevX + radius, prevY + radius, x + radius, y + radius);
+
+        // left side
+        painter.drawLine(radius - prevX, radius - prevY, radius - x, radius - y);
+        painter.drawLine(radius - prevX, prevY + radius, radius - x, y + radius);
         std:: cout << x << " " << y << " " << prevX << " " << prevY << "\n";
     }
 
-
+    QWidget::paintEvent(event);
 }

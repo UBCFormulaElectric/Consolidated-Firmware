@@ -38,8 +38,8 @@ private:
     QStackedWidget* MainStack{};
 
 	// pages
-	LandingPage* landingPage{};
-	StartupPage* startupPage{};
+	LandingPage* landing_page{};
+	StartupPage* startup_page{};
 
 	//racing pages
 	AccelerationPage* acceleration_page{};
@@ -58,6 +58,7 @@ private:
 		{SwitcherButton::SKIDPAD, SkidpadFrame},
 		{SwitcherButton::AUTOCROSS, AutocrossFrame},
 		{SwitcherButton::BRAKING, BrakeFrame},
+        {SwitcherButton::LOWVOLTAGE, LVFrame}
 	};
 
 public:
@@ -86,9 +87,9 @@ public:
         MainStack->setGeometry(QRect(0, 0, 1024, 600));
 
 		//populating mainframe
-		landingPage = new LandingPage();
+		landing_page = new LandingPage();
     	// apparently it does not like it when you add it in the constructor
-    	MainStack->addWidget(landingPage);
+    	MainStack->addWidget(landing_page);
 
     	asyncSetup();
 
@@ -107,20 +108,19 @@ public:
     	MainStack->setGraphicsEffect(switcherBackgroundEffect.get());
     	switcherBackgroundEffect->setEnabled(false);
 
-    	startupPage = new StartupPage();
-    	MainStack->addWidget(startupPage);
-
     	acceleration_page = new AccelerationPage();
 		autocross_page = new AutocrossPage();
     	braking_page = new BrakingPage();
     	endurance_page = new EndurancePage();
     	skidpad_page = new SkidpadPage();
+        startup_page = new StartupPage();
 
     	MainStack->addWidget(endurance_page);
     	MainStack->addWidget(acceleration_page);
     	MainStack->addWidget(skidpad_page);
     	MainStack->addWidget(autocross_page);
     	MainStack->addWidget(braking_page);
+        MainStack->addWidget(startup_page);
     }
 
 	void toggleFrame(const Frames toFrame) const {

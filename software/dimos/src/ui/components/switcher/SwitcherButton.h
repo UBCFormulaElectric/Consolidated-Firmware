@@ -15,6 +15,7 @@ public:
 		SKIDPAD,
 		AUTOCROSS,
 		BRAKING,
+        LOWVOLTAGE,
 		SwitcherButtonOptionSize
 	};
 
@@ -23,7 +24,8 @@ public:
 		{ACCELERATION, "ACCELERATION"},
 		{SKIDPAD, "SKIDPAD"},
 		{AUTOCROSS, "AUTOCROSS"},
-		{BRAKING, "BRAKING"}
+		{BRAKING, "BRAKING"},
+        {LOWVOLTAGE, "LOWVOLTAGE"}
 	};
 
 
@@ -37,7 +39,8 @@ private:
 			{ACCELERATION, ":/SwitcherEventIcons/Acceleration.svg"},
 			{SKIDPAD, ":/SwitcherEventIcons/Skidpad.svg"},
 			{AUTOCROSS, ":/SwitcherEventIcons/Autocross.svg"},
-			{BRAKING, ":/SwitcherEventIcons/Brake.svg"}
+			{BRAKING, ":/SwitcherEventIcons/Brake.svg"},
+            {LOWVOLTAGE, ":/SwitcherEventIcons/LV.svg"}
 	};
 
 	QLabel * iconLabel;

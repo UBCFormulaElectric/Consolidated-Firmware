@@ -24,13 +24,15 @@ void Switcher::setupUI() {
 	skidpadOption 		= std::make_unique<SwitcherButton>(SwitcherButton::SKIDPAD, 	this);
 	autoCrossOption 	= std::make_unique<SwitcherButton>(SwitcherButton::AUTOCROSS, this);
 	brakingOption 		= std::make_unique<SwitcherButton>(SwitcherButton::BRAKING, 	this);
+    lowvoltageOption    = std::make_unique<SwitcherButton>(SwitcherButton::LOWVOLTAGE, 	this);
 
 	activeButtons = {
 		enduranceOption.get(),
 		accelerationOption.get(),
 		skidpadOption.get(),
 		autoCrossOption.get(),
-		brakingOption.get()
+		brakingOption.get(),
+        lowvoltageOption.get()
 	};
 
 	selectedEventLabel = std::make_unique<QLabel>(this);

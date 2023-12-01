@@ -21,6 +21,7 @@ public:
 private:
 	SwitcherButton::SwitcherButtonOption selectedEvent;
 	std::unique_ptr<SwitcherButton> enduranceOption, accelerationOption, skidpadOption, autoCrossOption, brakingOption;
+    std::unique_ptr<SwitcherButton> lowvoltageOption;
 	std::unique_ptr<QLabel> selectedEventLabel;
 
 	std::vector<SwitcherButton *> activeButtons;

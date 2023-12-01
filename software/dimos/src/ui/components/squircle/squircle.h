@@ -2,11 +2,12 @@
 
 #include <QFrame>
 #include <QLabel>
-#include <QApplication>
 #include <QPixmap>
 #include <QPainter>
 #include <QRectF>
 #include <QWidget>
+#include <iostream>
+#include <cmath>
 
 class Squircle : public QWidget {
 public:
