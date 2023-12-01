@@ -1,5 +1,5 @@
 #pragma once
-#include "racingbase/RacingBase.h"
+#include "racing/RacingBase.h"
 #include "ui_EndurancePage.h"
 
 class EndurancePage: public RacingBase {

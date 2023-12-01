@@ -10,7 +10,7 @@
 #include "startup/StartupPage.h"
 //components
 #include "components/switcher/Switcher.h"
-#include "endurance/EndurancePage.h"
+#include "racing/endurance/EndurancePage.h"
 
 QT_BEGIN_NAMESPACE
 
