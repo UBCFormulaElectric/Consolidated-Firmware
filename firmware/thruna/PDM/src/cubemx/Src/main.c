@@ -23,39 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-<<<<<<< HEAD
 #include "tasks.h"
-=======
-#include <assert.h>
-
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "io_stackWaterMark.h"
-#include "io_watchdogConfig.h"
-#include "Io_SharedHeartbeatMonitor.h"
-#include "io_lowVoltageBattery.h"
-#include "io_efuse.h"
-#include "hw_adc.h"
-#include "hw_hardFaultHandler.h"
-#include "io_can.h"
-#include "io_jsoncan.h"
-#include "hw_bootup.h"
-#include "hw_can.h"
-#include "io_log.h"
-
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
-#include "App_SharedStateMachine.h"
-#include "states/app_initState.h"
-#include "app_powerManager.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_CommitInfo.h"
-#include "app_globals.h"
->>>>>>> 61c05341 (code review changes)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -201,55 +169,7 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
-<<<<<<< HEAD
     tasks_init();
-=======
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("PDM reset!");
-
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
-
-    hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
-
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-
-    io_lowVoltageBattery_init(&lv_battery_config);
-    io_efuse_init(efuse_configs);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
-        heartbeatGetters, heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters,
-        heartbeatFaultGetters);
-
-    state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
-    globals->heartbeat_monitor = heartbeat_monitor;
-
-    io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
-
-    // broadcast commit info
-    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
-
-    App_PowerManager_Init();
->>>>>>> 61c05341 (code review changes)
     /* USER CODE END 2 */
 
     /* Init scheduler */
