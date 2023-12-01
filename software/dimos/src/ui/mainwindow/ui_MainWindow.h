@@ -10,7 +10,12 @@
 #include "startup/StartupPage.h"
 //components
 #include "components/switcher/Switcher.h"
+// racing pages
+#include "racing/acceleration/AccelerationPage.h"
+#include "racing/autocross/AutocrossPage.h"
+#include "racing/braking/BrakingPage.h"
 #include "racing/endurance/EndurancePage.h"
+#include "racing/skidpad/SkidpadPage.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -27,25 +32,21 @@ public:
         AutocrossFrame,
         BrakeFrame,
         FramesCount
-    };
+    }; // order does matter :)
 private:
 	QMainWindow * mw{};
     QStackedWidget* MainStack{};
 
 	// pages
-	static inline std::map<Frames, int> frameToMainstackIndex = {
-		{LandingFrame, 0},
-		{LVFrame, 1},
-		{EnduranceFrame, 2},
-		{AcclerationFrame, 3},
-		{SkidpadFrame, 4},
-		{AutocrossFrame, 5},
-		{BrakeFrame, 6},
-	};
 	LandingPage* landingPage{};
 	StartupPage* startupPage{};
+
+	//racing pages
+	AccelerationPage* acceleration_page{};
+	AutocrossPage* autocross_page{};
+	BrakingPage* braking_page{};
 	EndurancePage* endurance_page{};
-	// AccelerationPage* acceleration_page;
+	SkidpadPage* skidpad_page{};
 
 	// switcher logic
     Switcher* SwitcherFrame{};
@@ -107,14 +108,23 @@ public:
     	switcherBackgroundEffect->setEnabled(false);
 
     	startupPage = new StartupPage();
-    	endurance_page = new EndurancePage();
-
     	MainStack->addWidget(startupPage);
+
+    	acceleration_page = new AccelerationPage();
+		autocross_page = new AutocrossPage();
+    	braking_page = new BrakingPage();
+    	endurance_page = new EndurancePage();
+    	skidpad_page = new SkidpadPage();
+
     	MainStack->addWidget(endurance_page);
+    	MainStack->addWidget(acceleration_page);
+    	MainStack->addWidget(skidpad_page);
+    	MainStack->addWidget(autocross_page);
+    	MainStack->addWidget(braking_page);
     }
 
 	void toggleFrame(const Frames toFrame) const {
-		const int nextIdx = frameToMainstackIndex[toFrame];
+		const int nextIdx = toFrame;
     	if(nextIdx >= MainStack->count()) {
     		qWarning() << "ERROR: Invalid frame index" << nextIdx << "with last index " << MainStack->count() - 1;
     		return;
