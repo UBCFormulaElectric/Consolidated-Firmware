@@ -9,7 +9,7 @@ typedef enum
 } PowerManagerState;
 
 /**
- * Initalizes to the drive state (closed)
+ * Initalizes to the shutdown state (closed)
  */
 void app_powerManager_init();
 
@@ -18,3 +18,8 @@ void app_powerManager_init();
  * @param state to open/close
  */
 void app_powerManager_setState(PowerManagerState state);
+
+/**
+ * Changes the Power Manager based on the state of the BMS
+ */
+void app_powerManager_transition();

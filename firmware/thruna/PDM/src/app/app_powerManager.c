@@ -1,4 +1,5 @@
 #include "app_powerManager.h"
+#include "App_CanRx.h"
 
 typedef struct
 {
@@ -34,7 +35,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
 
 void app_powerManager_init()
 {
-    app_powerManager_setState(POWER_MANAGER_CONTRACTOR_DRIVE);
+    app_powerManager_setState(POWER_MANAGER_CONTRACTOR_SHUTDOWN);
 }
 
 void app_powerManager_setState(PowerManagerState state)
@@ -42,5 +43,17 @@ void app_powerManager_setState(PowerManagerState state)
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
         io_efuse_setChannel(efuse, power_states_config[state].efuses[efuse]);
+    }
+}
+
+void app_powerManager_transition()
+{
+    if (App_CanRx_BMS_State_Get() == BMS_INVERTER_ON_STATE)
+    {
+        app_powerManager_setState(POWER_MANAGER_CONTRACTOR_DRIVE);
+    }
+    else if (App_CanRx_BMS_State_Get() == BMS_INIT_STATE)
+    {
+        app_powerManager_setState(POWER_MANAGER_CONTRACTOR_SHUTDOWN);
     }
 }
