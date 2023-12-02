@@ -24,6 +24,7 @@ private:
     std::unique_ptr<SwitcherButton> lowvoltageOption;
 	std::unique_ptr<QLabel> selectedEventLabel;
 
+	std::vector<SwitcherButton *> allButtons;
 	std::vector<SwitcherButton *> activeButtons;
 
 	inline static double BUTTON_ANGLE_OFFSETS[] = {0, 13, 26, -26, -13};

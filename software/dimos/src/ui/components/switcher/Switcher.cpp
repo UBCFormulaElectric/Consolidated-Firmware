@@ -24,16 +24,18 @@ void Switcher::setupUI() {
 	skidpadOption 		= std::make_unique<SwitcherButton>(SwitcherButton::SKIDPAD, 	this);
 	autoCrossOption 	= std::make_unique<SwitcherButton>(SwitcherButton::AUTOCROSS, this);
 	brakingOption 		= std::make_unique<SwitcherButton>(SwitcherButton::BRAKING, 	this);
-    lowvoltageOption    = std::make_unique<SwitcherButton>(SwitcherButton::LOWVOLTAGE, 	this);
+	lowvoltageOption    = std::make_unique<SwitcherButton>(SwitcherButton::LOWVOLTAGE, 	this);
 
-	activeButtons = {
+	allButtons = {
 		enduranceOption.get(),
 		accelerationOption.get(),
 		skidpadOption.get(),
 		autoCrossOption.get(),
 		brakingOption.get(),
-        lowvoltageOption.get()
+		lowvoltageOption.get()
 	};
+
+	activeButtons = allButtons; // temporarily
 
 	selectedEventLabel = std::make_unique<QLabel>(this);
 	selectedEventLabel->setStyleSheet(
@@ -54,11 +56,15 @@ constexpr int SCREEN_CENTER_X = SCREEN_WIDTH / 2, SCREEN_BOTTOM_Y = SCREEN_HEIGH
  * TODO consider making this part of the update event
  */
 void Switcher::repositionSwitcherButtons() {
+	for(const auto& button: allButtons) {
+		button->hide();
+	}
 	for(int ii = -2; ii <= 2; ii++) {
 		const uint objIndex = (selectedEvent + ii + activeButtons.size()) % activeButtons.size();
 		const auto button = activeButtons[objIndex];
 		const QPoint centerLoc = place_circle_from_index(ii), loc = c_2_tl(enduranceOption->rect(), centerLoc);
 		button->move(loc);
+		button->show();
 	}
 
 	// adjust label
