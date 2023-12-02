@@ -2,16 +2,13 @@
 
 #include <QWidget>
 
-class Squircle : public QWidget {
-public:
-    explicit Squircle(int radius, QWidget *parent = nullptr);
-    void setRadius(int radius);
-    void setupUi();
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-
-private:
+class Squircle {
     int radius = 1;
+    QPainter * p;
+public:
+    explicit Squircle(QPainter * p, int radius);
+    explicit Squircle(QPainter * p);
+    void setRadius(int radius);
+    void paint() const;
 };
 

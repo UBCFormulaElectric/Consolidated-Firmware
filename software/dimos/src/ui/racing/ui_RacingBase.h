@@ -4,16 +4,37 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QWidget>
+#include <QPainter>
+#include "components/squircle/squircle.h"
 
 QT_BEGIN_NAMESPACE
 
+
 namespace ui {
+	class NotifFrame final: public QFrame {
+		const static inline auto backgroundBrush = QBrush(QColor(255, 255, 255, 255*0.1));
+	public:
+		explicit NotifFrame(QWidget * parent = nullptr): QFrame(parent) {
+			// setStyleSheet("background-color: rgba(128, 128, 128, 0.3); border-radius: 20px;");
+		}
+
+		void paintEvent(QPaintEvent* event) override {
+			QPainter p(this);
+			p.setBrush(backgroundBrush);
+			p.setPen(QColorConstants::White);
+			p.setRenderHint(QPainter::Antialiasing);
+			const auto area = p.viewport();
+			const auto squirclePainter = Squircle(&p, area.width()/2);
+			squirclePainter.paint();
+			QFrame::paintEvent(event);
+		}
+	};
 
 	class RacingBase {
 	public:
 		QFrame* notifParentFrame;
 		QLabel* notifBackgroundLogo;
-		QFrame * notifFrame;
+		NotifFrame * notifFrame;
 
 		QGraphicsBlurEffect * notifLogoEffect;
 
@@ -43,16 +64,14 @@ namespace ui {
 			notifBackgroundLogo->setGraphicsEffect(notifLogoEffect);
 
 
-			notifFrame = new QFrame(notifParentFrame);
-			notifFrame->setStyleSheet("background-color: rgba(128, 128, 128, 0.3); border-radius: 20px;");
+			notifFrame = new NotifFrame(notifParentFrame);
 		}
 
-		void resizeEvent(QResizeEvent* event) const {
+		void resizeEvent(QResizeEvent*) const {
 			constexpr int MARGIN = 10;
 			const int parentHeight = notifParentFrame->height(), parentWidth = notifParentFrame->width();
 			notifFrame->setGeometry(MARGIN, MARGIN, parentWidth - 2 * MARGIN, parentHeight- 2 * MARGIN);
 			notifBackgroundLogo->setGeometry(notifParentFrame->geometry());
-			qInfo() << notifParentFrame->geometry();
 		}
 	};
 }

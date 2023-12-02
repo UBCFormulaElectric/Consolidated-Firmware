@@ -39,7 +39,7 @@ namespace ui {
         QFrame * DriverPhotoFrame{};
         QFrame * LogoFrame{};
         QFrame * LowVoltageFrame{};
-        Squircle * ShutdownLoopFrame{};
+        QFrame * ShutdownLoopFrame{};
 
         QLabel  * DriverPhoto{};
         QLabel  * DriverName{};
@@ -67,7 +67,7 @@ namespace ui {
             DriverPhotoFrame = new QFrame();
             LogoFrame = new QFrame();
             LowVoltageFrame = new QFrame();
-            ShutdownLoopFrame = new Squircle(200);
+            ShutdownLoopFrame = new QFrame();
 
             initDriverPhotoFrame();
             initLogoFrame();
