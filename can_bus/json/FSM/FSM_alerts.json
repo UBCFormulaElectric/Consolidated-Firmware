@@ -3,6 +3,7 @@
     "faults_id": 351,
     "warnings_counts_id": 352,
     "faults_counts_id": 353,
+<<<<<<< HEAD
     "warnings": [
         "StackWaterMarkHighTask1Hz",
         "StackWaterMarkHighTask100Hz",
@@ -30,4 +31,33 @@
         "FlowMeterUnderflow",
         "TorquePlausabilityFailed"
     ]
+=======
+    "warnings": {
+        "StackWaterMarkHighTask1Hz" : 201,
+        "StackWaterMarkHighTask100Hz": 202,
+        "StackWaterMarkHighTask1kHz": 203,
+        "StackWaterMarkHighTaskCanRx": 204,
+        "StackWaterMarkHighTaskCanTx": 205,
+        "WatchdogTimeout": 206,
+        "TxOverflow": 207,
+        "RxOverflow": 208,
+        "LeftWheelSpeedOutOfRange": 209,
+        "RightWheelSpeedOutOfRange": 210,
+        "SteeringAngleOCSC":211,
+        "SteeringAngleOutOfRange" : 212,
+        "FrontBrakePressureOutOfRange":213,
+        "RearBrakePressureOutOfRangeWarning": 214,
+        "FlowRateOutOfRange":215, 
+        "BrakeAppsDisagreement" : 216 ,
+        "AppsDisagreement": 217
+    },
+    "faults": {
+        "MissingHeartbeat" : 251,
+        "StateMachine":252,
+        "PappsOCSC":253,
+        "SappsOCSCFault" : 254,
+        "FlowMeterUnderflow" : 255,
+        "TorquePlausabilityFailed" : 256
+    }
+>>>>>>> b40804df (lol)
 }
