@@ -25,12 +25,12 @@ public:
     // Frames should only be switching when indicated by switcher
     enum Frames {
         LandingFrame,
-        LVFrame,
         EnduranceFrame,
         AcclerationFrame,
         SkidpadFrame,
         AutocrossFrame,
         BrakeFrame,
+        LVFrame,
         FramesCount
     }; // order does matter :)
 private:
