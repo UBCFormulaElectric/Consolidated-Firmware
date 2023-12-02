@@ -3,8 +3,10 @@
     "faults_id": 52,
     "warnings_counts_id": 53,
     "faults_counts_id": 54,
-    "warnings": [
-        "Warning_Test"
-    ],
-    "faults": []
+    "warnings": {
+        "Warning_Test": 20000
+    },
+    "faults": {
+    }
+    
 }
