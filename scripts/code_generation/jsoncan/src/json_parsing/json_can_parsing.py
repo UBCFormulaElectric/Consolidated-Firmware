@@ -164,18 +164,22 @@ class JsonCanParser:
                 self._messages[faults.name] = faults
                 self._messages[warnings_counts.name] = warnings_counts
                 self._messages[faults_counts.name] = faults_counts
+            
 
-                self._alerts[node] = [
-                    *[
-                        CanAlert(alert.name, CanAlertType.WARNING)
+
+                self._alerts[node] ={
+                    **{
+                        CanAlert(alert.name, CanAlertType.WARNING):
+                        node_alerts_json_data["warnings"][alert.name[12::]]
                         for alert in warnings.signals
-                    ],
-                    *[
-                        CanAlert(alert.name, CanAlertType.FAULT)
+                    },
+                    **{
+                        CanAlert(alert.name, CanAlertType.FAULT):
+                        node_alerts_json_data["faults"][alert.name[10::]]
                         for alert in faults.signals
-                    ],
-                ]
-
+                    },
+                }
+                                
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
             node_rx_json_data = self._get_raw_json_data_from_file(
@@ -431,7 +435,7 @@ class JsonCanParser:
         """
         warnings = alerts_json["warnings"]
         faults = alerts_json["faults"]
-
+        
         # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
         # that indicate the number of times an alert has been set. Each signal is allocated 3 bits, and so can count
         # up to 8, meaning we can pack 21 alerts to fit inside a 64-bit CAN payload.
@@ -533,9 +537,9 @@ class JsonCanParser:
         ]
 
         return alerts_msgs
-
+    
     def _node_alert_signals(
-        self, node: str, alerts: List[str], type: str
+        self, node: str, alerts: Dict, type: str
     ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
@@ -558,7 +562,7 @@ class JsonCanParser:
         ]
 
     def _node_alert_count_signals(
-        self, node: str, alerts: List[str], type: str
+        self, node: str, alerts: Dict, type: str
     ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals.
