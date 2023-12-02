@@ -3,35 +3,6 @@
     "faults_id": 351,
     "warnings_counts_id": 352,
     "faults_counts_id": 353,
-<<<<<<< HEAD
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow",
-        "LeftWheelSpeedOutOfRange",
-        "RightWheelSpeedOutOfRange",
-        "SteeringAngleOCSC",
-        "SteeringAngleOutOfRange",
-        "FrontBrakePressureOutOfRange",
-        "RearBrakePressureOutOfRange",
-        "FlowRateOutOfRange",
-        "BrakeAppsDisagreement",
-        "AppsDisagreement"
-    ],
-    "faults": [
-        "MissingHeartbeat",
-        "StateMachine",
-        "PappsOCSC",
-        "SappsOCSC",
-        "FlowMeterUnderflow",
-        "TorquePlausabilityFailed"
-    ]
-=======
     "warnings": {
         "StackWaterMarkHighTask1Hz" : 201,
         "StackWaterMarkHighTask100Hz": 202,
@@ -59,5 +30,4 @@
         "FlowMeterUnderflow" : 255,
         "TorquePlausabilityFailed" : 256
     }
->>>>>>> b40804df (lol)
 }
