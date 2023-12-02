@@ -67,7 +67,7 @@ namespace ui {
             DriverPhotoFrame = new QFrame();
             LogoFrame = new QFrame();
             LowVoltageFrame = new QFrame();
-            ShutdownLoopFrame = new Squircle(100);
+            ShutdownLoopFrame = new Squircle(200);
 
             initDriverPhotoFrame();
             initLogoFrame();
@@ -77,9 +77,9 @@ namespace ui {
             gridLayout->addWidget(DriverPhotoFrame, 0, 0, 1, 2);
             gridLayout->addWidget(LogoFrame, 1, 0, 1, 1);
             gridLayout->addWidget(LowVoltageFrame, 1, 1, 1, 1);
-            gridLayout->addWidget(ShutdownLoopFrame, 0, 1, 2, 2);
+            gridLayout->addWidget(ShutdownLoopFrame, 0, 3, 2, 2);
 
-            gridLayout->setSpacing(MARGIN);
+            // gridLayout->setSpacing(MARGIN);
             gridLayout->setContentsMargins(PADDING, PADDING, PADDING, PADDING);
 
             startup->setLayout(gridLayout);
@@ -114,16 +114,17 @@ namespace ui {
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, LogoFrame);
             layout->setAlignment(Qt::AlignCenter);
 
-            LogoPhoto = new QLabel(LogoFrame);
-            LogoName = new QLabel(LogoFrame);
-            auto logoImage = QIcon(":/fe_logo.svg").pixmap(QSize(350, 400));
+            LogoPhoto = new QLabel();
+            // LogoName = new QLabel();
+            auto logoImage = QIcon(":/fe_logo.svg").pixmap(QSize(140, 160));
 
-            LogoPhoto->setStyleSheet("border-radius: 20px; background-color: #E4E4E4;");
+            LogoFrame->setStyleSheet("border-radius: 20px; background-color: #E4E4E4;");
+            LogoFrame->setFixedSize(180, 180);
             LogoPhoto->setPixmap(logoImage);
-            LogoName->setText("UBC Solar");
 
+            // LogoName->setText("UBC Formula Electric");
             layout->addWidget(LogoPhoto);
-            layout->addWidget(LogoName);
+            // layout->addWidget(LogoName);
             LogoFrame->setLayout(layout);
         }
 
@@ -131,7 +132,7 @@ namespace ui {
         void initLowVoltageFrame() {
             // Trying to round corners?
             LowVoltageFrame->setStyleSheet("border-radius: 20px; background-color: #013372;");
-            LowVoltageFrame->setFixedSize(100, 100);
+            LowVoltageFrame->setFixedSize(180, 180);
 
             auto layout = new QBoxLayout(QBoxLayout::TopToBottom, LowVoltageFrame);
             layout->setAlignment(Qt::AlignCenter);
@@ -150,7 +151,7 @@ namespace ui {
             layout->setAlignment(Qt::AlignCenter);
 
             ShutdownLoopName = new QLabel(ShutdownLoopFrame);
-            ShutdownLoopName->setText("Uwu ur so warm");
+            ShutdownLoopName->setText("Imagine there was a shutdown loop here");
 
             layout->addWidget(ShutdownLoopName);
             ShutdownLoopFrame->setLayout(layout);
