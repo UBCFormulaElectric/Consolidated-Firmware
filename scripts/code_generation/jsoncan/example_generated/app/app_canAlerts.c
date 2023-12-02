@@ -114,3 +114,67 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
+void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+{
+    switch (board)
+    {
+        case FSM_ALERT_BOARD:
+        {
+            if (App_CanRx_FSM_Warning_Warning_Test1_Get())
+            {
+                alertArray[*p] = FSM_Warning_Warning_Test1;
+                *p++;
+            }
+            
+            if (App_CanRx_FSM_Warning_Warning_Test2_Get())
+            {
+                alertArray[*p] = FSM_Warning_Warning_Test2;
+                *p++;
+            }
+            
+            break;
+        }
+        case JCT_ALERT_BOARD:
+        {
+            if (App_CanTx_JCT_Warning_Warning_Test_Get())
+            {
+                alertArray[*p] = JCT_Warning_Warning_Test;
+                *p++;
+            }
+            
+            break;
+        }
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+    
+    return false;
+}
+
+void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+{
+    switch (board)
+    {
+        case FSM_ALERT_BOARD:
+        {
+            if (App_CanRx_FSM_Fault_Fault_Test3_Get())
+            {
+                alertArray[*p] = FSM_Fault_Fault_Test3;
+                *p++;
+            }
+            
+            break;
+        }
+        default:
+        {
+            // Do nothing
+            break;
+        }
+    }
+    
+    return false;
+}
+
