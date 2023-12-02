@@ -7,6 +7,7 @@ NUM_ALERTS = "NUM_{node}_{alert_type}S"
 BOARD_HAS_ALERT_FUNC_NAME = "App_CanAlerts_BoardHas{alert_type}"
 ANY_ALERT_FUNC_NAME = "App_CanAlerts_AnyBoardHas{alert_type}"
 ALERT_BOARD_ENUM_NAME = "{node}_ALERT_BOARD"
+GET_BOARD_FAULT_CODE = "App_CanAlerts_{alert_type}Code"
 
 
 class AppCanAlertsModule(CModule):
@@ -108,6 +109,58 @@ class AppCanAlertsModule(CModule):
         has_alert.body.add_line("return false;")
         return has_alert
 
+    def _get_board_alert_code(self, alert_type: CanAlertType, comment: str):
+        get_alert = CFunc(
+            GET_BOARD_FAULT_CODE.format(alert_type=alert_type),
+            "void",
+            args=[
+                CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
+                CVar("*alertArray", "uint8_t"),
+                CVar("elementNum", "uint8_t"),
+                CVar("*p","uint8_t")
+            ],
+            comment=f"Return whether or not a board has set a {comment}.",
+        )
+        get_alert.body.start_switch("board")
+
+        nodes_with_alerts = [
+            node for node in self._db.nodes if self._db.node_has_alert(node, alert_type)
+        ]
+        for node in nodes_with_alerts:
+            get_alert.body.add_switch_case(
+                ALERT_BOARD_ENUM_NAME.format(node=node.upper())
+            )
+            get_alert.body.start_switch_case()
+
+            for alert in self._db.node_alerts_with_rx_check(
+                node, self._node, alert_type
+            ):
+                if node == self._node:
+                    get_alert.body.start_if(
+                        f"{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()"
+                    )
+                else:
+                    get_alert.body.start_if(
+                        f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
+                    )
+                get_alert.body.add_line("alertArray[*p] = " + alert + ";")
+                get_alert.body.add_line("*p++;")
+
+                get_alert.body.end_if()
+                get_alert.body.add_line()
+
+            get_alert.body.add_switch_break()
+
+        get_alert.body.add_switch_default()
+        get_alert.body.start_switch_case()
+        get_alert.body.add_comment("Do nothing")
+        get_alert.body.add_switch_break()
+        get_alert.body.end_switch()
+
+        get_alert.body.add_line()
+        get_alert.body.add_line("return false;")
+        return get_alert
+
     def _any_alert_set_func(self, alert_type: CanAlertType, comment: str):
         has_alert = CFunc(
             ANY_ALERT_FUNC_NAME.format(alert_type=alert_type),
@@ -136,7 +189,7 @@ class AppCanAlertsModule(CModule):
         # Alert setters
         funcs.extend(self._set_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._set_alert_funcs(CanAlertType.FAULT))
-
+        
         # Alert getters
         funcs.extend(self._get_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._get_alert_funcs(CanAlertType.FAULT))
@@ -148,8 +201,13 @@ class AppCanAlertsModule(CModule):
         # All board alert set checkers
         funcs.append(self._any_alert_set_func(CanAlertType.WARNING, "warning"))
         funcs.append(self._any_alert_set_func(CanAlertType.FAULT, "fault"))
+        
+        # Fault and Warning code getters
+        funcs.append(self._get_board_alert_code (CanAlertType.WARNING, "warning"))
+        funcs.append(self._get_board_alert_code(CanAlertType.FAULT, "fault"))
 
         return funcs
+    
 
     def header(self):
         cw = CWriter()
@@ -205,17 +263,26 @@ class AppCanAlertsModule(CModule):
                 )
             )
             cw.add_enum(alerts_enum)
+            cw.add_line()        
+    
+        for alert_type in CanAlertType:
+            
+         nodes_with_alerts = [
+            node for node in self._db.nodes if self._db.node_has_alert(node, alert_type)
+         ]
+         
+         
+         breakpoint
+         for nodes in nodes_with_alerts:
+            alerts_enum = CEnum(
+                CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
+            )
+            for alert, IDcode in self._db.node_IDcodes(nodes, alert_type = alert_type).items():
+                alerts_enum.add_value(CVar(alert.name, value=IDcode))
+            
+            cw.add_enum(alerts_enum)
             cw.add_line()
-            
-            
-        #Board enumaration:
-        
-        for board in BoardNumbering:
-            board_enum = CEnum("BoardEnum")
-            
-            for i,boardnum in enumerate()
-        
-
+                    
         # Add function prototypes
         cw.add_line()
         cw.add_header_comment("Function Prototypes")
@@ -243,6 +310,11 @@ class AppCanAlertsModule(CModule):
         # Add function definitions
         cw.add_line()
         cw.add_header_comment("Function Definitions")
+        cw.add_line()
+        
+        cw.add_line("uint8_t *alertarray[62]= {0};")
+        cw.add_line("uint8_t pointP = 0;")
+        cw.add_line("uint8_t *p = &pointP;")
         cw.add_line()
 
         for func in self._functions:

@@ -3,11 +3,11 @@
     "faults_id": 42,
     "warnings_counts_id": 43,
     "faults_counts_id": 44,
-    "warnings": [
-        "Warning_Test1",
-        "Warning_Test2"
-    ],
-    "faults": [
-        "Fault_Test3"
-    ]
+    "warnings": {
+        "Warning_Test1" : 2059,
+        "Warning_Test2" : 2060
+    },
+    "faults": {
+        "Fault_Test3": 2000
+    }
 }
