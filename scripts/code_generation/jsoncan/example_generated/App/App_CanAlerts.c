@@ -126,13 +126,13 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test1Code;
+                alertArray[*p] = FSM_Warning_Warning_Test1;
                 *p++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test2Code;
+                alertArray[*p] = FSM_Warning_Warning_Test2;
                 *p++;
             }
             
@@ -142,7 +142,7 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray[*p] = JCT_Warning_Warning_TestCode;
+                alertArray[*p] = JCT_Warning_Warning_Test;
                 *p++;
             }
             
@@ -166,7 +166,7 @@ void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t e
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray[*p] = FSM_Fault_Fault_Test3Code;
+                alertArray[*p] = FSM_Fault_Fault_Test3;
                 *p++;
             }
             

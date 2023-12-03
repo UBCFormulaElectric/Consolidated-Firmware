@@ -19,18 +19,18 @@ typedef enum
 } CanAlertBoard;
 typedef enum
 {
-    FSM_Warning_Warning_Test1Code = 2059,
-    FSM_Warning_Warning_Test2Code = 2060,
+    FSM_Warning_Warning_Test1 = 2059,
+    FSM_Warning_Warning_Test2 = 2060,
 } FSM_WarningCode;
 
 typedef enum
 {
-    JCT_Warning_Warning_TestCode = 20000,
+    JCT_Warning_Warning_Test = 20000,
 } JCT_WarningCode;
 
 typedef enum
 {
-    FSM_Fault_Fault_Test3Code = 2000,
+    FSM_Fault_Fault_Test3 = 2000,
 } FSM_FaultCode;
 
 

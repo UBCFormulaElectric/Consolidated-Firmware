@@ -143,7 +143,7 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray[*p] = " + alert+ "Code" + ";")
+                get_alert.body.add_line("alertArray[*p] = " + alert + ";")
                 get_alert.body.add_line("*p++;")
 
                 get_alert.body.end_if()
@@ -189,6 +189,8 @@ class AppCanAlertsModule(CModule):
         # Alert setters
         funcs.extend(self._set_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._set_alert_funcs(CanAlertType.FAULT))
+        
+        print(self._set_alert_funcs(CanAlertType.FAULT))
         
         # Alert getters
         funcs.extend(self._get_alert_funcs(CanAlertType.WARNING))
@@ -258,7 +260,7 @@ class AppCanAlertsModule(CModule):
                 CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
             )
             for alert, IDcode in self._db.node_IDcodes(nodes, alert_type = alert_type).items():
-                alerts_enum.add_value(CVar(alert.name + "Code", value=IDcode))
+                alerts_enum.add_value(CVar(alert.name, value=IDcode))
             
             cw.add_enum(alerts_enum)
             cw.add_line()

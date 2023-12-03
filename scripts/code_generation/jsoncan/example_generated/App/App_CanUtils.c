@@ -44,9 +44,14 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 /* ----------------------- Encoding/Decoding Macros ----------------------- */
 
 /**
- * Encode real signal value to payload representation, w/ scale and offset.
+ * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
-#define CAN_ENCODE(input, scale, offset, type) ((uint32_t)((type)(input - offset) / (type)scale))
+#define CAN_ENCODE(input, scale, offset, type) ((uint32_t)((input - offset) / scale))
+
+/**
+ * Encode real signal value to payload representation, w/ scale and offset (signed).
+ */
+#define CAN_SIGNED_ENCODE(input, scale, offset, type) ((int32_t)((input - offset) / scale))
 
 /**
  * Decode payload representation of signal to signal value, w/ scale and offset.
@@ -177,7 +182,7 @@ void App_CanUtils_JCT_Status_Pack(const JCT_Status_Signals* const in_msg, uint8_
     
     // Pack 12-bit signal JCT_UnsignedTester into payload (at bit 25 to bit 37).
     const int JCT_UnsignedTester_val = in_msg->JCT_UnsignedTester_value;
-    const uint32_t JCT_UnsignedTester_raw = CAN_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, int);
+    const int32_t JCT_UnsignedTester_raw = CAN_SIGNED_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, int);
     out_data[3] |= packShiftLeft(JCT_UnsignedTester_raw, 1, 0xfe);   // Packs bits #######_ of byte 3
     out_data[4] |= packShiftRight(JCT_UnsignedTester_raw, 7, 0x1f);   // Packs bits ___##### of byte 4
     

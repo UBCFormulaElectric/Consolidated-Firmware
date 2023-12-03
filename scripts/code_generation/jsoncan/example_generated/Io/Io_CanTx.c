@@ -18,7 +18,7 @@
 /* --------------------------- Static Variables --------------------------- */
 
 static uint32_t can_mode;
-static void (*transmit_func)(const CanMsg* tx_msg);
+static void (*transmit_func)(const JsonCanMsg* tx_msg);
 
 /* --------------------- Static Function Definitions ---------------------- */
 
@@ -27,8 +27,8 @@ static void Io_CanTx_JCT_Vitals_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT | CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_VITALS_ID;
         tx_msg.dlc = CAN_MSG_JCT_VITALS_BYTES;
         
@@ -51,8 +51,8 @@ static void Io_CanTx_JCT_AirShutdownErrors_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_BYTES;
         
@@ -75,8 +75,8 @@ static void Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_BYTES;
         
@@ -99,8 +99,8 @@ static void Io_CanTx_JCT_Status_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_STATUS_ID;
         tx_msg.dlc = CAN_MSG_JCT_STATUS_BYTES;
         
@@ -123,8 +123,8 @@ static void Io_CanTx_JCT_Warnings_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_BYTES;
         
@@ -147,8 +147,8 @@ static void Io_CanTx_JCT_Faults_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_FAULTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_FAULTS_BYTES;
         
@@ -171,8 +171,8 @@ static void Io_CanTx_JCT_WarningsCounts_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_COUNTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_COUNTS_BYTES;
         
@@ -195,8 +195,8 @@ static void Io_CanTx_JCT_FaultsCounts_SendPeriodic()
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_FAULTS_COUNTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_FAULTS_COUNTS_BYTES;
         
@@ -216,7 +216,7 @@ static void Io_CanTx_JCT_FaultsCounts_SendPeriodic()
 
 /* --------------------- Public Function Definitions ---------------------- */
 
-void Io_CanTx_Init(void (*transmit_tx_msg_func)(const CanMsg*))
+void Io_CanTx_Init(void (*transmit_tx_msg_func)(const JsonCanMsg*))
 {
     transmit_func = transmit_tx_msg_func;
 }
@@ -275,8 +275,8 @@ void Io_CanTx_JCT_WarningsTest_SendAperiodic()
     if (can_mode & (CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_TEST_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_TEST_BYTES;
         

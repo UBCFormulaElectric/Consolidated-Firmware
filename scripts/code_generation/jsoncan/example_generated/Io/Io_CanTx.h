@@ -20,7 +20,7 @@ typedef struct
     uint32_t std_id;
     uint32_t dlc;
     uint8_t data[8];
-} CanMsg;
+} JsonCanMsg;
 
 /* -------------------------------- Enums --------------------------------- */
 
@@ -35,7 +35,7 @@ typedef enum
 /**
  * Initialzie the IO CAN TX module.
  */
-void Io_CanTx_Init(void (*transmit_tx_msg_func)(const CanMsg*));
+void Io_CanTx_Init(void (*transmit_tx_msg_func)(const JsonCanMsg*));
 
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
