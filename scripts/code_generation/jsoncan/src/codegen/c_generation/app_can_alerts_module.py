@@ -243,27 +243,7 @@ class AppCanAlertsModule(CModule):
             boards_enum.add_value(
                 CVar(ALERT_BOARD_ENUM_NAME.format(node=node.upper()), value=i)
             )
-        cw.add_enum(boards_enum)
-
-        # Enums of alerts set by this node
-        for alert_type in CanAlertType:
-            alerts_enum = CEnum(
-                CTypesConfig.ALERT_ENUM.format(node=self._node, alert_type=alert_type)
-            )
-            for i, alert in enumerate(self._db.node_alerts(self._node, alert_type)):
-                alerts_enum.add_value(CVar(alert, value=i))
-
-            alerts_enum.add_value(
-                CVar(
-                    NUM_ALERTS.format(
-                        node=self._node,
-                        alert_type=pascal_to_screaming_snake_case(alert_type),
-                    ),
-                    value=len(alerts_enum.values),
-                )
-            )
-            cw.add_enum(alerts_enum)
-            cw.add_line()        
+        cw.add_enum(boards_enum)   
     
         for alert_type in CanAlertType:
             
