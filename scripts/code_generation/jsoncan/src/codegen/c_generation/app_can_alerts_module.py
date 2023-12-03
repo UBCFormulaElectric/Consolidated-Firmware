@@ -253,7 +253,6 @@ class AppCanAlertsModule(CModule):
             node for node in self._db.nodes if self._db.node_has_alert(node, alert_type)
          ]
          
-         
          breakpoint
          for nodes in nodes_with_alerts:
             alerts_enum = CEnum(
