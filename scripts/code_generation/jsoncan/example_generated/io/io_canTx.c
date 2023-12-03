@@ -217,6 +217,7 @@ static void io_canTx_JCT_FaultsCounts_sendPeriodic()
 /* --------------------- Public Function Definitions ---------------------- */
 
 void io_canTx_init(void (*transmit_tx_msg_func)(const JsonCanMsg*))
+
 {
     transmit_func = transmit_tx_msg_func;
 }
