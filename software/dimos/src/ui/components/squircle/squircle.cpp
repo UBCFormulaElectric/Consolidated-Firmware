@@ -18,8 +18,9 @@ void Squircle::paint() const {
     // Using equation x^4 + y^4 = r
     QPainterPath p1, p2, p3 ,p4;
 
+    constexpr int power = 4;
     // LMAO R4
-    const double r_four = std::pow(radius, 4);
+    const double r_four = std::pow(radius, power);
 
     p1.moveTo(radius, 0);
     p2.moveTo(radius, 2 * radius);
@@ -27,9 +28,9 @@ void Squircle::paint() const {
     p4.moveTo(radius, 2 * radius);
     for (int x = 0; x <= radius; x += 1) {
         const double
-            x_four = std::pow(x, 4),
+            x_four = std::pow(x, power),
             y_four = r_four - x_four,
-            y = std::pow(y_four, 1.0/4.0);
+            y = std::pow(y_four, 1.0/static_cast<double>(power));
 
         p1.lineTo(radius + x, radius - y); //tr  // from prevX + radius, radius - prevY
         p2.lineTo(radius + x, radius + y); //br // from prevX + radius, prevY + radius

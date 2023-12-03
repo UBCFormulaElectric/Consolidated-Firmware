@@ -13,15 +13,23 @@ QT_BEGIN_NAMESPACE
 namespace ui {
 	class NotifFrame final: public QFrame {
 		const static inline auto backgroundBrush = QBrush(QColor(255, 255, 255, 255*0.1));
+		QLinearGradient borderGradient;
+		QPen pen;
 	public:
 		explicit NotifFrame(QWidget * parent = nullptr): QFrame(parent) {
 			// setStyleSheet("background-color: rgba(128, 128, 128, 0.3); border-radius: 20px;");
+			borderGradient = QLinearGradient(10, 0, 20, 500);
+			borderGradient.setColorAt(0, QColor(255, 255, 255, 255*0.4));
+			borderGradient.setColorAt(0.45, QColor(255, 255, 255, 0));
+			borderGradient.setColorAt(0.55, QColor(255, 255, 255, 0));
+			borderGradient.setColorAt(1, QColor(255, 255, 255, 255*0.1));
+			pen = QPen(borderGradient, 2);
 		}
 
 		void paintEvent(QPaintEvent* event) override {
 			QPainter p(this);
 			p.setBrush(backgroundBrush);
-			p.setPen(QColorConstants::White);
+			p.setPen(pen);
 			p.setRenderHint(QPainter::Antialiasing);
 			const auto area = p.viewport();
 			const auto squirclePainter = Squircle(&p, area.width()/2);
