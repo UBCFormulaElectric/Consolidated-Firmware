@@ -18,7 +18,7 @@ namespace ui {
 	public:
 		explicit NotifFrame(QWidget * parent = nullptr): QFrame(parent) {
 			// setStyleSheet("background-color: rgba(128, 128, 128, 0.3); border-radius: 20px;");
-			borderGradient = QLinearGradient(10, 0, 20, 500);
+			borderGradient = QLinearGradient(10, 0, 300, 500);
 			borderGradient.setColorAt(0, QColor(255, 255, 255, 255*0.4));
 			borderGradient.setColorAt(0.45, QColor(255, 255, 255, 0));
 			borderGradient.setColorAt(0.55, QColor(255, 255, 255, 0));
@@ -32,7 +32,7 @@ namespace ui {
 			p.setPen(pen);
 			p.setRenderHint(QPainter::Antialiasing);
 			const auto area = p.viewport();
-			const auto squirclePainter = Squircle(&p, area.width()/2);
+			const auto squirclePainter = Squircle(&p, area);
 			squirclePainter.paint();
 			QFrame::paintEvent(event);
 		}
