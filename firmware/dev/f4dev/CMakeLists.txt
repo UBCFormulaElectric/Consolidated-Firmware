@@ -4,7 +4,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/configs$")
 
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -17,6 +17,7 @@ list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_bootup.c")
 list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
@@ -63,7 +64,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}.md5"
     )
 
-    set(SRCS  ${HW_SRCS})
+    set(SRCS  ${HW_SRCS} ${IO_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
         "f4dev"

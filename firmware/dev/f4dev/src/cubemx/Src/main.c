@@ -23,12 +23,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "lfs_config.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
-#define LFS_NO_MALLOC
-#include "lfs.h"
-#define LFS_CACHE_SIZE 512
-#define LFS_LOOKAHEAD_SIZE 512
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,10 +40,6 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-SdCard sd;
-uint8_t read_buffer[LFS_CACHE_SIZE];
-uint8_t prog_buffer[LFS_CACHE_SIZE];
-uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -82,58 +75,11 @@ void StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
-int lfs_erase(const struct lfs_config *c, lfs_block_t block);
-int lfs_sync(const struct lfs_config *c);
-
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
-{
-    SdCardStatus status = hw_sd_readOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
-
-    return status;
-}
-
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
-{
-    SdCardStatus status = hw_sd_writeOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
-    return status;
-}
-
-int lfs_erase(const struct lfs_config *c, lfs_block_t block)
-{
-    SdCardStatus status = hw_sd_erase(&sd, (uint32_t)block, (uint32_t)block);
-    return status;
-}
-
-int lfs_sync(const struct lfs_config *c)
-{
-    return 0;
-}
-
-struct lfs_config cfg = {
-    // block device operations
-    .read = lfs_read,
-    .prog = lfs_prog,
-    .erase = lfs_erase,
-    .sync = lfs_sync,
-
-    // block device configuration
-    .read_size = 512,
-    .prog_size = 512,
-    .block_size = 512,
-    .block_count = 128,
-    .cache_size = LFS_CACHE_SIZE,
-    .lookahead_size = LFS_LOOKAHEAD_SIZE,
-    .block_cycles = 500,
-    .read_buffer = (void *)read_buffer,
-    .prog_buffer = (void *)prog_buffer,
-    .lookahead_buffer = (void *)lookahead_buffer,
-
-};
 
 lfs_t lfs;
+extern SdCard sd;
 lfs_file_t file;
+struct lfs_config cfg;
 /* USER CODE END 0 */
 
 /**
@@ -174,46 +120,7 @@ int main(void)
     HAL_SD_CardStateTypeDef sd_state = HAL_SD_GetCardState(&hsd);
 
     // config littlefs
-    cfg.block_size = sd.hsd->SdCard.BlockSize;
-    cfg.block_count = sd.hsd->SdCard.BlockNbr;
-
-    int err = lfs_mount(&lfs, &cfg);
-    // write the hello world
-    if (err)
-    {
-        // reformat if we can't mount the filesystem
-        // this should only happen on the first boot
-        err = lfs_format(&lfs, &cfg);
-        err = lfs_mount(&lfs, &cfg);
-    }
-
-    // read current count
-    char string[512];
-    char buffer[512];
-    uint32_t boot_count = 0;
-    const struct lfs_file_config fcfg = {
-        .buffer = buffer,
-    };
-
-    err = lfs_file_opencfg(&lfs, &file, "boot_count.txt", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    err = lfs_file_read(&lfs, &file, &boot_count, sizeof(uint32_t));
-    err = lfs_file_rewind(&lfs, &file);
-    err = lfs_file_close(&lfs, &file);
-
-    // update boot count
-    boot_count += 1;
-
-    err = lfs_file_opencfg(&lfs, &file, "boot_count.txt", LFS_O_RDWR, &fcfg);
-    err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
-    err = lfs_file_rewind(&lfs, &file);
-    err = lfs_file_close(&lfs, &file);
-    // remember the storage is not updated until the file is closed successfully
-    // release any resources we were using
-    lfs_unmount(&lfs);
-
-    // print the boot count
-    // printf("boot_count: %d\n", boot_count);
-
+    lfs_config_object(hsd.SdCard.BlockSize, hsd.SdCard.BlockNbr, &cfg);
     /* USER CODE END 2 */
 
     /* Init scheduler */
