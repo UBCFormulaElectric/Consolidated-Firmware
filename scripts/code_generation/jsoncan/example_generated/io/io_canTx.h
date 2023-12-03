@@ -37,6 +37,7 @@ typedef enum
  */
 void io_canTx_init(void (*transmit_tx_msg_func)(const JsonCanMsg*));
 
+
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
