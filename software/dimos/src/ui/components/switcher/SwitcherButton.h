@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QTime>
 
-class SwitcherButton : public QPushButton {
+class SwitcherButton : public QWidget {
 Q_OBJECT
 public:
 	enum SwitcherButtonOption {
@@ -34,6 +34,8 @@ public:
 protected:
 	void paintEvent(QPaintEvent *event) override;
 private:
+	const static inline auto backgroundBrush = QBrush(QColor(0,45,103));
+
 	inline static std::map<SwitcherButtonOption, QString> optionToImagePath = {
 			{ENDURANCE, ":/SwitcherEventIcons/Endurance.svg"},
 			{ACCELERATION, ":/SwitcherEventIcons/Acceleration.svg"},
@@ -43,5 +45,5 @@ private:
             {LOWVOLTAGE, ":/SwitcherEventIcons/LV.svg"}
 	};
 
-	QLabel * iconLabel;
+	QLabel * iconLabel{};
 };

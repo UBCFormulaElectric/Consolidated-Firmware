@@ -31,9 +31,8 @@ namespace ui {
 			p.setBrush(backgroundBrush);
 			p.setPen(pen);
 			p.setRenderHint(QPainter::Antialiasing);
-			const auto area = p.viewport();
-			const auto squirclePainter = Squircle(&p, area);
-			squirclePainter.paint();
+			const auto squirclePainter = Squircle(rect());
+			squirclePainter.paint(&p);
 			QFrame::paintEvent(event);
 		}
 	};

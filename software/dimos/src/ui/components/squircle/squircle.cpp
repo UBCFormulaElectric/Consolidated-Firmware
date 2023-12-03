@@ -1,12 +1,7 @@
-#include <QGridLayout>
 #include <QPainter>
-#include <QPainterPath>
 #include "squircle.h"
 
-Squircle::Squircle(QPainter * p, QRect bounds): p(p), bounds(bounds) {
-}
-
-Squircle::Squircle(QPainter * p): p(p) {
+Squircle::Squircle(QRect bounds): bounds(bounds) {
 }
 
 void Squircle::setBounds(QRect bounds) {
@@ -43,6 +38,6 @@ void Squircle::setBounds(QRect bounds) {
 //     p->drawPath(fullpath);
 // }
 
-void Squircle::paint() const {
+void Squircle::paint(QPainter * p) const {
     p->drawRoundedRect(bounds, 14, 14);
 }

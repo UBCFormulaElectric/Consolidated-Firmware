@@ -4,11 +4,9 @@
 
 class Squircle {
     QRect bounds;
-    QPainter * p;
 public:
-    explicit Squircle(QPainter * p, QRect bounds);
-    explicit Squircle(QPainter * p);
+    explicit Squircle(QRect bounds);
     void setBounds(QRect bounds);
-    void paint() const;
+    void paint(QPainter * p) const;
 };
 
