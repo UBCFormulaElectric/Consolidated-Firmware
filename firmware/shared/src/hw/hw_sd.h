@@ -22,6 +22,8 @@ typedef enum
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
 
+SdCardIoFunc 
+
 /* Assume sdio and sd card is initilized, SdCard have desired member*/
 
 /**
@@ -35,7 +37,7 @@ typedef enum
  *
  */
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-
+SdCardStatus hw_sd_read_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 /**
  * @brief   write to sd card. The data size will be num_blocks * BlockSize
  * @param   sd the state struct of sd card
@@ -47,6 +49,7 @@ SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_
  *
  */
 SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read within the 1 block from sd card, provided offset and size
