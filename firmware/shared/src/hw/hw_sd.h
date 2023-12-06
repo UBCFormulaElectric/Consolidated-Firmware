@@ -1,7 +1,6 @@
 #pragma once
 
 #include "hw_hal.h"
-#include <stm32f4xx.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -21,8 +20,6 @@ typedef enum
     SD_CARD_BUSY    = HAL_BUSY,
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
-
-SdCardIoFunc 
 
 /* Assume sdio and sd card is initilized, SdCard have desired member*/
 

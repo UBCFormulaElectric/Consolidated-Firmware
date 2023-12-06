@@ -135,14 +135,13 @@ int main(void)
     uint32_t start = HAL_GetTick();
     // write the 1MB deafbeef
     uint32_t deadbeef = 0xdeadbeef;
-    for (uint32_t i = 0; i < 1024 * 1024/ 4; i++)
+    for (uint32_t i = 0; i < 1024 * 1024 / 4; i++)
     {
         lfs_file_write(&lfs, &file, &deadbeef, sizeof(deadbeef));
     }
     // close file
     uint32_t end = HAL_GetTick();
     lfs_file_close(&lfs, &file);
-
 
     // config littlefs
     // write the hello world

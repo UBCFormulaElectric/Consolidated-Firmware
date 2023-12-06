@@ -43,21 +43,21 @@ int lfs_sync(const struct lfs_config *c)
 int lfs_config_object(uint32_t block_size, uint32_t block_number, struct lfs_config *cfg)
 {
     // the function
-    cfg->read = lfs_read;
-    cfg->prog = lfs_prog;
+    cfg->read  = lfs_read;
+    cfg->prog  = lfs_prog;
     cfg->erase = lfs_erase;
-    cfg->sync = lfs_sync;
+    cfg->sync  = lfs_sync;
 
-    cfg->read_size = LFS_READ_SIZE;
-    cfg->prog_size = LFS_PROG_SIZE;
-    cfg->block_size = LFS_CHACHE_SIZE;
+    cfg->read_size      = LFS_READ_SIZE;
+    cfg->prog_size      = LFS_PROG_SIZE;
+    cfg->block_size     = LFS_CHACHE_SIZE;
     cfg->lookahead_size = LFS_LOOKAHEAD_SIZE;
 
-    cfg->block_size = block_size;
+    cfg->block_size  = block_size;
     cfg->block_count = block_number;
 
-    cfg->block_cycles = 500;
-    cfg->cache_size = LFS_CACHE_SIZE;
+    cfg->block_cycles   = 500;
+    cfg->cache_size     = LFS_CACHE_SIZE;
     cfg->lookahead_size = LFS_LOOKAHEAD_SIZE;
 
     cfg->read_buffer = lfs_read_buffer;
