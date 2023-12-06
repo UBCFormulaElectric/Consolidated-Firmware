@@ -24,7 +24,7 @@ file(GLOB_RECURSE HW_SRCS
 "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_sd.c")
+# list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_sd.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_can.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_crc.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_flash.c")
@@ -55,6 +55,8 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
     )
 
@@ -77,5 +79,5 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube")
+    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4")
 endif()

@@ -24,9 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "string.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_can.h"
-
-#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,8 +43,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
-FDCAN_HandleTypeDef hfdcan2;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
@@ -96,13 +91,13 @@ static CanConfig can_config = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_FDCAN2_Init(void);
-void        runDefaultTask(void *argument);
-void        runCanTxTask(void *argument);
-void        runCanRxTask(void *argument);
+void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-
+lfs_t             lfs;
+extern SdCard     sd;
+lfs_file_t        file;
+struct lfs_config cfg;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -143,17 +138,58 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_FDCAN2_Init();
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan2);
-
-    io_can_init(&can_config);
+    hw_hardFaultHandler_handleFault();
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+
+    sd.hsd     = &hsd1;
+    sd.timeout = osWaitForever;
+
+    char buffer[512];
+    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+    int err = lfs_mount(&lfs, &cfg);
+    // lfs_mount(&lfs, &cfg);
+    // open file deadbeef.txt
+    const struct lfs_file_config fcfg = {
+        .buffer = buffer,
+    };
+    err = lfs_file_opencfg(&lfs, &file, "deadbeef.txt", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    if (err)
+    {
+        lfs_file_close(&lfs, &file);
+    }
+    err = lfs_file_rewind(&lfs, &file);
+    // start timer
+    uint32_t start = HAL_GetTick();
+    // write the 1MB deafbeef
+
+    char hello_world[512] = { 0 };
+    hello_world[0]        = 'h';
+    hello_world[1]        = 'e';
+    hello_world[2]        = 'l';
+    hello_world[3]        = 'l';
+    hello_world[4]        = 'o';
+    hello_world[5]        = ' ';
+    hello_world[6]        = 'w';
+    hello_world[7]        = 'o';
+    hello_world[8]        = 'r';
+    hello_world[9]        = 'l';
+    hello_world[10]       = 'd';
+    hello_world[11]       = '\n';
+
+    lfs_file_write(&lfs, &file, hello_world, 512);
+    hello_world[11] = '\n';
+    for (uint32_t i = 0; i < 1024 * 1024 / 512; i++)
+    {
+        lfs_file_write(&lfs, &file, hello_world, 511);
+    }
+    // close file
+    uint32_t end = HAL_GetTick();
+    lfs_file_close(&lfs, &file);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -268,57 +304,6 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief FDCAN2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_FDCAN2_Init(void)
-{
-    /* USER CODE BEGIN FDCAN2_Init 0 */
-
-    /* USER CODE END FDCAN2_Init 0 */
-
-    /* USER CODE BEGIN FDCAN2_Init 1 */
-
-    /* USER CODE END FDCAN2_Init 1 */
-    hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan2.Init.AutoRetransmission   = ENABLE;
-    hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 16;
-    hfdcan2.Init.NominalSyncJumpWidth = 4;
-    hfdcan2.Init.NominalTimeSeg1      = 13;
-    hfdcan2.Init.NominalTimeSeg2      = 2;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 1;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.TxEventsNbr          = 0;
-    hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
-    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN FDCAN2_Init 2 */
-
-    /* USER CODE END FDCAN2_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -332,6 +317,7 @@ static void MX_GPIO_Init(void)
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
