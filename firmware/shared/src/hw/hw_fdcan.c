@@ -21,9 +21,7 @@ void hw_can_init(CanHandle *can_handle)
     assert(HAL_FDCAN_ConfigFilter(handle, &filter) == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_FDCAN_ActivateNotification(handle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) ==
-        HAL_OK);
+    assert(HAL_FDCAN_ActivateNotification(handle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) == HAL_OK);
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(handle) == HAL_OK);
@@ -63,8 +61,8 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     }
 
     msg->std_id = header.Identifier;
-    msg->dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
-
+    msg->dlc         = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+    
     return true;
 }
 
