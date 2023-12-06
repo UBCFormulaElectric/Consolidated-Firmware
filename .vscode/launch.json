@@ -86,18 +86,21 @@
       "showDevDebugOutput": "none",
       "preLaunchTask": "Build: DIM"
     },
-    {
-      "name": "Debug Embedded: f4dev",
+     {
+      "name": "Debug Embedded: h7dev",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/dev/f4dev/f4dev.elf",
+      "executable": "build_fw_deploy/firmware/dev/h7dev/h7dev.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
       "configFiles": [
-        "tools/openocd/stm32f4x.cfg"
+        "tools/openocd/stm32h7x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: f4dev"
+      "preLaunchTask": "Build: h7dev",
+      "postLaunchCommands": [
+        "help"
+      ]
     },
     {
       "name": "Debug Embedded: f4dev",
@@ -111,7 +114,7 @@
       ],
       "runToEntryPoint": "main",
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: f4dev.elf"
+      "preLaunchTask": "Build: f4dev"
     },
     {
       "name": "Debug Tests: BMS",
