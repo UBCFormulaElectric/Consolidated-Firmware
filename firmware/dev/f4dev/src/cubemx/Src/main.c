@@ -118,7 +118,7 @@ int main(void)
     sd.timeout = osWaitForever;
 
     char buffer[512];
-    lfs_config_object(hsd.SdCard.BlockSize, hsd.SdCard.BlockNbr, &cfg);
+    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
     int err = lfs_mount(&lfs, &cfg);
     // lfs_mount(&lfs, &cfg);
     // open file deadbeef.txt
@@ -134,10 +134,26 @@ int main(void)
     // start timer
     uint32_t start = HAL_GetTick();
     // write the 1MB deafbeef
-    uint32_t deadbeef = 0xdeadbeef;
-    for (uint32_t i = 0; i < 1024 * 1024 / 4; i++)
+
+    char hello_world[512] = { 0 };
+    hello_world[0]        = 'h';
+    hello_world[1]        = 'e';
+    hello_world[2]        = 'l';
+    hello_world[3]        = 'l';
+    hello_world[4]        = 'o';
+    hello_world[5]        = ' ';
+    hello_world[6]        = 'w';
+    hello_world[7]        = 'o';
+    hello_world[8]        = 'r';
+    hello_world[9]        = 'l';
+    hello_world[10]       = 'd';
+    hello_world[11]       = '\n';
+
+    lfs_file_write(&lfs, &file, hello_world, 512);
+    hello_world[11] = '\n';
+    for (uint32_t i = 0; i < 1024 * 1024 / 512; i++)
     {
-        lfs_file_write(&lfs, &file, &deadbeef, sizeof(deadbeef));
+        lfs_file_write(&lfs, &file, hello_world, 511);
     }
     // close file
     uint32_t end = HAL_GetTick();

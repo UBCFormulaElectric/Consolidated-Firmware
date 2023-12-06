@@ -10,4 +10,16 @@
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
+	"files.associations": {
+		"*.c": "c",
+		"*.html": "html",
+		"*_repl": "cpp",
+		"*.bpred": "cpp",
+		"array": "c",
+		"string_view": "c",
+		"initializer_list": "c",
+		"ranges": "c",
+		"utility": "c",
+		"*.tcc": "c"
+	},
 }
