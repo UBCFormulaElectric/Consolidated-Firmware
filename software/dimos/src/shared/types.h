@@ -2,5 +2,4 @@
 
 #include "variant"
 
-template<typename Data, typename Error>
-using Result = std::variant<Data, Error>;
+template <typename Data, typename Error> using Result = std::variant<Data, Error>;

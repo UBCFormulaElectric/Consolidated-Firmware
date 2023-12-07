@@ -2,11 +2,8 @@
 
 #include <QWidget>
 
-class Squircle {
-    QRect bounds;
-public:
-    explicit Squircle(QRect bounds);
-    void setBounds(QRect bounds);
-    void paint(QPainter * p) const;
+class Squircle
+{
+  public:
+    static void paint(QPainter *p, QRect bounds, int radius, double smoothness);
 };
-

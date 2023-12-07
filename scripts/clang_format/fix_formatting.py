@@ -1,6 +1,7 @@
 import os
 import sys
 import multiprocessing
+from typing import List, Any
 
 # The path to the directory this python file is in
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +32,7 @@ EXCLUDE_DIRS = [
 ]
 
 
-def find_all_files() -> bool:
+def find_all_files(path_from_root: str) -> list[str]:
     """
     Find and return all files to run formatting on.
 
@@ -40,7 +41,7 @@ def find_all_files() -> bool:
     print("Current working directory: " + os.getcwd())
 
     # Prepare path to recursive traverse
-    SOURCE_DIR = os.path.join("..", "..", "firmware")
+    SOURCE_DIR = os.path.join("..", "..", path_from_root)
 
     # Recursively traverse through file tree and apply clang-format
     print(f"Apply clang-format to files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
@@ -60,7 +61,7 @@ def find_all_files() -> bool:
     return source_files
 
 
-def run_clang_format(source_file: str) -> str:
+def run_clang_format(source_file: str) -> bool:
     """
     Run clang format against a C/C++ source file, returning True if successful.
 
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
 
     # Find all valid files
-    source_files = find_all_files()
+    source_files = find_all_files("firmware") + find_all_files("software/dimos")
 
     # Start a multiprocessing pool to speed up formatting
     pool = multiprocessing.Pool()
