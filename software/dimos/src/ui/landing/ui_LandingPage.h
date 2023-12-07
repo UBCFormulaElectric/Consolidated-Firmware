@@ -5,7 +5,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QWidget>
-#include <QSvgRenderer>
+#include <QIcon>
 
 #include "constants.h"
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QWidget>
+#include <QIcon>
 #include "components/squircle/Squircle.h"
 
 QT_BEGIN_NAMESPACE

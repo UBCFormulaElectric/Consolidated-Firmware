@@ -41,41 +41,38 @@
  * \param radius the corner radius
  * \param smoothness how much smoothness to apply to the corners
  */
-void Squircle::paint(QPainter* p, QRect bounds, int radius, double smoothness)
+void Squircle::paint(QPainter *p, QRect bounds, int radius, double smoothness)
 {
     // clamp radius
     radius = std::clamp(radius, 0, std::min(bounds.width(), bounds.height()) / 2);
-    if (smoothness == 0) return p->drawRoundedRect(bounds, radius, radius);
+    if (smoothness == 0)
+        return p->drawRoundedRect(bounds, radius, radius);
 
     QPainterPath path;
     path.moveTo(radius * (1 + smoothness), 0);
 
-    const int w = bounds.width(), h = bounds.height(),
-              straightWidthLength = w - 2 * (radius * (1 + smoothness)),
+    const int w = bounds.width(), h = bounds.height(), straightWidthLength = w - 2 * (radius * (1 + smoothness)),
               straightHeightLength = h - 2 * (radius * (1 + smoothness));
 
     const double s = sin(M_PI_4 * smoothness), c = cos(M_PI_4 * smoothness);
-    const double p4_long = radius * s,
-                 p4_short = radius * (1 - c),
-                 p3_grad_x = radius * M_PI_4 * c,
+    const double p4_long = radius * s, p4_short = radius * (1 - c), p3_grad_x = radius * M_PI_4 * c,
                  p3_grad_y = radius * M_PI_4 * s;
 
     constexpr struct
     {
         bool isHorizontal;
-    } edgeInfo[4] = {{true}, {false}, {true}, {false}};
-    for (const auto& einfo : edgeInfo)
+    } edgeInfo[4] = { { true }, { false }, { true }, { false } };
+    for (const auto &einfo : edgeInfo)
     {
         const QPointF pos = path.currentPosition();
         path.moveTo(
             pos.x() + straightWidthLength * (einfo.isHorizontal),
             pos.y() + straightHeightLength * (!einfo.isHorizontal));
 
-        const QPointF p4_1(w - radius + p4_long, p4_short),
-                      p4_2(w - p4_short, radius - p4_long);
+        const QPointF p4_1(w - radius + p4_long, p4_short), p4_2(w - p4_short, radius - p4_long);
 
         const QPointF p3_1(p4_1.x() - (p4_1.y() / p3_grad_y) * p3_grad_x, 0);
-        const double b = 1.5 * pow(pow(p4_1.x() - p3_1.x(), 2) + pow(p4_1.y(), 2), 1.5) / (p4_1.y() * radius);
+        const double  b = 1.5 * pow(pow(p4_1.x() - p3_1.x(), 2) + pow(p4_1.y(), 2), 1.5) / (p4_1.y() * radius);
         const QPointF p2_1(p3_1.x() - b, 0);
 
         p->setPen(QPen(QColorConstants::Red, 3));

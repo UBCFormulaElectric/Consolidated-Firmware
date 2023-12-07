@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QPainter>
+#include <QIcon>
 #include "components/squircle/squircle.h"
 
 QT_BEGIN_NAMESPACE

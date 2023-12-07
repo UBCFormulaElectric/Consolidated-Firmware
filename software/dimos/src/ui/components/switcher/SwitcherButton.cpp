@@ -3,7 +3,7 @@
 
 #include "components/squircle/squircle.h"
 
-SwitcherButton::SwitcherButton(SwitcherButtonOption event, QWidget* parent) : QWidget(parent)
+SwitcherButton::SwitcherButton(SwitcherButtonOption event, QWidget *parent) : QWidget(parent)
 {
     setupUi(event);
 }
@@ -18,14 +18,14 @@ void SwitcherButton::setupUi(SwitcherButtonOption event)
     gridLayout->setObjectName("SwitcherButton_" + switcherOptionToName[event] + "_gridLayout");
     iconLabel = new QLabel();
     iconLabel->setObjectName("SwitcherButton_" + switcherOptionToName[event] + "_iconLabel");
-    const auto icon = QIcon(optionToImagePath[event]);
+    const auto icon       = QIcon(optionToImagePath[event]);
     const auto iconPixmap = icon.pixmap(QSize(140, 130));
     iconLabel->setPixmap(iconPixmap);
     gridLayout->addWidget(iconLabel, 0, 0, Qt::AlignCenter);
     this->setLayout(gridLayout);
 }
 
-void SwitcherButton::paintEvent(QPaintEvent* event)
+void SwitcherButton::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
     p.setBrush(backgroundBrush);

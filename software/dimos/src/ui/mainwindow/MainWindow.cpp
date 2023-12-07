@@ -4,6 +4,7 @@
 #include <chrono>
 // can
 #include "can.h"
+
 extern "C"
 {
 #include "Io_CanTx.h"
@@ -45,7 +46,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui->switcherLeft();
             break;
         default:
-            qWarning() << "UNHANDLED KEY " << event->text().toStdString();
+            qWarning() << QString::fromStdString("UNHANDLED KEY " + event->text().toStdString());
             break;
     }
 }
