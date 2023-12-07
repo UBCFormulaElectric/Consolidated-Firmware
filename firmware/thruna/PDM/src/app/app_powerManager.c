@@ -45,15 +45,3 @@ void app_powerManager_setState(PowerManagerState state)
         io_efuse_setChannel(efuse, power_states_config[state].efuses[efuse]);
     }
 }
-
-void app_powerManager_transition()
-{
-    if (App_CanRx_BMS_State_Get() == BMS_INVERTER_ON_STATE)
-    {
-        app_powerManager_setState(POWER_MANAGER_CONTRACTOR_DRIVE);
-    }
-    else if (App_CanRx_BMS_State_Get() == BMS_INIT_STATE)
-    {
-        app_powerManager_setState(POWER_MANAGER_CONTRACTOR_SHUTDOWN);
-    }
-}

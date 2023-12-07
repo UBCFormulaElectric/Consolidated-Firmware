@@ -49,6 +49,7 @@ def parse_header_file(file: str) -> List[CFunction]:
 def parse_type(type: pyclibrary.c_parser.Type) -> str:
     """
     Helper to parse the Type class from `pyclibrary` into text representing the type.
+
     """
     # `pyclibrary` parsed types are basically tuples where the seperate "parts" of the type are
     # elements of the tuple.
