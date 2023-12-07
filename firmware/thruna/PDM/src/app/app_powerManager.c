@@ -7,7 +7,7 @@ typedef struct
 } PowerStateConfig;
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
-    [POWER_MANAGER_CONTRACTOR_SHUTDOWN] = {
+    [POWER_MANAGER_SHUTDOWN] = {
         .efuses = {
             [EFUSE_CHANNEL_AIR] = true,
             [EFUSE_CHANNEL_LVPWR] = true,
@@ -19,7 +19,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
             [EFUSE_CHANNEL_DI_RHS] = false,
         }
     },
-    [POWER_MANAGER_CONTRACTOR_DRIVE] = {
+    [POWER_MANAGER_DRIVE] = {
         .efuses = {
             [EFUSE_CHANNEL_AIR] = true,
             [EFUSE_CHANNEL_LVPWR] = true,
@@ -32,11 +32,6 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
         }
     }
 };
-
-void app_powerManager_init()
-{
-    app_powerManager_setState(POWER_MANAGER_CONTRACTOR_SHUTDOWN);
-}
 
 void app_powerManager_setState(PowerManagerState state)
 {

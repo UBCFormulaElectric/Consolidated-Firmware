@@ -169,7 +169,55 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
+<<<<<<< HEAD
     tasks_init();
+=======
+    __HAL_DBGMCU_FREEZE_IWDG();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("PDM reset!");
+
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
+
+    hw_hardFaultHandler_init();
+    hw_can_init(&hcan1);
+
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
+    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+
+    io_lowVoltageBattery_init(&lv_battery_config);
+    io_efuse_init(efuse_configs);
+
+    App_CanTx_Init();
+    App_CanRx_Init();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
+        heartbeatGetters, heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters,
+        heartbeatFaultGetters);
+
+    state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
+    globals->heartbeat_monitor = heartbeat_monitor;
+
+    io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
+    io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
+
+    // broadcast commit info
+    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
+
+    app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
+>>>>>>> f1f665ca (removed init func)
     /* USER CODE END 2 */
 
     /* Init scheduler */

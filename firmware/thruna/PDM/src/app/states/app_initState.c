@@ -8,6 +8,8 @@
 static void initStateRunOnTick100Hz(void)
 {
     app_allStates_runOnTick100Hz();
+    App_CanTx_PDM_State_Set(PDM_STATE_INIT);
+    app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
 }
 
 const State *app_initState_get()

@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
 #include "App_SharedMacros.h"
@@ -12,7 +10,7 @@
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_PDM_State_Set(PDM_DRIVE_STATE);
-    app_powerManager_setState(POWER_MANAGER_CONTRACTOR_DRIVE);
+    app_powerManager_setState(POWER_MANAGER_DRIVE);
 }
 
 static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
