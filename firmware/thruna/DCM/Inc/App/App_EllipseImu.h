@@ -20,6 +20,24 @@ typedef enum
     ELLIPSE_OUTPUT_EULER_PITCH,
     ELLIPSE_OUTPUT_EULER_YAW,
 
+     // Position Info 
+    GPS_POS_STATUS,
+    GPS_LAT,
+    GPS_LAT_ACC,
+    GPS_LONG,
+    GPS_LONG_ACC,
+    GPS_ALT,
+    GPS_ALT_ACC,
+
+    // Velocity Info
+    GPS_VEL_STATUS,
+    GPS_VEL_N,
+    GPS_VEL_N_ACC,
+    GPS_VEL_E,
+    GPS_VEL_E_ACC,
+    GPS_VEL_D,
+    GPS_VEL_D_ACC,
+
     NUM_SBG_OUTPUTS,
 } EllipseImuOutput;
 

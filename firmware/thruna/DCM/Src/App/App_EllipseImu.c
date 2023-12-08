@@ -11,6 +11,7 @@ typedef struct
     float (*get_sensor_output)(EllipseImuOutput);
 } EllipseImuSensor;
 
+
 static EllipseImuSensor sensor;
 
 void App_EllipseImu_Init(
@@ -71,6 +72,40 @@ void App_EllipseImu_Broadcast()
     App_CanTx_DCM_EulerAnglesRoll_Set(euler_roll);
     App_CanTx_DCM_EulerAnglesPitch_Set(euler_pitch);
     App_CanTx_DCM_EulerAnglesYaw_Set(euler_yaw);
+
+    // Gps position msg
+    const float position_status = sensor.get_sensor_output(GPS_POS_STATUS);
+    const float latitude = sensor.get_sensor_output(GPS_LAT);
+    const float latitude_acc = sensor.get_sensor_output(GPS_LAT_ACC);
+    const float longitude = sensor.get_sensor_output(GPS_LONG);
+    const float longitude_acc = sensor.get_sensor_output(GPS_LONG_ACC);
+    const float altitude = sensor.get_sensor_output(GPS_ALT);
+    const float altitude_acc = sensor.get_sensor_output(GPS_ALT_ACC);
+
+    App_CanTx_DCM_PositionStatus_Set(position_status);
+    App_CanTx_DCM_Latitude_Set(latitude);
+    App_CanTx_DCM_LatitudeAccuracy_Set(latitude_acc);
+    App_CanTx_DCM_Longtitude_Set(longitude);
+    App_CanTx_DCM_LongtitudeAccuracy_Set(longitude_acc);
+    App_CanTx_DCM_Altitude_Set(altitude);
+    App_CanTx_DCM_AltitudeAccuracy_Set(altitude_acc);
+
+    // Gps velocity msg 
+    const float velocity_status = sensor.get_sensor_output(GPS_VEL_STATUS);
+    const float velocity_north = sensor.get_sensor_output(GPS_VEL_N);
+    const float velocity_north_acc = sensor.get_sensor_output(GPS_VEL_N_ACC);
+    const float velocity_east = sensor.get_sensor_output(GPS_VEL_E);
+    const float velocity_east_acc = sensor.get_sensor_output(GPS_VEL_E_ACC);
+    const float velocity_down = sensor.get_sensor_output(GPS_VEL_D);
+    const float velocity_down_acc = sensor.get_sensor_output(GPS_VEL_D_ACC);
+
+    App_CanTx_DCM_VelocityStatus_Set(velocity_status);
+    App_CanTx_DCM_VelocityNorth_Set(velocity_north);
+    App_CanTx_DCM_VelocityNorthAccuracy_Set(velocity_north_acc);
+    App_CanTx_DCM_VelocityEast_Set(velocity_east);
+    App_CanTx_DCM_VelocityEastAccuracy_Set(velocity_east_acc);
+    App_CanTx_DCM_VelocityDown_Set(velocity_down);
+    App_CanTx_DCM_VelocityDownAccuracy_Set(velocity_down_acc);
 }
 
 uint32_t App_EllipseImu_GetTimestampUs()

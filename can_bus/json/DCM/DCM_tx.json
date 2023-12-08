@@ -416,6 +416,100 @@
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
+      }
+    },
+    "GpsPosInfo":{
+        "msg_id": 217,
+        "cycle_time": 100,
+        "description": "Car position info", 
+            "signals":{
+                "PositionStatus":{
+                    "resolution": 0.5,
+                    "min": 0,
+                    "max": 3
+                },
+                "Latitude":{
+                    "resolution": 0.0005,
+                    "min": 40,
+                    "max": 50,
+                    "unit": "deg"  
+                },
+                "LatitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Longtitude":{
+                    "resolution": 0.0005,
+                    "min": 80,
+                    "max": 125,
+                    "unit": "deg" 
+                },
+                "LongtitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Altitude":{
+                    "resolution": 0.5,
+                    "min": 0,
+                    "max": 400,
+                    "unit": "m"
+                },
+                "AltitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 20,
+                    "unit": "m"
+                }
+        }
+    },
+    "GpsVelInfo":{
+        "msg_id": 218,
+        "cycle_time": 100,
+        "description": "Car Velocity info",
+        "signals":{
+            "VelocityStatus":{
+                "resolution": 0.5,
+                "min": 0,
+                "max": 3
+            },
+            "VelocityNorth":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityNorthAccuracy":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "VelocityEast":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityEastAccuracy":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20
+            },
+            "VelocityDown":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityDownAccuracy":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
             }
         }
     }
