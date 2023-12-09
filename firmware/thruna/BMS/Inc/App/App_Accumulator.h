@@ -49,6 +49,7 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
+    void (*get_specified_cell_temps)(float *, float *),
     bool (*enable_discharge)(void),
     bool (*disable_discharge)(void),
     bool (*check_imd_latched_fault)(void),
@@ -204,3 +205,11 @@ void App_Accumulator_UpdateAuxThermistorTemps(struct Accumulator *const accumula
  * @param accumulator The accumulator to broadcast thermistor temps for
  */
 void App_Accumulator_BroadcastThermistorTemps(struct Accumulator *const accumulator);
+
+/**
+ * Read all cell temperatures from the LTC6813
+ * @param accumulator The accumulator
+ * @param cell1 pointer to float value to write temperature in for segment 4, cell 2
+ * @param cell2 pointer to float value to write temperature in for segment 4, cell 8
+ */
+void App_Accumulator_GetSpecifiedCellTemps(struct Accumulator *const accumulator, float *cell1, float *cell2);

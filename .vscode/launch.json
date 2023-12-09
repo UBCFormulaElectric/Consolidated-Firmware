@@ -84,7 +84,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: f4dev"
+      "preLaunchTask": "Build: DIM"
     },
     {
       "name": "Debug Embedded: f4dev",

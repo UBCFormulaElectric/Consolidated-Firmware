@@ -59,7 +59,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
             // if charger connected, wait for CAN message to enter pre-charge state
-            const bool precharge_for_charging = is_charger_connected && App_CanRx_Debug_StartCharging_Get();
+            const bool charging_enabled       = App_CanRx_Debug_StartCharging_Get();
+            const bool precharge_for_charging = is_charger_connected && charging_enabled;
             const bool cell_balancing_enabled = App_CanRx_Debug_CellBalancingRequest_Get();
 
             // if charger disconnected, proceed directly to precharge state

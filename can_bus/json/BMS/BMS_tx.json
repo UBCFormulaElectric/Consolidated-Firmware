@@ -176,6 +176,18 @@
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
+            },
+            "Seg4Cell2Temp":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg4Cell8Temp":{
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
             }
         }
     },
@@ -261,6 +273,12 @@
                 "min": -300,
                 "max": 300,
                 "unit": "A"
+            },
+            "TractiveSystemPower": {
+                "resolution": 0.001,
+                "min": -100, 
+                "max": 100,
+                "unit": "kW"
             }
         }
     },

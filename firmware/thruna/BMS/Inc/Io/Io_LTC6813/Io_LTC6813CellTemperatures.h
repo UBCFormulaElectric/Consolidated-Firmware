@@ -37,3 +37,10 @@ float Io_LTC6813CellTemperatures_GetMaxTempDegC(uint8_t *segment, uint8_t *therm
  * @return The average cell temperature in degC
  */
 float Io_LTC6813CellTemperatures_GetAverageTempDegC(void);
+
+/**
+ * Read all cell temperatures from the LTC6813
+ * @param celltemp2 pointer to float value to write temperature in for segment 4, cell 2
+ * @param celltemp8 pointer to float value to write temperature in for segment 4, cell 8
+ */
+void Io_LTC6813CellTemperatures_GetSpecifiedTempDegC(float *celltemp2, float *celltemp8);
