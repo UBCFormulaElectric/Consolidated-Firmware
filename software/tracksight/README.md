@@ -13,6 +13,9 @@ This sets up the conda environment (you will also need to install conda) for run
 1. Activate environment using `conda activate tracksight-backend`
 2. Update environment using `conda env update --file environment.yml --prune`
 
+#### CI
+1. Backend and frontend ci implemented
+
 ## MVP
 Build a service to create a dashboard with signals
 

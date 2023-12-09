@@ -38,3 +38,11 @@ jobs:
       - name: Kill Flask process
         if: always()
         run: kill $(jobs -p) || true
+
+      - name: CI Testing
+        run: |
+          cd software/tracksight/backend
+          source /usr/share/miniconda/bin/activate tracksight-backend
+          conda info
+          pytest app/tests
+            
