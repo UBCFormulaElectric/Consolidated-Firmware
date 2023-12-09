@@ -50,7 +50,7 @@ SD_HandleTypeDef hsd1;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
-uint32_t             defaultTaskBuffer[128];
+uint32_t             defaultTaskBuffer[4096];
 osStaticThreadDef_t  defaultTaskControlBlock;
 const osThreadAttr_t defaultTask_attributes = {
     .name       = "defaultTask",
@@ -91,6 +91,7 @@ int main(void)
     /* USER CODE BEGIN 1 */
 
     /* USER CODE END 1 */
+    /* Enable the CPU Cache */
 
     /* Enable I-Cache---------------------------------------------------------*/
     SCB_EnableICache();
@@ -127,47 +128,17 @@ int main(void)
     sd.hsd     = &hsd1;
     sd.timeout = osWaitForever;
 
-    char buffer[512];
     lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
-    int err = lfs_mount(&lfs, &cfg);
+    // int err = lfs_mount(&lfs, &cfg);
+    // if (err < 0)
+    // {
+    assert(lfs_format(&lfs, &cfg) >= 0);
+    assert(lfs_mount(&lfs, &cfg) >= 0);
+    // }
+
     // lfs_mount(&lfs, &cfg);
     // open file deadbeef.txt
-    const struct lfs_file_config fcfg = {
-        .buffer = buffer,
-    };
-    err = lfs_file_opencfg(&lfs, &file, "deadbeef.txt", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    if (err)
-    {
-        lfs_file_close(&lfs, &file);
-    }
-    err = lfs_file_rewind(&lfs, &file);
-    // start timer
-    uint32_t start = HAL_GetTick();
-    // write the 1MB deafbeef
 
-    char hello_world[512] = { 0 };
-    hello_world[0]        = 'h';
-    hello_world[1]        = 'e';
-    hello_world[2]        = 'l';
-    hello_world[3]        = 'l';
-    hello_world[4]        = 'o';
-    hello_world[5]        = ' ';
-    hello_world[6]        = 'w';
-    hello_world[7]        = 'o';
-    hello_world[8]        = 'r';
-    hello_world[9]        = 'l';
-    hello_world[10]       = 'd';
-    hello_world[11]       = '\n';
-
-    lfs_file_write(&lfs, &file, hello_world, 512);
-    hello_world[11] = '\n';
-    for (uint32_t i = 0; i < 1024 * 1024 / 512; i++)
-    {
-        lfs_file_write(&lfs, &file, hello_world, 511);
-    }
-    // close file
-    uint32_t end = HAL_GetTick();
-    lfs_file_close(&lfs, &file);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -273,6 +244,10 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
+
+    /** Enables the Clock Security System
+     */
+    HAL_RCC_EnableCSS();
 }
 
 /**
@@ -292,9 +267,9 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Instance                 = SDMMC1;
     hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_1B;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 0;
+    hsd1.Init.ClockDiv            = 2;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -354,11 +329,44 @@ void StartDefaultTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        // Just blinky for now
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_SET);
-        osDelay(500);
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_RESET);
-        osDelay(500);
+        char                         buffer[512];
+        const struct lfs_file_config fcfg = {
+            .buffer = buffer,
+        };
+        int err = lfs_file_opencfg(&lfs, &file, "deadbeef.txt", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+        if (err)
+        {
+            lfs_file_close(&lfs, &file);
+        }
+        err = lfs_file_rewind(&lfs, &file);
+        // start timer
+        uint32_t start = HAL_GetTick();
+        // write the 1MB deafbeef
+
+        char hello_world[512] = { 0 };
+        hello_world[0]        = 'h';
+        hello_world[1]        = 'e';
+        hello_world[2]        = 'l';
+        hello_world[3]        = 'l';
+        hello_world[4]        = 'o';
+        hello_world[5]        = ' ';
+        hello_world[6]        = 'w';
+        hello_world[7]        = 'o';
+        hello_world[8]        = 'r';
+        hello_world[9]        = 'l';
+        hello_world[10]       = 'd';
+        hello_world[11]       = '\n';
+
+        lfs_file_write(&lfs, &file, hello_world, 512);
+        hello_world[11] = '\n';
+        for (uint32_t i = 0; i < 1024 * 1024 / 512; i++)
+        {
+            lfs_file_write(&lfs, &file, hello_world, 512);
+        }
+        // close file
+        uint32_t end      = HAL_GetTick();
+        uint32_t duration = end - start;
+        lfs_file_close(&lfs, &file);
     }
     /* USER CODE END 5 */
 }

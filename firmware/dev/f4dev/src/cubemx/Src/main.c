@@ -120,6 +120,12 @@ int main(void)
     char buffer[512];
     lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
     int err = lfs_mount(&lfs, &cfg);
+    if (err < 0)
+    {
+        assert(lfs_format(&lfs, &cfg) >= 0);
+        assert(lfs_mount(&lfs, &cfg) >= 0);
+    }
+
     // lfs_mount(&lfs, &cfg);
     // open file deadbeef.txt
     const struct lfs_file_config fcfg = {
