@@ -1,5 +1,8 @@
 #include "hw_flash.h"
 #include "hw_hal.h"
+#include <string.h>
+
+#if defined(STM32F412Rx)
 
 bool hw_flash_programByte(uint32_t address, uint8_t data)
 {
@@ -42,6 +45,29 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
     HAL_FLASH_Lock();
     return status;
 }
+
+#elif defined(STM32H733xx)
+
+bool hw_flash_programWord(uint32_t address, uint32_t data)
+{
+    // Flash words are 128 bits on H7, but we still want to support programming
+    // 32 bits at a time since that's how it works on the F4.
+    // Is this fine? I think so...
+
+    uint32_t flash_word_data[FLASH_NB_32BITWORD_IN_FLASHWORD];
+    memset(flash_word_data, 0xFFU, sizeof(flash_word_data));
+    memcpy(&flash_word_data[address % FLASH_NB_32BITWORD_IN_FLASHWORD], &data, sizeof(data));
+
+    uint32_t flash_word_address = (address / FLASH_NB_32BITWORD_IN_FLASHWORD) * FLASH_NB_32BITWORD_IN_FLASHWORD;
+
+    HAL_FLASH_Unlock();
+    HAL_StatusTypeDef status =
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_word_address, (uint32_t)flash_word_data);
+    HAL_FLASH_Lock();
+    return status == HAL_OK;
+}
+
+#endif
 
 bool hw_flash_eraseSector(uint8_t sector)
 {

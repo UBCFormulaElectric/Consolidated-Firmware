@@ -3,7 +3,11 @@ set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_flash.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
-list (APPEND EMBEDDED_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c")
+list (APPEND EMBEDDED_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+)
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
