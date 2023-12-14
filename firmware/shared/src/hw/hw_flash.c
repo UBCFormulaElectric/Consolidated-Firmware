@@ -48,17 +48,35 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 
 #elif defined(STM32H733xx)
 
+bool hw_flash_programByte(uint32_t address, uint8_t data)
+{
+    return false;
+}
+
+bool hw_flash_programHalfWord(uint32_t address, uint16_t data)
+{
+    return false;
+}
+
+bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
+{
+    return false;
+}
+
 bool hw_flash_programWord(uint32_t address, uint32_t data)
 {
     // Flash words are 128 bits on H7, but we still want to support programming
     // 32 bits at a time since that's how it works on the F4.
     // Is this fine? I think so...
 
+    // construct 128 bit packet
     uint32_t flash_word_data[FLASH_NB_32BITWORD_IN_FLASHWORD];
     memset(flash_word_data, 0xFFU, sizeof(flash_word_data));
     memcpy(&flash_word_data[address % FLASH_NB_32BITWORD_IN_FLASHWORD], &data, sizeof(data));
 
-    uint32_t flash_word_address = (address / FLASH_NB_32BITWORD_IN_FLASHWORD) * FLASH_NB_32BITWORD_IN_FLASHWORD;
+    // get word aligned address
+    uint32_t flash_word_address =
+        (uint32_t)(address / FLASH_NB_32BITWORD_IN_FLASHWORD) * FLASH_NB_32BITWORD_IN_FLASHWORD;
 
     HAL_FLASH_Unlock();
     HAL_StatusTypeDef status =
