@@ -840,6 +840,9 @@ void RunTask1Hz(void *argument)
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 
+        //To test this, use stackOFsim = App_CanTx_DIM_StackRemainingTask1Hz_Get(); outside loop
+        //and write stackOFsim = stackOFsim - 1; in the if (fsdjfl > 20) statement to see how long it takes to reset.
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         //If stack overflow is detected, watchdog will not be checked in
