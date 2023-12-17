@@ -44,7 +44,6 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 static void logStackRemainingTask1Hz(uint8_t error)
 {
     App_CanTx_GSM_StackRemainingTask1Hz_Set(error);
-
 }
 static void logStackRemainingTask100Hz(uint8_t error)
 {

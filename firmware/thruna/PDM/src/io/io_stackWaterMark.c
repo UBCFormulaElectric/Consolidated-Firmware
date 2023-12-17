@@ -45,7 +45,6 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 static void logStackRemainingTask1Hz(uint8_t error)
 {
     App_CanAlerts_PDM_StackRemainingTask1Hz_Set(error);
-
 }
 static void logStackRemainingTask100Hz(uint8_t error)
 {
@@ -64,11 +63,9 @@ static void logStackRemainingTaskCanTx(uint8_t error)
     App_CanAlerts_PDM_StackRemainingTaskCanTx_Set(error);
 }
 
-
 static void logStackRemainingTask1Hz(uint8_t error)
 {
     App_CanTx_PDM_StackRemainingTask1Hz_Set(error);
-
 }
 static void logStackRemainingTask100Hz(uint8_t error)
 {
