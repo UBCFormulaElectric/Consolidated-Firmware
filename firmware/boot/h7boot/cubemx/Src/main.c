@@ -280,7 +280,7 @@ static void MX_CRC_Init(void)
     hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
     hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
     hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_BYTES;
+    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
     if (HAL_CRC_Init(&hcrc) != HAL_OK)
     {
         Error_Handler();
@@ -319,9 +319,9 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.DataTimeSeg1         = 1;
     hfdcan2.Init.DataTimeSeg2         = 1;
     hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 0;
+    hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
     hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;

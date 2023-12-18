@@ -72,15 +72,15 @@ bool hw_flash_programWord(uint32_t address, uint32_t data)
     // construct 128 bit packet
     uint32_t flash_word_data[FLASH_NB_32BITWORD_IN_FLASHWORD];
     memset(flash_word_data, 0xFFU, sizeof(flash_word_data));
-    memcpy(&flash_word_data[address % FLASH_NB_32BITWORD_IN_FLASHWORD], &data, sizeof(data));
+    memcpy(&flash_word_data[(address / sizeof(uint32_t)) % FLASH_NB_32BITWORD_IN_FLASHWORD], &data, sizeof(data));
 
     // get word aligned address
     uint32_t flash_word_address =
-        (uint32_t)(address / FLASH_NB_32BITWORD_IN_FLASHWORD) * FLASH_NB_32BITWORD_IN_FLASHWORD;
+        (uint32_t)(address / (FLASH_NB_32BITWORD_IN_FLASHWORD * 4)) * (FLASH_NB_32BITWORD_IN_FLASHWORD * 4);
 
     HAL_FLASH_Unlock();
     HAL_StatusTypeDef status =
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_word_address, (uint32_t)flash_word_data);
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_word_address, (uint32_t)(&flash_word_data[0]));
     HAL_FLASH_Lock();
     return status == HAL_OK;
 }

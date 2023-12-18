@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
@@ -47,11 +47,20 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     embedded_binary(
-        "h7dev"
+        "h7dev_app"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube")
+
+    embedded_image(
+        "h7dev"
+        "h7dev_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
+        "h7dev_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+    )
+
 endif()

@@ -42,12 +42,12 @@ typedef enum
 
 static void canRxOverflow(uint32_t unused)
 {
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void modifyStackPointerAndStartApp(uint32_t *address)
@@ -156,7 +156,7 @@ void bootloader_init()
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
-    )
+        && false)
     {
         // Deinit peripherals.
 #ifndef BOOT_AUTO
