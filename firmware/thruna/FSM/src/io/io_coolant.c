@@ -59,10 +59,11 @@ void io_coolant_checkIfFlowMeterActive(void)
 
 float io_coolant_getTemperatureA(void)
 {
-    float const v_out = CLAMP(hw_adc_getVoltage(ADC_CHANNEL_4), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
+    float const v_out = CLAMP(hw_adc_getVoltage(ADC1_CHANNEL_4), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
     float const r_thermistor = RTHERM(v_out);
-    float b_term = (float)BTERM_STEIN_EQN(r_thermistor);
-    float coolant_temp = (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
+    float       b_term       = (float)BTERM_STEIN_EQN(r_thermistor);
+    float       coolant_temp =
+        (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
     float coolant_temp_cel = coolant_temp - 273.15f;
 
     return coolant_temp_cel;
@@ -70,10 +71,11 @@ float io_coolant_getTemperatureA(void)
 
 float io_coolant_getTemperatureB(void)
 {
-    float const v_out = CLAMP(hw_adc_getVoltage(ADC_CHANNEL_5), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
+    float const v_out = CLAMP(hw_adc_getVoltage(ADC1_CHANNEL_5), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
     float const r_thermistor = RTHERM(v_out);
-    float b_term = (float)BTERM_STEIN_EQN(r_thermistor);
-    float coolant_temp =(1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
+    float       b_term       = (float)BTERM_STEIN_EQN(r_thermistor);
+    float       coolant_temp =
+        (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
     float coolant_temp_cel = coolant_temp - 273.15f;
 
     return coolant_temp_cel;
