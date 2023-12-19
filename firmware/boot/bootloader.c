@@ -127,6 +127,7 @@ static const Gpio bootloader_pin = {
 
 static uint32_t current_address;
 static bool     update_in_progress;
+static uint32_t prog_count;
 
 void bootloader_init()
 {
@@ -152,11 +153,11 @@ void bootloader_init()
     io_can_init(&can_config);
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && false
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
-        && false)
+    )
     {
         // Deinit peripherals.
 #ifndef BOOT_AUTO
@@ -172,6 +173,8 @@ void bootloader_init()
 
     bootloader_boardSpecific_init();
 }
+
+uint32_t prog_buf[8];
 
 void bootloader_runInterfaceTask()
 {
@@ -189,6 +192,7 @@ void bootloader_runInterfaceTask()
             // Send ACK message that programming has started.
             CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
             io_can_pushTxMsgToQueue(&reply);
+            prog_count = 0;
         }
         else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
         {
@@ -209,12 +213,45 @@ void bootloader_runInterfaceTask()
             // No reply for program command to reduce latency.
             uint32_t lsb_word = *(uint32_t *)command.data;
             uint32_t msb_word = *(uint32_t *)&command.data[sizeof(uint32_t)];
-            hw_flash_programWord(current_address, lsb_word);
-            hw_flash_programWord(current_address + sizeof(uint32_t), msb_word);
-            current_address += 2 * sizeof(uint32_t);
+            // hw_flash_programWord(current_address, lsb_word);
+            // hw_flash_programWord(current_address + sizeof(uint32_t), msb_word);
+
+            uint32_t lsb_adr = (current_address / 4) % 8;
+            uint32_t msb_adr = lsb_adr + 1;
+            prog_buf[lsb_adr] = lsb_word;
+            prog_buf[msb_adr] = msb_word;
+
+            current_address += 2 * 4;
+            prog_count += 2;
+
+            if(current_address % 32 == 0)
+            {
+                // can only program 32 bytes at a time on h7
+                // doing something nice with readback and then write didn't work for some reason ??
+                // so here's a shitty buffered approach that works but is shitty
+                hw_flash_programFlashWord(current_address - 32, prog_buf);
+            }
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
+            // flush prog buffer
+            while(true)
+            {
+                uint32_t lsb_adr = (current_address / 4) % 8;
+                uint32_t msb_adr = lsb_adr + 1;
+                prog_buf[lsb_adr] = 0xFFFFFFFF;
+                prog_buf[msb_adr] = 0xFFFFFFFF;
+
+                current_address += 2 * 4;
+                prog_count += 2;
+
+                if(current_address % 32 == 0)
+                {
+                    hw_flash_programFlashWord(current_address - 32, prog_buf);
+                    break;
+                }
+            }
+
             // Verify received checksum matches the one saved in flash.
             CanMsg reply = {
                 .std_id = APP_VALIDITY_ID,
@@ -235,16 +272,21 @@ void bootloader_runTickTask()
 
     for (;;)
     {
-        // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0] = verifyAppCodeChecksum();
-        io_can_pushTxMsgToQueue(&status_msg);
-
-        bootloader_boardSpecific_tick();
-
-        start_ticks += 100; // 10Hz tick
-        osDelayUntil(start_ticks);
+        osDelay(1000);
     }
+
+    // for (;;)
+    // {
+    //     // Broadcast a message at 1Hz so we can check status over CAN.
+    //     CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
+    //     status_msg.data[0] = verifyAppCodeChecksum();
+    //     io_can_pushTxMsgToQueue(&status_msg);
+
+    //     bootloader_boardSpecific_tick();
+
+    //     start_ticks += 100; // 10Hz tick
+    //     osDelayUntil(start_ticks);
+    // }
 }
 
 void bootloader_runCanTxTask()

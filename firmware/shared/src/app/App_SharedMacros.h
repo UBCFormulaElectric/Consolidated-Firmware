@@ -66,3 +66,5 @@ typedef struct \
 {\
     unsigned char _unused;\
 } name;
+
+#define FLOOR_TO_MULTIPLE(x, multiple) (x / multiple) * multiple

@@ -36,6 +36,8 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  */
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 
+bool hw_flash_programFlashWord(uint32_t address, uint32_t* data);
+
 /**
  * Erase a sector of flash. See the microcontroller's reference manual for a list of
  * the available flash sectors and their size. For example, for STM32F412 MCUs see page 59 of:

@@ -1,6 +1,7 @@
 #include "hw_flash.h"
 #include "hw_hal.h"
 #include <string.h>
+#include "Io_SharedMacros.h"
 
 #if defined(STM32F412Rx)
 
@@ -65,22 +66,46 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 
 bool hw_flash_programWord(uint32_t address, uint32_t data)
 {
-    // Flash words are 128 bits on H7, but we still want to support programming
-    // 32 bits at a time since that's how it works on the F4.
-    // Is this fine? I think so...
+    if (address == 0x8000000 + 3080)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
 
-    // construct 128 bit packet
+    uint32_t word_aligned_address = (address / sizeof(uint32_t)) * sizeof(uint32_t);
+    uint32_t flash_word_aligned_address =
+        (word_aligned_address / (4 * FLASH_NB_32BITWORD_IN_FLASHWORD)) * FLASH_NB_32BITWORD_IN_FLASHWORD * 4;
+    uint32_t word_offset = (word_aligned_address / sizeof(uint32_t)) % FLASH_NB_32BITWORD_IN_FLASHWORD;
+
     uint32_t flash_word_data[FLASH_NB_32BITWORD_IN_FLASHWORD];
-    memset(flash_word_data, 0xFFU, sizeof(flash_word_data));
-    memcpy(&flash_word_data[(address / sizeof(uint32_t)) % FLASH_NB_32BITWORD_IN_FLASHWORD], &data, sizeof(data));
+    memcpy(flash_word_data, (uint32_t *)flash_word_aligned_address, sizeof(flash_word_data));
+    memcpy(&flash_word_data[word_offset], &data, sizeof(uint32_t));
 
-    // get word aligned address
-    uint32_t flash_word_address =
-        (uint32_t)(address / (FLASH_NB_32BITWORD_IN_FLASHWORD * 4)) * (FLASH_NB_32BITWORD_IN_FLASHWORD * 4);
+    HAL_StatusTypeDef status1 = HAL_FLASH_Unlock();
+    if (status1 != HAL_OK)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
 
+    HAL_StatusTypeDef status2 =
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_word_aligned_address, (uint32_t)flash_word_data);
+    if (status2 != HAL_OK)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
+    HAL_StatusTypeDef status3 = HAL_FLASH_Unlock();
+    if (status3 != HAL_OK)
+    {
+        BREAK_IF_DEBUGGER_CONNECTED();
+    }
+
+    return true; // status == HAL_OK;
+}
+
+bool hw_flash_programFlashWord(uint32_t address, uint32_t* data)
+{
     HAL_FLASH_Unlock();
-    HAL_StatusTypeDef status =
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, flash_word_address, (uint32_t)(&flash_word_data[0]));
+    HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
     HAL_FLASH_Lock();
     return status == HAL_OK;
 }
