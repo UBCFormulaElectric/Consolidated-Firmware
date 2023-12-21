@@ -7,6 +7,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
 )
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 

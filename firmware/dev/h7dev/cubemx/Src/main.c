@@ -25,7 +25,7 @@
 #include "string.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_can.h"
-
+#include "hw_bootup.h"
 #include "io_can.h"
 /* USER CODE END Includes */
 
@@ -117,7 +117,7 @@ void        runCanRxTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* Enable I-Cache---------------------------------------------------------*/
