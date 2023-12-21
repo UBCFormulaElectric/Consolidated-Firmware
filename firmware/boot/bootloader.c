@@ -152,7 +152,7 @@ void bootloader_init()
     io_can_init(&can_config);
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && false
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
@@ -232,21 +232,16 @@ void bootloader_runTickTask()
 
     for (;;)
     {
-        osDelay(1000);
+        // Broadcast a message at 1Hz so we can check status over CAN.
+        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
+        status_msg.data[0] = verifyAppCodeChecksum();
+        io_can_pushTxMsgToQueue(&status_msg);
+
+        bootloader_config_tick();
+
+        start_ticks += 100; // 10Hz tick
+        osDelayUntil(start_ticks);
     }
-
-    // for (;;)
-    // {
-    //     // Broadcast a message at 1Hz so we can check status over CAN.
-    //     CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-    //     status_msg.data[0] = verifyAppCodeChecksum();
-    //     io_can_pushTxMsgToQueue(&status_msg);
-
-    //     bootloader_config_tick();
-
-    //     start_ticks += 100; // 10Hz tick
-    //     osDelayUntil(start_ticks);
-    // }
 }
 
 void bootloader_runCanTxTask()
