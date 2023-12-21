@@ -29,6 +29,16 @@ RUN apt-get -q -y update && \
     qt6-declarative-dev \
     qt6-declarative-private-dev \
     libqt6opengl6-dev  \
+    qt6-wayland \
+    qt6-wayland-dev \
+#    qml6-module-qtcore \
+#    qml6-module-qtquick \
+#    qml6-module-qtquick-window \
+#    qml6-module-qtquick-controls \
+#    qml6-module-qtquick-layouts \
+#    qml6-module-qtquick-templates \
+    gpiod \
+    libgpiod-dev \
     cmake && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
@@ -43,17 +53,10 @@ COPY can_bus /app/can_bus
 COPY scripts /app/scripts
 COPY CMakeLists.txt /app/CMakeLists.txt
 
-#RUN qmake6 -o build/Makefile && \
-#    cd build && \
-#    make
-
 RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DHANDLE_DEPS=ON && \
     cmake --build ./build --target dimos -- -j 14
 
 # Deploy ------------------------------------------------------------------------
-##
-# Deploy Step
-##
 FROM --platform=linux/${IMAGE_ARCH} \
     torizon/wayland-base${GPU}:${BASE_VERSION} AS Deploy
 
@@ -105,10 +108,6 @@ RUN apt-get -q -y update && \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-layouts \
     qml6-module-qtquick-templates \
-# DO NOT REMOVE THIS LABEL: this is used for VS Code automation
-    # __torizon_packages_prod_start__
-    # __torizon_packages_prod_end__
-# DO NOT REMOVE THIS LABEL: this is used for VS Code automation
     && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*

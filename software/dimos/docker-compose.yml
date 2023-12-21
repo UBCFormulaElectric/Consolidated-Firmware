@@ -47,15 +47,11 @@ services:
         source: /dev
         target: /dev
     device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
+      - "c 4:0 rmw" # tty0 (teletype)
+      - "c 4:7 rmw" # tty7
+      - "c 13:* rmw" # /dev/input devices
+      - "c 199:* rmw" # /dev/input devices
+      - "c 226:* rmw" # /dev/dri devices
     depends_on: [
       weston
     ]
@@ -77,18 +73,14 @@ services:
       - type: bind
         source: /run/udev
         target: /run/udev
+    # noinspection ComposeUnknownValues
     cap_add:
       - CAP_SYS_TTY_CONFIG
-    # Add device access rights through cgroup...
+    # Add device access rights through cgroup
     device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty1
-      - "c 4:1 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
+      - "c 4:0 rmw" # tty0
+      - "c 4:1 rmw" # tty1
+      - "c 4:7 rmw" # tty7
+      - "c 13:* rmw"  # /dev/input devices
+      - "c 199:* rmw" # /dev/input devices
+      - "c 226:* rmw" # /dev/dri devices
