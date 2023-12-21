@@ -42,6 +42,27 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
     App_CanAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_Set(true);
 }
 
+static void logStackRemainingTask1Hz(uint8_t error)
+{
+    App_CanTx_BMS_StackRemainingTask1Hz_Set(error);
+}
+static void logStackRemainingTask100Hz(uint8_t error)
+{
+    App_CanTx_BMS_StackRemainingTask100Hz_Set(error);
+}
+static void logStackRemainingTask1kHz(uint8_t error)
+{
+    App_CanTx_BMS_StackRemainingTask1kHz_Set(error);
+}
+static void logStackRemainingTaskCanRx(uint8_t error)
+{
+    App_CanTx_BMS_StackRemainingTaskCanRx_Set(error);
+}
+static void logStackRemainingTaskCanTx(uint8_t error)
+{
+    App_CanTx_BMS_StackRemainingTaskCanTx_Set(error);
+}
+
 /** @brief Iterate through this table to check stack watermarks for each task */
 static struct stack_watermark stack_watermarks[] = {
     {
@@ -49,34 +70,40 @@ static struct stack_watermark stack_watermarks[] = {
         .stack_size          = TASK1HZ_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1Hz,
+        .stack_remaining     = logStackRemainingTask1Hz,
     },
     {
         .handle              = &Task100HzHandle,
         .stack_size          = TASK100HZ_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask100Hz,
+        .stack_remaining     = logStackRemainingTask100Hz,
     },
     {
         .handle              = &Task1kHzHandle,
         .stack_size          = TASK1KHZ_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1kHz,
+        .stack_remaining     = logStackRemainingTask1kHz,
     },
     {
         .handle              = &TaskCanRxHandle,
         .stack_size          = TASKCANRX_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanRx,
+        .stack_remaining     = logStackRemainingTaskCanRx,
     },
     {
         .handle              = &TaskCanTxHandle,
         .stack_size          = TASKCANTX_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
+        .stack_remaining     = logStackRemainingTaskCanTx,
     },
 };
 
 void Io_StackWaterMark_Check(void)
 {
     Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    Io_SharedStackSize_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

@@ -715,6 +715,7 @@ void RunTask100Hz(void *argument)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
+
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
 
         start_ticks += period_ms;
@@ -837,9 +838,16 @@ void RunTask1Hz(void *argument)
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         Io_CanTx_Enqueue1HzMsgs();
 
+        // To test this, use stackOFsim = App_CanTx_DIM_StackRemainingTask1Hz_Get(); outside loop
+        // and write stackOFsim = stackOFsim - 1; in the if (fsdjfl > 20) statement to see how long it takes to reset.
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        // If stack overflow is detected, watchdog will not be checked in
+        if (App_CanTx_DIM_StackRemainingTask1Hz_Get() > 20)
+        {
+            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        }
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -877,6 +885,7 @@ void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
     __assert_func(__FILE__, __LINE__, "Error_Handler", "Error_Handler");
+
     /* USER CODE END Error_Handler_Debug */
 }
 
