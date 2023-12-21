@@ -8,7 +8,7 @@
 
 uint8_t program_buffer[FLASH_WORD_BYTES];
 
-void bootloader_config_program(uint32_t address, uint64_t data)
+void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
 {
     uint32_t buffer_idx = address % FLASH_WORD_BYTES;
     memcpy(&program_buffer[buffer_idx], &data, sizeof(data));

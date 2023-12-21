@@ -62,7 +62,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     function(stm32h7_bootloader NAME BOARD_DEFINE BOARD_SPECIFIC_SRC)
-        set(BOARD_SPECIFIC_SRCS ${BOOT_SRCS} ${BOARD_SPECIFIC_SRC} "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_config_h7.c")
+        set(BOARD_SPECIFIC_SRCS ${BOOT_SRCS} ${BOARD_SPECIFIC_SRC} "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_h7.c")
         embedded_binary(
             "${NAME}"
             "${BOARD_SPECIFIC_SRCS}"

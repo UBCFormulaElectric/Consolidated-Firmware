@@ -170,7 +170,7 @@ void bootloader_init()
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
-    bootloader_config_init();
+    bootloader_boardSpecific_init();
 }
 
 void bootloader_runInterfaceTask()
@@ -207,7 +207,7 @@ void bootloader_runInterfaceTask()
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_config_program(current_address, *(uint64_t *)command.data);
+            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
@@ -237,7 +237,7 @@ void bootloader_runTickTask()
         status_msg.data[0] = verifyAppCodeChecksum();
         io_can_pushTxMsgToQueue(&status_msg);
 
-        bootloader_config_tick();
+        bootloader_boardSpecific_tick();
 
         start_ticks += 100; // 10Hz tick
         osDelayUntil(start_ticks);
@@ -252,6 +252,6 @@ void bootloader_runCanTxTask()
     }
 }
 
-__WEAK void bootloader_config_init() {}
+__WEAK void bootloader_boardSpecific_init() {}
 
-__WEAK void bootloader_config_tick() {}
+__WEAK void bootloader_boardSpecific_tick() {}
