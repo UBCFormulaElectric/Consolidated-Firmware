@@ -12,6 +12,17 @@ find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Widgets Qml)
 message("💡 QT Version: ${QT_VERSION_MAJOR}")
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Qml)
 
+if(${LINUX})
+#    find_library(GPIOD_LIBRARY NAMES libgpiodcxx)
+    find_package(PkgConfig)
+    pkg_search_module(GPIOD_LIBRARY REQUIRED libgpiod)
+    if(NOT GPIOD_LIBRARY)
+        message(FATAL_ERROR "gpiod library not found. Install sudo apt install libgpiod-dev")
+    endif()
+    list(APPEND REQUIRED_LIBRARIES "gpiod")
+    list(APPEND REQUIRED_LIBRARIES "gpiodcxx")
+endif ()
+
 # define sources
 file(GLOB_RECURSE PROJECT_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.cpp"
@@ -28,6 +39,7 @@ file(GLOB_RECURSE DEV_IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/dev_io/*.cpp")
 # jsoncan
 jsoncan_library(dimos_can dimos "${CMAKE_BINARY_DIR}" TRUE)
 add_library(dimos_can STATIC ${CAN_SRCS})
+list(APPEND REQUIRED_LIBRARIES "dimos_can")
 target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
 target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 
@@ -35,5 +47,5 @@ target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
 
-ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "dimos_can")
-ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "dimos_can")
+ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "${REQUIRED_LIBRARIES}")
+ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "${REQUIRED_LIBRARIES}")
