@@ -8,9 +8,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("💡 Building ${CMAKE_PROJECT_NAME}")
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Widgets Qml)
 message("💡 QT Version: ${QT_VERSION_MAJOR}")
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Qml)
 
 # define sources
 file(GLOB_RECURSE PROJECT_SOURCES

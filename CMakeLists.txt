@@ -70,7 +70,7 @@ ELSE ()
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE)
     if(${PIPENV_RESULT})
-        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT}")
+        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}")
     else ()
         message("Pipenv path: ${PIPENV_OUTPUT}")
     endif ()
