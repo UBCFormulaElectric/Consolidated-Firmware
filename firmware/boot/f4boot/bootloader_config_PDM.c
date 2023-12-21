@@ -9,7 +9,7 @@ Gpio lvpwr_enable_pin = {
     .pin  = EN_LVPWR_PIN,
 };
 
-void bootloader_boardSpecific_init()
+void bootloader_config_init()
 {
     GPIO_InitTypeDef lvpwr_enable_gpio_init = {
         .Pin  = EN_LVPWR_PIN,
