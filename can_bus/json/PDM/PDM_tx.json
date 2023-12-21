@@ -71,6 +71,45 @@
             }
         }
     },
+
+    "StackRemaining": {
+        "msg_id": 409,
+        "cycle_time": 100,
+        "description": "Stack Remaining for different tasks.",
+        "signals": {
+          
+            "StackRemainingTask1Hz": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "%"
+            },
+            "StackRemainingTask100Hz": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "%"
+            },
+            "StackRemainingTask1kHz": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanRx": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanTx": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "%"
+            }
+        }
+    },
     "CommitInfo": {
       "msg_id": 406,
       "cycle_time": 100,

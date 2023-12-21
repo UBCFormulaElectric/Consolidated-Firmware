@@ -147,6 +147,8 @@
             }
         }
     },
+    
+    
     "EllipseStatus": {
         "msg_id": 208,
         "cycle_time": 100,
@@ -243,6 +245,44 @@
                 "max": 180,
                 "resolution": 0.1,
                 "unit": "deg"
+            }
+        }
+    },
+    "StackRemaining": {
+        "msg_id": 211,
+        "cycle_time": 100,
+        "description": "Stack Remaining for different tasks.",
+        "signals": {
+          
+            "StackRemainingTask1Hz": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTask100Hz": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTask1kHz": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanRx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanTx": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             }
         }
     },
