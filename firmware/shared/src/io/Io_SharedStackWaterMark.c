@@ -46,9 +46,7 @@ static uint8_t Io_StackSize(TaskHandle_t xTask, uint32_t stack_size, float water
 {
     assert((0.0f < watermark_threshold) && (watermark_threshold < 1.0f));
 
-
     uint8_t stack_high_watermark_percent_remaining = (uint8_t)uxTaskGetStackHighWaterMark(xTask) / (uint8_t)stack_size;
-
 
     return stack_high_watermark_percent_remaining;
 }
@@ -57,8 +55,7 @@ void Io_SharedStackSize_Check(struct stack_watermark *stacks, size_t num_of_stac
 {
     for (size_t i = 0; i < num_of_stacks; i++)
     {
-        
-        stacks[i].stack_remaining(Io_StackSize(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold));
-        
+        stacks[i].stack_remaining(
+            Io_StackSize(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold));
     }
 }
