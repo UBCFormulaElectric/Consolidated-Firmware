@@ -31,15 +31,15 @@ RUN apt-get -q -y update && \
     libqt6opengl6-dev  \
     qt6-wayland \
     qt6-wayland-dev \
+    gpiod \
+    libgpiod-dev \
+    cmake && \
 #    qml6-module-qtcore \
 #    qml6-module-qtquick \
 #    qml6-module-qtquick-window \
 #    qml6-module-qtquick-controls \
 #    qml6-module-qtquick-layouts \
 #    qml6-module-qtquick-templates \
-    gpiod \
-    libgpiod-dev \
-    cmake && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
 
@@ -53,6 +53,7 @@ COPY can_bus /app/can_bus
 COPY scripts /app/scripts
 COPY CMakeLists.txt /app/CMakeLists.txt
 
+WORKDIR /app
 RUN cmake -G 'Unix Makefiles' -S . -B ./build -DPLATFORM=dimos -DHANDLE_DEPS=ON && \
     cmake --build ./build --target dimos -- -j 14
 
@@ -108,11 +109,12 @@ RUN apt-get -q -y update && \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-layouts \
     qml6-module-qtquick-templates \
+    gpiod \
     && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=Build /app/build /app
+COPY --from=Build /app/build/software/dimos /app
 USER torizon
 WORKDIR /app
 
