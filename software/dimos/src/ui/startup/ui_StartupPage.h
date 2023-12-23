@@ -6,7 +6,6 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QWidget>
 #include <QIcon>
-#include "components/squircle/Squircle.h"
 
 QT_BEGIN_NAMESPACE
 
