@@ -6,12 +6,9 @@ services:
       dockerfile: software/dimos/Dockerfile.debug
     image: dimos-debug:latest
     ports:
-      # SSH debug
-      - "2231:2231"
-      # gdbserver
-      - "2232:2232"
-      # qml debug
-      - "2233:2233"
+      - "2231:2231" # SSH debug
+      - "2232:2232" # gdbserver
+      - "2233:2233" # qml debug
     volumes:
       - type: bind
         source: /tmp
@@ -20,15 +17,12 @@ services:
         source: /dev
         target: /dev
     device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
+      - "c 4:0 rmw"   # tty0
+      - "c 4:7 rmw"   # tty7
+      - "c 13:* rmw"  # /dev/input devices
+      - "c 199:* rmw" # /dev/input devices
+      - "c 226:* rmw" # /dev/dri devices
+      - "c 254:* rmw" # for gpio
     depends_on: [
       weston
     ]
@@ -47,11 +41,12 @@ services:
         source: /dev
         target: /dev
     device_cgroup_rules:
-      - "c 4:0 rmw" # tty0 (teletype)
-      - "c 4:7 rmw" # tty7
-      - "c 13:* rmw" # /dev/input devices
+      - "c 4:0 rmw"   # tty0 (teletype)
+      - "c 4:7 rmw"   # tty7
+      - "c 13:* rmw"  # /dev/input devices
       - "c 199:* rmw" # /dev/input devices
       - "c 226:* rmw" # /dev/dri devices
+      - "c 254:* rmw" # for gpio
     depends_on: [
       weston
     ]
