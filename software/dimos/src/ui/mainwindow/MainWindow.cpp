@@ -3,12 +3,10 @@
 #include "io_handlers/gpio_handlers.h"
 // libraries
 #include <QThread>
-#include <gpiod.hpp>
 
 extern "C"
 {
 #include "Io_CanTx.h"
-#include "Io_CanRx.h"
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
@@ -77,7 +75,7 @@ Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadca
 
 Result<std::monostate, MainWindow::GPIO_setup_errors> MainWindow::setupGPIO()
 {
-    const auto gpio_has_err = gpio_init();
+    const std::array<bool, GPIO_COUNT> gpio_has_err = gpio_init();
     bool has_gpio_err = false;
     for (int i = 0; i < GPIO_COUNT; i++)
     {
@@ -89,9 +87,6 @@ Result<std::monostate, MainWindow::GPIO_setup_errors> MainWindow::setupGPIO()
             std::make_unique<QThread>(QThread::create(&gpio_handlers::gpio_monitor, static_cast<gpio_input>(i)));
         gpio_monitor_threads[i]->start();
     }
-    if(has_gpio_err) {
-        return LINE_SETUP_ERROR;
-    }
-
+    if(has_gpio_err) return LINE_SETUP_ERROR;
     return std::monostate{};
 }

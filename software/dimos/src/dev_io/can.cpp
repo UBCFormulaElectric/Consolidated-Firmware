@@ -20,6 +20,7 @@ Result<CanMsg, CanReadError> Can_Read()
 
 Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg)
 {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     cout << "Can with id " << msg->std_id << " Written" << endl;
     return std::monostate{};
 }
