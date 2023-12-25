@@ -1,9 +1,9 @@
 #include "MainWindow.h"
+#include "io_handlers/can_handlers.h"
+#include "io_handlers/gpio_handlers.h"
 // libraries
 #include <QThread>
-#include <chrono>
-// can
-#include "can.h"
+#include <gpiod.hpp>
 
 extern "C"
 {
@@ -11,13 +11,16 @@ extern "C"
 #include "Io_CanRx.h"
 }
 
-MainWindow::MainWindow(QWidget *parent)
-  : QMainWindow(parent),
-    ui(new ui::MainWindow),
-    CanRxTaskThread(QThread::create(&MainWindow::CanRXTask)),
-    CanTxPeriodicTaskThread(QThread::create(&MainWindow::CanPeriodicTXTask))
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {
-    //	setupCanBroadcasting();
+    if (const Result<std::monostate, CAN_setup_errors> r_can = setupCanBroadcasting(); r_can.index() == 1)
+    {
+        can_setup_error = get<CAN_setup_errors>(r_can);
+    }
+    if (const Result<std::monostate, GPIO_setup_errors> r_gpio = setupGPIO(); r_gpio.index() == 1)
+    {
+        gpio_setup_error = get<GPIO_setup_errors>(r_gpio);
+    }
     ui->setupUi(this);
 }
 
@@ -51,7 +54,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void MainWindow::setupCanBroadcasting()
+Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadcasting()
 {
     // CANTX TASK
     tx100Hz.setInterval(10);
@@ -64,42 +67,31 @@ void MainWindow::setupCanBroadcasting()
     connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
     tx1Hz.start();
 
+    CanRxTaskThread         = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));
+    CanTxPeriodicTaskThread = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanPeriodicTXTask));
     CanRxTaskThread->start();
     CanTxPeriodicTaskThread->start();
+
+    return std::monostate{};
 }
 
-[[noreturn]] void MainWindow::CanRXTask()
+Result<std::monostate, MainWindow::GPIO_setup_errors> MainWindow::setupGPIO()
 {
-    while (true)
+    const auto gpio_has_err = gpio_init();
+    bool has_gpio_err = false;
+    for (int i = 0; i < GPIO_COUNT; i++)
     {
-        Result<CanMsg, CanReadError> res = Can_Read();
-        if (res.index() == 1)
-        {
-            switch (get<CanReadError>(res))
-            {
-                case ReadInterfaceNotCreated:
-                    break;
-                case SocketReadError:
-                case IncompleteCanFrame:
-                    continue;
-            }
+        if(gpio_has_err[i]) {
+            has_gpio_err = true;
             continue;
         }
-
-        // success
-        auto message = get<CanMsg>(res);
-        // acquire lock
-        Io_CanRx_UpdateRxTableWithMessage(&message);
-        // release lock
+        gpio_monitor_threads[i] =
+            std::make_unique<QThread>(QThread::create(&gpio_handlers::gpio_monitor, static_cast<gpio_input>(i)));
+        gpio_monitor_threads[i]->start();
     }
-}
-
-[[noreturn]] void MainWindow::CanPeriodicTXTask()
-{
-    using namespace std::chrono;
-    while (true)
-    {
-        auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-        Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
+    if(has_gpio_err) {
+        return LINE_SETUP_ERROR;
     }
+
+    return std::monostate{};
 }

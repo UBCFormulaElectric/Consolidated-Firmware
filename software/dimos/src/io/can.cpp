@@ -1,10 +1,11 @@
 #include "can.h"
 #include <cstring>
-#include <unistd.h>
-#include <net/if.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <linux/can.h>
+#include <net/if.h>
+#include <optional>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 static std::optional<int> CanInterface;
 
@@ -15,7 +16,7 @@ Result<std::monostate, CanConnectionError> Can_Init()
     if (CanInterface < 0)
     {
         CanInterface = std::nullopt;
-        return CanConnectionError::SocketError;
+        return SocketError;
     }
 
     struct sockaddr_can addr
@@ -33,7 +34,7 @@ Result<std::monostate, CanConnectionError> Can_Init()
     addr.can_family  = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
     if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
-        return CanConnectionError::BindError;
+        return BindError;
 
     return std::monostate{};
 }
@@ -41,17 +42,15 @@ Result<std::monostate, CanConnectionError> Can_Init()
 Result<CanMsg, CanReadError> Can_Read()
 {
     if (!CanInterface.has_value())
-        return CanReadError::ReadInterfaceNotCreated;
+        return ReadInterfaceNotCreated;
 
-    struct can_frame frame
-    {
-    };
-    ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(struct can_frame));
+    can_frame frame{};
+    ssize_t   readLengthBytes = read(CanInterface.value(), &frame, sizeof(struct can_frame));
 
     if (readLengthBytes < 0)
-        return CanReadError::SocketReadError;
+        return SocketReadError;
     if (readLengthBytes < sizeof(struct can_frame))
-        return CanReadError::IncompleteCanFrame;
+        return IncompleteCanFrame;
     //	return frame;
     return CanMsg{};
 }
@@ -59,7 +58,7 @@ Result<CanMsg, CanReadError> Can_Read()
 Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg)
 {
     if (!CanInterface.has_value())
-        return CanWriteError::WriteInterfaceNotCreated;
+        return WriteInterfaceNotCreated;
 
     try
     {
@@ -67,7 +66,7 @@ Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg)
     }
     catch (...)
     {
-        return CanWriteError::SocketWriteError;
+        return SocketWriteError;
     }
     return std::monostate{};
 }
