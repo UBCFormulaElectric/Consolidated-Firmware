@@ -22,9 +22,9 @@ std::array<gpiod::line, GPIO_COUNT> gpio_lines;
 
 enum gpiod_line_init_error
 {
-    INPUT_RANGE_ERROR, // developer error
-    CHIP_INIT_ERROR, // system error
-    LINE_REQUEST_ERROR, // system error
+    INPUT_RANGE_ERROR,   // developer error
+    CHIP_INIT_ERROR,     // system error
+    LINE_REQUEST_ERROR,  // system error
     UNKNOWN_SYSTEM_ERROR // system error + deadly case value -> time to check logs
 };
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
@@ -34,11 +34,8 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
         const auto [chip_loc, line_num] = GPIO_inputs_hw_info.at(i);
         const gpiod::chip c(chip_loc);
         gpiod::line       l = c.get_line(line_num);
-        l.request({
-            "dimos_gpio_service",
-            gpiod::line_request::EVENT_BOTH_EDGES,
-            gpiod::line_request::FLAG_BIAS_PULL_DOWN
-        });
+        l.request(
+            { "dimos_gpio_service", gpiod::line_request::EVENT_BOTH_EDGES, gpiod::line_request::FLAG_BIAS_PULL_DOWN });
         return l;
     }
     catch (std::system_error &e)

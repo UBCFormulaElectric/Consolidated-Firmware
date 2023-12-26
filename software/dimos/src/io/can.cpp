@@ -44,8 +44,8 @@ Result<CanMsg, CanReadError> Can_Read()
     if (!CanInterface.has_value())
         return ReadInterfaceNotCreated;
 
-    can_frame frame{};
-    const ssize_t   readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
+    can_frame     frame{};
+    const ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
 
     if (readLengthBytes < 0)
         return SocketReadError;
