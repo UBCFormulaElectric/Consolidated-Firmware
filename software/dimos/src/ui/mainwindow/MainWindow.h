@@ -26,7 +26,7 @@ class MainWindow final : public QMainWindow
       LINE_SETUP_ERROR
     };
     Result<std::monostate, GPIO_setup_errors>        setupGPIO();
-    std::array<std::unique_ptr<QThread>, GPIO_COUNT> gpio_monitor_threads;
+    std::array<std::optional<std::unique_ptr<QThread>>, GPIO_COUNT> gpio_monitor_threads = {std::nullopt};
 
     enum CAN_setup_errors
     {
