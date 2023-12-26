@@ -119,6 +119,15 @@
             }
         },
         {
+            "label": "Build: VC",
+            "type": "shell",
+            "command": "make -j`nproc` VC.elf",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
             "label": "Build: BMS_test",
             "type": "shell",
             "command": "make -j`nproc` BMS_test",
@@ -158,6 +167,15 @@
             "label": "Build: DIM_test",
             "type": "shell",
             "command": "make -j`nproc` DIM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build: VC_test",
+            "type": "shell",
+            "command": "make -j`nproc` VC_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
