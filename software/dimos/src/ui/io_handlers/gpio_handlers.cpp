@@ -31,8 +31,7 @@ void Sw_1(const gpio_edge edge)
 }
 
 // gpio handlers
-constexpr std::array gpio_handler_funcs = { &Rot_PushButton, &Rot_Quadrature, &Rot_Quadrature, &Sw_Up,
-                                            &Sw_Right,       &Sw_Left,        &Sw_Down,        &Sw_1 };
+constexpr void (*gpio_handler_funcs[])(gpio_edge) = { &Rot_PushButton, &Rot_Quadrature, &Rot_Quadrature, &Sw_Up, &Sw_Right, &Sw_Left, &Sw_Down, &Sw_1 };
 
 namespace gpio_handlers
 {
