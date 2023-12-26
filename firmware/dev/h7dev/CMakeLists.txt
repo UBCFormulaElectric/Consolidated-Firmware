@@ -16,7 +16,6 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
 list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
 list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
-list(REMOVE_ITEM IO_SRCS "${SHARED_EMBEDDED_DIR}/io/io_can.c")
 list(REMOVE_ITEM IO_SRCS "${SHARED_EMBEDDED_DIR}/io/io_jsoncan.c")
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -46,6 +45,7 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_dma_ex.c"
         "stm32h7xx_hal_dma.c"
         "stm32h7xx_hal_exti.c"
+        "stm32h7xx_hal_fdcan.c"
         "stm32h7xx_hal_gpio.c"
         "stm32h7xx_hal_iwdg.c"
         "stm32h7xx_hal_pwr_ex.c"
