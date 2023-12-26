@@ -45,11 +45,11 @@ Result<CanMsg, CanReadError> Can_Read()
         return ReadInterfaceNotCreated;
 
     can_frame frame{};
-    ssize_t   readLengthBytes = read(CanInterface.value(), &frame, sizeof(struct can_frame));
+    const ssize_t   readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
 
     if (readLengthBytes < 0)
         return SocketReadError;
-    if (readLengthBytes < sizeof(struct can_frame))
+    if (readLengthBytes < sizeof(can_frame))
         return IncompleteCanFrame;
     //	return frame;
     return CanMsg{};
