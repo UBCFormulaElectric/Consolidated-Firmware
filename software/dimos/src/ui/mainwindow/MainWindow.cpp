@@ -5,7 +5,6 @@
 extern "C"{
 #include <Io_CanTx.h>
 }
-#include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {
@@ -53,12 +52,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadcasting()
 {
     // CANTX TASK
-    tx100Hz.setInterval(10);
+    tx100Hz.setInterval(can_handlers::TASK_INTERVAL_100HZ);
     tx100Hz.setSingleShot(false);
     connect(&tx100Hz, &QTimer::timeout, Io_CanTx_Enqueue100HzMsgs);
     tx100Hz.start();
 
-    tx1Hz.setInterval(1000);
+    tx1Hz.setInterval(can_handlers::TASK_INTERVAL_1HZ);
     tx1Hz.setSingleShot(false);
     connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
     tx1Hz.start();
