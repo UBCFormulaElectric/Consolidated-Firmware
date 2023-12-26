@@ -1,8 +1,12 @@
 {
     "configurations": [
         {
-            "name": "CMake",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "name": "build_fw_deploy",
+            "compileCommands": "${workspaceFolder}/build_fw_deploy/compile_commands.json"
+        },
+        {
+            "name": "build_fw_test",
+            "compileCommands": "${workspaceFolder}/build_fw_test/compile_commands.json"
         }
     ],
     "version": 4
