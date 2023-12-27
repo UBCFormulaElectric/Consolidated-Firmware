@@ -26,6 +26,7 @@ endif ()
 
 # define sources
 file(GLOB_RECURSE PROJECT_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/assets/resources.qrc")
