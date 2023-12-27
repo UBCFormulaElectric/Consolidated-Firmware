@@ -53,11 +53,13 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
     }
     catch (std::range_error &)
     {
+        qErrnoWarning("range error");
         // very possibly a line error
         return INPUT_RANGE_ERROR;
     }
     catch (std::out_of_range &)
     {
+        qErrnoWarning("out of range error");
         // line error or line request error
         return INPUT_RANGE_ERROR;
     }
@@ -74,6 +76,7 @@ std::array<bool, GPIO_COUNT> gpio_init()
         if (r.index() == 1)
         {
             has_error[i] = true;
+            continue;
         }
         gpio_lines[i] = std::get<gpiod::line>(r);
     }
