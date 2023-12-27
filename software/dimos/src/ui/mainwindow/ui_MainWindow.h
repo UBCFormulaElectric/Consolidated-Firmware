@@ -70,7 +70,7 @@ class ui_MainWindow
             MainWindow->setObjectName("MainWindow");
         MainWindow->setMinimumSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         MainWindow->setStyleSheet("QMainWindow {"
-                                  "	background-color: black;"
+                                  "	background-color: #002D67;"
                                   "}"
                                   "QLabel {"
                                   "	color:white;"
@@ -87,8 +87,10 @@ class ui_MainWindow
         centerLayout = new QVBoxLayout(centerWidget);
         centerLayout->setObjectName("centerLayout");
         centerLayout->setAlignment(Qt::AlignCenter);
+        centerLayout->setContentsMargins(0, 0, 0, 0);
 
         limiter = new QWidget();
+        limiter->setContentsMargins(0, 0, 0, 0);
         limiter->setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         limiter->setObjectName("limiter");
         limiter->setStyleSheet("QWidget#limiter {"
