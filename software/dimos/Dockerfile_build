@@ -1,0 +1,51 @@
+ARG BASE_VERSION=3.1.1
+ARG IMAGE_ARCH=arm64
+ARG GPU=-vivante
+
+FROM --platform=linux/${IMAGE_ARCH} torizon/qt6-wayland${GPU}:${BASE_VERSION}
+
+ARG IMAGE_ARCH
+ARG GPU
+
+# stick to bookworm on /etc/apt/sources.list.d
+RUN sed -i 's/sid/bookworm/g' /etc/apt/sources.list.d/debian.sources
+
+# __deps__
+RUN apt-get -q -y update && \
+    apt-get -q -y install \
+    gcc \
+    python3-dev \
+    python3-pip \
+    build-essential \
+    qmake6 \
+    libgl-dev \
+    libgl1 \
+    qt6-base-private-dev \
+    qt6-base-dev \
+    qt6-declarative-dev \
+    qt6-declarative-private-dev \
+    libqt6opengl6-dev  \
+    qt6-wayland \
+    qt6-wayland-dev \
+    gpiod \
+    libgpiod-dev \
+    cmake && \
+#    qml6-module-qtcore \
+#    qml6-module-qtquick \
+#    qml6-module-qtquick-window \
+#    qml6-module-qtquick-controls \
+#    qml6-module-qtquick-layouts \
+#    qml6-module-qtquick-templates \
+    apt-get clean && apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY ./environment/requirements.txt /setup/requirements.txt
+WORKDIR /setup
+#RUN pip install pipenv --break-system-packages
+#RUN pipenv install
+RUN pip3 install -r requirements.txt --break-system-packages
+
+
+CMD cd /app && ls -l -a && pwd && \
+    cmake -G 'Unix Makefiles' -S . -B build_dimos_docker -DPLATFORM=dimos -DNO_VENV=ON && \
+    cmake --build build_dimos_docker --target dimos -- -j 14

@@ -1,0 +1,58 @@
+ARG BASE_VERSION=3.1.1
+ARG IMAGE_ARCH=arm64
+ARG GPU=-vivante
+
+FROM --platform=linux/${IMAGE_ARCH} torizon/qt6-wayland${GPU}:${BASE_VERSION}
+
+ARG IMAGE_ARCH
+ARG GPU
+
+# SSH for remote debug
+EXPOSE 2231
+ARG SSHUSERNAME=torizon
+
+# Make sure we don't get notifications we can't answer during building.
+ENV DEBIAN_FRONTEND="noninteractive"
+
+# stick to bookworm on /etc/apt/sources.list.d
+RUN sed -i 's/sid/bookworm/g' /etc/apt/sources.list.d/debian.sources
+
+# for vivante GPU we need some "special" sauce
+RUN apt-get -q -y update && \
+        if [ "${GPU}" = "-vivante" ]; then \
+            apt-get -q -y install \
+            imx-gpu-viv-wayland-dev \
+        ; else \
+            apt-get -q -y install \
+            libgl1 \
+        ; fi \
+    && \
+    apt-get clean && apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/*
+
+# your regular RUN statements here
+# Install required packages
+RUN apt-get -q -y update && \
+    apt-get -q -y install \
+    file \
+    curl \
+    qt6-base-private-dev \
+    qt6-base-dev \
+    qt6-wayland \
+    qt6-wayland-dev \
+    qt6-declarative-dev \
+    qt6-declarative-private-dev \
+    qml6-module-qtqml \
+    qml6-module-qtqml-workerscript \
+    qml6-module-qtcore \
+    qml6-module-qtquick \
+    qml6-module-qtquick-window \
+    qml6-module-qtquick-controls \
+    qml6-module-qtquick-layouts \
+    qml6-module-qtquick-templates \
+    gpiod \
+    && \
+    apt-get clean && apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/*
+
+USER torizon

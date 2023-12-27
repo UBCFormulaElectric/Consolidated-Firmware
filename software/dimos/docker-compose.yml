@@ -1,10 +1,23 @@
 version: "3.9"
 services:
-  dimos-debug:
+  dimos-build:
+    container_name: dimos-build-container
     build:
       context: ../../
-      dockerfile: software/dimos/Dockerfile.debug
-    image: dimos-debug:latest
+      dockerfile: software/dimos/Dockerfile_build
+    image: dimos-build:latest
+    volumes:
+      - type: bind
+        source: ../../
+        target: /app
+
+  dimos:
+    container_name: dimos-container
+    command: /app/dimos
+    image: dimos:latest
+    build:
+      context: ../../
+      dockerfile: software/dimos/Dockerfile_container
     ports:
       - "2231:2231" # SSH debug
       - "2232:2232" # gdbserver
@@ -16,30 +29,12 @@ services:
       - type: bind
         source: /dev
         target: /dev
-    device_cgroup_rules:
-      - "c 4:0 rmw"   # tty0
-      - "c 4:7 rmw"   # tty7
-      - "c 13:* rmw"  # /dev/input devices
-      - "c 199:* rmw" # /dev/input devices
-      - "c 226:* rmw" # /dev/dri devices
-      - "c 254:* rmw" # for gpio
-    depends_on: [
-      weston
-    ]
-
-  dimos:
-    container_name: dimos-container
-    build:
-      context: ../../
-      dockerfile: software/dimos/Dockerfile
-    image: dimos:latest
-    volumes:
       - type: bind
-        source: /tmp
-        target: /tmp
+        source: /dev/galcore
+        target: /dev/galcore
       - type: bind
-        source: /dev
-        target: /dev
+        source: .
+        target: /app
     device_cgroup_rules:
       - "c 4:0 rmw"   # tty0 (teletype)
       - "c 4:7 rmw"   # tty7
@@ -49,11 +44,12 @@ services:
       - "c 254:* rmw" # for gpio
     depends_on: [
       weston
+#       condition: service_healthy
     ]
 
   weston:
     container_name: Weston_Container
-    image: torizon/weston${GPU}:3
+    image: torizon/weston-vivante:3
     environment:
       - ACCEPT_FSL_EULA=1
     # Required to get udev events from host udevd via netlink
@@ -79,3 +75,9 @@ services:
       - "c 13:* rmw"  # /dev/input devices
       - "c 199:* rmw" # /dev/input devices
       - "c 226:* rmw" # /dev/dri devices
+#    healthcheck:
+#      test: [ "CMD", "test", "-S", "/tmp/.X11-unix/X0" ]
+#      interval: 5s
+#      timeout: 4s
+#      retries: 6
+#      start_period: 10s
