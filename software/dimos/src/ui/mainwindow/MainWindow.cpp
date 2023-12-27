@@ -75,14 +75,16 @@ Result<std::monostate, MainWindow::GPIO_setup_errors> MainWindow::setupGPIO()
     bool                               has_gpio_err = false;
     for (int i = 0; i < GPIO_COUNT; i++)
     {
+        const auto GPIO_ENUM = static_cast<gpio_input>(i);
         if (gpio_has_err[i])
         {
-            qInfo() << "Line " << i << " has setup error";
+            const gpio_info &gpio_metadata = GPIO_inputs_info.at(GPIO_ENUM);
+            qInfo() << "Line for " << QString::fromStdString(gpio_metadata.name) << " on line "
+                    << QString::fromStdString(gpio_metadata.enum_name) << " has setup error";
             has_gpio_err = true;
             continue;
         }
-        gpio_monitor_threads[i] =
-            std::make_unique<QThread>(QThread::create(&gpio_handlers::gpio_monitor, static_cast<gpio_input>(i)));
+        gpio_monitor_threads[i] = std::make_unique<QThread>(QThread::create(&gpio_handlers::gpio_monitor, GPIO_ENUM));
         gpio_monitor_threads[i].value()->start();
     }
     if (has_gpio_err)
