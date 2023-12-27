@@ -27,6 +27,8 @@ RUN apt-get -q -y update && \
     libqt6opengl6-dev  \
     qt6-wayland \
     qt6-wayland-dev \
+    libqt6svg6 \
+    libqt6svg6-dev \
     gpiod \
     libgpiod-dev \
     cmake && \

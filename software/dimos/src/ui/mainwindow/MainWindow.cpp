@@ -95,9 +95,6 @@ Result<std::monostate, MainWindow::GPIO_setup_errors> MainWindow::setupGPIO()
         const auto GPIO_ENUM = static_cast<gpio_input>(i);
         if (gpio_has_err[i])
         {
-            const gpio_info &gpio_metadata = GPIO_inputs_info.at(GPIO_ENUM);
-            qInfo() << "Line for " << QString::fromStdString(gpio_metadata.name) << " on line "
-                    << QString::fromStdString(gpio_metadata.enum_name) << " has setup error";
             has_gpio_err = true;
             continue;
         }

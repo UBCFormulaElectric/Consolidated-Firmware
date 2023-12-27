@@ -29,6 +29,8 @@ enum gpiod_line_init_error
 };
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
 {
+    const auto [gpio_name, gpio_enum_name] = GPIO_inputs_info.at(i);
+    const std::string err_prefix = "[" + gpio_name + " on " + gpio_enum_name + "]:";
     try
     {
         const auto [chip_loc, line_num] = GPIO_inputs_hw_info.at(i);
@@ -40,7 +42,7 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
     }
     catch (std::system_error &e)
     {
-        qErrnoWarning(e.what());
+        qCritical() << err_prefix.c_str() << e.what();
         switch (e.code().value())
         {
             case 2:
@@ -51,16 +53,16 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
                 return UNKNOWN_SYSTEM_ERROR;
         }
     }
+    // very possibly a line error
     catch (std::range_error &)
     {
-        qErrnoWarning("range error");
-        // very possibly a line error
+        qCritical() << err_prefix.c_str() << "range error";
         return INPUT_RANGE_ERROR;
     }
+    // line error or line request error
     catch (std::out_of_range &)
     {
-        qErrnoWarning("out of range error");
-        // line error or line request error
+        qCritical() << err_prefix.c_str() << "out of range error";
         return INPUT_RANGE_ERROR;
     }
 }
@@ -84,7 +86,7 @@ std::array<bool, GPIO_COUNT> gpio_init()
     return has_error;
 }
 
-Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i)
+Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
 {
     const gpiod::line &l = gpio_lines[i];
 
