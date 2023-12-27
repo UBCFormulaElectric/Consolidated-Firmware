@@ -1,0 +1,14 @@
+{
+    "warnings_id": 1305,
+    "faults_id": 1306,
+    "warnings_counts_id": 1307,
+    "faults_counts_id": 1308,
+    "warnings": [
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow"
+    ],
+    "faults": [
+        "DummyFault"
+    ]
+}

@@ -15,19 +15,33 @@
  *
  ******************************************************************************
  */
-#include "hw_hardFaultHandler.h"
-#include "hw_can.h"
-#include "io_can.h"
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_can.h"
+#include "io_can.h"
+#include "Io_SharedSoftwareWatchdog.h"
+#include "io_watchdogConfig.h"
+#include "hw_adc.h"
+#include "Io_SharedHeartbeatMonitor.h"
+#include "hw_bootup.h"
+#include "App_SharedStateMachine.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
+#include "io_jsoncan.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -48,8 +62,71 @@ ADC_HandleTypeDef hadc3;
 
 FDCAN_HandleTypeDef hfdcan1;
 
-/* USER CODE BEGIN PV */
+IWDG_HandleTypeDef hiwdg1;
 
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[512];
+osStaticThreadDef_t  canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for canRxTask */
+osThreadId_t         canRxTaskHandle;
+uint32_t             canRxTaskBuffer[512];
+osStaticThreadDef_t  canRxTaskControlBlock;
+const osThreadAttr_t canRxTask_attributes = {
+    .name       = "canRxTask",
+    .cb_mem     = &canRxTaskControlBlock,
+    .cb_size    = sizeof(canRxTaskControlBlock),
+    .stack_mem  = &canRxTaskBuffer[0],
+    .stack_size = sizeof(canRxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* USER CODE BEGIN PV */
+struct StateMachine *    state_machine;
+struct HeartbeatMonitor *heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,12 +136,37 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_ADC3_Init(void);
-/* USER CODE BEGIN PFP */
+static void MX_IWDG1_Init(void);
+void        RunTask100Hz(void *argument);
+void        runCanTxTask(void *argument);
+void        runCanRxTask(void *argument);
+void        RunTask1kHz(void *argument);
+void        RunTask1Hz(void *argument);
 
+/* USER CODE BEGIN PFP */
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
+{
+    App_CanTx_VC_RxOverflowCount_Set(overflow_count);
+    App_CanAlerts_VC_Warning_RxOverflow_Set(true);
+}
+
+static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
+{
+    App_CanTx_VC_TxOverflowCount_Set(overflow_count);
+    App_CanAlerts_VC_Warning_TxOverflow_Set(true);
+}
+
+static const CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .tx_overflow_callback = CanTxQueueOverflowCallBack,
+    .rx_overflow_callback = CanRxQueueOverflowCallBack,
+};
 
 /* USER CODE END 0 */
 
@@ -75,7 +177,7 @@ static void MX_ADC3_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    // hw_bootup_enableInterruptsForApp(); // waiting on gus
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -102,10 +204,76 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_ADC3_Init();
+    MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
+    __HAL_DBGMCU_FREEZE_IWDG1();
 
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+
+    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
+    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+
+    App_CanTx_Init();
+    App_CanRx_Init();
+
+    hw_hardFaultHandler_init();
+    hw_can_init(&hfdcan1);
+    io_can_init(&can_config);
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
+    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     /* USER CODE END 2 */
 
+    /* Init scheduler */
+    osKernelInitialize();
+
+    /* USER CODE BEGIN RTOS_MUTEX */
+    /* add mutexes, ... */
+    /* USER CODE END RTOS_MUTEX */
+
+    /* USER CODE BEGIN RTOS_SEMAPHORES */
+    /* add semaphores, ... */
+    /* USER CODE END RTOS_SEMAPHORES */
+
+    /* USER CODE BEGIN RTOS_TIMERS */
+    /* start timers, add new ones, ... */
+    /* USER CODE END RTOS_TIMERS */
+
+    /* USER CODE BEGIN RTOS_QUEUES */
+    /* add queues, ... */
+    /* USER CODE END RTOS_QUEUES */
+
+    /* Create the thread(s) */
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of canRxTask */
+    canRxTaskHandle = osThreadNew(runCanRxTask, NULL, &canRxTask_attributes);
+
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* USER CODE BEGIN RTOS_THREADS */
+    /* add threads, ... */
+    /* USER CODE END RTOS_THREADS */
+
+    /* USER CODE BEGIN RTOS_EVENTS */
+    /* add events, ... */
+    /* USER CODE END RTOS_EVENTS */
+
+    /* Start scheduler */
+    osKernelStart();
+
+    /* We should never get here as control is now taken by the scheduler */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -141,9 +309,10 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
     RCC_OscInitStruct.HSIState            = RCC_HSI_DIV1;
     RCC_OscInitStruct.HSICalibrationValue = 64;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLM            = 4;
@@ -381,6 +550,33 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
+ * @brief IWDG1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG1_Init(void)
+{
+    /* USER CODE BEGIN IWDG1_Init 0 */
+
+    /* USER CODE END IWDG1_Init 0 */
+
+    /* USER CODE BEGIN IWDG1_Init 1 */
+
+    /* USER CODE END IWDG1_Init 1 */
+    hiwdg1.Instance       = IWDG1;
+    hiwdg1.Init.Prescaler = IWDG_PRESCALER_8;
+    hiwdg1.Init.Window    = 79;
+    hiwdg1.Init.Reload    = 79;
+    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG1_Init 2 */
+
+    /* USER CODE END IWDG1_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -564,6 +760,119 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief  Function implementing the Task100Hz thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void *argument)
+{
+    /* USER CODE BEGIN 5 */
+    UNUSED(argument);
+    static const TickType_t  period_ms = 10U;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        // test fdcan
+        CanMsg msg = {
+            .std_id = 100,
+            .dlc    = 0,
+        };
+        io_can_pushTxMsgToQueue(&msg);
+
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+    }
+    /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_runCanTxTask */
+/**
+ * @brief Function implementing the canTxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
+{
+    /* USER CODE BEGIN runCanTxTask */
+    /* Infinite loop */
+    for (;;)
+    {
+        io_can_transmitMsgFromQueue();
+    }
+    /* USER CODE END runCanTxTask */
+}
+
+/* USER CODE BEGIN Header_runCanRxTask */
+/**
+ * @brief Function implementing the canRxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanRxTask */
+void runCanRxTask(void *argument)
+{
+    /* USER CODE BEGIN runCanRxTask */
+    /* Infinite loop */
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+    }
+    /* USER CODE END runCanRxTask */
+}
+
+/* USER CODE BEGIN Header_RunTask1kHz */
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void *argument)
+{
+    /* USER CODE BEGIN RunTask1kHz */
+    UNUSED(argument);
+    static const TickType_t  period_ms = 10U;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+    }
+    /* USER CODE END RunTask1kHz */
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+ * @brief Function implementing the Task1Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void *argument)
+{
+    /* USER CODE BEGIN RunTask1Hz */
+    UNUSED(argument);
+    static const TickType_t  period_ms = 10U;
+    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+    }
+    /* USER CODE END RunTask1Hz */
+}
 
 /**
  * @brief  Period elapsed callback in non blocking mode
