@@ -69,7 +69,8 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
 
 std::array<bool, GPIO_COUNT> gpio_init()
 {
-    std::array<bool, GPIO_COUNT> has_error = { false };
+    std::array<bool, GPIO_COUNT> has_error{};
+    has_error.fill(false);
     for (int i = 0; i < GPIO_COUNT; i++)
     {
         Result<gpiod::line, gpiod_line_init_error> r = create_gpio_input_pin(static_cast<gpio_input>(i));
