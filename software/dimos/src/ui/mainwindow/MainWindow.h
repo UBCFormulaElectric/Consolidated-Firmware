@@ -17,6 +17,7 @@ class MainWindow final : public QMainWindow
 
   protected:
     void keyPressEvent(QKeyEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
   private:
     std::unique_ptr<ui::MainWindow> ui;

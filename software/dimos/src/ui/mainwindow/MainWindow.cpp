@@ -1,6 +1,8 @@
 #include "MainWindow.h"
 #include "io_handlers/can_handlers.h"
 #include "io_handlers/gpio_handlers.h"
+
+#include <iostream>
 // libraries
 extern "C"
 {
@@ -46,6 +48,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             qWarning() << QString::fromStdString("UNHANDLED KEY " + event->text().toStdString());
             break;
     }
+}
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    std::cout << "Closing MainWindow" << std::endl;
+    if (CanRxTaskThread) CanRxTaskThread->requestInterruption();
+    std::cout << "canrx task requested end" << std::endl;
+    if (CanTxPeriodicTaskThread) CanTxPeriodicTaskThread->requestInterruption();
+    std::cout << "canperiodictx task requested end" << std::endl;
+
+    for (int i = 0; i < GPIO_COUNT; i++)
+    {
+        if (gpio_monitor_threads[i].has_value())
+            gpio_monitor_threads[i].value()->requestInterruption();
+    }
+    QMainWindow::closeEvent(event);
 }
 
 Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadcasting()

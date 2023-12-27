@@ -35,7 +35,7 @@ class ui_MainWindow
         FramesCount
     }; // order does matter :)
   private:
-    QMainWindow *   mw{};
+    QWidget *       centerWidget{};
     QStackedWidget *MainStack{};
 
     // pages
@@ -50,9 +50,10 @@ class ui_MainWindow
     SkidpadPage *     skidpad_page{};
 
     // switcher logic
-    Switcher *                                                           SwitcherFrame{};
-    std::unique_ptr<QGraphicsBlurEffect>                                 switcherBackgroundEffect;
-    bool                                                                 isSwitcherOpen        = false;
+    Switcher *                           SwitcherFrame{};
+    std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
+    bool                                 isSwitcherOpen = false;
+
     static inline std::map<SwitcherButton::SwitcherButtonOption, Frames> switcherOptionToFrame = {
         { SwitcherButton::ENDURANCE, EnduranceFrame }, { SwitcherButton::ACCELERATION, AcclerationFrame },
         { SwitcherButton::SKIDPAD, SkidpadFrame },     { SwitcherButton::AUTOCROSS, AutocrossFrame },
@@ -62,7 +63,6 @@ class ui_MainWindow
   public:
     void setupUi(QMainWindow *MainWindow)
     {
-        mw = MainWindow;
         // MainWindow Setup
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
@@ -79,9 +79,12 @@ class ui_MainWindow
 #elif USING_dimos
         MainWindow->setWindowTitle("Dimos");
 #endif
+        centerWidget = new QWidget(MainWindow);
+        centerWidget->setObjectName("centerWidget");
+        MainWindow->setCentralWidget(centerWidget);
 
         // mainframe
-        MainStack = new QStackedWidget(MainWindow);
+        MainStack = new QStackedWidget(centerWidget);
         MainStack->setObjectName("MainStack");
         MainStack->setGeometry(QRect(0, 0, 1024, 600));
 
@@ -98,7 +101,7 @@ class ui_MainWindow
     void asyncSetup()
     {
         // context frame
-        SwitcherFrame = new Switcher(mw);
+        SwitcherFrame = new Switcher(centerWidget);
         SwitcherFrame->hide();
 
         switcherBackgroundEffect = std::make_unique<QGraphicsBlurEffect>();

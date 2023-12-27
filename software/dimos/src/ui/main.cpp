@@ -21,6 +21,9 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     MainWindow   w;
+#ifdef USING_dimos
+    w.setWindowState(Qt::WindowFullScreen);
+#endif
     w.show();
     w.dumpObjectTree();
 

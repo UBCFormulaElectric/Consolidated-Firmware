@@ -1,7 +1,9 @@
-#include <QtGlobal>
 #include <chrono>
+#include <QThread>
+#include <iostream>
 
 #include "can.h"
+
 extern "C"
 {
 #include <Io_CanRx.h>
@@ -9,9 +11,9 @@ extern "C"
 
 namespace can_handlers
 {
-[[noreturn]] void CanRXTask()
+void CanRXTask()
 {
-    forever
+    while(!QThread::currentThread()->isInterruptionRequested())
     {
         Result<CanMsg, CanReadError> res = Can_Read();
         if (res.index() == 1)
@@ -33,15 +35,17 @@ namespace can_handlers
         Io_CanRx_UpdateRxTableWithMessage(&message);
         // release lock
     }
+    std::cout << "exiting CanRXTask now" << std::endl;
 }
 
-[[noreturn]] void CanPeriodicTXTask()
+void CanPeriodicTXTask()
 {
     using namespace std::chrono;
-    forever
+    while(!QThread::currentThread()->isInterruptionRequested())
     {
         auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
     }
+    std::cout << "exiting CanPeriodicTXTask now" << std::endl;
 }
 } // namespace can_handlers
