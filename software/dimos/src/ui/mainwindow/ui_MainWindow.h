@@ -36,6 +36,8 @@ class ui_MainWindow
     }; // order does matter :)
   private:
     QWidget *       centerWidget{};
+    QVBoxLayout *   centerLayout{};
+    QWidget * limiter{};
     QStackedWidget *MainStack{};
 
     // pages
@@ -69,7 +71,7 @@ class ui_MainWindow
         MainWindow->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
         MainWindow->setMinimumSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         MainWindow->setStyleSheet("QMainWindow {"
-                                  "	background-color: #141414;"
+                                  "	background-color: black;"
                                   "}"
                                   "QLabel {"
                                   "	color:white;"
@@ -83,10 +85,22 @@ class ui_MainWindow
         centerWidget->setObjectName("centerWidget");
         MainWindow->setCentralWidget(centerWidget);
 
+        centerLayout = new QVBoxLayout(centerWidget);
+        centerLayout->setObjectName("centerLayout");
+        centerLayout->setAlignment(Qt::AlignCenter);
+
+        limiter = new QWidget(centerWidget);
+        // limiter->setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        limiter->setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        limiter->setStyleSheet("background-color: #141414;");
+        centerLayout->addWidget(limiter);
+        centerWidget->setLayout(centerLayout);
+
+
         // mainframe
-        MainStack = new QStackedWidget(centerWidget);
+        MainStack = new QStackedWidget(limiter);
         MainStack->setObjectName("MainStack");
-        MainStack->setGeometry(QRect(0, 0, 1024, 600));
+        MainStack->setGeometry(QRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 
         // populating mainframe
         landing_page = new LandingPage();
@@ -101,7 +115,7 @@ class ui_MainWindow
     void asyncSetup()
     {
         // context frame
-        SwitcherFrame = new Switcher(centerWidget);
+        SwitcherFrame = new Switcher(limiter);
         SwitcherFrame->hide();
 
         switcherBackgroundEffect = std::make_unique<QGraphicsBlurEffect>();
@@ -148,12 +162,12 @@ class ui_MainWindow
         if (isSwitcherOpen)
         {
             SwitcherFrame->hide();
-            switcherBackgroundEffect->setEnabled(false);
+            // switcherBackgroundEffect->setEnabled(false);
         }
         else
         {
             SwitcherFrame->show();
-            switcherBackgroundEffect->setEnabled(true);
+            // switcherBackgroundEffect->setEnabled(true);
         }
         isSwitcherOpen = !isSwitcherOpen;
     }
@@ -161,7 +175,7 @@ class ui_MainWindow
     void forceCloseSwitcher()
     {
         SwitcherFrame->hide();
-        switcherBackgroundEffect->setEnabled(false);
+        // switcherBackgroundEffect->setEnabled(false);
         isSwitcherOpen = false;
     }
 
