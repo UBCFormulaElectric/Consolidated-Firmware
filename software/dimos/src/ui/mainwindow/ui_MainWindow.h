@@ -68,7 +68,6 @@ class ui_MainWindow
         // MainWindow Setup
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
         MainWindow->setMinimumSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         MainWindow->setStyleSheet("QMainWindow {"
                                   "	background-color: black;"
@@ -89,10 +88,12 @@ class ui_MainWindow
         centerLayout->setObjectName("centerLayout");
         centerLayout->setAlignment(Qt::AlignCenter);
 
-        limiter = new QWidget(centerWidget);
-        // limiter->setGeometry(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        limiter = new QWidget();
         limiter->setFixedSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-        limiter->setStyleSheet("background-color: #141414;");
+        limiter->setObjectName("limiter");
+        limiter->setStyleSheet("QWidget#limiter {"
+                               "  background-color: #141414;"
+                               "}");
         centerLayout->addWidget(limiter);
         centerWidget->setLayout(centerLayout);
 
@@ -162,12 +163,12 @@ class ui_MainWindow
         if (isSwitcherOpen)
         {
             SwitcherFrame->hide();
-            // switcherBackgroundEffect->setEnabled(false);
+            switcherBackgroundEffect->setEnabled(false);
         }
         else
         {
             SwitcherFrame->show();
-            // switcherBackgroundEffect->setEnabled(true);
+            switcherBackgroundEffect->setEnabled(true);
         }
         isSwitcherOpen = !isSwitcherOpen;
     }
@@ -175,7 +176,7 @@ class ui_MainWindow
     void forceCloseSwitcher()
     {
         SwitcherFrame->hide();
-        // switcherBackgroundEffect->setEnabled(false);
+        switcherBackgroundEffect->setEnabled(false);
         isSwitcherOpen = false;
     }
 
