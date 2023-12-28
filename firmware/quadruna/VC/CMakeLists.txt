@@ -6,8 +6,6 @@ file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
 list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedSetPeriodicCanSignals.c")
 list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedSignal.c")
-list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedHeartbeatMonitor.c")
-list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedStateMachine.c")
 list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedWaitSignal.c")
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -96,7 +94,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
     target_link_libraries("VC_can" "VC_stm32cube")
-    target_link_libraries("VC.elf" "VC_stm32cube" "VC_can")
+    target_link_libraries("VC.elf" "VC_stm32cube" "VC_can" "VC_commit_info")
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
@@ -108,6 +106,14 @@ elseif("${TARGET}" STREQUAL "test")
     add_library(VC_can STATIC "${CAN_SRCS}")
     target_include_directories(VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+    )
+    create_fake_library(
+        "VC_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
@@ -115,5 +121,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("VC_test" "VC_can" "VC_commit_info")
+    target_link_libraries("VC_test" "VC_can" "VC_commit_info" "VC_fakes" "shared_fakes")
 endif()
