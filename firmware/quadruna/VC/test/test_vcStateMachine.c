@@ -43,12 +43,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     {
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-
-        // Reset fakes.
-        fake_io_efuse_setChannel_reset();
-        fake_io_efuse_isChannelEnabled_reset();
-        fake_io_efuse_getChannelCurrent_reset();
-        fake_io_efuse_standbyReset_reset();
     }
 
     struct StateMachine *    state_machine;

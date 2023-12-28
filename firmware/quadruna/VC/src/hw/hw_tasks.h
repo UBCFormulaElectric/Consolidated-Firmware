@@ -1,4 +1,3 @@
-#include "hw_adc.h"
 #include "io_can.h"
 #include "hw_can.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -20,15 +19,9 @@ typedef struct
 } HwTasksConfig;
 
 void hw_tasks_preinit();
-
 void hw_tasks_init(HwTasksConfig *hw_tasks_config);
-
 void hw_tasks_100hz(void *argument);
-
 void hw_tasks_cantx(void *argument);
-
 void hw_tasks_canrx(void *argument);
-
 void hw_tasks_1khz(void *argument);
-
 void hw_tasks_1hz(void *argument);

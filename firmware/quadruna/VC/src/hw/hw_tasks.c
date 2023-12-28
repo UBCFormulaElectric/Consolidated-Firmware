@@ -22,8 +22,10 @@ void hw_tasks_init(HwTasksConfig *hw_tasks_config)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    HAL_ADC_Start_DMA(
-        hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hw_tasks_config->hadc1->Init.NbrOfConversion);
+    // efuses:
+    // HAL_ADC_Start_DMA(
+    //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
+    //     hw_tasks_config->hadc1->Init.NbrOfConversion);
 
     Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
