@@ -3,7 +3,6 @@
 #include "io_handlers/gpio_handlers.h"
 
 #include <iostream>
-// libraries
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {
@@ -71,7 +70,7 @@ Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadca
 
     tx1Hz.setInterval(can_handlers::TASK_INTERVAL_1HZ);
     tx1Hz.setSingleShot(false);
-    connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx100Hz);
+    connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx1Hz);
     tx1Hz.start();
 
     CanRxTaskThread         = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));
