@@ -4,10 +4,6 @@
 
 #include <iostream>
 // libraries
-extern "C"
-{
-#include <Io_CanTx.h>
-}
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {
@@ -70,12 +66,12 @@ Result<std::monostate, MainWindow::CAN_setup_errors> MainWindow::setupCanBroadca
     // CANTX TASK
     tx100Hz.setInterval(can_handlers::TASK_INTERVAL_100HZ);
     tx100Hz.setSingleShot(false);
-    connect(&tx100Hz, &QTimer::timeout, Io_CanTx_Enqueue100HzMsgs);
+    connect(&tx100Hz, &QTimer::timeout, can_handlers::CanTx100Hz);
     tx100Hz.start();
 
     tx1Hz.setInterval(can_handlers::TASK_INTERVAL_1HZ);
     tx1Hz.setSingleShot(false);
-    connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
+    connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx100Hz);
     tx1Hz.start();
 
     CanRxTaskThread         = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));

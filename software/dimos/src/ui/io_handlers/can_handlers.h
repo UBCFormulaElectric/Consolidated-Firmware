@@ -2,8 +2,10 @@
 
 namespace can_handlers
 {
-[[noreturn]] void CanRXTask();
-[[noreturn]] void CanPeriodicTXTask();
+void CanRXTask();
+void CanPeriodicTXTask();
+void CanTx100Hz();
+void CanTx1Hz();
 
 #ifdef USING_dimos_dev
 constexpr uint16_t TASK_INTERVAL_100HZ = 1000;

@@ -10,7 +10,7 @@ extern "C"
 #include "Io_CanTx.h"
 }
 
-constexpr bool GIT_COMMIT_HASH  = true;
+constexpr uint32_t GIT_COMMIT_HASH  = 0x00000000;
 constexpr bool GIT_COMMIT_CLEAN = false;
 
 void init_can();
