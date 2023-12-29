@@ -13,6 +13,9 @@
 #include "App_CommitInfo.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
+uint8_t *FaultAndWarningCodeArray;
+uint8_t  pointP = 1;
+uint8_t *p      = &pointP;
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -28,6 +31,8 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    FaultAndWarningCodeArray = (uint8_t *)calloc(1, sizeof(uint8_t));
+
     App_CanTx_DIM_Heartbeat_Set(true);
 
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
@@ -69,11 +74,13 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
+            App_CanAlerts_FaultCode(alert_board_ids[i], FaultAndWarningCodeArray, p);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
+            App_CanAlerts_WarningCode(alert_board_ids[i], FaultAndWarningCodeArray, p);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else

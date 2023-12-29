@@ -69,10 +69,10 @@ bool App_CanAlerts_AnyBoardHasFault(void);
 /**
  * Return whether or not a board has set a warning.
  */
-void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p);
+void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p);
 
 /**
  * Return whether or not a board has set a fault.
  */
-void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p);
+void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p);
 

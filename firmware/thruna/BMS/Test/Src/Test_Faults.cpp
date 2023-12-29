@@ -1,6 +1,10 @@
 #include "Test_Faults.h"
 #include "App_Accumulator.h"
 
+uint8_t *alertarray;
+uint8_t  pointP = 1;
+uint8_t *p      = &pointP;
+
 namespace FaultTest
 {
 FAKE_VALUE_FUNC(float, get_pwm_frequency);
@@ -281,6 +285,10 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
             LetTimePass(state_machine, 20);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_TRUE(App_CanAlerts_BMS_Fault_CellUndervoltage_Get());
+            uint8_t *alertArray;
+            alertArray         = (uint8_t *)calloc(1, sizeof(uint8_t));
+            alertArray[*p - 1] = (uint8_t)32;
+            ASSERT_EQ(alertArray[*p - 1], (uint8_t)32);
 
             LetTimePass(state_machine, 1000);
             ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));

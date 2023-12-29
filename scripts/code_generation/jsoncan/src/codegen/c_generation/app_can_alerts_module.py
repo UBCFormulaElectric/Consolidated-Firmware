@@ -116,7 +116,6 @@ class AppCanAlertsModule(CModule):
             args=[
                 CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
                 CVar("*alertArray", "uint8_t"),
-                CVar("elementNum", "uint8_t"),
                 CVar("*p","uint8_t")
             ],
             comment=f"Return whether or not a board has set a {comment}.",
@@ -143,7 +142,8 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray[*p] = " + alert + ";")
+                get_alert.body.add_line("alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));")
+                get_alert.body.add_line("alertArray[*p-1] = (uint8_t)" + alert + ";")
                 get_alert.body.add_line("*p++;")
 
                 get_alert.body.end_if()
@@ -158,7 +158,6 @@ class AppCanAlertsModule(CModule):
         get_alert.body.end_switch()
 
         get_alert.body.add_line()
-        get_alert.body.add_line("return false;")
         return get_alert
 
     def _any_alert_set_func(self, alert_type: CanAlertType, comment: str):
@@ -284,6 +283,7 @@ class AppCanAlertsModule(CModule):
         cw.add_line()
         cw.add_header_comment("Includes")
         cw.add_line()
+        cw.add_include('<stdlib.h>')
         cw.add_include('"App_CanAlerts.h"')
         cw.add_include('"App_CanTx.h"')
         cw.add_include('"App_CanRx.h"')
@@ -292,10 +292,6 @@ class AppCanAlertsModule(CModule):
         cw.add_line()
         cw.add_header_comment("Function Definitions")
         cw.add_line()
-        
-        cw.add_line("uint8_t *alertarray[62]= {0};")
-        cw.add_line("uint8_t pointP = 0;")
-        cw.add_line("uint8_t *p = &pointP;")
         cw.add_line()
 
         for func in self._functions:

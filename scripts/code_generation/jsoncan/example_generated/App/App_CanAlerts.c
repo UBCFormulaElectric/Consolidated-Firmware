@@ -6,15 +6,13 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
+#include <stdlib.h>
 #include "App_CanAlerts.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 
 /* ------------------------- Function Definitions ------------------------- */
 
-uint8_t *alertarray[62]= {0};
-uint8_t pointP = 0;
-uint8_t *p = &pointP;
 
 void App_CanAlerts_JCT_Warning_Warning_Test_Set(bool set_alert)
 {
@@ -118,7 +116,7 @@ bool App_CanAlerts_AnyBoardHasFault()
     return false;
 }
 
-void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
 {
     switch (board)
     {
@@ -126,13 +124,15 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test1;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test1;
                 *p++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test2;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test2;
                 *p++;
             }
             
@@ -142,7 +142,8 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray[*p] = JCT_Warning_Warning_Test;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)JCT_Warning_Warning_Test;
                 *p++;
             }
             
@@ -158,7 +159,7 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
     return false;
 }
 
-void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
 {
     switch (board)
     {
@@ -166,7 +167,8 @@ void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t e
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray[*p] = FSM_Fault_Fault_Test3;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Fault_Fault_Test3;
                 *p++;
             }
             
