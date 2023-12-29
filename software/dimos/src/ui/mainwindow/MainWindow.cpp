@@ -47,9 +47,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     std::cout << "Closing MainWindow" << std::endl;
-    if (CanRxTaskThread) CanRxTaskThread->requestInterruption();
+    if (CanRxTaskThread)
+        CanRxTaskThread->requestInterruption();
     std::cout << "canrx task requested end" << std::endl;
-    if (CanTxPeriodicTaskThread) CanTxPeriodicTaskThread->requestInterruption();
+    if (CanTxPeriodicTaskThread)
+        CanTxPeriodicTaskThread->requestInterruption();
     std::cout << "canperiodictx task requested end" << std::endl;
 
     for (int i = 0; i < GPIO_COUNT; i++)

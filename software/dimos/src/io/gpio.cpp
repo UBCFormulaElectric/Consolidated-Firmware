@@ -30,7 +30,7 @@ enum gpiod_line_init_error
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
 {
     const auto [gpio_name, gpio_enum_name] = GPIO_inputs_info.at(i);
-    const std::string err_prefix = "[" + gpio_name + " on " + gpio_enum_name + "]:";
+    const std::string err_prefix           = "[" + gpio_name + " on " + gpio_enum_name + "]:";
     try
     {
         const auto [chip_loc, line_num] = GPIO_inputs_hw_info.at(i);

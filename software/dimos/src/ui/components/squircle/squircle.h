@@ -2,8 +2,7 @@
 
 #include <QWidget>
 
-class Squircle
+namespace Squircle
 {
-  public:
-    static void paint(QPainter *p, QRect bounds, int radius, double smoothness);
+void paint(QPainter *p, QRect bounds, int radius, double smoothness);
 };

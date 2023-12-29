@@ -41,7 +41,7 @@ namespace gpio_handlers
 {
 void gpio_monitor(const gpio_input i)
 {
-    while(!QThread::currentThread()->isInterruptionRequested())
+    while (!QThread::currentThread()->isInterruptionRequested())
     {
         const auto l_event = wait_for_line_event(i);
         if (l_event.index() == 1)

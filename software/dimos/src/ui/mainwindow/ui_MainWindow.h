@@ -37,7 +37,7 @@ class ui_MainWindow
   private:
     QWidget *       centerWidget{};
     QVBoxLayout *   centerLayout{};
-    QWidget * limiter{};
+    QWidget *       limiter{};
     QStackedWidget *MainStack{};
 
     // pages
@@ -98,7 +98,6 @@ class ui_MainWindow
                                "}");
         centerLayout->addWidget(limiter);
         centerWidget->setLayout(centerLayout);
-
 
         // mainframe
         MainStack = new QStackedWidget(limiter);

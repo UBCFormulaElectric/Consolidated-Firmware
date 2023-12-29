@@ -37,7 +37,7 @@ class NotifFrame final : public QFrame
         // p.setPen(pen);
         p.setRenderHint(QPainter::Antialiasing);
         p.setPen(QPen(QColorConstants::Red, 3));
-        Squircle::paint(&p, this->rect(), 50, 0.6);
+        Squircle::paint(&p, this->rect(), 100, 0.6);
         QFrame::paintEvent(event);
     }
 };

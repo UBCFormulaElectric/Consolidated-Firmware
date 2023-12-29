@@ -1,6 +1,7 @@
 #include "squircle.h"
 #include <QPainter>
 #include <QPainterPath>
+#include <iostream>
 
 // naive/very slow implementation
 // void Squircle::paint() const {
@@ -37,61 +38,81 @@
 /**
  * \brief Draws a squircle with the given painter.
  * \note  If given a radius that is too large, it will be clamped to the maximum
- * possible radius. \param p painter \param bounds the bounds of the square
+ * possible radius.
+ * \param p painter
+ * \param bounds the bounds of the square
  * \param radius the corner radius
  * \param smoothness how much smoothness to apply to the corners
  */
 void Squircle::paint(QPainter *p, QRect bounds, int radius, double smoothness)
 {
     // clamp radius
-    radius = std::clamp(radius, 0, std::min(bounds.width(), bounds.height()) / 2);
-    if (smoothness == 0)
+    radius     = std::clamp(radius, 0, std::min(bounds.width(), bounds.height()) / 2);
+    smoothness = std::clamp(smoothness, 0.0, 1.0);
+    if (radius == 0 || smoothness == 0)
         return p->drawRoundedRect(bounds, radius, radius);
 
+    const double corner_dim = radius * (1 + smoothness);
     QPainterPath path;
-    path.moveTo(radius * (1 + smoothness), 0);
+    path.moveTo(corner_dim, 0); // top left hand corner
 
-    const int w = bounds.width(), h = bounds.height(), straightWidthLength = w - 2 * (radius * (1 + smoothness)),
-              straightHeightLength = h - 2 * (radius * (1 + smoothness));
-
+    const int w = bounds.width(), h = bounds.height();
+    const double straightWidthLength = w - 2 * corner_dim, straightHeightLength = h - 2 * corner_dim;
     const double s = sin(M_PI_4 * smoothness), c = cos(M_PI_4 * smoothness);
-    const double p4_long = radius * s, p4_short = radius * (1 - c), p3_grad_x = radius * M_PI_4 * c,
-                 p3_grad_y = radius * M_PI_4 * s;
+    const double f_1 = radius * (1 - s), f_2 = radius * (1 - c), // f1 is the long side, f2 is the short side
+                 f_prime_1 = radius * M_PI_4 * -c, f_prime_2 = radius * M_PI_4 * s;
+    const double three_shift = -f_2 * f_prime_1/f_prime_2;
 
-    constexpr struct
-    {
-        bool isHorizontal;
-    } edgeInfo[4] = { { true }, { false }, { true }, { false } };
-    for (const auto &einfo : edgeInfo)
+    // the list describes (in order) the approach to tr, br, bl, tl
+    p->setPen(QPen(QColorConstants::Green, 1));
+    p->drawRoundedRect(bounds, radius, radius); // TODO remove after DEBUG
+    for (const struct {
+             bool isHorizontal;
+             int  baseX, baseY;
+         } edgeInfo[4] = {
+            { true, w, 0 }, { false, w, h },
+            { true, 0, h }, { false, 0, 0 }
+         };
+         const auto [isH, baseX, baseY] : edgeInfo)
     {
         const QPointF pos = path.currentPosition();
-        path.moveTo(
-            pos.x() + straightWidthLength * (einfo.isHorizontal),
-            pos.y() + straightHeightLength * (!einfo.isHorizontal));
+        path.lineTo(pos.x() + straightWidthLength * isH, pos.y() + straightHeightLength * !isH);
 
-        const QPointF p4_1(w - radius + p4_long, p4_short), p4_2(w - p4_short, radius - p4_long);
+        const QPointF p1_1 = path.currentPosition(), p4_1(baseX - f_1, f_2),
+                      p3_1(p4_1.x() - three_shift, baseY),
+                      p2_1((p1_1.x() + 2 * p3_1.x())/3, 0);
 
-        const QPointF p3_1(p4_1.x() - (p4_1.y() / p3_grad_y) * p3_grad_x, 0);
-        const double  b = 1.5 * pow(pow(p4_1.x() - p3_1.x(), 2) + pow(p4_1.y(), 2), 1.5) / (p4_1.y() * radius);
-        const QPointF p2_1(p3_1.x() - b, 0);
+        const QPointF p1_2(baseX, corner_dim), p4_2(baseX - f_2, f_1),
+        p3_2(baseX, p4_2.y() + three_shift), p2_2(baseX, (p1_2.y() + 2 * p3_2.y())/3);
 
-        p->setPen(QPen(QColorConstants::Red, 3));
-        p->drawPoint(path.currentPosition());
-        p->drawPoint(p4_1);
-        p->setPen(QPen(QColorConstants::Blue, 3));
-        p->drawPoint(p3_1);
-        p->drawPoint(p2_1);
-        // path.cubicTo(p2_1, p3_1, p4_1);
+        path.cubicTo(p2_1, p3_1, p4_1);
+        const int arcCenterX = baseX - 2 * radius, arcCenterY = baseY;
+        const double arcAngle = atan((baseY + radius - p4_1.y())/(p4_1.x() - (baseX - radius))) * 180 / M_PI;
+        path.arcTo(arcCenterX, arcCenterY, radius * 2, radius * 2, arcAngle, (arcAngle - 45) * -2); // todo make sure that we are at p4_2
+        path.cubicTo(p3_2, p2_2, p1_2);
 
-        // const QPointF p3_1_p(0, 0), p3_2_p(0, 0);
-        // path.cubicTo(p3_1_p, p3_2_p, p4_2);
-        //
-        // const QPointF p2_2(0, 0), p3_2(0, 0);
-        // path.cubicTo(p2_2, p3_2, QPointF(w, radius));
-
-        break; // TODO remove after testing first quadrant
+        // TODO REMOVE AFTER DEBUG
+        // p->setPen(QPen(QColorConstants::Red, 3));
+        // p->drawPoint(p1_1);
+        // p->setPen(QPen(QColorConstants::Magenta, 3));
+        // p->drawPoint(p4_1);
+        // p->setPen(QPen(QColorConstants::Cyan, 3));
+        // p->drawPoint(p3_1);
+        // p->setPen(QPen(QColorConstants::Green, 3));
+        // p->drawPoint(p2_1);
+        // p->setPen(QPen(QColorConstants::Red, 3));
+        // p->drawPoint(p1_2);
+        // p->setPen(QPen(QColorConstants::Magenta, 3));
+        // p->drawPoint(p4_2);
+        // p->setPen(QPen(QColorConstants::Cyan, 3));
+        // p->drawPoint(p3_2);
+        // p->setPen(QPen(QColorConstants::Green, 3));
+        // p->drawPoint(p2_2);
+        // TODO REMOVE AFTER DEBUG
+        break;
     }
 
-    path.closeSubpath();
+    // path.closeSubpath();
+    p->setPen(QPen(QColorConstants::White, 1));
     p->drawPath(path);
 }
