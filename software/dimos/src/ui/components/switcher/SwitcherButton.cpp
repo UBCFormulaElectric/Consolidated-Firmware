@@ -31,6 +31,6 @@ void SwitcherButton::paintEvent(QPaintEvent *event)
     p.setBrush(backgroundBrush);
     p.setPen(QColorConstants::Transparent);
     p.setRenderHint(QPainter::Antialiasing);
-    Squircle::paint(&p, this->rect(), 40, 0);
+    Squircle::paint(&p, this->rect(), 50, 0.6);
     QWidget::paintEvent(event);
 }

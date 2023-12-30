@@ -50,7 +50,7 @@ constexpr static double rad_deg_factor = 180/M_PI;
 void Squircle::paint(QPainter *p, QRect bounds, int radius, double smoothness) {
   // clamp radius
   radius = std::clamp(radius, 0, std::min(bounds.width(), bounds.height()) / 2);
-  smoothness = std::clamp(smoothness, 0.0, 1.0); // find a better clamp (depending on R)
+  smoothness = std::clamp(smoothness, 0.0, 1.0); // todo find a better clamp (depending on R)
   if (radius == 0 || smoothness == 0)
     return p->drawRoundedRect(bounds, radius, radius);
 
