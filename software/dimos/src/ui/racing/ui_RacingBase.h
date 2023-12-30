@@ -33,11 +33,10 @@ class NotifFrame final : public QFrame
     void paintEvent(QPaintEvent *event) override
     {
         QPainter p(this);
-        // p.setBrush(backgroundBrush);
-        // p.setPen(pen);
+        p.setBrush(backgroundBrush);
+        p.setPen(pen);
         p.setRenderHint(QPainter::Antialiasing);
-        p.setPen(QPen(QColorConstants::Red, 3));
-        Squircle::paint(&p, this->rect(), 100, 0.6);
+        Squircle::paint(&p, this->rect(), 15, 0.6);
         QFrame::paintEvent(event);
     }
 };

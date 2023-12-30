@@ -4,15 +4,15 @@
 
 #include <iostream>
 
+constexpr static bool using_io = false;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {
-    if (const Result<std::monostate, CAN_setup_errors> r_can = setupCanBroadcasting(); r_can.index() == 1)
-    {
-        can_setup_error = get<CAN_setup_errors>(r_can);
-    }
-    if (const Result<std::monostate, GPIO_setup_errors> r_gpio = setupGPIO(); r_gpio.index() == 1)
-    {
-        gpio_setup_error = get<GPIO_setup_errors>(r_gpio);
+    if(using_io) {
+        if (const Result<std::monostate, CAN_setup_errors> r_can = setupCanBroadcasting(); r_can.index() == 1)
+            can_setup_error = get<CAN_setup_errors>(r_can);
+        if (const Result<std::monostate, GPIO_setup_errors> r_gpio = setupGPIO(); r_gpio.index() == 1)
+            gpio_setup_error = get<GPIO_setup_errors>(r_gpio);
     }
     ui->setupUi(this);
 }
