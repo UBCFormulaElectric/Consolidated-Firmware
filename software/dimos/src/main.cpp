@@ -16,7 +16,7 @@ constexpr bool     GIT_COMMIT_CLEAN = false;
 void init_json_can()
 {
     // IO init
-    Io_CanTx_Init(reinterpret_cast<void (*)(const CanMsg *)>(Can_Write));
+    Io_CanTx_Init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     // clear tables
     App_CanTx_Init();

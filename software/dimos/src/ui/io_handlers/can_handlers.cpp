@@ -19,7 +19,7 @@ void CanRXTask()
 {
     while (!QThread::currentThread()->isInterruptionRequested())
     {
-        Result<CanMsg, CanReadError> res = Can_Read();
+        Result<JsonCanMsg, CanReadError> res = Can_Read();
         if (res.index() == 1)
         {
             switch (get<CanReadError>(res))
@@ -34,7 +34,7 @@ void CanRXTask()
         }
 
         // success
-        auto message = get<CanMsg>(res);
+        auto message = get<JsonCanMsg>(res);
         // check with
         // Io_CanRx_FilterMessageId
         // if we care about the message
