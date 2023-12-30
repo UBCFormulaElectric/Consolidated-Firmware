@@ -153,6 +153,47 @@ TEST_F(SevenSegDisplaysTest, set_overflow_to_each_group)
     ASSERT_EQ(false, app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, overflow_val));
 }
 
+TEST_F(SevenSegDisplaysTest, set_right_hexadecimal_group_negative_value)
+{
+    // Ensuring that the SetGroup function only touches the commanded group of displays (middle).
+    // Ensuring the given value can be negative value
+
+    ASSERT_EQ(true, app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, -111));
+
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_L, SEVEN_SEG_SUBPOSITION_L, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_L, SEVEN_SEG_SUBPOSITION_M, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_L, SEVEN_SEG_SUBPOSITION_R, HEX_DIGIT_1, true));
+
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_M, SEVEN_SEG_SUBPOSITION_L, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_M, SEVEN_SEG_SUBPOSITION_M, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        0, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_M, SEVEN_SEG_SUBPOSITION_R, HEX_DIGIT_1, true));
+
+    ASSERT_EQ(
+        1, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_R, SEVEN_SEG_SUBPOSITION_L, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        1, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_R, SEVEN_SEG_SUBPOSITION_M, HEX_DIGIT_1, false));
+    ASSERT_EQ(
+        1, fake_io_sevenSegDisplays_setValue_callCountForArgs(
+               SEVEN_SEG_GROUP_R, SEVEN_SEG_SUBPOSITION_R, HEX_DIGIT_1, true));
+
+    ASSERT_EQ(3, fake_io_sevenSegDisplays_setValue_callCount());
+    ASSERT_EQ(1, fake_io_sevenSegDisplays_writeCommands_callCount());
+}
+
 TEST_F(SevenSegDisplaysTest, set_all_zeros)
 {
     ASSERT_EQ(true, app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, 0));

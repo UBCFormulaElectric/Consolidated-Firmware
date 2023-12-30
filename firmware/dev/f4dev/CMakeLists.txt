@@ -1,7 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
-set(SHARED_DIR "${FIRMWARE_DIR}/shared")
-set(LINKER_SCRIPT "${THIRD_PARTY_DIR}/linker/STM32F412RGTX_FLASH.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -14,6 +13,7 @@ file(GLOB_RECURSE HW_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 
+list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_bootup.c")
 list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -66,7 +66,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS  ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "f4dev.elf"
+        "f4dev"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"

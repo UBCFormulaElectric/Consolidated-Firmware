@@ -39,7 +39,7 @@ Result<std::monostate, CanConnectionError> Can_Init()
     return std::monostate{};
 }
 
-Result<CanMsg, CanReadError> Can_Read()
+Result<JsonCanMsg, CanReadError> Can_Read()
 {
     if (!CanInterface.has_value())
         return ReadInterfaceNotCreated;
@@ -52,13 +52,12 @@ Result<CanMsg, CanReadError> Can_Read()
     if (readLengthBytes < sizeof(can_frame))
         return IncompleteCanFrame;
     //	return frame;
-    return CanMsg{};
+    return JsonCanMsg{};
 }
 
-Result<std::monostate, CanWriteError> Can_Write(const CanMsg *msg)
-{
-    if (!CanInterface.has_value())
-        return WriteInterfaceNotCreated;
+Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg) {
+	if (!CanInterface.has_value())
+		return WriteInterfaceNotCreated;
 
     try
     {

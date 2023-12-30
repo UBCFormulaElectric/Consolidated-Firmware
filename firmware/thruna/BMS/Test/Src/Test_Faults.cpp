@@ -42,6 +42,7 @@ FAKE_VALUE_FUNC(float, read_thermistor_temp);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
+FAKE_VOID_FUNC(get_specified_cell_temps, float *, float *);
 FAKE_VALUE_FUNC(bool, enable_balance);
 FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(bool, check_imd_latched_fault);
@@ -93,8 +94,8 @@ class BmsFaultTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
             start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
-            enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
-            thermistor_mux_select, read_thermistor_temp);
+            get_specified_cell_temps, enable_balance, disable_balance, check_imd_latched_fault,
+            check_bspd_latched_fault, check_bms_latched_fault, thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -106,13 +107,17 @@ class BmsFaultTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
+
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -164,6 +169,7 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -211,6 +217,7 @@ class BmsFaultTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
@@ -566,14 +573,14 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
         is_air_negative_closed_fake.return_val = true;
         is_charger_connected_fake.return_val   = false;
         App_CanRx_Debug_StartCharging_Update(false);
-        LetTimePass(state_machine, 10U);
+        LetTimePass(state_machine, 210U);
         ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
         ASSERT_FALSE(App_CanAlerts_BMS_Fault_PrechargeFailure_Get());
 
         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
         // trying to fool precahrge into thinking that ts_voltage is rising too quickly
         get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL;
-        LetTimePass(state_machine, 10U);
+        LetTimePass(state_machine, 210U);
 
         if (i < 3)
         {

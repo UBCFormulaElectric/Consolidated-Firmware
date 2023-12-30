@@ -6,6 +6,7 @@
         "DIM_Vitals",
         "Debug_Charging",
         "Debug_CanMode",
-        "Debug_CellBalancing"
+        "Debug_CellBalancing",
+        "Debug_ResetSoc"
     ]
 }

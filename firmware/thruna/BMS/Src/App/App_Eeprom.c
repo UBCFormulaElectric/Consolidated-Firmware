@@ -1,10 +1,13 @@
 #include "App_Eeprom.h"
 #include "string.h"
 
-#define NUM_PAGES (128U)
+#define NUM_PAGES (16U) // TODO: Investigate why addresses above 16 run into corruption issues (should be 128 pages)
 #define SAVED_COPIES 4U
 #define BYTES_PER_FLOAT sizeof(float) / sizeof(uint8_t)
 #define BYTES_PER_SHORT sizeof(uint16_t) / sizeof(uint8_t)
+#define DEFAULT_OFFSET 0U
+#define ADDRESS_PAGE 0U
+#define MAX_SOC_ADDR (NUM_PAGES - 1U)
 
 static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 {
@@ -97,7 +100,7 @@ EEPROM_StatusTypeDef
     {
         data[i] = 0;
     }
-    uint8_t read_status;
+    EEPROM_StatusTypeDef read_status;
 
     read_status = eeprom->read_page(page, offset, data, (uint16_t)(num_floats * sizeof(float)));
 
@@ -114,33 +117,124 @@ EEPROM_StatusTypeDef App_Eeprom_PageErase(struct Eeprom *eeprom, uint16_t page)
     return eeprom->page_erase(page);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_Write4CopiesOfAddress(struct Eeprom *eeprom, uint16_t page, uint16_t address)
+EEPROM_StatusTypeDef App_Eeprom_UpdateSavedSocAddress(struct Eeprom *eeprom, uint16_t *address)
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
-    uint8_t  offset = 0;
+
+    // Increment address for wear levelling purposes
+    if (*address >= MAX_SOC_ADDR)
+    {
+        *address = DEFAULT_SOC_ADDR;
+    }
+    else
+    {
+        *address = *address + 1;
+    }
+
+    // convert address to bytes and write 4 copies to page 0
 
     for (uint8_t i = 0; i < SAVED_COPIES; i++)
     {
-        convert_short_to_bytes(&byte_array[i * sizeof(uint16_t)], address);
+        convert_short_to_bytes(&byte_array[i * sizeof(uint16_t)], *address);
     }
 
-    return eeprom->write_page(page, offset, byte_array, num_bytes);
+    return eeprom->write_page(ADDRESS_PAGE, DEFAULT_OFFSET, byte_array, num_bytes);
 }
 
-EEPROM_StatusTypeDef App_Eeprom_Read4CopiesOfAddresses(struct Eeprom *eeprom, uint16_t page, uint16_t *addresses)
+ExitCode App_Eeprom_ReadSocAddress(struct Eeprom *eeprom, uint16_t *address)
 {
-    uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
-    uint8_t  byte_array[num_bytes];
-    uint8_t  offset = 0;
-    uint8_t  read_status;
+    ExitCode retval = EXIT_CODE_OK;
 
-    read_status = eeprom->read_page(page, offset, byte_array, num_bytes);
-
-    for (uint8_t i = 0; i < SAVED_COPIES; i++)
+    if (*address >= NUM_PAGES)
     {
-        addresses[i] = convert_bytes_to_short(&byte_array[i * sizeof(uint16_t)]);
+        return EXIT_CODE_ERROR;
     }
 
-    return read_status;
+    uint16_t             num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
+    uint8_t              byte_array[num_bytes];
+    uint16_t             address_copies[SAVED_COPIES];
+    EEPROM_StatusTypeDef read_status;
+
+    // Read saved address
+    read_status = eeprom->read_page(ADDRESS_PAGE, DEFAULT_OFFSET, byte_array, num_bytes);
+
+    // Convert read bytes to shorts
+    for (uint8_t i = 0; i < SAVED_COPIES; i++)
+    {
+        address_copies[i] = convert_bytes_to_short(&byte_array[i * sizeof(uint16_t)]);
+    }
+
+    // Determine if read was successful and if address is uncorrupted
+    if (read_status != EEPROM_OK)
+    {
+        *address = 1;
+        retval   = EXIT_CODE_ERROR;
+    }
+    else if (
+        address_copies[0] == address_copies[1] || address_copies[0] == address_copies[2] ||
+        address_copies[0] == address_copies[3])
+    {
+        *address = address_copies[0];
+        retval   = EXIT_CODE_OK;
+    }
+    else if (address_copies[1] == address_copies[2] || address_copies[1] == address_copies[3])
+    {
+        *address = address_copies[1];
+        retval   = EXIT_CODE_OK;
+    }
+    else if (address_copies[2] == address_copies[3])
+    {
+        *address = address_copies[2];
+        retval   = EXIT_CODE_OK;
+    }
+    else
+    {
+        *address = 1;
+        retval   = EXIT_CODE_ERROR;
+    }
+
+    return retval;
+}
+
+EEPROM_StatusTypeDef App_Eeprom_WriteMinSoc(struct Eeprom *eeprom, float min_soc, uint16_t address)
+{
+    float float_arr[SAVED_COPIES];
+
+    for (uint8_t i = 0U; i < SAVED_COPIES; i++)
+    {
+        float_arr[i] = min_soc;
+    }
+
+    return App_Eeprom_WriteFloats(eeprom, address, DEFAULT_OFFSET, float_arr, SAVED_COPIES);
+}
+
+ExitCode App_Eeprom_ReadMinSoc(struct Eeprom *eeprom, uint16_t address, float *min_soc)
+{
+    float                soc_copies[SAVED_COPIES];
+    EEPROM_StatusTypeDef read_status = App_Eeprom_ReadFloats(eeprom, address, DEFAULT_OFFSET, soc_copies, SAVED_COPIES);
+
+    if (read_status != EEPROM_OK)
+    {
+        *min_soc = -1;
+    }
+    else if (soc_copies[0] == soc_copies[1] || soc_copies[0] == soc_copies[2] || soc_copies[0] == soc_copies[3])
+    {
+        *min_soc = soc_copies[0];
+    }
+    else if (soc_copies[1] == soc_copies[2] || soc_copies[1] == soc_copies[3])
+    {
+        *min_soc = soc_copies[1];
+    }
+    else if (soc_copies[2] == soc_copies[3])
+    {
+        *min_soc = soc_copies[2];
+    }
+    else
+    {
+        *min_soc = -1;
+        return EXIT_CODE_ERROR;
+    }
+
+    return EXIT_CODE_OK;
 }

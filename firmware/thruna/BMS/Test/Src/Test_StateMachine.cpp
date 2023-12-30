@@ -49,6 +49,7 @@ FAKE_VALUE_FUNC(float, read_thermistor_temp);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
+FAKE_VOID_FUNC(get_specified_cell_temps, float *, float *);
 FAKE_VALUE_FUNC(bool, enable_balance);
 FAKE_VALUE_FUNC(bool, disable_balance);
 FAKE_VALUE_FUNC(bool, check_imd_latched_fault);
@@ -101,8 +102,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
             start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
-            enable_balance, disable_balance, check_imd_latched_fault, check_bspd_latched_fault, check_bms_latched_fault,
-            thermistor_mux_select, read_thermistor_temp);
+            get_specified_cell_temps, enable_balance, disable_balance, check_imd_latched_fault,
+            check_bspd_latched_fault, check_bms_latched_fault, thermistor_mux_select, read_thermistor_temp);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -114,13 +115,18 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         eeprom = App_Eeprom_Create(write_page, read_page, page_erase);
 
+        soc_stats = App_SocStats_Create(eeprom, accumulator);
+
         world = App_BmsWorld_Create(
-            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, soc_stats, airs,
             precharge_relay, ts, clock, eeprom);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
         App_AllStates_Init();
+        App_InverterOnState_Init();
+
+        App_Soc_ResetSocCustomValue(soc_stats, 100.0f);
 
         RESET_FAKE(get_pwm_frequency);
         RESET_FAKE(get_pwm_duty_cycle);
@@ -192,6 +198,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(soc_stats, App_SocStats_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
@@ -248,6 +255,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
         struct Clock *   clock = App_BmsWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
     void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
@@ -269,6 +277,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct SocStats *         soc_stats;
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
@@ -300,6 +309,26 @@ TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
     EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMS_State_Get());
+}
+
+TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetInverterOnState());
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_State_Get());
+}
+
+TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
+{
+    is_charger_connected_fake.return_val   = false;
+    get_ts_voltage_fake.return_val         = 2.0f;
+    is_air_negative_closed_fake.return_val = true;
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, 200);
+    EXPECT_EQ(BMS_INVERTER_ON_STATE, App_CanTx_BMS_State_Get()) << "Expected state: BMS_INVERTER_STATE";
+
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(BMS_PRECHARGE_STATE, App_CanTx_BMS_State_Get()) << "Expected state: BMS_PRECHARGE_STATE";
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -637,7 +666,7 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
 
     App_CanRx_Debug_StartCharging_Update(true);
 
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 210U);
 
     ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -657,11 +686,11 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     App_CanRx_Debug_StartCharging_Update(true);
 
     // Allow BMS time to go through Init state
-    LetTimePass(state_machine, 20);
+    LetTimePass(state_machine, 210U);
     get_ts_voltage_fake.return_val = 400;
 
     // Pause for slightly longer to allow pre-charge
-    LetTimePass(state_machine, 50);
+    LetTimePass(state_machine, 210U);
 
     printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
     ASSERT_EQ(App_GetChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -874,19 +903,19 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(state_machine, 10);
+            LetTimePass(state_machine, 210U);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
             // Let precharge duration elapse, confirm still in precharge state and AIR+ open
-            LetTimePass(state_machine, test_params[i].precharge_duration - 10);
+            LetTimePass(state_machine, test_params[i].precharge_duration);
             ASSERT_EQ(App_GetPreChargeState(), App_SharedStateMachine_GetCurrentState(state_machine));
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             get_ts_voltage_fake.return_val = 3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
-            LetTimePass(state_machine, 10);
 
+            LetTimePass(state_machine, 10);
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive
@@ -919,6 +948,87 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             ASSERT_EQ(close_air_positive_fake.call_count, 0);
         }
     }
+}
+
+TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
+{
+    is_air_negative_closed_fake.return_val = true;
+    is_air_positive_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = 0.0f;
+    get_high_res_current_fake.return_val   = 0.0f;
+    soc_stats->prev_current_A              = 0.0f;
+
+    float soc = App_SocStats_GetMinSocPercent(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 100.0f);
+
+    // Allow Timer time to initialize before drawing current
+    SetInitialState(App_GetDriveState());
+    LetTimePass(state_machine, 10);
+
+    /* Simulate drawing current.
+     * Constant current over 30s span for 1% drop in SOC (0.01)
+     * 0.01 = I * dt / (SERIES_ELEMENT_FULL_CHARGE_C)
+     *
+     * dt = 30s
+     *
+     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells * STATE_OF_HEALTH
+     *
+     * current (I) = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30
+     */
+
+    float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
+
+    is_air_negative_closed_fake.return_val = true;
+    is_air_positive_closed_fake.return_val = true;
+    get_low_res_current_fake.return_val    = current;
+    get_high_res_current_fake.return_val   = current;
+    soc_stats->prev_current_A              = current;
+
+    LetTimePass(state_machine, 30000);
+
+    soc = App_SocStats_GetMinSocPercent(soc_stats);
+    ASSERT_FLOAT_EQ(soc, 99.0f);
+}
+
+TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
+{
+    // Check that soc saturates at 5.0% lower bound
+    float test_voltage = 0.0f;
+    float soc          = App_Soc_GetSocFromOcv(test_voltage);
+    float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+
+    // Check middle of the range
+    test_voltage = 4.0f;
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
+    expected_soc = 81.5f;
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+
+    // Check that SOC saturates at 100.0%
+    test_voltage = 5.0f;
+    soc          = App_Soc_GetSocFromOcv(test_voltage);
+    expected_soc = 100.0;
+    ASSERT_FLOAT_EQ(soc, expected_soc);
+}
+
+TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
+{
+    float test_soc     = 0.0f;
+    float ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+
+    // Check middle of the range
+    test_soc     = 68.5f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+
+    // Check that voltage saturates at value associated with 100.0% soc
+    test_soc     = 101.0f;
+    ocv          = App_Soc_GetOcvFromSoc(test_soc);
+    expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
+    ASSERT_FLOAT_EQ(ocv, expected_ocv);
 }
 
 } // namespace StateMachineTest

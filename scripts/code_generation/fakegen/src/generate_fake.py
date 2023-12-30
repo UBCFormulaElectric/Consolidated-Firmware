@@ -57,7 +57,13 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
     # So join each type to get the C syntax equivalent.
     # Similarly, qualifiers are stored in the `type_quals` variable.
     qualifiers = "".join(type.type_quals[0])
-    types = "".join(type)
+    types = ""
+    for part in type:
+        if isinstance(part, list):
+            types += "*"
+        else:
+            types += part
+            
     return f"{qualifiers} {types}" if qualifiers != "" else types
 
 

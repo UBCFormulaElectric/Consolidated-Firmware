@@ -13,3 +13,6 @@
 [submodule "software/dimos/assets"]
 	path = software/dimos/assets
 	url = https://github.com/UBCFormulaElectric/dimos-assets.git
+[submodule "scripts/canup"]
+	path = scripts/canup
+	url = https://github.com/UBCFormulaElectric/canup.git

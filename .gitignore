@@ -11,7 +11,6 @@
 !/.env
 !**/.clang-format
 !inverter-eeprom-config/
-!/.vscode/settings.json
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -101,7 +100,6 @@ cmake-build-*
 *.l1p
 *.l2p
 *.iex
-*.md5
 
 # STM32CubeMX
 .mxproject
