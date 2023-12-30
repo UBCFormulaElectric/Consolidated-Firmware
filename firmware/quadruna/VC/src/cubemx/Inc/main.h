@@ -53,11 +53,14 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 
     /* USER CODE BEGIN Private defines */
 
