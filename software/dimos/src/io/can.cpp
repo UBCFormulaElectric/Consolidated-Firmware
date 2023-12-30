@@ -55,9 +55,10 @@ Result<JsonCanMsg, CanReadError> Can_Read()
     return JsonCanMsg{};
 }
 
-Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg) {
-	if (!CanInterface.has_value())
-		return WriteInterfaceNotCreated;
+Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
+{
+    if (!CanInterface.has_value())
+        return WriteInterfaceNotCreated;
 
     try
     {
