@@ -4,6 +4,7 @@
 
 class BrakingPage : public RacingBase
 {
+    Q_OBJECT
     std::unique_ptr<ui::BrakingPage> ui = std::make_unique<ui::BrakingPage>();
 
   public:
