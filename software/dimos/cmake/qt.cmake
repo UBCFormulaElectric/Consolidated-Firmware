@@ -23,6 +23,7 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
             Qt${QT_VERSION_MAJOR}::Gui
             Qt${QT_VERSION_MAJOR}::Qml
             Qt${QT_VERSION_MAJOR}::Svg
+            Qt${QT_VERSION_MAJOR}::Quick
             ${LIBRARIES})
 
     # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
