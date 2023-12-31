@@ -1,30 +1,19 @@
+function(REGISTER_QML_TARGETS EXECUTABLE_NAME)
+#    qt_add_qml_module(${EXECUTABLE_NAME}
+#        URI hello
+#        QML_FILES
+#            main.qml
+#        NO_RESOURCE_TARGET_PATH
+#    )
+endfunction()
+
 function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
     message("➕ Adding build target ${EXECUTABLE_NAME}")
-    if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-        qt_add_executable(${EXECUTABLE_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
-        # Define target properties for Android with Qt 6 as:
-        #    set_property(TARGET Dimos APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-        #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-        # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-    else ()
-        if (ANDROID)
-            add_library(Dimos SHARED ${PROJECT_SOURCES})
-            # Define properties for Android with Qt 5 after find_package() calls as:
-            #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-        else ()
-            add_executable(Dimos ${PROJECT_SOURCES})
-        endif ()
-    endif ()
 
-    target_link_libraries(${EXECUTABLE_NAME}
-            PRIVATE
-            Qt${QT_VERSION_MAJOR}::Widgets
-            Qt${QT_VERSION_MAJOR}::Core
-            Qt${QT_VERSION_MAJOR}::Gui
-            Qt${QT_VERSION_MAJOR}::Qml
-            Qt${QT_VERSION_MAJOR}::Svg
-            Qt${QT_VERSION_MAJOR}::Quick
-            ${LIBRARIES})
+    # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+    qt_add_executable(${EXECUTABLE_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
+
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE Qt6::Widgets Qt6::Core Qt6::Gui Qt6::Qml Qt6::Svg Qt6::Quick ${LIBRARIES})
 
     # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
     # If you are developing for iOS or macOS you should consider setting an
@@ -47,11 +36,10 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES LIBRARIES)
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
-    if (QT_VERSION_MAJOR EQUAL 6)
-        qt_finalize_executable(${EXECUTABLE_NAME})
-    endif ()
+    REGISTER_QML_TARGETS(${EXECUTABLE_NAME})
 
     target_include_directories(${EXECUTABLE_NAME} PRIVATE src/shared src/ui src/io assets)
-
     target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}")
+
+    qt_finalize_executable(${EXECUTABLE_NAME})
 endfunction()

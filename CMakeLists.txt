@@ -89,11 +89,13 @@ message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 message("⚙️ Run Clang-Formatting for all boards")
 set(PYTHON_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
-
-execute_process(
-    COMMAND ${PYTHON_COMMAND}  ${PYTHON_SCRIPT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+option(FIX_FORMATTING "Run clang-format on all boards" ON)
+IF (FIX_FORMATTING)
+    execute_process(
+            COMMAND ${PYTHON_COMMAND} ${PYTHON_SCRIPT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+ENDIF ()
 
 message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
 IF ("${PLATFORM}" STREQUAL "firmware")

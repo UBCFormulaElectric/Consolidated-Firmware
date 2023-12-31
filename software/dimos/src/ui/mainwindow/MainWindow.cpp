@@ -4,7 +4,11 @@
 
 #include <iostream>
 
+#ifdef USING_dimos
+constexpr static bool using_io = true;
+#else
 constexpr static bool using_io = false;
+#endif
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new ui::MainWindow)
 {

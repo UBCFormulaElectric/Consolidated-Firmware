@@ -24,14 +24,15 @@ void init_json_can()
     // TODO commit hash
     App_CanTx_dimos_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_dimos_Clean_Set(GIT_COMMIT_CLEAN);
+    qInfo() << "[init_json_can()] JsonCAN Initialized";
 }
 
 int main(int argc, char *argv[])
 {
+    QApplication a(argc, argv);
     init_json_can();
 
-    QApplication a(argc, argv);
-    MainWindow   w;
+    MainWindow w;
 #ifdef USING_dimos
     w.setWindowState(Qt::WindowFullScreen);
 #endif
