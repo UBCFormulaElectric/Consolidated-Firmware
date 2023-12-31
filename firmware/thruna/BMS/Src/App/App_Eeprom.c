@@ -129,7 +129,7 @@ EEPROM_StatusTypeDef App_Eeprom_UpdateSavedSocAddress(struct Eeprom *eeprom, uin
     }
     else
     {
-        *address = *address + 1;
+        (*address)++;
     }
 
     // convert address to bytes and write 4 copies to page 0
