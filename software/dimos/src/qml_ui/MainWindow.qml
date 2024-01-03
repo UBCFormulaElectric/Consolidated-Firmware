@@ -9,16 +9,38 @@ Window {
     width: Constants.SCREEN_WIDTH
     height: Constants.SCREEN_HEIGHT
     visible: true
-    title: qsTr("Hello World")
+    title: "Hello World"
+
+    // todo come up with a more professional solution
+    Rectangle {
+        id: mainStack
+        anchors.fill: parent
+        property int currentIndex: 0
+        color: "#141414"
+        Landing {
+            visible: mainStack.currentIndex === 0
+        }
+        RacingBase {
+            visible: mainStack.currentIndex === 1
+            Acceleration {}
+        }
+        RacingBase {
+            visible: mainStack.currentIndex === 2
+            Autocross {}
+        }
+        RacingBase {
+            visible: mainStack.currentIndex === 3
+            Braking {}
+        }
+        RacingBase {
+            visible: mainStack.currentIndex === 4
+            Endurance {}
+        }
+        RacingBase {
+            visible: mainStack.currentIndex === 5
+            Skidpad {}
+        }
+    }
 
     Switcher {}
-
-    StackLayout {
-        id: mainStack
-        // anchors.fill: parent
-        height: 100
-        width: 100
-        currentIndex: 0
-        Landing {}
-    }
 }

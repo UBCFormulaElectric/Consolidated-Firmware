@@ -1,7 +1,9 @@
 import QtQuick
 
-Rectangle {
-    color: 'teal'
-    implicitWidth: 200
-    implicitHeight: 200
+Item {
+    anchors.fill: parent
+    Image {
+        anchors.centerIn: parent
+        source: "qrc:/fe_logo.svg"
+    }
 }
