@@ -90,7 +90,7 @@ void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
 
 bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, uint16_t FaultCode)
 {
-    if (FaultCode > 600)
+    if (FaultCode > 600 || FaultCode < 0)
     {
         return false;
     }
