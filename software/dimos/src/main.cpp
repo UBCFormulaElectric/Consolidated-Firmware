@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     init_json_can();
 
     QQmlApplicationEngine engine;
+    // engine.addImportPath(":/");
     engine.loadFromModule("MainWindow", "MainWindow");
 
     QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QGuiApplication::quit);

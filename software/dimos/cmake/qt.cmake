@@ -28,15 +28,14 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES PROJECT_INC_DIRS LIBR
 #    )
 
     qt_add_qml_module(${EXECUTABLE_NAME}
-            URI "MainWindow"
-            VERSION 1.0
-            NO_PLUGIN
-            QML_FILES src/qml_ui/MainWindow.qml
-            NO_RESOURCE_TARGET_PATH
+        URI "MainWindow"
+        VERSION 1.0
+        QML_FILES src/qml_ui/MainWindow.qml
+        NO_RESOURCE_TARGET_PATH
     )
 
     add_subdirectory(src/qml_ui)
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin)
 
     target_include_directories(${EXECUTABLE_NAME} PRIVATE ${PROJECT_INC_DIRS})
     target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos

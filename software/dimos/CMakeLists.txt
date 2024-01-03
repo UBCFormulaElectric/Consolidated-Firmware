@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.24)
 #set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always")
 
 message("💡 Building ${CMAKE_PROJECT_NAME}")
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core Gui Widgets Qml Svg Quick)
@@ -30,7 +31,7 @@ if(${LINUX})
 endif ()
 
 # define sources
-file(GLOB_RECURSE PROJECT_SOURCES
+file(GLOB_RECURSE UI_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/assets/resources.qrc")
 file(GLOB_RECURSE SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.cpp")
@@ -51,10 +52,10 @@ target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 # define targets
 set(INCLUDE_DIRS src/shared src/qml_ui src/io assets)
 if("${TARGET}" STREQUAL "deploy")
-    set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+    set(DEPLOY_SOURCES ${UI_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
     ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "${INCLUDE_DIRS}" "${REQUIRED_LIBRARIES}")
 elseif ("${TARGET}" STREQUAL "dev")
-    set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+    set(DEV_SOURCES ${UI_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
     ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "${INCLUDE_DIRS}" "${REQUIRED_LIBRARIES}")
 else()
     message(FATAL_ERROR "❌ Unknown target ${TARGET}")
