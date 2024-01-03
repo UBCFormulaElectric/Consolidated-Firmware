@@ -1,9 +1,9 @@
 include(cmake/qt.cmake)
 
 cmake_minimum_required(VERSION 3.24)
-set(CMAKE_AUTOUIC OFF)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+#set(CMAKE_AUTOUIC OFF)
+#set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -16,6 +16,8 @@ else()
     message("❌ Qt6 is required" FATAL_ERROR)
 endif()
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Qml Svg Quick)
+
+qt_standard_project_setup()
 
 if(${LINUX})
     find_library(GPIOD_LIBRARY NAMES libgpiod gpiod)
@@ -30,8 +32,6 @@ endif ()
 # define sources
 file(GLOB_RECURSE PROJECT_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/assets/resources.qrc")
 file(GLOB_RECURSE SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/*.cpp")
 
@@ -49,8 +49,13 @@ target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
 target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
 
 # define targets
-set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
-set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
-
-ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "${REQUIRED_LIBRARIES}")
-ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "${REQUIRED_LIBRARIES}")
+set(INCLUDE_DIRS src/shared src/qml_ui src/io assets)
+if("${TARGET}" STREQUAL "deploy")
+    set(DEPLOY_SOURCES ${PROJECT_SOURCES} ${DEPLOY_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+    ADD_QT_EXECUTABLE(dimos "${DEPLOY_SOURCES}" "${INCLUDE_DIRS}" "${REQUIRED_LIBRARIES}")
+elseif ("${TARGET}" STREQUAL "dev")
+    set(DEV_SOURCES ${PROJECT_SOURCES} ${DEV_IO_SOURCES} ${IO_INC} ${SHARED_FILES})
+    ADD_QT_EXECUTABLE(dimos_dev "${DEV_SOURCES}" "${INCLUDE_DIRS}" "${REQUIRED_LIBRARIES}")
+else()
+    message(FATAL_ERROR "❌ Unknown target ${TARGET}")
+endif()

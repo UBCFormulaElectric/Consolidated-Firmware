@@ -1,5 +1,3 @@
-// ui
-#include "mainwindow/MainWindow.h"
 // can
 #include "can.h"
 extern "C"
@@ -8,6 +6,18 @@ extern "C"
 #include "App_CanRx.h"
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
+}
+
+#include <QtGui>
+#include <QQmlApplicationEngine>
+
+void set_qt_environment()
+{
+    qputenv("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "1");
+    // qputenv("QT_QUICK_CONTROLS_CONF", ":/qtquickcontrols2.conf");
+#ifdef Q_OS_WIN
+    qputenv("QT_WIN_DEBUG_CONSOLE", "attach");
+#endif
 }
 
 constexpr uint32_t GIT_COMMIT_HASH  = 0x00000000;
@@ -24,20 +34,20 @@ void init_json_can()
     // TODO commit hash
     App_CanTx_dimos_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_dimos_Clean_Set(GIT_COMMIT_CLEAN);
-    qInfo() << "[init_json_can()] JsonCAN Initialized";
+    qInfo() << "[init_json_can] JsonCAN Initialized";
 }
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    set_qt_environment();
+    const QGuiApplication app(argc, argv);
     init_json_can();
 
-    MainWindow w;
-#ifdef USING_dimos
-    w.setWindowState(Qt::WindowFullScreen);
-#endif
-    w.show();
-    w.dumpObjectTree();
+    QQmlApplicationEngine engine;
+    engine.loadFromModule("MainWindow", "MainWindow");
 
-    return QApplication::exec();
+    QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QGuiApplication::quit);
+    if (engine.rootObjects().isEmpty())
+        return EXIT_FAILURE;
+    return QGuiApplication::exec();
 }
