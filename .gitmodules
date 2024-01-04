@@ -16,3 +16,6 @@
 [submodule "scripts/canup"]
 	path = scripts/canup
 	url = https://github.com/UBCFormulaElectric/canup.git
+[submodule "software/dimos/src/dimos-assets"]
+	path = software/dimos/src/dimos-assets
+	url = https://github.com/UBCFormulaElectric/dimos-assets.git

@@ -1,0 +1,59 @@
+# FROM THE PARENT SCOPE, WE INHERIT
+# - PROJECT_NAME
+include(find_libs.cmake)
+qt_standard_project_setup()
+
+# define sources
+set(UI_SOURCES main.cpp dimos-assets/resources.qrc)
+file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
+file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
+file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
+if("${TARGET}" STREQUAL "deploy")
+    set(EXECUTABLE_NAME dimos)
+    file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/*.cpp")
+elseif ("${TARGET}" STREQUAL "dev")
+    set(EXECUTABLE_NAME dimos_dev)
+    file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp")
+else()
+    message(FATAL_ERROR "❌ Unknown target ${TARGET}")
+endif()
+set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${IO_INC} ${SHARED_FILES} ${TASKS_FILES})
+
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+qt_add_executable(${EXECUTABLE_NAME} ${SOURCES})
+# link libraries
+target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io assets tasks)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
+# to tell which configuration it is from macros
+target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
+# QML
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
+qt_add_qml_module(${EXECUTABLE_NAME}
+    URI "MainWindow"
+    VERSION 1.0
+    QML_FILES qml_ui/MainWindow.qml
+    NO_RESOURCE_TARGET_PATH
+)
+# add qml modules
+add_subdirectory(qml_ui)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin)
+
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# If you are developing for iOS or macOS you should consider setting an
+# explicit, fixed bundle identifier manually though.
+#    if (${QT_VERSION} VERSION_LESS 6.1.0)
+#        set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${EXECUTABLE_NAME})
+#    endif ()
+#    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+#            ${BUNDLE_ID_OPTION}
+#            MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#            MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#            MACOSX_BUNDLE FALSE
+#            WIN32_EXECUTABLE TRUE
+#    )
+#    include(GNUInstallDirs)
+#    install(TARGETS ${EXECUTABLE_NAME}
+#            BUNDLE DESTINATION .
+#            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#    )

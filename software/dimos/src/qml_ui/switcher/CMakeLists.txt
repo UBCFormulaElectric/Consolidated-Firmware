@@ -1,8 +1,4 @@
 qt_add_library(Switcher STATIC)
-
-set_target_properties(Switcher PROPERTIES AUTOMOC ON)
-target_link_libraries(Switcher PUBLIC Qt6::Quick)
-
 qt_add_qml_module(Switcher
     URI switcher
     VERSION 1.0

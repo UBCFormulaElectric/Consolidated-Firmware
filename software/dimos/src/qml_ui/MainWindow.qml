@@ -6,15 +6,18 @@ import switcher
 import pages
 
 Window {
-    width: Constants.SCREEN_WIDTH
-    height: Constants.SCREEN_HEIGHT
+    minimumWidth: Constants.SCREEN_WIDTH
+    minimumHeight: Constants.SCREEN_HEIGHT
     visible: true
-    title: "Hello World"
+    title: Constants.WINDOW_TITLE
+    color: "transparent"
 
     // todo come up with a more professional solution
     Rectangle {
         id: mainStack
-        anchors.fill: parent
+        width: Constants.SCREEN_WIDTH
+        height: Constants.SCREEN_HEIGHT
+        anchors.centerIn: parent
         property int currentIndex: 0
         color: "#141414"
         Landing {
