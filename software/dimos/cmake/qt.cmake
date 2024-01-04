@@ -35,7 +35,7 @@ function(ADD_QT_EXECUTABLE EXECUTABLE_NAME PROJECT_SOURCES PROJECT_INC_DIRS LIBR
     )
 
     add_subdirectory(src/qml_ui)
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin)
 
     target_include_directories(${EXECUTABLE_NAME} PRIVATE ${PROJECT_INC_DIRS})
     target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
