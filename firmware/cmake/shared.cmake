@@ -22,19 +22,7 @@ function(commit_info_library
     SRC_OUTPUT_PATH
     ARM_CORE
 )
-    set(GENERATE_COMMIT_INFO_SCRIPT_PY
-        ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
-    add_custom_command(
-        OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
-        COMMAND ${PYTHON_COMMAND}
-        ${GENERATE_COMMIT_INFO_SCRIPT_PY}
-        --output-header
-        ${HEADER_OUTPUT_PATH}
-        --output-source
-        ${SRC_OUTPUT_PATH}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )
-
+    commit_info_register_library(${SRC_OUTPUT_PATH} ${HEADER_OUTPUT_PATH})
     if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"

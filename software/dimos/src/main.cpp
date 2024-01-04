@@ -6,6 +6,7 @@ extern "C"
 #include "App_CanRx.h"
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
+#include "App_CommitInfo.h"
 }
 
 #include <QtGui>
@@ -19,9 +20,6 @@ void set_qt_environment()
     qputenv("QT_WIN_DEBUG_CONSOLE", "attach");
 #endif
 }
-
-constexpr uint32_t GIT_COMMIT_HASH  = 0x00000000;
-constexpr bool     GIT_COMMIT_CLEAN = false;
 
 void init_json_can()
 {
