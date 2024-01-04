@@ -4,7 +4,7 @@ include(find_libs.cmake)
 qt_standard_project_setup()
 
 # define sources
-set(UI_SOURCES main.cpp dimos-assets/resources.qrc)
+set(UI_SOURCES main.cpp assets/resources.qrc)
 file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
 file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
 file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
