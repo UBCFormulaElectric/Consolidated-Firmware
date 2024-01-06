@@ -7,6 +7,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/App_RingQueue.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_Timer.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedWaitSignal.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedClock.c"
     "${SHARED_APP_INCLUDE_DIR}/App_InRangeCheck.c"
