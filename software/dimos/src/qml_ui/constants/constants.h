@@ -20,16 +20,9 @@ class Constants : public QObject
     SHARED_CONSTANT(constexpr, int, SCREEN_WIDTH, 1024);
     SHARED_CONSTANT(constexpr, int, SCREEN_HEIGHT, 600);
 
-    static QString getWindowTitle()
-    {
-        QString out;
 #ifdef USING_dimos
-        out = "Dimos";
+    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "Dimos");
+# elif USING_dimos_dev
+    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "[Development] Dimos");
 #endif
-#ifdef USING_dimos_dev
-        out = "[Development] Dimos";
-#endif
-        return out;
-    }
-    Q_PROPERTY(QString WINDOW_TITLE READ getWindowTitle CONSTANT)
 };
