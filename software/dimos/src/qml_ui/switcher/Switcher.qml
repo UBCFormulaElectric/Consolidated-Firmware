@@ -11,6 +11,7 @@ Item {
     anchors.fill: parent
     readonly property int appIconSize: 225
 
+    // todo improved model
     ListModel {
         id: appModel
         ListElement {
@@ -68,6 +69,7 @@ Item {
         blur: 0.8
     }
 
+    // todo custom animations
     PathView {
         anchors.fill: parent
         model: appModel
