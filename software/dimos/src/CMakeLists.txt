@@ -1,6 +1,6 @@
 # FROM THE PARENT SCOPE, WE INHERIT
-# - PROJECT_NAME
-include(find_libs.cmake)
+# - EXECUTABLE_NAME
+include(find_qt_libs.cmake) # we need to do this super early because this provides Qt CMake functions
 qt_standard_project_setup()
 
 # define sources
@@ -9,20 +9,18 @@ file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
 file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
 file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
 if("${TARGET}" STREQUAL "deploy")
-    set(EXECUTABLE_NAME dimos)
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/*.cpp")
 elseif ("${TARGET}" STREQUAL "dev")
-    set(EXECUTABLE_NAME dimos_dev)
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp")
-else()
-    message(FATAL_ERROR "❌ Unknown target ${TARGET}")
 endif()
 set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${IO_INC} ${SHARED_FILES} ${TASKS_FILES})
 
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 qt_add_executable(${EXECUTABLE_NAME} ${SOURCES})
-# link libraries
+# include directories
 target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io assets tasks)
+# link libraries
+include(find_libs.cmake)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
