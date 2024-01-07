@@ -1,8 +1,9 @@
 # FROM THE PARENT SCOPE, WE INHERIT
 # - EXECUTABLE_NAME
 include(find_qt_libs.cmake) # we need to do this super early because this provides Qt CMake functions
-qt_standard_project_setup()
-
+set(CMAKE_AUTOUIC OFF)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 # define sources
 set(UI_SOURCES main.cpp assets/resources.qrc)
 file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
