@@ -21,6 +21,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DI
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
 commit_info_library(
+    "f4dev"
     "f4dev_commit_info"
     "${COMMIT_INFO_HEADER_PATH}"
     "${COMMIT_INFO_SRC_PATH}"
