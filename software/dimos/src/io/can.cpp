@@ -19,12 +19,8 @@ Result<std::monostate, CanConnectionError> Can_Init()
         return SocketError;
     }
 
-    struct sockaddr_can addr
-    {
-    };
-    struct ifreq ifr
-    {
-    };
+    sockaddr_can addr;
+    ifreq ifr;
 
     // Get interface index
     strcpy(ifr.ifr_name, "can0");
@@ -45,14 +41,16 @@ Result<JsonCanMsg, CanReadError> Can_Read()
         return ReadInterfaceNotCreated;
 
     can_frame     frame{};
-    const ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
+    const ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame)); // todo make this react to QThread::requestInterruption
 
     if (readLengthBytes < 0)
         return SocketReadError;
     if (readLengthBytes < sizeof(can_frame))
         return IncompleteCanFrame;
-    //	return frame;
-    return JsonCanMsg{};
+
+    auto out = JsonCanMsg{ .std_id   = frame.can_id, .dlc = frame.len8_dlc, };
+    memcpy(out.data, frame.data, sizeof(frame.data));
+    return out;
 }
 
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
@@ -62,7 +60,8 @@ Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 
     try
     {
-        ssize_t nbytes = write(CanInterface.value(), msg, sizeof(struct can_frame));
+        if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0) // todo make this react to QThread::requestInterruption
+            return SocketWriteError;
     }
     catch (...)
     {

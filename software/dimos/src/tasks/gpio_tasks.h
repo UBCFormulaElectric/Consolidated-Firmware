@@ -1,4 +1,5 @@
 #pragma once
+#include "gpio.h"
 
 namespace gpio_handlers
 {

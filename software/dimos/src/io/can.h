@@ -16,7 +16,8 @@ enum CanReadError
 {
     ReadInterfaceNotCreated,
     SocketReadError,
-    IncompleteCanFrame
+    IncompleteCanFrame,
+    Timeout,
 };
 
 enum CanWriteError

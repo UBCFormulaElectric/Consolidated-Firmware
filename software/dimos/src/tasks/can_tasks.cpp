@@ -25,10 +25,12 @@ void CanRXTask()
             switch (get<CanReadError>(res))
             {
                 case ReadInterfaceNotCreated:
-                    break;
+                    qWarning("Can interface not created");
+                    return;
+                case Timeout:
                 case SocketReadError:
                 case IncompleteCanFrame:
-                    continue;
+                    break;
             }
             continue;
         }
@@ -54,6 +56,7 @@ void CanPeriodicTXTask()
         can_table_mutex.lock();
         Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
         can_table_mutex.unlock();
+        QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
     std::cout << "exiting CanPeriodicTXTask now" << std::endl;
 }

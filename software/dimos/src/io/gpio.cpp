@@ -92,7 +92,7 @@ Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
 
     try
     {
-        const auto l_event = l.event_read();
+        const auto l_event = l.event_read(); // todo make this react to QThread::requestInterruption
         return l_event.event_type == gpiod::line_event::RISING_EDGE ? RISING_EDGE : FALLING_EDGE;
     }
     catch (std::system_error &e)
