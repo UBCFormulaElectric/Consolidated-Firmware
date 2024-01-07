@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { getRealtimeData, deleteDashboardData } from '../../../firestoreService';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Select, Space, Button, Modal, Checkbox, List, message } from 'antd';
+import { Socket } from "socket.io-client";
 import LiveGraph from './live/livegraph';
 
 // currently a bug where loading dashboards only loads SOME of the signals on graphs (seems indeterministic)
 // found error occurs in livegraphs where it checks if data['id'] == graphId, and thus does not update graph,
 // as id sometimes returns as 0 when returned from websocket process. unsure how to fix. 
 
-const Dashboard = ( props ) => {
+
+export interface DashboardProps {
+  socket: Socket; 
+  deleteGraph: (graphId: number, live: boolean) => void;
+}
+const Dashboard = ( props: DashboardProps ) => {
     const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
     const [selectedDashboard, setSelectedDashboard] = useState("");
     const [toDelete, setToDelete] = useState<string[]>([]);
     const [graphs, setGraphs] = useState({});
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-    const updateGraphSignals = (graphId, signals) => {
+    const updateGraphSignals = (graphId: number, signals: string[]) => {
         setGraphs(prev => ({ ...prev, [graphId]: signals }));
     };
 
@@ -58,15 +65,15 @@ const Dashboard = ( props ) => {
     };
 
     // updates toDelete array accordingly when checkbox is checked/unchecked
-    const handleCheckboxChange = (e, value) => {
+    const handleCheckboxChange = (e: CheckboxChangeEvent, value: string) => {
       setToDelete(prev => {
-          if (e.target.checked) {
-              return [...prev, value];
-          } else {
-              return prev.filter(item => item !== value);
-          }
+        if (e.target.checked) {
+          return [...prev, value];
+        } else {
+          return prev.filter(item => item !== value);
+        }
       });
-  };
+    };
 
   // deletes selected dashboards from firestore
   const deleteDashboards = () => {

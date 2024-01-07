@@ -20,15 +20,15 @@ export interface VisualizeProps {
 const Visualize = (props: VisualizeProps) => {
     const [sync, setSync] = useState<boolean>(false);
     const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
-    const [graphSignals, setGraphSignals] = useState({});
+    const [graphSignals, setGraphSignals] = useState<Record<string, string[]>>({});
     const [dbName, setDbName] = useState<string>("test");
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-    const updateGraphSignals = (graphId, signals) => {
+    const updateGraphSignals = (graphId: number, signals: string) => {
         setGraphSignals(prev => ({ ...prev, [graphId]: signals }));
     };
 
-    const handleInputChange = (event) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDbName(event.target.value);
     }
 
@@ -48,16 +48,17 @@ const Visualize = (props: VisualizeProps) => {
             return;
         }
 
-        const data = {
+        const data: { dbname: string; graphs: Record<string, string[]> } = {
             dbname: dbName,
             graphs: {}
-        }
+        };
         for (let graphId in graphSignals) {
             data.graphs[graphId] = graphSignals[graphId];
-    };
-    
-    const path = `dashboards/${dbName}`; 
+        }
+
+        const path = `dashboards/${dbName}`;
         const success = await saveDashboardData(path, data);
+
         if (success) {
             message.success('Dashboard saved successfully!');
             setModalOpen(false);
