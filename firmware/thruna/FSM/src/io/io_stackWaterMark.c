@@ -19,27 +19,27 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1kHz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1kHz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask100Hz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask100Hz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1Hz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1Hz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanRx_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanRx_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanTx_Set(error);
 }
 
 static void logStackRemainingTask1Hz(float percent)
