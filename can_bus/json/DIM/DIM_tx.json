@@ -49,31 +49,31 @@
         "signals": {
           
             "StackRemainingTask1Hz": {
-                "resolution": 1,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
             "StackRemainingTask100Hz": {
-                "resolution": 1,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
             "StackRemainingTask1kHz": {
-                "resolution": 1,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
             "StackRemainingTaskCanRx": {
-                "resolution": 1,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "%"
             },
             "StackRemainingTaskCanTx": {
-                "resolution": 1,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "%"

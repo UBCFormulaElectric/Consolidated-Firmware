@@ -844,10 +844,10 @@ void RunTask1Hz(void *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         // If stack overflow is detected, watchdog will not be checked in
-        if (App_CanTx_DIM_StackRemainingTask1Hz_Get() > 20)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
+        // if (App_CanTx_DIM_StackRemainingTask1Hz_Get() > 20)
+        // {
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        //}
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
