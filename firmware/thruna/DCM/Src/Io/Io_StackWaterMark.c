@@ -42,25 +42,25 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
     App_CanAlerts_DCM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
 }
 
-static void logStackRemainingTask1Hz(uint8_t error)
+static void logStackRemainingTask1Hz(float percent)
 {
-    App_CanTx_DCM_StackRemainingTask1Hz_Set(error);
+    App_CanTx_DCM_StackRemainingTask1Hz_Set(percent);
 }
-static void logStackRemainingTask100Hz(uint8_t error)
+static void logStackRemainingTask100Hz(float percent)
 {
-    App_CanTx_DCM_StackRemainingTask100Hz_Set(error);
+    App_CanTx_DCM_StackRemainingTask100Hz_Set(percent);
 }
-static void logStackRemainingTask1kHz(uint8_t error)
+static void logStackRemainingTask1kHz(float percent)
 {
-    App_CanTx_DCM_StackRemainingTask1kHz_Set(error);
+    App_CanTx_DCM_StackRemainingTask1kHz_Set(percent);
 }
-static void logStackRemainingTaskCanRx(uint8_t error)
+static void logStackRemainingTaskCanRx(float percent)
 {
-    App_CanTx_DCM_StackRemainingTaskCanRx_Set(error);
+    App_CanTx_DCM_StackRemainingTaskCanRx_Set(percent);
 }
-static void logStackRemainingTaskCanTx(uint8_t error)
+static void logStackRemainingTaskCanTx(float percent)
 {
-    App_CanTx_DCM_StackRemainingTaskCanTx_Set(error);
+    App_CanTx_DCM_StackRemainingTaskCanTx_Set(percent);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
