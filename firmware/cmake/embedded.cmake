@@ -412,6 +412,7 @@ function(stm32h733xx_cube_library
     target_compile_definitions(${HAL_LIB_NAME}
         PUBLIC
         -DSTM32H733xx
+        -DCANFD
     )
 endfunction()
 
