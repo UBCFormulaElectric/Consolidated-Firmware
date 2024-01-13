@@ -417,7 +417,8 @@
                 "max": 120,
                 "resolution": 0.1
       }
-    },
+    }
+},
     "GpsPosInfo":{
         "msg_id": 217,
         "cycle_time": 100,
@@ -514,3 +515,4 @@
         }
     }
 }
+

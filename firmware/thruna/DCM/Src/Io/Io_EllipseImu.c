@@ -27,31 +27,31 @@ typedef struct
     float pitch;
     float yaw;
 } Attitude;
-typedef struct 
-{
-    SbgEComGpsPosStatus status;
-    double   latitude; 
-    double   longitude;  
-    double   altitude;
-    float   latitude_accuracy;  
-    float   longitude_accuracy;
-    float   altitude_accuracy;
-}GpsPositionData;
-typedef struct 
-{
-    SbgEComGpsVelStatus status;
-    float velocity_n; // North 
-    float velocity_e; // East 
-    float velocity_d; // Down 
-    float velocity_accuracy_n; 
-    float velocity_accuracy_e;
-    float velocity_accuracy_d;
-}GpsVelocityData;
 typedef struct
 {
-    GpsVelocityData gps1_velocity; 
+    SbgEComGpsPosStatus status;
+    double              latitude;
+    double              longitude;
+    double              altitude;
+    float               latitude_accuracy;
+    float               longitude_accuracy;
+    float               altitude_accuracy;
+} GpsPositionData;
+typedef struct
+{
+    SbgEComGpsVelStatus status;
+    float               velocity_n; // North
+    float               velocity_e; // East
+    float               velocity_d; // Down
+    float               velocity_accuracy_n;
+    float               velocity_accuracy_e;
+    float               velocity_accuracy_d;
+} GpsVelocityData;
+typedef struct
+{
+    GpsVelocityData gps1_velocity;
     GpsPositionData gps1_position;
-}Gps1Data;
+} Gps1Data;
 
 typedef struct
 {
@@ -101,22 +101,22 @@ float *sensor_output_map[NUM_SBG_OUTPUTS] = {
     [ELLIPSE_OUTPUT_EULER_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
     [ELLIPSE_OUTPUT_EULER_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
     [ELLIPSE_OUTPUT_EULER_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
-    
-    [GPS_POS_STATUS] = (float *) &sensor_data.gps_data.gps1_position.status,
-    [GPS_LAT] = (float *) &sensor_data.gps_data.gps1_position.latitude,
-    [GPS_LAT_ACC] = &sensor_data.gps_data.gps1_position.latitude_accuracy,
-    [GPS_LONG] = (float *) &sensor_data.gps_data.gps1_position.longitude,
-    [GPS_LONG_ACC] = &sensor_data.gps_data.gps1_position.longitude_accuracy,
-    [GPS_ALT] = (float *) &sensor_data.gps_data.gps1_position.altitude,
-    [GPS_ALT_ACC] = &sensor_data.gps_data.gps1_position.altitude_accuracy,
 
-    [GPS_VEL_STATUS] = (float *) &sensor_data.gps_data.gps1_velocity.status,
-    [GPS_VEL_N] = &sensor_data.gps_data.gps1_velocity.velocity_n,
-    [GPS_VEL_N_ACC] = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_n,
-    [GPS_VEL_E] = &sensor_data.gps_data.gps1_velocity.velocity_e,
-    [GPS_VEL_E_ACC] = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_e,
-    [GPS_VEL_D] = &sensor_data.gps_data.gps1_velocity.velocity_d,
-    [GPS_VEL_D_ACC] = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_d
+    [GPS_POS_STATUS] = (float *)&sensor_data.gps_data.gps1_position.status,
+    [GPS_LAT]        = (float *)&sensor_data.gps_data.gps1_position.latitude,
+    [GPS_LAT_ACC]    = &sensor_data.gps_data.gps1_position.latitude_accuracy,
+    [GPS_LONG]       = (float *)&sensor_data.gps_data.gps1_position.longitude,
+    [GPS_LONG_ACC]   = &sensor_data.gps_data.gps1_position.longitude_accuracy,
+    [GPS_ALT]        = (float *)&sensor_data.gps_data.gps1_position.altitude,
+    [GPS_ALT_ACC]    = &sensor_data.gps_data.gps1_position.altitude_accuracy,
+
+    [GPS_VEL_STATUS] = (float *)&sensor_data.gps_data.gps1_velocity.status,
+    [GPS_VEL_N]      = &sensor_data.gps_data.gps1_velocity.velocity_n,
+    [GPS_VEL_N_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_n,
+    [GPS_VEL_E]      = &sensor_data.gps_data.gps1_velocity.velocity_e,
+    [GPS_VEL_E_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_e,
+    [GPS_VEL_D]      = &sensor_data.gps_data.gps1_velocity.velocity_d,
+    [GPS_VEL_D_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_d
 
 };
 
@@ -138,9 +138,8 @@ static void Io_EllipseImu_ProcessMsg_GpsPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
-static const sensor_msg_config msg_config = {
-    .ring_queue_overflow_callback = App_CanAlerts_DCM_Warning_RingQueueOverflow_Set
-};
+static const sensor_msg_config msg_config = { .ring_queue_overflow_callback =
+                                                  App_CanAlerts_DCM_Warning_RingQueueOverflow_Set };
 
 /*
  * Callback called when a UART packet is received.
@@ -311,7 +310,7 @@ static void Io_EllipseImu_ProcessMsg_GpsVel(const SbgBinaryLogData *log_data)
 {
     // 0 means solution computed, 1-3 means an error occured (see binry log for more detail)
     sensor_data.gps_data.gps1_velocity.status = sbgEComLogGpsVelGetStatus(log_data->gpsVelData.status);
-    
+
     // velocity data in m/s
     sensor_data.gps_data.gps1_velocity.velocity_n = log_data->gpsVelData.velocity[0];
     sensor_data.gps_data.gps1_velocity.velocity_e = log_data->gpsVelData.velocity[1];
@@ -330,18 +329,17 @@ static void Io_EllipseImu_ProcessMsg_GpsPos(const SbgBinaryLogData *log_data)
 {
     // 0 means solution computed, 1-3 means an error occured (see binry log for more detail)
     sensor_data.gps_data.gps1_position.status = sbgEComLogGpsPosGetStatus(log_data->gpsPosData.status);
-    
+
     // lat and long measured in degrees, alt is measured in m
-    sensor_data.gps_data.gps1_position.altitude = log_data->gpsPosData.altitude;
-    sensor_data.gps_data.gps1_position.latitude = log_data->gpsPosData.latitude;
+    sensor_data.gps_data.gps1_position.altitude  = log_data->gpsPosData.altitude;
+    sensor_data.gps_data.gps1_position.latitude  = log_data->gpsPosData.latitude;
     sensor_data.gps_data.gps1_position.longitude = log_data->gpsPosData.longitude;
 
-    // accuracy in m 
-    sensor_data.gps_data.gps1_position.altitude_accuracy = log_data->gpsPosData.altitudeAccuracy;
-    sensor_data.gps_data.gps1_position.latitude_accuracy = log_data->gpsPosData.latitudeAccuracy;
+    // accuracy in m
+    sensor_data.gps_data.gps1_position.altitude_accuracy  = log_data->gpsPosData.altitudeAccuracy;
+    sensor_data.gps_data.gps1_position.latitude_accuracy  = log_data->gpsPosData.latitudeAccuracy;
     sensor_data.gps_data.gps1_position.longitude_accuracy = log_data->gpsPosData.longitudeAccuracy;
 }
-
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
