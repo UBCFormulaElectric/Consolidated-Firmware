@@ -39,6 +39,8 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
+static float torque_profile_command;
+static bool use_torque_profile;
 
 void App_TorqueVectoring_Setup(void)
 {
@@ -63,6 +65,7 @@ void App_TorqueVectoring_Run(void)
     left_motor_temp_C           = App_CanRx_INVL_MotorTemperature_Get();
     right_motor_temp_C          = App_CanRx_INVR_MotorTemperature_Get();
     steering_angle_deg          = App_CanRx_FSM_SteeringAngle_Get();
+    torque_profile_command      = App_CanRx_Debug_TorqueProfileCommand_Get();
 
     if (accelerator_pedal_percent > 0.0f)
     {
@@ -129,8 +132,12 @@ void App_TorqueVectoring_HandleAcceleration(void)
     // CLAMPS for safety only - should never exceed torque limit
     torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
     torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_left_final_Nm);
-    App_CanTx_DCM_RightInverterTorqueCommand_Set(torque_right_final_Nm);
+
+    use_torque_profile = torque_left_final_Nm < torque_profile_command || torque_right_final_Nm < torque_profile_command;
+
+    // Choose min of torque profile command and torque limit
+    App_CanTx_DCM_LeftInverterTorqueCommand_Set(use_torque_profile ? torque_profile_command : torque_left_final_Nm);
+    App_CanTx_DCM_RightInverterTorqueCommand_Set(use_torque_profile ? torque_profile_command : torque_right_final_Nm);
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
