@@ -42,30 +42,6 @@ void App_RingQueue_Push(const uint8_t *value)
          config->ring_queue_overflow_callback(++ring_queue_overflow_count);
     }
 
-    // assert(queue);
-
-    // // Increment tail idx, with wrapping if necesssary
-    // queue->tail += 1;
-    // queue->tail %= queue->size;
-
-    // // Insert the new value
-    // queue->elements[queue->tail] = value;
-
-    // // The queue has overflowed if the tail idx has "circled around" and caught up to the head idx,
-    // // so increment the head idx. Also check there are elements in queue so this is not set for
-    // // an empty queue (which has tail and head idx equal).
-    // const bool queue_overflowed = (queue->tail == queue->head) && queue->count > 0;
-    // if (queue_overflowed)
-    // {
-    //     // Count doesn't change if overflowed, since a new element replaced an old element
-    //     queue->head += 1;
-    //     queue->head %= queue->size;
-    // }
-    // else
-    // {
-    //     // Queue has space, so we increase the number of elements by 1
-    //     queue->count += 1;
-    // }
 }
 
 bool App_RingQueue_Pop(uint8_t *value)
@@ -79,18 +55,4 @@ bool App_RingQueue_Pop(uint8_t *value)
      osMessageQueueGet(ring_queue_id, value, NULL, osWaitForever);
     return true;
 
-    // if (queue->count == 0)
-    // {
-    //     // Queue is empty, return false
-    //     return false;
-    // }
-
-    // // Write value at head idx to output
-    // *value = queue->elements[queue->head];
-
-    // // Move head to next-oldest value for future pop operations, and shrink size by 1
-    // queue->head += 1;
-    // queue->head %= queue->size;
-    // queue->count -= 1;
-    // return true;
 }

@@ -15,9 +15,9 @@ typedef struct
 
 
 /**
- * Initialize a ring queue.
- * @param queue: Queue to initialize
- * @param size: Desired size of queue, cannot exceed RING_QUEUE_MAX_SIZE
+ * Initialize a ring queue and sensor message peripheral
+ * @param msg_config config struct.
+ */
  */
 void App_RingQueue_Init(const sensor_msg_config *sensor_msg_config);
 
@@ -32,8 +32,3 @@ void App_RingQueue_Push(const uint8_t *value);
  * Check if there is data in the queue and if so pop first data in queue 
  */
 bool App_RingQueue_Pop(uint8_t *value);
-
-/**
- * Check if there is data in the queue.
- */
-bool App_RingQueue_Check(void);
