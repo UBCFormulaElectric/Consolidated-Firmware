@@ -115,7 +115,7 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
+void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *element_num)
 {
     switch (board)
     {
@@ -123,16 +123,14 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
-                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test1;
-                *p++;
+                alertArray[*element_num] = (uint8_t)FSM_Warning_Warning_Test1;
+                *element_num++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
-                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test2;
-                *p++;
+                alertArray[*element_num] = (uint8_t)FSM_Warning_Warning_Test2;
+                *element_num++;
             }
             
             break;
@@ -141,9 +139,8 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
-                alertArray[*p-1] = (uint8_t)JCT_Warning_Warning_Test;
-                *p++;
+                alertArray[*element_num] = (uint8_t)JCT_Warning_Warning_Test;
+                *element_num++;
             }
             
             break;
@@ -155,10 +152,9 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         }
     }
     
-    return false;
 }
 
-void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
+void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *element_num)
 {
     switch (board)
     {
@@ -166,9 +162,8 @@ void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
-                alertArray[*p-1] = (uint8_t)FSM_Fault_Fault_Test3;
-                *p++;
+                alertArray[*element_num] = (uint8_t)FSM_Fault_Fault_Test3;
+                *element_num++;
             }
             
             break;
@@ -180,6 +175,5 @@ void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *
         }
     }
     
-    return false;
 }
 

@@ -267,13 +267,13 @@ class CanDatabase:
             else []
         )
         
-    def node_IDcodes(self, node: str, alert_type :CanAlert) -> Dict[str,int]:
+    def node_id_codes(self, node: str, alert_type :CanAlert) -> Dict[str,int]:
         
         return(
             {
                 alert:
-                codeID
-                for alert, codeID in self.alerts[node].items()
+                code_id
+                for alert, code_id in self.alerts[node].items()
                 if alert.alert_type == alert_type
             }
             
