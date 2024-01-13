@@ -1,12 +1,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include "App_SharedMacros.h"
+#include "App_SharedDcmConstants.h"
+#include "App_SharedConstants.h"
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "App_SharedConstants.h"
+#include "torquevectoring/App_TorqueVectoring.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
+
+static bool torque_vectoring_switch_is_on;
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
@@ -27,11 +31,8 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    // Get the maximum torque request, according to the FSM
-    const float max_fsm_torque_request = App_CanRx_FSM_TorqueLimit_Get();
-
     // Calculate the actual torque request to transmit
-    const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
+    const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_request);
@@ -47,13 +48,20 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
-    // Enable inverters upon entering drive state.
     App_CanTx_DCM_LeftInverterEnable_Set(true);
     App_CanTx_DCM_RightInverterEnable_Set(true);
 
     // Set inverter directions.
     App_CanTx_DCM_LeftInverterDirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
     App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+
+    // Read torque vectoring switch only when entering drive state, not during driving
+    torque_vectoring_switch_is_on = App_IsTorqueVectoringSwitchOn();
+
+    if (torque_vectoring_switch_is_on)
+    {
+        App_TorqueVectoring_Setup();
+    }
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -71,9 +79,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (all_states_ok)
     {
-        App_SetPeriodicCanSignals_TorqueRequests();
+        if (torque_vectoring_switch_is_on)
+        {
+            App_TorqueVectoring_Run();
+        }
+        else
+        {
+            App_SetPeriodicCanSignals_TorqueRequests();
+        }
     }
-
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());

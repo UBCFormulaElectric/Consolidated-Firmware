@@ -93,6 +93,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     ) 
+    target_link_libraries(DCM_app.elf m)
     target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM_app.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
 
