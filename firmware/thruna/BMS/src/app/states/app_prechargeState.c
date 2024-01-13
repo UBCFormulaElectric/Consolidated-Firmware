@@ -47,9 +47,8 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
-        bool  precharge_fault_limit_exceeded = false;
-        float ts_voltage                     = app_tractiveSystem_getVoltage();
-        float threshold_voltage              = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+        float ts_voltage        = app_tractiveSystem_getVoltage();
+        float threshold_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
         const bool is_charger_connected = io_charger_isConnected();
         const bool is_air_negative_open = !io_airs_isNegativeClosed();

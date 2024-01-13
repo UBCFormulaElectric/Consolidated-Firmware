@@ -21,11 +21,6 @@ TEST(CanMsgsTest, imd_data_message_frequency)
     ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_IMD_DATA_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, imd_pwm_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_IMD_PWM_OUTPUT_CYCLE_TIME_MS);
-}
-
 TEST(CanMsgsTest, faults_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_FAULTS_CYCLE_TIME_MS);

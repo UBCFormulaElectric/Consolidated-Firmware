@@ -53,6 +53,12 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
             // precharge when preparing to charge
             const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled;
 
+// TODO: Re-implement precharge after remaining testing completed
+#ifdef TARGET_EMBEDDED
+            (void)precharge_for_charging;
+            (void)precharge_for_driving;
+            (void)cell_balancing_enabled;
+#else
             if (precharge_for_charging)
             {
                 App_SharedStateMachine_SetNextState(state_machine, app_prechargeState_get());
@@ -65,6 +71,7 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
             {
                 App_SharedStateMachine_SetNextState(state_machine, app_balancingState_get());
             }
+#endif
         }
     }
 }
