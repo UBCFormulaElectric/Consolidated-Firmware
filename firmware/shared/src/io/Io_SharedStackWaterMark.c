@@ -46,7 +46,8 @@ static float Io_StackSize(TaskHandle_t xTask, uint32_t stack_size, float waterma
 {
     assert((0.0f < watermark_threshold) && (watermark_threshold < 1.0f));
 
-    float stack_high_watermark_percent_remaining = 100.0f * (float)uxTaskGetStackHighWaterMark(xTask) / (float)stack_size;
+    float stack_high_watermark_percent_remaining =
+        100.0f * (float)uxTaskGetStackHighWaterMark(xTask) / (float)stack_size;
 
     return stack_high_watermark_percent_remaining;
 }
