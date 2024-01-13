@@ -71,5 +71,23 @@
                 "unit": "%"
             }
         }
+    },
+    "TorqueProfileCommand": {
+        "msg_id": 35,
+        "cycle_time": 100,
+        "description": "Torque value following race data torque profile sent by the cantransmit python script.",
+        "signals": {
+            "TorqueCommandFromProfile": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
     }
 }

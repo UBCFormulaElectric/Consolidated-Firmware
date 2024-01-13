@@ -16,6 +16,7 @@
         "Debug_CanMode",
         "INVL_Temperatures3",
         "INVR_Temperatures3",
-        "BMS_TractiveSystem"
+        "BMS_TractiveSystem",
+        "Debug_TorqueProfileCommand"
     ]
 }
