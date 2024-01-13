@@ -3,14 +3,16 @@
 #include "sbgECom.h"
 #include "interfaces/sbgInterfaceSerial.h"
 #include "Io_EllipseImu.h"
-#include "App_RingQueue.h"
 #include "App_SharedMacros.h"
 #include "FreeRTOS.h"
 #include "App_CanAlerts.h"
+#include "cmsis_os.h"
+#include "queue.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
 #define UART_RX_PACKET_SIZE 128 // Size of each received UART packet, in bytes
+#define QUEUE_MAX_SIZE 4096     // 4kB
 
 /* ------------------------------------ Typedefs ------------------------------------- */
 
@@ -79,14 +81,31 @@ typedef struct
     Gps1Data         gps_data;
 } SensorData;
 
-/* --------------------------------- Variables ---------------------------------- */
+typedef struct
+{
+    void (*const ring_queue_overflow_callback)(bool); // callback on ring queue overflow
+} sensor_msg_config;
 
+/* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
 static SensorData    sensor_data;                         // Struct of all sensor data
+
+static osMessageQueueId_t ring_queue_id;
+static StaticQueue_t      ring_queue_control_block;
+static uint8_t            ring_queue_buf[QUEUE_MAX_SIZE];
+
+static const osMessageQueueAttr_t ring_queue_attr = {
+    .name      = "RingQueue",
+    .attr_bits = 0,
+    .cb_mem    = &ring_queue_control_block,
+    .cb_size   = sizeof(StaticQueue_t),
+    .mq_mem    = ring_queue_buf,
+    .mq_size   = QUEUE_MAX_SIZE,
+};
 
 // Map each sensor output enum to a ptr to the actual value
 float *sensor_output_map[NUM_SBG_OUTPUTS] = {
@@ -156,7 +175,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // Push newly received data to queue
     for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
     {
-        App_RingQueue_Push(&uart_rx_buffer[i]);
+        static uint32_t ring_queue_overflow_count = 0;
+
+        if (osMessageQueuePut(ring_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
+        {
+            msg_config.ring_queue_overflow_callback(++ring_queue_overflow_count);
+        }
     }
 }
 
@@ -195,13 +219,14 @@ static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, si
     while (i < bytes_to_read)
     {
         uint8_t data;
-        bool    data_available = App_RingQueue_Pop(&data);
+        assert(data);
 
-        if (!data_available)
+        if (osMessageQueueGetCount(ring_queue_id) == 0)
         {
             break;
         }
 
+        osMessageQueueGet(ring_queue_id, &data, NULL, osWaitForever);
         ((uint8_t *)buffer)[i] = data;
         (*read_bytes)++;
         i++;
@@ -360,7 +385,11 @@ bool Io_EllipseImu_Init()
     sbgEComSetReceiveLogCallback(&com_handle, Io_EllipseImu_LogReceivedCallback, NULL);
 
     // Init RX queue for UART data
-    App_RingQueue_Init(&msg_config);
+    assert(&msg_config != NULL);
+
+    ring_queue_id = osMessageQueueNew(QUEUE_MAX_SIZE, sizeof(uint8_t), &ring_queue_attr);
+
+    assert(ring_queue_id != NULL);
 
     // Start waiting for UART packets
     HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
