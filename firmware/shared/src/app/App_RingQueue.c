@@ -1,72 +1,96 @@
 #include <assert.h>
 #include <string.h>
-
+#include "cmsis_os.h"
+#include "queue.h"
 #include "App_RingQueue.h"
 
-void App_RingQueue_Init(RingQueue *queue, int size)
-{
-    // Queue size cannot exceed allocated buffer size
-    assert(size > 0 && size <= RING_QUEUE_MAX_SIZE);
-    assert(queue);
+#define QUEUE_SIZE RING_QUEUE_MAX_SIZE/sizeof(uint8_t)
 
-    memset(queue->elements, 0U, sizeof(queue->elements));
-    queue->size  = size;
-    queue->head  = 0;
-    queue->tail  = -1;
-    queue->count = 0;
+static const sensor_msg_config *config;
+
+
+static osMessageQueueId_t ring_queue_id;
+static StaticQueue_t      ring_queue_control_block;
+static uint8_t            ring_queue_buf[RING_QUEUE_MAX_SIZE];
+
+static const osMessageQueueAttr_t ring_queue_attr = {
+    .name      = "RingQueue",
+    .attr_bits = 0,
+    .cb_mem    = &ring_queue_control_block,
+    .cb_size   = sizeof(StaticQueue_t),
+    .mq_mem    = ring_queue_buf,
+    .mq_size   = RING_QUEUE_MAX_SIZE,
+};
+
+void App_RingQueue_Init(const sensor_msg_config *msg_config)
+{
+    assert(msg_config != NULL);
+    config = msg_config;
+
+   ring_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(uint8_t), &ring_queue_attr);
+
+   assert(ring_queue_id != NULL);
+
 }
 
-void App_RingQueue_Push(RingQueue *queue, uint8_t value)
+void App_RingQueue_Push(const uint8_t *value)
 {
-    assert(queue);
+    static uint32_t ring_queue_overflow_count = 0;
 
-    // Increment tail idx, with wrapping if necesssary
-    queue->tail += 1;
-    queue->tail %= queue->size;
-
-    // Insert the new value
-    queue->elements[queue->tail] = value;
-
-    // The queue has overflowed if the tail idx has "circled around" and caught up to the head idx,
-    // so increment the head idx. Also check there are elements in queue so this is not set for
-    // an empty queue (which has tail and head idx equal).
-    const bool queue_overflowed = (queue->tail == queue->head) && queue->count > 0;
-    if (queue_overflowed)
+    if (osMessageQueuePut(ring_queue_id, value, 0 , 0) != osOK)
     {
-        // Count doesn't change if overflowed, since a new element replaced an old element
-        queue->head += 1;
-        queue->head %= queue->size;
+         config->ring_queue_overflow_callback(++ring_queue_overflow_count);
     }
-    else
-    {
-        // Queue has space, so we increase the number of elements by 1
-        queue->count += 1;
-    }
+
+    // assert(queue);
+
+    // // Increment tail idx, with wrapping if necesssary
+    // queue->tail += 1;
+    // queue->tail %= queue->size;
+
+    // // Insert the new value
+    // queue->elements[queue->tail] = value;
+
+    // // The queue has overflowed if the tail idx has "circled around" and caught up to the head idx,
+    // // so increment the head idx. Also check there are elements in queue so this is not set for
+    // // an empty queue (which has tail and head idx equal).
+    // const bool queue_overflowed = (queue->tail == queue->head) && queue->count > 0;
+    // if (queue_overflowed)
+    // {
+    //     // Count doesn't change if overflowed, since a new element replaced an old element
+    //     queue->head += 1;
+    //     queue->head %= queue->size;
+    // }
+    // else
+    // {
+    //     // Queue has space, so we increase the number of elements by 1
+    //     queue->count += 1;
+    // }
 }
 
-bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value)
+bool App_RingQueue_Pop(uint8_t *value)
 {
-    assert(queue);
     assert(value);
 
-    if (queue->count == 0)
-    {
-        // Queue is empty, return false
+    // Pop a message off the RX queue.
+        if (osMessageQueueGetCount(ring_queue_id) == 0) {
         return false;
     }
-
-    // Write value at head idx to output
-    *value = queue->elements[queue->head];
-
-    // Move head to next-oldest value for future pop operations, and shrink size by 1
-    queue->head += 1;
-    queue->head %= queue->size;
-    queue->count -= 1;
+     osMessageQueueGet(ring_queue_id, value, NULL, osWaitForever);
     return true;
-}
 
-int App_RingQueue_Count(RingQueue *queue)
-{
-    assert(queue);
-    return queue->count;
+    // if (queue->count == 0)
+    // {
+    //     // Queue is empty, return false
+    //     return false;
+    // }
+
+    // // Write value at head idx to output
+    // *value = queue->elements[queue->head];
+
+    // // Move head to next-oldest value for future pop operations, and shrink size by 1
+    // queue->head += 1;
+    // queue->head %= queue->size;
+    // queue->count -= 1;
+    // return true;
 }

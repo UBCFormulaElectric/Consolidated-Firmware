@@ -7,40 +7,33 @@
 #define RING_QUEUE_MAX_SIZE 4096 // 4kB
 
 // Data struct for a ring queue: Do not interact with member vars directly!
+
 typedef struct
 {
-    uint8_t elements[RING_QUEUE_MAX_SIZE];
-    int     size;
-    int     head;
-    int     tail;
-    int     count;
-} RingQueue;
+    void (*const ring_queue_overflow_callback)(bool); // callback on ring queue overflow
+}sensor_msg_config;
+
 
 /**
  * Initialize a ring queue.
  * @param queue: Queue to initialize
  * @param size: Desired size of queue, cannot exceed RING_QUEUE_MAX_SIZE
  */
-void App_RingQueue_Init(RingQueue *queue, int size);
+void App_RingQueue_Init(const sensor_msg_config *sensor_msg_config);
 
 /**
- * @brief Push to queue. Will overwrite the oldest value if the ring buffer has
- *        exceeded its size.
- * @param queue: Queue to push to
- * @param value: Value to push
+ * Pushes an SBG Ellipse sensor message into Queue.
+ * Does not block, calls `ring_queue_overflow_callback` if queue is full.
+ * @param msg sensor msg to be TXed.
  */
-void App_RingQueue_Push(RingQueue *queue, uint8_t value);
+void App_RingQueue_Push(const uint8_t *value);
 
 /**
- * Pop from queue.
- * @param queue: Queue to pop from
- * @param value: Pointer to the popped output
- * @return True if an item was popped off, false otherwise (i.e. if queue was empty)
+ * Check if there is data in the queue and if so pop first data in queue 
  */
-bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value);
+bool App_RingQueue_Pop(uint8_t *value);
 
 /**
- * Get the number of elements in a queue.
- * @param queue: Queue to read from
+ * Check if there is data in the queue.
  */
-int App_RingQueue_Count(RingQueue *queue);
+bool App_RingQueue_Check(void);

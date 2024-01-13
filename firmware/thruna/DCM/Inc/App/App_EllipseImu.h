@@ -20,7 +20,7 @@ typedef enum
     ELLIPSE_OUTPUT_EULER_PITCH,
     ELLIPSE_OUTPUT_EULER_YAW,
 
-     // Position Info 
+    // Position Info
     GPS_POS_STATUS,
     GPS_LAT,
     GPS_LAT_ACC,

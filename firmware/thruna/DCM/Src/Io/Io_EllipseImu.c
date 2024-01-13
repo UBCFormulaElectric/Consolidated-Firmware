@@ -6,6 +6,7 @@
 #include "App_RingQueue.h"
 #include "App_SharedMacros.h"
 #include "FreeRTOS.h"
+#include "App_CanAlerts.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
@@ -85,7 +86,6 @@ extern UART_HandleTypeDef huart1;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
-static RingQueue     rx_queue;                            // FIFO queue of RXed UART bytes
 static SensorData    sensor_data;                         // Struct of all sensor data
 
 // Map each sensor output enum to a ptr to the actual value
@@ -138,6 +138,10 @@ static void Io_EllipseImu_ProcessMsg_GpsPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 
+static const sensor_msg_config msg_config = {
+    .ring_queue_overflow_callback = App_CanAlerts_DCM_Warning_RingQueueOverflow_Set
+};
+
 /*
  * Callback called when a UART packet is received.
  */
@@ -153,7 +157,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // Push newly received data to queue
     for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
     {
-        App_RingQueue_Push(&rx_queue, uart_rx_buffer[i]);
+        App_RingQueue_Push(&uart_rx_buffer[i]);
     }
 }
 
@@ -192,7 +196,7 @@ static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, si
     while (i < bytes_to_read)
     {
         uint8_t data;
-        bool    data_available = App_RingQueue_Pop(&rx_queue, &data);
+        bool    data_available = App_RingQueue_Pop(&data);
 
         if (!data_available)
         {
@@ -358,7 +362,7 @@ bool Io_EllipseImu_Init()
     sbgEComSetReceiveLogCallback(&com_handle, Io_EllipseImu_LogReceivedCallback, NULL);
 
     // Init RX queue for UART data
-    App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
+    App_RingQueue_Init(&msg_config);
 
     // Start waiting for UART packets
     HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
