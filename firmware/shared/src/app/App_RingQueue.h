@@ -18,7 +18,6 @@ typedef struct
  * Initialize a ring queue and sensor message peripheral
  * @param msg_config config struct.
  */
- */
 void App_RingQueue_Init(const sensor_msg_config *sensor_msg_config);
 
 /**
