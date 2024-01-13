@@ -116,7 +116,7 @@ class AppCanAlertsModule(CModule):
             args=[
                 CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
                 CVar("*alertArray", "uint8_t"),
-                CVar("*p","uint8_t")
+                CVar("*element_num","uint8_t")
             ],
             comment=f"Return whether or not a board has set a {comment}.",
         )
@@ -142,9 +142,8 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));")
-                get_alert.body.add_line("alertArray[*p-1] = (uint8_t)" + alert + ";")
-                get_alert.body.add_line("*p++;")
+                get_alert.body.add_line("alertArray[*element_num] = (uint8_t)" + alert + ";")
+                get_alert.body.add_line("*element_num++;")
 
                 get_alert.body.end_if()
                 get_alert.body.add_line()
@@ -257,7 +256,7 @@ class AppCanAlertsModule(CModule):
             alerts_enum = CEnum(
                 CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
             )
-            for alert, IDcode in self._db.node_IDcodes(nodes, alert_type = alert_type).items():
+            for alert, IDcode in self._db.node_id_codes(nodes, alert_type = alert_type).items():
                 alerts_enum.add_value(CVar(alert.name, value=IDcode))
             
             cw.add_enum(alerts_enum)
