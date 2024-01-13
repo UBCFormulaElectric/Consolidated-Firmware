@@ -21,3 +21,11 @@ uint32_t fake_{{ name }}_callCountForArgs(
     {%- if not loop.last %}, {% endif %}
 {%- endfor %}
 );
+
+/**
+ * Set a callback function to be called when {{ name }} is invoked.
+ */
+void fake_{{ name }}_setCallBack(void (*func_ptr)({%- for param in params %}
+    {{ param.type }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}));

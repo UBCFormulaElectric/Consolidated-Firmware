@@ -18,6 +18,10 @@ void fake_{{ name }}_returnsForArgs(
     {{ return_type }} return_value
 );
 
+void fake_{{ name }}_returnsForAnyArgs(
+    {{ return_type }} return_value
+);
+
 /**
  * Return the number of times {{ name }} has been invoked.
  */
@@ -32,3 +36,11 @@ uint32_t fake_{{ name }}_callCountForArgs(
     {%- if not loop.last %}, {% endif %}
 {%- endfor %}
 );
+
+/**
+ * Set a callback function to be called when {{ name }} is invoked.
+ */
+void fake_{{ name }}_setCallBack({{ return_type }} (*func_ptr)({%- for param in params %}
+    {{ param.type }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}));
