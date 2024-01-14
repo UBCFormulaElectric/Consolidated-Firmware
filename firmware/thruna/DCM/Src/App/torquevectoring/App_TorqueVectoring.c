@@ -1,8 +1,8 @@
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "App_TorqueVectoring.h"
 #include "App_SharedDcmConstants.h"
-#include "torquevectoring/App_PowerLimiting.h"
-#include "torquevectoring/App_ActiveDifferential.h"
-#include "torquevectoring/App_TractionControl.h"
+#include "App_PowerLimiting.h"
+#include "App_ActiveDifferential.h"
+#include "App_TractionControl.h"
 #include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
@@ -12,7 +12,7 @@
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
 
-static PowerLimiting_Inputs       power_limiting_inputs;
+static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
 static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
@@ -82,10 +82,9 @@ void App_TorqueVectoring_HandleAcceleration(void)
     App_Timer_Restart(&pid_timeout);
 
     // Power Limiting
-    power_limiting_inputs.left_motor_temp_C          = left_motor_temp_C;
-    power_limiting_inputs.right_motor_temp_C         = right_motor_temp_C;
-    power_limiting_inputs.available_battery_power_kW = POWER_LIMIT_CAR_kW;
-    power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
+    power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
+    power_limiting_inputs.right_motor_temp_C        = right_motor_temp_C;
+    power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
     float estimated_power_limit;
     estimated_power_limit = App_PowerLimiting_ComputeMaxPower(&power_limiting_inputs);
 

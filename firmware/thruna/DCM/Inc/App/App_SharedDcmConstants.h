@@ -1,5 +1,5 @@
 #pragma once
-#include "torquevectoring/App_PID.h"
+#include "App_PID.h"
 
 // Conversions
 #define IN_TO_M 0.0254f
@@ -22,6 +22,9 @@
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
+#define MAX_REGEN_nm -30.0f
+#define MAX_BATTERY_TEMP 45
+#define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
 
 // Tunable parameters
 extern const PID_Config PID_POWER_CORRECTION_CONFIG;

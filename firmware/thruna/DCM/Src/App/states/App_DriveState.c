@@ -6,12 +6,12 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "App_TorqueVectoring.h"
 #include "App_Regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
-static bool torque_vectoring_switch_is_on;
+static bool  torque_vectoring_switch_is_on;
 static float apps_pedal_percentage = 0.0f;
 #define PEDAL_SCALE 30.0f
 #define MAX_PEDAL_PERCENT 100.0f
@@ -36,7 +36,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
 
     // Calculate the actual torque request to transmit
     const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
-   
+    
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_request);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(torque_request);
@@ -100,11 +100,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     if (apps_pedal_percentage < 0.0f)
     {
         App_Run_Regen(apps_pedal_percentage);
-    } 
+    }
     else if (torque_vectoring_switch_is_on)
     {
         App_TorqueVectoring_Run();
-    }   
+    }
     else
     {
         App_SetPeriodicCanSignals_TorqueRequests();
