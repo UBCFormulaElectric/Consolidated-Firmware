@@ -25,17 +25,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "DCM_app"
-    "DCM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
-
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "DCM_can"
@@ -93,7 +82,19 @@ if("${TARGET}" STREQUAL "deploy")
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
-    ) 
+    )
+
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+            "DCM_app.elf"
+            "DCM_commit_info"
+            "${COMMIT_INFO_HEADER_PATH}"
+            "${COMMIT_INFO_SRC_PATH}"
+            "${ARM_CORE}"
+    )
+
     target_link_libraries("DCM_can" "DCM_stm32cube")
     target_link_libraries("DCM_app.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4")
 

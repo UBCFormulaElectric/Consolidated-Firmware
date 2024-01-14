@@ -17,17 +17,6 @@ list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_bootup.c")
 list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "f4dev"
-    "f4dev_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
-
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
         "f4dev"
@@ -73,5 +62,17 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+        "f4dev.elf"
+        "f4dev_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "littlefs_cm4")
 endif()
