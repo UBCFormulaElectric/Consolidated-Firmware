@@ -112,14 +112,14 @@ class AppCanAlertsModule(CModule):
     def _get_board_alert_code(self, alert_type: CanAlertType, comment: str):
         get_alert = CFunc(
             GET_BOARD_FAULT_CODE.format(alert_type=alert_type),
-            "void",
+            "uint8_t",
             args=[
                 CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
                 CVar("*alertArray", "uint8_t"),
-                CVar("*element_num","uint8_t")
             ],
             comment=f"Return whether or not a board has set a {comment}.",
         )
+        get_alert.body.add_line("uint8_t element_num = 0;")
         get_alert.body.start_switch("board")
 
         nodes_with_alerts = [
@@ -142,8 +142,8 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray[*element_num] = (uint8_t)" + alert + ";")
-                get_alert.body.add_line("*element_num++;")
+                get_alert.body.add_line("alertArray[element_num] = (uint8_t)" + alert + ";")
+                get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()
                 get_alert.body.add_line()
@@ -155,6 +155,7 @@ class AppCanAlertsModule(CModule):
         get_alert.body.add_comment("Do nothing")
         get_alert.body.add_switch_break()
         get_alert.body.end_switch()
+        get_alert.body.add_line("return element_num;")
 
         get_alert.body.add_line()
         return get_alert

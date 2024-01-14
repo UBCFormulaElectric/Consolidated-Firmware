@@ -76,13 +76,13 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
-            App_CanAlerts_FaultCode(alert_board_ids[i], fault_array, element);
+            App_CanAlerts_FaultCode(alert_board_ids[i], fault_array);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array, element);
+            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
