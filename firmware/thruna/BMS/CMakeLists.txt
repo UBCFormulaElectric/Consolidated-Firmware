@@ -2,7 +2,7 @@ set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/App/*.c")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
     "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
@@ -11,27 +11,34 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/App_SharedProcessing.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedRgbLedSequence.c"
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/App" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/Io/*.c")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 list(APPEND IO_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
-file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c")
+file(GLOB_RECURSE HW_SRCS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+)
 list(APPEND HW_SRCS 
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
 )
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
