@@ -22,8 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bootloader.h"
+#include "string.h"
+#include "hw_hardFaultHandler.h"
 #include "hw_can.h"
+#include "hw_bootup.h"
+#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,21 +46,20 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-CAN_HandleTypeDef hcan1;
 
-CRC_HandleTypeDef hcrc;
+FDCAN_HandleTypeDef hfdcan2;
 
-/* Definitions for interfaceTask */
-osThreadId_t         interfaceTaskHandle;
-uint32_t             interfaceTaskBuffer[512];
-osStaticThreadDef_t  interfaceTaskControlBlock;
-const osThreadAttr_t interfaceTask_attributes = {
-    .name       = "interfaceTask",
-    .cb_mem     = &interfaceTaskControlBlock,
-    .cb_size    = sizeof(interfaceTaskControlBlock),
-    .stack_mem  = &interfaceTaskBuffer[0],
-    .stack_size = sizeof(interfaceTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
+/* Definitions for defaultTask */
+osThreadId_t         defaultTaskHandle;
+uint32_t             defaultTaskBuffer[512];
+osStaticThreadDef_t  defaultTaskControlBlock;
+const osThreadAttr_t defaultTask_attributes = {
+    .name       = "defaultTask",
+    .cb_mem     = &defaultTaskControlBlock,
+    .cb_size    = sizeof(defaultTaskControlBlock),
+    .stack_mem  = &defaultTaskBuffer[0],
+    .stack_size = sizeof(defaultTaskBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
@@ -71,30 +73,33 @@ const osThreadAttr_t canTxTask_attributes = {
     .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
-/* Definitions for tickTask */
-osThreadId_t         tickTaskHandle;
-uint32_t             tickTaskBuffer[512];
-osStaticThreadDef_t  tickTaskControlBlock;
-const osThreadAttr_t tickTask_attributes = {
-    .name       = "tickTask",
-    .cb_mem     = &tickTaskControlBlock,
-    .cb_size    = sizeof(tickTaskControlBlock),
-    .stack_mem  = &tickTaskBuffer[0],
-    .stack_size = sizeof(tickTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+/* Definitions for canRxTask */
+osThreadId_t         canRxTaskHandle;
+uint32_t             canRxTaskBuffer[512];
+osStaticThreadDef_t  canRxTaskControlBlock;
+const osThreadAttr_t canRxTask_attributes = {
+    .name       = "canRxTask",
+    .cb_mem     = &canRxTaskControlBlock,
+    .cb_size    = sizeof(canRxTaskControlBlock),
+    .stack_mem  = &canRxTaskBuffer[0],
+    .stack_size = sizeof(canRxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
-
+static CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .tx_overflow_callback = NULL,
+    .rx_overflow_callback = NULL,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN1_Init(void);
-static void MX_CRC_Init(void);
-void        runInterfaceTask(void *argument);
+static void MX_FDCAN2_Init(void);
+void        runDefaultTask(void *argument);
 void        runCanTxTask(void *argument);
-void        runTickTask(void *argument);
+void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -112,8 +117,14 @@ void        runTickTask(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
+
+    /* Enable I-Cache---------------------------------------------------------*/
+    SCB_EnableICache();
+
+    /* Enable D-Cache---------------------------------------------------------*/
+    SCB_EnableDCache();
 
     /* MCU Configuration--------------------------------------------------------*/
 
@@ -121,7 +132,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -133,14 +143,17 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_CAN1_Init();
-    MX_CRC_Init();
+    MX_FDCAN2_Init();
     /* USER CODE BEGIN 2 */
+    // __HAL_DBGMCU_FREEZE_IWDG();
+
+    hw_hardFaultHandler_init();
+    hw_can_init(&hfdcan2);
+
+    io_can_init(&can_config);
+
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
-
-    hw_can_init(&hcan1);
-    bootloader_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -163,14 +176,14 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of interfaceTask */
-    interfaceTaskHandle = osThreadNew(runInterfaceTask, NULL, &interfaceTask_attributes);
+    /* creation of defaultTask */
+    defaultTaskHandle = osThreadNew(runDefaultTask, NULL, &defaultTask_attributes);
 
     /* creation of canTxTask */
     canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
 
-    /* creation of tickTask */
-    tickTaskHandle = osThreadNew(runTickTask, NULL, &tickTask_attributes);
+    /* creation of canRxTask */
+    canRxTaskHandle = osThreadNew(runCanRxTask, NULL, &canRxTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -204,10 +217,17 @@ void SystemClock_Config(void)
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
+    /** Supply configuration update enable
+     */
+    HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+
     /** Configure the main internal regulator output voltage
      */
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
+    {
+    }
 
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
@@ -216,11 +236,14 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 8;
-    RCC_OscInitStruct.PLL.PLLN       = 192;
-    RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
+    RCC_OscInitStruct.PLL.PLLM       = 1;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
+    RCC_OscInitStruct.PLL.PLLP       = 1;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
+    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -228,11 +251,15 @@ void SystemClock_Config(void)
 
     /** Initializes the CPU, AHB and APB buses clocks
      */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 |
+                                  RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
+    RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
@@ -241,62 +268,54 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief CAN1 Initialization Function
+ * @brief FDCAN2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_CAN1_Init(void)
+static void MX_FDCAN2_Init(void)
 {
-    /* USER CODE BEGIN CAN1_Init 0 */
+    /* USER CODE BEGIN FDCAN2_Init 0 */
 
-    /* USER CODE END CAN1_Init 0 */
+    /* USER CODE END FDCAN2_Init 0 */
 
-    /* USER CODE BEGIN CAN1_Init 1 */
+    /* USER CODE BEGIN FDCAN2_Init 1 */
 
-    /* USER CODE END CAN1_Init 1 */
-    hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 12;
-    hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
-    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
-    hcan1.Init.TimeTriggeredMode    = DISABLE;
-    hcan1.Init.AutoBusOff           = ENABLE;
-    hcan1.Init.AutoWakeUp           = DISABLE;
-    hcan1.Init.AutoRetransmission   = ENABLE;
-    hcan1.Init.ReceiveFifoLocked    = ENABLE;
-    hcan1.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan1) != HAL_OK)
+    /* USER CODE END FDCAN2_Init 1 */
+    hfdcan2.Instance                  = FDCAN2;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan2.Init.AutoRetransmission   = ENABLE;
+    hfdcan2.Init.TransmitPause        = DISABLE;
+    hfdcan2.Init.ProtocolException    = DISABLE;
+    hfdcan2.Init.NominalPrescaler     = 16;
+    hfdcan2.Init.NominalSyncJumpWidth = 4;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.DataPrescaler        = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 1;
+    hfdcan2.Init.DataTimeSeg1         = 1;
+    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 0;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBuffersNbr         = 0;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxEventsNbr          = 0;
+    hfdcan2.Init.TxBuffersNbr         = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN CAN1_Init 2 */
+    /* USER CODE BEGIN FDCAN2_Init 2 */
 
-    /* USER CODE END CAN1_Init 2 */
-}
-
-/**
- * @brief CRC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CRC_Init(void)
-{
-    /* USER CODE BEGIN CRC_Init 0 */
-
-    /* USER CODE END CRC_Init 0 */
-
-    /* USER CODE BEGIN CRC_Init 1 */
-
-    /* USER CODE END CRC_Init 1 */
-    hcrc.Instance = CRC;
-    if (HAL_CRC_Init(&hcrc) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CRC_Init 2 */
-
-    /* USER CODE END CRC_Init 2 */
+    /* USER CODE END FDCAN2_Init 2 */
 }
 
 /**
@@ -306,13 +325,34 @@ static void MX_CRC_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PD0 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_0;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -322,17 +362,29 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_runInterfaceTask */
+/* USER CODE BEGIN Header_runDefaultTask */
 /**
- * @brief  Function implementing the interfaceTask thread.
+ * @brief  Function implementing the defaultTask thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_runInterfaceTask */
-void runInterfaceTask(void *argument)
+/* USER CODE END Header_runDefaultTask */
+void runDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    bootloader_runInterfaceTask();
+    /* Infinite loop */
+    for (;;)
+    {
+        // Just blinky for now
+        HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_6);
+        osDelay(1000);
+
+        CanMsg msg = {
+            .std_id = 100,
+            .dlc    = 0,
+        };
+        io_can_pushTxMsgToQueue(&msg);
+    }
     /* USER CODE END 5 */
 }
 
@@ -346,22 +398,31 @@ void runInterfaceTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
-    bootloader_runCanTxTask();
+    /* Infinite loop */
+    for (;;)
+    {
+        io_can_transmitMsgFromQueue();
+    }
     /* USER CODE END runCanTxTask */
 }
 
-/* USER CODE BEGIN Header_runTickTask */
+/* USER CODE BEGIN Header_runCanRxTask */
 /**
- * @brief Function implementing the tickTask thread.
+ * @brief Function implementing the canRxTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_runTickTask */
-void runTickTask(void *argument)
+/* USER CODE END Header_runCanRxTask */
+void runCanRxTask(void *argument)
 {
-    /* USER CODE BEGIN runTickTask */
-    bootloader_runTickTask();
-    /* USER CODE END runTickTask */
+    /* USER CODE BEGIN runCanRxTask */
+    /* Infinite loop */
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+    }
+    /* USER CODE END runCanRxTask */
 }
 
 /**

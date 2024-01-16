@@ -1,5 +1,9 @@
 #include "hw_flash.h"
 #include "hw_hal.h"
+#include <string.h>
+#include "Io_SharedMacros.h"
+
+#if defined(STM32F412Rx)
 
 bool hw_flash_programByte(uint32_t address, uint8_t data)
 {
@@ -42,6 +46,18 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
     HAL_FLASH_Lock();
     return status;
 }
+
+#elif defined(STM32H733xx)
+
+bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
+{
+    HAL_FLASH_Unlock();
+    HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
+    HAL_FLASH_Lock();
+    return status == HAL_OK;
+}
+
+#endif
 
 bool hw_flash_eraseSector(uint8_t sector)
 {

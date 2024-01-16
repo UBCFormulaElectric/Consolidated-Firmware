@@ -1,18 +1,17 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    stm32f4xx_it.c
+ * @file    stm32h7xx_it.c
  * @brief   Interrupt Service Routines.
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
- * All rights reserved.</center></h2>
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
  *
- * This software component is licensed by ST under Ultimate Liberty license
- * SLA0044, the "License"; You may not use this file except in compliance with
- * the License. You may obtain a copy of the License at:
- *                             www.st.com/SLA0044
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
  *
  ******************************************************************************
  */
@@ -20,7 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f4xx_it.h"
+#include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.h"
@@ -57,15 +56,15 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern CAN_HandleTypeDef hcan1;
-extern TIM_HandleTypeDef htim6;
+extern FDCAN_HandleTypeDef hfdcan2;
+extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M4 Processor Interruption and Exception Handlers          */
+/*           Cortex Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
  * @brief This function handles Non maskable interrupt.
@@ -76,7 +75,9 @@ void NMI_Handler(void)
 
     /* USER CODE END NonMaskableInt_IRQn 0 */
     /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-
+    while (1)
+    {
+    }
     /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
@@ -154,52 +155,52 @@ void DebugMon_Handler(void)
 }
 
 /******************************************************************************/
-/* STM32F4xx Peripheral Interrupt Handlers                                    */
+/* STM32H7xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32f4xx.s).                    */
+/* please refer to the startup file (startup_stm32h7xx.s).                    */
 /******************************************************************************/
 
 /**
- * @brief This function handles CAN1 RX0 interrupts.
+ * @brief This function handles FDCAN2 interrupt 0.
  */
-void CAN1_RX0_IRQHandler(void)
+void FDCAN2_IT0_IRQHandler(void)
 {
-    /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
 
-    /* USER CODE END CAN1_RX0_IRQn 0 */
-    HAL_CAN_IRQHandler(&hcan1);
-    /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
 
-    /* USER CODE END CAN1_RX0_IRQn 1 */
+    /* USER CODE END FDCAN2_IT0_IRQn 1 */
 }
 
 /**
- * @brief This function handles CAN1 RX1 interrupt.
+ * @brief This function handles FDCAN2 interrupt 1.
  */
-void CAN1_RX1_IRQHandler(void)
+void FDCAN2_IT1_IRQHandler(void)
 {
-    /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
 
-    /* USER CODE END CAN1_RX1_IRQn 0 */
-    HAL_CAN_IRQHandler(&hcan1);
-    /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan2);
+    /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
 
-    /* USER CODE END CAN1_RX1_IRQn 1 */
+    /* USER CODE END FDCAN2_IT1_IRQn 1 */
 }
 
 /**
- * @brief This function handles TIM6 global interrupt.
+ * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
  */
-void TIM6_IRQHandler(void)
+void TIM6_DAC_IRQHandler(void)
 {
-    /* USER CODE BEGIN TIM6_IRQn 0 */
+    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 
-    /* USER CODE END TIM6_IRQn 0 */
+    /* USER CODE END TIM6_DAC_IRQn 0 */
     HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_IRQn 1 */
+    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
-    /* USER CODE END TIM6_IRQn 1 */
+    /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
