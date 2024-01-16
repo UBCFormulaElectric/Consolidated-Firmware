@@ -5,8 +5,8 @@
 #include "queue.h"
 
 // Sizes of CAN TX and RX queues.
-#define TX_QUEUE_SIZE 20
-#define RX_QUEUE_SIZE 20
+#define TX_QUEUE_SIZE 128
+#define RX_QUEUE_SIZE 128
 #define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
 #define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
 
