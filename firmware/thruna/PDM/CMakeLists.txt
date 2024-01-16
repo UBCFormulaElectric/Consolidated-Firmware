@@ -3,25 +3,34 @@ set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/PDM.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
+list(APPEND APP_SRCS 
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
+)
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
-list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
+list(APPEND IO_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
+)
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+list(APPEND HW_SRCS 
+    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+)
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_crc.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_flash.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
@@ -69,7 +78,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_iwdg.c"
         "stm32f4xx_hal_rcc_ex.c"
         "stm32f4xx_hal_rcc.c"
-        "stm32f4xx_hal_spi.c"
         "stm32f4xx_hal_tim_ex.c"
         "stm32f4xx_hal_tim.c"
         "stm32f4xx_hal.c"
