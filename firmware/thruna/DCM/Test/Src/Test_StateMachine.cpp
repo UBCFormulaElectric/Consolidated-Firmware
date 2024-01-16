@@ -114,7 +114,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     {
         return std::vector<const struct State *>{
             App_GetInitState(),
-            App_GetDriveState(),
+            app_driveState_get(),
         };
     }
 
@@ -133,7 +133,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
     void TestFaultBlocksDrive(std::function<void(void)> set_fault, std::function<void(void)> clear_fault)
     {
-        SetInitialState(App_GetDriveState());
+        SetInitialState(app_driveState_get());
 
         // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
@@ -207,7 +207,7 @@ TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
 
 TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
 
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 }
@@ -215,7 +215,7 @@ TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
 {
     // Start in drive with a non-zero torque request to prevent false positive.
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(1.0f);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(1.0f);
     App_CanTx_DCM_LeftInverterEnable_Set(true);
@@ -239,7 +239,7 @@ TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
 
 TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     LetTimePass(state_machine, 10);
 
@@ -285,7 +285,7 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
 TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
 
     // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.

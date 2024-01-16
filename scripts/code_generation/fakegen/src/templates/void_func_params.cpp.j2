@@ -57,6 +57,12 @@ struct std::hash<{{ params_cls }}>
 static uint32_t {{ func_call_count }};
 static unordered_map<{{ params_cls }}, uint32_t> {{ call_count_map }};
 
+//Callback Function Pointer
+static void (*{{ name }}_callback)({%- for param in params %}
+    {{ param.type }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}) = NULL;
+
 extern "C" 
 {
     void {{ name }}(
@@ -82,6 +88,16 @@ extern "C"
         else {
             {{ call_count_map }}[params] = 1;
         }
+
+        // call callback function if defined
+        if({{ name }}_callback != NULL){
+            return {{ name }}_callback(
+            {%- for param in params %}
+            {{ param.name }}
+            {%- if not loop.last %}, {% endif %}
+            {%- endfor %}
+            );
+        }
     }
 }
 
@@ -89,6 +105,7 @@ void fake_{{ name }}_reset()
 {
     {{ func_call_count }} = 0;
     {{ call_count_map }}.clear();
+    {{ name }}_callback = NULL;
 }
 
 uint32_t fake_{{ name }}_callCount(void)
@@ -118,4 +135,12 @@ uint32_t fake_{{ name }}_callCountForArgs(
     else {
         return 0;
     }
+}
+
+void fake_{{ name }}_setCallBack(void (*func_ptr)({%- for param in params %}
+    {{ param.type }}
+    {%- if not loop.last %}, {% endif %}
+{%- endfor %}))
+{
+   {{ name }}_callback = func_ptr;
 }

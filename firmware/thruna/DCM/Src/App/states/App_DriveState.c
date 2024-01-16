@@ -104,7 +104,7 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
-const struct State *App_GetDriveState(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",

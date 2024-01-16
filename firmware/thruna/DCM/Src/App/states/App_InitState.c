@@ -36,7 +36,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
-        App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
+        App_SharedStateMachine_SetNextState(state_machine, app_driveState_get());
     }
 }
 
