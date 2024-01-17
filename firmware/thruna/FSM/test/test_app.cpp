@@ -71,10 +71,10 @@ TEST_F(FsmAppTest, check_brake_can_signals)
 
     // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignal(
-        fake_io_brake_frontPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_FrontBrakePressureOutOfRange_Get);
+        fake_io_brake_frontPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_BrakePressureSensorOCSC_Get);
 
     CheckBinaryStatusCanSignal(
-        fake_io_brake_rearPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_RearBrakePressureOutOfRange_Get);
+        fake_io_brake_rearPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_BrakePressureSensorOCSC_Get);
 }
 
 TEST_F(FsmAppTest, check_primary_flow_rate_can_signals)
