@@ -147,12 +147,19 @@ class JsonCanParser:
 
             # Parse node's alerts
             if len(node_alerts_json_data) > 0:
+                
+                alert_array, meta_data = self._parse_node_alerts(node, node_alerts_json_data)
                 (
                     warnings,
                     faults,
                     warnings_counts,
                     faults_counts,
-                ) = self._parse_node_alerts(node, node_alerts_json_data)
+                ) = alert_array
+                
+                (
+                    faults_meta_data,
+                    warinings_meta_data,
+                ) = meta_data
 
                 # Make sure alerts are received by all other boards
                 other_nodes = [other for other in self._nodes if other != node]
@@ -163,18 +170,16 @@ class JsonCanParser:
                 self._messages[faults.name] = faults
                 self._messages[warnings_counts.name] = warnings_counts
                 self._messages[faults_counts.name] = faults_counts
-            
-
-
+    
                 self._alerts[node] ={
                     **{
                         CanAlert(alert.name, CanAlertType.WARNING):
-                        node_alerts_json_data["warnings"][alert.name[12::]]
+                        warinings_meta_data[alert.name]
                         for alert in warnings.signals
                     },
                     **{
                         CanAlert(alert.name, CanAlertType.FAULT):
-                        node_alerts_json_data["faults"][alert.name[10::]]
+                        faults_meta_data[alert.name]
                         for alert in faults.signals
                     },
                 }
@@ -484,14 +489,19 @@ class JsonCanParser:
             )
 
         # Make alert signals
-        warnings_signals = self._node_alert_signals(node, warnings, "Warning")
-        faults_signals = self._node_alert_signals(node, faults, "Fault")
+        warnings_meta_data,warnings_signals = self._node_alert_signals(node, warnings, "Warning")
+        faults_meta_data,faults_signals = self._node_alert_signals(node, faults, "Fault")
         warnings_counts_signals = self._node_alert_count_signals(
             node, warnings, "Warning"
         )
         faults_counts_signals = self._node_alert_count_signals(node, faults, "Fault")
 
         # Make CAN msg for alerts
+        meta_data = [
+            faults_meta_data,
+            warnings_meta_data
+        ]
+        
         alerts_msgs = [
             CanMessage(
                 name=name,
@@ -535,7 +545,7 @@ class JsonCanParser:
             ]
         ]
 
-        return alerts_msgs
+        return alerts_msgs, meta_data
     
     def _node_alert_signals(
         self, node: str, alerts: Dict, type: str
@@ -543,10 +553,14 @@ class JsonCanParser:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
         """
-        return [
-            CanSignal(
-                name=f"{node}_{type}_{alert}",
-                start_bit=i,
+        signals = []
+        meta_data = {}
+        bit_pos = 0
+        
+        for alerts_name, alerts_id in alerts.items():
+            signals.append(CanSignal(
+                name=f"{node}_{type}_{alerts_name}",
+                start_bit=bit_pos,
                 bits=1,
                 scale=1,
                 offset=0,
@@ -556,9 +570,12 @@ class JsonCanParser:
                 enum=None,
                 unit="",
                 signed=False,
-            )
-            for i, alert in enumerate(alerts)
-        ]
+            ))
+            
+            bit_pos +=1
+            meta_data[f"{node}_{type}_{alerts_name}"] = alerts_id
+            
+        return meta_data, signals
 
     def _node_alert_count_signals(
         self, node: str, alerts: Dict, type: str
