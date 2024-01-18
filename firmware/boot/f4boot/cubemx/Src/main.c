@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -139,7 +138,6 @@ int main(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
-    hw_can_init(&hcan1);
     bootloader_init();
     /* USER CODE END 2 */
 
@@ -346,6 +344,7 @@ void runInterfaceTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
+    /* Infinite loop */
     bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
@@ -360,6 +359,7 @@ void runCanTxTask(void *argument)
 void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
+    /* Infinite loop */
     bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
