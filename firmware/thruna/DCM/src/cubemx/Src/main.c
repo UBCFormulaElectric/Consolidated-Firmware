@@ -44,7 +44,7 @@
 #include "io_watchdogConfig.h"
 #include "Io_SharedHeartbeatMonitor.h"
 #include "io_led.h"
-#include "Io_buzzer.h"
+#include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_can.h"
 #include "io_canConfig.h"
