@@ -5,7 +5,7 @@
 #include "App_SharedConstants.h"
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "torquevectoring/app_torqueVectoring.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
