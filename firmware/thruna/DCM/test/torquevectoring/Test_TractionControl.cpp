@@ -4,7 +4,7 @@
 
 extern "C"
 {
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "torquevectoring/app_torqueVectoring.h"
 #include "torquevectoring/app_tractionControl.h"
 #include "app_torqueVectoringConstants.h"
 #include <math.h>

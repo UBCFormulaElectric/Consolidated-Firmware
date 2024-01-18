@@ -1,4 +1,4 @@
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "torquevectoring/app_torqueVectoring.h"
 #include "app_torqueVectoringConstants.h"
 #include "torquevectoring/app_powerLimiting.h"
 #include "torquevectoring/app_activeDifferential.h"

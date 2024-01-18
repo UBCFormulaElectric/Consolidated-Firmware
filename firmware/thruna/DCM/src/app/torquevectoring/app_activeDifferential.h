@@ -1,5 +1,5 @@
 #pragma once
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "torquevectoring/app_torqueVectoring.h"
 
 void app_activeDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs);
 
