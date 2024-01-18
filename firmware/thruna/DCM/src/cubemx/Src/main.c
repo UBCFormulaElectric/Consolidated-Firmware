@@ -148,7 +148,7 @@ static const CanConfig can_config = {
 };
 
 struct StateMachine *    state_machine;
-struct HeartbeatMonitor *heartbeat_monitor;
+struct HeartbeatMonitor *hb_monitor;
 
 static const BinaryLed brake_light = { .gpio = {
                                            .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
@@ -241,13 +241,13 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    hb_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
 
     app_globals_init(&globals_config);
-    globals->heartbeat_monitor = heartbeat_monitor;
+    globals->hb_monitor = hb_monitor;
 
     // broadcast commit info
     App_CanTx_DCM_Hash_Set(GIT_COMMIT_HASH);

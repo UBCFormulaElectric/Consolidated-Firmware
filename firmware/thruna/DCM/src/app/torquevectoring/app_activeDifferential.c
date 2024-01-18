@@ -5,7 +5,7 @@
 #include "App_SharedMacros.h"
 #include <stdlib.h>
 
-void app_activeDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
+void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
 {
     float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
     float cl    = 1 + Delta;

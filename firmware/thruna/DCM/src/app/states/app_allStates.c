@@ -20,19 +20,19 @@ static void sendAndReceiveHeartbeat(void)
 
     if (App_CanRx_BMS_Heartbeat_Get())
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(globals->hb_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_Heartbeat_Update(false);
     }
 
     if (App_CanRx_FSM_Heartbeat_Get())
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, FSM_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(globals->hb_monitor, FSM_HEARTBEAT_ONE_HOT);
         App_CanRx_FSM_Heartbeat_Update(false);
     }
 
     if (App_CanRx_DIM_Heartbeat_Get())
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, DIM_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(globals->hb_monitor, DIM_HEARTBEAT_ONE_HOT);
         App_CanRx_DIM_Heartbeat_Update(false);
     }
 }
@@ -55,7 +55,7 @@ bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool is_missing_hb =
-        !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
+        !App_SharedHeartbeatMonitor_Tick(globals->hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
     App_CanAlerts_DCM_Fault_MissingHeartbeat_Set(is_missing_hb);
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;

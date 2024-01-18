@@ -18,6 +18,7 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
@@ -34,8 +35,8 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
 
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 # Autogenerate git commit info header/source.
@@ -115,6 +116,13 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
 elseif("${TARGET}" STREQUAL "test")
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+    )
+    create_fake_library(
+        "DCM_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
     jsoncan_library(
         "DCM_can"
         "DCM"
@@ -125,11 +133,11 @@ elseif("${TARGET}" STREQUAL "test")
     target_include_directories(DCM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
         "DCM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DCM_test" "DCM_can" "DCM_commit_info" "shared_fakes")
+    target_link_libraries("DCM_test" "DCM_can" "DCM_fakes" "BMS_commit_info" "shared_fakes")
 endif()

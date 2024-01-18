@@ -9,10 +9,10 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
+#include "app_globals.h"
+#include "App_Timer.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-
-static bool torque_vectoring_switch_is_on;
 
 void transmitTorqueRequests()
 {
@@ -43,8 +43,10 @@ void transmitTorqueRequests()
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    // struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
-    // App_Buzzer_TurnOn(buzzer);
+    // Enable buzzer on transition to drive, and start 2s timer.
+    io_buzzer_enable(globals->config->buzzer, true);
+    App_CanTx_DCM_BuzzerOn_Set(true);
+    App_Timer_Restart(&globals->buzzer_timer);
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
@@ -56,9 +58,9 @@ static void driveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
     // Read torque vectoring switch only when entering drive state, not during driving
-    torque_vectoring_switch_is_on = App_CanRx_DIM_AuxSwitch_Get() == SWITCH_ON;
+    globals->torque_vectoring_switch_is_on = App_CanRx_DIM_AuxSwitch_Get() == SWITCH_ON;
 
-    if (torque_vectoring_switch_is_on)
+    if (globals->torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_setup();
     }
@@ -77,9 +79,16 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool bms_not_in_drive = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE;
     bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
 
+    // Disable drive buzzer after 2 seconds.
+    if (App_Timer_UpdateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
+    {
+        io_buzzer_enable(globals->config->buzzer, false);
+        App_CanTx_DCM_BuzzerOn_Set(false);
+    }
+
     if (all_states_ok)
     {
-        if (torque_vectoring_switch_is_on)
+        if (globals->torque_vectoring_switch_is_on)
         {
             app_torqueVectoring_run();
         }
@@ -88,6 +97,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             transmitTorqueRequests();
         }
     }
+
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
@@ -102,6 +112,10 @@ static void driveStateRunOnExit(struct StateMachine *const state_machine)
 
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
+
+    // Disable buzzer on exit drive.
+    io_buzzer_enable(globals->config->buzzer, false);
+    App_CanTx_DCM_BuzzerOn_Set(false);
 }
 
 const struct State *app_driveState_get(void)

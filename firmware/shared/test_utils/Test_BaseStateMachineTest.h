@@ -40,6 +40,7 @@ class BaseStateMachineTest : public testing::Test
         // A simple way to get around this is to start the state machine at
         // t = 1ms rather than t = 0ms.
         current_time_ms = 1;
+        App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
     virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms)

@@ -4,6 +4,8 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
+#include "io_buzzer.h"
+#include "app_globals.h"
 
 static void initStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -14,6 +16,10 @@ static void initStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterEnable_Set(false);
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
+
+    // Disable buzzer on transition to init.
+    io_buzzer_enable(globals->config->buzzer, false);
+    App_CanTx_DCM_BuzzerOn_Set(false);
 }
 
 static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)

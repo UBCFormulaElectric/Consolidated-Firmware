@@ -10,7 +10,10 @@
             },
             "State": {
                 "enum": "DcmState"
-            }
+            },
+            "BuzzerOn": {
+                "bits": 1
+            } 
         }
     },
     "LeftInverterCommand": {

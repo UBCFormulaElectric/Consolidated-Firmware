@@ -97,7 +97,7 @@ void app_torqueVectoring_handleAcceleration(void)
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
     active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
-    app_activeDifferential_ComputeTorque(&active_differential_inputs, &active_differential_outputs);
+    app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
     App_CanTx_DCM_ActiveDiffTorqueLeft_Set(active_differential_outputs.torque_left_Nm);
     App_CanTx_DCM_ActiveDiffTorqueRight_Set(active_differential_outputs.torque_right_Nm);
 

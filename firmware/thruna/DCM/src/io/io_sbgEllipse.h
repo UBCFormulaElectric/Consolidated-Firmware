@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "app_sbgEllipse.h"
 
 // Enum of all the values read from the SBG Ellipse N sensor
 typedef enum

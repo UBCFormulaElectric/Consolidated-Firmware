@@ -1,7 +1,7 @@
 #pragma once
 #include "torquevectoring/app_torqueVectoring.h"
 
-void app_activeDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs);
+void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs);
 
 float app_activeDifferential_wheelAngleToSpeedDelta(float wheel_angle);
 
