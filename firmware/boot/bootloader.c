@@ -13,10 +13,8 @@
 #include "hw_crc.h"
 #include "main.h"
 #include "hw_gpio.h"
-#include "stm32f4xx_hal_gpio.h"
 
 extern CRC_HandleTypeDef hcrc;
-extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim6;
 
 // App code block. Start/size included from the linker script.
@@ -148,9 +146,9 @@ void bootloader_init()
     HAL_GPIO_Init(BOOT_GPIO_PORT, &bootloader_gpio_init);
 #endif
 
+    // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-    hw_can_init(&hcan1);
     io_can_init(&can_config);
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
@@ -209,11 +207,8 @@ void bootloader_runInterfaceTask()
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            uint32_t lsb_word = *(uint32_t *)command.data;
-            uint32_t msb_word = *(uint32_t *)&command.data[sizeof(uint32_t)];
-            hw_flash_programWord(current_address, lsb_word);
-            hw_flash_programWord(current_address + sizeof(uint32_t), msb_word);
-            current_address += 2 * sizeof(uint32_t);
+            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            current_address += sizeof(uint64_t);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {

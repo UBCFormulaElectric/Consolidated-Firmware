@@ -94,7 +94,7 @@
         {
             "label": "Build: h7dev",
             "type": "shell",
-            "command": "make -j`nproc` h7dev.elf",
+            "command": "make -j`nproc` h7dev.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
