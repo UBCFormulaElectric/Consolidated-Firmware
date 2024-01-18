@@ -1,5 +1,5 @@
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "io_airs.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
@@ -29,7 +29,7 @@ static void faultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (acc_fault_cleared && ts_fault_cleared && precharge_ok && air_negative_open)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+            app_stateMachine_setNextState(state_machine, app_initState_get());
         }
     }
 }

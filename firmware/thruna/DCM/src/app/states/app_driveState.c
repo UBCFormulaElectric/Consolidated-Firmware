@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
-#include "App_SharedMacros.h"
+#include "app_units.h"
 #include "torquevectoring/app_torqueVectoringConstants.h"
-#include "App_SharedConstants.h"
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "torquevectoring/app_torqueVectoring.h"
@@ -10,7 +9,7 @@
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "app_globals.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
@@ -46,7 +45,7 @@ static void driveStateRunOnEntry(struct StateMachine *const state_machine)
     // Enable buzzer on transition to drive, and start 2s timer.
     io_buzzer_enable(globals->config->buzzer, true);
     App_CanTx_DCM_BuzzerOn_Set(true);
-    App_Timer_Restart(&globals->buzzer_timer);
+    app_timer_restart(&globals->buzzer_timer);
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
@@ -80,7 +79,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
 
     // Disable drive buzzer after 2 seconds.
-    if (App_Timer_UpdateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
+    if (app_timer_updateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
     {
         io_buzzer_enable(globals->config->buzzer, false);
         App_CanTx_DCM_BuzzerOn_Set(false);
@@ -100,7 +99,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (exit_drive)
     {
-        App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+        app_stateMachine_setNextState(state_machine, app_initState_get());
     }
 }
 

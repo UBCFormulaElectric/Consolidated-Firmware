@@ -2,7 +2,7 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "app_globals.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "io_lowVoltageBattery.h"
 

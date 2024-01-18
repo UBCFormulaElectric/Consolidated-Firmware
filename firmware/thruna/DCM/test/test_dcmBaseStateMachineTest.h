@@ -16,8 +16,8 @@ extern "C"
 #include "App_CanAlerts.h"
 #include "App_CanUtils.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
+#include "app_stateMachine.h"
+#include "app_utils.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
@@ -42,20 +42,15 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
         globals->hb_monitor = hb_monitor;
 
         // Default to starting the state machine in the `init` state
-        state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
+        state_machine = app_stateMachine_init(NULL, app_initState_get());
     }
 
-    void TearDown() override
-    {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(hb_monitor, App_SharedHeartbeatMonitor_Destroy);
-    }
+    void TearDown() override { TearDownObject(hb_monitor, App_SharedHeartbeatMonitor_Destroy); }
 
     void SetInitialState(const struct State *const initial_state)
     {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        state_machine = App_SharedStateMachine_Create(NULL, initial_state);
-        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
+        state_machine = app_stateMachine_init(NULL, initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
     }
 
     std::vector<const struct State *> GetAllStates(void)

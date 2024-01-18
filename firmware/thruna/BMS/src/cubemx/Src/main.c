@@ -29,7 +29,7 @@
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "App_CommitInfo.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_soc.h"
@@ -37,10 +37,9 @@
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 
-#include "Io_SharedHeartbeatMonitor.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedSpi.h"
 #include "Io_CanTx.h"
@@ -63,6 +62,7 @@
 #include "hw_adc.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
+#include "hw_utils.h"
 
 /* USER CODE END Includes */
 
@@ -382,7 +382,7 @@ int main(void)
     app_soc_init();
     app_globals_init(&globals_config);
 
-    state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
+    state_machine = app_stateMachine_init(NULL, app_initState_get());
 
     hb_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -1049,7 +1049,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        app_stateMachine_tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -1135,9 +1135,8 @@ void RunTask1kHz(void *argument)
 
         // Check in for timeouts for all RTOS tasks
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
-        App_Timer_SetCurrentTimeMS(task_start_ms);
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -1176,7 +1175,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        app_stateMachine_tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

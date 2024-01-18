@@ -1,8 +1,8 @@
 #include "io_imd.h"
 #include <assert.h>
 #include "main.h"
-#include <task.h>
 #include "Io_SharedPwmInput.h"
+#include "io_time.h"
 
 extern TIM_HandleTypeDef htim1;
 
@@ -33,10 +33,10 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-uint16_t io_imd_getTimeSincePowerOn(void)
+uint32_t io_imd_getTimeSincePowerOn(void)
 {
     // The IMD shares the same power rail as the BMS, so we assume that the IMD
     // and BMS boot up at the same time. In other words, the IMD has been ON
     // for just as long as the BMS.
-    return (uint16_t)(xTaskGetTickCount() * portTICK_RATE_MS) / 1000U;
+    return io_time_getCurrentMs();
 }

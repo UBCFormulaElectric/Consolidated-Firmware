@@ -4,13 +4,11 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/App_RingQueue.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_Timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedWaitSignal.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedClock.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_InRangeCheck.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -18,11 +16,11 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 

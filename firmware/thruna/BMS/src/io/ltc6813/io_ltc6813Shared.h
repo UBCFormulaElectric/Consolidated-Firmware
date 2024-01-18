@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedConstants.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"

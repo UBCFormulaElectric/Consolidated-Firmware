@@ -6,7 +6,7 @@
 
 extern "C"
 {
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 }
 
 FAKE_VOID_FUNC(state_A_entry, struct StateMachine *);
@@ -45,7 +45,7 @@ class SharedStateMachineTest : public testing::Test
         state_C.run_on_tick_100Hz = NULL;
         state_C.run_on_exit       = state_C_exit;
 
-        state_machine = App_SharedStateMachine_Create(world, &state_A);
+        state_machine = app_stateMachine_init(world, &state_A);
 
         RESET_FAKE(state_A_entry);
         RESET_FAKE(state_A_tick_1kHz);
@@ -56,25 +56,20 @@ class SharedStateMachineTest : public testing::Test
         RESET_FAKE(state_B_exit);
     }
 
-    void TearDown() override
-    {
-        TearDownObject(world, App_TestWorld_Destroy);
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-    }
+    void TearDown() override { TearDownObject(world, App_TestWorld_Destroy); }
 
     void SetInitialState(const struct State *const initial_state)
     {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        state_machine = app_stateMachine_init(world, initial_state);
         ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
     }
 
     // We provide our own implementation of the 1hz tick for state_A
     // here so that we can simulate a state transition in a tick
     static void state_A_tick_1Hz(struct StateMachine *state_machine)
     {
-        App_SharedStateMachine_SetNextState(state_machine, &state_B);
+        app_stateMachine_setNextState(state_machine, &state_B);
     }
 
     struct World *       world;
@@ -87,9 +82,9 @@ TEST_F(SharedStateMachineTest, check_that_switching_states_in_tick_switches_stat
     // that all the other frequencies also transition state
     SetInitialState(&state_A);
 
-    App_SharedStateMachine_Tick1Hz(state_machine);
+    app_stateMachine_tick1Hz(state_machine);
 
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    app_stateMachine_tick100Hz(state_machine);
 
     EXPECT_EQ(state_B_tick_1kHz_fake.call_count, 1);
 }
@@ -104,6 +99,6 @@ TEST_F(SharedStateMachineTest, check_that_null_tick_functions_dont_deadlock)
     // we know we didn't deadlock.
 
     SetInitialState(&state_C);
-    App_SharedStateMachine_Tick1Hz(state_machine);
-    App_SharedStateMachine_Tick1Hz(state_machine);
+    app_stateMachine_tick1Hz(state_machine);
+    app_stateMachine_tick1Hz(state_machine);
 }

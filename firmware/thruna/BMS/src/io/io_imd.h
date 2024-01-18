@@ -37,4 +37,4 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
  * Get the time elapsed since the IMD was powered on
  * @return The the time elapsed since the IMD was powered on, in seconds
  */
-uint16_t io_imd_getTimeSincePowerOn(void);
+uint32_t io_imd_getTimeSincePowerOn(void);

@@ -28,10 +28,11 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
+#include "app_utils.h"
+#include "app_units.h"
+#include "app_stateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 #include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_apps.h"
@@ -45,7 +46,6 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "hw_hardFaultHandler.h"
-#include "Io_SharedHeartbeatMonitor.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
 #include "io_stackWaterMark.h"
@@ -55,10 +55,12 @@
 #include "io_steering.h"
 #include "io_apps.h"
 #include "io_brake.h"
+#include "io_time.h"
 
 #include "hw_bootup.h"
 #include "hw_can.h"
 #include "hw_adc.h"
+#include "hw_utils.h"
 
 // commit info
 #include "App_CommitInfo.h"
@@ -271,15 +273,12 @@ int main(void)
     App_CanRx_Init();
 
     app_apps_init();
-    app_brake_init();
     app_coolant_init();
-    app_steering_init();
-    app_wheels_init();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine              = App_SharedStateMachine_Create(NULL, app_driveState_get());
+    state_machine              = app_stateMachine_init(NULL, app_driveState_get());
     globals->heartbeat_monitor = heartbeat_monitor;
 
     // broadcast commit info
@@ -792,9 +791,8 @@ void RunTask1kHz(void *argument)
         const uint32_t start_time_ms = osKernelGetTickCount();
 
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
-        App_Timer_SetCurrentTimeMS(task_start_ms);
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -834,7 +832,7 @@ void RunTask100Hz(void *argument)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        app_stateMachine_tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -913,7 +911,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        app_stateMachine_tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

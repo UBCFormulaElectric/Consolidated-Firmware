@@ -1,7 +1,6 @@
 #include <string.h>
 #include "Io_SharedSpi.h"
 #include "ltc6813/io_ltc6813Shared.h"
-#include "App_SharedConstants.h"
 #include "app_accumulator.h"
 
 // clang-format off

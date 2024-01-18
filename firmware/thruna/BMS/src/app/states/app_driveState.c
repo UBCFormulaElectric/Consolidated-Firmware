@@ -1,5 +1,5 @@
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "io_airs.h"
 #include "app_airs.h"
 
@@ -21,7 +21,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool air_negative_opened = !io_airs_isNegativeClosed();
         if (air_negative_opened)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+            app_stateMachine_setNextState(state_machine, app_initState_get());
         }
     }
 }

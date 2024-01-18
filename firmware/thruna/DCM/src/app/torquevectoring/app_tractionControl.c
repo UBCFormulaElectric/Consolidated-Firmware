@@ -2,6 +2,7 @@
 #include "torquevectoring/app_pid.h"
 #include "App_CanTx.h"
 #include "app_torqueVectoringConstants.h"
+#include "app_units.h"
 #include <math.h>
 
 void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)

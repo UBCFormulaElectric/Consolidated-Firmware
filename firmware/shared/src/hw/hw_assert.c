@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "App_SharedMacros.h"
-#include "Io_SharedMacros.h"
+#include "app_utils.h"
+#include "hw_utils.h"
 
 static char buffer[100];
 

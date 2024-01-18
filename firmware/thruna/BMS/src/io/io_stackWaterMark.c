@@ -2,7 +2,7 @@
 
 #include "io_stackWaterMark.h"
 #include "main.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "Io_SharedStackWaterMark.h"
 #include "App_CanTx.h"
 #include "App_CanAlerts.h"

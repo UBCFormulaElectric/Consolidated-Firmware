@@ -1,6 +1,6 @@
-#include "App_SharedProcessing.h"
+#include "app_math.h"
 
-float App_SharedProcessing_LinearDerating(float x, float max_y, float roll_off_x, float max_x)
+float app_math_linearDerating(float x, float max_y, float roll_off_x, float max_x)
 {
     float derated_y = 0.0f;
 

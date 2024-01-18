@@ -1,5 +1,5 @@
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "app_imd.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
@@ -61,15 +61,15 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
 #else
             if (precharge_for_charging)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_prechargeState_get());
+                app_stateMachine_setNextState(state_machine, app_prechargeState_get());
             }
             else if (precharge_for_driving)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_inverterOnState_get());
+                app_stateMachine_setNextState(state_machine, app_inverterOnState_get());
             }
             else if (cell_balancing_enabled)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_balancingState_get());
+                app_stateMachine_setNextState(state_machine, app_balancingState_get());
             }
 #endif
         }

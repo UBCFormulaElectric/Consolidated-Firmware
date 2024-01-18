@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 
 /**
  * On-tick 1Hz function for every state in the given state machine

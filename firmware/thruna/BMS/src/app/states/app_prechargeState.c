@@ -34,8 +34,8 @@ static void preChargeStateRunOnEntry(struct StateMachine *const state_machine)
     io_airs_closePrecharge();
 
     // Restart timers for checking if we're precharging too slow/quick.
-    App_Timer_Restart(&globals->precharge_lower_bound_timer);
-    App_Timer_Restart(&globals->precharge_upper_bound_timer);
+    app_timer_restart(&globals->precharge_lower_bound_timer);
+    app_timer_restart(&globals->precharge_upper_bound_timer);
 }
 
 static void preChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -54,10 +54,10 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         const bool is_air_negative_open = !io_airs_isNegativeClosed();
         const bool is_ts_rising_slowly =
             (ts_voltage < threshold_voltage) &&
-            (App_Timer_UpdateAndGetState(&globals->precharge_upper_bound_timer) == TIMER_STATE_EXPIRED);
+            (app_timer_updateAndGetState(&globals->precharge_upper_bound_timer) == TIMER_STATE_EXPIRED);
         const bool is_ts_rising_quickly =
             (ts_voltage > threshold_voltage) &&
-            (App_Timer_UpdateAndGetState(&globals->precharge_lower_bound_timer) == TIMER_STATE_RUNNING);
+            (app_timer_updateAndGetState(&globals->precharge_lower_bound_timer) == TIMER_STATE_RUNNING);
 
         const bool has_precharge_fault =
             checkPrechargeFaults(is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly, is_air_negative_open);
@@ -69,11 +69,11 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         {
             if (globals->precharge_limit_exceeded)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+                app_stateMachine_setNextState(state_machine, app_faultState_get());
             }
             else
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+                app_stateMachine_setNextState(state_machine, app_initState_get());
             }
         }
         // If there is no precharge fault and the charger is connected
@@ -92,14 +92,14 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             }
 
             globals->num_precharge_failures = 0U;
-            App_SharedStateMachine_SetNextState(state_machine, next_state);
+            app_stateMachine_setNextState(state_machine, next_state);
             io_airs_closePositive();
         }
 
         if (is_air_negative_open && is_charger_connected)
         {
             // TODO: Consider reworking this transition.
-            App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+            app_stateMachine_setNextState(state_machine, app_faultState_get());
             App_CanRx_Debug_StartCharging_Update(false);
             App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(!is_charger_connected);
         }

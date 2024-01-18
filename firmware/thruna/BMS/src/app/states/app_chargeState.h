@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 #include "app_accumulator.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)

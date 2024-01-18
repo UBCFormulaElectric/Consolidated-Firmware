@@ -4,12 +4,10 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedClock.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_Timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedProcessing.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedRgbLedSequence.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_math.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -21,7 +19,6 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c"
 )

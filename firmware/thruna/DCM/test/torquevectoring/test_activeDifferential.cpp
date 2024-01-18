@@ -15,8 +15,7 @@ extern "C"
 #include "torquevectoring/app_activeDifferential.h"
 #include "torquevectoring/app_torqueVectoringConstants.h"
 #include "torquevectoring/app_torqueVectoring.h"
-#include "App_SharedConstants.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "math.h"
 }
 /**

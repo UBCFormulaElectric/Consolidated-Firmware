@@ -2,7 +2,7 @@
 
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 static void initStateRunOnEntry(struct StateMachine *const state_machine)
 {

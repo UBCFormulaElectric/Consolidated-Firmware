@@ -1,4 +1,3 @@
-#include "App_SharedMacros.h"
 #include "states/app_allStates.h"
 #include "app_sbgEllipse.h"
 #include "io_led.h"

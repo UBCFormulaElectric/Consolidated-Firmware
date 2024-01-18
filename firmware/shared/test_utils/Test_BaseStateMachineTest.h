@@ -4,9 +4,9 @@
 
 extern "C"
 {
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
-#include "App_Timer.h"
+#include "app_utils.h"
+#include "app_stateMachine.h"
+#include "app_timer.h"
 }
 
 class BaseStateMachineTest : public testing::Test
@@ -61,12 +61,12 @@ class BaseStateMachineTest : public testing::Test
         {
             if (current_time_ms % 1000 == 0)
             {
-                App_SharedStateMachine_Tick1Hz(state_machine);
+                app_stateMachine_tick1Hz(state_machine);
             }
 
             if (current_time_ms % 10 == 0)
             {
-                App_SharedStateMachine_Tick100Hz(state_machine);
+                app_stateMachine_tick100Hz(state_machine);
             }
 
             UpdateSignals(state_machine, current_time_ms);

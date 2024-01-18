@@ -1,8 +1,8 @@
 #include "states/app_allStates.h"
 #include "states/app_prechargeState.h"
 #include "states/app_inverterOnState.h"
-#include "App_SharedMacros.h"
-#include "App_Timer.h"
+#include "app_utils.h"
+#include "app_timer.h"
 
 #define CHARGING_MILLISECONDS 200
 
@@ -12,8 +12,8 @@ static bool         has_time_passed;
 static void inverterOnStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_INVERTER_ON_STATE);
-    App_Timer_InitTimer(&timer, CHARGING_MILLISECONDS);
-    App_Timer_Restart(&timer);
+    app_timer_init(&timer, CHARGING_MILLISECONDS);
+    app_timer_restart(&timer);
 }
 
 void app_inverterOnState_init()
@@ -30,11 +30,11 @@ static void inverterOnStateRunOnTick100Hz(struct StateMachine *const state_machi
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
-        TimerState timer_state = App_Timer_UpdateAndGetState(&timer);
+        TimerState timer_state = app_timer_updateAndGetState(&timer);
 
         if (timer_state == TIMER_STATE_EXPIRED || has_time_passed)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_prechargeState_get());
+            app_stateMachine_setNextState(state_machine, app_prechargeState_get());
             has_time_passed = true;
         }
     }

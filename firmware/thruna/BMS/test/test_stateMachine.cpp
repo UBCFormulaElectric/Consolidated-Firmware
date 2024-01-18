@@ -260,7 +260,7 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
 
     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
     ASSERT_EQ(true, App_CanAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_Get());
-    ASSERT_EQ(app_faultState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
@@ -350,7 +350,7 @@ TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
 
     LetTimePass(state_machine, 20);
 
-    ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
@@ -364,7 +364,7 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
 
     LetTimePass(state_machine, 210U);
 
-    ASSERT_EQ(app_prechargeState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
@@ -387,8 +387,8 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     // Pause for slightly longer to allow pre-charge
     LetTimePass(state_machine, 210);
 
-    printf("%s", App_SharedStateMachine_GetCurrentState(state_machine)->name);
-    ASSERT_EQ(app_chargeState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    printf("%s", app_stateMachine_getCurrentState(state_machine)->name);
+    ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
@@ -407,7 +407,7 @@ TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
     LetTimePass(state_machine, 100);
 
     ASSERT_EQ(fake_io_charger_enable_callCountForArgs(true), 1);
-    ASSERT_EQ(app_chargeState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
@@ -424,7 +424,7 @@ TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
     App_CanRx_Debug_StartCharging_Update(false);
 
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, fault_from_charger_fault)
@@ -443,7 +443,7 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     // Charger faults are ignored for 5s upon charge state entry
     LetTimePass(state_machine, 5010);
-    const struct State *currentState = App_SharedStateMachine_GetCurrentState(state_machine);
+    const struct State *currentState = app_stateMachine_getCurrentState(state_machine);
 
     ASSERT_EQ(app_faultState_get(), currentState);
 }
@@ -470,7 +470,7 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
 
     LetTimePass(state_machine, 20);
 
-    ASSERT_EQ(app_faultState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
@@ -488,19 +488,19 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f);
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(app_faultState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState(state_machine));
 
     // Check that state machine remains in fault state without cycling to init state for long period of time
     for (int i = 0; i < 100; i++)
     {
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(app_faultState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+        ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState(state_machine));
     }
 
     // Remove fault condition and check transition to init state
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC - 10.0f);
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_status)
@@ -569,12 +569,12 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         {
             // Precharge should start
             LetTimePass(state_machine, 210U);
-            ASSERT_EQ(app_prechargeState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState(state_machine));
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 
             // Let precharge duration elapse, confirm still in precharge state and AIR+ open
             LetTimePass(state_machine, test_params[i].precharge_duration);
-            ASSERT_EQ(app_prechargeState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState(state_machine));
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
@@ -585,32 +585,32 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
             if (test_params[i].expect_precharge_successful)
             {
                 // Precharge successful, enter drive
-                ASSERT_EQ(app_driveState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 1);
 
                 LetTimePass(state_machine, 1000);
-                ASSERT_EQ(app_driveState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 1);
             }
             else
             {
                 // Precharge failed, back to init to try again
-                ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 
                 LetTimePass(state_machine, 1000);
-                ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+                ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
                 ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
             }
         }
         else
         {
             // Precharge doesn't start, stay in init indefinitely
-            ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 
             LetTimePass(state_machine, 1000);
-            ASSERT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+            ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
         }
     }

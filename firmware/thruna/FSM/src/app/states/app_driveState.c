@@ -1,7 +1,6 @@
 #include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
+#include "app_utils.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"

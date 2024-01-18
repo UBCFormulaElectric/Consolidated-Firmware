@@ -3,7 +3,7 @@
 extern "C"
 {
 #include "App_SharedSignal.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 }
 
 class SharedSignalTest : public testing::Test

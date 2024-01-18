@@ -5,7 +5,7 @@
 #include "App_CanAlerts.h"
 #include "App_CanTx.h"
 #include "Io_CanTx.h"
-#include "Io_SharedMacros.h"
+#include "hw_utils.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 

@@ -8,7 +8,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 // This is a "hack" taken from the ST forum (shorturl.at/iqDKV) to do the
 // following:

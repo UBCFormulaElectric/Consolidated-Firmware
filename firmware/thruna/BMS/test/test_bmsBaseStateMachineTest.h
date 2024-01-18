@@ -24,8 +24,8 @@ extern "C"
 #include "App_CanAlerts.h"
 #include "App_CanUtils.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
+#include "app_stateMachine.h"
+#include "app_utils.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "states/app_initState.h"
 #include "states/app_prechargeState.h"
@@ -77,12 +77,11 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_charger_isConnected_returns(false);
 
         // Default to starting the state machine in the `init` state
-        state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
+        state_machine = app_stateMachine_init(NULL, app_initState_get());
     }
 
     void TearDown() override
     {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
 
         fake_io_charger_hasFaulted_reset();
@@ -107,9 +106,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
     void SetInitialState(const struct State *const initial_state)
     {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        state_machine = App_SharedStateMachine_Create(NULL, initial_state);
-        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
+        state_machine = app_stateMachine_init(NULL, initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
     }
 
     std::vector<const struct State *> GetAllStates(void)
@@ -119,44 +117,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
                                                   app_faultState_get(),    app_inverterOnState_get(),
                                                   app_balancingState_get() };
     }
-
-    // void CheckInRangeCanSignalsInGivenState(
-    //     const State *state,
-    //     float        min_value,
-    //     float        max_value,
-    //     float &      fake_value,
-    //     float (*value_can_signal_getter)(const struct BmsCanTxInterface *),
-    //     uint8_t (*out_of_range_can_signal_getter)(const struct BmsCanTxInterface *),
-    //     uint8_t ok_choice,
-    //     uint8_t underflow_choice,
-    //     uint8_t overflow_choice)
-    // {
-    //     SetInitialState(state);
-
-    //     // Normal range
-    //     fake_value = (min_value + max_value) / 2;
-    //     LetTimePass(state_machine, 1000);
-    //     ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
-    //     ASSERT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
-
-    //     // Underflow range
-    //     fake_value = std::nextafter(min_value, std::numeric_limits<float>::lowest());
-    //     LetTimePass(state_machine, 1000);
-    //     ASSERT_EQ(underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
-
-    //     // Overflow range
-    //     fake_value = std::nextafter(max_value, std::numeric_limits<float>::max());
-    //     LetTimePass(state_machine, 1000);
-    //     ASSERT_EQ(overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
-    // }
-
-    // void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
-    // {
-    //     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    //     struct Clock *   clock = App_BmsWorld_GetClock(world);
-    //     App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
-    //     App_Timer_SetCurrentTimeMS(current_time_ms);
-    // }
 
     struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;

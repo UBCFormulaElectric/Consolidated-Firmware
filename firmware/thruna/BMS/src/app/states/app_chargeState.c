@@ -42,13 +42,13 @@ static void chargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (has_charger_faulted)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+            app_stateMachine_setNextState(state_machine, app_faultState_get());
         }
 
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (!is_charger_connected || external_shutdown_occurred)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+            app_stateMachine_setNextState(state_machine, app_faultState_get());
             App_CanAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_Set(!is_charger_connected);
             App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(external_shutdown_occurred);
         }
@@ -61,7 +61,7 @@ static void chargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
             if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+                app_stateMachine_setNextState(state_machine, app_initState_get());
             }
         }
     }

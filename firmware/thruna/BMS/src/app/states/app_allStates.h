@@ -8,7 +8,7 @@
 #include "states/app_balancingState.h"
 #include "states/app_faultState.h"
 #include "app_globals.h"
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 #include "App_CanAlerts.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"

@@ -29,8 +29,9 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
+#include "app_utils.h"
+#include "app_units.h"
+#include "app_stateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "states/app_initState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -42,17 +43,18 @@
 #include "hw_hardFaultHandler.h"
 #include "io_stackWaterMark.h"
 #include "io_watchdogConfig.h"
-#include "Io_SharedHeartbeatMonitor.h"
 #include "io_led.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_can.h"
 #include "io_canConfig.h"
 #include "io_jsoncan.h"
+#include "io_time.h"
 
 #include "hw_bootup.h"
 #include "hw_can.h"
 #include "hw_gpio.h"
+#include "hw_utils.h"
 
 /* USER CODE END Includes */
 
@@ -242,9 +244,9 @@ int main(void)
     App_CanRx_Init();
 
     hb_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
+    state_machine = app_stateMachine_init(NULL, app_initState_get());
 
     app_globals_init(&globals_config);
     globals->hb_monitor = hb_monitor;
@@ -544,7 +546,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_sbgEllipse_getComStatus();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        app_stateMachine_tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
@@ -663,7 +665,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        app_stateMachine_tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

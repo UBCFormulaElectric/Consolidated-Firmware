@@ -1,6 +1,6 @@
 #include "states/app_allStates.h"
 #include "app_accumulator.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "io_airs.h"
 
 static void balancingStateRunOnEntry(struct StateMachine *const state_machine)
@@ -23,7 +23,7 @@ static void balancingStateRunOnTick100Hz(struct StateMachine *const state_machin
         const bool stopped_requesting_balance = !App_CanRx_Debug_CellBalancingRequest_Get();
         if (air_negative_open || stopped_requesting_balance)
         {
-            App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+            app_stateMachine_setNextState(state_machine, app_initState_get());
         }
     }
 }

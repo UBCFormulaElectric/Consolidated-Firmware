@@ -5,8 +5,7 @@
 #include "io_charger.h"
 #include "io_thermistors.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedClock.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 
 typedef struct
 {

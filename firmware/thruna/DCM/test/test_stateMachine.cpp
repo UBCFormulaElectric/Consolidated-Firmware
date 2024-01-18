@@ -41,17 +41,17 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 
     // Transition BMS to drive state, expect no transition
     App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 
     // Actuate brake pedal
     App_CanRx_FSM_BrakeActuated_Update(true);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState(state_machine));
 
     // Pull start switch down and back up, expect init->drive transition
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 
 typedef enum
 {
@@ -16,4 +16,4 @@ typedef enum
  * Get a pointer to the Drive State.
  * @return A pointer to the Drive State.
  */
-const struct State *app_driveState_get(void);
+const State *app_driveState_get(void);

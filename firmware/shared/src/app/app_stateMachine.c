@@ -2,34 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __arm__
-#include <FreeRTOS.h>
-#include <semphr.h>
-#elif __unix__ || __APPLE__
-#include <pthread.h>
-#elif _WIN32
-#include <windows.h>
-#else
-#error "Could not determine what CPU this is being compiled for."
-#endif
-
-#include "App_SharedStateMachine.h"
-
-struct StateMachine
-{
-    const struct State *next_state;
-    const struct State *current_state;
-    struct World *      world;
-#ifdef __arm__
-    StaticSemaphore_t state_tick_mutex_storage;
-    SemaphoreHandle_t state_tick_mutex;
-#elif __unix__ || __APPLE__
-    pthread_mutex_t state_tick_mutex;
-#elif _WIN32
-    HANDLE state_tick_mutex;
-#endif
-};
-
 /**
  * Run the given tick function over the given state machine if the tick function
  * is not null
@@ -37,7 +9,7 @@ struct StateMachine
  * @param state_machine The state machine to run the tick function over
  * @param tick_function The tick function to run over the state machine
  */
-void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
+void app_stateMachine_tickIfNotNull(
     struct StateMachine *const state_machine,
     void (*tick_function)(struct StateMachine *))
 {
@@ -78,7 +50,7 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
 #endif
 }
 
-struct StateMachine *App_SharedStateMachine_Create(struct World *world, const struct State *initial_state)
+struct StateMachine *app_stateMachine_init(struct World *world, const struct State *initial_state)
 {
     struct StateMachine *state_machine = (struct StateMachine *)malloc(sizeof(struct StateMachine));
     assert(state_machine != NULL);
@@ -99,33 +71,22 @@ struct StateMachine *App_SharedStateMachine_Create(struct World *world, const st
     return state_machine;
 }
 
-void App_SharedStateMachine_Destroy(struct StateMachine *const state_machine)
-{
-    free(state_machine);
-}
-
-const struct State *App_SharedStateMachine_GetCurrentState(const struct StateMachine *const state_machine)
+const struct State *app_stateMachine_getCurrentState(const struct StateMachine *const state_machine)
 {
     return state_machine->current_state;
 }
 
-void App_SharedStateMachine_SetNextState(struct StateMachine *const state_machine, const struct State *const next_state)
+void app_stateMachine_setNextState(struct StateMachine *const state_machine, const struct State *const next_state)
 {
     state_machine->next_state = next_state;
 }
 
-struct World *App_SharedStateMachine_GetWorld(const struct StateMachine *const state_machine)
+void app_stateMachine_tick1Hz(struct StateMachine *const state_machine)
 {
-    return state_machine->world;
+    app_stateMachine_tickIfNotNull(state_machine, state_machine->current_state->run_on_tick_1Hz);
 }
 
-void App_SharedStateMachine_Tick1Hz(struct StateMachine *const state_machine)
+void app_stateMachine_tick100Hz(StateMachine *const state_machine)
 {
-    App_SharedStateMachine_RunStateTickFunctionIfNotNull(state_machine, state_machine->current_state->run_on_tick_1Hz);
-}
-
-void App_SharedStateMachine_Tick100Hz(struct StateMachine *const state_machine)
-{
-    App_SharedStateMachine_RunStateTickFunctionIfNotNull(
-        state_machine, state_machine->current_state->run_on_tick_100Hz);
+    app_stateMachine_tickIfNotNull(state_machine, state_machine->current_state->run_on_tick_100Hz);
 }

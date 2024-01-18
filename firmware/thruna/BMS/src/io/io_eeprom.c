@@ -1,5 +1,5 @@
 #include "io_eeprom.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "main.h"
 #include "hw_hal.h"
 

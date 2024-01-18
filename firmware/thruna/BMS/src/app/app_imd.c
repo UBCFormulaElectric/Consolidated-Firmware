@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "App_CanUtils.h"
 #include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 

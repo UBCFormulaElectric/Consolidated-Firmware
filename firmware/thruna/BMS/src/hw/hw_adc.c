@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "hw_hal.h"
 #include "hw_adcConversions.h"
-#include "Io_SharedMacros.h"
+#include "hw_utils.h"
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
 static float    adc_voltages[NUM_ADC_CHANNELS];

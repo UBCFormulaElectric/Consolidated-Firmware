@@ -2,7 +2,7 @@
 #include "Io_SharedSpi.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 // clang-format off
 

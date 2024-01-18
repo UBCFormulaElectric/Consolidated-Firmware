@@ -4,7 +4,8 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
+#include "app_units.h"
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
 #include "app_avgPower.h"
@@ -13,6 +14,10 @@
 #include "App_CommitInfo.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
+#define WHEEL_DIAMETER_IN (16.0f)
+#define GEAR_RATIO (4.3f)
+#define MOTOR_RPM_TO_KMH(kmh) \
+    ((kmh) * (float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO) // take rpm of whell to kph
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -120,9 +125,9 @@ static void driveStateRunOnExit(struct StateMachine *const state_machine)
     UNUSED(state_machine);
 }
 
-const struct State *app_driveState_get(void)
+const State *app_driveState_get(void)
 {
-    static struct State drive_state = {
+    static const State drive_state = {
         .name              = "DRIVE",
         .run_on_entry      = driveStateRunOnEntry,
         .run_on_tick_1Hz   = driveStateRunOnTick1Hz,

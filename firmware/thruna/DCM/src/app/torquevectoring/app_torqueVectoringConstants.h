@@ -1,10 +1,8 @@
 #pragma once
 #include "torquevectoring/app_pid.h"
 
-// Conversions
-#define IN_TO_M 0.0254f
-
 // Constants
+
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
 #define PLANETARY_GEAR_RATIO 4.241f
 #define SLIP_RATIO_IDEAL 0.05f
@@ -22,6 +20,7 @@
 #define PID_POWER_FACTOR_MIN (-0.9f)
 #define PID_POWER_FACTOR_MAX 0.1f
 #define APPROX_STEERING_TO_WHEEL_ANGLE 0.3f // Underestimate for wheel angles > 40deg. See Confluence/Steering System
+#define MAX_TORQUE_REQUEST_NM (90.0f)       // Max torque of EMRAX 188 HV CC motor
 
 // Tunable parameters
 extern const PID_Config PID_POWER_CORRECTION_CONFIG;

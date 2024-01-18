@@ -19,8 +19,6 @@ extern "C"
 #include "torquevectoring/app_torqueVectoringConstants.h"
 #include "torquevectoring/app_torqueVectoring.h"
 #include "math.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 }

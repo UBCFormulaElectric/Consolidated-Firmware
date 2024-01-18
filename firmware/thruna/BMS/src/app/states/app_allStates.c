@@ -1,6 +1,6 @@
 #include "states/app_allStates.h"
 #include "states/app_faultState.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_tractiveSystem.h"
@@ -103,7 +103,7 @@ bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
     else if (acc_fault || ts_fault)
     {
         status = false;
-        App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+        app_stateMachine_setNextState(state_machine, app_faultState_get());
     }
 
     return status;

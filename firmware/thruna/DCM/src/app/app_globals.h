@@ -4,7 +4,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "io_led.h"
 #include "io_buzzer.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 
 #define BUZZER_ON_DURATION_MS 2000
 

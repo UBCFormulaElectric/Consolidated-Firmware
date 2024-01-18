@@ -25,8 +25,8 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
+#include "app_utils.h"
+#include "app_stateMachine.h"
 #include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanTx.h"
@@ -35,12 +35,13 @@
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
 #include "app_avgPower.h"
+#include "app_utils.h"
+#include "app_units.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedErrorHandlerOverride.h"
 #include "hw_hardFaultHandler.h"
-#include "Io_SharedHeartbeatMonitor.h"
 
 #include "io_time.h"
 #include "io_led.h"
@@ -56,6 +57,8 @@
 #include "hw_bootup.h"
 #include "hw_gpio.h"
 #include "hw_can.h"
+#include "hw_utils.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -356,9 +359,10 @@ int main(void)
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
+    state_machine = app_stateMachine_init(NULL, app_driveState_get());
+    app_state
 
-    app_sevenSegDisplays_init();
+        app_sevenSegDisplays_init();
     app_avgPower_init();
     app_globals_init(&globals_config);
     globals->heartbeat_monitor = heartbeat_monitor;
@@ -645,7 +649,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        app_stateMachine_tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -766,7 +770,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        app_stateMachine_tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

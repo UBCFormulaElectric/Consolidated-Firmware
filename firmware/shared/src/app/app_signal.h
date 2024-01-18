@@ -2,11 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "configs/App_SharedSignalConfig.h"
-
-#ifndef World
-#error "Please define the 'World' type"
-#endif
+#include "app_timer.h"
 
 typedef enum
 {
@@ -14,15 +10,28 @@ typedef enum
     SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
 } SignalState;
 
-struct Signal;
+typedef struct
+{
+    // A flag used to indicate if the callback function is triggered
+    bool is_signal_active;
+    // The world associated with this signal
+    struct World *world;
+
+    // State of the signal
+    SignalState state;
+
+    TimerChannel entry_timer;
+    TimerChannel exit_timer;
+} Signal;
 
 /**
- * Allocate and initialize a signal
+ * Initialize a signal
+ * @param signal Signal to initialize
  * @param entry_time Amount of time required for the enter condition to be true to enter it
  * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
-struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
+void app_signal_init(Signal *signal, uint32_t entry_time, uint32_t exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -36,18 +45,4 @@ struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high);
-
-// Getters
-/**
- * Check if the callback function for the given signal is triggered
- * @param signal The signal to check if the callback function is triggered
- * @return true if the callback function is triggered, false if it is not
- */
-bool App_SharedSignal_IsSignalActivated(const struct Signal *const signal);
-
-/**
- * Deallocate the memory used by the given signal
- * @param signal The signal to deallocate
- */
-void App_SharedSignal_Destroy(struct Signal *signal);
+SignalState app_signal_getState(Signal *signal, bool entry_condition_high, bool exit_condition_high);

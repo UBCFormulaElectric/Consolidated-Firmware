@@ -1,12 +1,12 @@
 #pragma once
 
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
 #include "states/app_chargeState.h"
 #include "states/app_faultState.h"
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
+#include "app_units.h"
 
 #define NUM_OF_INVERTERS (2U)
 #define PRECHARGE_RESISTOR_OHMS (500U)

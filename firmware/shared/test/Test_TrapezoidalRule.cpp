@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "App_SharedProcessing.h"
+#include "app_math.h"
 }
 
 TEST(VoltageSenseTest, tractive_system_voltage_calculation)
@@ -20,7 +20,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
 
     for (std::size_t i = 0, e = x_vec.size(); i != e; i++)
     {
-        App_SharedProcessing_TrapezoidalRule(&integral, &prev_fx, sin(x_vec[i]), M_PI_4);
+        app_math_trapezoidalRule(&integral, &prev_fx, sin(x_vec[i]), M_PI_4);
         ASSERT_NEAR(integral, expected_val[i], 1e-4);
     }
 }

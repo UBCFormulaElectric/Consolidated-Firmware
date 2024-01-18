@@ -4,7 +4,7 @@
 #include "interfaces/sbgInterfaceSerial.h"
 #include "io_sbgEllipse.h"
 #include "App_RingQueue.h"
-#include "App_SharedMacros.h"
+#include "app_units.h"
 #include "FreeRTOS.h"
 
 /* ------------------------------------ Defines ------------------------------------- */

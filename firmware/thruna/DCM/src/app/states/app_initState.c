@@ -1,6 +1,5 @@
 #include "states/app_allStates.h"
 #include "states/app_driveState.h"
-#include "App_SharedMacros.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
@@ -46,7 +45,7 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
-        App_SharedStateMachine_SetNextState(state_machine, app_driveState_get());
+        app_stateMachine_setNextState(state_machine, app_driveState_get());
     }
 }
 

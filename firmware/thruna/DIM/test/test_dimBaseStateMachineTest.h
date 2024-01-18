@@ -13,12 +13,11 @@ extern "C"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedStateMachine.h"
+#include "app_stateMachine.h"
 #include "app_sevenSegDisplays.h"
-#include "App_SharedRgbLedSequence.h"
 #include "app_avgPower.h"
 #include "App_CanUtils.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_globals.h"
@@ -39,7 +38,7 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-        state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
+        state_machine = app_stateMachine_init(NULL, app_driveState_get());
 
         app_avgPower_init();
         app_sevenSegDisplays_init();
@@ -49,7 +48,6 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
 
     void TearDown() override
     {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
 
         // Reset fakes.
