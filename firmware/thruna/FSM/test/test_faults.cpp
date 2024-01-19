@@ -19,7 +19,7 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
     fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
-    ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
+    ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
@@ -27,7 +27,7 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     App_CanRx_BMS_Heartbeat_Update(true); // Check in heartbeat
     get_current_ms_fake.return_val += 10;
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
+    ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
@@ -35,7 +35,7 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     // Fail to check heartbeat, FSM should fault
     get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
-    ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
+    ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);
@@ -61,7 +61,7 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     App_CanRx_BMS_Heartbeat_Update(true); // Check in heartbeat
     get_current_ms_fake.return_val += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
     LetTimePass(state_machine, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
-    ASSERT_EQ(app_driveState_get(), app_stateMachine_getCurrentState(state_machine));
+    ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState(state_machine));
     ASSERT_FALSE(App_CanAlerts_FSM_Fault_MissingHeartbeat_Get());
     ASSERT_NEAR(50, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
     ASSERT_NEAR(50, App_CanTx_FSM_SappsMappedPedalPercentage_Get(), 0.5f);

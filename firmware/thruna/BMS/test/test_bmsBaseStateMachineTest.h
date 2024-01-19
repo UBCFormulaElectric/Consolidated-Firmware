@@ -77,7 +77,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_charger_isConnected_returns(false);
 
         // Default to starting the state machine in the `init` state
-        state_machine = app_stateMachine_init(NULL, app_initState_get());
+        = app_stateMachine_init(NULL, app_initState_get());
     }
 
     void TearDown() override
@@ -104,21 +104,20 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_faultLatch_setCurrentStatus_reset();
     }
 
-    void SetInitialState(const struct State *const initial_state)
+    void SetInitialState(const State *const initial_state)
     {
-        state_machine = app_stateMachine_init(NULL, initial_state);
-        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
+        = app_stateMachine_init(NULL, initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
-    std::vector<const struct State *> GetAllStates(void)
+    std::vector<const State *> GetAllStates(void)
     {
-        return std::vector<const struct State *>{ app_initState_get(),     app_prechargeState_get(),
-                                                  app_driveState_get(),    app_chargeState_get(),
-                                                  app_faultState_get(),    app_inverterOnState_get(),
-                                                  app_balancingState_get() };
+        return std::vector<const State *>{ app_initState_get(),     app_prechargeState_get(), app_driveState_get(),
+                                           app_chargeState_get(),   app_faultState_get(),     app_inverterOnState_get(),
+                                           app_balancingState_get() };
     }
 
-    struct StateMachine *    state_machine;
+    StateMachine *;
     struct HeartbeatMonitor *heartbeat_monitor;
 
     const Charger              charger_config     = {};

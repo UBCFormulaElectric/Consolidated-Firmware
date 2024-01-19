@@ -36,12 +36,7 @@ static void sendAndReceiveHeartbeat(void)
     }
 }
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-}
-
-bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+bool app_allStates_runOnTick100Hz(void)
 {
     sendAndReceiveHeartbeat();
 

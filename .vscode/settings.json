@@ -9,4 +9,10 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"*.llc_repl": "cpp",
+		"*.ld": "mapfile",
+		"app_statemachine.h": "c",
+		"app_sharedheartbeatmonitor.h": "c"
+	},
 }

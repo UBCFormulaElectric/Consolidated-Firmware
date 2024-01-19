@@ -40,7 +40,7 @@ void transmitTorqueRequests()
     App_CanTx_DCM_RightInverterTorqueCommand_Set(torque_request);
 }
 
-static void driveStateRunOnEntry(struct StateMachine *const state_machine)
+static void driveStateRunOnEntry(void)
 {
     // Enable buzzer on transition to drive, and start 2s timer.
     io_buzzer_enable(globals->config->buzzer, true);
@@ -65,15 +65,10 @@ static void driveStateRunOnEntry(struct StateMachine *const state_machine)
     }
 }
 
-static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
-{
-    app_allStates_runOnTick1Hz(state_machine);
-}
-
-static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick100Hz(void)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool all_states_ok    = app_allStates_runOnTick100Hz(state_machine);
+    const bool all_states_ok    = app_allStates_runOnTick100Hz();
     const bool start_switch_off = App_CanRx_DIM_StartSwitch_Get() == SWITCH_OFF;
     const bool bms_not_in_drive = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE;
     bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
@@ -99,11 +94,11 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (exit_drive)
     {
-        app_stateMachine_setNextState(state_machine, app_initState_get());
+        app_stateMachine_setNextState(app_initState_get());
     }
 }
 
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
+static void driveStateRunOnExit(void)
 {
     // Disable inverters and apply zero torque upon exiting drive state
     App_CanTx_DCM_LeftInverterEnable_Set(false);
@@ -117,12 +112,12 @@ static void driveStateRunOnExit(struct StateMachine *const state_machine)
     App_CanTx_DCM_BuzzerOn_Set(false);
 }
 
-const struct State *app_driveState_get(void)
+const State *app_driveState_get(void)
 {
-    static struct State drive_state = {
+    static State drive_state = {
         .name              = "DRIVE",
         .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
+        .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = driveStateRunOnTick100Hz,
         .run_on_exit       = driveStateRunOnExit,
     };

@@ -47,18 +47,18 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
 
     void TearDown() override { TearDownObject(hb_monitor, App_SharedHeartbeatMonitor_Destroy); }
 
-    void SetInitialState(const struct State *const initial_state)
+    void SetInitialState(const State *const initial_state)
     {
         state_machine = app_stateMachine_init(NULL, initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
     }
 
-    std::vector<const struct State *> GetAllStates(void)
+    std::vector<const State *> GetAllStates(void)
     {
-        return std::vector<const struct State *>{ app_initState_get(), app_driveState_get() };
+        return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
 
-    struct StateMachine *    state_machine;
+    StateMachine *           state_machine;
     struct HeartbeatMonitor *hb_monitor;
 
     const BinaryLed brake_light = {};

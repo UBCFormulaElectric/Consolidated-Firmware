@@ -33,7 +33,7 @@
 #include "app_stateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "app_timer.h"
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_apps.h"
 #include "app_brake.h"
@@ -156,14 +156,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct Brake *            brake;
-struct World *            world;
-struct StateMachine *     state_machine;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct AcceleratorPedals *papps_and_sapps;
-struct Coolant *          coolant;
-struct Steering *         steering;
-struct Wheels *           wheels;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -191,6 +183,7 @@ static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+struct HeartbeatMonitor *heartbeat_monitor;
 
 static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -272,13 +265,13 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    app_apps_init();
-    app_coolant_init();
-
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine              = app_stateMachine_init(NULL, app_driveState_get());
+    app_apps_init();
+    app_coolant_init();
+    app_stateMachine_init(app_mainState_get());
+
     globals->heartbeat_monitor = heartbeat_monitor;
 
     // broadcast commit info
@@ -832,7 +825,7 @@ void RunTask100Hz(void *argument)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        app_stateMachine_tick100Hz(state_machine);
+        app_stateMachine_tick100Hz();
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -911,7 +904,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        app_stateMachine_tick1Hz(state_machine);
+        app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

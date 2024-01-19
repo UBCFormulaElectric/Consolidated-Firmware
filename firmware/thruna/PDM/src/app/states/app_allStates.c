@@ -6,15 +6,8 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "io_lowVoltageBattery.h"
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
+void app_allStates_runOnTick100Hz(void)
 {
-    UNUSED(state_machine);
-}
-
-void app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-
     App_CanTx_PDM_Heartbeat_Set(true);
     App_CanTx_PDM_BatVoltage_Set(io_lowVoltageBattery_getBatVoltage());
     App_CanTx_PDM_AccVoltage_Set(io_lowVoltageBattery_getAccVoltage());

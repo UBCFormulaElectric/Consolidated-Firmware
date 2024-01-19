@@ -27,9 +27,10 @@
 
 #include "app_utils.h"
 #include "app_stateMachine.h"
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CanTx.h"
+#include "App_CommitInfo.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "app_globals.h"
@@ -149,7 +150,6 @@ static const CanConfig can_config = {
     .rx_overflow_callback = io_canConfig_rxOverflowCallback,
 };
 
-struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
 
 static const BinaryLed imd_led   = { .gpio = {
@@ -359,13 +359,15 @@ int main(void)
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine = app_stateMachine_init(NULL, app_driveState_get());
-    app_state
-
-        app_sevenSegDisplays_init();
+    app_sevenSegDisplays_init();
     app_avgPower_init();
+    app_stateMachine_init(app_mainState_get());
     app_globals_init(&globals_config);
     globals->heartbeat_monitor = heartbeat_monitor;
+
+    // broadcast commit info
+    App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
+    App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -649,7 +651,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        app_stateMachine_tick100Hz(state_machine);
+        app_stateMachine_tick100Hz();
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -770,7 +772,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        app_stateMachine_tick1Hz(state_machine);
+        app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

@@ -6,7 +6,7 @@
 #include "io_buzzer.h"
 #include "app_globals.h"
 
-static void initStateRunOnEntry(struct StateMachine *const state_machine)
+static void initStateRunOnEntry(void)
 {
     App_CanTx_DCM_State_Set(DCM_INIT_STATE);
 
@@ -21,14 +21,9 @@ static void initStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_BuzzerOn_Set(false);
 }
 
-static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void initStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
-}
-
-static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
-{
-    const bool all_states_ok = app_allStates_runOnTick100Hz(state_machine);
+    const bool all_states_ok = app_allStates_runOnTick100Hz();
 
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
@@ -45,23 +40,18 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
-        app_stateMachine_setNextState(state_machine, app_driveState_get());
+        app_stateMachine_setNextState(app_driveState_get());
     }
 }
 
-static void initStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_initState_get(void)
 {
-    UNUSED(state_machine);
-}
-
-const struct State *app_initState_get(void)
-{
-    static struct State init_state = {
+    static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,
-        .run_on_tick_1Hz   = initStateRunOnTick1Hz,
+        .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
-        .run_on_exit       = initStateRunOnExit,
+        .run_on_exit       = NULL,
     };
 
     return &init_state;

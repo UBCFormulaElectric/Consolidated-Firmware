@@ -164,7 +164,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct StateMachine *    state_machine;
 struct HeartbeatMonitor *hb_monitor;
 
 static const Charger charger_config  = { .enable_gpio = {
@@ -380,13 +379,11 @@ int main(void)
     app_accumulator_init();
     app_thermistors_init();
     app_soc_init();
+    app_stateMachine_init(app_initState_get());
     app_globals_init(&globals_config);
-
-    state_machine = app_stateMachine_init(NULL, app_initState_get());
 
     hb_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
     globals->hb_monitor = hb_monitor;
 
     // broadcast commit info
@@ -1049,7 +1046,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        app_stateMachine_tick100Hz(state_machine);
+        app_stateMachine_tick100Hz();
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -1175,7 +1172,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        app_stateMachine_tick1Hz(state_machine);
+        app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

@@ -1,5 +1,5 @@
 #include <string.h>
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 #include <stdlib.h>
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -11,7 +11,6 @@
 #include "app_avgPower.h"
 #include "io_led.h"
 #include "io_switch.h"
-#include "App_CommitInfo.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 #define WHEEL_DIAMETER_IN (16.0f)
@@ -19,19 +18,7 @@
 #define MOTOR_RPM_TO_KMH(kmh) \
     ((kmh) * (float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO) // take rpm of whell to kph
 
-static void driveStateRunOnEntry(struct StateMachine *const state_machine)
-{
-    App_CanTx_DIM_State_Set(DIM_STATE_DRIVE);
-    App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
-}
-
-static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-}
-
-static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void mainStateRunOnTick100Hz(void)
 {
     App_CanTx_DIM_Heartbeat_Set(true);
 
@@ -120,20 +107,15 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_mainState_get(void)
 {
-    UNUSED(state_machine);
-}
-
-const State *app_driveState_get(void)
-{
-    static const State drive_state = {
-        .name              = "DRIVE",
-        .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
-        .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-        .run_on_exit       = driveStateRunOnExit,
+    static const State main_state = {
+        .name              = "MAIN",
+        .run_on_entry      = NULL,
+        .run_on_tick_1Hz   = NULL,
+        .run_on_tick_100Hz = mainStateRunOnTick100Hz,
+        .run_on_exit       = NULL,
     };
 
-    return &drive_state;
+    return &main_state;
 }

@@ -18,7 +18,7 @@ extern "C"
 #include "app_stateMachine.h"
 #include "App_CanUtils.h"
 #include "app_utils.h"
-#include "states/app_driveState.h"
+#include "states/app_mainState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_globals.h"
 #include "app_apps.h"
@@ -46,7 +46,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-        state_machine = app_stateMachine_init(NULL, app_driveState_get());
+        state_machine = app_stateMachine_init(NULL, app_mainState_get());
 
         globals->heartbeat_monitor = heartbeat_monitor;
     }
@@ -68,6 +68,6 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_steering_sensorOCSC_reset();
     }
 
-    struct StateMachine *    state_machine;
+    StateMachine *           state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
 };

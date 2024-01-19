@@ -35,7 +35,7 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-        state_machine = app_stateMachine_init(NULL, app_driveState_get());
+        = app_stateMachine_init(NULL, app_driveState_get());
 
         globals->heartbeat_monitor = heartbeat_monitor;
     }
@@ -59,6 +59,6 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_standbyReset_reset();
     }
 
-    struct StateMachine *    state_machine;
+    StateMachine *;
     struct HeartbeatMonitor *heartbeat_monitor;
 };

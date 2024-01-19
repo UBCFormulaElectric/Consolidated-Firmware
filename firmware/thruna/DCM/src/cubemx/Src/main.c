@@ -149,7 +149,6 @@ static const CanConfig can_config = {
     .rx_overflow_callback = io_canConfig_rxOverflowCallback,
 };
 
-struct StateMachine *    state_machine;
 struct HeartbeatMonitor *hb_monitor;
 
 static const BinaryLed brake_light = { .gpio = {
@@ -246,8 +245,7 @@ int main(void)
     hb_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    state_machine = app_stateMachine_init(NULL, app_initState_get());
-
+    app_stateMachine_init(app_initState_get());
     app_globals_init(&globals_config);
     globals->hb_monitor = hb_monitor;
 
@@ -546,7 +544,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_sbgEllipse_getComStatus();
-        app_stateMachine_tick1Hz(state_machine);
+        app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
@@ -665,7 +663,7 @@ void RunTask100Hz(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        app_stateMachine_tick100Hz(state_machine);
+        app_stateMachine_tick100Hz();
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

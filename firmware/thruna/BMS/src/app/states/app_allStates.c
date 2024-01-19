@@ -39,9 +39,8 @@ static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     return missing_hb;
 }
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
+void app_allStates_runOnTick1Hz(void)
 {
-    UNUSED(state_machine);
     bool charger_is_connected = io_charger_isConnected();
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
 
@@ -62,7 +61,7 @@ void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
     }
 }
 
-bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+bool app_allStates_runOnTick100Hz(void)
 {
     const bool missing_hb = sendAndReceiveHeartbeat(globals->hb_monitor);
     App_CanAlerts_BMS_Fault_MissingHeartbeat_Set(missing_hb);
@@ -103,7 +102,7 @@ bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
     else if (acc_fault || ts_fault)
     {
         status = false;
-        app_stateMachine_setNextState(state_machine, app_faultState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
 
     return status;

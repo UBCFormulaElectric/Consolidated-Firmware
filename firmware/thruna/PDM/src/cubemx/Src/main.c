@@ -140,7 +140,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
 
 static const LvBatteryConfig lv_battery_config = {
@@ -350,10 +349,10 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
+    app_stateMachine_init(app_initState_get());
+
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    state_machine              = app_stateMachine_init(NULL, app_initState_get());
     globals->heartbeat_monitor = heartbeat_monitor;
 
     io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
@@ -822,7 +821,7 @@ void RunTask100Hz(void *argument)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        app_stateMachine_tick100Hz(state_machine);
+        app_stateMachine_tick100Hz();
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -941,7 +940,7 @@ void RunTask1Hz(void *argument)
     for (;;)
     {
         io_stackWaterMark_check();
-        app_stateMachine_tick1Hz(state_machine);
+        app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
         Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);

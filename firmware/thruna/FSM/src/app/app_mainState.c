@@ -1,4 +1,4 @@
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_utils.h"
 #include "App_CanTx.h"
@@ -28,18 +28,7 @@ static bool sendAndReceiveHeartbeat(void)
     return missing_hb;
 }
 
-void driveStateRunOnEntry(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-    App_CanTx_FSM_State_Set(FSM_STATE_DRIVE);
-}
-
-void driveStateRunOnTick1Hz(struct StateMachine *state_machine)
-{
-    UNUSED(state_machine);
-}
-
-void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+void mainStateRunOnTick100Hz(void)
 {
     // Check for torque plausibility
     float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
@@ -68,19 +57,14 @@ void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
-void driveStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_mainState_get(void)
 {
-    UNUSED(state_machine);
-}
-
-const struct State *app_driveState_get(void)
-{
-    static struct State drive_state = {
+    static State drive_state = {
         .name              = "DRIVE STATE",
-        .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
-        .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-        .run_on_exit       = driveStateRunOnExit,
+        .run_on_entry      = NULL,
+        .run_on_tick_1Hz   = NULL,
+        .run_on_tick_100Hz = mainStateRunOnTick100Hz,
+        .run_on_exit       = NULL,
     };
     return &drive_state;
 }

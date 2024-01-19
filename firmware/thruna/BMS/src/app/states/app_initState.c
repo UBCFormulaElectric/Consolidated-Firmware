@@ -8,7 +8,7 @@
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
-static void initStateRunOnEntry(struct StateMachine *const state_machine)
+static void initStateRunOnEntry(void)
 {
     App_CanTx_BMS_State_Set(BMS_INIT_STATE);
     app_accumulator_writeDefaultConfig();
@@ -20,9 +20,9 @@ static void initStateRunOnEntry(struct StateMachine *const state_machine)
     io_airs_openPositive();
 }
 
-static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void initStateRunOnTick1Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
+    app_allStates_runOnTick1Hz();
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
@@ -35,9 +35,9 @@ static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)
     }
 }
 
-static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void initStateRunOnTick100Hz(void)
 {
-    if (app_allStates_runOnTick100Hz(state_machine))
+    if (app_allStates_runOnTick100Hz())
     {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
@@ -61,34 +61,29 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
 #else
             if (precharge_for_charging)
             {
-                app_stateMachine_setNextState(state_machine, app_prechargeState_get());
+                app_stateMachine_setNextState(app_prechargeState_get());
             }
             else if (precharge_for_driving)
             {
-                app_stateMachine_setNextState(state_machine, app_inverterOnState_get());
+                app_stateMachine_setNextState(app_inverterOnState_get());
             }
             else if (cell_balancing_enabled)
             {
-                app_stateMachine_setNextState(state_machine, app_balancingState_get());
+                app_stateMachine_setNextState(app_balancingState_get());
             }
 #endif
         }
     }
 }
 
-static void initStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_initState_get(void)
 {
-    UNUSED(state_machine);
-}
-
-const struct State *app_initState_get(void)
-{
-    static struct State init_state = {
+    static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,
         .run_on_tick_1Hz   = initStateRunOnTick1Hz,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
-        .run_on_exit       = initStateRunOnExit,
+        .run_on_exit       = NULL,
     };
 
     return &init_state;
