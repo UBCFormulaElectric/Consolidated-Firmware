@@ -91,7 +91,7 @@ void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
 bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, uint16_t FaultCode)
 {
     if (FaultCode > 600)
-    //If the number inserted is bigger than 600 which is the biggest fault/warning code possible
+    // If the number inserted is bigger than 600 which is the biggest fault/warning code possible
     {
         return false;
     }
