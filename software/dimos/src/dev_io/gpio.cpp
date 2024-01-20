@@ -1,5 +1,6 @@
 #include "gpio.h"
 #include <iostream>
+#include <array>
 
 // PUBLIC FUNCTIONS
 
