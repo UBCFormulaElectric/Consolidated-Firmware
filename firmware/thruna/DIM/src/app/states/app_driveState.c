@@ -99,7 +99,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (App_CanRx_BMS_Heartbeat_Get())
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
         App_CanRx_BMS_Heartbeat_Update(false);
     }
 

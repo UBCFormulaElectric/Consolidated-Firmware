@@ -14,6 +14,9 @@
         "RxOverflow": 408
     },
     "faults": {
-        "MissingHeartbeat" : 451
+        "MissingBMSHeartbeat": 451,
+        "MissingFSMHeartbeat":452,
+        "MissingPDMHeartbeat":453,
+        "MissingDCMHeartbeat":454
     }
 }

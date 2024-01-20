@@ -14,17 +14,19 @@
         "RxOverflow": 108
     },
     "faults": {
-        "MissingHeartbeat": 151,
-        "StateMachine": 152,
-        "CellUndervoltage": 153,
-        "CellOvervoltage": 154,
-        "ModuleCommunicationError": 155,
-        "CellUndertemp": 156,
-        "CellOvertemp": 157,
-        "Charger": 158,
-        "ChargerDisconnectedDuringCharge": 159,
-        "ChargerExternalShutdown": 160,
-        "TractiveSystemOvercurrent": 161,
-        "PrechargeFailure": 162
+        "MissingFSMHeartbeat":151,
+        "MissingDCMHeartbeat":152,
+        "MissingPDMHeartbeat":153,
+        "StateMachine":154,
+        "CellUndervoltage":155,
+        "CellOvervoltage":156,
+        "ModuleCommunicationError":157,
+        "CellUndertemp":158,
+        "CellOvertemp":159,
+        "Charger":160,
+        "ChargerDisconnectedDuringCharge":161,
+        "ChargerExternalShutdown":162,
+        "TractiveSystemOvercurrent":163,
+        "PrechargeFailure":164
     }
 }
