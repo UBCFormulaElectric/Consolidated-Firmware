@@ -17,7 +17,6 @@
         "MissingBMSHeartbeat",
         "MissingFSMHeartbeat",
         "MissingPDMHeartbeat",
-        "MissingDCMHeartbeat",
-        "MissingDIMHeartbeat"
+        "MissingDCMHeartbeat"
     ]
 }
