@@ -32,7 +32,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit * 0.01f;
+    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
     // Calculate the actual torque request to transmit
     const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
