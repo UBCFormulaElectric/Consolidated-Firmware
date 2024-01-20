@@ -16,10 +16,11 @@ void App_Run_Regen(float accelerator_pedal_percentage);
 /**
  * Check if conditions allow for regenerative braking, if not reset
  * left and right torque struct to 0.0f
- * @param regenAttr struct provides for torque request
+ * @param RegenBraking struct provides for torque request
+ * @param ActiveDifferential_Inputs struct provides for input into active differential algorithm
  * @return true or false depending on if it is safe to run regen
  */
-bool App_Regen_SafetyCheck(struct RegenBraking *regenAttr);
+bool App_Regen_SafetyCheck(struct RegenBraking *regenAttr, ActiveDifferential_Inputs *inputs);
 
 /**
  * Activate torque requests for regen

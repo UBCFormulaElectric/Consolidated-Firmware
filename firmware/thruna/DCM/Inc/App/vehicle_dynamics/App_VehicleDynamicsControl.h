@@ -8,8 +8,6 @@ typedef struct RegenBraking
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
-    float motor_left_speed_rpm;
-    float motor_right_speed_rpm;
 } RegenBraking;
 
 typedef struct TractionControl_Inputs
@@ -48,6 +46,6 @@ typedef struct PowerLimiting_Inputs
 {
     float       left_motor_temp_C;
     float       right_motor_temp_C;
-    float       accelerator_pedal_percent;
     const float power_limit_kW;
+    float       accelerator_pedal_percent;
 } PowerLimiting_Inputs;
