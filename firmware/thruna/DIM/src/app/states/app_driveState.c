@@ -97,8 +97,11 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     uint8_t fault_num   = globals->fault_element_num;
     uint8_t warning_num = globals->warning_element_num;
 
-    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
-
+    if (App_CanRx_BMS_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
+        App_CanRx_BMS_Heartbeat_Update(false);
+    }
 
     App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
