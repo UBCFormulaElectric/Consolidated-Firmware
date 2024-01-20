@@ -160,6 +160,8 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                 app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
                 globals->element_num = 0;
             }
+
+            globals->previous_time = previous_time;
         }
 
         else
