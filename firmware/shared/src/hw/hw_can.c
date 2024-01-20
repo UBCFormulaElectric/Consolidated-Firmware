@@ -31,7 +31,7 @@
 
 static CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle)
+void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
 {
     handle = can_handle;
 
@@ -48,7 +48,7 @@ void hw_can_init(CanHandle *can_handle)
     filter.FilterBank           = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(handle, &filter) == HAL_OK);
+    assert(HAL_CAN_ConfigFilter(handle->can, &filter) == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
     assert(
@@ -56,13 +56,18 @@ void hw_can_init(CanHandle *can_handle)
             handle, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
 
     // Start the CAN peripheral.
-    assert(HAL_CAN_Start(handle) == HAL_OK);
+    assert(HAL_CAN_Start(handle->can) == HAL_OK);
+
+    if (!callback)
+        can_handle->callback = callback;
+    else
+        can_handle->callback = io_can_msgReceivedCallback;
 }
 
 void hw_can_deinit()
 {
-    assert(HAL_CAN_Stop(handle) == HAL_OK);
-    assert(HAL_CAN_DeInit(handle) == HAL_OK);
+    assert(HAL_CAN_Stop(handle->can) == HAL_OK);
+    assert(HAL_CAN_DeInit(handle->can) == HAL_OK);
 }
 
 bool hw_can_transmit(const CanMsg *msg)
@@ -89,18 +94,18 @@ bool hw_can_transmit(const CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(handle) == 0U)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(handle->can) == 0U)
         ;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return HAL_CAN_AddTxMessage(handle, &tx_header, msg->data, &mailbox) == HAL_OK;
+    return HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox) == HAL_OK;
 }
 
 bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 {
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg->data) != HAL_OK)
+    if (HAL_CAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
     {
         return false;
     }
