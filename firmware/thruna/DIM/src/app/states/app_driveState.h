@@ -1,5 +1,6 @@
 #pragma once
 
+#include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedStateMachine.h"
 
 typedef enum
