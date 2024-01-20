@@ -56,6 +56,8 @@
 #include "hw_bootup.h"
 #include "hw_gpio.h"
 #include "hw_can.h"
+#include "io_log.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -340,6 +342,7 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("DIM reset!");
 
     hw_hardFaultHandler_init();
     hw_can_init(&hcan1);

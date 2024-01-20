@@ -8,12 +8,12 @@ void io_canConfig_txOverflowCallback(uint32_t overflow_count)
 {
     App_CanTx_DIM_TxOverflowCount_Set(overflow_count);
     App_CanAlerts_DIM_Warning_TxOverflow_Set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void io_canConfig_rxOverflowCallback(uint32_t overflow_count)
 {
     App_CanTx_DIM_RxOverflowCount_Set(overflow_count);
     App_CanAlerts_DIM_Warning_RxOverflow_Set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
