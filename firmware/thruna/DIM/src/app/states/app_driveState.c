@@ -13,7 +13,6 @@
 #include "App_CommitInfo.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
-static float prev_max_current = 0.0f;
 
 static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -100,17 +99,6 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     const float instant_power =
         App_CanRx_BMS_TractiveSystemVoltage_Get() * App_CanRx_BMS_TractiveSystemCurrent_Get() / 1000.0f; // instant kW
-
-    float max_current;
-    if (aux_switch_on == SWITCH_ON)
-    {
-        max_current      = MAX(prev_max_current, App_CanRx_BMS_TractiveSystemCurrent_Get());
-        prev_max_current = max_current;
-    }
-    else
-    {
-        max_current = 0.0f;
-    }
 
     const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 
