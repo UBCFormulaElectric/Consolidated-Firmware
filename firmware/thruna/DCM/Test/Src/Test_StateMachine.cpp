@@ -21,7 +21,6 @@ extern "C"
 namespace StateMachineTest
 {
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
@@ -44,6 +43,44 @@ FAKE_VALUE_FUNC(uint16_t, get_imu_general_status);
 FAKE_VALUE_FUNC(uint32_t, get_imu_com_status);
 FAKE_VALUE_FUNC(float, get_imu_output, EllipseImuOutput);
 
+// config to forward can functions to shared heartbeat
+// BMS rellies on DIM, FSM, and BMS
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                          [DCM_HEARTBEAT_BOARD] = false,
+                                                          [PDM_HEARTBEAT_BOARD] = false,
+                                                          [FSM_HEARTBEAT_BOARD] = true,
+                                                          [DIM_HEARTBEAT_BOARD] = true };
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                      [DCM_HEARTBEAT_BOARD] = NULL,
+                                                      [PDM_HEARTBEAT_BOARD] = NULL,
+                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                      [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Get };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                           [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Update };
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Set,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Set,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Set
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = NULL,
+                                                           [DIM_HEARTBEAT_BOARD] = NULL };
+
 class DcmStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -56,7 +93,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_CanRx_Init();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
+            heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         brake_light = App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
 
@@ -80,7 +118,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_acceleration_x);
         RESET_FAKE(get_acceleration_y);
         RESET_FAKE(get_acceleration_z);
-        RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
@@ -341,8 +378,8 @@ TEST_F(DcmStateMachineTest, drive_to_init_state_on_pdm_fault)
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_dim_fault)
 {
-    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(true); };
-    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(false); };
+    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(true); };
+    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }

@@ -138,6 +138,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+
 /* USER CODE BEGIN PV */
 struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
@@ -247,6 +248,44 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     }
 };
 
+// config to forward can functions to shared heartbeat
+// PDM rellies on BMS
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                          [DCM_HEARTBEAT_BOARD] = false,
+                                                          [PDM_HEARTBEAT_BOARD] = false,
+                                                          [FSM_HEARTBEAT_BOARD] = false,
+                                                          [DIM_HEARTBEAT_BOARD] = false };
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                      [DCM_HEARTBEAT_BOARD] = NULL,
+                                                      [PDM_HEARTBEAT_BOARD] = NULL,
+                                                      [FSM_HEARTBEAT_BOARD] = NULL,
+                                                      [DIM_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = NULL,
+                                                           [DIM_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_PDM_Fault_MissingBMSHeartbeat_Set,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = NULL,
+    [DIM_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = NULL,
+                                                           [DIM_HEARTBEAT_BOARD] = NULL };
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -350,7 +389,9 @@ int main(void)
     App_CanRx_Init();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
+        heartbeatGetters, heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters,
+        heartbeatFaultGetters);
 
     state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
     globals->heartbeat_monitor = heartbeat_monitor;

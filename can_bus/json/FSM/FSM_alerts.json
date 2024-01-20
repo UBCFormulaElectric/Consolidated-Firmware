@@ -25,7 +25,7 @@
         "AppsDisagreement"
     ],
     "faults": [
-        "MissingHeartbeat",
+        "MissingBMSHeartbeat",
         "StateMachine",
         "PappsOCSC",
         "SappsOCSC",
