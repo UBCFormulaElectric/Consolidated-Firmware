@@ -59,7 +59,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
 
     // Read torque vectoring switch only when entering drive state, not during driving
-    torque_vectoring_switch_is_on = App_RegenTorqueVectoringStatus();
+    torque_vectoring_switch_is_on = App_IsAuxSwitchOn();
 
     if (torque_vectoring_switch_is_on)
     {
@@ -79,7 +79,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool start_switch_off     = !App_IsStartSwitchOn();
     const bool bms_not_in_drive     = !App_IsBmsInDriveState();
     bool       exit_drive           = !all_states_ok || start_switch_off || bms_not_in_drive;
-    bool       regen_switch_enabled = App_RegenTorqueVectoringStatus();
+    bool       regen_switch_enabled = App_IsAuxSwitchOn();
     apps_pedal_percentage           = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]

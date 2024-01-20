@@ -30,12 +30,13 @@ class TestRegen : public testing::Test
 
 TEST_F(TestRegen, active_differential_regen)
 {
-    static RegenBraking regenAttributes     = { .enable_active_differential = true };
-    float               steering_angle      = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
-    float               expected_delta      = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
-    float               cl                  = (1 + expected_delta);
-    float               cr                  = (1 - expected_delta);
-    static ActiveDifferential_Inputs inputs = { steering_angle, 100, 105, 0.2f };
+    float steering_angle = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
+    float expected_delta = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
+    float cl             = (1 + expected_delta);
+    float cr             = (1 - expected_delta);
+
+    static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
+    static ActiveDifferential_Inputs inputs          = { steering_angle, 100, 105, 0.2f };
 
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
@@ -51,12 +52,13 @@ TEST_F(TestRegen, active_differential_regen)
 
 TEST_F(TestRegen, active_differential_exceeds_max)
 {
-    static RegenBraking regenAttributes     = { .enable_active_differential = true };
-    float               steering_angle      = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
-    float               expected_delta      = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
-    float               cl                  = (1 + expected_delta);
-    float               cr                  = (1 - expected_delta);
-    static ActiveDifferential_Inputs inputs = { steering_angle, 1000, 1005, 8.0f };
+    float steering_angle = 20.0f * APPROX_STEERING_TO_WHEEL_ANGLE;
+    float expected_delta = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle)) / (2 * WHEELBASE_mm);
+    float cl             = (1 + expected_delta);
+    float cr             = (1 - expected_delta);
+
+    static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
+    static ActiveDifferential_Inputs inputs          = { steering_angle, 1000, 1005, 8.0f };
 
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
@@ -122,10 +124,11 @@ TEST_F(TestRegen, vehicle_under_speed_torque_request)
 
 TEST_F(TestRegen, battery_full_torque_request)
 {
-    static RegenBraking              regenAttributes = { .enable_active_differential = true };
+    static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
     static ActiveDifferential_Inputs inputs;
-    float                            expected_motor_speed_right_rpm = MOTOR_KMH_TO_RPM(20.0f);
-    float                            expected_motor_speed_left_rpm  = MOTOR_KMH_TO_RPM(20.0f);
+
+    float expected_motor_speed_right_rpm = MOTOR_KMH_TO_RPM(20.0f);
+    float expected_motor_speed_left_rpm  = MOTOR_KMH_TO_RPM(20.0f);
 
     // make motor speed in range
     App_CanRx_INVR_MotorSpeed_Update(-expected_motor_speed_right_rpm);

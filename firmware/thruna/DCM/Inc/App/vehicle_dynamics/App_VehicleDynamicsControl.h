@@ -2,13 +2,13 @@
 #include "App_PID.h"
 #include <stdbool.h>
 
-typedef struct RegenBraking
+typedef struct RegenBraking_Inputs
 {
     bool  enable_active_differential;
     float current_battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
-} RegenBraking;
+} RegenBraking_Inputs;
 
 typedef struct TractionControl_Inputs
 {
