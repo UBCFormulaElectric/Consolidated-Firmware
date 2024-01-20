@@ -47,15 +47,15 @@ void hw_can_init(CanHandle *can_handle)
 
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
-    filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale = CAN_FILTERSCALE_16BIT;
-    filter.FilterActivation = CAN_FILTER_ENABLE;
-    filter.FilterIdLow = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale          = CAN_FILTERSCALE_16BIT;
+    filter.FilterActivation     = CAN_FILTER_ENABLE;
+    filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    filter.FilterBank = 0;
+    filter.FilterBank           = 0;
 
     // Configure and initialize hardware filter.
     assert(HAL_CAN_ConfigFilter(handle->can, &filter) == HAL_OK);
@@ -84,7 +84,7 @@ bool hw_can_transmit(const CanMsg *msg)
 {
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.DLC = msg->dlc;
+    tx_header.DLC   = msg->dlc;
     tx_header.StdId = msg->std_id;
 
     // The standard 11-bit CAN identifier is more than sufficient, so we disable
@@ -123,7 +123,7 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
     msg->std_id = header.StdId;
-    msg->dlc = header.DLC;
+    msg->dlc    = header.DLC;
     return true;
 }
 
