@@ -90,14 +90,15 @@ void app_sevenSegDisplays_disableGroup(SevenSegGroup group)
 
 bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, uint16_t FaultCode)
 {
-    if (FaultCode > 600 || FaultCode < 0)
+    if (FaultCode > 600)
+    //If the number inserted is bigger than 600 which is the biggest fault/warning code possible
     {
         return false;
     }
 
     uint16_t faultValue = FaultCode;
 
-    for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS - 7; digit_subposition >= 0; digit_subposition--)
+    for (int digit_subposition = NUM_SEVEN_SEG_SUBPOSITIONS - 1; digit_subposition >= 0; digit_subposition--)
     {
         uint16_t digitToDisplay = faultValue % 10;
         faultValue /= 10;
