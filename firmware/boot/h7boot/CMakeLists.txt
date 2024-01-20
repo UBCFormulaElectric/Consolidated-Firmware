@@ -50,6 +50,9 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
     )
 
@@ -72,7 +75,7 @@ if("${TARGET}" STREQUAL "deploy")
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
         )
-        target_link_libraries("${NAME}.elf" "h7boot_stm32cube")
+        target_link_libraries("${NAME}.elf" "h7boot_stm32cube" "littlefs_cm4")
         target_compile_definitions("${NAME}.elf" PRIVATE "${BOARD_DEFINE}")
     endfunction()
 

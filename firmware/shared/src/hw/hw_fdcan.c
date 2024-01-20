@@ -20,12 +20,12 @@ void hw_can_init(CanHandle *can_handle)
 
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
-    filter.IdType = FDCAN_STANDARD_ID; // 11 bit ID
-    filter.FilterIndex = 0;
-    filter.FilterType = FDCAN_FILTER_MASK;
+    filter.IdType       = FDCAN_STANDARD_ID; // 11 bit ID
+    filter.FilterIndex  = 0;
+    filter.FilterType   = FDCAN_FILTER_MASK;
     filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    filter.FilterID1 = 0;          // Standard CAN ID bits [10:0]
-    filter.FilterID2 = 0x1FFFFFFF; // Mask bits for Standard CAN ID
+    filter.FilterID1    = 0;          // Standard CAN ID bits [10:0]
+    filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Standard CAN ID
 
     // Configure and initialize hardware filter.
     assert(HAL_FDCAN_ConfigFilter(handle->can, &filter) == HAL_OK);
@@ -53,15 +53,15 @@ void hw_can_deinit()
 bool hw_can_transmit(const CanMsg *msg)
 {
     FDCAN_TxHeaderTypeDef tx_header;
-    tx_header.Identifier = msg->std_id;
-    tx_header.IdType = FDCAN_STANDARD_ID;
-    tx_header.TxFrameType = FDCAN_DATA_FRAME;
-    tx_header.DataLength = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.Identifier          = msg->std_id;
+    tx_header.IdType              = FDCAN_STANDARD_ID;
+    tx_header.TxFrameType         = FDCAN_DATA_FRAME;
+    tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    tx_header.BitRateSwitch = FDCAN_BRS_OFF;
-    tx_header.FDFormat = FDCAN_CLASSIC_CAN;
-    tx_header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-    tx_header.MessageMarker = 0;
+    tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
+    tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
+    tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
+    tx_header.MessageMarker       = 0;
 
     while (HAL_FDCAN_GetTxFifoFreeLevel(handle->can) == 0U)
         ;
@@ -78,7 +78,7 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     }
 
     msg->std_id = header.Identifier;
-    msg->dlc = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
+    msg->dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
 
     return true;
 }
