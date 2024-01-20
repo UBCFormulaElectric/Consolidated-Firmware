@@ -77,8 +77,8 @@ jobs:
       - name: Generate checksum
         run: |
           python3 scripts/utilities/generate_md5_checksum.py \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.thruna_board }}.ioc \
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.thruna_board }}.ioc.md5
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
@@ -110,7 +110,35 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/build_binary
         with:
-          board: ${{ matrix.board }}
+          board: ${{ matrix.thruna_board }}
+          platform: thruna_firmware
+
+  build-firmware-thruna:
+    needs: [ clang-format ]
+    name: Build Firmware Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - BMS
+          - VC
+          - DIM
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.docker_token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/build_binary
+        with:
+          board: ${{ matrix.quadruna_board }}
+          platform: quadruna_firmware
 
   test-thruna:
     needs: [ clang-format ]
@@ -119,7 +147,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        board:
+        thruna_board:
           - FSM
           - PDM
           - BMS
@@ -147,15 +175,59 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
+      - name: Build (Thruna)
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.thruna_board }}_test
 
-      - name: Run tests
+      - name: Run Tests (Thruna)
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
+          cd $BUILD_DIR/firmware/thruna/${{ matrix.thruna_board }}
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.thruna_board }}_test
+
+  test-quadruna:
+    needs: [ clang-format ]
+    name: Test Quadruna
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        quadruna_board:
+          - FSM
+          - BMS
+          - VC
+          - DIM
+
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: build_fw_test
+
+    steps:
+
+      # Fix to ensure that commands like git status work in child directories 
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build (Quadruna)
+        run: |
+          cmake -B $BUILD_DIR -DPLATFORM=quadruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.quadruna_board }}_test
+
+      - name: Run Tests (Quadruna)
+        run: |
+          cd $BUILD_DIR/firmware/thruna/${{ matrix.quadruna_board }}
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.quadruna_board }}_test
 
   test-shared:
     name: Test Shared
