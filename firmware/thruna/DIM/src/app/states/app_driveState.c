@@ -129,9 +129,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         uint32_t time_difference = current_time - previous_time;
 
-        if (globals->fault_in_car && element_num < fault_num)
+        if (globals->fault_in_car)
         {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[0]);
             globals->element_num++;
         }
 
