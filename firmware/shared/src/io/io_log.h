@@ -17,6 +17,7 @@
 #include "SEGGER_RTT.h"
 #define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
+#include <stdio.h>
 #define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 #endif
 
