@@ -38,6 +38,7 @@
 #include "Io_EllipseImu.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
+#include "io_log.h"
 #include "hw_bootup.h"
 #include "hw_can.h"
 
@@ -263,6 +264,7 @@ int main(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("DCM reset!");
 
     hw_hardFaultHandler_init();
     hw_can_init(&hcan1);
