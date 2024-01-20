@@ -28,6 +28,9 @@
 #include "hw_bootup.h"
 #include "hw_sd.h"
 #include "io_can.h"
+#include "io_canLogging.h"
+
+#include "lfs_config.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
@@ -54,57 +57,62 @@ FDCAN_HandleTypeDef hfdcan2;
 SD_HandleTypeDef hsd1;
 
 /* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-uint32_t             defaultTaskBuffer[512];
-osStaticThreadDef_t  defaultTaskControlBlock;
+osThreadId_t defaultTaskHandle;
+uint32_t defaultTaskBuffer[512];
+osStaticThreadDef_t defaultTaskControlBlock;
 const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .cb_mem     = &defaultTaskControlBlock,
-    .cb_size    = sizeof(defaultTaskControlBlock),
-    .stack_mem  = &defaultTaskBuffer[0],
+    .name = "defaultTask",
+    .cb_mem = &defaultTaskControlBlock,
+    .cb_size = sizeof(defaultTaskControlBlock),
+    .stack_mem = &defaultTaskBuffer[0],
     .stack_size = sizeof(defaultTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for canTxTask */
-osThreadId_t         canTxTaskHandle;
-uint32_t             canTxTaskBuffer[512];
-osStaticThreadDef_t  canTxTaskControlBlock;
+osThreadId_t canTxTaskHandle;
+uint32_t canTxTaskBuffer[512];
+osStaticThreadDef_t canTxTaskControlBlock;
 const osThreadAttr_t canTxTask_attributes = {
-    .name       = "canTxTask",
-    .cb_mem     = &canTxTaskControlBlock,
-    .cb_size    = sizeof(canTxTaskControlBlock),
-    .stack_mem  = &canTxTaskBuffer[0],
+    .name = "canTxTask",
+    .cb_mem = &canTxTaskControlBlock,
+    .cb_size = sizeof(canTxTaskControlBlock),
+    .stack_mem = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
+    .priority = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for canRxTask */
-osThreadId_t         canRxTaskHandle;
-uint32_t             canRxTaskBuffer[512];
-osStaticThreadDef_t  canRxTaskControlBlock;
+osThreadId_t canRxTaskHandle;
+uint32_t canRxTaskBuffer[512];
+osStaticThreadDef_t canRxTaskControlBlock;
 const osThreadAttr_t canRxTask_attributes = {
-    .name       = "canRxTask",
-    .cb_mem     = &canRxTaskControlBlock,
-    .cb_size    = sizeof(canRxTaskControlBlock),
-    .stack_mem  = &canRxTaskBuffer[0],
+    .name = "canRxTask",
+    .cb_mem = &canRxTaskControlBlock,
+    .cb_size = sizeof(canRxTaskControlBlock),
+    .stack_mem = &canRxTaskBuffer[0],
     .stack_size = sizeof(canRxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
+    .priority = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
 static CanConfig can_config = {
-    .rx_msg_filter        = NULL,
+    .rx_msg_filter = NULL,
     .tx_overflow_callback = NULL,
     .rx_overflow_callback = NULL,
 };
+#define CAN_RX_FIFO0 (0x00000000U)
+
+/* Little fs config*/
+struct lfs_config cfg;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void        SystemClock_Config(void);
+void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
-void        runDefaultTask(void *argument);
-void        runCanTxTask(void *argument);
-void        runCanRxTask(void *argument);
+void runDefaultTask(void *argument);
+void runCanTxTask(void *argument);
+void runCanRxTask(void *argument);
+static void can0MsgRecievecallback(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -112,7 +120,8 @@ void        runCanRxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can1_handle = { .can = &hfdcan2 };
+CanHandle can1_handle = {.can = &hfdcan2, .can0MsgRecievecallback = can0MsgRecievecallback, .can1MsgRecievecallback = 0};
+extern SdCard sd;
 
 /* USER CODE END 0 */
 
@@ -155,10 +164,12 @@ int main(void)
     // __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can1_handle, 0);
+    hw_can_init(&can1_handle);
 
     io_can_init(&can_config);
 
+    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+    io_canLogging_init(&can_config, &cfg);
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("h7dev reset!");
@@ -222,8 +233,8 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
     /** Supply configuration update enable
      */
@@ -241,17 +252,17 @@ void SystemClock_Config(void)
      * in the RCC_OscInitTypeDef structure.
      */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 64;
-    RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 4;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM = 1;
+    RCC_OscInitStruct.PLL.PLLN = 64;
+    RCC_OscInitStruct.PLL.PLLP = 1;
+    RCC_OscInitStruct.PLL.PLLQ = 4;
+    RCC_OscInitStruct.PLL.PLLR = 2;
+    RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -261,9 +272,9 @@ void SystemClock_Config(void)
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 |
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
@@ -289,34 +300,34 @@ static void MX_FDCAN2_Init(void)
     /* USER CODE BEGIN FDCAN2_Init 1 */
 
     /* USER CODE END FDCAN2_Init 1 */
-    hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan2.Init.AutoRetransmission   = ENABLE;
-    hfdcan2.Init.TransmitPause        = DISABLE;
-    hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 16;
+    hfdcan2.Instance = FDCAN2;
+    hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.Mode = FDCAN_MODE_NORMAL;
+    hfdcan2.Init.AutoRetransmission = ENABLE;
+    hfdcan2.Init.TransmitPause = DISABLE;
+    hfdcan2.Init.ProtocolException = DISABLE;
+    hfdcan2.Init.NominalPrescaler = 16;
     hfdcan2.Init.NominalSyncJumpWidth = 4;
-    hfdcan2.Init.NominalTimeSeg1      = 13;
-    hfdcan2.Init.NominalTimeSeg2      = 2;
-    hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
-    hfdcan2.Init.MessageRAMOffset     = 0;
-    hfdcan2.Init.StdFiltersNbr        = 1;
-    hfdcan2.Init.ExtFiltersNbr        = 0;
-    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.RxBuffersNbr         = 0;
-    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
-    hfdcan2.Init.TxEventsNbr          = 0;
-    hfdcan2.Init.TxBuffersNbr         = 0;
-    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.NominalTimeSeg1 = 13;
+    hfdcan2.Init.NominalTimeSeg2 = 2;
+    hfdcan2.Init.DataPrescaler = 1;
+    hfdcan2.Init.DataSyncJumpWidth = 1;
+    hfdcan2.Init.DataTimeSeg1 = 1;
+    hfdcan2.Init.DataTimeSeg2 = 1;
+    hfdcan2.Init.MessageRAMOffset = 0;
+    hfdcan2.Init.StdFiltersNbr = 1;
+    hfdcan2.Init.ExtFiltersNbr = 0;
+    hfdcan2.Init.RxFifo0ElmtsNbr = 1;
+    hfdcan2.Init.RxFifo0ElmtSize = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtsNbr = 0;
+    hfdcan2.Init.RxFifo1ElmtSize = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBuffersNbr = 0;
+    hfdcan2.Init.RxBufferSize = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxEventsNbr = 0;
+    hfdcan2.Init.TxBuffersNbr = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr = 1;
+    hfdcan2.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
+    hfdcan2.Init.TxElmtSize = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
@@ -340,12 +351,12 @@ static void MX_SDMMC1_SD_Init(void)
     /* USER CODE BEGIN SDMMC1_Init 1 */
 
     /* USER CODE END SDMMC1_Init 1 */
-    hsd1.Instance                 = SDMMC1;
-    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Instance = SDMMC1;
+    hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 0;
+    hsd1.Init.ClockDiv = 0;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -362,7 +373,7 @@ static void MX_SDMMC1_SD_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
     /* USER CODE BEGIN MX_GPIO_Init_1 */
     /* USER CODE END MX_GPIO_Init_1 */
 
@@ -378,17 +389,17 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin : LED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Pin = LED_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : PD0 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_0;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
@@ -397,6 +408,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+static void can0MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+    io_canLogging_pushTxMsgToQueue(CAN_RX_FIFO0);
+}
 
 /* USER CODE END 4 */
 
@@ -419,7 +436,7 @@ void runDefaultTask(void *argument)
 
         CanMsg msg = {
             .std_id = 100,
-            .dlc    = 0,
+            .dlc = 0,
         };
         io_can_pushTxMsgToQueue(&msg);
     }

@@ -31,21 +31,31 @@
 
 static CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
+static void defaultCan0MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+}
+
+static defaultCan1MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO1);
+}
+
+void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
 
     // Configure a single filter bank that accepts any message.
     CAN_FilterTypeDef filter;
-    filter.FilterMode           = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale          = CAN_FILTERSCALE_16BIT;
-    filter.FilterActivation     = CAN_FILTER_ENABLE;
-    filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
-    filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
-    filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale = CAN_FILTERSCALE_16BIT;
+    filter.FilterActivation = CAN_FILTER_ENABLE;
+    filter.FilterIdLow = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdLow = MASKMODE_16BIT_MASK_OPEN;
+    filter.FilterIdHigh = MASKMODE_16BIT_ID_OPEN;
+    filter.FilterMaskIdHigh = MASKMODE_16BIT_MASK_OPEN;
     filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    filter.FilterBank           = 0;
+    filter.FilterBank = 0;
 
     // Configure and initialize hardware filter.
     assert(HAL_CAN_ConfigFilter(handle->can, &filter) == HAL_OK);
@@ -58,10 +68,10 @@ void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    if (!callback)
-        can_handle->callback = callback;
-    else
-        can_handle->callback = io_can_msgReceivedCallback;
+    if (!handle->can0MsgRecievecallback)
+        handle->can0MsgRecievecallback = defaultCan0MsgRecievecallback;
+    if (!handle->can1MsgRecievecallback)
+        handle->can1MsgRecievecallback = defaultCan1MsgRecievecallback;
 }
 
 void hw_can_deinit()
@@ -74,7 +84,7 @@ bool hw_can_transmit(const CanMsg *msg)
 {
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.DLC   = msg->dlc;
+    tx_header.DLC = msg->dlc;
     tx_header.StdId = msg->std_id;
 
     // The standard 11-bit CAN identifier is more than sufficient, so we disable
@@ -113,7 +123,7 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
     msg->std_id = header.StdId;
-    msg->dlc    = header.DLC;
+    msg->dlc = header.DLC;
     return true;
 }
 
