@@ -58,6 +58,7 @@
 #include "io_thermistors.h"
 #include "io_tractiveSystem.h"
 #include "io_watchdogConfig.h"
+#include "io_log.h"
 
 #include "hw_can.h"
 #include "hw_adc.h"
@@ -354,6 +355,7 @@ int main(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS reset!");
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);

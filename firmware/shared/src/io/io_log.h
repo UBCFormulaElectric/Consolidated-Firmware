@@ -15,9 +15,9 @@
 // Do not use these macros directly!
 #ifdef TARGET_EMBEDDED
 #include "SEGGER_RTT.h"
-#define _LOG_PRINTF(...) SEGGER_RTT_printf(0, ##__VA_ARGS__)
-#elif
-#define _LOG_PRINTF(...) printf(##__VA_ARGS__)
+#define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
+#else
+#define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 #endif
 
 #define _LOG(level, format, ...) \

@@ -55,6 +55,7 @@
 #include "io_steering.h"
 #include "io_apps.h"
 #include "io_brake.h"
+#include "io_log.h"
 
 #include "hw_bootup.h"
 #include "hw_can.h"
@@ -251,6 +252,7 @@ int main(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM reset!");
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
