@@ -72,7 +72,7 @@ TEST_F(TestRegen, active_differential_exceeds_max)
 
 TEST_F(TestRegen, battery_over_temp_torque_request)
 {
-    float pedal_percentage = -30.0f;
+    float pedal_percentage = -0.3f;
 
     // make battery over temp > 45 degrees
     App_CanRx_BMS_MaxCellTemperature_Update(47);
@@ -98,7 +98,7 @@ TEST_F(TestRegen, battery_over_temp_torque_request)
 // same test as battery_over_temp_torque_request just different safety failure
 TEST_F(TestRegen, vehicle_under_speed_torque_request)
 {
-    float pedal_percentage = -30.0f;
+    float pedal_percentage = -0.3f;
 
     // make motor speed < 5.0kmh
     App_CanRx_INVR_MotorSpeed_Update(MOTOR_KMH_TO_RPM(4.0f));
@@ -146,11 +146,12 @@ TEST_F(TestRegen, battery_full_torque_request)
 
 TEST_F(TestRegen, regular_run_regen)
 {
-    float pedal_percentage      = -50.0f;
+    float pedal_percentage      = -0.5f;
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(30.0f);
-    float power_max_kW          = pedal_percentage / MAX_PEDAL_POSITION * POWER_LIMIT_REGEN_kW;
+    float power_max_kW =
+        -pedal_percentage * POWER_LIMIT_REGEN_kW; // power related functions require this to be positive
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -197,11 +198,11 @@ TEST_F(TestRegen, regular_run_regen)
 // tapers torque request due to being too close to a full battery
 TEST_F(TestRegen, taper_torque_request)
 {
-    float pedal_percentage      = -50.0f;
+    float pedal_percentage      = -0.5f;
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(30.0f);
-    float power_max_kW          = pedal_percentage / MAX_PEDAL_POSITION * POWER_LIMIT_REGEN_kW * 0.75; // taper
+    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW * 0.75; // taper
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -248,12 +249,12 @@ TEST_F(TestRegen, taper_torque_request)
 // tapers torque request due in 5-10kph range, exceed max regen
 TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
 {
-    float pedal_percentage      = -100.0f;
+    float pedal_percentage      = -1.0f;
     float steering_angle        = 0.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(9.0f);
-    float power_max_kW = pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph /
-                         MAX_PEDAL_POSITION * POWER_LIMIT_REGEN_kW;
+    float power_max_kW = -pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph *
+                         POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -299,12 +300,12 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
 // tapers torque request due in 5-10kph, in max regen range
 TEST_F(TestRegen, taper_torque_request_transition_point)
 {
-    float pedal_percentage      = -100.0f;
+    float pedal_percentage      = -1.0f;
     float steering_angle        = -15.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(5.5f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(5.5f);
-    float power_max_kW = pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph /
-                         MAX_PEDAL_POSITION * POWER_LIMIT_REGEN_kW;
+    float power_max_kW = -pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph *
+                         POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -319,7 +320,7 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
     // make battery in temp range
     App_CanRx_BMS_MaxCellTemperature_Update(40);
 
-    // make battery not full
+    // make battery in range
     App_CanRx_BMS_MaxCellVoltage_Update(3.8f);
 
     App_CanRx_INVL_MotorTemperature_Update(30.0f);

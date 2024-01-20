@@ -29,7 +29,6 @@ static float pid_power_correction_factor = 0.0f;
 static PID   pid_traction_control;
 
 static float accelerator_pedal_percent;
-static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
 static float wheel_speed_front_right_kph;
 static float motor_speed_left_rpm;
@@ -49,11 +48,11 @@ void App_TorqueVectoring_Setup(void)
     App_Timer_InitTimer(&pid_timeout, PID_TIMEOUT_ms);
 }
 
-void App_TorqueVectoring_Run(void)
+void App_TorqueVectoring_Run(float accelerator_pedal_percentage)
 {
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
-    accelerator_pedal_percent   = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
+    accelerator_pedal_percent   = accelerator_pedal_percentage;
     wheel_speed_front_left_kph  = App_CanRx_FSM_LeftWheelSpeed_Get();
     wheel_speed_front_right_kph = App_CanRx_FSM_RightWheelSpeed_Get();
     motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorSpeed_Get();

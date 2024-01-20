@@ -61,7 +61,6 @@ class TorqueVectoringTest : public testing::Test
 // }
 TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
 {
-    App_CanRx_FSM_PappsMappedPedalPercentage_Update(0.0);
     App_CanRx_FSM_LeftWheelSpeed_Update(50.0);
     App_CanRx_FSM_RightWheelSpeed_Update(50.0);
     App_CanRx_INVL_MotorSpeed_Update(135);
@@ -72,7 +71,7 @@ TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
     App_CanRx_INVR_MotorTemperature_Update(50);
     App_CanRx_BMS_AvailablePower_Update(50);
     App_CanRx_FSM_Warning_SteeringAngleOCSC_Update(30);
-    App_TorqueVectoring_Run();
+    App_TorqueVectoring_Run(0.0f);
     float expected_torque_left_nM  = 0.0;
     float expected_torque_right_nM = 0.0;
     float actual_torque_left_nM    = App_CanTx_DCM_LeftInverterTorqueCommand_Get();
@@ -146,7 +145,6 @@ TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
 // }
 TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
 {
-    App_CanRx_FSM_PappsMappedPedalPercentage_Update(100.0);
     App_CanRx_FSM_LeftWheelSpeed_Update(50.0);
     App_CanRx_FSM_RightWheelSpeed_Update(50.0);
     App_CanRx_INVL_MotorSpeed_Update(135);
@@ -157,7 +155,7 @@ TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
     App_CanRx_INVR_MotorTemperature_Update(60);
     App_CanRx_BMS_AvailablePower_Update(80);
     App_CanRx_FSM_Warning_SteeringAngleOCSC_Update(30);
-    App_TorqueVectoring_Run();
+    App_TorqueVectoring_Run(100.0f);
     float actual_torque_left_nM  = App_CanTx_DCM_LeftInverterTorqueCommand_Get();
     float actual_torque_right_nM = App_CanTx_DCM_RightInverterTorqueCommand_Get();
     ASSERT_TRUE(actual_torque_left_nM <= MAX_TORQUE_REQUEST_NM);

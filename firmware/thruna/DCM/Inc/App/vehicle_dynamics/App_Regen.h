@@ -4,7 +4,6 @@
 
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
-#define MAX_PEDAL_POSITION -100.0f
 
 /**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks

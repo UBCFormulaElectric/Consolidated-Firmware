@@ -118,7 +118,7 @@ static void compute_regen_torque_request(
     RegenBraking *             regenAttr,
     PowerLimiting_Inputs *     powerInputs)
 {
-    float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage / MAX_PEDAL_POSITION;
+    float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
     float min_motor_speed =
         MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_right_rpm, activeDiffInputs->motor_speed_left_rpm));
 
@@ -135,7 +135,7 @@ static void compute_regen_torque_request(
         pedal_percentage = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph)*pedal_percentage;
     }
 
-    powerInputs->accelerator_pedal_percent = pedal_percentage;
+    powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
     activeDiffInputs->power_max_kW         = App_PowerLimiting_ComputeMaxPower(powerInputs);
 
     if (regenAttr->enable_active_differential)
