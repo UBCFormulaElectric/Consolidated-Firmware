@@ -2,18 +2,36 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Load CMake: Embedded",
+            "label": "Load CMake: Thruna Embedded",
             "type": "shell",
-            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=firmware -DTARGET=deploy",
+            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=thruna_firmware -DTARGET=deploy",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
         },
         {
-            "label": "Load CMake: Tests",
+            "label": "Load CMake: Thruna Tests",
             "type": "shell",
-            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=firmware -DTARGET=test",
+            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=thruna_firmware -DTARGET=test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "Load CMake: Quadruna Embedded",
+            "type": "shell",
+            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=quadruna_firmware -DTARGET=deploy",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+        },
+        {
+            "label": "Load CMake: Quadruna Tests",
+            "type": "shell",
+            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=quadruna_firmware -DTARGET=test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
