@@ -75,11 +75,13 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
-                                                           [DCM_HEARTBEAT_BOARD] = NULL,
-                                                           [PDM_HEARTBEAT_BOARD] = NULL,
-                                                           [FSM_HEARTBEAT_BOARD] = NULL,
-                                                           [DIM_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Get,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Get,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Get
+};
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {

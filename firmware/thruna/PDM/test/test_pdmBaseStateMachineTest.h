@@ -60,7 +60,8 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
                       [DIM_HEARTBEAT_BOARD] = NULL };
 
         // heartbeatFaultGetters - gets fault statuses over CAN
-        bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
+        bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] =
+                                                                       &App_CanAlerts_PDM_Fault_MissingBMSHeartbeat_Get,
                                                                    [DCM_HEARTBEAT_BOARD] = NULL,
                                                                    [PDM_HEARTBEAT_BOARD] = NULL,
                                                                    [FSM_HEARTBEAT_BOARD] = NULL,
