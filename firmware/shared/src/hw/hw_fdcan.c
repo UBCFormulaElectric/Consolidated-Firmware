@@ -85,10 +85,10 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO0);
+    handle->can0MsgRecievecallback();
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO1);
+    handle->can1MsgRecievecallback();
 }
