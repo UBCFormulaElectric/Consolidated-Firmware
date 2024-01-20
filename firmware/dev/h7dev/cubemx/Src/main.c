@@ -27,6 +27,7 @@
 #include "hw_can.h"
 #include "hw_bootup.h"
 #include "io_can.h"
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -154,6 +155,7 @@ int main(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */

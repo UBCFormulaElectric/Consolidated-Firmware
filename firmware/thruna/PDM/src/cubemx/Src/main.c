@@ -39,6 +39,7 @@
 #include "io_jsoncan.h"
 #include "hw_bootup.h"
 #include "hw_can.h"
+#include "io_log.h"
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -372,6 +373,7 @@ int main(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("PDM reset!");
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
