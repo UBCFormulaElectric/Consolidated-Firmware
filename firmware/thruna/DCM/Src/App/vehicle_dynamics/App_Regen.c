@@ -132,7 +132,7 @@ static void compute_regen_torque_request(
 
     if (min_motor_speed <= 10.0f)
     {
-        pedal_percentage = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph) * pedal_percentage;
+        pedal_percentage = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph)*pedal_percentage;
     }
 
     powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
