@@ -30,10 +30,11 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
 
-    uint8_t  *fault_array = globals->fault_warning_code_array;
-    uint8_t  *element     = globals->element_num;
-    uint32_t current_time = io_time_getCurrentMs();
-    uint32_t previous     = globals->previous_time;
+    uint8_t *fault_array   = globals->fault_code_array;
+    uint8_t *warning_array = globals->warning_code_array;
+    uint8_t  element_num   = globals->element_num;
+    uint32_t current_time  = io_time_getCurrentMs();
+    uint32_t previous_time = globals->previous_time;
 
     App_CanTx_DIM_Heartbeat_Set(true);
 
@@ -76,13 +77,13 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
-            App_CanAlerts_FaultCode(alert_board_ids[i], fault_array);
+            globals->fault_element_num += App_CanAlerts_FaultCode(alert_board_ids[i], fault_array);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array);
+            globals->warning_element_num += App_CanAlerts_WarningCode(alert_board_ids[i], warning_array);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
@@ -92,7 +93,18 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
+<<<<<<< HEAD
     App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
+=======
+    uint8_t fault_num   = globals->fault_element_num;
+    uint8_t warning_num = globals->warning_element_num;
+
+    if (App_CanRx_BMS_Heartbeat_Get())
+    {
+        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_Heartbeat_Update(false);
+    }
+>>>>>>> f1666c85 (feels kinda sketchy but I am not exactly sure)
 
     App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
@@ -121,11 +133,33 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        uint32_t time_difference = current_time - previous;
+        uint32_t time_difference = current_time - previous_time;
 
-        if (time_difference > 2000 && time_difference < 3000)
+        if (globals->fault_in_car)
         {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[*element]);
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[0]);
+            globals->element_num++;
+        }
+
+        else if (time_difference > 2000 && time_difference < 2500)
+        {
+            if (fault_array[0] != 0)
+            {
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[0]);
+                globals->element_num  = 0;
+                globals->fault_in_car = true;
+            }
+
+            else if (element_num < warning_num)
+            {
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
+            }
+
+            else
+            {
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+                globals->element_num = 0;
+            }
         }
 
         else
