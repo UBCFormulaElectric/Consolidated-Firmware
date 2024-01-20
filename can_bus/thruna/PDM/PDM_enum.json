@@ -1,6 +1,6 @@
 {
     "PdmState": {
-        "PDM_STATE_INIT": 0,
+        "PDM_INIT_STATE": 0,
         "PDM_DRIVE_STATE": 1
     }
 }
