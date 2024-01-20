@@ -434,7 +434,6 @@ void RunTask100Hz(void *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     tasks_run100Hz();
-
     /* USER CODE END 5 */
 }
 
