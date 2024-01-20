@@ -61,8 +61,8 @@ TEST_F(TestRegen, active_differential_exceeds_max)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_nm / (torque_lim_Nm * cl);
+    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
+    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
 
     App_ActiveDifferential_ComputeNegativeTorque(&inputs, &regenAttributes);
 
@@ -282,8 +282,8 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_nm / (torque_lim_Nm * cl);
+    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
+    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
 
     App_Run_Regen(pedal_percentage);
 

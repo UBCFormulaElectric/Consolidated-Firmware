@@ -89,9 +89,9 @@ void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inp
     float torque_negative_max_Nm = fminf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
-    if (torque_negative_max_Nm < MAX_REGEN_nm)
+    if (torque_negative_max_Nm < MAX_REGEN_Nm)
     {
-        scale = MAX_REGEN_nm / torque_negative_max_Nm;
+        scale = MAX_REGEN_Nm / torque_negative_max_Nm;
     }
 
     regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
@@ -145,7 +145,7 @@ static void compute_regen_torque_request(
     else
     {
         // no power limit, no active differential
-        regenAttr->left_inverter_torque_Nm  = MAX_REGEN_nm * pedal_percentage;
-        regenAttr->right_inverter_torque_Nm = MAX_REGEN_nm * pedal_percentage;
+        regenAttr->left_inverter_torque_Nm  = MAX_REGEN_Nm * pedal_percentage;
+        regenAttr->right_inverter_torque_Nm = MAX_REGEN_Nm * pedal_percentage;
     }
 }

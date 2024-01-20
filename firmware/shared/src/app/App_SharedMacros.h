@@ -61,7 +61,6 @@
 #define RAD_TO_DEG(r) (r * 180.0f / PI)
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 
-
 #define MOTOR_RPM_TO_KMH(kmh) ((kmh) * (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO) //take rpm of whell to kph
 #define MOTOR_KMH_TO_RPM(rpm) ((int)((rpm) / ((float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO)))
 
