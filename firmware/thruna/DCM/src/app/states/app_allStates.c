@@ -15,9 +15,7 @@
 
 static uint16_t num_cycles = 0;
 
-static void sendAndReceiveHeartbeat(void)
-{
-}
+static void sendAndReceiveHeartbeat(void) {}
 
 void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
 {

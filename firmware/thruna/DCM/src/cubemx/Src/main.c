@@ -202,7 +202,7 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 static const GlobalsConfig globals_config = {
     .brake_light = &brake_light,
     .buzzer      = &buzzer,
-}
+};
 
 /* USER CODE END PV */
 
@@ -281,7 +281,7 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    hb_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
         heartbeatGetters, heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters,
         heartbeatFaultGetters);

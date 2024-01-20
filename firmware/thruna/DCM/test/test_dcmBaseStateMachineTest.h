@@ -35,8 +35,8 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
+        hb_monitor = App_SharedHeartbeatMonitor_Create(
+            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         app_globals_init(&globals_config);
@@ -70,31 +70,32 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
     const BinaryLed brake_light = {};
     const Buzzer    buzzer      = {};
 
-
     // config to forward can functions to shared heartbeat
     // BMS rellies on DIM, FSM, and BMS
-    const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
-                                                            [DCM_HEARTBEAT_BOARD] = false,
-                                                            [PDM_HEARTBEAT_BOARD] = false,
-                                                            [FSM_HEARTBEAT_BOARD] = true,
-                                                            [DIM_HEARTBEAT_BOARD] = true };
+    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                              [DCM_HEARTBEAT_BOARD] = false,
+                                                              [PDM_HEARTBEAT_BOARD] = false,
+                                                              [FSM_HEARTBEAT_BOARD] = true,
+                                                              [DIM_HEARTBEAT_BOARD] = true };
 
     // heartbeatGetters - get heartbeat signals from other boards
-    const bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
-                                                        [DCM_HEARTBEAT_BOARD] = NULL,
-                                                        [PDM_HEARTBEAT_BOARD] = NULL,
-                                                        [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
-                                                        [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Get };
+    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                          [DCM_HEARTBEAT_BOARD] = NULL,
+                                                          [PDM_HEARTBEAT_BOARD] = NULL,
+                                                          [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                          [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Get };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
-    const void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
-                                                            [DCM_HEARTBEAT_BOARD] = NULL,
-                                                            [PDM_HEARTBEAT_BOARD] = NULL,
-                                                            [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
-                                                            [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Update };
+    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+        [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+        [DCM_HEARTBEAT_BOARD] = NULL,
+        [PDM_HEARTBEAT_BOARD] = NULL,
+        [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+        [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Update
+    };
 
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-    const void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Set,
         [DCM_HEARTBEAT_BOARD] = NULL,
         [PDM_HEARTBEAT_BOARD] = NULL,
@@ -103,7 +104,7 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
-    const bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Get,
         [DCM_HEARTBEAT_BOARD] = NULL,
         [PDM_HEARTBEAT_BOARD] = NULL,
