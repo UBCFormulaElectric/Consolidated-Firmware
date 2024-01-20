@@ -143,9 +143,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         else if (time_difference > 2000 && time_difference < 2500)
         {
-            if (fault_array[0] != 0)
+            if (fault_num > 0)
             {
-                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[0]);
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
                 globals->element_num  = 0;
                 globals->fault_in_car = true;
             }
