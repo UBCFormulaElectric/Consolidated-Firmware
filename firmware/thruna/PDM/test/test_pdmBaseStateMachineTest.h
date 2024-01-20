@@ -37,9 +37,15 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
             &app_canTx_PDM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
         app_stateMachine_init(app_driveState_get());
 
+<<<<<<< HEAD
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+=======
+        state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
+
+        globals->heartbeat_monitor = heartbeat_monitor;
+>>>>>>> be4f9568 (fixed testing)
     }
 
     void TearDown() override
