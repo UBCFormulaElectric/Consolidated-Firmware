@@ -3,6 +3,28 @@
 #include <stdio.h>
 #include "App_SharedMacros.h"
 
+/*
+This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
+The SEGGER_RTT_printf function has the following spec:
+(taken from SEGGER_RTT_printf.c, for reference)
+
+Notes
+*    (1) Conversion specifications have following syntax:
+*          %[flags][FieldWidth][.Precision]ConversionSpecifier
+*    (2) Supported flags:
+*          -: Left justify within the field width
+*          +: Always print sign extension for signed conversions
+*          0: Pad with 0 instead of spaces. Ignored when using '-'-flag or precision
+*        Supported conversion specifiers:
+*          c: Print the argument as one char
+*          d: Print the argument as a signed integer
+*          u: Print the argument as an unsigned integer
+*          x: Print the argument as an hexadecimal integer
+*          s: Print the string pointed to by the argument
+*          p: Print the argument as an 8-digit hexadecimal integer. (Argument shall be a pointer to void.)
+
+*/
+
 #define ANSI_BOLD_GREEN "\x1B[1;32m"
 #define ANSI_BOLD_YELLOW "\x1B[1;33m"
 #define ANSI_BOLD_RED "\x1B[1;31m"
