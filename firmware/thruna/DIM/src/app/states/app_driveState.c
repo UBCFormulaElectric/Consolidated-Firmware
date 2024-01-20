@@ -11,6 +11,7 @@
 #include "io_led.h"
 #include "io_switch.h"
 #include "App_CommitInfo.h"
+#include "io_time.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
@@ -29,9 +30,11 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
 
-    uint8_t  fault_warning_code_array[64] = { 0 };
-    uint8_t  point_element_num            = 0;
-    uint8_t *element_num                  = &point_element_num;
+    uint8_t  *fault_array = globals->fault_warning_code_array;
+    uint8_t  *element     = globals->element_num;
+    uint32_t current_time = io_time_getCurrentMs();
+    uint32_t previous     = globals->previous_time;
+
     App_CanTx_DIM_Heartbeat_Set(true);
 
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
@@ -73,13 +76,13 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
-            App_CanAlerts_FaultCode(alert_board_ids[i], fault_warning_code_array, element_num);
+            App_CanAlerts_FaultCode(alert_board_ids[i], fault_array, element);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            App_CanAlerts_WarningCode(alert_board_ids[i], fault_warning_code_array, element_num);
+            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array,element);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
@@ -118,7 +121,17 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+        uint32_t time_difference = current_time - previous;
+
+        if(time_difference > 2000 && time_difference < 3000)
+        {
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L,fault_array[*element]);
+        }
+
+        else
+        {
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+        }
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
     }
