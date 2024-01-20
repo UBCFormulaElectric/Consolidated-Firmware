@@ -102,7 +102,7 @@ void        runTickTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+CanHandle can = { .can = &hcan1, .can0MsgRecievecallback = 0, .can1MsgRecievecallback = 0 }
 /* USER CODE END 0 */
 
 /**
