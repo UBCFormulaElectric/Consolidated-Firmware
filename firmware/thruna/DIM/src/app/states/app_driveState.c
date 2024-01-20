@@ -82,7 +82,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array,element);
+            App_CanAlerts_WarningCode(alert_board_ids[i], fault_array, element);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
@@ -123,9 +123,9 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         uint32_t time_difference = current_time - previous;
 
-        if(time_difference > 2000 && time_difference < 3000)
+        if (time_difference > 2000 && time_difference < 3000)
         {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L,fault_array[*element]);
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[*element]);
         }
 
         else
