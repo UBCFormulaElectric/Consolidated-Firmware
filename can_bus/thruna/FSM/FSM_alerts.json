@@ -25,11 +25,11 @@
         "AppsDisagreement":219
     },
     "faults": {
-        "MissingHeartbeat" : 251,
-        "StateMachine":252,
-        "PappsOCSC":253,
-        "SappsOCSC" : 254,
-        "FlowMeterUnderflow" : 255,
-        "TorquePlausabilityFailed" : 256
+        "MissingBMSHeartbeat": 451,
+        "StateMachine":452,
+        "PappsOCSC":453,
+        "SappsOCSC":454,
+        "FlowMeterUnderflow":455,
+        "TorquePlausabilityFailed":456
     }
 }
