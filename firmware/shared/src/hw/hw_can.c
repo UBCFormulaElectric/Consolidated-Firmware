@@ -31,7 +31,17 @@
 
 static CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
+static void defaultCan0MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+}
+
+static defaultCan1MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO1);
+}
+
+void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -58,10 +68,10 @@ void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    if (!callback)
-        can_handle->callback = callback;
-    else
-        can_handle->callback = io_can_msgReceivedCallback;
+    if (!handle->can0MsgRecievecallback)
+        handle->can0MsgRecievecallback = defaultCan0MsgRecievecallback;
+    if (!handle->can1MsgRecievecallback)
+        handle->can1MsgRecievecallback = defaultCan1MsgRecievecallback;
 }
 
 void hw_can_deinit()

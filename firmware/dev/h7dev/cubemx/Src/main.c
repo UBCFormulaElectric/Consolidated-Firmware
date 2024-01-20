@@ -28,12 +28,19 @@
 #include "sample.pb.h"
 #include "string.h"
 #include "hw_hardFaultHandler.h"
+<<<<<<< HEAD
 #include "hw_bootup.h"
 <<<<<<< HEAD
 #include "hw_uart.h"
 =======
+=======
+#include "hw_can.h"
+>>>>>>> 193708cf (main functin implementation)
 #include "hw_sd.h"
 #include "io_can.h"
+#include "io_canLogging.h"
+
+#include "lfs_config.h"
 #include "io_log.h"
 >>>>>>> 6102d31a (add canlogging queue)
 /* USER CODE END Includes */
@@ -73,11 +80,23 @@ const osThreadAttr_t defaultTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
+<<<<<<< HEAD
 // static CanConfig can_config = {
 //     .rx_msg_filter        = NULL,
 //     .tx_overflow_callback = NULL,
 //     .rx_overflow_callback = NULL,
 // };
+=======
+static CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .tx_overflow_callback = NULL,
+    .rx_overflow_callback = NULL,
+};
+#define CAN_RX_FIFO0 (0x00000000U)
+
+/* Little fs config*/
+struct lfs_config cfg;
+>>>>>>> 193708cf (main functin implementation)
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,12 +111,16 @@ static void MX_SDMMC1_SD_Init(void);
 void        runDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
+static void can0MsgRecievecallback(void);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can1_handle = { .can = &hfdcan2 };
+CanHandle     can1_handle = { .can                    = &hfdcan2,
+                          .can0MsgRecievecallback = can0MsgRecievecallback,
+                          .can1MsgRecievecallback = 0 };
+extern SdCard sd;
 
 /* USER CODE END 0 */
 
@@ -108,7 +131,7 @@ CanHandle can1_handle = { .can = &hfdcan2 };
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    hw_bootup_enableInterruptsForApp();
+
     /* USER CODE END 1 */
 
     /* Enable I-Cache---------------------------------------------------------*/
@@ -146,10 +169,12 @@ int main(void)
     // __HAL_DBGMCU_FREEZE_IWDG();
 
     hw_hardFaultHandler_init();
-    hw_can_init(&can1_handle, 0);
+    hw_can_init(&can1_handle);
 
     // io_can_init(&can_config);
 
+    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+    io_canLogging_init(&can_config, &cfg);
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     // LOG_INFO("h7dev reset!");
@@ -236,7 +261,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -325,7 +350,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 0;
+    hsd1.Init.ClockDiv            = 10;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -397,6 +422,12 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+static void can0MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+    io_canLogging_pushTxMsgToQueue(CAN_RX_FIFO0);
+}
 
 /* USER CODE END 4 */
 

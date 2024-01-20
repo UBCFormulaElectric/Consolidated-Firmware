@@ -47,6 +47,8 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 CRC_HandleTypeDef hcrc;
 
+CRC_HandleTypeDef hcrc;
+
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
@@ -106,7 +108,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+CanHandle can = { .can = &hfdcan2, .can0MsgRecievecallback = 0, .can1MsgRecievecallback = 0 };
 /* USER CODE END 0 */
 
 /**

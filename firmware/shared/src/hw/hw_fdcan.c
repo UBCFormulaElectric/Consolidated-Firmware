@@ -4,7 +4,17 @@
 
 static CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
+static void defaultCan0MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(FDCAN_RX_FIFO0);
+}
+
+static void defaultCan1MsgRecievecallback(void)
+{
+    io_can_msgReceivedCallback(FDCAN_RX_FIFO1);
+}
+
+void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -28,10 +38,10 @@ void hw_can_init(CanHandle *can_handle, MsgReceivedCallback callback)
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
 
-    if (!callback)
-        handle->callback = callback;
-    else
-        handle->callback = io_can_msgReceivedCallback;
+    if (!handle->can0MsgRecievecallback)
+        handle->can0MsgRecievecallback = defaultCan0MsgRecievecallback;
+    if (!handle->can1MsgRecievecallback)
+        handle->can1MsgRecievecallback = defaultCan1MsgRecievecallback;
 }
 
 void hw_can_deinit()
@@ -75,10 +85,10 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO0);
+    handle->can0MsgRecievecallback();
 }
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO1);
+    handle->can1MsgRecievecallback();
 }
