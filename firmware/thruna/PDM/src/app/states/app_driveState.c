@@ -21,8 +21,10 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick100Hz(state_machine);
+    bool isCorrectState = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE || 
+    App_CanRx_BMS_State_Get() != BMS_INVERTER_ON_STATE;
 
-    if (App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE)
+    if (isCorrectState)
     {
         App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
     }
