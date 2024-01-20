@@ -9,4 +9,7 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"app_cantx.h": "c"
+	},
 }

@@ -85,7 +85,7 @@
         {
             "label": "Build: RSM",
             "type": "shell",
-            "command": "make -j`nproc` RSM.hex",
+            "command": "make -j`nproc` RSM.elf",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"

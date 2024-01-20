@@ -1,17 +1,17 @@
 set(ARM_CORE "cm4")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/RSM.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/App/*.c")
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/App" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
 file(GLOB_RECURSE IO_SRCS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/Src/Io/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 set(HW_SRCS "${SHARED_HW_SRCS}")
 list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
@@ -19,7 +19,7 @@ list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_crc.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_flash.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c")
 
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
@@ -75,10 +75,10 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_ll_adc.c"
     )
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
         "RSM_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
@@ -87,23 +87,16 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_HW_INCLUDE_DIR})
     embedded_binary(
-        "RSM_app"
+        "RSM"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
     target_link_libraries("RSM_can" "RSM_stm32cube")
-    target_link_libraries("RSM_app.elf" "RSM_stm32cube" "RSM_can" "RSM_commit_info")
+    target_link_libraries("RSM.elf" "RSM_stm32cube" "RSM_can" "RSM_commit_info")
 
-    embedded_image(
-        "RSM"
-        "RSM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/RSM_app.hex"
-        "RSM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/RSM_boot.hex"
-    )
-
+   
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
         "RSM_can"
