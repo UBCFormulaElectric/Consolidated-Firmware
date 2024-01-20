@@ -115,7 +115,7 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
 {
     switch (board)
     {
@@ -123,13 +123,15 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test1;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test1;
                 *p++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray[*p] = FSM_Warning_Warning_Test2;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Warning_Warning_Test2;
                 *p++;
             }
             
@@ -139,7 +141,8 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray[*p] = JCT_Warning_Warning_Test;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)JCT_Warning_Warning_Test;
                 *p++;
             }
             
@@ -155,7 +158,7 @@ void App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t
     return false;
 }
 
-void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t elementNum, uint8_t *p)
+void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t *p)
 {
     switch (board)
     {
@@ -163,7 +166,8 @@ void App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t e
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray[*p] = FSM_Fault_Fault_Test3;
+                alertArray= (uint8_t *) realloc(alertArray, sizeof(uint8_t));
+                alertArray[*p-1] = (uint8_t)FSM_Fault_Fault_Test3;
                 *p++;
             }
             
