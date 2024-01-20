@@ -28,6 +28,12 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+
+    uint8_t  fault_warning_code_array[64] = {0};
+    uint8_t  point_element_num = 0;
+    uint8_t *element_num      = &point_element_num;
+    App_CanTx_DIM_Heartbeat_Set(true);
+
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
 
@@ -67,13 +73,13 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
-            App_CanAlerts_FaultCode(alert_board_ids[i], FaultAndWarningCodeArray, p);
+            App_CanAlerts_FaultCode(alert_board_ids[i], fault_warning_code_array, element_num);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (App_CanAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
-            App_CanAlerts_WarningCode(alert_board_ids[i], FaultAndWarningCodeArray, p);
+            App_CanAlerts_WarningCode(alert_board_ids[i], fault_warning_code_array, element_num);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
