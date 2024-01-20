@@ -29,7 +29,6 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-
     uint8_t *fault_array   = globals->fault_code_array;
     uint8_t *warning_array = globals->warning_code_array;
     uint8_t  element_num   = globals->element_num;
