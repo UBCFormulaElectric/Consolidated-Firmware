@@ -18,12 +18,14 @@
         "SteeringAngleOutOfRange",
         "FrontBrakePressureOutOfRange",
         "RearBrakePressureOutOfRange",
+        "BrakePressureSensorOCSC",
+        "BrakePedalSensorOCSC",
         "FlowRateOutOfRange",
         "BrakeAppsDisagreement",
         "AppsDisagreement"
     ],
     "faults": [
-        "MissingHeartbeat",
+        "MissingBMSHeartbeat",
         "StateMachine",
         "PappsOCSC",
         "SappsOCSC",

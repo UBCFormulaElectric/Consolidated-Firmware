@@ -14,6 +14,7 @@
         "RxOverflow"
     ],
     "faults": [
-        "DummyFault"
+        "DummyFault",
+        "MissingBMSHeartbeat"
     ]
 }

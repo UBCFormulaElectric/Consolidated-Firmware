@@ -144,6 +144,47 @@ struct BrakeLight *      brake_light;
 struct Buzzer *          buzzer;
 struct Imu *             imu;
 struct Clock *           clock;
+
+// config to forward can functions to shared heartbeat
+// BMS rellies on DIM, FSM, and BMS
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                          [DCM_HEARTBEAT_BOARD] = false,
+                                                          [PDM_HEARTBEAT_BOARD] = false,
+                                                          [FSM_HEARTBEAT_BOARD] = true,
+                                                          [DIM_HEARTBEAT_BOARD] = true };
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                      [DCM_HEARTBEAT_BOARD] = NULL,
+                                                      [PDM_HEARTBEAT_BOARD] = NULL,
+                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                      [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Get };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                           [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Update };
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Set,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Set,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Set
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Get,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Get,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Get
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -242,7 +283,9 @@ int main(void)
     App_CanRx_Init();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
+        heartbeatGetters, heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters,
+        heartbeatFaultGetters);
 
     brake_light = App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
 

@@ -165,8 +165,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct StateMachine *    state_machine;
-struct HeartbeatMonitor *hb_monitor;
+struct StateMachine *state_machine;
 
 static const Charger charger_config  = { .enable_gpio = {
                                        .port = CHRG_EN_3V3_GPIO_Port,
@@ -262,6 +261,61 @@ static const GlobalsConfig globals_config = {
     .bms_ok_latch  = &bms_ok_latch,
     .imd_ok_latch  = &imd_ok_latch,
     .bspd_ok_latch = &bspd_ok_latch,
+};
+
+struct Imd *             imd;
+struct HeartbeatMonitor *heartbeat_monitor;
+struct RgbLedSequence *  rgb_led_sequence;
+struct Charger *         charger;
+struct OkStatus *        bms_ok;
+struct OkStatus *        imd_ok;
+struct OkStatus *        bspd_ok;
+struct SocStats *        soc_stats;
+struct Accumulator *     accumulator;
+struct CellMonitors *    cell_monitors;
+struct Airs *            airs;
+struct PrechargeRelay *  precharge_relay;
+struct TractiveSystem *  ts;
+struct Clock *           clock;
+struct Eeprom *          eeprom;
+
+// config to forward can functions to shared heartbeat
+// BMS rellies on DCM, PDM, and FSM
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = false,
+                                                          [DCM_HEARTBEAT_BOARD] = true,
+                                                          [PDM_HEARTBEAT_BOARD] = true,
+                                                          [FSM_HEARTBEAT_BOARD] = true,
+                                                          [DIM_HEARTBEAT_BOARD] = false };
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
+                                                      [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Get,
+                                                      [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Get,
+                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                      [DIM_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = NULL,
+                                                           [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Update,
+                                                           [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Update,
+                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                           [DIM_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = NULL,
+    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingDCMHeartbeat_Set,
+    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingPDMHeartbeat_Set,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingFSMHeartbeat_Set,
+    [DIM_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = NULL,
+    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingDCMHeartbeat_Get,
+    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingPDMHeartbeat_Get,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingFSMHeartbeat_Get,
+    [DIM_HEARTBEAT_BOARD] = NULL
 };
 
 /* USER CODE END PV */
@@ -386,10 +440,12 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(NULL, app_initState_get());
 
-    hb_monitor = App_SharedHeartbeatMonitor_Create(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
+        heartbeatGetters, heartbeatUpdaters, &App_CanTx_BMS_Heartbeat_Set, heartbeatFaultSetters,
+        heartbeatFaultGetters);
 
-    globals->hb_monitor = hb_monitor;
+    globals->hb_monitor = heartbeat_monitor;
 
     // broadcast commit info
     App_CanTx_BMS_Hash_Set(GIT_COMMIT_HASH);

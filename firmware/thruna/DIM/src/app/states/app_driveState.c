@@ -28,8 +28,6 @@ static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_CanTx_DIM_Heartbeat_Set(true);
-
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
 
@@ -83,14 +81,17 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
-    if (App_CanRx_BMS_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Heartbeat_Update(false);
-    }
+    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
 
-    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
-    App_CanAlerts_DIM_Fault_MissingHeartbeat_Set(missing_hb);
+    App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
+    App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
+
+    bool missing_hb = false;
+
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        missing_hb |= !globals->heartbeat_monitor->status[board];
+    }
 
     const float avg_rpm =
         ((float)abs(App_CanRx_INVL_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
