@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "App_SharedMacros.h"
 #include "states/App_AllStates.h"
 #include "App_EllipseImu.h"
@@ -8,25 +9,7 @@ static uint16_t num_cycles = 0;
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    App_CanTx_DCM_Heartbeat_Set(true);
-
-    if (App_CanRx_BMS_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Heartbeat_Update(false);
-    }
-
-    if (App_CanRx_FSM_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
-        App_CanRx_FSM_Heartbeat_Update(false);
-    }
-
-    if (App_CanRx_DIM_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DIM_HEARTBEAT_ONE_HOT);
-        App_CanRx_DIM_Heartbeat_Update(false);
-    }
+    App_SharedHeartbeatMonitor_CheckIn(hb_monitor);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -51,8 +34,12 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         num_cycles++;
     }
 
-    const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor) && num_cycles > IGNORE_HEARTBEAT_CYCLES;
-    App_CanAlerts_DCM_Fault_MissingHeartbeat_Set(is_missing_hb);
+    App_SharedHeartbeatMonitor_Tick(hb_monitor);
+
+    if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
+    {
+        App_SharedHeartbeatMonitor_BroadcastFaults(hb_monitor);
+    }
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     const bool right_inverter_fault = App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
