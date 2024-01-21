@@ -30,8 +30,8 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
-  codegen:
-    name: Check CubeMX Code Gen
+  codegen-thruna:
+    name: Check CubeMX Code Gen (Thruna)
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     strategy:
@@ -77,8 +77,8 @@ jobs:
       - name: Generate checksum
         run: |
           python3 scripts/utilities/generate_md5_checksum.py \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.thruna_board }}.ioc \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.thruna_board }}.ioc.md5
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
@@ -125,6 +125,8 @@ jobs:
           - BMS
           - VC
           - DIM
+          - RSM
+
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -197,6 +199,7 @@ jobs:
           - BMS
           - VC
           - DIM
+          - RSM
 
     container:
       image: ubcformulaelectric/environment:latest
