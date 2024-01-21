@@ -95,7 +95,7 @@ jobs:
             ioc_dir: firmware/quadruna/DIM/src/cubemx
           - board: FSM
             ioc_dir: firmware/quadruna/FSM/src/cubemx
-          - board: vC
+          - board: VC
             ioc_dir: firmware/quadruna/PDM/src/cubemx
           - board: BMS
             ioc_dir: firmware/quadruna/BMS/src/cubemx
