@@ -113,7 +113,7 @@ jobs:
           board: ${{ matrix.thruna_board }}
           platform: thruna_firmware
 
-  build-firmware-thruna:
+  build-firmware-quadruna:
     needs: [ clang-format ]
     name: Build Firmware Binaries
     runs-on: ubuntu-latest
