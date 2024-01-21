@@ -149,6 +149,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -177,6 +178,7 @@ int main(void)
     MX_TIM12_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
