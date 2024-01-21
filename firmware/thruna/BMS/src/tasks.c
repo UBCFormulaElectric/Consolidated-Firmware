@@ -42,13 +42,13 @@
 #include "hw_bootup.h"
 #include "hw_utils.h"
 
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
+static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_BMS_RxOverflowCount_Set(overflow_count);
     App_CanAlerts_BMS_Warning_RxOverflow_Set(true);
 }
 
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
+static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_BMS_TxOverflowCount_Set(overflow_count);
     App_CanAlerts_BMS_Warning_TxOverflow_Set(true);
@@ -63,8 +63,8 @@ extern TIM_HandleTypeDef  htim13;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = CanTxQueueOverflowCallBack,
-    .rx_overflow_callback = CanRxQueueOverflowCallBack,
+    .tx_overflow_callback = canTxQueueOverflowCallBack,
+    .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
 struct HeartbeatMonitor *hb_monitor;

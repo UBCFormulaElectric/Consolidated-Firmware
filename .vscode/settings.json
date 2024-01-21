@@ -15,6 +15,12 @@
 		"app_statemachine.h": "c",
 		"app_sharedheartbeatmonitor.h": "c",
 		"app_heartbeatmonitorconfig.h": "c",
-		"io_can.h": "c"
+		"io_can.h": "c",
+		"app_canalerts.h": "c",
+		"io_sharederrorhandleroverride.h": "c",
+		"hw_hardfaulthandler.h": "c",
+		"io_canconfig.h": "c",
+		"hw_utils.h": "c",
+		"io_jsoncan.h": "c"
 	},
 }

@@ -142,6 +142,7 @@ void        RunTask100Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -165,6 +166,7 @@ int main(void)
     MX_IWDG_Init();
     MX_USART1_UART_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */

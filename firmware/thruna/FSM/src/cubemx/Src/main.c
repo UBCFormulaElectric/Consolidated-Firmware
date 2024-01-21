@@ -23,49 +23,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
-
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "app_utils.h"
-#include "app_units.h"
-#include "app_stateMachine.h"
-#include "App_SharedHeartbeatMonitor.h"
-#include "app_timer.h"
-#include "app_mainState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "app_apps.h"
-#include "app_brake.h"
-#include "app_coolant.h"
-#include "app_steering.h"
-#include "app_wheels.h"
-#include "app_globals.h"
-
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "hw_hardFaultHandler.h"
-#include "io_can.h"
-#include "io_jsoncan.h"
-#include "io_stackWaterMark.h"
-#include "io_watchdogConfig.h"
+#include "tasks.h"
 #include "io_coolant.h"
 #include "io_wheels.h"
-#include "io_steering.h"
-#include "io_apps.h"
-#include "io_brake.h"
-#include "io_time.h"
-#include "io_log.h"
-
-#include "hw_bootup.h"
-#include "hw_can.h"
-#include "hw_adc.h"
-#include "hw_utils.h"
-
-// commit info
-#include "App_CommitInfo.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -176,74 +136,10 @@ void        RunTaskCanTx(void *argument);
 void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
-
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-struct HeartbeatMonitor *heartbeat_monitor;
-
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_FSM_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_FSM_Warning_RxOverflow_Set(true);
-}
-
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_FSM_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_FSM_Warning_TxOverflow_Set(true);
-}
-
-static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = CanTxQueueOverflowCallBack,
-    .rx_overflow_callback = CanRxQueueOverflowCallBack,
-};
-
-// config to forward can functions to shared heartbeat
-// FSM rellies on BMS
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
-                                                          [DCM_HEARTBEAT_BOARD] = false,
-                                                          [PDM_HEARTBEAT_BOARD] = false,
-                                                          [FSM_HEARTBEAT_BOARD] = false,
-                                                          [DIM_HEARTBEAT_BOARD] = false };
-
-// heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
-                                                      [DCM_HEARTBEAT_BOARD] = NULL,
-                                                      [PDM_HEARTBEAT_BOARD] = NULL,
-                                                      [FSM_HEARTBEAT_BOARD] = NULL,
-                                                      [DIM_HEARTBEAT_BOARD] = NULL };
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
-                                                           [DCM_HEARTBEAT_BOARD] = NULL,
-                                                           [PDM_HEARTBEAT_BOARD] = NULL,
-                                                           [FSM_HEARTBEAT_BOARD] = NULL,
-                                                           [DIM_HEARTBEAT_BOARD] = NULL };
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_FSM_Fault_MissingBMSHeartbeat_Set,
-    [DCM_HEARTBEAT_BOARD] = NULL,
-    [PDM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_FSM_Fault_MissingBMSHeartbeat_Get,
-    [DCM_HEARTBEAT_BOARD] = NULL,
-    [PDM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL,
-    [DIM_HEARTBEAT_BOARD] = NULL
-};
-
 /* USER CODE END 0 */
 
 /**
@@ -253,8 +149,6 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -283,42 +177,6 @@ int main(void)
     MX_TIM12_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("FSM reset!");
-
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
-
-    hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
-
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-
-    io_apps_init();
-    io_coolant_init(&htim8);
-    io_wheels_init(&htim12, &htim12);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    app_apps_init();
-    app_coolant_init();
-    app_stateMachine_init(app_mainState_get());
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-        heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-    globals->heartbeat_monitor = heartbeat_monitor;
-
-    // broadcast commit info
-    App_CanTx_FSM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_FSM_Clean_Set(GIT_COMMIT_CLEAN);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -814,33 +672,7 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    for (;;)
-    {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -855,28 +687,7 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 10;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        app_stateMachine_tick100Hz();
-        Io_CanTx_Enqueue100HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -891,17 +702,7 @@ void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -916,12 +717,7 @@ void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_can_transmitMsgFromQueue();
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -936,29 +732,7 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1000U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    for (;;)
-    {
-        io_stackWaterMark_check();
-        app_stateMachine_tick1Hz();
-
-        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 

@@ -23,44 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
-
-#include "app_utils.h"
-#include "app_stateMachine.h"
-#include "app_mainState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_CanTx.h"
-#include "App_CommitInfo.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "app_globals.h"
-#include "app_sevenSegDisplays.h"
-#include "app_avgPower.h"
-#include "app_utils.h"
-#include "app_units.h"
-
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedErrorHandlerOverride.h"
-#include "hw_hardFaultHandler.h"
-
-#include "io_time.h"
-#include "io_led.h"
-#include "io_switch.h"
-#include "io_rgbLed.h"
-#include "io_watchdogConfig.h"
-#include "io_stackWaterMark.h"
-#include "io_sevenSegDisplays.h"
-#include "io_can.h"
-#include "io_jsoncan.h"
-#include "io_canConfig.h"
-#include "io_log.h"
-
-#include "hw_bootup.h"
-#include "hw_gpio.h"
-#include "hw_can.h"
-#include "hw_utils.h"
-
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -145,190 +108,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = io_canConfig_txOverflowCallback,
-    .rx_overflow_callback = io_canConfig_rxOverflowCallback,
-};
-
-struct HeartbeatMonitor *heartbeat_monitor;
-
-static const BinaryLed imd_led   = { .gpio = {
-                                       .port = IMD_LED_GPIO_Port,
-                                       .pin  = IMD_LED_Pin,
-                                   } };
-static const BinaryLed bspd_led  = { .gpio = {
-                                        .port = BSPD_LED_GPIO_Port,
-                                        .pin  = BSPD_LED_Pin,
-                                    } };
-static const BinaryLed shdn_led  = { .gpio = {
-                                        .port = SHDN_LED_GPIO_Port,
-                                        .pin  = SHDN_LED_Pin,
-                                    } };
-static const BinaryLed drive_led = { .gpio = {
-                                         .port = IGNTN_LED_GPIO_Port,
-                                         .pin  = IGNTN_LED_Pin,
-                                     } };
-
-static const Switch start_switch = {
-    .gpio = {
-        .port = IGNTN_IN_GPIO_Port,
-        .pin = IGNTN_IN_Pin,
-    },
-    .closed_state = true,
-};
-static const Switch aux_switch = {
-    .gpio = {
-        .port = AUX_IN_GPIO_Port,
-        .pin = AUX_IN_Pin,
-    },
-    .closed_state = true,
-};
-
-static const RgbLed bms_status_led = {
-    .red_gpio = {
-        .port = BMS_RED_GPIO_Port,
-        .pin = BMS_RED_Pin,
-    },
-    .green_gpio = {
-        .port = BMS_GREEN_GPIO_Port,
-        .pin = BMS_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = BMS_BLUE_GPIO_Port,
-        .pin = BMS_BLUE_Pin,
-    },
-};
-static const RgbLed dcm_status_led = {
-    .red_gpio = {
-        .port = DCM_RED_GPIO_Port,
-        .pin = DCM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = DCM_GREEN_GPIO_Port,
-        .pin = DCM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = DCM_BLUE_GPIO_Port,
-        .pin = DCM_BLUE_Pin,
-    },
-};
-static const RgbLed fsm_status_led = {
-    .red_gpio = {
-        .port = FSM_RED_GPIO_Port,
-        .pin = FSM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = FSM_GREEN_GPIO_Port,
-        .pin = FSM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = FSM_BLUE_GPIO_Port,
-        .pin = FSM_BLUE_Pin,
-    },
-};
-static const RgbLed pdm_status_led = {
-    .red_gpio = {
-        .port = PDM_RED_GPIO_Port,
-        .pin = PDM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = PDM_GREEN_GPIO_Port,
-        .pin = PDM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = PDM_BLUE_GPIO_Port,
-        .pin = PDM_BLUE_Pin,
-    },
-};
-static const RgbLed dim_status_led = {
-    .red_gpio = {
-        .port = DIM_RED_GPIO_Port,
-        .pin = DIM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = DIM_GREEN_GPIO_Port,
-        .pin = DIM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = DIM_BLUE_GPIO_Port,
-        .pin = DIM_BLUE_Pin,
-    },
-};
-
-static const SevenSegsConfig seven_segs_config = {
-    .srck_gpio = {
-        .port = SEVENSEGS_SRCK_GPIO_Port,
-        .pin = SEVENSEGS_SRCK_Pin,
-    },
-    .rck_gpio = {
-        .port = SEVENSEGS_RCK_GPIO_Port,
-        .pin = SEVENSEGS_RCK_Pin,
-    },
-    .ser_out_gpio = {
-        .port = SEVENSEGS_SEROUT_GPIO_Port,
-        .pin = SEVENSEGS_SEROUT_Pin,
-    },
-    .dimming_gpio = {
-        .port = SEVENSEGS_DIMMING_GPIO_Port,
-        .pin = SEVENSEGS_DIMMING_Pin,
-    },
-};
-
-static const GlobalsConfig globals_config = {
-    .imd_led        = &imd_led,
-    .bspd_led       = &bspd_led,
-    .shdn_led       = &shdn_led,
-    .drive_led      = &drive_led,
-    .start_switch   = &start_switch,
-    .aux_switch     = &aux_switch,
-    .bms_status_led = &bms_status_led,
-    .dcm_status_led = &dcm_status_led,
-    .fsm_status_led = &fsm_status_led,
-    .pdm_status_led = &pdm_status_led,
-    .dim_status_led = &dim_status_led,
-};
-
-// config to forward can functions to shared heartbeat
-// DIM rellies on all boards but itself
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
-                                                          [DCM_HEARTBEAT_BOARD] = true,
-                                                          [PDM_HEARTBEAT_BOARD] = true,
-                                                          [FSM_HEARTBEAT_BOARD] = true,
-                                                          [DIM_HEARTBEAT_BOARD] = false };
-
-// heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
-                                                      [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Get,
-                                                      [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Get,
-                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
-                                                      [DIM_HEARTBEAT_BOARD] = NULL };
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
-                                                           [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Update,
-                                                           [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Update,
-                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
-                                                           [DIM_HEARTBEAT_BOARD] = NULL };
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Set,
-    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Set,
-    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Set,
-    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Set,
-    [DIM_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Get,
-    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Get,
-    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Get,
-    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Get,
-    [DIM_HEARTBEAT_BOARD] = NULL
-};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -357,8 +136,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -381,36 +159,7 @@ int main(void)
     MX_CAN1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("DIM reset!");
-
-    hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
-
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_sevenSegDisplays_init(&seven_segs_config);
-    io_can_init(&can_config);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    app_sevenSegDisplays_init();
-    app_avgPower_init();
-    app_stateMachine_init(app_mainState_get());
-    app_globals_init(&globals_config);
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-        heartbeatUpdaters, &App_CanTx_DIM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-    globals->heartbeat_monitor = heartbeat_monitor;
-
-    // broadcast commit info
-    App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -684,26 +433,7 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    static const TickType_t  period_ms = 10;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        app_stateMachine_tick100Hz();
-        Io_CanTx_Enqueue100HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -718,17 +448,7 @@ void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -743,12 +463,7 @@ void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_can_transmitMsgFromQueue();
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -763,33 +478,7 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        // Check in for timeouts for all RTOS tasks
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -804,30 +493,7 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1000U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_stackWaterMark_check();
-        app_stateMachine_tick1Hz();
-
-        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
