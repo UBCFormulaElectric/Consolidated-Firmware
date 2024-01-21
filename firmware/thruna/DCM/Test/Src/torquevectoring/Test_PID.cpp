@@ -4,8 +4,8 @@
 
 extern "C"
 {
-#include "torquevectoring/App_PID.h"
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "App_PID.h"
+#include "App_TorqueVectoring.h"
 }
 
 class PIDTest : public testing::Test

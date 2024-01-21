@@ -1,6 +1,5 @@
 #include <math.h>
-#include "torquevectoring/App_PowerLimiting.h"
-#include "torquevectoring/App_TorqueVectoring.h"
+#include "App_PowerLimiting.h"
 #include "App_SharedDcmConstants.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -16,22 +15,22 @@ float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
 
     // ============== Calculate max powers =================
     // 1. Motor Temps
-    float P_max_motor_temps = POWER_LIMIT_CAR_kW;
-    if ((float)max_motor_temp - (float)MOTOR_TEMP_CUTOFF_c >= (float)30.0)
+    float P_max_motor_temps = inputs->power_limit_kW;
+    if (max_motor_temp - MOTOR_TEMP_CUTOFF_c >= 30.0f)
     {
         P_max_motor_temps = 0.0;
     }
     else if (max_motor_temp > MOTOR_TEMP_CUTOFF_c)
     {
         P_max_motor_temps =
-            POWER_LIMIT_CAR_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
+            inputs->power_limit_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
     }
 
     // 2. Battery state of charge
-    float P_max_battery = inputs->available_battery_power_kW;
+    float P_max_battery = inputs->power_limit_kW;
 
     // 3. Pedal percentage
-    float P_max_accelerator = inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
+    float P_max_accelerator = inputs->accelerator_pedal_percent * inputs->power_limit_kW;
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
     float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);

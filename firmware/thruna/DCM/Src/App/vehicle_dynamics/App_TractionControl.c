@@ -1,5 +1,5 @@
-#include "torquevectoring/App_TractionControl.h"
-#include "torquevectoring/App_PID.h"
+#include "App_TractionControl.h"
+#include "App_PID.h"
 #include "App_CanTx.h"
 #include "App_SharedDcmConstants.h"
 #include <math.h>
