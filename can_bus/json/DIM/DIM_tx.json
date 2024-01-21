@@ -39,16 +39,16 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 506,
-      "cycle_time": 100,
-      "description": "DIM Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
+        "msg_id": 506,
+        "cycle_time": 100,
+        "description": "DIM Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
     }
 }

@@ -1,4 +1,3 @@
-
 {
     "Vitals": {
         "msg_id": 203,
@@ -13,7 +12,7 @@
             },
             "BuzzerOn": {
                 "bits": 1
-            } 
+            }
         }
     },
     "LeftInverterCommand": {
@@ -250,18 +249,18 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 210,
-      "cycle_time": 100,
-      "description": "DCM Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
+        "msg_id": 210,
+        "cycle_time": 100,
+        "description": "DCM Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
         }
-      },
+    },
     "PowerEstimate": {
         "msg_id": 211,
         "cycle_time": 10,
@@ -304,7 +303,7 @@
             },
             "PIDPowerEstimateDerivative": {
                 "start_bit": 24,
-                "bits" : 16,
+                "bits": 16,
                 "offset": 0,
                 "signed": true,
                 "min": -160,
@@ -313,7 +312,7 @@
             },
             "PIDPowerEstimateIntegral": {
                 "start_bit": 40,
-                "bits" : 24,
+                "bits": 24,
                 "offset": 0,
                 "signed": true,
                 "min": -21474836,
@@ -347,7 +346,7 @@
             },
             "PIDSlipRatioDerivative": {
                 "start_bit": 24,
-                "bits" : 16,
+                "bits": 16,
                 "offset": 0,
                 "signed": true,
                 "min": -160,
@@ -356,7 +355,7 @@
             },
             "PIDSlipRatioIntegral": {
                 "start_bit": 40,
-                "bits" : 24,
+                "bits": 24,
                 "offset": 0,
                 "signed": true,
                 "min": -21474836,
@@ -414,7 +413,7 @@
                 "min": 0,
                 "max": 120,
                 "resolution": 0.1
-            }, 
+            },
             "PowerLimitValueAtFullThrottle": {
                 "min": 0,
                 "max": 120,

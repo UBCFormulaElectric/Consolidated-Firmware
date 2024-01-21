@@ -16,15 +16,17 @@
 
 static bool sendAndReceiveHeartbeat(void)
 {
-    App_CanTx_FSM_Heartbeat_Set(true);
+    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
 
-    if (App_CanRx_BMS_Heartbeat_Get())
+    App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
+    App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
+
+    bool missing_hb = false;
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Heartbeat_Update(false);
+        missing_hb |= !globals->heartbeat_monitor->status[board];
     }
 
-    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     return missing_hb;
 }
 
@@ -47,7 +49,7 @@ void mainStateRunOnTick100Hz(void)
     app_wheels_broadcast();
 
     const bool missing_hb = sendAndReceiveHeartbeat();
-    App_CanAlerts_FSM_Fault_MissingHeartbeat_Set(missing_hb);
+
     if (missing_hb)
     {
         // Redundancy if FSM is missing heartbeats

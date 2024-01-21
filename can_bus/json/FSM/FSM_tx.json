@@ -78,12 +78,6 @@
 			},
 			"BrakeActuated": {
 				"bits": 1
-			},
-			"BrakePressureSensorOCSC": {
-				"bits": 1
-			},
-			"BrakePedalSensorOCSC": {
-				"bits": 1
 			}
 		}
 	},

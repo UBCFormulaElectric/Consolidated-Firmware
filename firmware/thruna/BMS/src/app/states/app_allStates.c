@@ -17,25 +17,17 @@ static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Heartbeat_Set(true);
 
-    if (App_CanRx_FSM_Heartbeat_Get())
+    App_SharedHeartbeatMonitor_CheckIn(hb_monitor);
+
+    App_SharedHeartbeatMonitor_Tick(hb_monitor);
+    App_SharedHeartbeatMonitor_BroadcastFaults(hb_monitor);
+
+    bool missing_hb = false;
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
-        App_CanRx_FSM_Heartbeat_Update(false);
+        missing_hb |= !hb_monitor->status[board];
     }
 
-    if (App_CanRx_DCM_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DCM_HEARTBEAT_ONE_HOT);
-        App_CanRx_DCM_Heartbeat_Update(false);
-    }
-
-    if (App_CanRx_PDM_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
-        App_CanRx_PDM_Heartbeat_Update(false);
-    }
-
-    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
     return missing_hb;
 }
 
@@ -64,7 +56,6 @@ void app_allStates_runOnTick1Hz(void)
 bool app_allStates_runOnTick100Hz(void)
 {
     const bool missing_hb = sendAndReceiveHeartbeat(globals->hb_monitor);
-    App_CanAlerts_BMS_Fault_MissingHeartbeat_Set(missing_hb);
 
     app_accumulator_runOnTick100Hz();
     app_thermistors_updateAuxThermistorTemps();

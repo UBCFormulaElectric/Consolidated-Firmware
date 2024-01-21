@@ -201,8 +201,8 @@ TEST_F(DcmStateMachineTest, drive_to_init_state_on_pdm_fault)
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_dim_fault)
 {
-    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(true); };
-    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(false); };
+    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(true); };
+    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
 }

@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "states/app_allStates.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -13,9 +14,7 @@ void app_allStates_runOnTick100Hz(void)
     App_CanTx_PDM_AccVoltage_Set(io_lowVoltageBattery_getAccVoltage());
     App_CanTx_PDM_BoostVoltage_Set(io_lowVoltageBattery_getBoostVoltage());
 
-    if (App_CanRx_BMS_Heartbeat_Get())
-    {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Heartbeat_Update(false);
-    }
+    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
+    App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
+    App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
 }
