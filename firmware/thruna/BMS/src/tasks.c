@@ -54,18 +54,18 @@ static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
     App_CanAlerts_BMS_Warning_TxOverflow_Set(true);
 }
 
-static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = CanTxQueueOverflowCallBack,
-    .rx_overflow_callback = CanRxQueueOverflowCallBack,
-};
-
 extern ADC_HandleTypeDef  hadc1;
 extern CAN_HandleTypeDef  hcan1;
 extern IWDG_HandleTypeDef hiwdg;
 extern SPI_HandleTypeDef  hspi1;
 extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim13;
+
+static const CanConfig can_config = {
+    .rx_msg_filter        = Io_CanRx_FilterMessageId,
+    .tx_overflow_callback = CanTxQueueOverflowCallBack,
+    .rx_overflow_callback = CanRxQueueOverflowCallBack,
+};
 
 struct HeartbeatMonitor *hb_monitor;
 
