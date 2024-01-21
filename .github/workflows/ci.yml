@@ -83,9 +83,56 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
+  codegen-thruna:
+    name: Check CubeMX Code Gen (Quadruna)
+    runs-on: ubuntu-22.04
+    needs: [ clang-format ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: DIM
+            ioc_dir: firmware/quadruna/DIM/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/quadruna/FSM/src/cubemx
+          - board: vC
+            ioc_dir: firmware/quadruna/PDM/src/cubemx
+          - board: BMS
+            ioc_dir: firmware/quadruna/BMS/src/cubemx
+          - board: RSM
+            ioc_dir: firmware/quadruna/RSM/src/cubemx
+
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    steps:
+      # Fix to get git diff working in a Docker container
+      # https://github.com/actions/checkout/issues/363
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we 
+      # we also generate a checksum from the .ioc file when code is generated during builds.
+      # During CI, we re-generate the checksum. If it matches, then the code is up to date, 
+      # otherwise, you need to re-generate STM32CubeMX code locally.
+      - name: Generate checksum
+        run: |
+          python3 scripts/utilities/generate_md5_checksum.py \
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
+            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
+
+      - name: Check for differences
+        run: git --no-pager diff --color --exit-code
+
   build-firmware-thruna:
     needs: [ clang-format ]
-    name: Build Firmware Binaries
+    name: Build Firmware Binaries (Thruna)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -110,12 +157,12 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/build_binary
         with:
-          board: ${{ matrix.thruna_board }}
+          board: ${{ matrix.board }}
           platform: thruna_firmware
 
   build-firmware-quadruna:
     needs: [ clang-format ]
-    name: Build Firmware Binaries
+    name: Build Firmware Binaries (Quadruna)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -139,7 +186,7 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/build_binary
         with:
-          board: ${{ matrix.quadruna_board }}
+          board: ${{ matrix.board }}
           platform: quadruna_firmware
 
   test-thruna:
