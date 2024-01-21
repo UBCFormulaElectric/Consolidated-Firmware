@@ -31,46 +31,6 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
   protected:
     void SetUp() override
     {
-        // config to forward can functions to shared heartbeat
-        // DIM rellies on all boards but itself
-        bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
-                                                                  [DCM_HEARTBEAT_BOARD] = true,
-                                                                  [PDM_HEARTBEAT_BOARD] = true,
-                                                                  [FSM_HEARTBEAT_BOARD] = true,
-                                                                  [DIM_HEARTBEAT_BOARD] = false };
-
-        // heartbeatGetters - get heartbeat signals from other boards
-        bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
-                                                              [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Get,
-                                                              [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Get,
-                                                              [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
-                                                              [DIM_HEARTBEAT_BOARD] = NULL };
-
-        // heartbeatUpdaters - update local CAN table with heartbeat status
-        void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(
-            bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
-                      [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Update,
-                      [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Update,
-                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
-                      [DIM_HEARTBEAT_BOARD] = NULL };
-
-        // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-        void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(
-            bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Set,
-                      [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Set,
-                      [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Set,
-                      [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Set,
-                      [DIM_HEARTBEAT_BOARD] = NULL };
-
-        // heartbeatFaultGetters - gets fault statuses over CAN
-        bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-            [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Get,
-            [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Get,
-            [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Get,
-            [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Get,
-            [DIM_HEARTBEAT_BOARD] = NULL
-        };
-
         BaseStateMachineTest::SetUp();
 
         App_CanTx_Init();
@@ -113,6 +73,46 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed          pdm_status_led    = {};
     const RgbLed          dim_status_led    = {};
     const SevenSegsConfig seven_segs_config = {};
+
+    // config to forward can functions to shared heartbeat
+    // DIM rellies on all boards but itself
+    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                              [DCM_HEARTBEAT_BOARD] = true,
+                                                              [PDM_HEARTBEAT_BOARD] = true,
+                                                              [FSM_HEARTBEAT_BOARD] = true,
+                                                              [DIM_HEARTBEAT_BOARD] = false };
+
+    // heartbeatGetters - get heartbeat signals from other boards
+    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                          [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Get,
+                                                          [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Get,
+                                                          [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                          [DIM_HEARTBEAT_BOARD] = NULL };
+
+    // heartbeatUpdaters - update local CAN table with heartbeat status
+    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+                                                               [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Update,
+                                                               [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Update,
+                                                               [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                               [DIM_HEARTBEAT_BOARD] = NULL };
+
+    // heartbeatFaultSetters - broadcast heartbeat faults over CAN
+    void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+        [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Set,
+        [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Set,
+        [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Set,
+        [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Set,
+        [DIM_HEARTBEAT_BOARD] = NULL
+    };
+
+    // heartbeatFaultGetters - gets fault statuses over CAN
+    bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+        [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingBMSHeartbeat_Get,
+        [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingDCMHeartbeat_Get,
+        [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingPDMHeartbeat_Get,
+        [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DIM_Fault_MissingFSMHeartbeat_Get,
+        [DIM_HEARTBEAT_BOARD] = NULL
+    };
 
     const GlobalsConfig globals_config = {
         .imd_led        = &imd_led,

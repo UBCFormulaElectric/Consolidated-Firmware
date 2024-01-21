@@ -13,6 +13,8 @@
 		"*.llc_repl": "cpp",
 		"*.ld": "mapfile",
 		"app_statemachine.h": "c",
-		"app_sharedheartbeatmonitor.h": "c"
+		"app_sharedheartbeatmonitor.h": "c",
+		"app_heartbeatmonitorconfig.h": "c",
+		"io_can.h": "c"
 	},
 }

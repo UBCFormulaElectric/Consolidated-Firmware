@@ -288,9 +288,8 @@ int main(void)
     app_globals_init(&globals_config);
 
     hb_monitor = App_SharedHeartbeatMonitor_Create(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
-        heartbeatGetters, heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters,
-        heartbeatFaultGetters);
+        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
+        heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
     globals->hb_monitor = hb_monitor;
 
     // broadcast commit info

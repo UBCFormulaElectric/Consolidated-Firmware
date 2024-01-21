@@ -312,9 +312,8 @@ int main(void)
     app_stateMachine_init(app_mainState_get());
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist,
-        heartbeatGetters, heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters,
-        heartbeatFaultGetters);
+        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
+        heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
     globals->heartbeat_monitor = heartbeat_monitor;
 
     // broadcast commit info
