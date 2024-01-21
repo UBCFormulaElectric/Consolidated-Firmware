@@ -111,9 +111,9 @@ static void MX_SDMMC1_SD_Init(void);
 void        runDefaultTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
-static void can0MsgRecievecallback(void);
 
 /* USER CODE BEGIN PFP */
+static void can0MsgRecievecallback(void);
 
 /* USER CODE END PFP */
 
@@ -263,7 +263,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -357,7 +357,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 0;
+    hsd1.Init.ClockDiv            = 10;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
