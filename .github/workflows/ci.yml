@@ -83,7 +83,7 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
-  codegen-thruna:
+  codegen-quadruna:
     name: Check CubeMX Code Gen (Quadruna)
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
