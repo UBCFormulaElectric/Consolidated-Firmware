@@ -196,7 +196,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        thruna_board:
+        board:
           - FSM
           - PDM
           - BMS
@@ -213,7 +213,6 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-
       # Fix to ensure that commands like git status work in child directories 
       # for gitpython in git_commit_info
       - name: Setup git
@@ -227,12 +226,12 @@ jobs:
       - name: Build (Thruna)
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.thruna_board }}_test
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run Tests (Thruna)
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.thruna_board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.thruna_board }}_test
+          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-quadruna:
     needs: [ clang-format ]
@@ -241,7 +240,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        quadruna_board:
+        board:
           - FSM
           - BMS
           - VC
@@ -258,7 +257,6 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-
       # Fix to ensure that commands like git status work in child directories 
       # for gitpython in git_commit_info
       - name: Setup git
@@ -272,12 +270,12 @@ jobs:
       - name: Build (Quadruna)
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=quadruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.quadruna_board }}_test
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run Tests (Quadruna)
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.quadruna_board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.quadruna_board }}_test
+          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-shared:
     name: Test Shared
