@@ -1,16 +1,13 @@
 name: Binary and DBC Generation
 on:
-  # push:
-  #   branches:
-  #     - master
-  pull_request:
-    paths-ignore:
-      #- 'software/**'
+  push:
+    branches:
+      - master
 
 jobs:
   # Build DBC and Binaries (Thruna)
   build:
-    name: Build Firmware Binaries
+    name: Build Firmware Binaries (Thruna)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
