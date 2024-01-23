@@ -28,7 +28,7 @@ jobs:
             can_bus
       - name: Generate DBC
         run: |
-          python3 scripts/code_generation/jsoncan/generate_can_from_json.py --only_dbc --can_data_dir "can_bus/json" --dbc_output "can_bus/dbcs/CanMsgs.dbc"
+          python3 scripts/code_generation/jsoncan/generate_can_from_json.py --only_dbc --can_data_dir "can_bus/thruna/json" --dbc_output "can_bus/dbcs/CanMsgs.dbc"
       - name: Upload DBC to Artifact
         uses: actions/upload-artifact@v3
         if: ${{ inputs.upload_artifact }}
