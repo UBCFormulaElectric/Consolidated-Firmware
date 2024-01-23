@@ -15,7 +15,8 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO)
 
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(DBC_OUTPUT ${CAN_DIR}/dbcs/CanMsgs.dbc)
-    set(CAN_JSON_DIR ${CAN_DIR}/json)
+    set(CAN_JSON_DIR ${CAN_DIR}/quadruna)
+    set(CAN_JSON_DIR ${CAN_DIR}/thruna)
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
     file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py)
     add_custom_command(

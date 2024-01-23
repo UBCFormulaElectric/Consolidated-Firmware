@@ -1,0 +1,62 @@
+{
+    "SwitchState": {
+        "SWITCH_OFF": 0,
+        "SWITCH_ON": 1
+    },
+    "RtosTaskName": {
+        "RTOS_TASK_1HZ": 0,
+        "RTOS_TASK_100HZ": 1,
+        "RTOS_TASK_1KHZ": 2,
+        "RTOS_TASK_CAN_TX": 3,
+        "RTOS_TASK_CAN_RX": 4
+    },
+    "InverterVsmState": {
+        "INVERTER_VSM_START_STATE": 0,
+        "INVERTER_VSM_PRECHARGE_INIT_STATE": 1,
+        "INVERTER_VSM_PRECHARGE_ACTIVE_STATE": 2,
+        "INVERTER_VSM_PRECHARGE_COMPLETE_STATE": 3,
+        "INVERTER_VSM_WAIT_STATE": 4,
+        "INVERTER_VSM_READY_STATE": 5,
+        "INVERTER_VSM_MOTOR_RUNNING_STATE": 6,
+        "INVERTER_VSM_BLINK_FAULT_CODE_STATE": 7,
+        "INVERTER_VSM_SHUTDOWN_IN_PROCESS": 14,
+        "INVERTER_VSM_RECYCLE_POWER_STATE": 15
+    },
+    "InverterState": {
+        "INVERTER_POWER_ON_STATE": 0,
+        "INVERTER_STOP_STATE": 1,
+        "INVERTER_OPEN_LOOP_STATE": 2,
+        "INVERTER_CLOSED_LOOP_STATE": 3,
+        "INVERTER_WAIT_STATE": 4,
+        "INVERTER_IDLE_RUN_STATE": 8,
+        "INVERTER_IDLE_STOP_STATE": 9
+    },
+    "InverterActiveDischargeState": {
+        "INVERTER_ACTIVE_DISCHARGE_DISABLED": 0,
+        "INVERTER_ACTIVE_DISCHARGE_ENABLED_WAITING": 1,
+        "INVERTER_ACTIVE_DISCHARGE_PERFORMING_SPEED_CHECK": 2,
+        "INVERTER_ACTIVE_DISCHARGE_OCCURING": 3,
+        "INVERTER_ACTIVE_DISCHARGE_COMPLETED": 4
+    },
+    "InverterCommandMode": {
+        "INVERTER_CAN_MODE": 0,
+        "INVERTER_VSM_MODE": 1
+    },
+    "InverterLockout": {
+        "INVERTER_LOCKOUT_UNLOCKED": 0,
+        "INVERTER_LOCKOUT_LOCKED": 1
+    },
+    "InverterDirection": {
+        "INVERTER_REVERSE_DIRECTION": 0,
+        "INVERTER_FORWARD_DIRECTION": 1
+    },
+    "InverterReadWriteCommand": {
+        "INVERTER_READ_COMMAND": 0,
+        "INVERTER_WRITE_COMMAND": 1
+    },
+    "RangeCheck": {
+		"RANGE_CHECK_OK": 0,
+		"RANGE_CHECK_UNDERFLOW": 1,
+		"RANGE_CHECK_OVERFLOW": 2
+	}
+}

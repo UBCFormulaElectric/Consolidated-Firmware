@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "string.h"
-#include "hw_tasks.h"
+#include "tasks.h"
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -133,35 +133,11 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_VC_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_VC_Warning_RxOverflow_Set(true);
-}
-
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_VC_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_VC_Warning_TxOverflow_Set(true);
-}
-
-static const CanConfig can_config = {
-    .rx_msg_filter        = NULL,
-    .tx_overflow_callback = CanTxQueueOverflowCallBack,
-    .rx_overflow_callback = CanRxQueueOverflowCallBack,
-};
-
-HwTasksConfig hw_tasks_config = { .hadc1      = &hadc1,
-                                  .hadc3      = &hadc3,
-                                  .hfdcan1    = &hfdcan1,
-                                  .hiwdg1     = &hiwdg1,
-                                  .can_config = &can_config };
 
 /* USER CODE END 0 */
 
@@ -172,7 +148,7 @@ HwTasksConfig hw_tasks_config = { .hadc1      = &hadc1,
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // hw_tasks_preinit(); // bootloader
+    // tasks_preinit(); // bootloader
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -201,7 +177,7 @@ int main(void)
     MX_ADC3_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-    hw_tasks_init(&hw_tasks_config);
+    tasks_init();
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
@@ -750,7 +726,7 @@ static void MX_GPIO_Init(void)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    hw_tasks_100hz(argument);
+    tasks_100Hz(argument);
     /* USER CODE END 5 */
 }
 
@@ -764,11 +740,7 @@ void RunTask100Hz(void *argument)
 void RunCanTxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanTxTask */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_canTx(argument);
     /* USER CODE END RunCanTxTask */
 }
 
@@ -783,10 +755,7 @@ void RunCanRxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanRxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    tasks_canRx(argument);
     /* USER CODE END RunCanRxTask */
 }
 
@@ -800,7 +769,7 @@ void RunCanRxTask(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
-    hw_tasks_1khz(argument);
+    tasks_1Khz(argument);
     /* USER CODE END RunTask1kHz */
 }
 
@@ -814,7 +783,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    hw_tasks_1hz(argument);
+    tasks_1Hz(argument);
     /* USER CODE END RunTask1Hz */
 }
 
