@@ -96,7 +96,7 @@ jobs:
           - board: FSM
             ioc_dir: firmware/quadruna/FSM/src/cubemx
           - board: VC
-            ioc_dir: firmware/quadruna/PDM/src/cubemx
+            ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
             ioc_dir: firmware/quadruna/BMS/src/cubemx
           - board: RSM
@@ -274,7 +274,7 @@ jobs:
 
       - name: Run Tests (Quadruna)
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+          cd $BUILD_DIR/firmware/quadruna/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-shared:

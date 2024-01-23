@@ -57,6 +57,7 @@ if("${TARGET}" STREQUAL "deploy")
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         DIM_can
@@ -130,6 +131,7 @@ elseif("${TARGET}" STREQUAL "test")
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(DIM_can STATIC "${CAN_SRCS}")
     target_include_directories(DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")
