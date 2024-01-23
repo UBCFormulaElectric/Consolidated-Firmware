@@ -124,7 +124,7 @@ IF ("${PLATFORM}" STREQUAL "thruna_firmware" OR "${PLATFORM}" STREQUAL "quadruna
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
 ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'thruna_firmware', 'quadruna_firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF()
 
 IF (("${PLATFORM}" STREQUAL "thruna_firmware") OR ("${PLATFORM}" STREQUAL "quadruna_firmware"))
