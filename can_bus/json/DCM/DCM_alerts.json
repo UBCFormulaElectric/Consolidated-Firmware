@@ -11,10 +11,13 @@
         "StackWaterMarkHighTaskCanTx",
         "WatchdogTimeout",
         "TxOverflow",
-        "RxOverflow"
+        "RxOverflow",
+        "RegenNotAvailable"
     ],
     "faults": [
-        "MissingHeartbeat",
+        "MissingBMSHeartbeat",
+        "MissingFSMHeartbeat",
+        "MissingDIMHeartbeat",
         "LeftInverterFault",
         "RightInverterFault"
     ]

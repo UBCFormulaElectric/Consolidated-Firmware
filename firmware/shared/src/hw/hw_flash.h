@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if defined(STM32F412Rx)
+
 /**
  * Write a byte to flash. Must be erased first.
  * @param address Address to write to.
@@ -35,6 +37,20 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  * @return True if successful, otherwise false.
  */
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
+
+#elif defined(STM32H733xx)
+
+/**
+ * Write a "flash word" to flash, which is 32 bytes or 256 bits.
+ * This is the smallest amount of memory you can program at a time on the
+ * STM32H733xx. Must be erased first.
+ * @param address Address to write to.
+ * @param data Data to write.
+ * @return True if successful, otherwise false.
+ */
+bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
+
+#endif
 
 /**
  * Erase a sector of flash. See the microcontroller's reference manual for a list of

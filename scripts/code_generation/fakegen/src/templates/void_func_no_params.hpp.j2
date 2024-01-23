@@ -11,3 +11,8 @@ void fake_{{ name }}_reset(void);
  * Return the number of times {{ name }} has been invoked.
  */
 uint32_t fake_{{ name }}_callCount(void);
+
+/**
+ * Set a callback function to be called when {{ name }} is invoked.
+ */
+void fake_{{ name }}_setCallBack(void (*func_ptr)(void));

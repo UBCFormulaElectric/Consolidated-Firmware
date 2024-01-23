@@ -2,8 +2,10 @@
     "messages": [
         "BMS_Vitals",
         "FSM_Vitals",
-        "FSM_Brake",
         "FSM_Apps",
+        "FSM_Steering",
+        "FSM_Wheels",
+        "FSM_Brake",
         "DIM_Vitals",
         "DIM_Switches",
         "INVL_InternalStates",
@@ -11,6 +13,11 @@
         "INVL_MotorPositionInfo",
         "INVR_MotorPositionInfo",
         "BMS_AvailablePower",
-        "Debug_CanMode"
+        "Debug_CanMode",
+        "INVL_Temperatures3",
+        "INVR_Temperatures3",
+        "BMS_TractiveSystem",
+        "BMS_CellTemperatures",
+        "BMS_CellVoltages"
     ]
 }

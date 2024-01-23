@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "states/app_driveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_SharedMacros.h"
@@ -17,15 +18,17 @@
 
 static bool sendAndReceiveHeartbeat(void)
 {
-    App_CanTx_FSM_Heartbeat_Set(true);
+    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
 
-    if (App_CanRx_BMS_Heartbeat_Get())
+    App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
+    App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
+
+    bool missing_hb = false;
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_Heartbeat_Update(false);
+        missing_hb |= !globals->heartbeat_monitor->status[board];
     }
 
-    const bool missing_hb = !App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
     return missing_hb;
 }
 
@@ -45,24 +48,12 @@ void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // Check for torque plausibility
     float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
     float right_torque_req = (float)App_CanRx_DCM_RightInverterTorqueCommand_Get();
-    float fsm_torque_limit = App_CanTx_FSM_TorqueLimit_Get();
 
     static uint8_t error_count = 0;
-    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
-    {
-        error_count++;
-    }
-    else
-    {
-        error_count = 0;
-    }
 
     App_CanAlerts_FSM_Fault_TorquePlausabilityFailed_Set(error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
 
     // Broadcast a new FSM torque limit based on pedal percentage
-    fsm_torque_limit =
-        0.01f * App_CanTx_FSM_PappsMappedPedalPercentage_Get() * MAX_TORQUE_REQUEST_NM + TORQUE_LIMIT_OFFSET_NM;
-    App_CanTx_FSM_TorqueLimit_Set(fsm_torque_limit);
 
     app_apps_broadcast();
     app_brake_broadcast();
@@ -71,7 +62,7 @@ void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     app_wheels_broadcast();
 
     const bool missing_hb = sendAndReceiveHeartbeat();
-    App_CanAlerts_FSM_Fault_MissingHeartbeat_Set(missing_hb);
+
     if (missing_hb)
     {
         // Redundancy if FSM is missing heartbeats

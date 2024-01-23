@@ -54,15 +54,6 @@
 				"min": 0,
 				"max": 100,
 				"unit": "%"
-			},
-			"TorqueLimit": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 150,
-				"unit": "Nm"
-			},
-			"TorquePlausabilityFailed": {
-				"bits": 1
 			}
 		}
 	},
@@ -89,12 +80,6 @@
 				"unit": "%"
 			},
 			"BrakeActuated": {
-				"bits": 1
-			},
-			"BrakePressureSensorOCSC": {
-				"bits": 1
-			},
-			"BrakePedalSensorOCSC": {
 				"bits": 1
 			}
 		}

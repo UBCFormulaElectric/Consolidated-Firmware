@@ -14,6 +14,9 @@
         "RxOverflow"
     ],
     "faults": [
-        "MissingHeartbeat"
+        "MissingBMSHeartbeat",
+        "MissingFSMHeartbeat",
+        "MissingPDMHeartbeat",
+        "MissingDCMHeartbeat"
     ]
 }

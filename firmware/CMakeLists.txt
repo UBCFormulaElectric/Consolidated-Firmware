@@ -60,8 +60,6 @@ elseif("${TARGET}" STREQUAL "test")
     message("✅ GTest Included")
 endif()
 
-
-
 add_subdirectory(third_party)
 add_subdirectory(shared)
 add_subdirectory(thruna)
