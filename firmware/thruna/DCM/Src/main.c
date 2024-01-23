@@ -49,6 +49,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_AccelerationThresholds.h"
 #include "App_CommitInfo.h"
+#include "hw_uart.h"
 
 /* USER CODE END Includes */
 
@@ -144,6 +145,7 @@ struct BrakeLight *      brake_light;
 struct Buzzer *          buzzer;
 struct Imu *             imu;
 struct Clock *           clock;
+UART                     imu_uart = { .handle = &huart1 };
 
 // config to forward can functions to shared heartbeat
 // BMS rellies on DIM, FSM, and BMS
@@ -274,7 +276,7 @@ int main(void)
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
 
-    if (!Io_EllipseImu_Init())
+    if (!Io_EllipseImu_Init(&imu_uart))
     {
         Error_Handler();
     }
