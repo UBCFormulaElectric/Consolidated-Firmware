@@ -123,6 +123,7 @@ elseif("${TARGET}" STREQUAL "test")
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(FSM_can STATIC "${CAN_SRCS}")
     target_include_directories(FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
