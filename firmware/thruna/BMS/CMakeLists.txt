@@ -60,6 +60,7 @@ if("${TARGET}" STREQUAL "deploy")
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         BMS_can

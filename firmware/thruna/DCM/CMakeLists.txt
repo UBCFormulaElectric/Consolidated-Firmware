@@ -53,6 +53,7 @@ if("${TARGET}" STREQUAL "deploy")
         "DCM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         DCM_can

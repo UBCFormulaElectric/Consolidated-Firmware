@@ -1,8 +1,8 @@
 {
-    "warnings_id": 1305,
-    "faults_id": 1306,
-    "warnings_counts_id": 1307,
-    "faults_counts_id": 1308,
+    "warnings_id": 205,
+    "faults_id": 206,
+    "warnings_counts_id": 207,
+    "faults_counts_id": 208,
     "warnings": [
         "WatchdogTimeout",
         "TxOverflow",

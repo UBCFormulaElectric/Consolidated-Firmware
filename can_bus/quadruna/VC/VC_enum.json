@@ -1,6 +1,6 @@
 {
     "VcState": {
       "VC_INIT_STATE": 0,
-      "BMS_DRIVE_STATE": 1
+      "VC_DRIVE_STATE": 1
     }
   }

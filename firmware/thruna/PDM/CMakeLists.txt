@@ -52,6 +52,7 @@ if("${TARGET}" STREQUAL "deploy")
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         PDM_can

@@ -57,6 +57,7 @@ if("${TARGET}" STREQUAL "deploy")
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         DIM_can

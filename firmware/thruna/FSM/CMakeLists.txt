@@ -55,6 +55,7 @@ if("${TARGET}" STREQUAL "deploy")
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         FSM_can

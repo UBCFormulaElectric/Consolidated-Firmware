@@ -62,11 +62,6 @@ void tasks_init()
 
     Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
 
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-    state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
-    globals->heartbeat_monitor = heartbeat_monitor;
-
     App_CanTx_VC_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_VC_Clean_Set(GIT_COMMIT_CLEAN);
 }

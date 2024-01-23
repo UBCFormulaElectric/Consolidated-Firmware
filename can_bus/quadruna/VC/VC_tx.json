@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "msg_id": 1300, 
+        "msg_id": 200, 
         "cycle_time": 100,
         "description": "VC vitals message.",
         "signals": {
@@ -13,7 +13,7 @@
         }
     },
     "AlertsContext": {
-        "msg_id": 1302,
+        "msg_id": 202,
         "cycle_time": 1000,
         "description": "Context info for VC alerts",
         "signals": {
@@ -32,7 +32,7 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 1304,
+      "msg_id": 204,
       "cycle_time": 100,
       "description": "VC Current Running Git Commit Info",
       "signals": {
