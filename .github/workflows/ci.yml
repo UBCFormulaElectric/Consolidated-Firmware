@@ -274,7 +274,7 @@ jobs:
 
       - name: Run Tests (Quadruna)
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+          cd $BUILD_DIR/firmware/quadruna/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-shared:
