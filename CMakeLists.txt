@@ -93,7 +93,7 @@ execute_process(
 )
 
 message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
-IF ("${PLATFORM}" STREQUAL "firmware")
+IF ("${PLATFORM}" STREQUAL "thruna_firmware" OR "${PLATFORM}" STREQUAL "quadruna_firmware")
     # ======== Dependency Handling ========
     IF (HANDLE_DEPS)
         include(firmware/cmake/dependencies.cmake)
@@ -127,7 +127,7 @@ ELSE ()
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF()
 
-IF ("${PLATFORM}" STREQUAL "firmware")
+IF (("${PLATFORM}" STREQUAL "thruna_firmware") OR ("${PLATFORM}" STREQUAL "quadruna_firmware"))
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
