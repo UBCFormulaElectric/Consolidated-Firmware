@@ -4,7 +4,7 @@
 extern "C"
 {
 #include "App_Timer.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 }
 
 // fake can states
@@ -98,7 +98,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_faults)
     heartbeatsToCheck[BMS_HEARTBEAT_BOARD] = true;
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
-    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_init(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -106,13 +106,13 @@ TEST(SharedHeartbeatMonitorTest, test_check_faults)
     DIM_fakeCanFaultState = false;
     BMS_fakeCanFaultState = false;
 
-    ASSERT_EQ(App_SharedHeartbeatMonitor_CheckFaults(heartbeat_monitor), false);
+    ASSERT_EQ(app_heartbeatMonitor_checkFaults(heartbeat_monitor), false);
 
     // check that if there is a fault, it is detected
     DIM_fakeCanFaultState = false;
     BMS_fakeCanFaultState = true;
 
-    ASSERT_EQ(App_SharedHeartbeatMonitor_CheckFaults(heartbeat_monitor), true);
+    ASSERT_EQ(app_heartbeatMonitor_checkFaults(heartbeat_monitor), true);
 }
 
 TEST(SharedHeartbeatMonitorTest, test_create)
@@ -130,7 +130,7 @@ TEST(SharedHeartbeatMonitorTest, test_create)
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
     // create and assert time fields work
-    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_init(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -165,7 +165,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
                                                       [FSM_HEARTBEAT_BOARD] = false,
                                                       [DIM_HEARTBEAT_BOARD] = true };
 
-    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_init(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -175,7 +175,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
         heartbeat_monitor->status[board] = true;
     }
 
-    App_SharedHeartbeatMonitor_BroadcastFaults(heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(heartbeat_monitor);
 
     ASSERT_FALSE(DIM_fakeCanFaultState);
     ASSERT_FALSE(BMS_fakeCanFaultState);
@@ -187,7 +187,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
     }
     heartbeat_monitor->status[DIM_HEARTBEAT_BOARD] = true;
     heartbeat_monitor->status[BMS_HEARTBEAT_BOARD] = true;
-    App_SharedHeartbeatMonitor_BroadcastFaults(heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(heartbeat_monitor);
 
     ASSERT_FALSE(DIM_fakeCanFaultState);
     ASSERT_FALSE(BMS_fakeCanFaultState);
@@ -199,7 +199,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
     }
     heartbeat_monitor->status[DIM_HEARTBEAT_BOARD] = false;
     heartbeat_monitor->status[BMS_HEARTBEAT_BOARD] = true;
-    App_SharedHeartbeatMonitor_BroadcastFaults(heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(heartbeat_monitor);
 
     ASSERT_TRUE(DIM_fakeCanFaultState);
     ASSERT_FALSE(BMS_fakeCanFaultState);
@@ -209,7 +209,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
     {
         heartbeat_monitor->status[board] = false;
     }
-    App_SharedHeartbeatMonitor_BroadcastFaults(heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(heartbeat_monitor);
 
     ASSERT_TRUE(DIM_fakeCanFaultState);
     ASSERT_TRUE(BMS_fakeCanFaultState);
@@ -231,12 +231,12 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     heartbeatsToCheck[BMS_HEARTBEAT_BOARD] = true;
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
-    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_init(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
     // assert nothing changed (0 ms)
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    app_heartbeatMonitor_tick(heartbeat_monitor);
     ASSERT_EQ(heartbeat_monitor->get_current_ms, App_Timer_GetCurrentTimeMS);
     ASSERT_EQ(heartbeat_monitor->timeout_period_ms, 100);
     ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
@@ -268,7 +268,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     BMS_fakeCanHeartbeatState = true;
     FSM_fakeCanHeartbeatState = false;
 
-    App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor);
+    app_heartbeatMonitor_checkIn(heartbeat_monitor);
 
     ASSERT_TRUE(FSM_fakeCanHeartbeatState);
     ASSERT_FALSE(DIM_fakeCanHeartbeatState);
@@ -280,7 +280,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     // progress to timeout period and verify all good (100 ms)
     App_Timer_SetCurrentTimeMS(100);
     curr_time = App_Timer_GetCurrentTimeMS();
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    app_heartbeatMonitor_tick(heartbeat_monitor);
 
     ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, curr_time);
 
@@ -304,7 +304,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     BMS_fakeCanHeartbeatState = false;
     FSM_fakeCanHeartbeatState = false;
 
-    App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor);
+    app_heartbeatMonitor_checkIn(heartbeat_monitor);
 
     ASSERT_TRUE(FSM_fakeCanHeartbeatState);
     ASSERT_FALSE(DIM_fakeCanHeartbeatState);
@@ -316,7 +316,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     // progress to timeout period and verify bms missing (200 ms)
     App_Timer_SetCurrentTimeMS(200);
     curr_time = App_Timer_GetCurrentTimeMS();
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    app_heartbeatMonitor_tick(heartbeat_monitor);
 
     ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, curr_time);
 

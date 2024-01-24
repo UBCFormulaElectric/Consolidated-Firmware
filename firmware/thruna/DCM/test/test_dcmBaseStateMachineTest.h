@@ -15,7 +15,7 @@ extern "C"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "App_CanUtils.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_utils.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -35,7 +35,7 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        hb_monitor = App_SharedHeartbeatMonitor_Create(
+        hb_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
@@ -59,8 +59,8 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
         return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
 
-    StateMachine *           state_machine;
-    struct HeartbeatMonitor *hb_monitor;
+    StateMachine *    state_machine;
+    HeartbeatMonitor *hb_monitor;
 
     const BinaryLed brake_light = {};
     const Buzzer    buzzer      = {};

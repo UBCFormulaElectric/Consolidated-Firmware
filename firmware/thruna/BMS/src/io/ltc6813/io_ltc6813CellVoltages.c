@@ -1,5 +1,5 @@
 #include <string.h>
-#include "Io_SharedSpi.h"
+#include "hw_spi.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "app_utils.h"
@@ -30,7 +30,7 @@ typedef enum
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
 
-extern struct SharedSpi *ltc6813_spi;
+extern const SpiInterface *ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -129,7 +129,7 @@ bool io_ltc6813CellVoltages_readVoltages(void)
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = Io_SharedSpi_TransmitAndReceive(
+        bool voltage_read_success = hw_spi_transmitAndReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 

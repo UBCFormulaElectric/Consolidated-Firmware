@@ -12,7 +12,7 @@ extern "C"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_sevenSegDisplays.h"
 #include "app_avgPower.h"
@@ -36,7 +36,7 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        heartbeat_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_DIM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
@@ -58,8 +58,8 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switch_isClosed_reset();
     }
 
-    struct StateMachine *    state_machine;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    struct StateMachine *state_machine;
+    HeartbeatMonitor *   heartbeat_monitor;
 
     const BinaryLed       imd_led           = {};
     const BinaryLed       bspd_led          = {};

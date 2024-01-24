@@ -1,3 +1,0 @@
-#pragma once
-
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U

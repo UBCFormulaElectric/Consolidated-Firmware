@@ -26,7 +26,6 @@ static void faultStateRunOnTick100Hz(void)
         const bool ts_fault_cleared  = !app_tractveSystem_checkFaults();
         const bool precharge_ok      = !globals->precharge_limit_exceeded;
         const bool air_negative_open = !io_airs_isNegativeClosed();
-        const bool hb_ok             = !App_SharedHeartbeatMonitor_CheckFaults(globals->hb_monitor);
 
         if (acc_fault_cleared && ts_fault_cleared && precharge_ok && air_negative_open)
         {

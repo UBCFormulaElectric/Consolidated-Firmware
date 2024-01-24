@@ -5,7 +5,7 @@
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_globals.h"
 #include "io_sbgEllipse.h"
 
@@ -27,12 +27,12 @@ bool app_allStates_runOnTick100Hz(void)
         num_cycles++;
     }
 
-    App_SharedHeartbeatMonitor_CheckIn(globals->hb_monitor);
-    App_SharedHeartbeatMonitor_Tick(globals->hb_monitor);
+    app_heartbeatMonitor_checkIn(globals->hb_monitor);
+    app_heartbeatMonitor_tick(globals->hb_monitor);
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
     {
-        App_SharedHeartbeatMonitor_BroadcastFaults(globals->hb_monitor);
+        app_heartbeatMonitor_broadcastFaults(globals->hb_monitor);
     }
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;

@@ -11,7 +11,7 @@ extern "C"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "App_CanUtils.h"
 #include "app_utils.h"
@@ -35,7 +35,7 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
 
         app_stateMachine_init(app_driveState_get());
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        heartbeat_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         globals->heartbeat_monitor = heartbeat_monitor;
@@ -100,5 +100,5 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         [DIM_HEARTBEAT_BOARD] = NULL
     };
 
-    struct HeartbeatMonitor *heartbeat_monitor;
+    HeartbeatMonitor *heartbeat_monitor;
 };

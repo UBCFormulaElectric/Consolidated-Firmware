@@ -13,14 +13,14 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static bool sendAndReceiveHeartbeat(HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Heartbeat_Set(true);
 
-    App_SharedHeartbeatMonitor_CheckIn(hb_monitor);
+    app_heartbeatMonitor_checkIn(hb_monitor);
 
-    App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_SharedHeartbeatMonitor_BroadcastFaults(hb_monitor);
+    app_heartbeatMonitor_tick(hb_monitor);
+    app_heartbeatMonitor_broadcastFaults(hb_monitor);
 
     bool missing_hb = false;
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)

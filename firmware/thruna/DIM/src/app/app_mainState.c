@@ -73,10 +73,10 @@ static void mainStateRunOnTick100Hz(void)
         }
     }
 
-    App_SharedHeartbeatMonitor_CheckIn(globals->heartbeat_monitor);
+    app_heartbeatMonitor_checkIn(globals->heartbeat_monitor);
 
-    App_SharedHeartbeatMonitor_Tick(globals->heartbeat_monitor);
-    App_SharedHeartbeatMonitor_BroadcastFaults(globals->heartbeat_monitor);
+    app_heartbeatMonitor_tick(globals->heartbeat_monitor);
+    app_heartbeatMonitor_broadcastFaults(globals->heartbeat_monitor);
 
     bool missing_hb = false;
 

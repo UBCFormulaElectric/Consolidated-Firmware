@@ -13,11 +13,11 @@ void io_watchdogConfig_refresh(void)
     HAL_IWDG_Refresh(&hiwdg);
 }
 
-void io_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t watchdog)
+void io_watchdogConfig_timeoutCallback(WatchdogHandle watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
+    const uint8_t watchdog_id = io_watchdog_getTaskId(watchdog);
     App_CanAlerts_DCM_Warning_WatchdogTimeout_Set(true);
     App_CanTx_DCM_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <math.h>
 #include "main.h"
-#include "Io_SharedFreqOnlyPwmInput.h"
+#include "hw_pwmInputFreqOnly.h"
 
 // Note: Unit for length is measured in metres unless specified
 static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6f;

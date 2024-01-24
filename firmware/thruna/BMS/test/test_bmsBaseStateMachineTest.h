@@ -23,7 +23,7 @@ extern "C"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
 #include "App_CanUtils.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_utils.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -51,7 +51,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        heartbeat_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_BMS_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
@@ -119,7 +119,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     }
 
     StateMachine *;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    HeartbeatMonitor *heartbeat_monitor;
 
     const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};

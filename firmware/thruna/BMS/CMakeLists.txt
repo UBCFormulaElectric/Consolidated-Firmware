@@ -5,7 +5,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
     "${SHARED_APP_INCLUDE_DIR}/app_math.c"
 )
@@ -18,23 +18,23 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c"
-)
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
-
-file(GLOB_RECURSE HW_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_stackWaterMark.c"
+    )
+    set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+    
+    file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
-list(APPEND HW_SRCS 
+    )
+    list(APPEND HW_SRCS 
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 

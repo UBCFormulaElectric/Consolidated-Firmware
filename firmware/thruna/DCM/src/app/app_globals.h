@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "io_led.h"
 #include "io_buzzer.h"
 #include "app_timer.h"
@@ -16,10 +16,9 @@ typedef struct
 
 typedef struct
 {
-    const GlobalsConfig *    config;
-    struct HeartbeatMonitor *hb_monitor;
-    bool                     torque_vectoring_switch_is_on;
-    TimerChannel             buzzer_timer;
+    const GlobalsConfig *config;
+    bool                 torque_vectoring_switch_is_on;
+    TimerChannel         buzzer_timer;
 } Globals;
 
 extern Globals *const globals;

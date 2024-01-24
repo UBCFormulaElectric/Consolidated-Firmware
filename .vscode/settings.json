@@ -21,6 +21,8 @@
 		"hw_hardfaulthandler.h": "c",
 		"io_canconfig.h": "c",
 		"hw_utils.h": "c",
-		"io_jsoncan.h": "c"
+		"io_jsoncan.h": "c",
+		"io_ltc6813shared.h": "c",
+		"stdint.h": "c"
 	},
 }

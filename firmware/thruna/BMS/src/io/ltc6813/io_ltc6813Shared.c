@@ -1,21 +1,16 @@
 #include <string.h>
 #include <assert.h>
 #include "main.h"
-#include "Io_SharedSpi.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "app_accumulator.h"
 #include "app_utils.h"
 
-// clang-format off
-// Time that a SPI transaction should wait for until until an error is returned
-#define SPI_TIMEOUT_MS (10U)
-
 // Max number of commands to check for completed ADC conversions
 #define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 
 // Command used to start/stop cell balancing (discharge)
-#define MUTE   (0x2800U)
+#define MUTE (0x2800U)
 #define UNMUTE (0x2900U)
 
 // Command used to write to configuration registers
@@ -23,24 +18,24 @@
 #define WRCFGB (0x2400U)
 
 // Command used to poll ADC conversions
-#define PLADC               (0x1407U)
-#define PLADC_RX_SIZE       (1U)
+#define PLADC (0x1407U)
+#define PLADC_RX_SIZE (1U)
 #define ADC_CONV_INCOMPLETE (0xFFU)
 
 // Macros used to set DCC bits in the configuration register
-#define SET_CFGRA4_DCC_BITS(dcc_bits)       (0xFFU & (uint8_t)(dcc_bits))
-#define SET_CFGRA5_DCC_BITS(dcc_bits)       (0x0FU & (uint8_t)((dcc_bits) >> 8U))
-#define SET_CFGRB0_DCC_BITS(dcc_bits)       (0xF0U & (uint8_t)((dcc_bits) >> 8U))
+#define SET_CFGRA4_DCC_BITS(dcc_bits) (0xFFU & (uint8_t)(dcc_bits))
+#define SET_CFGRA5_DCC_BITS(dcc_bits) (0x0FU & (uint8_t)((dcc_bits) >> 8U))
+#define SET_CFGRB0_DCC_BITS(dcc_bits) (0xF0U & (uint8_t)((dcc_bits) >> 8U))
 
-#define VUV                   (0x4E1U)        // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
-#define VOV                   (0x8CAU)        // Over-voltage comparison voltage, VOV * 16 * 100uV
-#define ADCOPT                (1U)            // ADC mode option bit
-#define REFON                 (0U << 2U)      // Select whether references are powered up
-#define DTEN                  (0U << 1U)      // Select whether discharge timer is enabled
+#define VUV (0x4E1U)                          // Under-voltage comparison voltage, (VUV + 1) * 16 * 100uV
+#define VOV (0x8CAU)                          // Over-voltage comparison voltage, VOV * 16 * 100uV
+#define ADCOPT (1U)                           // ADC mode option bit
+#define REFON (0U << 2U)                      // Select whether references are powered up
+#define DTEN (0U << 1U)                       // Select whether discharge timer is enabled
 #define ENABLE_ALL_CFGRA_GPIO (0x001FU << 3U) // Enable all GPIOs corresponding to CFGRA
 #define ENABLE_ALL_CFGRB_GPIO (0x000FU)       // Enable all GPIOs corresponding to CFGRB
 
-#define PEC15_LUT_SIZE        (256U)
+#define PEC15_LUT_SIZE (256U)
 
 typedef enum
 {
@@ -55,8 +50,8 @@ typedef struct
     uint16_t cfg_reg_cmds;
 } LTC6813Configurations;
 
-extern struct SharedSpi *ltc6813_spi;
-struct SharedSpi *       ltc6813_spi = NULL;
+extern const SpiInterface *ltc6813_spi;
+const SpiInterface *       ltc6813_spi = NULL;
 
 static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
 {
@@ -187,12 +182,12 @@ static void prepareCfgRegBytes(
     }
 }
 
-void io_ltc6813Shared_init(SPI_HandleTypeDef *spi_handle)
+void io_ltc6813Shared_init(const SpiInterface *spi)
 {
-    assert(spi_handle != NULL);
+    assert(spi != NULL);
 
     // Initialize the SPI interface to communicate with the LTC6813
-    ltc6813_spi = Io_SharedSpi_Create(spi_handle, SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, SPI_TIMEOUT_MS);
+    ltc6813_spi = spi;
 }
 
 uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer)
@@ -216,7 +211,7 @@ bool io_ltc6813Shared_sendCommand(uint16_t cmd)
     uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-    return Io_SharedSpi_Transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return hw_spi_transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool io_ltc6813Shared_pollAdcConversions(void)
@@ -232,8 +227,8 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     // data read back != 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
-        const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+        const bool is_status_ok =
+            hw_spi_transmitAndReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -266,16 +261,16 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
         prepareCfgRegBytes(tx_cfg, enable_balance, curr_cfg_reg);
 
         // Write to configuration registers
-        Io_SharedSpi_SetNssLow(ltc6813_spi);
-        if (Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
+        hw_spi_setNssLow(ltc6813_spi);
+        if (hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
         {
-            if (!Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
+            if (!hw_spi_transmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
             {
-                Io_SharedSpi_SetNssHigh(ltc6813_spi);
+                hw_spi_setNssHigh(ltc6813_spi);
                 return false;
             }
         }
-        Io_SharedSpi_SetNssHigh(ltc6813_spi);
+        hw_spi_setNssHigh(ltc6813_spi);
     }
 
     return true;

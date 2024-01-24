@@ -14,7 +14,7 @@ extern "C"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "App_CanUtils.h"
 #include "app_utils.h"
@@ -45,7 +45,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         app_coolant_init();
         app_stateMachine_init(app_mainState_get());
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        heartbeat_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         globals->heartbeat_monitor = heartbeat_monitor;
@@ -68,8 +68,8 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_steering_sensorOCSC_reset();
     }
 
-    StateMachine *           state_machine;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    StateMachine *    state_machine;
+    HeartbeatMonitor *heartbeat_monitor;
 
     // config to forward can functions to shared heartbeat
     // FSM rellies on BMS

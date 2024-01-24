@@ -7,20 +7,6 @@
 // Convert our anonymous handle to a software watchdog pointer
 #define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)
 
-typedef struct SoftwareWatchdog
-{
-    // Is this watchdog ready to be used?
-    bool initialized;
-    // The tick period of the task being monitored.
-    TickType_t period;
-    // The current deadline of the task being monitored.
-    TickType_t deadline;
-    // Has the task being monitored checked in for the current period?
-    bool check_in_status;
-    // ID to identify the task this watchdog monitors (for debugging only).
-    uint8_t task_id;
-} SoftwareWatchdog_t;
-
 // Table of hardware-agnostic software watchdog
 typedef struct SoftwareWatchdogTable
 {
@@ -34,11 +20,9 @@ static SoftwareWatchdogTable_t sw_watchdog_table;
 
 // Hook functions that the user must define in order to use this library
 static void (*Io_RefreshHardwareWatchdog)();
-static void (*App_TimeoutCallback)(SoftwareWatchdogHandle_t);
+static void (*App_TimeoutCallback)(WatchdogHandle);
 
-void Io_SharedSoftwareWatchdog_Init(
-    void (*refresh_hardware_watchdog)(),
-    void (*timeout_callback)(SoftwareWatchdogHandle_t))
+void io_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle))
 {
     assert(refresh_hardware_watchdog != NULL);
     assert(timeout_callback != NULL);
@@ -49,21 +33,18 @@ void Io_SharedSoftwareWatchdog_Init(
     App_TimeoutCallback        = timeout_callback;
 }
 
-SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
+WatchdogHandle io_watchdog_allocateWatchdog(void)
 {
     assert(sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
 
-    return (SoftwareWatchdogHandle_t)&sw_watchdog_table.watchdogs[sw_watchdog_table.allocation_index++];
+    return (WatchdogHandle)&sw_watchdog_table.watchdogs[sw_watchdog_table.allocation_index++];
 }
 
-void Io_SharedSoftwareWatchdog_InitWatchdog(
-    SoftwareWatchdogHandle_t sw_watchdog_handle,
-    uint8_t                  task_id,
-    Tick_t                   period_in_ticks)
+void io_watchdog_initWatchdog(WatchdogHandle watchdog, uint8_t task_id, Tick_t period_in_ticks)
 {
-    assert(sw_watchdog_handle != NULL);
+    assert(watchdog != NULL);
 
-    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(watchdog);
 
     sw_watchdog->period          = period_in_ticks;
     sw_watchdog->deadline        = period_in_ticks;
@@ -72,18 +53,18 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
     sw_watchdog->task_id         = task_id;
 }
 
-void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watchdog_handle)
+void io_watchdog_checkIn(WatchdogHandle watchdog)
 {
-    assert(sw_watchdog_handle != NULL);
+    assert(watchdog != NULL);
 
-    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(watchdog);
 
     assert(sw_watchdog->initialized == true);
 
     sw_watchdog->check_in_status = true;
 }
 
-void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
+void io_watchdog_checkForTimeouts(void)
 {
     static bool timeout_detected = false;
 
@@ -124,8 +105,8 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
     }
 }
 
-uint8_t Io_SharedSoftwareWatchdog_GetTaskId(SoftwareWatchdogHandle_t sw_watchdog_handle)
+uint8_t io_watchdog_getTaskId(WatchdogHandle watchdog)
 {
-    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(watchdog);
     return sw_watchdog->task_id;
 }

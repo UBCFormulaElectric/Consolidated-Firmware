@@ -1,0 +1,135 @@
+#include "app_heartbeatMonitor.h"
+#include <assert.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "io_time.h"
+
+typedef struct
+{
+    uint32_t timeout_period_ms;
+    uint32_t previous_timeout_ms;
+    bool     heartbeats_checked_in[HEARTBEAT_BOARD_COUNT];
+    bool     heartbeats_to_check[HEARTBEAT_BOARD_COUNT];
+    bool     status[HEARTBEAT_BOARD_COUNT];
+
+    // getters for other heartbeats
+    bool (*getters[HEARTBEAT_BOARD_COUNT])();
+
+    // updaters on the local CAN table for other heartbeats
+    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool);
+
+    // setter for own heartbeat
+    void (*setter)(bool);
+
+    // setters for faults
+    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool);
+
+    // getters for faults
+    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])();
+} HeartbeatMonitor;
+
+static HeartbeatMonitor hb_monitor;
+
+void app_heartbeatMonitor_init(
+    uint32_t timeout_period_ms,
+    bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
+    bool (*getters[HEARTBEAT_BOARD_COUNT])(),
+    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool),
+    void (*setter)(bool),
+    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
+    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])())
+{
+    hb_monitor->setter              = setter;
+    hb_monitor->get_current_ms      = get_current_ms;
+    hb_monitor->timeout_period_ms   = timeout_period_ms;
+    hb_monitor->previous_timeout_ms = 0U;
+
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        hb_monitor->heartbeats_checked_in[board] = false;
+        hb_monitor->status[board]                = true;
+        hb_monitor->heartbeats_to_check[board]   = boards_to_check[board];
+        hb_monitor->getters[board]               = getters[board];
+        hb_monitor->updaters[board]              = updaters[board];
+        hb_monitor->fault_setters[board]         = fault_setters[board];
+        hb_monitor->fault_getters[board]         = fault_getters[board];
+    }
+
+    return hb_monitor;
+}
+
+void app_heartbeatMonitor_tick(void)
+{
+    const uint32_t current_ms = hb_monitor->get_current_ms();
+
+    if ((current_ms - hb_monitor->previous_timeout_ms) >= hb_monitor->timeout_period_ms)
+    {
+        hb_monitor->previous_timeout_ms = current_ms;
+
+        // a flag in status is true under two conditions
+        // 1) if it has been checked in
+        // 2) it was not on our list of heartbeats to check
+        for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+        {
+            hb_monitor->status[board] =
+                hb_monitor->heartbeats_checked_in[board] || !hb_monitor->heartbeats_to_check[board];
+
+            hb_monitor->heartbeats_checked_in[board] = false;
+        }
+    }
+}
+
+// checks in boards for tick later
+// getters - getter functions for heartbeats
+// updaters - update functions for heartbeats on local can tables
+// boardSetter - update function for current board
+void app_heartbeatMonitor_checkIn(void)
+{
+    // check in current heartbeat
+    (hb_monitor->setter)(true);
+
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        // if boards heartbeat returned
+        if (hb_monitor->getters[board] != NULL && (*hb_monitor->getters[board])())
+        {
+            // check in, and reset board on local CAN table
+            hb_monitor->heartbeats_checked_in[board] = true;
+            if (hb_monitor->updaters[board] != NULL)
+            {
+                (*hb_monitor->updaters[board])(false);
+            }
+        }
+    }
+}
+
+// gets state to broadcast via can, and can callbacks to use to broadcast
+void app_heartbeatMonitor_broadcastFaults(void)
+{
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        // send fault over CAN if state bit is false
+        if (hb_monitor->fault_setters[board] != NULL)
+        {
+            (*hb_monitor->fault_setters[board])(!hb_monitor->status[board]);
+        }
+    }
+}
+
+// gets a list of heartbeat getters
+// returns false if all are false, else return true
+bool app_heartbeatMonitor_checkFaults(void)
+{
+    bool res = false;
+
+    // or over all bool results in callbacks
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        if (hb_monitor->fault_getters[board] != NULL)
+        {
+            res |= (*hb_monitor->fault_getters[board])();
+        }
+    }
+
+    return res;
+}

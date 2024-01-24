@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "Io_SharedFreqOnlyPwmInput.h"
+#include "hw_pwmInputFreqOnly.h"
 
 struct FreqOnlyPwmInput
 {

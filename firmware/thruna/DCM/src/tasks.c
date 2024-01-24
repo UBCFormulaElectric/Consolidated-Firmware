@@ -9,7 +9,7 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "app_stateMachine.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CommitInfo.h"
@@ -55,7 +55,7 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-struct HeartbeatMonitor *hb_monitor;
+HeartbeatMonitor *hb_monitor;
 
 static const BinaryLed brake_light = { .gpio = {
                                            .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
@@ -128,7 +128,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hcan1);
 
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
+    io_watchdog_init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
@@ -144,7 +144,7 @@ void tasks_init(void)
     app_stateMachine_init(app_initState_get());
     app_globals_init(&globals_config);
 
-    hb_monitor = App_SharedHeartbeatMonitor_Create(
+    hb_monitor = app_heartbeatMonitor_init(
         io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
         heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
     globals->hb_monitor = hb_monitor;
@@ -156,9 +156,9 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
-    static const TickType_t  period_ms = 1000U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
+    io_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -174,7 +174,7 @@ void tasks_run1Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        io_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -183,9 +183,9 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    static const TickType_t  period_ms = 10;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    static const TickType_t period_ms = 10;
+    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
+    io_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -198,7 +198,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        io_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -207,16 +207,16 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    static const TickType_t  period_ms = 1U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    static const TickType_t period_ms = 1U;
+    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
+    io_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
     for (;;)
     {
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        io_watchdog_checkForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
@@ -226,7 +226,7 @@ void tasks_run1kHz(void)
         // equal to the period ms
         if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
         {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+            io_watchdog_checkIn(watchdog);
         }
 
         start_ticks += period_ms;

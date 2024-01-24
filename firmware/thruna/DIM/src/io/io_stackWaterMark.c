@@ -3,7 +3,7 @@
 #include "io_stackWaterMark.h"
 #include "main.h"
 #include "app_utils.h"
-#include "Io_SharedStackWaterMark.h"
+#include "io_stackWaterMark.h"
 #include "App_CanTx.h"
 #include "App_CanAlerts.h"
 
@@ -78,5 +78,5 @@ static struct stack_watermark stack_watermarks[] = {
 
 void io_stackWaterMark_check(void)
 {
-    Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

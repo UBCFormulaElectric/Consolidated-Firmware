@@ -4,12 +4,14 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-#endif
+#include "hw_pwmInput.h"
 
 /**
  * Initialize the PWM input for measuring the IMD's PWM output
+ * @param pwm_input_config The config for measuring the IMD's PWM output.
  */
-void io_imd_init(void);
+void io_imd_init(const PwmInputConfig *pwm_input_config);
+#endif
 
 /**
  * Get the frequency of the IMD's PWM output

@@ -1,8 +1,9 @@
 #include "io_coolant.h"
 #include <assert.h>
 #include "main.h"
-#include "Io_SharedFreqOnlyPwmInput.h"
+#include "hw_pwmInputFreqOnly.h"
 #include "hw_adc.h"
+#include "app_utils.h"
 #include <math.h>
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
