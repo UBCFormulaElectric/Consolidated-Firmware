@@ -128,7 +128,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (globals->fault_in_car)
         {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
             globals->element_num++;
         }
 
@@ -136,14 +136,14 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             if (fault_num > 0)
             {
-                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float) fault_array[element_num]);
                 globals->element_num  = 0;
                 globals->fault_in_car = true;
             }
 
             else if (element_num < warning_num)
             {
-                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, fault_array[element_num]);
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
             }
 
             else
