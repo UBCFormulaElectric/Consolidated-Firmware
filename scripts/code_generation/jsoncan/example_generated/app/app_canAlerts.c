@@ -115,8 +115,9 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t element_num)
+uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
 {
+    uint8_t element_num = 0;
     switch (board)
     {
         case FSM_ALERT_BOARD:
@@ -155,8 +156,9 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint
     
 }
 
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t element_num)
+uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray)
 {
+    uint8_t element_num = 0;
     switch (board)
     {
         case FSM_ALERT_BOARD:

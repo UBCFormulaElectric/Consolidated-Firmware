@@ -245,6 +245,7 @@ class AppCanAlertsModule(CModule):
                 CVar(ALERT_BOARD_ENUM_NAME.format(node=node.upper()), value=i)
             )
         cw.add_enum(boards_enum)   
+        cw.add_line()
     
         for alert_type in CanAlertType:
             
@@ -254,14 +255,21 @@ class AppCanAlertsModule(CModule):
          
          breakpoint
          for nodes in nodes_with_alerts:
-            alerts_enum = CEnum(
-                CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
-            )
-            for alert, IDcode in self._db.node_id_codes(nodes, alert_type = alert_type).items():
-                alerts_enum.add_value(CVar(alert.name, value=IDcode))
-            
-            cw.add_enum(alerts_enum)
-            cw.add_line()
+            for alert, item in self._db.node_id_codes(nodes, alert_type = alert_type).items():
+                alerts_sturct = CStruct(
+                    CTypesConfig.CODE_ENUM.format(node=alert.name, alert_type=alert_type)
+                )   
+                IDcode, description = item
+                alerts_sturct.add_member(CVar("id",type="uint8_t"))
+                alerts_sturct.add_member(CVar("description","char*"))
+                alerts_sturct.add_member(CVar("name", "char*"))
+                
+                cw.add_struct(alerts_sturct)
+                cw.add_line()
+                cw.add_line(alert.name + " " + alert.name + "." + "id = ")
+                cw.add_line(IDcode)
+                cw.add_line(alert.name + " " + alert.name + "." + "description = " + '"' + description + '"')
+
                     
         # Add function prototypes
         cw.add_line()
