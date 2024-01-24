@@ -226,24 +226,7 @@ class AppCanAlertsModule(CModule):
         cw.add_header_comment("Enums")
         cw.add_line()
 
-        # Enum of CAN boards
-        boards_enum = CEnum(CTypesConfig.CAN_ALERT_BOARD_ENUM)
-        nodes_with_alerts = [
-            node
-            for node in self._db.nodes
-            if any(
-                [
-                    self._db.node_has_alert(node, alert_type)
-                    for alert_type in CanAlertType
-                ]
-            )
-        ]
-        for i, node in enumerate(nodes_with_alerts):
-            boards_enum.add_value(
-                CVar(ALERT_BOARD_ENUM_NAME.format(node=node.upper()), value=i)
-            )
-        cw.add_enum(boards_enum)   
-    
+        # Enum of CAN boards  
         for alert_type in CanAlertType:
             
          nodes_with_alerts = [
@@ -252,7 +235,7 @@ class AppCanAlertsModule(CModule):
          
          for nodes in nodes_with_alerts:
             alerts_enum = CEnum(
-                CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
+                CTypesConfig.ALERT_ID_ENUM.format(node=nodes, alert_type=alert_type)
             )
             for alert, IDcode in self._db.node_id_codes(nodes, alert_type = alert_type).items():
                 alerts_enum.add_value(CVar(alert.name, value=IDcode))
