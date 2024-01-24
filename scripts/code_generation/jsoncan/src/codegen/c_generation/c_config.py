@@ -50,7 +50,7 @@ class CTypesConfig(StrEnum):
     RX_TABLE_STRUCT = "{node}_RxMsgs"
     MSG_STRUCT = "{msg}_Signals"
     ALERT_ENUM = "{node}_{alert_type}Id"
-    CODE_ENUM = "{node}_{alert_type}Code"
+    ALERT_ID_ENUM = "{node}_{alert_type}Code"
     CAN_ALERT_BOARD_ENUM = "CanAlertBoard"
     CAN_MSG_STRUCT = "JsonCanMsg"
 

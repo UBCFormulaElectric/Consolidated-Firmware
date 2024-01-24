@@ -188,9 +188,7 @@ class AppCanAlertsModule(CModule):
         # Alert setters
         funcs.extend(self._set_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._set_alert_funcs(CanAlertType.FAULT))
-        
-        print(self._set_alert_funcs(CanAlertType.FAULT))
-        
+                
         # Alert getters
         funcs.extend(self._get_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._get_alert_funcs(CanAlertType.FAULT))
@@ -252,7 +250,6 @@ class AppCanAlertsModule(CModule):
             node for node in self._db.nodes if self._db.node_has_alert(node, alert_type)
          ]
          
-         breakpoint
          for nodes in nodes_with_alerts:
             alerts_enum = CEnum(
                 CTypesConfig.CODE_ENUM.format(node=nodes, alert_type=alert_type)
