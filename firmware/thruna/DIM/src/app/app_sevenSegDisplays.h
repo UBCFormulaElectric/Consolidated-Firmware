@@ -23,7 +23,7 @@ bool app_sevenSegDisplays_setGroup(SevenSegGroup group, float value);
  * @param fault the fault or warning that was called.  
  * @return If the fault code could be written sucessfully.
 */
-bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, int FaultCode);
+bool app_sevenSegDisplays_setFaultCode(SevenSegGroup group, uint16_t FaultCode);
 
 /**
  * Disable the specified group (turn off).
