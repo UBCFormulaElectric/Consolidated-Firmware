@@ -186,18 +186,6 @@ class CanAlertType(StrEnum):
     FAULT = "Fault"  # Faults sent periodically, contactors open if a fault is set
     
     
-class BoardNumbering (StrEnum):
-    
-    """
-    Enum for the possible boards that can be faulting or sending a warning
-    """
-    
-    BMS = "1" #The numbering is associated with the order of LED on the DIM
-    FSM = "2"
-    DCM = "3"
-    DIM = "4"
-    PDM = "5"
-    JCT = "6"
 
 @dataclass(frozen=True)
 class CanAlert:
