@@ -17,21 +17,34 @@ typedef enum
     FSM_ALERT_BOARD = 0,
     JCT_ALERT_BOARD = 1,
 } CanAlertBoard;
-typedef enum
-{
-    FSM_Warning_Warning_Test1 = 2059,
-    FSM_Warning_Warning_Test2 = 2060,
-} FSM_WarningCode;
 
-typedef enum
+typedef struct
 {
-    JCT_Warning_Warning_Test = 20000,
-} JCT_WarningCode;
+    uint8_t id;
+    char* description;
+    char* name;
+} FSM_Warning_Warning_Test1_WarningCode;
 
-typedef enum
+typedef struct
 {
-    FSM_Fault_Fault_Test3 = 2000,
-} FSM_FaultCode;
+    uint8_t id;
+    char* description;
+    char* name;
+} FSM_Warning_Warning_Test2_WarningCode;
+
+typedef struct
+{
+    uint8_t id;
+    char* description;
+    char* name;
+} JCT_Warning_Warning_Test_WarningCode;
+
+typedef struct
+{
+    uint8_t id;
+    char* description;
+    char* name;
+} FSM_Fault_Fault_Test3_FaultCode;
 
 
 /* ------------------------- Function Prototypes -------------------------- */
@@ -69,10 +82,10 @@ bool app_canAlerts_AnyBoardHasFault(void);
 /**
  * Return whether or not a board has set a warning.
  */
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray, uint8_t element_num);
+uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray);
 
 /**
  * Return whether or not a board has set a fault.
  */
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray, uint8_t element_num);
+uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray);
 

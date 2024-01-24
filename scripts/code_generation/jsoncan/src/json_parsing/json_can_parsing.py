@@ -46,6 +46,7 @@ class JsonCanParser:
         self._enums = {}  # Dict of enum names to enum objects
         self._shared_enums = []  # Set of shared enums
         self._alerts = {}  # Dict of node names to node's alerts
+        self._alert_descriptions = {}
 
         self._parse_json_data(dir=can_data_dir)
 
@@ -59,6 +60,7 @@ class JsonCanParser:
             msgs=self._messages.values(),
             shared_enums=self._shared_enums,
             alerts=self._alerts,
+            descriptions=self._alert_descriptions
         )
 
     def _parse_json_data(self, dir: str):
@@ -175,15 +177,30 @@ class JsonCanParser:
                 self._alerts[node] ={
                     **{
                         CanAlert(alert.name, CanAlertType.WARNING):
-                        warinings_meta_data[alert.name]
+                        warinings_meta_data[alert.name]["id"]
                         for alert in warnings.signals
                     },
                     **{
                         CanAlert(alert.name, CanAlertType.FAULT):
-                        faults_meta_data[alert.name]
+                        faults_meta_data[alert.name]["id"]
                         for alert in faults.signals
                     },
                 }
+                
+                self._alert_descriptions[node] ={
+                    **{
+                        CanAlert(alert.name, CanAlertType.WARNING):
+                        warinings_meta_data[alert.name]["description"]
+                        for alert in warnings.signals
+                    },
+                    **{
+                        CanAlert(alert.name, CanAlertType.FAULT):
+                        faults_meta_data[alert.name]["description"]
+                        for alert in faults.signals
+                    },
+                }
+                
+                print(self._alert_descriptions[node])
                                 
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
