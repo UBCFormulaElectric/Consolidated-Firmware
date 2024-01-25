@@ -62,7 +62,7 @@ class SharedStateMachineTest : public testing::Test
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
     }
 
-    void SetInitialState(const struct State * const initial_state)
+    void SetInitialState(const struct State *const initial_state)
     {
         App_SharedStateMachine_Destroy(state_machine);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
@@ -72,13 +72,13 @@ class SharedStateMachineTest : public testing::Test
 
     // We provide our own implementation of the 1hz tick for state_A
     // here so that we can simulate a state transition in a tick
-    static void state_A_tick_1Hz(struct StateMachine * state_machine)
+    static void state_A_tick_1Hz(struct StateMachine *state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, &state_B);
     }
 
-    struct World *        world;
-    struct StateMachine * state_machine;
+    struct World        *world;
+    struct StateMachine *state_machine;
 };
 
 TEST_F(SharedStateMachineTest, check_that_switching_states_in_tick_switches_states_for_all_ticks)

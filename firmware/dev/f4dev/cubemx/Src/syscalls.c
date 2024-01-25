@@ -59,10 +59,10 @@ extern int errno;
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
 
-register char * stack_ptr asm("sp");
+register char *stack_ptr asm("sp");
 
-char *  __env[1] = { 0 };
-char ** environ  = __env;
+char  *__env[1] = { 0 };
+char **environ  = __env;
 
 /* Functions */
 void initialise_monitor_handles() {}
@@ -86,7 +86,7 @@ void _exit(int status)
     } /* Make sure we hang here */
 }
 
-__attribute__((weak)) int _read(int file, char * ptr, int len)
+__attribute__((weak)) int _read(int file, char *ptr, int len)
 {
     int DataIdx;
 
@@ -98,7 +98,7 @@ __attribute__((weak)) int _read(int file, char * ptr, int len)
     return len;
 }
 
-__attribute__((weak)) int _write(int file, char * ptr, int len)
+__attribute__((weak)) int _write(int file, char *ptr, int len)
 {
     int DataIdx;
 
@@ -111,9 +111,9 @@ __attribute__((weak)) int _write(int file, char * ptr, int len)
 
 caddr_t _sbrk(int incr)
 {
-    extern char   end asm("end");
-    static char * heap_end;
-    char *        prev_heap_end;
+    extern char  end asm("end");
+    static char *heap_end;
+    char        *prev_heap_end;
 
     if (heap_end == 0)
         heap_end = &end;
@@ -137,7 +137,7 @@ int _close(int file)
     return -1;
 }
 
-int _fstat(int file, struct stat * st)
+int _fstat(int file, struct stat *st)
 {
     st->st_mode = S_IFCHR;
     return 0;
@@ -153,36 +153,36 @@ int _lseek(int file, int ptr, int dir)
     return 0;
 }
 
-int _open(char * path, int flags, ...)
+int _open(char *path, int flags, ...)
 {
     /* Pretend like we always fail */
     return -1;
 }
 
-int _wait(int * status)
+int _wait(int *status)
 {
     errno = ECHILD;
     return -1;
 }
 
-int _unlink(char * name)
+int _unlink(char *name)
 {
     errno = ENOENT;
     return -1;
 }
 
-int _times(struct tms * buf)
+int _times(struct tms *buf)
 {
     return -1;
 }
 
-int _stat(char * file, struct stat * st)
+int _stat(char *file, struct stat *st)
 {
     st->st_mode = S_IFCHR;
     return 0;
 }
 
-int _link(char * old, char * new)
+int _link(char *old, char *new)
 {
     errno = EMLINK;
     return -1;
@@ -194,7 +194,7 @@ int _fork(void)
     return -1;
 }
 
-int _execve(char * name, char ** argv, char ** env)
+int _execve(char *name, char **argv, char **env)
 {
     errno = ENOMEM;
     return -1;

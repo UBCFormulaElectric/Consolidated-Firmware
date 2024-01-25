@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "Io_SharedStackWaterMark.h"
 
-extern struct World * world;
+extern struct World *world;
 
 /**
  * @brief  Check if the stack high watermark for a task exceeds the specified
@@ -31,7 +31,7 @@ static bool Io_IsStackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack
     return is_stack_above_watermark_threshold;
 }
 
-void Io_SharedStackWaterMark_Check(struct stack_watermark * stacks, size_t num_of_stacks)
+void Io_SharedStackWaterMark_Check(struct stack_watermark *stacks, size_t num_of_stacks)
 {
     for (size_t i = 0; i < num_of_stacks; i++)
     {

@@ -6,8 +6,8 @@
 
 extern TIM_HandleTypeDef htim1;
 
-static struct PwmInput *   imd_pwm_input;
-static TIM_HandleTypeDef * imd_htim;
+static struct PwmInput   *imd_pwm_input;
+static TIM_HandleTypeDef *imd_htim;
 
 void io_imd_init(void)
 {
@@ -25,7 +25,7 @@ float io_imd_getDutyCycle(void)
     return Io_SharedPwmInput_GetDutyCycle(imd_pwm_input);
 }
 
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef * htim)
+void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == imd_htim)
     {

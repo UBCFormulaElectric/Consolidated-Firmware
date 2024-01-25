@@ -6,8 +6,8 @@
 #include "App_CanAlerts.h"
 #include "io_brake.h"
 
-static struct InRangeCheck * front_pressure_in_range_check;
-static struct InRangeCheck * rear_pressure_in_range_check;
+static struct InRangeCheck *front_pressure_in_range_check;
+static struct InRangeCheck *rear_pressure_in_range_check;
 
 void app_brake_init()
 {

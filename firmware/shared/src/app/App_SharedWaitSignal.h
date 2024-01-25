@@ -30,17 +30,17 @@ struct WaitSignalCallback
  * @param callback The signal callback for the wait signal
  * @return The created wait signal, whose ownership is given to the caller
  */
-struct WaitSignal * App_SharedWaitSignal_Create(
+struct WaitSignal *App_SharedWaitSignal_Create(
     uint32_t initial_time_ms,
     bool (*is_high)(struct World *),
-    struct World *            world,
+    struct World             *world,
     struct WaitSignalCallback callback);
 
 /**
  * Deallocate the memory used by the given wait signal
  * @param wait_signal The wait signal to deallocate
  */
-void App_SharedWaitSignal_Destroy(struct WaitSignal * wait_signal);
+void App_SharedWaitSignal_Destroy(struct WaitSignal *wait_signal);
 
 /**
  * Get the last time the given wait signal was observed to be high
@@ -48,7 +48,7 @@ void App_SharedWaitSignal_Destroy(struct WaitSignal * wait_signal);
  * @return The last time the given wait signal was observed to be low, in
  *         milliseconds
  */
-uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal * wait_signal);
+uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal *wait_signal);
 
 /**
  * Check if the wait signal is waiting
@@ -56,7 +56,7 @@ uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal * wait_s
  * progress
  * @return true if the wait signal is waiting, false if it is not
  */
-bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal * wait_signal);
+bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal *wait_signal);
 
 /**
  * Update the internal state of the given wait signal.
@@ -67,4 +67,4 @@ bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal * wait_signal);
  * @param wait_signal The given wait signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-void App_SharedWaitSignal_Update(struct WaitSignal * wait_signal, uint32_t current_ms);
+void App_SharedWaitSignal_Update(struct WaitSignal *wait_signal, uint32_t current_ms);

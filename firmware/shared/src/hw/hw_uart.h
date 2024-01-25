@@ -9,7 +9,7 @@
 
 typedef struct
 {
-    UART_HandleTypeDef * handle; // pointer to structure containing UART module configuration information
+    UART_HandleTypeDef *handle; // pointer to structure containing UART module configuration information
 } UART;
 
 /**
@@ -18,7 +18,7 @@ typedef struct
  * @param pData Pointer to data buffer (u8 or u16 data elements).
  * @param Size Amount of data elements (u8 or u16) to be transmitted.
  */
-void hw_uart_transmit_dma(UART * uart, uint8_t * pData, uint8_t size);
+void hw_uart_transmit_dma(UART *uart, uint8_t *pData, uint8_t size);
 
 /**
  * Receives an amount of data in DMA mode (non-blocking).
@@ -26,7 +26,7 @@ void hw_uart_transmit_dma(UART * uart, uint8_t * pData, uint8_t size);
  * @param pData Pointer to data buffer (u8 or u16 data elements).
  * @param Size Amount of data elements (u8 or u16) to be received.
  */
-void hw_uart_receive_dma(UART * uart, uint8_t * pData, uint8_t size);
+void hw_uart_receive_dma(UART *uart, uint8_t *pData, uint8_t size);
 
 /**
  * Transmits an amount of data in polling mode (blocking).
@@ -35,7 +35,7 @@ void hw_uart_receive_dma(UART * uart, uint8_t * pData, uint8_t size);
  * @param Size Amount of data elements (u8 or u16) to be transmitted.
  * @param timeout Timeout duration
  */
-void hw_uart_transmit_poll(UART * uart, uint8_t * pData, uint8_t size, uint32_t timeout);
+void hw_uart_transmit_poll(UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
 
 /**
  * Receives an amount of data in polling mode (blocking).
@@ -44,7 +44,7 @@ void hw_uart_transmit_poll(UART * uart, uint8_t * pData, uint8_t size, uint32_t 
  * @param Size Amount of data elements (u8 or u16) to be received.
  * @param timeout Timeout duration
  */
-void hw_uart_receive_poll(UART * uart, uint8_t * pData, uint8_t size, uint32_t timeout);
+void hw_uart_receive_poll(UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
 
 /**
  * Receives an amount of data in interrupt mode (non-blocking).
@@ -52,7 +52,7 @@ void hw_uart_receive_poll(UART * uart, uint8_t * pData, uint8_t size, uint32_t t
  * @param pData Pointer to data buffer (u8 or u16 data elements).
  * @param Size Amount of data elements (u8 or u16) to be received.
  */
-void hw_uart_receive_it(UART * uart, uint8_t * pData, uint8_t size);
+void hw_uart_receive_it(UART *uart, uint8_t *pData, uint8_t size);
 
 /**
  * Receives an amount of data in interrupt mode (non-blocking).
@@ -60,4 +60,4 @@ void hw_uart_receive_it(UART * uart, uint8_t * pData, uint8_t size);
  * @param pData Pointer to data buffer (u8 or u16 data elements).
  * @param Size Amount of data elements (u8 or u16) to be received.
  */
-void hw_uart_receive_it(UART * uart, uint8_t * pData, uint8_t size);
+void hw_uart_receive_it(UART *uart, uint8_t *pData, uint8_t size);

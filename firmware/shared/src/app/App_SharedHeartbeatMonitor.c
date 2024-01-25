@@ -4,7 +4,7 @@
 
 #include "App_SharedHeartbeatMonitor.h"
 
-struct HeartbeatMonitor * App_SharedHeartbeatMonitor_Create(
+struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
     uint32_t (*get_current_ms)(void),
     uint32_t timeout_period_ms,
     bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
@@ -14,7 +14,7 @@ struct HeartbeatMonitor * App_SharedHeartbeatMonitor_Create(
     void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
     bool (*fault_getters[HEARTBEAT_BOARD_COUNT])())
 {
-    struct HeartbeatMonitor * const heartbeat_monitor = malloc(sizeof(struct HeartbeatMonitor));
+    struct HeartbeatMonitor *const heartbeat_monitor = malloc(sizeof(struct HeartbeatMonitor));
     assert(heartbeat_monitor != NULL);
 
     heartbeat_monitor->setter = setter;
@@ -37,12 +37,12 @@ struct HeartbeatMonitor * App_SharedHeartbeatMonitor_Create(
     return heartbeat_monitor;
 }
 
-void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor * const heartbeat_monitor)
+void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor *const heartbeat_monitor)
 {
     free(heartbeat_monitor);
 }
 
-void App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor * const heartbeat_monitor)
+void App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *const heartbeat_monitor)
 {
     const uint32_t current_ms = heartbeat_monitor->get_current_ms();
 
@@ -67,7 +67,7 @@ void App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor * const heartbeat_m
 // getters - getter functions for heartbeats
 // updaters - update functions for heartbeats on local can tables
 // boardSetter - update function for current board
-void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor * const heartbeat_monitor)
+void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor *const heartbeat_monitor)
 {
     // check in current heartbeat
     (heartbeat_monitor->setter)(true);
@@ -88,7 +88,7 @@ void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor * const heartbea
 }
 
 // gets state to broadcast via can, and can callbacks to use to broadcast
-void App_SharedHeartbeatMonitor_BroadcastFaults(struct HeartbeatMonitor * const heartbeat_monitor)
+void App_SharedHeartbeatMonitor_BroadcastFaults(struct HeartbeatMonitor *const heartbeat_monitor)
 {
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
@@ -102,7 +102,7 @@ void App_SharedHeartbeatMonitor_BroadcastFaults(struct HeartbeatMonitor * const 
 
 // gets a list of heartbeat getters
 // returns false if all are false, else return true
-bool App_SharedHeartbeatMonitor_CheckFaults(struct HeartbeatMonitor * const heartbeat_monitor)
+bool App_SharedHeartbeatMonitor_CheckFaults(struct HeartbeatMonitor *const heartbeat_monitor)
 {
     bool res = false;
 

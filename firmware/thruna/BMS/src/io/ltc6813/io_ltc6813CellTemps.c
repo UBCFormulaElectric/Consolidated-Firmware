@@ -38,7 +38,7 @@ typedef enum
     NUM_OF_AUX_REGISTER_GROUPS
 } AuxiliaryRegisterGroup;
 
-extern struct SharedSpi * ltc6813_spi;
+extern struct SharedSpi *ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
@@ -293,14 +293,14 @@ bool io_ltc6813CellTemps_readTemperatures(void)
     return status;
 }
 
-float io_ltc6813CellTemps_getMinTempDegC(uint8_t * segment, uint8_t * therm)
+float io_ltc6813CellTemps_getMinTempDegC(uint8_t *segment, uint8_t *therm)
 {
     *segment = ltc6813_temp.stats.min.segment;
     *therm   = ltc6813_temp.stats.min.thermistor;
     return (float)ltc6813_temp.stats.min.temp * DECI_DEGC_TO_DEGC;
 }
 
-float io_ltc6813CellTemps_getMaxTempDegC(uint8_t * segment, uint8_t * therm)
+float io_ltc6813CellTemps_getMaxTempDegC(uint8_t *segment, uint8_t *therm)
 {
     *segment = ltc6813_temp.stats.max.segment;
     *therm   = ltc6813_temp.stats.max.thermistor;

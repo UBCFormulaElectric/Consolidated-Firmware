@@ -85,7 +85,7 @@ void HAL_MspInit(void)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef * hcan)
+void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN1)
@@ -125,7 +125,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef * hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef * hcan)
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
 {
     if (hcan->Instance == CAN1)
     {
@@ -156,7 +156,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef * hcan)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspInit(CRC_HandleTypeDef * hcrc)
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
 {
     if (hcrc->Instance == CRC)
     {
@@ -177,7 +177,7 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef * hcrc)
  * @param hcrc: CRC handle pointer
  * @retval None
  */
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef * hcrc)
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 {
     if (hcrc->Instance == CRC)
     {

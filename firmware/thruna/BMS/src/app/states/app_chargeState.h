@@ -13,4 +13,4 @@
  * Get a pointer to the Charge State.
  * @return A pointer to the Charge State. THIS SHOULD NOT BE MODIFIED.
  */
-const struct State * app_chargeState_get(void);
+const struct State *app_chargeState_get(void);

@@ -141,8 +141,8 @@ const osThreadAttr_t Task1Hz_attributes = {
 };
 
 /* USER CODE BEGIN PV */
-struct StateMachine *     state_machine;
-struct HeartbeatMonitor * heartbeat_monitor;
+struct StateMachine     *state_machine;
+struct HeartbeatMonitor *heartbeat_monitor;
 
 static const LvBatteryConfig lv_battery_config = {
     .lt3650_charger_fault_gpio = {
@@ -299,11 +299,11 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM3_Init(void);
-void        RunTask100Hz(void * argument);
-void        RunTaskCanRx(void * argument);
-void        RunTaskCanTx(void * argument);
-void        RunTask1kHz(void * argument);
-void        RunTask1Hz(void * argument);
+void        RunTask100Hz(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTask1kHz(void *argument);
+void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -850,7 +850,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void * argument)
+void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -886,7 +886,7 @@ void RunTask100Hz(void * argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void * argument)
+void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
@@ -910,7 +910,7 @@ void RunTaskCanRx(void * argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void * argument)
+void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
@@ -929,7 +929,7 @@ void RunTaskCanTx(void * argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void * argument)
+void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
@@ -970,7 +970,7 @@ void RunTask1kHz(void * argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void * argument)
+void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
@@ -1009,7 +1009,7 @@ void RunTask1Hz(void * argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     /* USER CODE BEGIN Callback 0 */
 
@@ -1042,7 +1042,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t * file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     __assert_func(file, line, "assert_failed", "assert_failed");

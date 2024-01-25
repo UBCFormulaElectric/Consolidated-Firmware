@@ -2,25 +2,25 @@
 
 static uint32_t current_time_ms;
 
-void App_Timer_InitTimer(TimerChannel * const timer, uint32_t duration_ms)
+void App_Timer_InitTimer(TimerChannel *const timer, uint32_t duration_ms)
 {
     timer->duration_ms   = duration_ms;
     timer->state         = TIMER_STATE_IDLE;
     timer->start_time_ms = 0;
 }
 
-void App_Timer_Restart(TimerChannel * const timer)
+void App_Timer_Restart(TimerChannel *const timer)
 {
     timer->start_time_ms = current_time_ms;
     timer->state         = TIMER_STATE_RUNNING;
 }
 
-void App_Timer_Stop(TimerChannel * const timer)
+void App_Timer_Stop(TimerChannel *const timer)
 {
     timer->state = TIMER_STATE_IDLE;
 }
 
-TimerState App_Timer_UpdateAndGetState(TimerChannel * const timer)
+TimerState App_Timer_UpdateAndGetState(TimerChannel *const timer)
 {
     // If timer running and duration has elapsed, set it to expired
     // Otherwise, leave the timer alone
@@ -32,7 +32,7 @@ TimerState App_Timer_UpdateAndGetState(TimerChannel * const timer)
     return timer->state;
 }
 
-TimerState App_Timer_RunIfCondition(TimerChannel * const timer, bool condition)
+TimerState App_Timer_RunIfCondition(TimerChannel *const timer, bool condition)
 {
     // If condition is false, stop the timer
     if (!condition)
@@ -53,7 +53,7 @@ TimerState App_Timer_RunIfCondition(TimerChannel * const timer, bool condition)
     return timer->state;
 }
 
-uint32_t App_Timer_GetElapsedTime(const TimerChannel * const timer)
+uint32_t App_Timer_GetElapsedTime(const TimerChannel *const timer)
 {
     uint32_t elapsed_time;
     switch (timer->state)

@@ -29,7 +29,7 @@ bool hw_flash_programWord(uint32_t address, uint32_t data)
     return status == HAL_OK;
 }
 
-bool hw_flash_program(uint32_t address, uint8_t * buffer, uint32_t size)
+bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 {
     bool status = true;
     HAL_FLASH_Unlock();
@@ -49,7 +49,7 @@ bool hw_flash_program(uint32_t address, uint8_t * buffer, uint32_t size)
 
 #elif defined(STM32H733xx)
 
-bool hw_flash_programFlashWord(uint32_t address, uint32_t * data)
+bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
 {
     HAL_FLASH_Unlock();
     HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);

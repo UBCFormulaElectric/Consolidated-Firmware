@@ -12,7 +12,7 @@
  * Initialize the CRC driver.
  * @param crc_handle Handle to CRC peripheral.
  */
-void hw_crc_init(CRC_HandleTypeDef * crc_handle);
+void hw_crc_init(CRC_HandleTypeDef *crc_handle);
 
 /**
  * Calculate a checksum using the CRC peripheral.
@@ -20,4 +20,4 @@ void hw_crc_init(CRC_HandleTypeDef * crc_handle);
  * @param size_words Number of words (32 bits) of data to take the checksum of.
  * @return Checksum value.
  */
-uint32_t hw_crc_calculate(uint32_t * buffer, uint32_t size_words);
+uint32_t hw_crc_calculate(uint32_t *buffer, uint32_t size_words);

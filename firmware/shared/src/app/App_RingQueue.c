@@ -3,7 +3,7 @@
 
 #include "App_RingQueue.h"
 
-void App_RingQueue_Init(RingQueue * queue, int size)
+void App_RingQueue_Init(RingQueue *queue, int size)
 {
     // Queue size cannot exceed allocated buffer size
     assert(size > 0 && size <= RING_QUEUE_MAX_SIZE);
@@ -16,7 +16,7 @@ void App_RingQueue_Init(RingQueue * queue, int size)
     queue->count = 0;
 }
 
-void App_RingQueue_Push(RingQueue * queue, uint8_t value)
+void App_RingQueue_Push(RingQueue *queue, uint8_t value)
 {
     assert(queue);
 
@@ -44,7 +44,7 @@ void App_RingQueue_Push(RingQueue * queue, uint8_t value)
     }
 }
 
-bool App_RingQueue_Pop(RingQueue * queue, uint8_t * value)
+bool App_RingQueue_Pop(RingQueue *queue, uint8_t *value)
 {
     assert(queue);
     assert(value);
@@ -65,7 +65,7 @@ bool App_RingQueue_Pop(RingQueue * queue, uint8_t * value)
     return true;
 }
 
-int App_RingQueue_Count(RingQueue * queue)
+int App_RingQueue_Count(RingQueue *queue)
 {
     assert(queue);
     return queue->count;

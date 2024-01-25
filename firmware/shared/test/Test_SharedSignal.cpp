@@ -35,10 +35,10 @@ class SharedSignalTest : public testing::Test
         App_Timer_SetCurrentTimeMS(current_ms);
     }
 
-    struct Signal *    signal{};
-    SignalState        currentState{};
-    struct TestWorld * world{};
-    uint32_t           current_ms = 0;
+    struct Signal    *signal{};
+    SignalState       currentState{};
+    struct TestWorld *world{};
+    uint32_t          current_ms = 0;
 };
 
 TEST_F(SharedSignalTest, stays_low)

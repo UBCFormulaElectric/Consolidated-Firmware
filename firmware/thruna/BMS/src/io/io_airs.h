@@ -22,7 +22,7 @@ EMPTY_STRUCT(AirsConfig);
  * Initialize the AIRs driver.
  * @param therm_config Config struct.
  */
-void io_airs_init(const AirsConfig * airs_config);
+void io_airs_init(const AirsConfig *airs_config);
 
 /**
  * Check if the AIR- is closed

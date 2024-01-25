@@ -8,7 +8,7 @@ struct Signal
     // A flag used to indicate if the callback function is triggered
     bool is_signal_active;
     // The world associated with this signal
-    struct World * world;
+    struct World *world;
 
     // State of the signal
     SignalState state;
@@ -17,9 +17,9 @@ struct Signal
     TimerChannel exit_timer;
 };
 
-struct Signal * App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time)
+struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time)
 {
-    struct Signal * signal = malloc(sizeof(struct Signal));
+    struct Signal *signal = malloc(sizeof(struct Signal));
     assert(signal != NULL);
 
     signal->is_signal_active = false;
@@ -31,12 +31,12 @@ struct Signal * App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time)
     return signal;
 }
 
-void App_SharedSignal_Destroy(struct Signal * signal)
+void App_SharedSignal_Destroy(struct Signal *signal)
 {
     free(signal);
 }
 
-SignalState App_SharedSignal_Update(struct Signal * signal, bool entry_condition_high, bool exit_condition_high)
+SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high)
 {
     TimerState entry_timer_state = App_Timer_RunIfCondition(&signal->entry_timer, entry_condition_high);
     TimerState exit_timer_state  = App_Timer_RunIfCondition(&signal->exit_timer, exit_condition_high);
@@ -64,7 +64,7 @@ SignalState App_SharedSignal_Update(struct Signal * signal, bool entry_condition
 }
 
 // Getters
-bool App_SharedSignal_IsSignalActivated(const struct Signal * const signal)
+bool App_SharedSignal_IsSignalActivated(const struct Signal *const signal)
 {
     return signal->is_signal_active;
 }

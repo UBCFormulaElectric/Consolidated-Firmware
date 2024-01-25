@@ -29,9 +29,9 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static CanHandle * handle;
+static CanHandle *handle;
 
-void hw_can_init(CanHandle * can_handle)
+void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -65,7 +65,7 @@ void hw_can_deinit()
     assert(HAL_CAN_DeInit(handle) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanMsg * msg)
+bool hw_can_transmit(const CanMsg *msg)
 {
     CAN_TxHeaderTypeDef tx_header;
 
@@ -97,7 +97,7 @@ bool hw_can_transmit(const CanMsg * msg)
     return HAL_CAN_AddTxMessage(handle, &tx_header, msg->data, &mailbox) == HAL_OK;
 }
 
-bool hw_can_receive(uint32_t rx_fifo, CanMsg * msg)
+bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 {
     CAN_RxHeaderTypeDef header;
     if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg->data) != HAL_OK)
@@ -112,13 +112,13 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg * msg)
     return true;
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef * hcan)
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     // NOTE: All receive mailbox interrupts shall be handled in the same way.
     io_can_msgReceivedCallback(CAN_RX_FIFO0);
 }
 
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef * hcan)
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     // NOTE: All receive mailbox interrupts shall be handled in the same way.
     io_can_msgReceivedCallback(CAN_RX_FIFO1);

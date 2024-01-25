@@ -22,7 +22,7 @@ class BrakeLightTest : public testing::Test
     }
     void TearDown() override { TearDownObject(brake_light, App_BrakeLight_Destroy); }
 
-    struct BrakeLight * brake_light;
+    struct BrakeLight *brake_light;
 };
 
 TEST_F(BrakeLightTest, non_actuated_brake_turns_off_brake_light)

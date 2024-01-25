@@ -4,7 +4,7 @@ TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditio
 {
     std::vector<ImdConditionName> condition_names = { IMD_NORMAL, IMD_UNDERVOLTAGE_DETECTED };
 
-    for (auto & condition_name : condition_names)
+    for (auto &condition_name : condition_names)
     {
         test_imd_setImdCondition(condition_name);
 
@@ -178,7 +178,7 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
         { 53.0f, IMD_INVALID },
     };
 
-    for (auto & entry : lookup_table)
+    for (auto &entry : lookup_table)
     {
         fake_io_imd_getFrequency_returns(entry.frequency);
         ASSERT_EQ(app_imd_getCondition().name, entry.condition_name);

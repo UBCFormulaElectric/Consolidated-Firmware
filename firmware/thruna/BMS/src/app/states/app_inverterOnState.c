@@ -9,7 +9,7 @@
 static TimerChannel timer;
 static bool         has_time_passed;
 
-static void inverterOnStateRunOnEntry(struct StateMachine * const state_machine)
+static void inverterOnStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_INVERTER_ON_STATE);
     App_Timer_InitTimer(&timer, CHARGING_MILLISECONDS);
@@ -21,12 +21,12 @@ void app_inverterOnState_init()
     has_time_passed = false;
 }
 
-static void inverterOnStateRunOnTick1Hz(struct StateMachine * const state_machine)
+static void inverterOnStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 }
 
-static void inverterOnStateRunOnTick100Hz(struct StateMachine * const state_machine)
+static void inverterOnStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -40,12 +40,12 @@ static void inverterOnStateRunOnTick100Hz(struct StateMachine * const state_mach
     }
 }
 
-static void inverterOnStateRunOnExit(struct StateMachine * const state_machine)
+static void inverterOnStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State * app_inverterOnState_get(void)
+const struct State *app_inverterOnState_get(void)
 {
     static struct State inverter_state = {
         .name              = "INVERTER_ON",

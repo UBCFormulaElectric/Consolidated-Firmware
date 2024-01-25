@@ -42,11 +42,11 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     App_CanTx_DCM_RightInverterTorqueCommand_Set(torque_request);
 }
 
-static void DriveStateRunOnEntry(struct StateMachine * const state_machine)
+static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct DcmWorld * world = App_SharedStateMachine_GetWorld(state_machine);
+    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
 
-    struct Buzzer * buzzer = App_DcmWorld_GetBuzzer(world);
+    struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
     App_Buzzer_TurnOn(buzzer);
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
@@ -67,12 +67,12 @@ static void DriveStateRunOnEntry(struct StateMachine * const state_machine)
     }
 }
 
-static void DriveStateRunOnTick1Hz(struct StateMachine * const state_machine)
+static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
 }
 
-static void DriveStateRunOnTick100Hz(struct StateMachine * const state_machine)
+static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
     const bool all_states_ok        = App_AllStatesRunOnTick100Hz(state_machine);
@@ -111,7 +111,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine * const state_machine)
     }
 }
 
-static void DriveStateRunOnExit(struct StateMachine * const state_machine)
+static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
     // Disable inverters and apply zero torque upon exiting drive state
     App_CanTx_DCM_LeftInverterEnable_Set(false);
@@ -121,7 +121,7 @@ static void DriveStateRunOnExit(struct StateMachine * const state_machine)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
-const struct State * app_driveState_get(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",

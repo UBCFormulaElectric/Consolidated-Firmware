@@ -7,4 +7,4 @@
  * @note
  * @return A float (pointer?) for the maximum power allowed from the motor,
  */
-float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs * inputs);
+float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs);
