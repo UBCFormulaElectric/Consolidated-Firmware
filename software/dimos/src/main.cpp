@@ -114,8 +114,8 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.addImportPath(":/");
     // engine.loadFromModule("MainWindow", "MainWindow"); // this does not work on Qt < 6.6
-    // const QUrl url("./MainWindow/qml_ui/MainWindow.qml"); // this also works, but is cringe
-    const QUrl url(u"qrc:/MainWindow/qml_ui/MainWindow.qml"_qs);
+    // const QUrl url("./MainWindow/ui/MainWindow.qml"); // this also works, but is cringe
+    const QUrl url(u"qrc:/MainWindow/ui/MainWindow.qml"_qs);
     engine.load(url);
 
     // graceful exit

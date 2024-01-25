@@ -30,7 +30,7 @@ set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
     URI "MainWindow"
     VERSION 1.0
-    QML_FILES qml_ui/MainWindow.qml
+    QML_FILES ui/MainWindow.qml
 )
 #qt_query_qml_module(
 #    ${EXECUTABLE_NAME}
@@ -59,7 +59,7 @@ qt_add_qml_module(${EXECUTABLE_NAME}
 #QML_FILES_DEPLOY_PATHS: ${qml_files_deploy_paths_var}"
 #)
 # add qml modules
-add_subdirectory(qml_ui)
+add_subdirectory(ui)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin)
 target_compile_definitions(DimosConstants PUBLIC "USING_${EXECUTABLE_NAME}") # L QML compiler
 
