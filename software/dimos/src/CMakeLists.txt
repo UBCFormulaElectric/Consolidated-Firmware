@@ -31,7 +31,6 @@ qt_add_qml_module(${EXECUTABLE_NAME}
     URI "MainWindow"
     VERSION 1.0
     QML_FILES qml_ui/MainWindow.qml
-    NO_RESOURCE_TARGET_PATH
 )
 #qt_query_qml_module(
 #    ${EXECUTABLE_NAME}
