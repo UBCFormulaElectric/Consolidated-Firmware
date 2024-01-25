@@ -17,9 +17,9 @@
 
 struct StateMachine
 {
-    const struct State *next_state;
-    const struct State *current_state;
-    struct World *      world;
+    const struct State* next_state;
+    const struct State* current_state;
+    struct World*       world;
 #ifdef __arm__
     StaticSemaphore_t state_tick_mutex_storage;
     SemaphoreHandle_t state_tick_mutex;
@@ -39,7 +39,7 @@ struct StateMachine
  */
 void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     struct StateMachine* const state_machine,
-    void                       (*tick_function)(struct StateMachine*))
+    void (*tick_function)(struct StateMachine*))
 {
     if (tick_function == NULL)
     {
@@ -78,9 +78,9 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
 #endif
 }
 
-struct StateMachine *App_SharedStateMachine_Create(struct World *world, const struct State *initial_state)
+struct StateMachine* App_SharedStateMachine_Create(struct World* world, const struct State* initial_state)
 {
-    struct StateMachine *state_machine = (struct StateMachine *)malloc(sizeof(struct StateMachine));
+    struct StateMachine* state_machine = (struct StateMachine*)malloc(sizeof(struct StateMachine));
     assert(state_machine != NULL);
 
     state_machine->world = world;
@@ -99,32 +99,32 @@ struct StateMachine *App_SharedStateMachine_Create(struct World *world, const st
     return state_machine;
 }
 
-void App_SharedStateMachine_Destroy(struct StateMachine *const state_machine)
+void App_SharedStateMachine_Destroy(struct StateMachine* const state_machine)
 {
     free(state_machine);
 }
 
-const struct State *App_SharedStateMachine_GetCurrentState(const struct StateMachine *const state_machine)
+const struct State* App_SharedStateMachine_GetCurrentState(const struct StateMachine* const state_machine)
 {
     return state_machine->current_state;
 }
 
-void App_SharedStateMachine_SetNextState(struct StateMachine *const state_machine, const struct State *const next_state)
+void App_SharedStateMachine_SetNextState(struct StateMachine* const state_machine, const struct State* const next_state)
 {
     state_machine->next_state = next_state;
 }
 
-struct World *App_SharedStateMachine_GetWorld(const struct StateMachine *const state_machine)
+struct World* App_SharedStateMachine_GetWorld(const struct StateMachine* const state_machine)
 {
     return state_machine->world;
 }
 
-void App_SharedStateMachine_Tick1Hz(struct StateMachine *const state_machine)
+void App_SharedStateMachine_Tick1Hz(struct StateMachine* const state_machine)
 {
     App_SharedStateMachine_RunStateTickFunctionIfNotNull(state_machine, state_machine->current_state->run_on_tick_1Hz);
 }
 
-void App_SharedStateMachine_Tick100Hz(struct StateMachine *const state_machine)
+void App_SharedStateMachine_Tick100Hz(struct StateMachine* const state_machine)
 {
     App_SharedStateMachine_RunStateTickFunctionIfNotNull(
         state_machine, state_machine->current_state->run_on_tick_100Hz);

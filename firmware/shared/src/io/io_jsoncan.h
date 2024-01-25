@@ -16,18 +16,18 @@
  * function since jsoncan defines its own CAN message struct.
  * @param msg CAN msg to be TXed.
  */
-void io_jsoncan_pushTxMsgToQueue(const JsonCanMsg *msg);
+void io_jsoncan_pushTxMsgToQueue(const JsonCanMsg* msg);
 
 /**
  * Convert a jsoncan message to our own driver-level CAN message type.
  * @param src Pointer to jsoncan message to be copied from.
  * @param dest Pointer to CAN message to be copied to.
  */
-void io_jsoncan_copyToCanMsg(const JsonCanMsg *src, CanMsg *dest);
+void io_jsoncan_copyToCanMsg(const JsonCanMsg* src, CanMsg* dest);
 
 /**
  * Convert own driver-level CAN message type to a jsoncan message.
  * @param src Pointer to CAN message to be copied from.
  * @param dest Pointer to jsoncan message to be copied to.
  */
-void io_jsoncan_copyFromCanMsg(const CanMsg *src, JsonCanMsg *dest);
+void io_jsoncan_copyFromCanMsg(const CanMsg* src, JsonCanMsg* dest);

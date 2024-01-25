@@ -17,7 +17,7 @@ extern I2C_HandleTypeDef hi2c1;
 #define PAGE_ADDR_START_BIT ((uint16_t)(log(EEPROM_PAGE_SIZE) / log(2))) // number of bit where addressing starts
 #define MEM_ACCESS_TIMEOUT (1000U)
 
-EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
+EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t* data, uint16_t size)
 {
     // determine the memory address location
     uint16_t mem_address = (uint16_t)(page << PAGE_ADDR_START_BIT | offset);
@@ -45,7 +45,7 @@ EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t *data, u
     return EEPROM_STATUS_OK;
 }
 
-EepromStatus io_eeprom_readPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size)
+EepromStatus io_eeprom_readPage(uint16_t page, uint8_t offset, uint8_t* data, uint16_t size)
 {
     // determine the memory address location
     uint16_t mem_address = (uint16_t)(page << PAGE_ADDR_START_BIT | offset);

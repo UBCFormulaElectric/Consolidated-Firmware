@@ -43,7 +43,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-SdCard *sd;
+SdCard* sd;
 uint8_t read_buffer[LFS_CACHE_SIZE];
 uint8_t prog_buffer[LFS_CACHE_SIZE];
 uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
@@ -74,7 +74,7 @@ static void MX_SDIO_SD_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN2_Init(void);
-void        StartDefaultTask(void *argument);
+void        StartDefaultTask(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -82,31 +82,31 @@ void        StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
-int lfs_erase(const struct lfs_config *c, lfs_block_t block);
-int lfs_sync(const struct lfs_config *c);
+int lfs_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, void* buffer, lfs_size_t size);
+int lfs_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, const void* buffer, lfs_size_t size);
+int lfs_erase(const struct lfs_config* c, lfs_block_t block);
+int lfs_sync(const struct lfs_config* c);
 
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
+int lfs_read(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, void* buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    SdCardStatus status = hw_sd_readOffset(sd, (uint8_t*)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
 
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
+int lfs_prog(const struct lfs_config* c, lfs_block_t block, lfs_off_t off, const void* buffer, lfs_size_t size)
 {
-    SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+    SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t*)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_erase(const struct lfs_config *c, lfs_block_t block)
+int lfs_erase(const struct lfs_config* c, lfs_block_t block)
 {
     SdCardStatus status = hw_sd_erase(sd, (uint32_t)block, (uint32_t)block);
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_sync(const struct lfs_config *c)
+int lfs_sync(const struct lfs_config* c)
 {
     return 0;
 }
@@ -126,9 +126,9 @@ struct lfs_config cfg = {
     .cache_size       = LFS_CACHE_SIZE,
     .lookahead_size   = LFS_LOOKAHEAD_SIZE,
     .block_cycles     = 500,
-    .read_buffer      = (void *)read_buffer,
-    .prog_buffer      = (void *)prog_buffer,
-    .lookahead_buffer = (void *)lookahead_buffer,
+    .read_buffer      = (void*)read_buffer,
+    .prog_buffer      = (void*)prog_buffer,
+    .lookahead_buffer = (void*)lookahead_buffer,
 
 };
 
@@ -512,7 +512,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+void StartDefaultTask(void* argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
@@ -543,7 +543,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,

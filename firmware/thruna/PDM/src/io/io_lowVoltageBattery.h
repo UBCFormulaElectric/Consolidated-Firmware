@@ -22,7 +22,7 @@ EMPTY_STRUCT(LvBatteryConfig);
  * Initialize the LV battery IO module.
  * @param config Config params.
  */
-void io_lowVoltageBattery_init(const LvBatteryConfig *lv_batt_config);
+void io_lowVoltageBattery_init(const LvBatteryConfig* lv_batt_config);
 
 /**
  * Check if the charging IC for the given low voltage battery has a fault.

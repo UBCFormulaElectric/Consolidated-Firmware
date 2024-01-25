@@ -7,7 +7,7 @@ struct FreqOnlyPwmInput
 {
     float frequency_hz;
 
-    TIM_HandleTypeDef *   htim;
+    TIM_HandleTypeDef*    htim;
     float                 tim_frequency_hz;
     uint32_t              tim_channel;
     uint32_t              tim_auto_reload_reg;
@@ -25,17 +25,17 @@ struct FreqOnlyPwmInput
  * @param pwm_input: The PWM input to set frequency for
  * @param frequency_hz: Frequency, in Hz
  */
-static void Io_SetFrequency(struct FreqOnlyPwmInput *pwm_input, float frequency_hz);
+static void Io_SetFrequency(struct FreqOnlyPwmInput* pwm_input, float frequency_hz);
 
-static void Io_SetFrequency(struct FreqOnlyPwmInput *const pwm_input, const float frequency_hz)
+static void Io_SetFrequency(struct FreqOnlyPwmInput* const pwm_input, const float frequency_hz)
 {
     assert(frequency_hz >= 0.0f);
 
     pwm_input->frequency_hz = frequency_hz;
 }
 
-struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
-    TIM_HandleTypeDef *   htim,
+struct FreqOnlyPwmInput* Io_SharedFreqOnlyPwmInput_Create(
+    TIM_HandleTypeDef*    htim,
     float                 tim_frequency_hz,
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,
@@ -43,7 +43,7 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
 {
     assert(htim != NULL);
 
-    struct FreqOnlyPwmInput *const pwm_input = malloc(sizeof(struct FreqOnlyPwmInput));
+    struct FreqOnlyPwmInput* const pwm_input = malloc(sizeof(struct FreqOnlyPwmInput));
     assert(pwm_input != NULL);
 
     pwm_input->frequency_hz        = 0.0f;
@@ -63,22 +63,22 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     return pwm_input;
 }
 
-float Io_SharedFreqOnlyPwmInput_GetFrequency(const struct FreqOnlyPwmInput *const pwm_input)
+float Io_SharedFreqOnlyPwmInput_GetFrequency(const struct FreqOnlyPwmInput* const pwm_input)
 {
     return pwm_input->frequency_hz;
 }
 
-TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(const struct FreqOnlyPwmInput *const pwm_input)
+TIM_HandleTypeDef* Io_SharedFreqOnlyPwmInput_GetTimerHandle(const struct FreqOnlyPwmInput* const pwm_input)
 {
     return pwm_input->htim;
 }
 
-HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(const struct FreqOnlyPwmInput *const pwm_input)
+HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(const struct FreqOnlyPwmInput* const pwm_input)
 {
     return pwm_input->tim_active_channel;
 }
 
-void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
+void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput* const pwm_input)
 {
     // Reset the timer overflow count to indicate that the PWM signal is active
     pwm_input->tim_overflow_count = 0U;
@@ -123,7 +123,7 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
     }
 }
 
-void Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(struct FreqOnlyPwmInput *const pwm_input)
+void Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(struct FreqOnlyPwmInput* const pwm_input)
 {
     // If the timer overflows twice without a rising edge, the PWM signal is
     // likely inactive (i.e. DC signal) and its frequency can't be computed

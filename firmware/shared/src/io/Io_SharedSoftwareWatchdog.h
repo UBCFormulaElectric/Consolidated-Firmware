@@ -35,7 +35,7 @@
 #define MAX_NUM_OF_SOFTWARE_WATCHDOG 5
 
 // Anonymous type by which software watchdogs are referenced.
-typedef void *SoftwareWatchdogHandle_t;
+typedef void* SoftwareWatchdogHandle_t;
 
 // Platform independent typedef for OS ticks. The C file will be implemented
 // using platform-specific OS ticks.

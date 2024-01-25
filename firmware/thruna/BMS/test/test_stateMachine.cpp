@@ -53,7 +53,7 @@ TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_s
 {
     float fake_frequency = 0.0f;
 
-    for (const auto &state : GetAllStates())
+    for (const auto& state : GetAllStates())
     {
         SetInitialState(state);
         fake_io_imd_getFrequency_returns(fake_frequency);
@@ -70,7 +70,7 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
 {
     float fake_duty_cycle = 0.0f;
 
-    for (const auto &state : GetAllStates())
+    for (const auto& state : GetAllStates())
     {
         SetInitialState(state);
         fake_io_imd_getDutyCycle_returns(fake_duty_cycle);
@@ -86,7 +86,7 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
 
 TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_NORMAL);
@@ -109,7 +109,7 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
 
 TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_UNDERVOLTAGE_DETECTED);
@@ -132,7 +132,7 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
 
 TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
         test_imd_setImdCondition(IMD_SST);
@@ -164,7 +164,7 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
 
 TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
         fake_io_imd_getTimeSincePowerOn_returns(123);
@@ -175,7 +175,7 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
 
 TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 
@@ -194,7 +194,7 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
     // Enable BMS_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bms_ok_latch, true);
 
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 
@@ -212,7 +212,7 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
     // Enable IMD_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&imd_ok_latch, true);
 
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 
@@ -230,7 +230,7 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
     // Enable BSPD_OK
     fake_io_faultLatch_getCurrentStatus_returnsForArgs(&bspd_ok_latch, true);
 
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 
@@ -265,7 +265,7 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
 
 TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 
@@ -443,7 +443,7 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
 
     // Charger faults are ignored for 5s upon charge state entry
     LetTimePass(state_machine, 5010);
-    const struct State *currentState = App_SharedStateMachine_GetCurrentState(state_machine);
+    const struct State* currentState = App_SharedStateMachine_GetCurrentState(state_machine);
 
     ASSERT_EQ(app_faultState_get(), currentState);
 }

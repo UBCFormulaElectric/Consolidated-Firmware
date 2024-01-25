@@ -30,7 +30,7 @@ typedef enum
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
 
-extern struct SharedSpi *ltc6813_spi;
+extern struct SharedSpi* ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -59,7 +59,7 @@ static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
         uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t*)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
@@ -73,7 +73,7 @@ static bool parseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_
 
             // Store register group data into a temporary array reg_group_data
             uint16_t reg_group_data[NUM_OF_READINGS_PER_REG_GROUP] = { 0 };
-            memcpy((uint8_t *)reg_group_data, (uint8_t *)&rx_buffer[start_index], num_bytes_to_copy);
+            memcpy((uint8_t*)reg_group_data, (uint8_t*)&rx_buffer[start_index], num_bytes_to_copy);
 
             // Write out voltage readings
             const float reading_0_voltage = CONVERT_100UV_TO_VOLTAGE(reg_group_data[REG_GROUP_READING_0]);
@@ -130,7 +130,7 @@ bool io_ltc6813CellVoltages_readVoltages(void)
 
         // Transmit the command and receive data stored in register group.
         bool voltage_read_success = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
+            ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t*)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
         // If SPI communication or parsing fails, save result but continue to update data for remaining cell register

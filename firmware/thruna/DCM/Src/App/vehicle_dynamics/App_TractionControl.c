@@ -4,9 +4,9 @@
 #include "App_SharedDcmConstants.h"
 #include <math.h>
 
-void App_TractionControl_ComputeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs)
+void App_TractionControl_ComputeTorque(TractionControl_Inputs* inputs, TractionControl_Outputs* outputs)
 {
-    PID *pid = inputs->pid;
+    PID* pid = inputs->pid;
 
     float wheel_speed_front_left_rpm  = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
     float wheel_speed_front_right_rpm = App_TractionControl_WheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);

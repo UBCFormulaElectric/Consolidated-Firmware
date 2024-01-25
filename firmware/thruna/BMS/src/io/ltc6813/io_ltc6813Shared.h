@@ -92,7 +92,7 @@ typedef enum
  * Initialize the SPI handle used to communicate with the LTC6813
  * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
  */
-void io_ltc6813Shared_init(SPI_HandleTypeDef *spi_handle);
+void io_ltc6813Shared_init(SPI_HandleTypeDef* spi_handle);
 #endif
 
 /**
@@ -100,14 +100,14 @@ void io_ltc6813Shared_init(SPI_HandleTypeDef *spi_handle);
  * @param tx_cmd The buffer containing the command used to calculate and pack
  * PEC15 bytes
  */
-void io_ltc6813Shared_packCmdPec15(uint16_t *tx_cmd);
+void io_ltc6813Shared_packCmdPec15(uint16_t* tx_cmd);
 
 /**
  * Calculate and pack PEC15 bytes for data written to a given register groups
  * @param tx_cfg The buffer containing data used to calculate and pack PEC15
  * bytes
  */
-void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg);
+void io_ltc6813Shared_packRegisterGroupPec15(uint8_t* tx_cfg);
 
 /**
  * Calculate the PEC15 value for data to write/read back from a register group
@@ -116,7 +116,7 @@ void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg);
  * PEC15 bytes from
  * @return The PEC15 code generated from the contents of data_buffer
  */
-uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer);
+uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t* data_buffer);
 
 /**
  * Send a command to all LTC6813 chips on the daisy chain

@@ -30,7 +30,7 @@ float io_imd_getDutyCycle(void);
  * @param htim The handle of the timer that triggered the input capture callback
  *             function
  */
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
+void io_imd_inputCaptureCallback(TIM_HandleTypeDef* htim);
 #endif
 
 /**

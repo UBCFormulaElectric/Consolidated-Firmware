@@ -35,10 +35,10 @@ static const CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
-static const SevenSegsConfig *config;
+static const SevenSegsConfig* config;
 static uint8_t                commands[NUM_SEVEN_SEGS];
 
-void io_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
+void io_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config)
 {
     config = seven_segs_config;
     memset(commands, 0U, sizeof(commands));

@@ -6,7 +6,7 @@
 #include "App_CanAlerts.h"
 #include "io_steering.h"
 
-static struct InRangeCheck *steering_angle_in_range_check;
+static struct InRangeCheck* steering_angle_in_range_check;
 
 void app_steering_init(void)
 {

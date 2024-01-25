@@ -50,7 +50,7 @@ static void canTxOverflow(uint32_t unused)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-static void modifyStackPointerAndStartApp(uint32_t *address)
+static void modifyStackPointerAndStartApp(uint32_t* address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -104,7 +104,7 @@ static BootStatus verifyAppCodeChecksum(void)
         return BOOT_STATUS_NO_APP;
     }
 
-    Metadata *metadata = (Metadata *)&__app_metadata_start__;
+    Metadata* metadata = (Metadata*)&__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.
@@ -207,7 +207,7 @@ void bootloader_runInterfaceTask()
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            bootloader_boardSpecific_program(current_address, *(uint64_t*)command.data);
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)

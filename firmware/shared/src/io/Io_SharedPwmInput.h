@@ -24,8 +24,8 @@ struct PwmInput;
  * the PWM input
  * @return Pointer to the allocated and initialized PWM input
  */
-struct PwmInput *Io_SharedPwmInput_Create(
-    TIM_HandleTypeDef *htim,
+struct PwmInput* Io_SharedPwmInput_Create(
+    TIM_HandleTypeDef* htim,
     float              timer_frequency_hz,
     uint32_t           rising_edge_tim_channel,
     uint32_t           falling_edge_tim_channel);
@@ -34,18 +34,18 @@ struct PwmInput *Io_SharedPwmInput_Create(
  * Update the frequency and duty cycle for the given PWM input
  * @param pwm_input: The PWM input to update for
  */
-void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input);
+void Io_SharedPwmInput_Tick(struct PwmInput* const pwm_input);
 
 /**
  * Get the duty cycle for the given PWM input
  * @param pwm_input: The PWM input to get duty cycle for
  * @return The duty cycle for the given PWM input
  */
-float Io_SharedPwmInput_GetDutyCycle(const struct PwmInput *const pwm_input);
+float Io_SharedPwmInput_GetDutyCycle(const struct PwmInput* const pwm_input);
 
 /**
  * Get the frequency for the given PWM input
  * @param pwm_input: The PWM input to get frequency for
  * @return The frequency for the given PWM input
  */
-float Io_SharedPwmInput_GetFrequency(const struct PwmInput *const pwm_input);
+float Io_SharedPwmInput_GetFrequency(const struct PwmInput* const pwm_input);

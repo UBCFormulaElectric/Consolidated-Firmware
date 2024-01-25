@@ -38,7 +38,7 @@ typedef enum
     NUM_OF_AUX_REGISTER_GROUPS
 } AuxiliaryRegisterGroup;
 
-extern struct SharedSpi *ltc6813_spi;
+extern struct SharedSpi* ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
@@ -227,7 +227,7 @@ static bool parseCellTempFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buf
         uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = io_ltc6813Shared_calculateRegGroupPec15((uint8_t*)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
@@ -276,7 +276,7 @@ bool io_ltc6813CellTemps_readTemperatures(void)
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
             if (Io_SharedSpi_TransmitAndReceive(
-                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
+                    ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t*)rx_buffer, NUM_REG_GROUP_RX_BYTES))
             {
                 if (!parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
                 {
@@ -293,14 +293,14 @@ bool io_ltc6813CellTemps_readTemperatures(void)
     return status;
 }
 
-float io_ltc6813CellTemps_getMinTempDegC(uint8_t *segment, uint8_t *therm)
+float io_ltc6813CellTemps_getMinTempDegC(uint8_t* segment, uint8_t* therm)
 {
     *segment = ltc6813_temp.stats.min.segment;
     *therm   = ltc6813_temp.stats.min.thermistor;
     return (float)ltc6813_temp.stats.min.temp * DECI_DEGC_TO_DEGC;
 }
 
-float io_ltc6813CellTemps_getMaxTempDegC(uint8_t *segment, uint8_t *therm)
+float io_ltc6813CellTemps_getMaxTempDegC(uint8_t* segment, uint8_t* therm)
 {
     *segment = ltc6813_temp.stats.max.segment;
     *therm   = ltc6813_temp.stats.max.thermistor;

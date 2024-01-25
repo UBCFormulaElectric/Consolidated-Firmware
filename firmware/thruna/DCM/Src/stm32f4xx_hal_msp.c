@@ -87,7 +87,7 @@ void HAL_MspInit(void)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
+void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN1)
@@ -127,7 +127,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
 {
     if (hcan->Instance == CAN1)
     {
@@ -158,7 +158,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (huart->Instance == USART1)
@@ -212,7 +212,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
  * @param huart: UART handle pointer
  * @retval None
  */
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
     if (huart->Instance == USART1)
     {

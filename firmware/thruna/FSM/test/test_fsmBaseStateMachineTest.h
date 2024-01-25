@@ -113,6 +113,6 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_steering_sensorOCSC_reset();
     }
 
-    struct StateMachine *    state_machine;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    struct StateMachine*     state_machine;
+    struct HeartbeatMonitor* heartbeat_monitor;
 };

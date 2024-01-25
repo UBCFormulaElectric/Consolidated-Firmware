@@ -93,9 +93,9 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CRC_Init(void);
 static void MX_FDCAN2_Init(void);
-void        runInterfaceTask(void *argument);
-void        runTickTask(void *argument);
-void        runCanTxTask(void *argument);
+void        runInterfaceTask(void* argument);
+void        runTickTask(void* argument);
+void        runCanTxTask(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -364,7 +364,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_runInterfaceTask */
-void runInterfaceTask(void *argument)
+void runInterfaceTask(void* argument)
 {
     /* USER CODE BEGIN 5 */
     bootloader_runInterfaceTask();
@@ -378,7 +378,7 @@ void runInterfaceTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runTickTask */
-void runTickTask(void *argument)
+void runTickTask(void* argument)
 {
     /* USER CODE BEGIN runTickTask */
     bootloader_runTickTask();
@@ -392,7 +392,7 @@ void runTickTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void *argument)
+void runCanTxTask(void* argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     bootloader_runCanTxTask();
@@ -407,7 +407,7 @@ void runCanTxTask(void *argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
     /* USER CODE BEGIN Callback 0 */
 
@@ -444,7 +444,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,

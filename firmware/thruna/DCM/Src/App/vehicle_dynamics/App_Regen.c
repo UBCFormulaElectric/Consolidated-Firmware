@@ -14,7 +14,7 @@
  * @return true if wheel speed meets this condition, false
  * otherwise
  */
-static bool wheel_speed_in_range(ActiveDifferential_Inputs *inputs);
+static bool wheel_speed_in_range(ActiveDifferential_Inputs* inputs);
 
 /**
  * Check if battery cells are less than 4.0V
@@ -22,7 +22,7 @@ static bool wheel_speed_in_range(ActiveDifferential_Inputs *inputs);
  * @return true battery cells meet this condition,
  * false otherwise
  */
-static bool power_limit_check(RegenBraking_Inputs *regenAttr);
+static bool power_limit_check(RegenBraking_Inputs* regenAttr);
 
 /**
  * Algorithm to send negative torque request dependent
@@ -32,9 +32,9 @@ static bool power_limit_check(RegenBraking_Inputs *regenAttr);
  * @param regenAttr struct provides for torque request
  */
 static void compute_regen_torque_request(
-    ActiveDifferential_Inputs *inputs,
-    RegenBraking_Inputs *      regenAttr,
-    PowerLimiting_Inputs *     powerInputs);
+    ActiveDifferential_Inputs* inputs,
+    RegenBraking_Inputs*       regenAttr,
+    PowerLimiting_Inputs*      powerInputs);
 
 static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
@@ -62,7 +62,7 @@ void App_Run_Regen(float accelerator_pedal_percentage)
     App_Regen_Send_Torque_Request(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
 
-bool App_Regen_SafetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
+bool App_Regen_SafetyCheck(RegenBraking_Inputs* regenAttr, ActiveDifferential_Inputs* inputs)
 {
     bool battery_temp_in_range = App_CanRx_BMS_MaxCellTemperature_Get() < MAX_BATTERY_TEMP;
     return battery_temp_in_range && wheel_speed_in_range(inputs) && power_limit_check(regenAttr);
@@ -74,7 +74,7 @@ void App_Regen_Send_Torque_Request(float left, float right)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(right);
 }
 
-void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
+void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs* inputs, RegenBraking_Inputs* regenAttr)
 {
     float Delta = App_ActiveDifferential_WheelAngleToSpeedDelta(inputs->wheel_angle_deg);
 
@@ -98,7 +98,7 @@ void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inp
     regenAttr->right_inverter_torque_Nm = torque_right_Nm * scale;
 }
 
-static bool wheel_speed_in_range(ActiveDifferential_Inputs *inputs)
+static bool wheel_speed_in_range(ActiveDifferential_Inputs* inputs)
 {
     inputs->motor_speed_right_rpm = -(float)App_CanRx_INVR_MotorSpeed_Get();
     inputs->motor_speed_left_rpm  = (float)App_CanRx_INVL_MotorSpeed_Get();
@@ -107,16 +107,16 @@ static bool wheel_speed_in_range(ActiveDifferential_Inputs *inputs)
            MOTOR_RPM_TO_KMH(inputs->motor_speed_left_rpm) > SPEED_MIN_kph;
 }
 
-static bool power_limit_check(RegenBraking_Inputs *regenAttr)
+static bool power_limit_check(RegenBraking_Inputs* regenAttr)
 {
     regenAttr->current_battery_level = App_CanRx_BMS_MaxCellVoltage_Get();
     return regenAttr->current_battery_level < 4.1f;
 }
 
 static void compute_regen_torque_request(
-    ActiveDifferential_Inputs *activeDiffInputs,
-    RegenBraking_Inputs *      regenAttr,
-    PowerLimiting_Inputs *     powerInputs)
+    ActiveDifferential_Inputs* activeDiffInputs,
+    RegenBraking_Inputs*       regenAttr,
+    PowerLimiting_Inputs*      powerInputs)
 {
     float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
     float min_motor_speed =
