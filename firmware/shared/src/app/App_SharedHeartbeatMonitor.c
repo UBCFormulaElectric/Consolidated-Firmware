@@ -8,11 +8,11 @@ struct HeartbeatMonitor* App_SharedHeartbeatMonitor_Create(
     uint32_t (*get_current_ms)(void),
     uint32_t timeout_period_ms,
     bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
-    bool     (*getters[HEARTBEAT_BOARD_COUNT])(),
-    void     (*updaters[HEARTBEAT_BOARD_COUNT])(bool),
-    void     (*setter)(bool),
-    void     (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
-    bool     (*fault_getters[HEARTBEAT_BOARD_COUNT])())
+    bool (*getters[HEARTBEAT_BOARD_COUNT])(),
+    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool),
+    void (*setter)(bool),
+    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
+    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])())
 {
     struct HeartbeatMonitor* const heartbeat_monitor = malloc(sizeof(struct HeartbeatMonitor));
     assert(heartbeat_monitor != NULL);

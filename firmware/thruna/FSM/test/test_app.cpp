@@ -7,9 +7,9 @@ class FsmAppTest : public FsmBaseStateMachineTest
     template <typename T> void CheckInRangeCanSignals(
         float min_value,
         float max_value,
-        void  (*fake_setter)(float),
-        T     (*value_can_signal_getter)(),
-        bool  (*alert_getter)())
+        void (*fake_setter)(float),
+        T (*value_can_signal_getter)(),
+        bool (*alert_getter)())
     {
         // Normalnge
         const float nominal_val = (min_value + max_value) / 2;

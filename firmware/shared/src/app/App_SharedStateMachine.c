@@ -39,7 +39,7 @@ struct StateMachine
  */
 void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     struct StateMachine* const state_machine,
-    void                       (*tick_function)(struct StateMachine*))
+    void (*tick_function)(struct StateMachine*))
 {
     if (tick_function == NULL)
     {

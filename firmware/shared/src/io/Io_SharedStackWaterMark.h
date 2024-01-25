@@ -11,7 +11,7 @@ struct stack_watermark
                           // so instead we use a pointer to it.
     uint32_t stack_size;
     float    watermark_threshold;
-    void     (*log_error)(uint8_t);
+    void (*log_error)(uint8_t);
 };
 
 /**

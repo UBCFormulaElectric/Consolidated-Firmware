@@ -29,8 +29,8 @@ struct DcmWorld* App_DcmWorld_Create(
     struct Buzzer*           buzzer,
     struct Imu*              imu,
     struct Clock*            clock,
-    bool                     (*is_buzzer_on)(struct DcmWorld*),
-    void                     (*buzzer_callback)(struct DcmWorld*));
+    bool (*is_buzzer_on)(struct DcmWorld*),
+    void (*buzzer_callback)(struct DcmWorld*));
 
 /**
  * Deallocate the memory used by the given world

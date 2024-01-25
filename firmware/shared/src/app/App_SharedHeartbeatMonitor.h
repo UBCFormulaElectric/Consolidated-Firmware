@@ -42,11 +42,11 @@ struct HeartbeatMonitor* App_SharedHeartbeatMonitor_Create(
     uint32_t (*get_current_ms)(void),
     uint32_t timeout_period_ms,
     bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
-    bool     (*heartbeat_getters[HEARTBEAT_BOARD_COUNT])(),
-    void     (*heartbeat_updaters[HEARTBEAT_BOARD_COUNT])(bool),
-    void     (*heartbeat_setter)(bool),
-    void     (*heartbeat_fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
-    bool     (*heartbeat_fault_getters[HEARTBEAT_BOARD_COUNT])());
+    bool (*heartbeat_getters[HEARTBEAT_BOARD_COUNT])(),
+    void (*heartbeat_updaters[HEARTBEAT_BOARD_COUNT])(bool),
+    void (*heartbeat_setter)(bool),
+    void (*heartbeat_fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
+    bool (*heartbeat_fault_getters[HEARTBEAT_BOARD_COUNT])());
 
 void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor* heartbeat_monitor);
 

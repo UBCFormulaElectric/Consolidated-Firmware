@@ -21,8 +21,8 @@ struct DcmWorld* App_DcmWorld_Create(
     struct Buzzer* const           buzzer,
     struct Imu* const              imu,
     struct Clock* const            clock,
-    bool                           (*is_buzzer_on)(struct DcmWorld*),
-    void                           (*buzzer_complete_callback)(struct DcmWorld*))
+    bool (*is_buzzer_on)(struct DcmWorld*),
+    void (*buzzer_complete_callback)(struct DcmWorld*))
 {
     struct DcmWorld* world = malloc(sizeof(struct DcmWorld));
     assert(world != NULL);

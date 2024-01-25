@@ -31,8 +31,8 @@ struct WaitSignalCallback
  * @return The created wait signal, whose ownership is given to the caller
  */
 struct WaitSignal* App_SharedWaitSignal_Create(
-    uint32_t                  initial_time_ms,
-    bool                      (*is_high)(struct World*),
+    uint32_t initial_time_ms,
+    bool (*is_high)(struct World*),
     struct World*             world,
     struct WaitSignalCallback callback);
 

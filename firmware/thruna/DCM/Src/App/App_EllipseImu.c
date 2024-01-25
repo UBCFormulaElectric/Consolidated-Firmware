@@ -4,21 +4,21 @@
 
 typedef struct
 {
-    void     (*handle_logs)(void);
+    void (*handle_logs)(void);
     uint16_t (*get_general_status)(void);
     uint32_t (*get_com_status)(void);
     uint32_t (*get_timestamp)(void);
-    float    (*get_sensor_output)(EllipseImuOutput);
+    float (*get_sensor_output)(EllipseImuOutput);
 } EllipseImuSensor;
 
 static EllipseImuSensor sensor;
 
 void App_EllipseImu_Init(
-    void     (*handle_logs)(void),
+    void (*handle_logs)(void),
     uint32_t (*get_timestamp)(void),
     uint16_t (*get_general_status)(void),
     uint32_t (*get_com_status)(void),
-    float    (*get_sensor_output)(EllipseImuOutput))
+    float (*get_sensor_output)(EllipseImuOutput))
 {
     sensor.handle_logs        = handle_logs;
     sensor.get_timestamp      = get_timestamp;
