@@ -6,8 +6,8 @@
 #include "App_CanAlerts.h"
 #include "io_wheels.h"
 
-static struct InRangeCheck* left_wheel_speed_in_range_check;
-static struct InRangeCheck* right_wheel_speed_in_range_check;
+static struct InRangeCheck *left_wheel_speed_in_range_check;
+static struct InRangeCheck *right_wheel_speed_in_range_check;
 
 void app_wheels_init()
 {

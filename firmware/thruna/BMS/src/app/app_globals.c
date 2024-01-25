@@ -3,9 +3,9 @@
 #include "states/app_prechargeState.h"
 
 Globals        bms_globals;
-Globals* const globals = &bms_globals;
+Globals *const globals = &bms_globals;
 
-void app_globals_init(const GlobalsConfig* config)
+void app_globals_init(const GlobalsConfig *config)
 {
     memset(globals, 0U, sizeof(Globals));
     globals->config = config;

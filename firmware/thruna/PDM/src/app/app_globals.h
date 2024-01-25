@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    struct HeartbeatMonitor* heartbeat_monitor;
+    struct HeartbeatMonitor *heartbeat_monitor;
 } Globals;
 
-extern Globals* const globals;
+extern Globals *const globals;

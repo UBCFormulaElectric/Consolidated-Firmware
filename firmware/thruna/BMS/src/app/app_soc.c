@@ -125,8 +125,8 @@ bool app_soc_getCorrupt(void)
 void app_soc_updateSocStats(void)
 {
     // NOTE current sign is relative to current into the battery
-    double* charge_c     = &stats.charge_c;
-    float*  prev_current = &stats.prev_current_A;
+    double *charge_c     = &stats.charge_c;
+    float  *prev_current = &stats.prev_current_A;
     float   current      = app_tractiveSystem_getCurrent();
 
     double elapsed_time_s = (double)App_Timer_GetElapsedTime(&stats.soc_timer) * MS_TO_S;

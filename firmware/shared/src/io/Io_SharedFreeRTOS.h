@@ -7,7 +7,7 @@
 struct StaticQueue
 {
     StaticQueue_t state;
-    uint8_t*      storage;
+    uint8_t      *storage;
     QueueHandle_t handle;
 };
 

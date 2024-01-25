@@ -11,7 +11,7 @@
 #define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
 
 // Private globals.
-static const CanConfig* config;
+static const CanConfig *config;
 
 static osMessageQueueId_t tx_queue_id;
 static osMessageQueueId_t rx_queue_id;
@@ -37,7 +37,7 @@ static const osMessageQueueAttr_t rx_queue_attr = {
     .mq_size   = RX_QUEUE_BYTES,
 };
 
-void io_can_init(const CanConfig* can_config)
+void io_can_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
     config = can_config;
@@ -47,7 +47,7 @@ void io_can_init(const CanConfig* can_config)
     rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
 }
 
-void io_can_pushTxMsgToQueue(const CanMsg* msg)
+void io_can_pushTxMsgToQueue(const CanMsg *msg)
 {
     static uint32_t tx_overflow_count = 0;
 
@@ -66,7 +66,7 @@ void io_can_transmitMsgFromQueue(void)
     hw_can_transmit(&tx_msg);
 }
 
-void io_can_popRxMsgFromQueue(CanMsg* msg)
+void io_can_popRxMsgFromQueue(CanMsg *msg)
 {
     // Pop a message off the RX queue.
     osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);

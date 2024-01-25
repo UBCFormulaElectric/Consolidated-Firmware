@@ -8,7 +8,7 @@
 /*
  * Initialize the SBG Ellipse N sensor IO module.
  */
-bool Io_EllipseImu_Init(UART* imu_uart);
+bool Io_EllipseImu_Init(UART *imu_uart);
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.

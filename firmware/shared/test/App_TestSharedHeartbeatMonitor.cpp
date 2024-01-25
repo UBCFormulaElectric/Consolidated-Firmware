@@ -98,7 +98,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_faults)
     heartbeatsToCheck[BMS_HEARTBEAT_BOARD] = true;
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
-    struct HeartbeatMonitor* heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -130,7 +130,7 @@ TEST(SharedHeartbeatMonitorTest, test_create)
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
     // create and assert time fields work
-    struct HeartbeatMonitor* heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -165,7 +165,7 @@ TEST(SharedHeartbeatMonitorTest, test_broadcast_faults)
                                                       [FSM_HEARTBEAT_BOARD] = false,
                                                       [DIM_HEARTBEAT_BOARD] = true };
 
-    struct HeartbeatMonitor* heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 
@@ -231,7 +231,7 @@ TEST(SharedHeartbeatMonitorTest, test_check_in_and_tick)
     heartbeatsToCheck[BMS_HEARTBEAT_BOARD] = true;
     heartbeatsToCheck[DIM_HEARTBEAT_BOARD] = true;
 
-    struct HeartbeatMonitor* heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+    struct HeartbeatMonitor *heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         App_Timer_GetCurrentTimeMS, 100, heartbeatsToCheck, heartbeatCanGetters, heartbeatCanUpdaters,
         &FSM_fakeCanHeartbeatSetter, faultCanSetters, faultCanGetters);
 

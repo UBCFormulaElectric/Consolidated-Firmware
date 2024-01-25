@@ -5,7 +5,7 @@
 #include "Io_SharedSoftwareWatchdog.h"
 
 // Convert our anonymous handle to a software watchdog pointer
-#define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t*)(handle)
+#define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)
 
 typedef struct SoftwareWatchdog
 {
@@ -63,7 +63,7 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
 {
     assert(sw_watchdog_handle != NULL);
 
-    SoftwareWatchdog_t* sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
 
     sw_watchdog->period          = period_in_ticks;
     sw_watchdog->deadline        = period_in_ticks;
@@ -76,7 +76,7 @@ void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watch
 {
     assert(sw_watchdog_handle != NULL);
 
-    SoftwareWatchdog_t* sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
 
     assert(sw_watchdog->initialized == true);
 
@@ -126,6 +126,6 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
 
 uint8_t Io_SharedSoftwareWatchdog_GetTaskId(SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
-    SoftwareWatchdog_t* sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
     return sw_watchdog->task_id;
 }

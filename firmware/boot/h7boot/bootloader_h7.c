@@ -22,6 +22,6 @@ void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
     // into flash. This is guaranteed by canup.
     if (buffer_idx + sizeof(uint64_t) == FLASH_WORD_BYTES)
     {
-        hw_flash_programFlashWord(address / FLASH_WORD_BYTES * FLASH_WORD_BYTES, (uint32_t*)program_buffer);
+        hw_flash_programFlashWord(address / FLASH_WORD_BYTES * FLASH_WORD_BYTES, (uint32_t *)program_buffer);
     }
 }

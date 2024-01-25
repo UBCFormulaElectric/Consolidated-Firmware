@@ -267,7 +267,7 @@ void SystemInit(void)
     {
         /* if stm32h7 revY*/
         /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
-        *((__IO uint32_t*)0x51008108) = 0x000000001U;
+        *((__IO uint32_t *)0x51008108) = 0x000000001U;
     }
 #endif /* STM32H7_DEV_ID */
 

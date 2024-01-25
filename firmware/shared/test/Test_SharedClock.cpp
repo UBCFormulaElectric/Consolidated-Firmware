@@ -12,7 +12,7 @@ class ClockTest : public testing::Test
 
     void TearDown() override { TearDownObject(clock, App_SharedClock_Destroy); }
 
-    struct Clock* clock;
+    struct Clock *clock;
 };
 
 TEST_F(ClockTest, get_current_time_at_zero_second)

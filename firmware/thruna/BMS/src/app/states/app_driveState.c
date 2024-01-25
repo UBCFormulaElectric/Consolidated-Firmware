@@ -3,17 +3,17 @@
 #include "io_airs.h"
 #include "app_airs.h"
 
-static void driveStateRunOnEntry(struct StateMachine* const state_machine)
+static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_DRIVE_STATE);
 }
 
-static void driveStateRunOnTick1Hz(struct StateMachine* const state_machine)
+static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 }
 
-static void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
+static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -26,7 +26,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-static void driveStateRunOnExit(struct StateMachine* const state_machine)
+static void driveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 
@@ -34,7 +34,7 @@ static void driveStateRunOnExit(struct StateMachine* const state_machine)
     io_airs_openPositive();
 }
 
-const struct State* app_driveState_get(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",

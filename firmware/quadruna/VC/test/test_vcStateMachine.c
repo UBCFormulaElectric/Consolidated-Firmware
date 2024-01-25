@@ -45,6 +45,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
     }
 
-    struct StateMachine*     state_machine;
-    struct HeartbeatMonitor* heartbeat_monitor;
+    struct StateMachine     *state_machine;
+    struct HeartbeatMonitor *heartbeat_monitor;
 };

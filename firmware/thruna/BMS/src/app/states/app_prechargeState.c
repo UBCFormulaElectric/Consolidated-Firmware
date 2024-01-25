@@ -28,7 +28,7 @@ static bool checkPrechargeFaults(
     return has_precharge_fault;
 }
 
-static void preChargeStateRunOnEntry(struct StateMachine* const state_machine)
+static void preChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_PRECHARGE_STATE);
     io_airs_closePrecharge();
@@ -38,12 +38,12 @@ static void preChargeStateRunOnEntry(struct StateMachine* const state_machine)
     App_Timer_Restart(&globals->precharge_upper_bound_timer);
 }
 
-static void preChargeStateRunOnTick1Hz(struct StateMachine* const state_machine)
+static void preChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 }
 
-static void preChargeStateRunOnTick100Hz(struct StateMachine* const state_machine)
+static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -81,7 +81,7 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine* const state_machin
         // Else close the AIRs+, reset fault counter and go to Drive State
         else if (ts_voltage >= threshold_voltage)
         {
-            const struct State* next_state;
+            const struct State *next_state;
             if (is_charger_connected)
             {
                 next_state = app_chargeState_get();
@@ -106,7 +106,7 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine* const state_machin
     }
 }
 
-static void preChargeStateRunOnExit(struct StateMachine* const state_machine)
+static void preChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
     // If we entered precharge to charge, disable this request on exit.
     App_CanRx_Debug_StartCharging_Update(false);
@@ -115,7 +115,7 @@ static void preChargeStateRunOnExit(struct StateMachine* const state_machine)
     io_airs_openPrecharge();
 }
 
-const struct State* app_prechargeState_get(void)
+const struct State *app_prechargeState_get(void)
 {
     static struct State pre_charge_state = {
         .name              = "PRECHARGE",

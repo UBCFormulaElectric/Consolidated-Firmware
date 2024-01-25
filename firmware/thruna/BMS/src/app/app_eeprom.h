@@ -18,7 +18,7 @@
  * @param num_floats number of floats to write
  * @return EepromStatus returns success status for debug
  */
-EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float* input_data, uint8_t num_floats);
+EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats);
 
 /**
  * Read float values to EEPROM
@@ -29,7 +29,7 @@ EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float* input_
  * @param num_floats number of floats to read
  * @return EepromStatus returns success status for debug
  */
-EepromStatus app_eeprom_readFloats(uint16_t page, uint8_t offset, float* output_data, uint8_t num_floats);
+EepromStatus app_eeprom_readFloats(uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats);
 
 /**
  * Erase page in EEPROM
@@ -45,14 +45,14 @@ EepromStatus app_eeprom_pageErase(uint16_t page);
  * @param address pointer to the the address to store on the EEPROM
  * @return EepromStatus returns success status for debug
  */
-EepromStatus app_eeprom_updateSavedSocAddress(uint16_t* address);
+EepromStatus app_eeprom_updateSavedSocAddress(uint16_t *address);
 
 /**
  * Read stored copies of last SOC address and perform error checking
  * @param address address where stored SOC values can be found
  * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
  */
-ExitCode app_eeprom_readSocAddress(uint16_t* address);
+ExitCode app_eeprom_readSocAddress(uint16_t *address);
 
 /**
  * Write SOC value of cell with lowest voltage to EEPROM (writes 4 identical copies to protect against data corruption)
@@ -68,4 +68,4 @@ EepromStatus app_eeprom_writeMinSoc(float min_soc, uint16_t address);
  * @param min_soc page on EEPROM to retrieve soc from
  * @return ExitCode returns EXIT_CODE_ERROR in case of data corruption or read error
  */
-ExitCode app_eeprom_readMinSoc(uint16_t address, float* min_soc);
+ExitCode app_eeprom_readMinSoc(uint16_t address, float *min_soc);

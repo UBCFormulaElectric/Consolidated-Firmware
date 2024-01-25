@@ -32,18 +32,18 @@ static bool sendAndReceiveHeartbeat(void)
     return missing_hb;
 }
 
-void driveStateRunOnEntry(struct StateMachine* const state_machine)
+void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
     App_CanTx_FSM_State_Set(FSM_STATE_DRIVE);
 }
 
-void driveStateRunOnTick1Hz(struct StateMachine* state_machine)
+void driveStateRunOnTick1Hz(struct StateMachine *state_machine)
 {
     UNUSED(state_machine);
 }
 
-void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
+void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     // Check for torque plausibility
     float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
@@ -72,12 +72,12 @@ void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-void driveStateRunOnExit(struct StateMachine* const state_machine)
+void driveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State* app_driveState_get(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE STATE",

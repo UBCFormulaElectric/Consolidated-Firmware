@@ -8,10 +8,10 @@
 #include "io_apps.h"
 #include "io_brake.h"
 
-struct Signal* app_agreement_signal;
-struct Signal* papp_alarm_signal;
-struct Signal* sapp_alarm_signal;
-struct Signal* app_brake_signal;
+struct Signal *app_agreement_signal;
+struct Signal *papp_alarm_signal;
+struct Signal *sapp_alarm_signal;
+struct Signal *app_brake_signal;
 
 void app_apps_init(void)
 {

@@ -119,7 +119,7 @@ static bool cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CE
  * @param size The size of the data buffer payload
  * @return The PEC15 code
  */
-static uint16_t calculatePec15(const uint8_t* data_buffer, uint8_t size)
+static uint16_t calculatePec15(const uint8_t *data_buffer, uint8_t size)
 {
     // Initialize the value of the PEC15 remainder to 16
     uint16_t remainder = 16U;
@@ -187,7 +187,7 @@ static void prepareCfgRegBytes(
     }
 }
 
-void io_ltc6813Shared_init(SPI_HandleTypeDef* spi_handle)
+void io_ltc6813Shared_init(SPI_HandleTypeDef *spi_handle)
 {
     assert(spi_handle != NULL);
 
@@ -195,20 +195,20 @@ void io_ltc6813Shared_init(SPI_HandleTypeDef* spi_handle)
     ltc6813_spi = Io_SharedSpi_Create(spi_handle, SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, SPI_TIMEOUT_MS);
 }
 
-uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t* data_buffer)
+uint16_t io_ltc6813Shared_calculateRegGroupPec15(const uint8_t *data_buffer)
 {
     return CHANGE_WORD_ENDIANNESS(calculatePec15(data_buffer, NUM_REG_GROUP_PAYLOAD_BYTES));
 }
 
-void io_ltc6813Shared_packCmdPec15(uint16_t* tx_cmd)
+void io_ltc6813Shared_packCmdPec15(uint16_t *tx_cmd)
 {
     // Pack the PEC15 byte into tx_cmd in big endian format
-    *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t*)tx_cmd, CMD_SIZE_BYTES));
+    *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(calculatePec15((uint8_t *)tx_cmd, CMD_SIZE_BYTES));
 }
 
-void io_ltc6813Shared_packRegisterGroupPec15(uint8_t* tx_cfg)
+void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg)
 {
-    *(uint16_t*)(tx_cfg + NUM_REG_GROUP_PAYLOAD_BYTES) = io_ltc6813Shared_calculateRegGroupPec15(tx_cfg);
+    *(uint16_t *)(tx_cfg + NUM_REG_GROUP_PAYLOAD_BYTES) = io_ltc6813Shared_calculateRegGroupPec15(tx_cfg);
 }
 
 bool io_ltc6813Shared_sendCommand(uint16_t cmd)
@@ -216,7 +216,7 @@ bool io_ltc6813Shared_sendCommand(uint16_t cmd)
     uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-    return Io_SharedSpi_Transmit(ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return Io_SharedSpi_Transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool io_ltc6813Shared_pollAdcConversions(void)
@@ -233,7 +233,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -267,9 +267,9 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
 
         // Write to configuration registers
         Io_SharedSpi_SetNssLow(ltc6813_spi);
-        if (Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t*)tx_cmd, TOTAL_NUM_CMD_BYTES))
+        if (Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
         {
-            if (!Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t*)tx_cfg, NUM_REG_GROUP_RX_BYTES))
+            if (!Io_SharedSpi_TransmitWithoutNssToggle(ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
             {
                 Io_SharedSpi_SetNssHigh(ltc6813_spi);
                 return false;

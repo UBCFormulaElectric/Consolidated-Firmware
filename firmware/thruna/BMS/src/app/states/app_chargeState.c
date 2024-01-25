@@ -6,7 +6,7 @@
 #define CURRENT_AT_MAX_CHARGE (0.05f * C_RATE_TO_AMPS)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
-static void chargeStateRunOnEntry(struct StateMachine* const state_machine)
+static void chargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_CHARGE_STATE);
     io_charger_enable(true);
@@ -15,12 +15,12 @@ static void chargeStateRunOnEntry(struct StateMachine* const state_machine)
     globals->charger_exit_counter         = 0;
 }
 
-static void chargeStateRunOnTick1Hz(struct StateMachine* const state_machine)
+static void chargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 }
 
-static void chargeStateRunOnTick100Hz(struct StateMachine* const state_machine)
+static void chargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -67,7 +67,7 @@ static void chargeStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-static void chargeStateRunOnExit(struct StateMachine* const state_machine)
+static void chargeStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 
@@ -76,7 +76,7 @@ static void chargeStateRunOnExit(struct StateMachine* const state_machine)
     App_CanRx_Debug_StartCharging_Update(false);
 }
 
-const struct State* app_chargeState_get(void)
+const struct State *app_chargeState_get(void)
 {
     static struct State charge_state = {
         .name              = "CHARGE",

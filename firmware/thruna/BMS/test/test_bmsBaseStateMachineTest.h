@@ -145,19 +145,19 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_faultLatch_setCurrentStatus_reset();
     }
 
-    void SetInitialState(const struct State* const initial_state)
+    void SetInitialState(const struct State *const initial_state)
     {
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(NULL, initial_state);
         ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
-    std::vector<const struct State*> GetAllStates(void)
+    std::vector<const struct State *> GetAllStates(void)
     {
-        return std::vector<const struct State*>{ app_initState_get(),     app_prechargeState_get(),
-                                                 app_driveState_get(),    app_chargeState_get(),
-                                                 app_faultState_get(),    app_inverterOnState_get(),
-                                                 app_balancingState_get() };
+        return std::vector<const struct State *>{ app_initState_get(),     app_prechargeState_get(),
+                                                  app_driveState_get(),    app_chargeState_get(),
+                                                  app_faultState_get(),    app_inverterOnState_get(),
+                                                  app_balancingState_get() };
     }
 
     // void CheckInRangeCanSignalsInGivenState(
@@ -198,8 +198,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     //     App_Timer_SetCurrentTimeMS(current_time_ms);
     // }
 
-    struct StateMachine*     state_machine;
-    struct HeartbeatMonitor* heartbeat_monitor;
+    struct StateMachine     *state_machine;
+    struct HeartbeatMonitor *heartbeat_monitor;
 
     const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};

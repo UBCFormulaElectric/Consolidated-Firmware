@@ -9,7 +9,7 @@
  * Initializes a given timer handle for a flow meter
  * @param htim : The timer handle for both flow meters
  */
-void io_coolant_init(TIM_HandleTypeDef* htim);
+void io_coolant_init(TIM_HandleTypeDef *htim);
 
 /**
  * Update the frequency for the primary flow meter's PWM outputs.
@@ -17,7 +17,7 @@ void io_coolant_init(TIM_HandleTypeDef* htim);
  * @param htim: The handle of the timer that triggered the input capture
  *              callback function
  */
-void io_coolant_inputCaptureCallback(TIM_HandleTypeDef* htim);
+void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim);
 #endif
 
 /**

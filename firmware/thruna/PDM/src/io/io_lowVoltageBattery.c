@@ -11,9 +11,9 @@
 #define VBOOST_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 #define VACC_VOLTAGE_DIV (3.1e3f / (20e3f + 3.1e3f))
 
-static const LvBatteryConfig* config;
+static const LvBatteryConfig *config;
 
-void io_lowVoltageBattery_init(const LvBatteryConfig* lv_batt_config)
+void io_lowVoltageBattery_init(const LvBatteryConfig *lv_batt_config)
 {
     config = lv_batt_config;
 }
