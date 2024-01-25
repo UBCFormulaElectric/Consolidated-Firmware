@@ -6,7 +6,7 @@ import multiprocessing
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the command line input
-CLANG_FORMAT_VERSION = "10.0"
+CLANG_FORMAT_VERSION = "17.0.1"
 CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
 CLANG_FORMAT_OPTIONS = " -i --style=file "
 
@@ -31,7 +31,7 @@ EXCLUDE_DIRS = [
 ]
 
 
-def find_all_files() -> bool:
+def find_all_files() -> list[str]:
     """
     Find and return all files to run formatting on.
 
@@ -60,15 +60,14 @@ def find_all_files() -> bool:
     return source_files
 
 
-def run_clang_format(source_file: str) -> str:
+def run_clang_format(source_file: str) -> bool:
     """
     Run clang format against a C/C++ source file, returning True if successful.
-
     """
     # Append the requisite .exe file ending for Windows
     platform = get_platform()
     clang_format_binary = (
-        CLANG_FORMAT_BINARY + {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
+            CLANG_FORMAT_BINARY + {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
     )
     clang_format_cmd = clang_format_binary + CLANG_FORMAT_OPTIONS
 
@@ -78,13 +77,15 @@ def run_clang_format(source_file: str) -> str:
     else:
         command = clang_format_cmd + wrap_in_quotes(source_file)
 
-    return os.system(command) == 0
+    try:
+        return os.system(command) == 0
+    except KeyboardInterrupt:
+        return False
 
 
 def get_platform() -> str:
     """
     Get platform this script is running on.
-
     """
     if sys.platform.startswith("win"):
         return "windows"
@@ -94,32 +95,35 @@ def get_platform() -> str:
         return "linux"
 
 
-def wrap_in_quotes(str: str) -> str:
+def wrap_in_quotes(s: str) -> str:
     """
     Wrap strings in double quotations so paths don't get misinterpreted by bash.
-
     """
-    return f'"{str}"'
+    return f'"{s}"'
 
 
 if __name__ == "__main__":
     # Change into the directory this python file is in so we can use relative paths
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
 
-    # Find all valid files
-    source_files = find_all_files()
+    try:
+        # Find all valid files
+        source_files = find_all_files()
+        # Start a multiprocessing pool to speed up formatting
+        pool = multiprocessing.Pool()
+        results = pool.map(run_clang_format, source_files)
+        pool.close()
+        success = all(results)
+        for i, result in enumerate([result for result in results if not result]):
+            print(f"Encountered an error running clang-format against {source_files[i]}")
+    except KeyboardInterrupt:
+        pool.terminate()
+        success = False
+        print("Interrupted by user")
+    finally:
+        pool.join()
 
-    # Start a multiprocessing pool to speed up formatting
-    pool = multiprocessing.Pool()
-    results = pool.map(run_clang_format, source_files)
-    pool.close()
-    pool.join()
-
-    for i, result in enumerate([result for result in results if not result]):
-        print(f"Encountered an error running clang-format against {source_files[i]}")
-
-    if all(results):
+    if success:
         print("SUCCESS: clang-format ran on all files!")
     else:
         print("ERROR: clang-format encountered issues!")
-        sys.exit(1)

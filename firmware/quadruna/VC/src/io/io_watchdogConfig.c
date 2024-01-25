@@ -1,12 +1,12 @@
 #include "io_watchdogConfig.h"
-#include <stm32h7xx.h>
-#include <string.h>
-#include "hw_hal.h"
 #include "App_CanAlerts.h"
 #include "App_CanTx.h"
 #include "Io_CanTx.h"
 #include "Io_SharedMacros.h"
+#include "hw_hal.h"
 #include "stm32h7xx_hal_iwdg.h"
+#include <stm32h7xx.h>
+#include <string.h>
 
 extern IWDG_HandleTypeDef hiwdg1;
 

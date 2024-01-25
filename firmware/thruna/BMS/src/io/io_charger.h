@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
 #include "App_SharedMacros.h"
+#include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -28,7 +28,7 @@ EMPTY_STRUCT(Charger);
  * Initialize the charger.
  * @param chgr Charger config struct.
  */
-void io_charger_init(const Charger *chgr);
+void io_charger_init(const Charger* chgr);
 
 /**
  * Enable/disable the PON pin of the BRUSA NLG513 charger

@@ -27,11 +27,11 @@ typedef enum
  * Initialize the SBG Ellipse N sensor app module.
  */
 void App_EllipseImu_Init(
-    void (*handle_logs)(void),
+    void     (*handle_logs)(void),
     uint32_t (*get_timestamp)(void),
     uint16_t (*get_general_status)(void),
     uint32_t (*get_com_status)(void),
-    float (*get_sensor_output)(EllipseImuOutput));
+    float    (*get_sensor_output)(EllipseImuOutput));
 
 /*
  * Parse and save all received logs.

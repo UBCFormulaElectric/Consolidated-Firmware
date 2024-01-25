@@ -8,7 +8,7 @@
  * @param htim_left_wheel_speed Timer handle for the left wheel speed
  * @param htim_right_wheel_speed Timer handle for the right wheel speed
  */
-void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef *htim_right_wheel_speed);
+void io_wheels_init(TIM_HandleTypeDef* htim_left_wheel_speed, TIM_HandleTypeDef* htim_right_wheel_speed);
 
 /**
  * Update the frequency for the left and right wheel speed sensors.
@@ -16,7 +16,7 @@ void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef 
  * @param htim The handle of the timer that triggered the input capture callback
  * function
  */
-void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim);
+void io_wheels_inputCaptureCallback(TIM_HandleTypeDef* htim);
 #endif
 
 /**

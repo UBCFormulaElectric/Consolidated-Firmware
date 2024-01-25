@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "hw_hal.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #define CAN_PAYLOAD_BYTES 8
 
@@ -25,7 +25,7 @@ typedef CAN_HandleTypeDef CanHandle;
  * Initialize CAN driver.
  * @param can_handle STM32 HAL CAN handle.
  */
-void hw_can_init(CanHandle *can_handle);
+void hw_can_init(CanHandle* can_handle);
 
 /**
  * Stop and deinitialize the CAN peripheral.
@@ -37,7 +37,7 @@ void hw_can_deinit(void);
  * @param msg CAN msg to be TXed.
  * @return Whether or not the transmission was successful.
  */
-bool hw_can_transmit(const CanMsg *msg);
+bool hw_can_transmit(const CanMsg* msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -45,4 +45,4 @@ bool hw_can_transmit(const CanMsg *msg);
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg);
+bool hw_can_receive(uint32_t rx_fifo, CanMsg* msg);

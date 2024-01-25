@@ -1,9 +1,9 @@
 #include "io_sevenSegDisplays.h"
-#include <stdlib.h>
-#include <stdint.h>
 #include <assert.h>
-#include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <stm32f4xx_hal.h>
+#include <string.h>
 
 // LEDs are controlled by clocking commands into an 8-bit shift register (TPIC6C596PWR), which drives the 7-segs.
 #define SHIFT_REGISTER_SIZE 8
@@ -35,10 +35,10 @@ static const CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
-static const SevenSegsConfig *config;
+static const SevenSegsConfig* config;
 static uint8_t                commands[NUM_SEVEN_SEGS];
 
-void io_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config)
+void io_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config)
 {
     config = seven_segs_config;
     memset(commands, 0U, sizeof(commands));

@@ -1,18 +1,18 @@
-#include <stddef.h>
 #include "states/app_allStates.h"
-#include "App_CanTx.h"
 #include "App_CanRx.h"
-#include "app_globals.h"
-#include "App_SharedMacros.h"
+#include "App_CanTx.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedMacros.h"
+#include "app_globals.h"
 #include "io_lowVoltageBattery.h"
+#include <stddef.h>
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
+void app_allStates_runOnTick1Hz(struct StateMachine* const state_machine)
 {
     UNUSED(state_machine);
 }
 
-void app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+void app_allStates_runOnTick100Hz(struct StateMachine* const state_machine)
 {
     UNUSED(state_machine);
 

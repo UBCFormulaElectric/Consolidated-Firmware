@@ -4,7 +4,7 @@
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
-float hw_adcConversions_rawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value)
+float hw_adcConversions_rawAdcValueToVoltage(ADC_HandleTypeDef* hadc, bool is_differential, uint16_t raw_adc_value)
 {
     uint16_t full_scale = MAX_12_BITS_VALUE;
 

@@ -1,10 +1,9 @@
-#include "states/app_allStates.h"
 #include "App_SharedMacros.h"
 #include "io_airs.h"
 #include "io_faultLatch.h"
-#include "io_airs.h"
+#include "states/app_allStates.h"
 
-static void faultStateRunOnEntry(struct StateMachine *const state_machine)
+static void faultStateRunOnEntry(struct StateMachine* const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_FAULT_STATE);
     App_CanAlerts_BMS_Fault_StateMachine_Set(true);
@@ -13,12 +12,12 @@ static void faultStateRunOnEntry(struct StateMachine *const state_machine)
     io_faultLatch_setCurrentStatus(globals->config->bms_ok_latch, false);
 }
 
-static void faultStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void faultStateRunOnTick1Hz(struct StateMachine* const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 }
 
-static void faultStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void faultStateRunOnTick100Hz(struct StateMachine* const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -35,13 +34,13 @@ static void faultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
-static void faultStateRunOnExit(struct StateMachine *const state_machine)
+static void faultStateRunOnExit(struct StateMachine* const state_machine)
 {
     UNUSED(state_machine);
     App_CanAlerts_BMS_Fault_StateMachine_Set(false);
 }
 
-const struct State *app_faultState_get()
+const struct State* app_faultState_get()
 {
     static struct State fault_state = {
         .name              = "FAULT",

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
+SdCardStatus hw_sd_read(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
         ;
@@ -15,7 +15,7 @@ SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_
     return (SdCardStatus)status;
 }
 
-SdCardStatus hw_sd_readOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_readOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
     uint32_t     block_size = sd->hsd->SdCard.BlockSize;
     SdCardStatus status     = SD_CARD_OK;
@@ -42,7 +42,7 @@ SdCardStatus hw_sd_readOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, u
     return status;
 }
 
-SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
+SdCardStatus hw_sd_write(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
         ;
@@ -52,7 +52,7 @@ SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32
     return (SdCardStatus)status;
 }
 
-SdCardStatus hw_sd_writeOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
+SdCardStatus hw_sd_writeOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
     uint32_t     block_size = sd->hsd->SdCard.BlockSize;
     SdCardStatus status     = SD_CARD_OK;
@@ -79,7 +79,7 @@ SdCardStatus hw_sd_writeOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
     return status;
 }
 
-SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
+SdCardStatus hw_sd_erase(SdCard* sd, uint32_t start_addr, uint32_t end_addr)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
         ;

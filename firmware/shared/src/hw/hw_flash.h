@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #if defined(STM32F412Rx)
 
@@ -36,7 +36,7 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  * @param size Size of data to write, in bytes.
  * @return True if successful, otherwise false.
  */
-bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
+bool hw_flash_program(uint32_t address, uint8_t* buffer, uint32_t size);
 
 #elif defined(STM32H733xx)
 
@@ -48,7 +48,7 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
  * @param data Data to write.
  * @return True if successful, otherwise false.
  */
-bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
+bool hw_flash_programFlashWord(uint32_t address, uint32_t* data);
 
 #endif
 

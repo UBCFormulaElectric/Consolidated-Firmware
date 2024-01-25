@@ -6,14 +6,14 @@
  *
  */
 
-#include "Test_Dcm.h"
-#include "App_SharedMacros.h"
 #include "App_SharedConstants.h"
+#include "App_SharedMacros.h"
+#include "Test_Dcm.h"
 
 extern "C"
 {
-#include "App_PowerLimiting.h"
 #include "App_ActiveDifferential.h"
+#include "App_PowerLimiting.h"
 #include "App_SharedDcmConstants.h"
 #include "App_TorqueVectoring.h"
 #include "math.h"

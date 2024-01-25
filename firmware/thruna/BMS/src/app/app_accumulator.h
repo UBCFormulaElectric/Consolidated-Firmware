@@ -1,13 +1,13 @@
 #pragma once
 
+#include "App_CanTx.h"
+#include "App_SharedConstants.h"
+#include "app_tractiveSystem.h"
+#include "ltc6813/io_ltc6813Shared.h"
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <assert.h>
-#include "App_SharedConstants.h"
-#include "App_CanTx.h"
-#include "app_tractiveSystem.h"
-#include "ltc6813/io_ltc6813Shared.h"
 
 // Min and Max cell temperatures depending on state
 // C_RATE_TO_AMP conversion value is obtained by using the 5.9Ahrs
@@ -68,7 +68,7 @@ float app_accumulator_getPackVoltage(void);
  * @param cell The cell with the min voltage (NULL if you don't care).
  * @return Minimum cell voltage.
  */
-float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
+float app_accumulator_getMinCellVoltage(uint8_t* segment, uint8_t* cell);
 
 /**
  * Get the maximum cell voltage, in V.
@@ -76,4 +76,4 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  * @param cell The cell with the max voltage (NULL if you don't care).
  * @return Maximum cell voltage.
  */
-float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
+float app_accumulator_getMinCellVoltage(uint8_t* segment, uint8_t* cell);

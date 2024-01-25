@@ -1,13 +1,13 @@
 #include "app_brake.h"
-#include <stdlib.h>
-#include <assert.h>
-#include "App_InRangeCheck.h"
-#include "App_CanTx.h"
 #include "App_CanAlerts.h"
+#include "App_CanTx.h"
+#include "App_InRangeCheck.h"
 #include "io_brake.h"
+#include <assert.h>
+#include <stdlib.h>
 
-static struct InRangeCheck *front_pressure_in_range_check;
-static struct InRangeCheck *rear_pressure_in_range_check;
+static struct InRangeCheck* front_pressure_in_range_check;
+static struct InRangeCheck* rear_pressure_in_range_check;
 
 void app_brake_init()
 {

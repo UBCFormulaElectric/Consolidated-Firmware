@@ -7,7 +7,7 @@ namespace EepromTest
 static uint8_t static_byte_array[EEPROM_PAGE_SIZE];
 
 // callback stores byte_array input into Io_Eeprom_WriteByte in static_byte_array to mimic writing to memory
-static EepromStatus write_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+static EepromStatus write_byte_callback(uint16_t page, uint8_t offset, uint8_t* byte_arr, uint16_t size)
 {
     for (int i = 0; i < size; i++)
     {
@@ -18,7 +18,7 @@ static EepromStatus write_byte_callback(uint16_t page, uint8_t offset, uint8_t *
 
 // callback stores copies stored static_byte_array into array pointed to in argument list of Io_Eeprom_ReadByte
 // to mimic reading from memory
-static EepromStatus read_byte_callback(uint16_t page, uint8_t offset, uint8_t *byte_arr, uint16_t size)
+static EepromStatus read_byte_callback(uint16_t page, uint8_t offset, uint8_t* byte_arr, uint16_t size)
 {
     for (int i = 0; i < size; i++)
     {

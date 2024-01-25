@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include "Test_Utils.h"
+#include <gtest/gtest.h>
 
 extern "C"
 {

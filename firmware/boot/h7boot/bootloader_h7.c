@@ -1,8 +1,8 @@
 #include "bootloader.h"
-#include <string.h>
-#include <stdint.h>
 #include "hw_flash.h"
 #include "hw_hal.h"
+#include <stdint.h>
+#include <string.h>
 
 #define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t))
 
@@ -22,6 +22,6 @@ void bootloader_boardSpecific_program(uint32_t address, uint64_t data)
     // into flash. This is guaranteed by canup.
     if (buffer_idx + sizeof(uint64_t) == FLASH_WORD_BYTES)
     {
-        hw_flash_programFlashWord(address / FLASH_WORD_BYTES * FLASH_WORD_BYTES, (uint32_t *)program_buffer);
+        hw_flash_programFlashWord(address / FLASH_WORD_BYTES * FLASH_WORD_BYTES, (uint32_t*)program_buffer);
     }
 }

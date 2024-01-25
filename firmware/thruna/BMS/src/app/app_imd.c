@@ -1,11 +1,11 @@
-#include "io_imd.h"
 #include "app_imd.h"
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "App_CanUtils.h"
 #include "App_CanTx.h"
+#include "App_CanUtils.h"
 #include "App_SharedMacros.h"
+#include "io_imd.h"
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 

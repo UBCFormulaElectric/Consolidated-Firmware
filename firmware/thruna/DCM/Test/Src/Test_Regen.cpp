@@ -2,18 +2,18 @@
 
 extern "C"
 {
-#include "App_SharedStateMachine.h"
-#include "App_SharedDcmConstants.h"
-#include "App_SharedMacros.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
-#include "App_Regen.h"
-#include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_CanTx.h"
 #include "App_CanUtils.h"
 #include "App_PowerLimiting.h"
+#include "App_Regen.h"
+#include "App_SharedDcmConstants.h"
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
 #include "App_VehicleDynamicsControl.h"
 #include "math.h"
+#include "states/App_DriveState.h"
+#include "states/App_InitState.h"
 #include <assert.h>
 }
 

@@ -1,9 +1,9 @@
+#include "Io_SoftwareWatchdog.h"
+#include "App_CanAlerts.h"
+#include "App_CanTx.h"
+#include "Io_SharedMacros.h"
 #include <stm32f4xx.h>
 #include <string.h>
-#include "App_CanTx.h"
-#include "App_CanAlerts.h"
-#include "Io_SoftwareWatchdog.h"
-#include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 

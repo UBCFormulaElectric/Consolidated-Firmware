@@ -22,12 +22,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "string.h"
-#include "hw_hardFaultHandler.h"
-#include "hw_can.h"
 #include "hw_bootup.h"
+#include "hw_can.h"
+#include "hw_hardFaultHandler.h"
 #include "io_can.h"
 #include "io_log.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,9 +98,9 @@ static CanConfig can_config = {
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN2_Init(void);
-void        runDefaultTask(void *argument);
-void        runCanTxTask(void *argument);
-void        runCanRxTask(void *argument);
+void        runDefaultTask(void* argument);
+void        runCanTxTask(void* argument);
+void        runCanRxTask(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -371,7 +371,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_runDefaultTask */
-void runDefaultTask(void *argument)
+void runDefaultTask(void* argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
@@ -397,7 +397,7 @@ void runDefaultTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void *argument)
+void runCanTxTask(void* argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
@@ -415,7 +415,7 @@ void runCanTxTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_runCanRxTask */
-void runCanRxTask(void *argument)
+void runCanRxTask(void* argument)
 {
     /* USER CODE BEGIN runCanRxTask */
     /* Infinite loop */
@@ -435,7 +435,7 @@ void runCanRxTask(void *argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
     /* USER CODE BEGIN Callback 0 */
 
@@ -472,7 +472,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     /* User can add his own implementation to report the file name and line number,

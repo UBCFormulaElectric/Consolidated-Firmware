@@ -146,8 +146,8 @@ extern "C"
 
 #if !defined(LSI_VALUE)
 #define LSI_VALUE (32000UL) /*!< LSI Typical Value in Hz*/
-#endif /* LSI_VALUE */      /*!< Value of the Internal Low Speed oscillator in Hz \
-                              The real value may vary depending on the variations \
+#endif /* LSI_VALUE */      /*!< Value of the Internal Low Speed oscillator in Hz                                      \
+                              The real value may vary depending on the variations                                      \
                               in voltage and temperature.*/
 
 /**
@@ -502,9 +502,9 @@ extern "C"
      *         If expr is true, it returns no value.
      * @retval None
      */
-#define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
+#define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t*)__FILE__, __LINE__))
     /* Exported functions ------------------------------------------------------- */
-    void assert_failed(uint8_t *file, uint32_t line);
+    void assert_failed(uint8_t* file, uint32_t line);
 #else
 #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */

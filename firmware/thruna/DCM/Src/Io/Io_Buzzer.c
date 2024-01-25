@@ -1,6 +1,6 @@
-#include <stm32f4xx.h>
-#include "main.h"
 #include "Io_Buzzer.h"
+#include "main.h"
+#include <stm32f4xx.h>
 
 void Io_Buzzer_TurnOn(void)
 {

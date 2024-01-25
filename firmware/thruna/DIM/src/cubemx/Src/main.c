@@ -25,37 +25,37 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
+#include "App_CanAlerts.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
-#include "states/app_driveState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_avgPower.h"
 #include "app_globals.h"
 #include "app_sevenSegDisplays.h"
-#include "app_avgPower.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "states/app_driveState.h"
 
-#include "Io_CanTx.h"
 #include "Io_CanRx.h"
+#include "Io_CanTx.h"
 #include "Io_SharedErrorHandlerOverride.h"
-#include "hw_hardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
+#include "hw_hardFaultHandler.h"
 
-#include "io_time.h"
-#include "io_led.h"
-#include "io_switch.h"
-#include "io_rgbLed.h"
-#include "io_watchdogConfig.h"
-#include "io_stackWaterMark.h"
-#include "io_sevenSegDisplays.h"
 #include "io_can.h"
-#include "io_jsoncan.h"
 #include "io_canConfig.h"
+#include "io_jsoncan.h"
+#include "io_led.h"
+#include "io_rgbLed.h"
+#include "io_sevenSegDisplays.h"
+#include "io_stackWaterMark.h"
+#include "io_switch.h"
+#include "io_time.h"
+#include "io_watchdogConfig.h"
 
 #include "hw_bootup.h"
-#include "hw_gpio.h"
 #include "hw_can.h"
+#include "hw_gpio.h"
 #include "io_log.h"
 
 /* USER CODE END Includes */
@@ -148,20 +148,20 @@ static const CanConfig can_config = {
     .rx_overflow_callback = io_canConfig_rxOverflowCallback,
 };
 
-struct StateMachine *    state_machine;
-struct HeartbeatMonitor *heartbeat_monitor;
+struct StateMachine*     state_machine;
+struct HeartbeatMonitor* heartbeat_monitor;
 
 static const BinaryLed imd_led   = { .gpio = {
-                                       .port = IMD_LED_GPIO_Port,
-                                       .pin  = IMD_LED_Pin,
+                                         .port = IMD_LED_GPIO_Port,
+                                         .pin  = IMD_LED_Pin,
                                    } };
 static const BinaryLed bspd_led  = { .gpio = {
-                                        .port = BSPD_LED_GPIO_Port,
-                                        .pin  = BSPD_LED_Pin,
+                                         .port = BSPD_LED_GPIO_Port,
+                                         .pin  = BSPD_LED_Pin,
                                     } };
 static const BinaryLed shdn_led  = { .gpio = {
-                                        .port = SHDN_LED_GPIO_Port,
-                                        .pin  = SHDN_LED_Pin,
+                                         .port = SHDN_LED_GPIO_Port,
+                                         .pin  = SHDN_LED_Pin,
                                     } };
 static const BinaryLed drive_led = { .gpio = {
                                          .port = IGNTN_LED_GPIO_Port,
@@ -334,11 +334,11 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
-void        RunTask100Hz(void *argument);
-void        RunTaskCanRx(void *argument);
-void        RunTaskCanTx(void *argument);
-void        RunTask1kHz(void *argument);
-void        RunTask1Hz(void *argument);
+void        RunTask100Hz(void* argument);
+void        RunTaskCanRx(void* argument);
+void        RunTaskCanTx(void* argument);
+void        RunTask1kHz(void* argument);
+void        RunTask1Hz(void* argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -675,7 +675,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void *argument)
+void RunTask100Hz(void* argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -709,7 +709,7 @@ void RunTask100Hz(void *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void *argument)
+void RunTaskCanRx(void* argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
@@ -734,7 +734,7 @@ void RunTaskCanRx(void *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void *argument)
+void RunTaskCanTx(void* argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
@@ -754,7 +754,7 @@ void RunTaskCanTx(void *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void *argument)
+void RunTask1kHz(void* argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
@@ -795,7 +795,7 @@ void RunTask1kHz(void *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void *argument)
+void RunTask1Hz(void* argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
@@ -834,7 +834,7 @@ void RunTask1Hz(void *argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
     /* USER CODE BEGIN Callback 0 */
 
@@ -867,7 +867,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t *file, uint32_t line)
+void assert_failed(uint8_t* file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     __assert_func(file, line, "assert_failed", "assert_failed");

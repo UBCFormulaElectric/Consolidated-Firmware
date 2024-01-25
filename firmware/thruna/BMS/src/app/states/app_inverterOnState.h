@@ -6,7 +6,7 @@
  * Get a pointer to the Inverter State.
  * @return A pointer to the Inverter State.
  */
-const struct State *app_inverterOnState_get(void);
+const struct State* app_inverterOnState_get(void);
 
 /**
  * Reset hasTimePassed bool

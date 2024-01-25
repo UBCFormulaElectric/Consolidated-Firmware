@@ -21,7 +21,7 @@ typedef enum
  * @param size the size of the data to be written in bytes
  * @return EepromStatus returns success status for debug
  */
-EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t* data, uint16_t size);
 
 /**
  * Read from EEPROM
@@ -31,7 +31,7 @@ EepromStatus io_eeprom_writePage(uint16_t page, uint8_t offset, uint8_t *data, u
  * @param size the size of the data to be read in bytes
  * @return EepromStatus returns success status for debug
  */
-EepromStatus io_eeprom_readPage(uint16_t page, uint8_t offset, uint8_t *data, uint16_t size);
+EepromStatus io_eeprom_readPage(uint16_t page, uint8_t offset, uint8_t* data, uint16_t size);
 
 /**
  * Erase page in EEPROM

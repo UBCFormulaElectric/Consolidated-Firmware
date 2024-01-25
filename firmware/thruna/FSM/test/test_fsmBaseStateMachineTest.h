@@ -1,31 +1,31 @@
-#include <gtest/gtest.h>
-#include "Test_Utils.h"
 #include "Test_BaseStateMachineTest.h"
+#include "Test_Utils.h"
+#include <gtest/gtest.h>
 
-#include "fake_io_time.hpp"
 #include "fake_io_apps.hpp"
 #include "fake_io_brake.hpp"
 #include "fake_io_coolant.hpp"
 #include "fake_io_steering.hpp"
+#include "fake_io_time.hpp"
 #include "fake_io_wheels.hpp"
 
 extern "C"
 {
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedStateMachine.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 #include "App_CanUtils.h"
+#include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedMacros.h"
-#include "states/app_driveState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "app_globals.h"
+#include "App_SharedStateMachine.h"
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_coolant.h"
+#include "app_globals.h"
 #include "app_steering.h"
 #include "app_wheels.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "states/app_driveState.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -113,6 +113,6 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_steering_sensorOCSC_reset();
     }
 
-    struct StateMachine *    state_machine;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    struct StateMachine*     state_machine;
+    struct HeartbeatMonitor* heartbeat_monitor;
 };

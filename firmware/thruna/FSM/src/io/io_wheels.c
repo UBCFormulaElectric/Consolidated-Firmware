@@ -1,8 +1,8 @@
 #include "io_wheels.h"
+#include "Io_SharedFreqOnlyPwmInput.h"
+#include "main.h"
 #include <assert.h>
 #include <math.h>
-#include "main.h"
-#include "Io_SharedFreqOnlyPwmInput.h"
 
 // Note: Unit for length is measured in metres unless specified
 static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6f;
@@ -13,7 +13,7 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 
 static struct FreqOnlyPwmInput *left_wheel_speed_sensor, *right_wheel_speed_sensor;
 
-void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed_sensor, TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
+void io_wheels_init(TIM_HandleTypeDef* htim_left_wheel_speed_sensor, TIM_HandleTypeDef* htim_right_wheel_speed_sensor)
 {
     assert(htim_left_wheel_speed_sensor != NULL);
     assert(htim_right_wheel_speed_sensor != NULL);
@@ -27,7 +27,7 @@ void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed_sensor, TIM_HandleT
         HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
-void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim)
+void io_wheels_inputCaptureCallback(TIM_HandleTypeDef* htim)
 {
     if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(left_wheel_speed_sensor) &&
         htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(left_wheel_speed_sensor))

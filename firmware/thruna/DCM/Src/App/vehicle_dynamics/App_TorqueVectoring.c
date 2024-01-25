@@ -1,13 +1,13 @@
 #include "App_TorqueVectoring.h"
-#include "App_SharedDcmConstants.h"
-#include "App_PowerLimiting.h"
 #include "App_ActiveDifferential.h"
-#include "App_TractionControl.h"
-#include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "App_PowerLimiting.h"
 #include "App_SharedConstants.h"
+#include "App_SharedDcmConstants.h"
+#include "App_SharedMacros.h"
+#include "App_Timer.h"
+#include "App_TractionControl.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;

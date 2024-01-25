@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdbool.h>
 #include "App_SharedConstants.h"
 #include "App_SharedMacros.h"
+#include <stdbool.h>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -39,7 +39,7 @@ typedef enum
 /**
  * Initialize the 7-seg displays.
  */
-void io_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config);
+void io_sevenSegDisplays_init(const SevenSegsConfig* seven_segs_config);
 
 /**
  * Issue commands to the shift registers controlling the 7-segment displays.

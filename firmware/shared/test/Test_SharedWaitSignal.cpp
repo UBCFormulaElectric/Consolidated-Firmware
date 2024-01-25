@@ -5,8 +5,8 @@ extern "C"
 #include "App_SharedWaitSignal.h"
 }
 
-FAKE_VALUE_FUNC(bool, is_wait_high, struct World *);
-FAKE_VOID_FUNC(wait_callback_function, struct World *);
+FAKE_VALUE_FUNC(bool, is_wait_high, struct World*);
+FAKE_VOID_FUNC(wait_callback_function, struct World*);
 
 class SharedWaitSignalTest : public testing::Test
 {
@@ -109,9 +109,9 @@ class SharedWaitSignalTest : public testing::Test
         }
     }
 
-    struct WaitSignal *       wait_signal;
+    struct WaitSignal*        wait_signal;
     struct WaitSignalCallback callback;
-    struct TestWorld *        world;
+    struct TestWorld*         world;
 
     // The duration is more-or-less arbitrarily chosen. It should be enough
     // duration to give us confidence in the test without making the test too

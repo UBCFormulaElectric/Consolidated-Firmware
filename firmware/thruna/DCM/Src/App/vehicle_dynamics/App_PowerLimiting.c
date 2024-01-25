@@ -1,15 +1,15 @@
-#include <math.h>
 #include "App_PowerLimiting.h"
-#include "App_SharedDcmConstants.h"
-#include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_CanTx.h"
+#include "App_SharedDcmConstants.h"
+#include <math.h>
 
 /**
  * @note Computes the max allowable power draw from the battery based on motor temps,
  * the battery power limit (calculated by BMS), and accelerator pedal position.
  * @return A float for the maximum power allowed from the motor,
  */
-float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *inputs)
+float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs* inputs)
 {
     float max_motor_temp = fmaxf(inputs->left_motor_temp_C, inputs->right_motor_temp_C);
 

@@ -1,8 +1,8 @@
 #include "io_coolant.h"
-#include <assert.h>
-#include "main.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "hw_adc.h"
+#include "main.h"
+#include <assert.h>
 #include <math.h>
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
@@ -28,9 +28,9 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log(rtherm / R0) / B_COEFFIECNT)
 
-static struct FreqOnlyPwmInput *flow_meter;
+static struct FreqOnlyPwmInput* flow_meter;
 
-void io_coolant_init(TIM_HandleTypeDef *htim)
+void io_coolant_init(TIM_HandleTypeDef* htim)
 {
     assert(htim != NULL);
 
@@ -38,7 +38,7 @@ void io_coolant_init(TIM_HandleTypeDef *htim)
         htim, TIMx_FREQUENCY / TIM8_PRESCALER, TIM_CHANNEL_1, TIM8_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
-void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
+void io_coolant_inputCaptureCallback(TIM_HandleTypeDef* htim)
 {
     if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(flow_meter) &&
         htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(flow_meter))

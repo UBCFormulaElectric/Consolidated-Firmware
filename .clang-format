@@ -1,5 +1,4 @@
 ﻿---
-Language: C
 Language: Cpp
 
 # Aligns parameters contained within open brackets
@@ -8,33 +7,26 @@ Language: Cpp
 AlignAfterOpenBracket: AlwaysBreak
 
 # Aligns the assignment operators                     
-AlignConsecutiveAssignments: 'true'
+AlignConsecutiveAssignments: true
 
 # Aligns the variable names
-AlignConsecutiveDeclarations: 'true'
-
-# Align "\" new-line characters as far left as possible
-# define A    \
-#   int aaaa; \
-#   int b;    \
-#   int dddddddddd;
-AlignEscapedNewlinesLeft: 'true'
+AlignConsecutiveDeclarations: true
 
 # Aligns operands that need to be split over multiple lines
-AlignOperands: 'true'
+AlignOperands: true
 
 # Align comments
-AlignTrailingComments: 'true'
+AlignTrailingComments: true
 
 # if function declaration doesn't fit on a line, put all params
 # of function dec. onto next line. Overrides BinPackParameters option
 # void myFunc(
 #       int a, int b, int c, int d, int e);
-AllowAllParametersOfDeclarationOnNextLine: 'false'
+AllowAllParametersOfDeclarationOnNextLine: false
 
 # Allows braced statements to be on a single line
 # e.g. if (eval) { return true; }
-AllowShortBlocksOnASingleLine: 'false'
+AllowShortBlocksOnASingleLine: Never
 
 # only merge functions defined inside a class, including empty ones
 # Other options include "empty" where onyl empty functions are inline
@@ -47,29 +39,29 @@ AllowShortFunctionsOnASingleLine: Inline
 # vs.
 # if (a)
 #     operation;
-AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortIfStatementsOnASingleLine: false
 
 # self-explanatory. 
-AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: false
 
 # self-explanatory. for(;;) operation;
-AllowShortLoopsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: false
 
 # break long strings into multiple lines and then align the strings
-AlwaysBreakBeforeMultilineStrings: 'false'
+AlwaysBreakBeforeMultilineStrings: false
 
 # Forces the params and names following the template decl. to
 # break into multiline
 # e.g.
 # template <typename T> 
 # T foo (int a, int b)
-AlwaysBreakTemplateDeclarations: 'false'
+AlwaysBreakTemplateDeclarations: No
 
 # if false, a function call's arguments get their own lines
-BinPackArguments: 'true'
+BinPackArguments: true
 
 # if false, a function declaration's args get their own lines
-BinPackParameters: 'false'
+BinPackParameters: false
 
 # forces the operator to be the end of line and the second monomial
 # term to a new line
@@ -79,12 +71,12 @@ BinPackParameters: 'false'
 BreakBeforeBinaryOperators: None
 
 # forces each operand to a new line
-BreakBeforeTernaryOperators: 'true'
+BreakBeforeTernaryOperators: true
 
 BreakBeforeBraces: Allman
 
 # self-explanatory
-ColumnLimit: '120'
+ColumnLimit: 120
 
 # stop clang from trying to format the special
 # Cube-generated starting and ending comments
@@ -92,45 +84,45 @@ CommentPragmas: '^( #####(\#+))'
 
 # Either fits all the constructor call args onto one line
 # or each param gets their own line if they don't fit
-ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 
 # number of char to use for indentation of contructor initializer lists
 # class::construct() : \noOfChars a(a), \noOfChars b(b) {};
-ConstructorInitializerIndentWidth: '2'
+ConstructorInitializerIndentWidth: 2
 
 # indent width length for line continuations
 # int i =
 # \noOfChars function(
 # 2*\noOfChars arg);
-ContinuationIndentWidth: '4'
+ContinuationIndentWidth: 4
 
 # Format braced lists as best suited for C++11 braced lists
-# Important Differences (if 'true')
+# Important Differences (if true)
 # - no spaces inside the braced lists
 # - no line break before closing brace
 # - indentation with the continuation indentation, not with block indent
-Cpp11BracedListStyle: 'false'
+Cpp11BracedListStyle: false
 
 # "case" keywords are indented from the "switch"
-IndentCaseLabels: 'true'
+IndentCaseLabels: true
 
 # self-explanatory
-IndentWidth: '4'
+IndentWidth: 4
 
 # indent if function def or declaration is wrapped after the type
 # e.g.
 # stupidlyLongReturnType
 #   stupidlyLongFunctionDeclaration();
-IndentWrappedFunctionNames: 'true'
+IndentWrappedFunctionNames: true
 
 # empty line at start of new scope is kept
-KeepEmptyLinesAtTheStartOfBlocks: 'false'
+KeepEmptyLinesAtTheStartOfBlocks: false
 
-# Changed this. Made it C specific. Should also be right aligned.
+# Changed this. Made it C specific. Should also be left aligned.
 # "Left"   : Leave the pointer character in a variable declaration to the left (e.g. int* a)
 # "Right"  : Align pointer to right (e.g. int *a)
 # "Middle" : Align pointer between type and var name (e.g. int * a)
-PointerAlignment: Right
+PointerAlignment: Left
 
 # if "None", no namespaces are indented
 # if "Inner", only inner namespaces are indented
@@ -138,22 +130,22 @@ PointerAlignment: Right
 NamespaceIndentation: Inner
 
 # splits long comments into multiline
-ReflowComments: 'true'
+ReflowComments: true
 
 # lists of the include headers in alphabetical order
-SortIncludes: 'false'
-
-# TODO: Enable me when clang-format has been updated to understand me 
-#SortUsingDeclarations: 'false'
-
-# inserts a space between casts and the variables they're targeting
-SpaceAfterCStyleCast: 'false'
+SortIncludes: CaseSensitive
 
 # TODO: Enable me when clang-format has been updated to understand me
-#SpaceAfterTemplateKeyword: 'false'
+#SortUsingDeclarations: false
+
+# inserts a space between casts and the variables they're targeting
+SpaceAfterCStyleCast: false
+
+# TODO: Enable me when clang-format has been updated to understand me
+#SpaceAfterTemplateKeyword: false
 
 # self-explanatory
-SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeAssignmentOperators: true
 
 # "Never"             : don't put a space before opening parantheses
 # "ControlStatements" : only put space before parantheses belonging to ctrl statements
@@ -161,28 +153,28 @@ SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: ControlStatements
 
 # self-explanatory
-SpaceInEmptyParentheses: 'false'
+SpaceInEmptyParentheses: false
 
 # number of spaces before c-style comments "//"
-SpacesBeforeTrailingComments: '1'
+SpacesBeforeTrailingComments: 1
 
 # spaces inserted after < and before > in template argument lists
-SpacesInAngles: 'false'
+SpacesInAngles: false
 
 # Spaces in parantheses for casting e.g. ( int )
-SpacesInCStyleCastParentheses: 'false'
+SpacesInCStyleCastParentheses: false
 
 # Spaces inserted between array brackets
-SpacesInContainerLiterals: 'false'
+SpacesInContainerLiterals: false
 
 # self-explanatory
-SpacesInParentheses: 'false'
+SpacesInParentheses: false
 
 # self-explanatory
-SpacesInSquareBrackets: 'false'
+SpacesInSquareBrackets: false
 
 # self-explanatory
-TabWidth: '4'
+TabWidth: 4
 
 # self-explanatory
 UseTab: Never

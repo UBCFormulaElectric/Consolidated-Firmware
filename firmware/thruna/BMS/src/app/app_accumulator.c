@@ -1,14 +1,14 @@
 #include "app_accumulator.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 #include "App_CanAlerts.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 #include "App_SharedProcessing.h"
-#include "ltc6813/io_ltc6813Shared.h"
-#include "ltc6813/io_ltc6813CellVoltages.h"
 #include "ltc6813/io_ltc6813CellTemps.h"
+#include "ltc6813/io_ltc6813CellVoltages.h"
+#include "ltc6813/io_ltc6813Shared.h"
 
-#include <string.h>
 #include <float.h>
+#include <string.h>
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
@@ -33,14 +33,14 @@
 #define SEG4_CELL8_THERMISTOR (2U)
 
 // Update the counter keeping track of the PEC15 error
-#define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
-    if ((is_pec_ok))                                        \
-    {                                                       \
-        (num_comm_tries) = 0U;                              \
-    }                                                       \
-    else                                                    \
-    {                                                       \
-        (num_comm_tries)++;                                 \
+#define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries)                                                            \
+    if ((is_pec_ok))                                                                                                   \
+    {                                                                                                                  \
+        (num_comm_tries) = 0U;                                                                                         \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        (num_comm_tries)++;                                                                                            \
     }
 
 typedef enum
@@ -152,9 +152,9 @@ static void app_accumulator_balanceCells(void)
     io_ltc6813Shared_writeConfigurationRegisters(true);
 
     // Balance PWM settings
-    float balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
-                                 ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
-                                 : BALANCE_DEFAULT_FREQ;
+    float    balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                    ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
+                                    : BALANCE_DEFAULT_FREQ;
     uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancingOverridePWM_Get()
                                     ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get()
                                     : BALANCE_DEFAULT_DUTY;
@@ -336,7 +336,7 @@ float app_accumulator_getPackVoltage(void)
     return data.voltage_stats.pack_voltage;
 }
 
-float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
+float app_accumulator_getMinCellVoltage(uint8_t* segment, uint8_t* cell)
 {
     if (segment != NULL)
     {
@@ -351,7 +351,7 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
     return data.voltage_stats.min_voltage.voltage;
 }
 
-float app_accumulator_getMaxCellVoltage(uint8_t *segment, uint8_t *cell)
+float app_accumulator_getMaxCellVoltage(uint8_t* segment, uint8_t* cell)
 {
     if (segment != NULL)
     {

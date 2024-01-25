@@ -1,14 +1,14 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "App_EllipseImu.h"
 #include "hw_uart.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 /*
  * Initialize the SBG Ellipse N sensor IO module.
  */
-bool Io_EllipseImu_Init(UART *imu_uart);
+bool Io_EllipseImu_Init(UART* imu_uart);
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.

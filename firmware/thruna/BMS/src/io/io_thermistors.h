@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "App_SharedMacros.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
 #include "hw_adc.h"
+#include "hw_gpio.h"
 
 typedef struct
 {
@@ -24,7 +24,7 @@ EMPTY_STRUCT(ThermistorsConfig);
  * Initialize the thermistors driver.
  * @param therm_config Config struct.
  */
-void io_thermistors_init(const ThermistorsConfig *therm_config);
+void io_thermistors_init(const ThermistorsConfig* therm_config);
 
 /**
  * Change the selected Mux Channel

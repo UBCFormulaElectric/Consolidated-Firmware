@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdio.h>
 #include "App_SharedMacros.h"
+#include <stdio.h>
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
@@ -43,5 +43,5 @@ Notes
 #define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 #endif
 
-#define _LOG(level, format, ...) \
+#define _LOG(level, format, ...)                                                                                       \
     _LOG_PRINTF("[" level ANSI_RESET "] (%s:%u) " format "\n", __BASENAME__(__FILE__), __LINE__, ##__VA_ARGS__)

@@ -1,21 +1,21 @@
-#include <math.h>
-#include <functional>
-#include "Test_Dcm.h"
 #include "Test_BaseStateMachineTest.h"
+#include "Test_Dcm.h"
+#include <functional>
+#include <math.h>
 
 extern "C"
 {
-#include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
+#include "App_CanUtils.h"
 #include "App_SharedConstants.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
+#include "configs/App_AccelerationThresholds.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WaitSignalDuration.h"
-#include "configs/App_AccelerationThresholds.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanUtils.h"
+#include "states/App_DriveState.h"
+#include "states/App_InitState.h"
 }
 
 namespace StateMachineTest
@@ -142,31 +142,31 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
-    void SetInitialState(const struct State *const initial_state)
+    void SetInitialState(const struct State* const initial_state)
     {
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
         ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
-    std::vector<const struct State *> GetAllStates(void)
+    std::vector<const struct State*> GetAllStates(void)
     {
-        return std::vector<const struct State *>{
+        return std::vector<const struct State*>{
             App_GetInitState(),
             app_driveState_get(),
         };
     }
 
-    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
+    void UpdateClock(struct StateMachine* state_machine, uint32_t current_time_ms) override
     {
-        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *   clock = App_DcmWorld_GetClock(world);
+        struct DcmWorld* world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock*    clock = App_DcmWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
     }
 
-    void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
+    void UpdateSignals(struct StateMachine* state_machine, uint32_t current_time_ms) override
     {
-        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct DcmWorld* world = App_SharedStateMachine_GetWorld(state_machine);
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
@@ -201,15 +201,15 @@ class DcmStateMachineTest : public BaseStateMachineTest
         EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
-    struct DcmCanTxInterface *can_tx_interface;
-    struct DcmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct BrakeLight *       brake_light;
-    struct Buzzer *           buzzer;
-    struct Imu *              imu;
-    struct Clock *            clock;
+    struct World*             world;
+    struct StateMachine*      state_machine;
+    struct DcmCanTxInterface* can_tx_interface;
+    struct DcmCanRxInterface* can_rx_interface;
+    struct HeartbeatMonitor*  heartbeat_monitor;
+    struct BrakeLight*        brake_light;
+    struct Buzzer*            buzzer;
+    struct Imu*               imu;
+    struct Clock*             clock;
 };
 
 TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
@@ -287,7 +287,7 @@ TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_sta
 
 TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
 {
-    for (auto &state : GetAllStates())
+    for (auto& state : GetAllStates())
     {
         SetInitialState(state);
 

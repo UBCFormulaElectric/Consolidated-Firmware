@@ -4,9 +4,9 @@
 
 extern "C"
 {
+#include "App_SharedDcmConstants.h"
 #include "App_TorqueVectoring.h"
 #include "App_TractionControl.h"
-#include "App_SharedDcmConstants.h"
 #include <math.h>
 }
 
