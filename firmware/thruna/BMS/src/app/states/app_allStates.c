@@ -13,7 +13,7 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor * hb_monitor)
 {
     App_CanTx_BMS_Heartbeat_Set(true);
 
@@ -31,7 +31,7 @@ static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     return missing_hb;
 }
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
+void app_allStates_runOnTick1Hz(struct StateMachine * const state_machine)
 {
     UNUSED(state_machine);
     bool charger_is_connected = io_charger_isConnected();
@@ -54,7 +54,7 @@ void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
     }
 }
 
-bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+bool app_allStates_runOnTick100Hz(struct StateMachine * const state_machine)
 {
     const bool missing_hb = sendAndReceiveHeartbeat(globals->hb_monitor);
 

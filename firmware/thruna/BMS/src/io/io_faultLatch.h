@@ -21,18 +21,18 @@ EMPTY_STRUCT(FaultLatch);
  * @param latch Fault latch instance.
  * @param fault Whether or not to set a fault (true = OK, false = fault).
  */
-void io_faultLatch_setCurrentStatus(const FaultLatch *latch, bool status);
+void io_faultLatch_setCurrentStatus(const FaultLatch * latch, bool status);
 
 /**
  * Return whether or not there is currently a fault.
  * @param latch Fault latch instance.
  * @param fault True = there is currently NOT a fault.
  */
-bool io_faultLatch_getCurrentStatus(const FaultLatch *latch);
+bool io_faultLatch_getCurrentStatus(const FaultLatch * latch);
 
 /**
  * Return whether or not a fault has been latched.
  * @param latch Fault latch instance.
  * @param fault True = fault has NOT been latched.
  */
-bool io_faultLatch_getLatchedStatus(const FaultLatch *latch);
+bool io_faultLatch_getLatchedStatus(const FaultLatch * latch);

@@ -34,8 +34,8 @@
 extern int __io_putchar(int ch) __attribute__((weak));
 extern int __io_getchar(void) __attribute__((weak));
 
-char  *__env[1] = { 0 };
-char **environ  = __env;
+char *  __env[1] = { 0 };
+char ** environ  = __env;
 
 /* Functions */
 void initialise_monitor_handles() {}
@@ -61,7 +61,7 @@ void _exit(int status)
     } /* Make sure we hang here */
 }
 
-__attribute__((weak)) int _read(int file, char *ptr, int len)
+__attribute__((weak)) int _read(int file, char * ptr, int len)
 {
     (void)file;
     int DataIdx;
@@ -74,7 +74,7 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
     return len;
 }
 
-__attribute__((weak)) int _write(int file, char *ptr, int len)
+__attribute__((weak)) int _write(int file, char * ptr, int len)
 {
     (void)file;
     int DataIdx;
@@ -92,7 +92,7 @@ int _close(int file)
     return -1;
 }
 
-int _fstat(int file, struct stat *st)
+int _fstat(int file, struct stat * st)
 {
     (void)file;
     st->st_mode = S_IFCHR;
@@ -113,7 +113,7 @@ int _lseek(int file, int ptr, int dir)
     return 0;
 }
 
-int _open(char *path, int flags, ...)
+int _open(char * path, int flags, ...)
 {
     (void)path;
     (void)flags;
@@ -121,34 +121,34 @@ int _open(char *path, int flags, ...)
     return -1;
 }
 
-int _wait(int *status)
+int _wait(int * status)
 {
     (void)status;
     errno = ECHILD;
     return -1;
 }
 
-int _unlink(char *name)
+int _unlink(char * name)
 {
     (void)name;
     errno = ENOENT;
     return -1;
 }
 
-int _times(struct tms *buf)
+int _times(struct tms * buf)
 {
     (void)buf;
     return -1;
 }
 
-int _stat(char *file, struct stat *st)
+int _stat(char * file, struct stat * st)
 {
     (void)file;
     st->st_mode = S_IFCHR;
     return 0;
 }
 
-int _link(char *old, char *new)
+int _link(char * old, char * new)
 {
     (void)old;
     (void)new;
@@ -162,7 +162,7 @@ int _fork(void)
     return -1;
 }
 
-int _execve(char *name, char **argv, char **env)
+int _execve(char * name, char ** argv, char ** env)
 {
     (void)name;
     (void)argv;

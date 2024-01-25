@@ -1,7 +1,7 @@
 #include "App_PID.h"
 #include "App_SharedMacros.h"
 
-void App_PID_Init(PID *pid, const PID_Config *conf)
+void App_PID_Init(PID * pid, const PID_Config * conf)
 {
     pid->Kp         = conf->Kp;
     pid->Ki         = conf->Ki;
@@ -19,7 +19,7 @@ void App_PID_Init(PID *pid, const PID_Config *conf)
  * @param input also "measurement"/"process variable"
  * @return controller output/"effort"
  */
-float App_PID_Compute(PID *pid, float setpoint, float input)
+float App_PID_Compute(PID * pid, float setpoint, float input)
 {
     pid->error = setpoint - input;
     pid->integral += pid->error;
@@ -31,7 +31,7 @@ float App_PID_Compute(PID *pid, float setpoint, float input)
     return output;
 }
 
-void App_PID_RequestReset(PID *pid)
+void App_PID_RequestReset(PID * pid)
 {
     pid->prev_input = 0.0f;
     pid->integral   = 0.0f;

@@ -10,13 +10,13 @@
  *                             brake light
  * @return The created brake light, whose ownership is given to the caller
  */
-struct BrakeLight *App_BrakeLight_Create(void (*turn_on_brake_light)(void), void (*turn_off_brake_light)(void));
+struct BrakeLight * App_BrakeLight_Create(void (*turn_on_brake_light)(void), void (*turn_off_brake_light)(void));
 
 /**
  * Deallocate the memory used by the given brake light
  * @param brake_light The brake light to deallocate
  */
-void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
+void App_BrakeLight_Destroy(struct BrakeLight * brake_light);
 
 /**
  * Turn on the given brake light if the brake is actuated and/or the regen is
@@ -25,11 +25,11 @@ void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
  * @param is_brake_actuated True if the brake exceeds its actuation threshold,
  *                          else false
  */
-void App_BrakeLight_SetLightStatus(struct BrakeLight *brake_light, bool is_brake_actuated);
+void App_BrakeLight_SetLightStatus(struct BrakeLight * brake_light, bool is_brake_actuated);
 
 /**
  * Check if the given brake light is turned on
  * @param brake_light The brake light to check if it's turned on
  * @return true if the brake light is turned on, else false
  */
-bool App_BrakeLight_IsTurnedOn(const struct BrakeLight *brake_light);
+bool App_BrakeLight_IsTurnedOn(const struct BrakeLight * brake_light);

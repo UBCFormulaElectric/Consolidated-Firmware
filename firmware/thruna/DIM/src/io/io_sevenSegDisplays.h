@@ -39,7 +39,7 @@ typedef enum
 /**
  * Initialize the 7-seg displays.
  */
-void io_sevenSegDisplays_init(const SevenSegsConfig *seven_segs_config);
+void io_sevenSegDisplays_init(const SevenSegsConfig * seven_segs_config);
 
 /**
  * Issue commands to the shift registers controlling the 7-segment displays.

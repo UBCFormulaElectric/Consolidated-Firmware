@@ -145,7 +145,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_faultLatch_setCurrentStatus_reset();
     }
 
-    void SetInitialState(const struct State *const initial_state)
+    void SetInitialState(const struct State * const initial_state)
     {
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(NULL, initial_state);
@@ -198,8 +198,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     //     App_Timer_SetCurrentTimeMS(current_time_ms);
     // }
 
-    struct StateMachine     *state_machine;
-    struct HeartbeatMonitor *heartbeat_monitor;
+    struct StateMachine *     state_machine;
+    struct HeartbeatMonitor * heartbeat_monitor;
 
     const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};

@@ -42,19 +42,19 @@ class BaseStateMachineTest : public testing::Test
         current_time_ms = 1;
     }
 
-    virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms)
+    virtual void UpdateClock(struct StateMachine * state_machine, uint32_t current_time_ms)
     {
         UNUSED(state_machine);
         App_Timer_SetCurrentTimeMS(current_time_ms);
     }
 
-    virtual void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms)
+    virtual void UpdateSignals(struct StateMachine * state_machine, uint32_t current_time_ms)
     {
         UNUSED(state_machine);
         UNUSED(current_time_ms);
     }
 
-    void LetTimePass(struct StateMachine *state_machine, uint32_t time_ms)
+    void LetTimePass(struct StateMachine * state_machine, uint32_t time_ms)
     {
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {

@@ -7,7 +7,7 @@
 #define THERM_INDEX_TO_DEGC (0.5f)
 #define THERM_LOOKUP_STARTING_TEMP (255.0f)
 
-static const ThermistorsConfig *config;
+static const ThermistorsConfig * config;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Mitsubishi
 // DTN-V103J3T-DGS103V thermistor. The 0th index represents 0°C. Incrementing the
@@ -30,7 +30,7 @@ static const float temp_resistance_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-void io_thermistors_init(const ThermistorsConfig *therm_config)
+void io_thermistors_init(const ThermistorsConfig * therm_config)
 {
     config = therm_config;
 }

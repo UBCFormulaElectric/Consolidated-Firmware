@@ -336,7 +336,7 @@ float app_accumulator_getPackVoltage(void)
     return data.voltage_stats.pack_voltage;
 }
 
-float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
+float app_accumulator_getMinCellVoltage(uint8_t * segment, uint8_t * cell)
 {
     if (segment != NULL)
     {
@@ -351,7 +351,7 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
     return data.voltage_stats.min_voltage.voltage;
 }
 
-float app_accumulator_getMaxCellVoltage(uint8_t *segment, uint8_t *cell)
+float app_accumulator_getMaxCellVoltage(uint8_t * segment, uint8_t * cell)
 {
     if (segment != NULL)
     {

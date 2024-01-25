@@ -31,19 +31,19 @@ typedef struct
  * @param timer The timer in question
  * @param duration_ms The duration of this timer, in milliseconds
  */
-void App_Timer_InitTimer(TimerChannel *const timer, uint32_t duration_ms);
+void App_Timer_InitTimer(TimerChannel * const timer, uint32_t duration_ms);
 
 /**
  * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING.
  * @param timer The timer in question
  */
-void App_Timer_Restart(TimerChannel *const timer);
+void App_Timer_Restart(TimerChannel * const timer);
 
 /**
  * Stop a timer. Leaves the timer in TIMER_STATE_IDLE.
  * @param timer The timer in question
  */
-void App_Timer_Stop(TimerChannel *const timer);
+void App_Timer_Stop(TimerChannel * const timer);
 
 /**
  * Update a timer and return the current state its in. Possible states are:
@@ -54,7 +54,7 @@ void App_Timer_Stop(TimerChannel *const timer);
  * @param timer The timer in question
  * @return The updated state of the timer
  */
-TimerState App_Timer_UpdateAndGetState(TimerChannel *const timer);
+TimerState App_Timer_UpdateAndGetState(TimerChannel * const timer);
 
 /**
  * If condition is true and timer isn't running, restart the timer. If condition is true and timer
@@ -63,7 +63,7 @@ TimerState App_Timer_UpdateAndGetState(TimerChannel *const timer);
  * @param condition Whether or not to run timer
  * @return The updated state of the timer
  */
-TimerState App_Timer_RunIfCondition(TimerChannel *const timer, bool condition);
+TimerState App_Timer_RunIfCondition(TimerChannel * const timer, bool condition);
 
 /**
  * Get the elapsed time since timer started, in milliseconds. Note that if timer is TIMER_STATE_IDLE, the elapsed time
@@ -71,7 +71,7 @@ TimerState App_Timer_RunIfCondition(TimerChannel *const timer, bool condition);
  * @param timer The timer in question
  * @return Elapsed time
  */
-uint32_t App_Timer_GetElapsedTime(const TimerChannel *const timer);
+uint32_t App_Timer_GetElapsedTime(const TimerChannel * const timer);
 
 /**
  * Set the present time used by all timers. Add this to the 1kHz task, or timers won't work!

@@ -2,9 +2,9 @@
 #include "io_can.h"
 #include <assert.h>
 
-static CanHandle *handle;
+static CanHandle * handle;
 
-void hw_can_init(CanHandle *can_handle)
+void hw_can_init(CanHandle * can_handle)
 {
     handle = can_handle;
 
@@ -35,7 +35,7 @@ void hw_can_deinit()
     assert(HAL_FDCAN_DeInit(handle) == HAL_OK);
 }
 
-bool hw_can_transmit(const CanMsg *msg)
+bool hw_can_transmit(const CanMsg * msg)
 {
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg->std_id;
@@ -54,7 +54,7 @@ bool hw_can_transmit(const CanMsg *msg)
     return HAL_FDCAN_AddMessageToTxFifoQ(handle, &tx_header, (uint8_t *)msg->data) == HAL_OK;
 }
 
-bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
+bool hw_can_receive(uint32_t rx_fifo, CanMsg * msg)
 {
     FDCAN_RxHeaderTypeDef header;
     if (HAL_FDCAN_GetRxMessage(handle, rx_fifo, &header, msg->data) != HAL_OK)
@@ -68,12 +68,12 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo0ITs)
 {
     io_can_msgReceivedCallback(FDCAN_RX_FIFO0);
 }
 
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef * hfdcan, uint32_t RxFifo1ITs)
 {
     io_can_msgReceivedCallback(FDCAN_RX_FIFO1);
 }

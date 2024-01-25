@@ -8,8 +8,8 @@
 #include "App_SharedSignal.h"
 #include "io_coolant.h"
 
-static struct InRangeCheck *flow_rate_in_range_check;
-static struct Signal       *flow_in_range_signal;
+static struct InRangeCheck * flow_rate_in_range_check;
+static struct Signal *       flow_in_range_signal;
 
 void app_coolant_init(void)
 {

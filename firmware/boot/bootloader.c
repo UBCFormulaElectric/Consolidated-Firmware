@@ -50,7 +50,7 @@ static void canTxOverflow(uint32_t unused)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-static void modifyStackPointerAndStartApp(uint32_t *address)
+static void modifyStackPointerAndStartApp(uint32_t * address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -104,7 +104,7 @@ static BootStatus verifyAppCodeChecksum(void)
         return BOOT_STATUS_NO_APP;
     }
 
-    Metadata *metadata = (Metadata *)&__app_metadata_start__;
+    Metadata * metadata = (Metadata *)&__app_metadata_start__;
     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
     {
         // App binary size field is invalid.

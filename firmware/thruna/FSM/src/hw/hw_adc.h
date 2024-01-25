@@ -44,7 +44,7 @@ typedef enum
  * Get the buffer for DMA controller to write raw ADC values into.
  * @return Pointer to the buffer.
  */
-uint16_t *hw_adc_getRawValuesBuffer(void);
+uint16_t * hw_adc_getRawValuesBuffer(void);
 
 /**
  * Get the voltage measured at an ADC channel.

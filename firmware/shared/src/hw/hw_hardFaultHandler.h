@@ -44,4 +44,4 @@ void hw_hardFaultHandler_init(void);
  * @param fault_stack Pointer to the stack that was used when the hard fault
  *        occurred.
  */
-void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);
+void hw_hardFaultHandler_logInfo(uint32_t * fault_stack);

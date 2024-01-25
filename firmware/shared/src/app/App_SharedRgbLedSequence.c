@@ -17,7 +17,7 @@ struct RgbLedSequence
     enum RgbLedSequenceState state;
 };
 
-struct RgbLedSequence *App_SharedRgbLedSequence_Create(
+struct RgbLedSequence * App_SharedRgbLedSequence_Create(
     void (*const turn_on_red_led)(void),
     void (*const turn_on_green_led)(void),
     void (*const turn_on_blue_led)(void))
@@ -26,7 +26,7 @@ struct RgbLedSequence *App_SharedRgbLedSequence_Create(
     assert(turn_on_green_led != NULL);
     assert(turn_on_blue_led != NULL);
 
-    struct RgbLedSequence *rgb_led_sequence = malloc(sizeof(struct RgbLedSequence));
+    struct RgbLedSequence * rgb_led_sequence = malloc(sizeof(struct RgbLedSequence));
 
     assert(rgb_led_sequence != NULL);
 
@@ -40,12 +40,12 @@ struct RgbLedSequence *App_SharedRgbLedSequence_Create(
     return rgb_led_sequence;
 }
 
-void App_SharedRgbLedSequence_Destroy(struct RgbLedSequence *const rgb_led_sequence)
+void App_SharedRgbLedSequence_Destroy(struct RgbLedSequence * const rgb_led_sequence)
 {
     free(rgb_led_sequence);
 }
 
-void App_SharedRgbLedSequence_Tick(struct RgbLedSequence *const rgb_led_sequence)
+void App_SharedRgbLedSequence_Tick(struct RgbLedSequence * const rgb_led_sequence)
 {
     // This state machine is so simple that there's no need to use the shared
     // state machine library.

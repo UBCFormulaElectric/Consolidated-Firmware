@@ -22,8 +22,8 @@ typedef struct
     const float out_max;
 } PID_Config;
 
-void App_PID_Init(PID *pid, const PID_Config *conf);
+void App_PID_Init(PID * pid, const PID_Config * conf);
 
-float App_PID_Compute(PID *pid, float setpoint, float input);
+float App_PID_Compute(PID * pid, float setpoint, float input);
 
-void App_PID_RequestReset(PID *pid);
+void App_PID_RequestReset(PID * pid);

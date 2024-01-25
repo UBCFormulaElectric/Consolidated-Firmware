@@ -16,9 +16,9 @@
 // Value of shunt resistor
 #define AIR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
-static const AirsConfig *config;
+static const AirsConfig * config;
 
-void io_airs_init(const AirsConfig *airs_config)
+void io_airs_init(const AirsConfig * airs_config)
 {
     config = airs_config;
 }

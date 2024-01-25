@@ -24,7 +24,7 @@ EMPTY_STRUCT(ThermistorsConfig);
  * Initialize the thermistors driver.
  * @param therm_config Config struct.
  */
-void io_thermistors_init(const ThermistorsConfig *therm_config);
+void io_thermistors_init(const ThermistorsConfig * therm_config);
 
 /**
  * Change the selected Mux Channel

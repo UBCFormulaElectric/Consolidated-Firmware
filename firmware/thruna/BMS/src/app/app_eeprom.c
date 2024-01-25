@@ -10,31 +10,31 @@
 #define ADDRESS_PAGE 0U
 #define MAX_SOC_ADDR (NUM_PAGES - 1U)
 
-static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
+static void convert_float_to_bytes(uint8_t * byte_array, float float_to_convert)
 {
     memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
 }
 
-static float convert_bytes_to_float(uint8_t *byte_array)
+static float convert_bytes_to_float(uint8_t * byte_array)
 {
     float converted_float;
     memcpy(&converted_float, byte_array, sizeof(float));
     return converted_float;
 }
 
-static void convert_short_to_bytes(uint8_t *byte_array, uint16_t short_to_convert)
+static void convert_short_to_bytes(uint8_t * byte_array, uint16_t short_to_convert)
 {
     memcpy(byte_array, (uint8_t *)(&short_to_convert), sizeof(uint16_t));
 }
 
-static uint16_t convert_bytes_to_short(uint8_t *bytes_to_convert)
+static uint16_t convert_bytes_to_short(uint8_t * bytes_to_convert)
 {
     uint16_t converted_short;
     memcpy(&converted_short, bytes_to_convert, sizeof(uint16_t));
     return converted_short;
 }
 
-EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float *input_data, uint8_t num_floats)
+EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float * input_data, uint8_t num_floats)
 {
     // Check if data to write fits into single page
     if (num_floats * sizeof(float) > EEPROM_PAGE_SIZE)
@@ -59,7 +59,7 @@ EepromStatus app_eeprom_writeFloats(uint16_t page, uint8_t offset, float *input_
     return io_eeprom_writePage(page, offset, data_bytes, (uint16_t)(num_floats * sizeof(float)));
 }
 
-EepromStatus app_eeprom_readFloats(uint16_t page, uint8_t offset, float *output_data, uint8_t num_floats)
+EepromStatus app_eeprom_readFloats(uint16_t page, uint8_t offset, float * output_data, uint8_t num_floats)
 {
     // Check if data to read fits into single page
     if (num_floats * sizeof(float) + offset > EEPROM_PAGE_SIZE)
@@ -89,7 +89,7 @@ EepromStatus app_eeprom_pageErase(uint16_t page)
     return io_eeprom_pageErase(page);
 }
 
-EepromStatus app_eeprom_updateSavedSocAddress(uint16_t *address)
+EepromStatus app_eeprom_updateSavedSocAddress(uint16_t * address)
 {
     uint16_t num_bytes = SAVED_COPIES * sizeof(uint16_t); // saving 3 copies of address, each 2 bytes
     uint8_t  byte_array[num_bytes];
@@ -114,7 +114,7 @@ EepromStatus app_eeprom_updateSavedSocAddress(uint16_t *address)
     return io_eeprom_writePage(ADDRESS_PAGE, DEFAULT_OFFSET, byte_array, num_bytes);
 }
 
-ExitCode app_eeprom_readSocAddress(uint16_t *address)
+ExitCode app_eeprom_readSocAddress(uint16_t * address)
 {
     ExitCode retval = EXIT_CODE_OK;
 
@@ -181,7 +181,7 @@ EepromStatus app_eeprom_writeMinSoc(float min_soc, uint16_t address)
     return app_eeprom_writeFloats(address, DEFAULT_OFFSET, float_arr, SAVED_COPIES);
 }
 
-ExitCode app_eeprom_readMinSoc(uint16_t address, float *min_soc)
+ExitCode app_eeprom_readMinSoc(uint16_t address, float * min_soc)
 {
     float        soc_copies[SAVED_COPIES];
     EepromStatus read_status = app_eeprom_readFloats(address, DEFAULT_OFFSET, soc_copies, SAVED_COPIES);

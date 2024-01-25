@@ -16,7 +16,7 @@ struct BrakeLight *
     assert(turn_on_brake_light != NULL);
     assert(turn_off_brake_light != NULL);
 
-    struct BrakeLight *brake_light = malloc(sizeof(struct BrakeLight));
+    struct BrakeLight * brake_light = malloc(sizeof(struct BrakeLight));
 
     assert(brake_light != NULL);
 
@@ -29,12 +29,12 @@ struct BrakeLight *
     return brake_light;
 }
 
-void App_BrakeLight_Destroy(struct BrakeLight *const brake_light)
+void App_BrakeLight_Destroy(struct BrakeLight * const brake_light)
 {
     free(brake_light);
 }
 
-void App_BrakeLight_SetLightStatus(struct BrakeLight *const brake_light, bool is_brake_actuated)
+void App_BrakeLight_SetLightStatus(struct BrakeLight * const brake_light, bool is_brake_actuated)
 {
     if (is_brake_actuated)
     {
@@ -48,7 +48,7 @@ void App_BrakeLight_SetLightStatus(struct BrakeLight *const brake_light, bool is
     }
 }
 
-bool App_BrakeLight_IsTurnedOn(const struct BrakeLight *const brake_light)
+bool App_BrakeLight_IsTurnedOn(const struct BrakeLight * const brake_light)
 {
     return brake_light->is_turned_on;
 }

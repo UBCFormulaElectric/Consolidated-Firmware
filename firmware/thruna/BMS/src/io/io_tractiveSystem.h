@@ -20,7 +20,7 @@ EMPTY_STRUCT(TractiveSystemConfig);
  * Initialize the tractive system driver.
  * @param ts_config Config struct.
  */
-void io_tractiveSystem_init(const TractiveSystemConfig *ts_config);
+void io_tractiveSystem_init(const TractiveSystemConfig * ts_config);
 
 /**
  * Convert the given ADC voltage to tractive system voltage

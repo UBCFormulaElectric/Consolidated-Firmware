@@ -23,4 +23,4 @@
  * Get a pointer to the Pre-Charge State.
  * @return A pointer to the Pre-Charge State. THIS SHOULD NOT BE MODIFIED.
  */
-const struct State *app_prechargeState_get(void);
+const struct State * app_prechargeState_get(void);

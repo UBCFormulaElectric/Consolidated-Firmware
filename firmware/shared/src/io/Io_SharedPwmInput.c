@@ -4,12 +4,12 @@
 
 struct PwmInput
 {
-    float              duty_cycle;
-    float              frequency_hz;
-    TIM_HandleTypeDef *htim;
-    float              timer_frequency_hz;
-    uint32_t           rising_edge_tim_channel;
-    uint32_t           falling_edge_tim_channel;
+    float               duty_cycle;
+    float               frequency_hz;
+    TIM_HandleTypeDef * htim;
+    float               timer_frequency_hz;
+    uint32_t            rising_edge_tim_channel;
+    uint32_t            falling_edge_tim_channel;
 };
 
 /**
@@ -17,38 +17,38 @@ struct PwmInput
  * @param pwm_input: The PWM input to set duty cycle for
  * @param duty_cycle: Duty cycle, in decimal (e.g. 1% = 0.01f)
  */
-static void Io_SetDutyCycle(struct PwmInput *const pwm_input, const float duty_cycle);
+static void Io_SetDutyCycle(struct PwmInput * const pwm_input, const float duty_cycle);
 
 /**
  * Set the frequency for the given PWM input
  * @param pwm_input: The PWM input to set frequency for
  * @param frequency_hz: Frequency, in Hz
  */
-static void Io_SetFrequency(struct PwmInput *const pwm_input, const float frequency_hz);
+static void Io_SetFrequency(struct PwmInput * const pwm_input, const float frequency_hz);
 
-static void Io_SetDutyCycle(struct PwmInput *const pwm_input, const float duty_cycle)
+static void Io_SetDutyCycle(struct PwmInput * const pwm_input, const float duty_cycle)
 {
     assert(duty_cycle >= 0.0f);
 
     pwm_input->duty_cycle = duty_cycle;
 }
 
-static void Io_SetFrequency(struct PwmInput *const pwm_input, const float frequency_hz)
+static void Io_SetFrequency(struct PwmInput * const pwm_input, const float frequency_hz)
 {
     assert(frequency_hz >= 0.0f);
 
     pwm_input->frequency_hz = frequency_hz;
 }
 
-struct PwmInput *Io_SharedPwmInput_Create(
-    TIM_HandleTypeDef *htim,
-    float              timer_frequency_hz,
-    uint32_t           rising_edge_tim_channel,
-    uint32_t           falling_edge_tim_channel)
+struct PwmInput * Io_SharedPwmInput_Create(
+    TIM_HandleTypeDef * htim,
+    float               timer_frequency_hz,
+    uint32_t            rising_edge_tim_channel,
+    uint32_t            falling_edge_tim_channel)
 {
     assert(htim != NULL);
 
-    struct PwmInput *const pwm_input = malloc(sizeof(struct PwmInput));
+    struct PwmInput * const pwm_input = malloc(sizeof(struct PwmInput));
     assert(pwm_input != NULL);
 
     pwm_input->htim                     = htim;
@@ -62,7 +62,7 @@ struct PwmInput *Io_SharedPwmInput_Create(
     return pwm_input;
 }
 
-void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input)
+void Io_SharedPwmInput_Tick(struct PwmInput * const pwm_input)
 {
     uint32_t ic_rising_edge = HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->rising_edge_tim_channel);
 
@@ -81,12 +81,12 @@ void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input)
     }
 }
 
-float Io_SharedPwmInput_GetDutyCycle(const struct PwmInput *const pwm_input)
+float Io_SharedPwmInput_GetDutyCycle(const struct PwmInput * const pwm_input)
 {
     return pwm_input->duty_cycle;
 }
 
-float Io_SharedPwmInput_GetFrequency(const struct PwmInput *const pwm_input)
+float Io_SharedPwmInput_GetFrequency(const struct PwmInput * const pwm_input)
 {
     return pwm_input->frequency_hz;
 }

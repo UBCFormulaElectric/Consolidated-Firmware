@@ -23,13 +23,13 @@ class RgbLedSequenceTest : public testing::Test
 
     void TearDown() override { TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy); }
 
-    struct RgbLedSequence *rgb_led_sequence;
+    struct RgbLedSequence * rgb_led_sequence;
 };
 
 TEST_F(RgbLedSequenceTest, cycle_red_green_blue)
 {
-    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
-                                    &turn_on_blue_led_fake.call_count };
+    unsigned int * call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
+                                     &turn_on_blue_led_fake.call_count };
 
     // Verify that we cycle through red, green, blue, red, etc. for 100 times
     for (size_t i = 0; i < 100; i++)

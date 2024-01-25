@@ -20,7 +20,7 @@ struct Imu;
  * Imu for any given axis
  * @return The created Imu whose ownership is given to the caller.
  */
-struct Imu *App_Imu_Create(
+struct Imu * App_Imu_Create(
     float (*get_acceleration_x)(void),
     float (*get_acceleration_y)(void),
     float (*get_acceleration_z)(void),
@@ -31,46 +31,46 @@ struct Imu *App_Imu_Create(
  * Deallocate the memory used by the given Imu
  * @param imu The given Imu to deallocate
  */
-void App_Imu_Destroy(struct Imu *imu);
+void App_Imu_Destroy(struct Imu * imu);
 
 /**
  * Get the acceleration measured on the x-axis from the given Imu
  * @param imu The given Imu to get the x-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the x-axis.
  */
-float App_Imu_GetAccelerationX(const struct Imu *imu);
+float App_Imu_GetAccelerationX(const struct Imu * imu);
 
 /**
  * Get acceleration measured on the y-axis from the given Imu
  * @param imu The given Imu to get the y-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the y-axis.
  */
-float App_Imu_GetAccelerationY(const struct Imu *imu);
+float App_Imu_GetAccelerationY(const struct Imu * imu);
 
 /**
  * Get acceleration measured on the z-axis from the given Imu
  * @param The given Imu to get the z-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
-float App_Imu_GetAccelerationZ(const struct Imu *imu);
+float App_Imu_GetAccelerationZ(const struct Imu * imu);
 
 /**
  * Get the acceleration-x in-range check from the given Imu
  * @param imu The given Imu to get the acceleration-x in-range check from
  * @return The acceleration-x in-range check for the given Imu
  */
-struct InRangeCheck *App_Imu_GetAccelerationXInRangeCheck(const struct Imu *imu);
+struct InRangeCheck * App_Imu_GetAccelerationXInRangeCheck(const struct Imu * imu);
 
 /**
  * Get the acceleration-y in-range check from the given Imu
  * @param imu The given Imu to get the acceleration-y in-range check from
  * @return The acceleration-y in-range check for the given Imu
  */
-struct InRangeCheck *App_Imu_GetAccelerationYInRangeCheck(const struct Imu *imu);
+struct InRangeCheck * App_Imu_GetAccelerationYInRangeCheck(const struct Imu * imu);
 
 /**
  * Get the acceleration-z in-range check from the given Imu
  * @param imu The given Imu to get the acceleration-z in-range check from
  * @return The acceleration-z in-range check for the given Imu
  */
-struct InRangeCheck *App_Imu_GetAccelerationZInRangeCheck(const struct Imu *imu);
+struct InRangeCheck * App_Imu_GetAccelerationZInRangeCheck(const struct Imu * imu);

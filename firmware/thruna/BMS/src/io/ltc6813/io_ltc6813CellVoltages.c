@@ -30,7 +30,7 @@ typedef enum
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
 
-extern struct SharedSpi *ltc6813_spi;
+extern struct SharedSpi * ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 

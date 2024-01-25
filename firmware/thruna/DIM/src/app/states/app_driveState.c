@@ -14,19 +14,19 @@
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888)
 
-static void driveStateRunOnEntry(struct StateMachine *const state_machine)
+static void driveStateRunOnEntry(struct StateMachine * const state_machine)
 {
     App_CanTx_DIM_State_Set(DIM_STATE_DRIVE);
     App_CanTx_DIM_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_DIM_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
-static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick1Hz(struct StateMachine * const state_machine)
 {
     UNUSED(state_machine);
 }
 
-static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick100Hz(struct StateMachine * const state_machine)
 {
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
@@ -49,7 +49,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_DIM_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
+    const RgbLed * board_status_leds[NUM_BOARD_LEDS] = {
         [BMS_LED] = globals->config->bms_status_led, [DCM_LED] = globals->config->dcm_status_led,
         [DIM_LED] = globals->config->dim_status_led, [FSM_LED] = globals->config->fsm_status_led,
         [PDM_LED] = globals->config->pdm_status_led,
@@ -62,7 +62,7 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
-        const RgbLed *board_status_led = board_status_leds[i];
+        const RgbLed * board_status_led = board_status_leds[i];
 
         if (App_CanAlerts_BoardHasFault(alert_board_ids[i]))
         {
@@ -116,12 +116,12 @@ static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 }
 
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
+static void driveStateRunOnExit(struct StateMachine * const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State *app_driveState_get(void)
+const struct State * app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",
