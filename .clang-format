@@ -1,9 +1,11 @@
-﻿---
+﻿# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+---
 Language: Cpp
 
 # Aligns parameters contained within open brackets
 # .e.g longFunction (argument1,
 #                    argument2)
+# this should probably change to "Align" (as described above)
 AlignAfterOpenBracket: AlwaysBreak
 
 # Aligns the assignment operators                     
@@ -11,6 +13,10 @@ AlignConsecutiveAssignments: true
 
 # Aligns the variable names
 AlignConsecutiveDeclarations: true
+
+# Options for aligning backslashes in escaped newlines.
+# Align escaped newlines as far left as possible.
+AlignEscapedNewlines: Left
 
 # Aligns operands that need to be split over multiple lines
 AlignOperands: true

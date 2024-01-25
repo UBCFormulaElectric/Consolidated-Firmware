@@ -33,14 +33,14 @@
 #define SEG4_CELL8_THERMISTOR (2U)
 
 // Update the counter keeping track of the PEC15 error
-#define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries)                                                            \
-    if ((is_pec_ok))                                                                                                   \
-    {                                                                                                                  \
-        (num_comm_tries) = 0U;                                                                                         \
-    }                                                                                                                  \
-    else                                                                                                               \
-    {                                                                                                                  \
-        (num_comm_tries)++;                                                                                            \
+#define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
+    if ((is_pec_ok))                                        \
+    {                                                       \
+        (num_comm_tries) = 0U;                              \
+    }                                                       \
+    else                                                    \
+    {                                                       \
+        (num_comm_tries)++;                                 \
     }
 
 typedef enum
