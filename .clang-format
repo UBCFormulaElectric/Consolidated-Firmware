@@ -61,7 +61,7 @@ AlwaysBreakBeforeMultilineStrings: false
 # e.g.
 # template <typename T> 
 # T foo (int a, int b)
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: MultiLine
 
 # if false, a function call's arguments get their own lines
 BinPackArguments: true
