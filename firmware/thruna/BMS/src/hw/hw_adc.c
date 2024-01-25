@@ -1,13 +1,13 @@
 #include "hw_adc.h"
-#include "Io_SharedMacros.h"
-#include "hw_adcConversions.h"
-#include "hw_hal.h"
 #include <assert.h>
+#include "hw_hal.h"
+#include "hw_adcConversions.h"
+#include "Io_SharedMacros.h"
 
 static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
 static float    adc_voltages[NUM_ADC_CHANNELS];
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     adc_voltages[ADC1_CHANNEL_3] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_3]);
     adc_voltages[ADC1_CHANNEL_7] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_7]);
@@ -21,7 +21,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_14]);
 }
 
-uint16_t* hw_adc_getRawValuesBuffer(void)
+uint16_t *hw_adc_getRawValuesBuffer(void)
 {
     return raw_adc_values;
 }

@@ -1,25 +1,25 @@
 #pragma once
 
-#include "App_SharedClock.h"
-#include "App_SharedHeartbeatMonitor.h"
-#include "App_Timer.h"
-#include "io_charger.h"
-#include "io_faultLatch.h"
-#include "io_thermistors.h"
 #include <stdint.h>
+#include "io_faultLatch.h"
+#include "io_charger.h"
+#include "io_thermistors.h"
+#include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedClock.h"
+#include "App_Timer.h"
 
 typedef struct
 {
-    const FaultLatch* bms_ok_latch;
-    const FaultLatch* imd_ok_latch;
-    const FaultLatch* bspd_ok_latch;
+    const FaultLatch *bms_ok_latch;
+    const FaultLatch *imd_ok_latch;
+    const FaultLatch *bspd_ok_latch;
 } GlobalsConfig;
 
 typedef struct
 {
     // Config.
-    const GlobalsConfig*     config;
-    struct HeartbeatMonitor* hb_monitor;
+    const GlobalsConfig *    config;
+    struct HeartbeatMonitor *hb_monitor;
 
     // State variables.
     uint32_t     cell_monitor_settle_count;
@@ -31,10 +31,10 @@ typedef struct
     uint32_t     charger_exit_counter;
 } Globals;
 
-extern Globals* const globals;
+extern Globals *const globals;
 
 /**
  * Initialize the globals module.
  * @param config Globals config.
  */
-void app_globals_init(const GlobalsConfig* config);
+void app_globals_init(const GlobalsConfig *config);

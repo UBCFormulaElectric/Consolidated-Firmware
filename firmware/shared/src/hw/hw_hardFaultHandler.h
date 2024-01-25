@@ -17,12 +17,12 @@
 //
 // Note: The MSP/PSP architecture is specific to the Cortex-M microcontroller
 //       family.
-#define hw_hardFaultHandler_handleFault()                                                                              \
-    __asm volatile(" tst lr, #4                                \n"                                                     \
-                   " ite eq                                    \n"                                                     \
-                   " mrseq r0, msp                             \n"                                                     \
-                   " mrsne r0, psp                             \n"                                                     \
-                   " ldr r1, [r0, #24]                         \n"                                                     \
+#define hw_hardFaultHandler_handleFault()                          \
+    __asm volatile(" tst lr, #4                                \n" \
+                   " ite eq                                    \n" \
+                   " mrseq r0, msp                             \n" \
+                   " mrsne r0, psp                             \n" \
+                   " ldr r1, [r0, #24]                         \n" \
                    " b hw_hardFaultHandler_logInfo   \n");
 
 /**
@@ -44,4 +44,4 @@ void hw_hardFaultHandler_init(void);
  * @param fault_stack Pointer to the stack that was used when the hard fault
  *        occurred.
  */
-void hw_hardFaultHandler_logInfo(uint32_t* fault_stack);
+void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);

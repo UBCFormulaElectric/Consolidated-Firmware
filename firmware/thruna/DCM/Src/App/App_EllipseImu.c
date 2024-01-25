@@ -1,6 +1,6 @@
+#include <assert.h>
 #include "App_EllipseImu.h"
 #include "App_CanTx.h"
-#include <assert.h>
 
 typedef struct
 {

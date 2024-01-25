@@ -1,14 +1,14 @@
+#include "states/app_allStates.h"
 #include "App_SharedMacros.h"
 #include "app_imd.h"
+#include "io_faultLatch.h"
+#include "io_airs.h"
 #include "app_inverterOnState.h"
 #include "app_soc.h"
-#include "io_airs.h"
-#include "io_faultLatch.h"
-#include "states/app_allStates.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
-static void initStateRunOnEntry(struct StateMachine* const state_machine)
+static void initStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_BMS_State_Set(BMS_INIT_STATE);
     app_accumulator_writeDefaultConfig();
@@ -20,7 +20,7 @@ static void initStateRunOnEntry(struct StateMachine* const state_machine)
     io_airs_openPositive();
 }
 
-static void initStateRunOnTick1Hz(struct StateMachine* const state_machine)
+static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick1Hz(state_machine);
 
@@ -35,7 +35,7 @@ static void initStateRunOnTick1Hz(struct StateMachine* const state_machine)
     }
 }
 
-static void initStateRunOnTick100Hz(struct StateMachine* const state_machine)
+static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (app_allStates_runOnTick100Hz(state_machine))
     {
@@ -76,12 +76,12 @@ static void initStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-static void initStateRunOnExit(struct StateMachine* const state_machine)
+static void initStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State* app_initState_get(void)
+const struct State *app_initState_get(void)
 {
     static struct State init_state = {
         .name              = "INIT",

@@ -19,7 +19,7 @@ void App_Run_Regen(float accelerator_pedal_percentage);
  * @param ActiveDifferential_Inputs struct provides for input into active differential algorithm
  * @return true or false depending on if it is safe to run regen
  */
-bool App_Regen_SafetyCheck(struct RegenBraking_Inputs* regenAttr, ActiveDifferential_Inputs* inputs);
+bool App_Regen_SafetyCheck(struct RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs);
 
 /**
  * Activate torque requests for regen
@@ -35,4 +35,4 @@ void App_Regen_Send_Torque_Request(float left, float right);
  * @param torqueRequest is the torque requst used in active
  * differential
  */
-void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs* inputs, RegenBraking_Inputs* regenAttr);
+void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);

@@ -1,17 +1,17 @@
 #include "app_apps.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
+#include <assert.h>
+#include <stdlib.h>
+#include <math.h>
 #include "App_SharedSignal.h"
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
 #include "io_apps.h"
 #include "io_brake.h"
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h>
 
-struct Signal* app_agreement_signal;
-struct Signal* papp_alarm_signal;
-struct Signal* sapp_alarm_signal;
-struct Signal* app_brake_signal;
+struct Signal *app_agreement_signal;
+struct Signal *papp_alarm_signal;
+struct Signal *sapp_alarm_signal;
+struct Signal *app_brake_signal;
 
 void app_apps_init(void)
 {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "App_SharedMacros.h"
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
-#include "hw_adc.h"
 #include "hw_gpio.h"
+#include "hw_adc.h"
 
 typedef struct
 {

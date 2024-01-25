@@ -1,11 +1,11 @@
 #include <assert.h>
 
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "App_SharedMacros.h"
-#include "Io_SharedStackWaterMark.h"
-#include "Io_StackWaterMark.h"
 #include "main.h"
+#include "App_SharedMacros.h"
+#include "Io_StackWaterMark.h"
+#include "Io_SharedStackWaterMark.h"
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;

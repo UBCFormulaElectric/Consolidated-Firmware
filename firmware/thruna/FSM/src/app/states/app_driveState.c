@@ -1,17 +1,17 @@
+#include <stddef.h>
 #include "states/app_driveState.h"
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
-#include "App_CanTx.h"
-#include "App_SharedConstants.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_SharedMacros.h"
+#include "App_SharedConstants.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
+#include "app_globals.h"
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_coolant.h"
-#include "app_globals.h"
 #include "app_steering.h"
 #include "app_wheels.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include <stddef.h>
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
@@ -32,18 +32,18 @@ static bool sendAndReceiveHeartbeat(void)
     return missing_hb;
 }
 
-void driveStateRunOnEntry(struct StateMachine* const state_machine)
+void driveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
     App_CanTx_FSM_State_Set(FSM_STATE_DRIVE);
 }
 
-void driveStateRunOnTick1Hz(struct StateMachine* state_machine)
+void driveStateRunOnTick1Hz(struct StateMachine *state_machine)
 {
     UNUSED(state_machine);
 }
 
-void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
+void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     // Check for torque plausibility
     float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
@@ -72,12 +72,12 @@ void driveStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-void driveStateRunOnExit(struct StateMachine* const state_machine)
+void driveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State* app_driveState_get(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE STATE",

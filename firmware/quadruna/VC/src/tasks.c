@@ -1,24 +1,24 @@
 #include "tasks.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "app_globals.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
+#include "Io_SharedSoftwareWatchdog.h"
 #include "io_watchdogConfig.h"
+#include "app_globals.h"
 #include "states/app_initState.h"
 
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_CommitInfo.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "io_jsoncan.h"
+#include "App_CommitInfo.h"
 
-extern ADC_HandleTypeDef*   hadc1;
-extern ADC_HandleTypeDef*   hadc3;
-extern FDCAN_HandleTypeDef* hfdcan1;
-extern IWDG_HandleTypeDef*  hiwdg1;
-struct StateMachine*        state_machine;
-struct HeartbeatMonitor*    heartbeat_monitor;
+extern ADC_HandleTypeDef *  hadc1;
+extern ADC_HandleTypeDef *  hadc3;
+extern FDCAN_HandleTypeDef *hfdcan1;
+extern IWDG_HandleTypeDef * hiwdg1;
+struct StateMachine *       state_machine;
+struct HeartbeatMonitor *   heartbeat_monitor;
 
 void CanRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -66,7 +66,7 @@ void tasks_init()
     App_CanTx_VC_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_100Hz(void* argument)
+void tasks_100Hz(void *argument)
 {
     UNUSED(argument);
 
@@ -87,7 +87,7 @@ void tasks_100Hz(void* argument)
     }
 }
 
-void tasks_canTx(void* argument)
+void tasks_canTx(void *argument)
 {
     UNUSED(argument);
 
@@ -97,7 +97,7 @@ void tasks_canTx(void* argument)
     }
 }
 
-void tasks_canRx(void* argument)
+void tasks_canRx(void *argument)
 {
     UNUSED(argument);
 
@@ -108,7 +108,7 @@ void tasks_canRx(void* argument)
     }
 }
 
-void tasks_1Khz(void* argument)
+void tasks_1Khz(void *argument)
 {
     UNUSED(argument);
 
@@ -122,7 +122,7 @@ void tasks_1Khz(void* argument)
     }
 }
 
-void tasks_1Hz(void* argument)
+void tasks_1Hz(void *argument)
 {
     UNUSED(argument);
 

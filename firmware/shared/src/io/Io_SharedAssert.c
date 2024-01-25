@@ -1,10 +1,10 @@
+#include <stdio.h>
 #include "App_SharedMacros.h"
 #include "Io_SharedMacros.h"
-#include <stdio.h>
 
 static char buffer[100];
 
-void __assert_func(const char* file, int line, const char* func, const char* failedexpr)
+void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
 {
     // Store the message into a buffer so we can easily inspect it using a
     // debugger even without SEGGER RTT set up

@@ -92,18 +92,18 @@
      in D2 AXI SRAM else user remap will be done in FLASH BANK2. */
 /* #define VECT_TAB_SRAM */
 #if defined(VECT_TAB_SRAM)
-#define VECT_TAB_BASE_ADDRESS                                                                                          \
-    D2_AXISRAM_BASE /*!< Vector Table base address field.                                                              \
+#define VECT_TAB_BASE_ADDRESS                             \
+    D2_AXISRAM_BASE /*!< Vector Table base address field. \
                          This value must be a multiple of 0x400. */
-#define VECT_TAB_OFFSET                                                                                                \
-    0x00000000U /*!< Vector Table base offset field.                                                                   \
+#define VECT_TAB_OFFSET                              \
+    0x00000000U /*!< Vector Table base offset field. \
                      This value must be a multiple of 0x400. */
 #else
-#define VECT_TAB_BASE_ADDRESS                                                                                          \
-    FLASH_BANK2_BASE /*!< Vector Table base address field.                                                             \
+#define VECT_TAB_BASE_ADDRESS                              \
+    FLASH_BANK2_BASE /*!< Vector Table base address field. \
                           This value must be a multiple of 0x400. */
-#define VECT_TAB_OFFSET                                                                                                \
-    0x00000000U /*!< Vector Table base offset field.                                                                   \
+#define VECT_TAB_OFFSET                              \
+    0x00000000U /*!< Vector Table base offset field. \
                      This value must be a multiple of 0x400. */
 #endif          /* VECT_TAB_SRAM */
 #else
@@ -111,18 +111,18 @@
      in D1 AXI SRAM else user remap will be done in FLASH BANK1. */
 /* #define VECT_TAB_SRAM */
 #if defined(VECT_TAB_SRAM)
-#define VECT_TAB_BASE_ADDRESS                                                                                          \
-    D1_AXISRAM_BASE /*!< Vector Table base address field.                                                              \
+#define VECT_TAB_BASE_ADDRESS                             \
+    D1_AXISRAM_BASE /*!< Vector Table base address field. \
                          This value must be a multiple of 0x400. */
-#define VECT_TAB_OFFSET                                                                                                \
-    0x00000000U /*!< Vector Table base offset field.                                                                   \
+#define VECT_TAB_OFFSET                              \
+    0x00000000U /*!< Vector Table base offset field. \
                      This value must be a multiple of 0x400. */
 #else
-#define VECT_TAB_BASE_ADDRESS                                                                                          \
-    FLASH_BANK1_BASE /*!< Vector Table base address field.                                                             \
+#define VECT_TAB_BASE_ADDRESS                              \
+    FLASH_BANK1_BASE /*!< Vector Table base address field. \
                           This value must be a multiple of 0x400. */
-#define VECT_TAB_OFFSET                                                                                                \
-    0x00000000U /*!< Vector Table base offset field.                                                                   \
+#define VECT_TAB_OFFSET                              \
+    0x00000000U /*!< Vector Table base offset field. \
                      This value must be a multiple of 0x400. */
 #endif          /* VECT_TAB_SRAM */
 #endif          /* DUAL_CORE && CORE_CM4 */
@@ -267,7 +267,7 @@ void SystemInit(void)
     {
         /* if stm32h7 revY*/
         /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
-        *((__IO uint32_t*)0x51008108) = 0x000000001U;
+        *((__IO uint32_t *)0x51008108) = 0x000000001U;
     }
 #endif /* STM32H7_DEV_ID */
 

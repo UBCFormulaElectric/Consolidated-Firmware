@@ -1,5 +1,5 @@
-#include "Test_Shared.h"
 #include <math.h>
+#include "Test_Shared.h"
 
 extern "C"
 {

@@ -1,12 +1,12 @@
 #include "app_steering.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "App_InRangeCheck.h"
-#include "io_steering.h"
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
+#include "App_InRangeCheck.h"
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
+#include "io_steering.h"
 
-static struct InRangeCheck* steering_angle_in_range_check;
+static struct InRangeCheck *steering_angle_in_range_check;
 
 void app_steering_init(void)
 {

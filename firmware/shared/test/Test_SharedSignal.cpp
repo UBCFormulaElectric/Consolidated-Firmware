@@ -35,9 +35,9 @@ class SharedSignalTest : public testing::Test
         App_Timer_SetCurrentTimeMS(current_ms);
     }
 
-    struct Signal*    signal{};
+    struct Signal *   signal{};
     SignalState       currentState{};
-    struct TestWorld* world{};
+    struct TestWorld *world{};
     uint32_t          current_ms = 0;
 };
 

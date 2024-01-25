@@ -1,8 +1,8 @@
-#include "App_SharedMacros.h"
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
+#include "App_SharedMacros.h"
 
-static void InitStateRunOnEntry(struct StateMachine* const state_machine)
+static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     App_CanTx_DCM_State_Set(DCM_INIT_STATE);
 
@@ -13,12 +13,12 @@ static void InitStateRunOnEntry(struct StateMachine* const state_machine)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
-static void InitStateRunOnTick1Hz(struct StateMachine* const state_machine)
+static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
 }
 
-static void InitStateRunOnTick100Hz(struct StateMachine* const state_machine)
+static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     const bool all_states_ok = App_AllStatesRunOnTick100Hz(state_machine);
 
@@ -40,12 +40,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine* const state_machine)
     }
 }
 
-static void InitStateRunOnExit(struct StateMachine* const state_machine)
+static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State* App_GetInitState(void)
+const struct State *App_GetInitState(void)
 {
     static struct State init_state = {
         .name              = "INIT",

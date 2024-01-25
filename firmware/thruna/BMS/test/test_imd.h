@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Test_Utils.h"
 #include <gtest/gtest.h>
+#include "Test_Utils.h"
 
 #include "fake_io_imd.hpp"
 

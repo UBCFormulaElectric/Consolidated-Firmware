@@ -1,15 +1,15 @@
 #include "app_coolant.h"
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
-#include "App_CanTx.h"
+#include <stdlib.h>
+#include <assert.h>
 #include "App_InRangeCheck.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_SharedSignal.h"
 #include "io_coolant.h"
-#include <assert.h>
-#include <stdlib.h>
 
-static struct InRangeCheck* flow_rate_in_range_check;
-static struct Signal*       flow_in_range_signal;
+static struct InRangeCheck *flow_rate_in_range_check;
+static struct Signal *      flow_in_range_signal;
 
 void app_coolant_init(void)
 {

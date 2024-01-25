@@ -1,9 +1,9 @@
 #pragma once
 
-#include "hw_can.h"
-#include "hw_hal.h"
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include "hw_hal.h"
+#include "hw_can.h"
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
@@ -35,14 +35,14 @@ typedef struct
  * Initialize and start the CAN peripheral.
  * @param can_config Config struct.
  */
-void io_can_init(const CanConfig* can_config);
+void io_can_init(const CanConfig *can_config);
 
 /**
  * Enqueue a CAN msg to be transmitted on the bus.
  * Does not block, calls `tx_overflow_callback` if queue is full.
  * @param msg CAN msg to be TXed.
  */
-void io_can_pushTxMsgToQueue(const CanMsg* msg);
+void io_can_pushTxMsgToQueue(const CanMsg *msg);
 
 /**
  * Transmit a single CAN msg onto the bus from the TX queue. Blocks until a msg exists in the queue.
@@ -53,7 +53,7 @@ void io_can_transmitMsgFromQueue(void);
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
  * @param rx_fifo Which RX FIFO to receive a message from.
  */
-void io_can_popRxMsgFromQueue(CanMsg* msg);
+void io_can_popRxMsgFromQueue(CanMsg *msg);
 
 /**
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.

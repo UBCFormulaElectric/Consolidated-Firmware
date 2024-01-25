@@ -1,27 +1,27 @@
-#include "Test_BaseStateMachineTest.h"
-#include "Test_Utils.h"
 #include <gtest/gtest.h>
+#include "Test_Utils.h"
+#include "Test_BaseStateMachineTest.h"
 
+#include "fake_io_time.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_rgbLed.hpp"
 #include "fake_io_switch.hpp"
-#include "fake_io_time.hpp"
 
 extern "C"
 {
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_CanUtils.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedMacros.h"
-#include "App_SharedRgbLedSequence.h"
 #include "App_SharedStateMachine.h"
-#include "app_avgPower.h"
-#include "app_globals.h"
 #include "app_sevenSegDisplays.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
+#include "App_SharedRgbLedSequence.h"
+#include "app_avgPower.h"
+#include "App_CanUtils.h"
+#include "App_SharedMacros.h"
 #include "states/app_driveState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -102,8 +102,8 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switch_isClosed_reset();
     }
 
-    struct StateMachine*     state_machine;
-    struct HeartbeatMonitor* heartbeat_monitor;
+    struct StateMachine *    state_machine;
+    struct HeartbeatMonitor *heartbeat_monitor;
 
     const BinaryLed       imd_led           = {};
     const BinaryLed       bspd_led          = {};

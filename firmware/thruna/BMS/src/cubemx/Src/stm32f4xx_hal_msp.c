@@ -87,7 +87,7 @@ void HAL_MspInit(void)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hadc->Instance == ADC1)
@@ -156,7 +156,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 {
     if (hadc->Instance == ADC1)
     {
@@ -195,7 +195,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
+void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN1)
@@ -235,7 +235,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
 {
     if (hcan->Instance == CAN1)
     {
@@ -266,7 +266,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
  * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hi2c->Instance == I2C1)
@@ -301,7 +301,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
  * @param hi2c: I2C handle pointer
  * @retval None
  */
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 {
     if (hi2c->Instance == I2C1)
     {
@@ -331,7 +331,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
  * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hspi->Instance == SPI1)
@@ -382,7 +382,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
  * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
     if (hspi->Instance == SPI1)
     {
@@ -413,7 +413,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (htim_base->Instance == TIM1)
@@ -481,7 +481,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
  * @param htim_base: TIM_Base handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
 {
     if (htim_base->Instance == TIM1)
     {

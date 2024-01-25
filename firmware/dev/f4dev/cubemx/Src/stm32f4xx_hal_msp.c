@@ -85,7 +85,7 @@ void HAL_MspInit(void)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hadc->Instance == ADC1)
@@ -130,7 +130,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 {
     if (hadc->Instance == ADC1)
     {
@@ -168,7 +168,7 @@ static uint32_t HAL_RCC_CAN1_CLK_ENABLED = 0;
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
+void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN1)
@@ -236,7 +236,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
  * @param hcan: CAN handle pointer
  * @retval None
  */
-void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
 {
     if (hcan->Instance == CAN1)
     {
@@ -287,7 +287,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
@@ -354,7 +354,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
  * @param hsd: SD handle pointer
  * @retval None
  */
-void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd)
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 {
     if (hsd->Instance == SDIO)
     {

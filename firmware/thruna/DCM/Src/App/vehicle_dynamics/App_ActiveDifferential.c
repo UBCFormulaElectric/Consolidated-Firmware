@@ -1,11 +1,11 @@
 #include "App_ActiveDifferential.h"
 #include "App_SharedConstants.h"
 #include "App_SharedDcmConstants.h"
-#include "App_SharedMacros.h"
 #include <math.h>
+#include "App_SharedMacros.h"
 #include <stdlib.h>
 
-void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs* inputs, ActiveDifferential_Outputs* outputs)
+void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
 {
     float Delta = App_ActiveDifferential_WheelAngleToSpeedDelta(inputs->wheel_angle_deg);
     float cl    = 1 + Delta;

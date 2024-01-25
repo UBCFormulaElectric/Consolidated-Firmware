@@ -1,8 +1,8 @@
 #pragma once
 
-#include "io_sevenSegDisplays.h"
-#include <stddef.h>
 #include <stdint.h>
+#include <stddef.h>
+#include "io_sevenSegDisplays.h"
 
 /**
  * Initialize the 7-seg app module.

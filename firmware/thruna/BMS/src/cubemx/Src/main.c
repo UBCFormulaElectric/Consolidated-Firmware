@@ -25,45 +25,45 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
 #include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_CommitInfo.h"
-#include "App_SharedStateMachine.h"
 #include "App_Timer.h"
-#include "app_accumulator.h"
-#include "app_globals.h"
-#include "app_soc.h"
 #include "app_thermistors.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_accumulator.h"
+#include "app_soc.h"
+#include "app_globals.h"
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
+#include "App_SharedStateMachine.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 
-#include "Io_CanRx.h"
-#include "Io_CanTx.h"
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedSpi.h"
-#include "io_airs.h"
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
+#include "io_jsoncan.h"
+#include "io_time.h"
 #include "io_can.h"
+#include "io_airs.h"
 #include "io_charger.h"
 #include "io_eeprom.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
-#include "io_jsoncan.h"
-#include "io_log.h"
+#include "ltc6813/io_ltc6813Shared.h"
 #include "io_stackWaterMark.h"
 #include "io_thermistors.h"
-#include "io_time.h"
 #include "io_tractiveSystem.h"
 #include "io_watchdogConfig.h"
-#include "ltc6813/io_ltc6813Shared.h"
+#include "io_log.h"
 
-#include "hw_adc.h"
-#include "hw_bootup.h"
 #include "hw_can.h"
+#include "hw_adc.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_bootup.h"
 
 /* USER CODE END Includes */
 
@@ -165,7 +165,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct StateMachine* state_machine;
+struct StateMachine *state_machine;
 
 static const Charger charger_config  = { .enable_gpio = {
                                        .port = CHRG_EN_3V3_GPIO_Port,
@@ -263,21 +263,21 @@ static const GlobalsConfig globals_config = {
     .bspd_ok_latch = &bspd_ok_latch,
 };
 
-struct Imd*              imd;
-struct HeartbeatMonitor* heartbeat_monitor;
-struct RgbLedSequence*   rgb_led_sequence;
-struct Charger*          charger;
-struct OkStatus*         bms_ok;
-struct OkStatus*         imd_ok;
-struct OkStatus*         bspd_ok;
-struct SocStats*         soc_stats;
-struct Accumulator*      accumulator;
-struct CellMonitors*     cell_monitors;
-struct Airs*             airs;
-struct PrechargeRelay*   precharge_relay;
-struct TractiveSystem*   ts;
-struct Clock*            clock;
-struct Eeprom*           eeprom;
+struct Imd *             imd;
+struct HeartbeatMonitor *heartbeat_monitor;
+struct RgbLedSequence *  rgb_led_sequence;
+struct Charger *         charger;
+struct OkStatus *        bms_ok;
+struct OkStatus *        imd_ok;
+struct OkStatus *        bspd_ok;
+struct SocStats *        soc_stats;
+struct Accumulator *     accumulator;
+struct CellMonitors *    cell_monitors;
+struct Airs *            airs;
+struct PrechargeRelay *  precharge_relay;
+struct TractiveSystem *  ts;
+struct Clock *           clock;
+struct Eeprom *          eeprom;
 
 // config to forward can functions to shared heartbeat
 // BMS rellies on DCM, PDM, and FSM
@@ -332,11 +332,11 @@ static void MX_TIM13_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_IWDG_Init(void);
-void        RunTask100Hz(void* argument);
-void        RunTaskCanRx(void* argument);
-void        RunTaskCanTx(void* argument);
-void        RunTask1kHz(void* argument);
-void        RunTask1Hz(void* argument);
+void        RunTask100Hz(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTask1kHz(void *argument);
+void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -411,7 +411,7 @@ int main(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS reset!");
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim13);
 
     hw_hardFaultHandler_init();
@@ -1093,7 +1093,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void* argument)
+void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -1127,7 +1127,7 @@ void RunTask100Hz(void* argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void* argument)
+void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
@@ -1152,7 +1152,7 @@ void RunTaskCanRx(void* argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void* argument)
+void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
@@ -1172,7 +1172,7 @@ void RunTaskCanTx(void* argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void* argument)
+void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
@@ -1189,7 +1189,7 @@ void RunTask1kHz(void* argument)
         // ADC wasn't reading any voltages when triggered by TIM3 like on other boards
         // But worked fine when starting the conversion via software as below
         // TODO: Figure out why
-        HAL_ADC_Start_DMA(&hadc1, (uint32_t*)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
 
         // Check in for timeouts for all RTOS tasks
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
@@ -1219,7 +1219,7 @@ void RunTask1kHz(void* argument)
  * @retval None
  */
 /* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void* argument)
+void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
@@ -1258,7 +1258,7 @@ void RunTask1Hz(void* argument)
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     /* USER CODE BEGIN Callback 0 */
 
@@ -1291,7 +1291,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(uint8_t* file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     __assert_func(file, line, "assert_failed", "assert_failed");

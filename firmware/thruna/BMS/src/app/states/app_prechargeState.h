@@ -1,12 +1,12 @@
 #pragma once
 
-#include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
-#include "states/app_allStates.h"
-#include "states/app_chargeState.h"
-#include "states/app_driveState.h"
-#include "states/app_faultState.h"
 #include "states/app_initState.h"
+#include "states/app_driveState.h"
+#include "states/app_chargeState.h"
+#include "states/app_faultState.h"
+#include "states/app_allStates.h"
+#include "App_SharedMacros.h"
 
 #define NUM_OF_INVERTERS (2U)
 #define PRECHARGE_RESISTOR_OHMS (500U)
@@ -23,4 +23,4 @@
  * Get a pointer to the Pre-Charge State.
  * @return A pointer to the Pre-Charge State. THIS SHOULD NOT BE MODIFIED.
  */
-const struct State* app_prechargeState_get(void);
+const struct State *app_prechargeState_get(void);

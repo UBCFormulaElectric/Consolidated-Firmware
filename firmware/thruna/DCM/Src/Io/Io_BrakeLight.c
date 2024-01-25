@@ -1,6 +1,6 @@
-#include "Io_BrakeLight.h"
-#include "main.h"
 #include <stm32f4xx.h>
+#include "main.h"
+#include "Io_BrakeLight.h"
 
 void Io_BrakeLight_TurnOn(void)
 {

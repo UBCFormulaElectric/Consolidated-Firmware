@@ -7,10 +7,10 @@
  * https://www.pololu.com/file/0J1088/LSM6DS33-AN4682.pdf
  */
 
-#include "App_SharedExitCode.h"
-#include <stdbool.h>
 #include <stdint.h>
 #include <stm32f4xx_hal.h>
+#include <stdbool.h>
+#include "App_SharedExitCode.h"
 
 /**
  * Get x acceleration from Imu

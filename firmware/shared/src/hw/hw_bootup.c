@@ -1,6 +1,6 @@
 #include "hw_bootup.h"
-#include "hw_hal.h"
 #include <stdlib.h>
+#include "hw_hal.h"
 
 // Defined in linker script.
 extern uint32_t __app_code_start__;

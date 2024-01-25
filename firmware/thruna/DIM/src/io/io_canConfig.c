@@ -1,8 +1,8 @@
 #include "io_canConfig.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "Io_SharedMacros.h"
 #include <stdbool.h>
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
+#include "Io_SharedMacros.h"
 
 void io_canConfig_txOverflowCallback(uint32_t overflow_count)
 {

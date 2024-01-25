@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 // States for speed start measurement
 typedef enum

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "App_SharedMacros.h"
 #include <stdbool.h>
+#include "App_SharedMacros.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -20,4 +20,4 @@ EMPTY_STRUCT(Switch);
  * @param binary_switch Binary switch instance.
  * @return True if the switch is turned on, else false.
  */
-bool io_switch_isClosed(const Switch* binary_switch);
+bool io_switch_isClosed(const Switch *binary_switch);

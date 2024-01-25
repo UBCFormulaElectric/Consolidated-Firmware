@@ -1,7 +1,7 @@
 #include "io_apps.h"
-#include "App_SharedMacros.h"
-#include "hw_adc.h"
 #include <tgmath.h>
+#include "hw_adc.h"
+#include "App_SharedMacros.h"
 
 // Constant used to compute gamma (cosine law)
 #define PAPPS_LEN_A (175.0f) // pedal length to PAPPS

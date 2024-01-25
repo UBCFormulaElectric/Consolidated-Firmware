@@ -1,16 +1,16 @@
 #pragma once
 
 #include "hw_hal.h"
+#include <stm32f4xx.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stm32f4xx.h>
 
 // Check here for documentation about the type defined by HAL
 // https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
 
 typedef struct
 {
-    SD_HandleTypeDef* hsd;     // the HAL SD handle that will hold the state of the SD card
+    SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t          timeout; // the timeout for the SD card operations
 } SdCard;                      // struct that included all the state about SDIO and SD card
 
@@ -34,7 +34,7 @@ typedef enum
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_read(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   write to sd card. The data size will be num_blocks * BlockSize
@@ -46,7 +46,7 @@ SdCardStatus hw_sd_read(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_
  * @return  SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_write(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read within the 1 block from sd card, provided offset and size
@@ -59,7 +59,7 @@ SdCardStatus hw_sd_write(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_readOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_readOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief   write within the 1 block from sd card, provided offset and size
@@ -73,7 +73,7 @@ SdCardStatus hw_sd_readOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, u
  * @return SD_card_status the status of the opeation
  *
  */
-SdCardStatus hw_sd_writeOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+SdCardStatus hw_sd_writeOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
  * @brief Erase data from the sd card
@@ -83,4 +83,4 @@ SdCardStatus hw_sd_writeOffset(SdCard* sd, uint8_t* pdata, uint32_t block_addr, 
  * @param end_addr start of block index
  * @return SD_card_status the status of the opeation
  */
-SdCardStatus hw_sd_erase(SdCard* sd, uint32_t start_addr, uint32_t end_addr);
+SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr);

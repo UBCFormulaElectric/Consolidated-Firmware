@@ -1,8 +1,8 @@
 #pragma once
 
-#include "configs/App_SharedSignalConfig.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include "configs/App_SharedSignalConfig.h"
 
 #ifndef World
 #error "Please define the 'World' type"
@@ -22,7 +22,7 @@ struct Signal;
  * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
-struct Signal* App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
+struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -36,7 +36,7 @@ struct Signal* App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-SignalState App_SharedSignal_Update(struct Signal* signal, bool entry_condition_high, bool exit_condition_high);
+SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high);
 
 // Getters
 /**
@@ -44,10 +44,10 @@ SignalState App_SharedSignal_Update(struct Signal* signal, bool entry_condition_
  * @param signal The signal to check if the callback function is triggered
  * @return true if the callback function is triggered, false if it is not
  */
-bool App_SharedSignal_IsSignalActivated(const struct Signal* const signal);
+bool App_SharedSignal_IsSignalActivated(const struct Signal *const signal);
 
 /**
  * Deallocate the memory used by the given signal
  * @param signal The signal to deallocate
  */
-void App_SharedSignal_Destroy(struct Signal* signal);
+void App_SharedSignal_Destroy(struct Signal *signal);

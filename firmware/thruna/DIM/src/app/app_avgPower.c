@@ -1,6 +1,6 @@
 // #include <stdlib.h>
-#include "app_avgPower.h"
 #include <assert.h>
+#include "app_avgPower.h"
 
 typedef struct
 {

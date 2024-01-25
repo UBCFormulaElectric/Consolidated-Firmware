@@ -1,13 +1,13 @@
 #include "app_wheels.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "App_InRangeCheck.h"
-#include "io_wheels.h"
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
+#include "App_InRangeCheck.h"
+#include "App_CanTx.h"
+#include "App_CanAlerts.h"
+#include "io_wheels.h"
 
-static struct InRangeCheck* left_wheel_speed_in_range_check;
-static struct InRangeCheck* right_wheel_speed_in_range_check;
+static struct InRangeCheck *left_wheel_speed_in_range_check;
+static struct InRangeCheck *right_wheel_speed_in_range_check;
 
 void app_wheels_init()
 {

@@ -84,7 +84,7 @@ void HAL_MspInit(void)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hadc->Instance == ADC1)
@@ -147,7 +147,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  * @param hadc: ADC handle pointer
  * @retval None
  */
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
+void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 {
     if (hadc->Instance == ADC1)
     {
@@ -195,7 +195,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
     GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
@@ -241,7 +241,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
  * @param hfdcan: FDCAN handle pointer
  * @retval None
  */
-void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* hfdcan)
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 {
     if (hfdcan->Instance == FDCAN1)
     {

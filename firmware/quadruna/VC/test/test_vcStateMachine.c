@@ -1,22 +1,22 @@
-#include "Test_Utils.h"
 #include <gtest/gtest.h>
+#include "Test_Utils.h"
 
-#include "fake_io_efuse.hpp"
-#include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_time.hpp"
+#include "fake_io_lowVoltageBattery.hpp"
+#include "fake_io_efuse.hpp"
 
 extern "C"
 {
-#include "App_CanAlerts.h"
-#include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_CanUtils.h"
+#include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
-#include "app_globals.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
+#include "App_CanUtils.h"
+#include "App_SharedMacros.h"
 #include "states/app_initState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -45,6 +45,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
     }
 
-    struct StateMachine*     state_machine;
-    struct HeartbeatMonitor* heartbeat_monitor;
+    struct StateMachine *    state_machine;
+    struct HeartbeatMonitor *heartbeat_monitor;
 };

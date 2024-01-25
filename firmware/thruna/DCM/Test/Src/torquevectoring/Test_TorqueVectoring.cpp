@@ -13,15 +13,15 @@
 
 extern "C"
 {
-#include "App_ActiveDifferential.h"
-#include "App_CanRx.h"
-#include "App_CanTx.h"
 #include "App_PowerLimiting.h"
-#include "App_SharedConstants.h"
+#include "App_ActiveDifferential.h"
 #include "App_SharedDcmConstants.h"
-#include "App_SharedMacros.h"
 #include "App_TorqueVectoring.h"
 #include "math.h"
+#include "App_SharedMacros.h"
+#include "App_SharedConstants.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
 }
 /**
  * Define SetUp and TearDown to be called before every TEST_F call

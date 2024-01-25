@@ -1,5 +1,5 @@
-#include "App_CanTx.h"
 #include "App_InRangeCheck.h"
+#include "App_CanTx.h"
 
 enum InRangeCheck_Status CheckStatus(enum InRangeCheck_Status status, void (*const out_of_range_setter)(uint8_t))
 {
@@ -27,8 +27,8 @@ enum InRangeCheck_Status CheckStatus(enum InRangeCheck_Status status, void (*con
 
 enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck_float(
     const struct InRangeCheck* in_range_check,
-    void (*const can_signal_setter)(float),
-    void (*const out_of_range_setter)(uint8_t))
+    void                       (*const can_signal_setter)(float),
+    void                       (*const out_of_range_setter)(uint8_t))
 {
     float                    value;
     enum InRangeCheck_Status status = App_InRangeCheck_GetValue(in_range_check, &value);
@@ -40,8 +40,8 @@ enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck_float(
 }
 enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck_long(
     const struct InRangeCheck* in_range_check,
-    void (*const can_signal_setter)(uint32_t),
-    void (*const out_of_range_setter)(uint8_t))
+    void                       (*const can_signal_setter)(uint32_t),
+    void                       (*const out_of_range_setter)(uint8_t))
 {
     float                    value;
     enum InRangeCheck_Status status = App_InRangeCheck_GetValue(in_range_check, &value);

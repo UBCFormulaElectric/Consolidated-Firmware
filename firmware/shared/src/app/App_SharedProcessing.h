@@ -7,7 +7,7 @@
  * @param f_x1 The current value of f(x) used to approximate the value of the current trapezoid
  * @param d_x The uniform delta-x of each trapezoid
  */
-static inline void App_SharedProcessing_TrapezoidalRule(double* integral, float* f_prev, float f_curr, double d_x)
+static inline void App_SharedProcessing_TrapezoidalRule(double *integral, float *f_prev, float f_curr, double d_x)
 {
     // Calculate the trapezoid and add to the previous integral
     // Double is used here as the extra precision is needed when adding a small delta to a large integral amount

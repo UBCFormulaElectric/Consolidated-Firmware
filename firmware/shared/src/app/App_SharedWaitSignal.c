@@ -1,6 +1,6 @@
-#include "App_SharedWaitSignal.h"
 #include <assert.h>
 #include <stdlib.h>
+#include "App_SharedWaitSignal.h"
 
 struct WaitSignal
 {
@@ -11,22 +11,22 @@ struct WaitSignal
     uint32_t last_time_high_ms;
 
     // The function to call to check if this wait signal is high
-    bool (*is_high)(struct World*);
+    bool (*is_high)(struct World *);
 
     // The world associated with this wait signal
-    struct World* world;
+    struct World *world;
 
     // The callback function triggered when the wait has completed
     struct WaitSignalCallback callback;
 };
 
 struct WaitSignal* App_SharedWaitSignal_Create(
-    uint32_t initial_time_ms,
-    bool (*is_high)(struct World*),
+    uint32_t                  initial_time_ms,
+    bool                      (*is_high)(struct World*),
     struct World* const       world,
     struct WaitSignalCallback callback)
 {
-    struct WaitSignal* wait_signal = malloc(sizeof(struct WaitSignal));
+    struct WaitSignal *wait_signal = malloc(sizeof(struct WaitSignal));
     assert(wait_signal != NULL);
 
     wait_signal->is_waiting        = false;
@@ -38,22 +38,22 @@ struct WaitSignal* App_SharedWaitSignal_Create(
     return wait_signal;
 }
 
-void App_SharedWaitSignal_Destroy(struct WaitSignal* wait_signal)
+void App_SharedWaitSignal_Destroy(struct WaitSignal *wait_signal)
 {
     free(wait_signal);
 }
 
-uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal* const wait_signal)
+uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal *const wait_signal)
 {
     return wait_signal->last_time_high_ms;
 }
 
-bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal* const wait_signal)
+bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal *const wait_signal)
 {
     return wait_signal->is_waiting;
 }
 
-void App_SharedWaitSignal_Update(struct WaitSignal* const wait_signal, uint32_t current_ms)
+void App_SharedWaitSignal_Update(struct WaitSignal *const wait_signal, uint32_t current_ms)
 {
     if (!wait_signal->is_waiting)
     {
