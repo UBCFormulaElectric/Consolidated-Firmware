@@ -65,7 +65,7 @@ ELSE ()
             ERROR_VARIABLE PIPENV_ERROR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE)
-    message(${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR})
+    message("pipenv output: ${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR}")
     IF (WIN32)
         set(PYTHON_COMMAND pipenv run python)
     ELSE ()

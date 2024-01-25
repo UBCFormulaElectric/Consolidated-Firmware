@@ -133,7 +133,7 @@ NamespaceIndentation: Inner
 ReflowComments: true
 
 # lists of the include headers in alphabetical order
-SortIncludes: CaseSensitive
+SortIncludes: Never
 
 # TODO: Enable me when clang-format has been updated to understand me
 #SortUsingDeclarations: false

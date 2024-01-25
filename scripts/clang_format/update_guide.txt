@@ -1,0 +1,8 @@
+check here for latest binaries: https://github.com/llvm/llvm-project/releases
+    - look for *-x86_64-linux-gnu-ubuntu-22.04.tar.xz
+    - look for *-arm64-apple-darwin22.0.tar.xz
+    - look for *-win64.exe
+
+run `git update-index --chmod=+x ./clang-format-*`
+
+change the required variables inside fix_formatting.py
