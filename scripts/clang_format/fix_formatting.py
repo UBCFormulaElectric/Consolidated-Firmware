@@ -127,3 +127,4 @@ if __name__ == "__main__":
         print("SUCCESS: clang-format ran on all files!")
     else:
         print("ERROR: clang-format encountered issues!")
+        sys.exit(1)
