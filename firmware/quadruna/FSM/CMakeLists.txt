@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgt6/stm32f412rgt6_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -27,7 +27,7 @@ list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_flash.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 file (GLOB_RECURSE TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/main.c")
-list (APPEND TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+# list (APPEND TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
@@ -59,28 +59,28 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal_adc_ex.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_dma_ex.c"
-        "stm32h7xx_hal_dma.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_fdcan.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_iwdg.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_tim_ex.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_uart_ex.c"
-        "stm32h7xx_hal_uart.c"
-        "stm32h7xx_hal.c"
+        "stm32f4xx_hal_adc_ex.c"
+        "stm32f4xx_hal_adc.c"
+        "stm32f4xx_hal_cortex.c"
+        "stm32f4xx_hal_dma_ex.c"
+        "stm32f4xx_hal_dma.c"
+        "stm32f4xx_hal_exti.c"
+        # "stm32f4xx_hal_fdcan.c"
+        "stm32f4xx_hal_gpio.c"
+        "stm32f4xx_hal_iwdg.c"
+        "stm32f4xx_hal_pwr_ex.c"
+        "stm32f4xx_hal_rcc_ex.c"
+        "stm32f4xx_hal_rcc.c"
+        "stm32f4xx_hal_tim_ex.c"
+        "stm32f4xx_hal_tim.c"
+        # "stm32f4xx_hal_uart_ex.c"
+        "stm32f4xx_hal_uart.c"
+        "stm32f4xx_hal.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-    stm32h733xx_cube_library(
+    stm32f412rx_cube_library(
         "FSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
