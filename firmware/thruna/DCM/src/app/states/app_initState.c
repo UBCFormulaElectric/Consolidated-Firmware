@@ -44,9 +44,14 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
-        // Transition to drive state when start-up conditions are passed (see
-        // EV.10.4.3):
+// Transition to drive state when start-up conditions are passed (see
+// EV.10.4.3):
+
+// TODO: Could not thoroughly validate DCM refactor without a working BMS.
+// Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
+#ifndef TARGET_EMBEDDED
         App_SharedStateMachine_SetNextState(state_machine, app_driveState_get());
+#endif
     }
 }
 
