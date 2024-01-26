@@ -35,7 +35,7 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
 
-    const bool curr_start_switch_pos      = App_CanRx_DIM_StartSwitch_Get();
+    const bool curr_start_switch_pos      = App_CanRx_DIM_StartSwitch_Get() == SWITCH_ON;
     const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
     prev_start_switch_pos                 = curr_start_switch_pos;
 
