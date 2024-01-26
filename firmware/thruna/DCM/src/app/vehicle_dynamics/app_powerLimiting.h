@@ -1,5 +1,5 @@
 #pragma once
-#include "torquevectoring/app_torqueVectoring.h"
+#include "app_vehicleDynamics.h"
 
 /**
  * Computes the max allowable power draw from the battery based on motor temps,

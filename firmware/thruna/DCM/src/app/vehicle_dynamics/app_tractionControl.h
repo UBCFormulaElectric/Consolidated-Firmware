@@ -1,5 +1,5 @@
 #pragma once
-#include "torquevectoring/app_torqueVectoring.h"
+#include "app_vehicleDynamics.h"
 
 void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionControl_Outputs *outputs);
 

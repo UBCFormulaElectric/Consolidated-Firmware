@@ -1,4 +1,4 @@
-#include "app_torqueVectoringConstants.h"
+#include "app_vehicleDynamicsConstants.h"
 
 const PID_Config PID_POWER_CORRECTION_CONFIG = { .Kp      = 0.1f,
                                                  .Ki      = 0.0f,

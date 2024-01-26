@@ -34,7 +34,7 @@ class TorqueVectoringTest : public testing::Test
     {
         App_CanTx_Init();
         App_CanRx_Init();
-        app_torqueVectoring_setup();
+        app_torqueVectoring_init();
     }
     void TearDown() override { return; }
 };

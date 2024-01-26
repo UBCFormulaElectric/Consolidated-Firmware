@@ -1,4 +1,4 @@
-#include "torquevectoring/app_pid.h"
+#include "app_pid.h"
 #include "App_SharedMacros.h"
 
 void app_pid_init(PID *pid, const PID_Config *conf)

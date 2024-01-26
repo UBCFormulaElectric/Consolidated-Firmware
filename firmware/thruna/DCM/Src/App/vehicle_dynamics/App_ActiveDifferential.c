@@ -1,6 +1,6 @@
-#include "torquevectoring/app_activeDifferential.h"
+#include "app_activeDifferential.h"
 #include "App_SharedConstants.h"
-#include "app_torqueVectoringConstants.h"
+#include "App_SharedDcmConstants.h"
 #include <math.h>
 #include "App_SharedMacros.h"
 #include <stdlib.h>

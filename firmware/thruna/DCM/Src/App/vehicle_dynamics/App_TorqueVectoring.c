@@ -1,8 +1,8 @@
-#include "torquevectoring/app_torqueVectoring.h"
-#include "app_torqueVectoringConstants.h"
-#include "torquevectoring/app_powerLimiting.h"
-#include "torquevectoring/app_activeDifferential.h"
-#include "torquevectoring/app_tractionControl.h"
+#include "App_TorqueVectoring.h"
+#include "App_SharedDcmConstants.h"
+#include "app_powerLimiting.h"
+#include "app_activeDifferential.h"
+#include "App_TractionControl.h"
 #include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
@@ -12,7 +12,7 @@
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
 
-static PowerLimiting_Inputs       power_limiting_inputs;
+static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
 static ActiveDifferential_Inputs  active_differential_inputs;
 static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
@@ -29,7 +29,6 @@ static float pid_power_correction_factor = 0.0f;
 static PID   pid_traction_control;
 
 static float accelerator_pedal_percent;
-static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
 static float wheel_speed_front_right_kph;
 static float motor_speed_left_rpm;
@@ -40,7 +39,7 @@ static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
 
-void app_torqueVectoring_setup(void)
+void app_torqueVectoring_init(void)
 {
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
@@ -49,11 +48,11 @@ void app_torqueVectoring_setup(void)
     App_Timer_InitTimer(&pid_timeout, PID_TIMEOUT_ms);
 }
 
-void app_torqueVectoring_run(void)
+void app_torqueVectoring_run(float accelerator_pedal_percentage)
 {
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
-    accelerator_pedal_percent   = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
+    accelerator_pedal_percent   = accelerator_pedal_percentage;
     wheel_speed_front_left_kph  = App_CanRx_FSM_LeftWheelSpeed_Get();
     wheel_speed_front_right_kph = App_CanRx_FSM_RightWheelSpeed_Get();
     motor_speed_left_rpm        = (float)App_CanRx_INVL_MotorSpeed_Get();
@@ -82,10 +81,9 @@ void app_torqueVectoring_handleAcceleration(void)
     App_Timer_Restart(&pid_timeout);
 
     // Power Limiting
-    power_limiting_inputs.left_motor_temp_C          = left_motor_temp_C;
-    power_limiting_inputs.right_motor_temp_C         = right_motor_temp_C;
-    power_limiting_inputs.available_battery_power_kW = POWER_LIMIT_CAR_kW;
-    power_limiting_inputs.accelerator_pedal_percent  = accelerator_pedal_percent;
+    power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
+    power_limiting_inputs.right_motor_temp_C        = right_motor_temp_C;
+    power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
     float estimated_power_limit;
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
 

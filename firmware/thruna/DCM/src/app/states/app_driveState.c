@@ -62,7 +62,7 @@ static void driveStateRunOnEntry(struct StateMachine *const state_machine)
 
     if (globals->torque_vectoring_switch_is_on)
     {
-        app_torqueVectoring_setup();
+        app_torqueVectoring_init();
     }
 }
 
