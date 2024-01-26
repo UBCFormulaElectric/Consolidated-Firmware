@@ -263,21 +263,21 @@ static const GlobalsConfig globals_config = {
     .bspd_ok_latch = &bspd_ok_latch,
 };
 
-struct Imd              *imd;
+struct Imd *             imd;
 struct HeartbeatMonitor *heartbeat_monitor;
-struct RgbLedSequence   *rgb_led_sequence;
-struct Charger          *charger;
-struct OkStatus         *bms_ok;
-struct OkStatus         *imd_ok;
-struct OkStatus         *bspd_ok;
-struct SocStats         *soc_stats;
-struct Accumulator      *accumulator;
-struct CellMonitors     *cell_monitors;
-struct Airs             *airs;
-struct PrechargeRelay   *precharge_relay;
-struct TractiveSystem   *ts;
-struct Clock            *clock;
-struct Eeprom           *eeprom;
+struct RgbLedSequence *  rgb_led_sequence;
+struct Charger *         charger;
+struct OkStatus *        bms_ok;
+struct OkStatus *        imd_ok;
+struct OkStatus *        bspd_ok;
+struct SocStats *        soc_stats;
+struct Accumulator *     accumulator;
+struct CellMonitors *    cell_monitors;
+struct Airs *            airs;
+struct PrechargeRelay *  precharge_relay;
+struct TractiveSystem *  ts;
+struct Clock *           clock;
+struct Eeprom *          eeprom;
 
 // config to forward can functions to shared heartbeat
 // BMS rellies on DCM, PDM, and FSM

@@ -50,9 +50,9 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi_interface);
  */
 bool Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *spi_interface,
-    uint8_t                *tx_buffer,
+    uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size,
-    uint8_t                *rx_buffer,
+    uint8_t *               rx_buffer,
     uint16_t                rx_buffer_size);
 
 /**
@@ -88,7 +88,7 @@ bool Io_SharedSpi_Receive(const struct SharedSpi *spi_interface, uint8_t *rx_buf
  */
 bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,
-    uint8_t                *tx_buffer,
+    uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size,
     size_t                  num_tx_data_copies);
 
@@ -103,5 +103,5 @@ bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
  */
 bool Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,
-    uint8_t                *tx_buffer,
+    uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size);

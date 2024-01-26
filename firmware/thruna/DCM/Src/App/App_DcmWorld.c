@@ -8,11 +8,11 @@
 struct DcmWorld
 {
     struct HeartbeatMonitor *heartbeat_monitor;
-    struct BrakeLight       *brake_light;
-    struct Buzzer           *buzzer;
-    struct Imu              *imu;
-    struct WaitSignal       *buzzer_wait_signal;
-    struct Clock            *clock;
+    struct BrakeLight *      brake_light;
+    struct Buzzer *          buzzer;
+    struct Imu *             imu;
+    struct WaitSignal *      buzzer_wait_signal;
+    struct Clock *           clock;
 };
 
 struct DcmWorld *App_DcmWorld_Create(

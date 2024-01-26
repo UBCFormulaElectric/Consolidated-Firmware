@@ -148,20 +148,20 @@ static const CanConfig can_config = {
     .rx_overflow_callback = io_canConfig_rxOverflowCallback,
 };
 
-struct StateMachine     *state_machine;
+struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
 
 static const BinaryLed imd_led   = { .gpio = {
-                                         .port = IMD_LED_GPIO_Port,
-                                         .pin  = IMD_LED_Pin,
+                                       .port = IMD_LED_GPIO_Port,
+                                       .pin  = IMD_LED_Pin,
                                    } };
 static const BinaryLed bspd_led  = { .gpio = {
-                                         .port = BSPD_LED_GPIO_Port,
-                                         .pin  = BSPD_LED_Pin,
+                                        .port = BSPD_LED_GPIO_Port,
+                                        .pin  = BSPD_LED_Pin,
                                     } };
 static const BinaryLed shdn_led  = { .gpio = {
-                                         .port = SHDN_LED_GPIO_Port,
-                                         .pin  = SHDN_LED_Pin,
+                                        .port = SHDN_LED_GPIO_Port,
+                                        .pin  = SHDN_LED_Pin,
                                     } };
 static const BinaryLed drive_led = { .gpio = {
                                          .port = IGNTN_LED_GPIO_Port,

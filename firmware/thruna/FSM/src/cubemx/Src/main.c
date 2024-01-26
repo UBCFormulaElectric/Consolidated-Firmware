@@ -155,14 +155,14 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct Brake             *brake;
-struct World             *world;
-struct StateMachine      *state_machine;
-struct HeartbeatMonitor  *heartbeat_monitor;
+struct Brake *            brake;
+struct World *            world;
+struct StateMachine *     state_machine;
+struct HeartbeatMonitor * heartbeat_monitor;
 struct AcceleratorPedals *papps_and_sapps;
-struct Coolant           *coolant;
-struct Steering          *steering;
-struct Wheels            *wheels;
+struct Coolant *          coolant;
+struct Steering *         steering;
+struct Wheels *           wheels;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

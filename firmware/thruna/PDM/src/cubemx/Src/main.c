@@ -141,7 +141,7 @@ const osThreadAttr_t Task1Hz_attributes = {
 };
 
 /* USER CODE BEGIN PV */
-struct StateMachine     *state_machine;
+struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
 
 static const LvBatteryConfig lv_battery_config = {

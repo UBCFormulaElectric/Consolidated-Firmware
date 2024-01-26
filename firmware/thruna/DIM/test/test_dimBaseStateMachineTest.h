@@ -102,7 +102,7 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switch_isClosed_reset();
     }
 
-    struct StateMachine     *state_machine;
+    struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
 
     const BinaryLed       imd_led           = {};

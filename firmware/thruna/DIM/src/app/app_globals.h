@@ -22,7 +22,7 @@ typedef struct
 
 typedef struct
 {
-    const GlobalsConfig     *config;
+    const GlobalsConfig *    config;
     struct HeartbeatMonitor *heartbeat_monitor;
 } Globals;
 

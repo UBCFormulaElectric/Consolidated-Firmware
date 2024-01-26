@@ -101,7 +101,7 @@ EepromStatus app_eeprom_updateSavedSocAddress(uint16_t *address)
     }
     else
     {
-        (*address)++;
+        *address = *address + 1;
     }
 
     // convert address to bytes and write 4 copies to page 0

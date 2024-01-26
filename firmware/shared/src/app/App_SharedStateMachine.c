@@ -19,7 +19,7 @@ struct StateMachine
 {
     const struct State *next_state;
     const struct State *current_state;
-    struct World       *world;
+    struct World *      world;
 #ifdef __arm__
     StaticSemaphore_t state_tick_mutex_storage;
     SemaphoreHandle_t state_tick_mutex;

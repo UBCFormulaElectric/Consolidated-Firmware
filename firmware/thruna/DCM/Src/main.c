@@ -138,13 +138,13 @@ const osThreadAttr_t Task100Hz_attributes = {
     .priority   = (osPriority_t)osPriorityHigh,
 };
 /* USER CODE BEGIN PV */
-struct DcmWorld         *world;
-struct StateMachine     *state_machine;
+struct DcmWorld *        world;
+struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
-struct BrakeLight       *brake_light;
-struct Buzzer           *buzzer;
-struct Imu              *imu;
-struct Clock            *clock;
+struct BrakeLight *      brake_light;
+struct Buzzer *          buzzer;
+struct Imu *             imu;
+struct Clock *           clock;
 UART                     imu_uart = { .handle = &huart1 };
 
 // config to forward can functions to shared heartbeat

@@ -6,7 +6,7 @@
 
 extern TIM_HandleTypeDef htim1;
 
-static struct PwmInput   *imd_pwm_input;
+static struct PwmInput *  imd_pwm_input;
 static TIM_HandleTypeDef *imd_htim;
 
 void io_imd_init(void)

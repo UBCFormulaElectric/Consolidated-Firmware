@@ -198,7 +198,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     //     App_Timer_SetCurrentTimeMS(current_time_ms);
     // }
 
-    struct StateMachine     *state_machine;
+    struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
 
     const Charger              charger_config     = {};

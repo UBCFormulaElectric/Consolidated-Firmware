@@ -7,7 +7,7 @@ struct FreqOnlyPwmInput
 {
     float frequency_hz;
 
-    TIM_HandleTypeDef    *htim;
+    TIM_HandleTypeDef *   htim;
     float                 tim_frequency_hz;
     uint32_t              tim_channel;
     uint32_t              tim_auto_reload_reg;
@@ -35,7 +35,7 @@ static void Io_SetFrequency(struct FreqOnlyPwmInput *const pwm_input, const floa
 }
 
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
-    TIM_HandleTypeDef    *htim,
+    TIM_HandleTypeDef *   htim,
     float                 tim_frequency_hz,
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,

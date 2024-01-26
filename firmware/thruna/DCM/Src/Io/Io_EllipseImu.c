@@ -54,7 +54,7 @@ typedef struct
 
 /* --------------------------------- Variables ---------------------------------- */
 
-static UART         *uart;
+static UART *        uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -81,11 +81,11 @@ float *sensor_output_map[NUM_SBG_OUTPUTS] = {
 static void         Io_EllipseImu_CreateSerialInterface(SbgInterface *interface);
 static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
 static SbgErrorCode Io_EllipseImu_LogReceivedCallback(
-    SbgEComHandle          *handle,
+    SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
-    void                   *user_arg);
+    void *                  user_arg);
 static void Io_EllipseImu_ProcessMsg_Imu(const SbgBinaryLogData *log_data);
 static void Io_EllipseImu_ProcessMsg_EulerAngles(const SbgBinaryLogData *log_data);
 static void Io_EllipseImu_ProcessMsg_Status(const SbgBinaryLogData *log_data);
@@ -166,11 +166,11 @@ static SbgErrorCode Io_EllipseImu_Read(SbgInterface *interface, void *buffer, si
  * Callback called when a log is successfully received and parsed.
  */
 SbgErrorCode Io_EllipseImu_LogReceivedCallback(
-    SbgEComHandle          *handle,
+    SbgEComHandle *         handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
-    void                   *user_arg)
+    void *                  user_arg)
 {
     assert(log_data);
 

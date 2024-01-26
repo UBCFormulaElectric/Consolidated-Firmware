@@ -77,7 +77,7 @@ class SharedStateMachineTest : public testing::Test
         App_SharedStateMachine_SetNextState(state_machine, &state_B);
     }
 
-    struct World        *world;
+    struct World *       world;
     struct StateMachine *state_machine;
 };
 

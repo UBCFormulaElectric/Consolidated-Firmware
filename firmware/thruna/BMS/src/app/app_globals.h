@@ -18,7 +18,7 @@ typedef struct
 typedef struct
 {
     // Config.
-    const GlobalsConfig     *config;
+    const GlobalsConfig *    config;
     struct HeartbeatMonitor *hb_monitor;
 
     // State variables.

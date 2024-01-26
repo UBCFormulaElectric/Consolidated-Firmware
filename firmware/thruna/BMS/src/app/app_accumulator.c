@@ -152,9 +152,9 @@ static void app_accumulator_balanceCells(void)
     io_ltc6813Shared_writeConfigurationRegisters(true);
 
     // Balance PWM settings
-    float    balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
-                                    ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
-                                    : BALANCE_DEFAULT_FREQ;
+    float balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
+                                 ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
+                                 : BALANCE_DEFAULT_FREQ;
     uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancingOverridePWM_Get()
                                     ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get()
                                     : BALANCE_DEFAULT_DUTY;

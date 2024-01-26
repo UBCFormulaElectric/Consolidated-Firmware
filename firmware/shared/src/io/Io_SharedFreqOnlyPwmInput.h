@@ -17,7 +17,7 @@ struct FreqOnlyPwmInput;
  * @return Pointer to the allocated and initialized PWM input
  */
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
-    TIM_HandleTypeDef    *htim,
+    TIM_HandleTypeDef *   htim,
     float                 tim_frequency_hz,
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,

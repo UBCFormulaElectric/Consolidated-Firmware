@@ -33,7 +33,7 @@ struct WaitSignalCallback
 struct WaitSignal *App_SharedWaitSignal_Create(
     uint32_t initial_time_ms,
     bool (*is_high)(struct World *),
-    struct World             *world,
+    struct World *            world,
     struct WaitSignalCallback callback);
 
 /**

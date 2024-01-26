@@ -101,6 +101,6 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_standbyReset_reset();
     }
 
-    struct StateMachine     *state_machine;
+    struct StateMachine *    state_machine;
     struct HeartbeatMonitor *heartbeat_monitor;
 };

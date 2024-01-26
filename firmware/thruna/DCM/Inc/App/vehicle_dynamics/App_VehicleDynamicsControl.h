@@ -18,7 +18,7 @@ typedef struct TractionControl_Inputs
     float motor_speed_right_rpm;
     float wheel_speed_front_left_kph;
     float wheel_speed_front_right_kph;
-    PID  *pid;
+    PID * pid;
 } TractionControl_Inputs;
 
 typedef struct TractionControl_Outputs

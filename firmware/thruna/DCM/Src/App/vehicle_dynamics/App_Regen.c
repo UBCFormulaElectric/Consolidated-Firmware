@@ -33,8 +33,8 @@ static bool power_limit_check(RegenBraking_Inputs *regenAttr);
  */
 static void compute_regen_torque_request(
     ActiveDifferential_Inputs *inputs,
-    RegenBraking_Inputs       *regenAttr,
-    PowerLimiting_Inputs      *powerInputs);
+    RegenBraking_Inputs *      regenAttr,
+    PowerLimiting_Inputs *     powerInputs);
 
 static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
@@ -115,8 +115,8 @@ static bool power_limit_check(RegenBraking_Inputs *regenAttr)
 
 static void compute_regen_torque_request(
     ActiveDifferential_Inputs *activeDiffInputs,
-    RegenBraking_Inputs       *regenAttr,
-    PowerLimiting_Inputs      *powerInputs)
+    RegenBraking_Inputs *      regenAttr,
+    PowerLimiting_Inputs *     powerInputs)
 {
     float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
     float min_motor_speed =
