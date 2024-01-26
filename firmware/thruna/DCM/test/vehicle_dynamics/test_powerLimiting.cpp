@@ -20,9 +20,9 @@
 
 extern "C"
 {
-#include "torquevectoring/app_powerLimiting.h"
-#include "torquevectoring/app_torqueVectoring.h"
-#include "torquevectoring/app_torqueVectoringConstants.h"
+#include "app_powerLimiting.h"
+#include "app_torqueVectoring.h"
+#include "app_torqueVectoringConstants.h"
 #include "math.h"
 }
 

@@ -54,6 +54,7 @@
 #include "hw_bootup.h"
 #include "hw_can.h"
 #include "hw_gpio.h"
+#include "hw_uart.h"
 
 /* USER CODE END Includes */
 
@@ -159,6 +160,7 @@ static const Buzzer    buzzer      = { .gpio = {
                                    .port = BUZZER_EN_3V3_GPIO_Port,
                                    .pin  = BUZZER_EN_3V3_Pin,
                                } };
+UART                     imu_uart = { .handle = &huart1 };
 
 // config to forward can functions to shared heartbeat
 // BMS rellies on DIM, FSM, and BMS
@@ -275,7 +277,7 @@ int main(void)
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
 
-    if (!io_sbgEllipse_init())
+    if (!io_sbgEllipse_init(&imu_uart))
     {
         Error_Handler();
     }

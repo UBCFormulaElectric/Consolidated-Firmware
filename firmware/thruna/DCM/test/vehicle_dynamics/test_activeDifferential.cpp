@@ -11,10 +11,10 @@
 
 extern "C"
 {
-#include "torquevectoring/app_powerLimiting.h"
-#include "torquevectoring/app_activeDifferential.h"
-#include "torquevectoring/app_torqueVectoringConstants.h"
-#include "torquevectoring/app_torqueVectoring.h"
+#include "app_powerLimiting.h"
+#include "app_activeDifferential.h"
+#include "app_torqueVectoringConstants.h"
+#include "app_torqueVectoring.h"
 #include "App_SharedConstants.h"
 #include "App_SharedMacros.h"
 #include "math.h"

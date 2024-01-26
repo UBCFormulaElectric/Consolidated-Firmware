@@ -54,8 +54,7 @@ typedef struct
 
 /* --------------------------------- Variables ---------------------------------- */
 
-extern UART_HandleTypeDef huart1;
-
+static UART *        uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -103,7 +102,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // SBG's library anything was actually being malloced. This is why I push to a queue here and handle the logs later
     // in the 100Hz task.
 
-    assert(huart == &huart1);
+    assert(huart == uart->handle);
 
     // Push newly received data to queue
     for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
@@ -247,9 +246,11 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init()
+bool io_sbgEllipse_init(UART *imu_uart)
 {
     memset(&sensor_data, 0, sizeof(SensorData));
+
+    uart = imu_uart;
 
     // Initialize the SBG serial interface handle
     io_sbgEllipse_createSerialInterface(&sbg_interface);
@@ -267,7 +268,7 @@ bool io_sbgEllipse_init()
     App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
 
     // Start waiting for UART packets
-    HAL_UART_Receive_DMA(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receive_dma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }

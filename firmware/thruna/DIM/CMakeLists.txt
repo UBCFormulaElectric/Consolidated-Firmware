@@ -39,6 +39,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DI
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 
 # Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
@@ -56,6 +57,7 @@ if("${TARGET}" STREQUAL "deploy")
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         DIM_can
@@ -129,6 +131,7 @@ elseif("${TARGET}" STREQUAL "test")
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(DIM_can STATIC "${CAN_SRCS}")
     target_include_directories(DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")

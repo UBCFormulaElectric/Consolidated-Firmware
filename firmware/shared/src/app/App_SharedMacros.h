@@ -19,6 +19,7 @@
 #define MIN3(x, y, z) (MIN(MIN((x),(y)),(z)))
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
+#define SIGN(x) (x < 0.0f ? -1.0f : 1.0f)
 
 #define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))
 #define SET_BIT_HIGH(input, bit) (input | (1U << bit))
@@ -58,8 +59,10 @@
 
 #define PI (3.1415926f)
 #define RAD_TO_DEG(r) (r * 180.0f / PI)
+#define DEG_TO_RAD(degrees) ((degrees) * (float)M_PI / 180.0f)
 
 #define MOTOR_RPM_TO_KMH(kmh) ((kmh) * (float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO) //take rpm of whell to kph
+#define MOTOR_KMH_TO_RPM(rpm) ((int)((rpm) / ((float)WHEEL_DIAMETER*PI*INCH_TO_KM*MIN_TO_HOUR/GEAR_RATIO)))
 
 #define EMPTY_STRUCT(name)\
 typedef struct \
