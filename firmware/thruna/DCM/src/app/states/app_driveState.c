@@ -1,19 +1,22 @@
 #include <stdlib.h>
 #include <math.h>
-#include "app_units.h"
-#include "torquevectoring/app_torqueVectoringConstants.h"
-#include "states/app_allStates.h"
-#include "states/app_initState.h"
-#include "torquevectoring/app_torqueVectoring.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
+#include "App_SharedMacros.h"
+#include "app_vehicleDynamicsConstants.h"
+#include "App_SharedConstants.h"
+#include "states/app_allStates.h"
+#include "states/app_initState.h"
 #include "app_globals.h"
-#include "app_timer.h"
+#include "app_torqueVectoring.h"
+#include "app_regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
+#define PEDAL_SCALE 0.3f
+#define MAX_PEDAL_PERCENT 1.0f
 
-void transmitTorqueRequests()
+void transmitTorqueRequests(float apps_pedal_percentage)
 {
     const float bms_available_power   = App_CanRx_BMS_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorSpeed_Get();
@@ -29,7 +32,6 @@ void transmitTorqueRequests()
     }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
     // Calculate the actual torque request to transmit
@@ -72,6 +74,8 @@ static void driveStateRunOnTick100Hz(void)
     const bool start_switch_off = App_CanRx_DIM_StartSwitch_Get() == SWITCH_OFF;
     const bool bms_not_in_drive = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE;
     bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
+    bool       regen_switch_enabled  = App_CanRx_DIM_AuxSwitch_Get() == SWITCH_ON;
+    float      apps_pedal_percentage = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
@@ -80,25 +84,36 @@ static void driveStateRunOnTick100Hz(void)
         App_CanTx_DCM_BuzzerOn_Set(false);
     }
 
-    if (all_states_ok)
+    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    if (regen_switch_enabled)
     {
-        if (globals->torque_vectoring_switch_is_on)
-        {
-            app_torqueVectoring_run();
-        }
-        else
-        {
-            transmitTorqueRequests();
-        }
+        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+        apps_pedal_percentage = apps_pedal_percentage < 0.0f
+                                    ? apps_pedal_percentage / PEDAL_SCALE
+                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
     if (exit_drive)
     {
         app_stateMachine_setNextState(app_initState_get());
+        return;
+    }
+
+    if (apps_pedal_percentage < 0.0f)
+    {
+        app_regen_run(apps_pedal_percentage);
+    }
+    else if (globals->torque_vectoring_switch_is_on)
+    {
+        app_torqueVectoring_run(apps_pedal_percentage);
+    }
+    else
+    {
+        transmitTorqueRequests(apps_pedal_percentage);
     }
 }
 
-static void driveStateRunOnExit(void)
+static void driveStateRunOnExit(struct StateMachine *const state_machine)
 {
     // Disable inverters and apply zero torque upon exiting drive state
     App_CanTx_DCM_LeftInverterEnable_Set(false);

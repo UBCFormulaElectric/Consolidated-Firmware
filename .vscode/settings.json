@@ -23,6 +23,12 @@
 		"hw_utils.h": "c",
 		"io_jsoncan.h": "c",
 		"io_ltc6813shared.h": "c",
-		"stdint.h": "c"
+		"stdint.h": "c",
+		"app_activedifferential.h": "c",
+		"app_pid.h": "c",
+		"app_powerlimiting.h": "c",
+		"app_vehicledynamicsconstants.h": "c",
+		"app_vehicledynamics.h": "c",
+		"app_torquevectoring.h": "c"
 	},
 }

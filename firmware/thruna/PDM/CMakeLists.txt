@@ -53,6 +53,7 @@ if("${TARGET}" STREQUAL "deploy")
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         PDM_can
@@ -120,6 +121,7 @@ elseif("${TARGET}" STREQUAL "test")
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(PDM_can STATIC "${CAN_SRCS}")
     target_include_directories(PDM_can PUBLIC "${CAN_INCLUDE_DIRS}")

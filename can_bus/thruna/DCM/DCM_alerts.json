@@ -1,0 +1,24 @@
+{
+    "warnings_id": 200,
+    "faults_id": 201,
+    "warnings_counts_id": 250,
+    "faults_counts_id": 251,
+    "warnings": [
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx",
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow",
+        "RegenNotAvailable"
+    ],
+    "faults": [
+        "MissingBMSHeartbeat",
+        "MissingFSMHeartbeat",
+        "MissingDIMHeartbeat",
+        "LeftInverterFault",
+        "RightInverterFault"
+    ]
+}

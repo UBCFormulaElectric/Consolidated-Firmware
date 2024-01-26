@@ -112,7 +112,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
-
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
