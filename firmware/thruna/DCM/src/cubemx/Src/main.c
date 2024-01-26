@@ -589,7 +589,7 @@ void RunTask1Hz(void *argument)
 
     for (;;)
     {
-        io_sbgEllipse_getComStatus();
+        io_stackWaterMark_check();
         App_SharedStateMachine_Tick1Hz(state_machine);
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
