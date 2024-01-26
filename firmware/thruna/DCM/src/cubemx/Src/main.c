@@ -160,7 +160,7 @@ static const Buzzer    buzzer      = { .gpio = {
                                    .port = BUZZER_EN_3V3_GPIO_Port,
                                    .pin  = BUZZER_EN_3V3_Pin,
                                } };
-UART                     imu_uart = { .handle = &huart1 };
+UART                   imu_uart    = { .handle = &huart1 };
 
 // config to forward can functions to shared heartbeat
 // BMS rellies on DIM, FSM, and BMS

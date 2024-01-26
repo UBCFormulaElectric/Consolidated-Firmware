@@ -16,7 +16,7 @@ extern "C"
 {
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
-#include "app_torqueVectoringConstants.h"
+#include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "math.h"
 #include "App_SharedMacros.h"
@@ -72,11 +72,7 @@ TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
     App_CanRx_INVR_MotorTemperature_Update(50);
     App_CanRx_BMS_AvailablePower_Update(50);
     App_CanRx_FSM_Warning_SteeringAngleOCSC_Update(30);
-<<<<<<< HEAD:firmware/thruna/DCM/test/torquevectoring/test_torqueVectoring.cpp
-    app_torqueVectoring_run();
-=======
-    App_TorqueVectoring_Run(0.0f);
->>>>>>> master:firmware/thruna/DCM/Test/Src/torquevectoring/Test_TorqueVectoring.cpp
+    app_torqueVectoring_run(0.0f);
     float expected_torque_left_nM  = 0.0;
     float expected_torque_right_nM = 0.0;
     float actual_torque_left_nM    = App_CanTx_DCM_LeftInverterTorqueCommand_Get();
@@ -160,11 +156,7 @@ TEST_F(TorqueVectoringTest, check_torques_are_less_than_limit)
     App_CanRx_INVR_MotorTemperature_Update(60);
     App_CanRx_BMS_AvailablePower_Update(80);
     App_CanRx_FSM_Warning_SteeringAngleOCSC_Update(30);
-<<<<<<< HEAD:firmware/thruna/DCM/test/torquevectoring/test_torqueVectoring.cpp
-    app_torqueVectoring_run();
-=======
-    App_TorqueVectoring_Run(100.0f);
->>>>>>> master:firmware/thruna/DCM/Test/Src/torquevectoring/Test_TorqueVectoring.cpp
+    app_torqueVectoring_run(100.0f);
     float actual_torque_left_nM  = App_CanTx_DCM_LeftInverterTorqueCommand_Get();
     float actual_torque_right_nM = App_CanTx_DCM_RightInverterTorqueCommand_Get();
     ASSERT_TRUE(actual_torque_left_nM <= MAX_TORQUE_REQUEST_NM);

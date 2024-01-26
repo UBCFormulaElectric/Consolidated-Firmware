@@ -13,7 +13,7 @@ extern "C"
 {
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
-#include "app_torqueVectoringConstants.h"
+#include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "App_SharedConstants.h"
 #include "App_SharedMacros.h"

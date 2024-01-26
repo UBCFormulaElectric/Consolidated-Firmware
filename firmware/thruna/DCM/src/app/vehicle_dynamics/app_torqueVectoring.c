@@ -1,5 +1,5 @@
-#include "App_TorqueVectoring.h"
-#include "App_SharedDcmConstants.h"
+#include "app_torqueVectoring.h"
+#include "app_vehicleDynamicsConstants.h"
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
 #include "App_TractionControl.h"

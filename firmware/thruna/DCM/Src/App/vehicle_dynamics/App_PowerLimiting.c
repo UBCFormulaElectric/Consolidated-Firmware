@@ -1,6 +1,6 @@
 #include <math.h>
 #include "app_powerLimiting.h"
-#include "App_SharedDcmConstants.h"
+#include "app_vehicleDynamicsConstants.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 

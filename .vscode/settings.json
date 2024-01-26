@@ -12,6 +12,8 @@
 	"files.associations": {
 		"*.llc_repl": "cpp",
 		"*.ld": "mapfile",
-		"app_vehicledynamics.h": "c"
+		"app_vehicledynamics.h": "c",
+		"app_allstates.h": "c",
+		"hw_uart.h": "c"
 	},
 }

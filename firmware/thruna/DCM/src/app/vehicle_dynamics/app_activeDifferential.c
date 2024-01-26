@@ -1,6 +1,6 @@
 #include "app_activeDifferential.h"
 #include "App_SharedConstants.h"
-#include "App_SharedDcmConstants.h"
+#include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 #include "App_SharedMacros.h"
 #include <stdlib.h>

@@ -35,4 +35,4 @@ void app_regen_sendTorqueRequest(float left, float right);
  * @param torqueRequest is the torque requst used in active
  * differential
  */
-void App_ActiveDifferential_ComputeNegativeTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);
+void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);
