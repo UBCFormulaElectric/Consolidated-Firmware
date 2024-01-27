@@ -41,17 +41,56 @@
             }
         }
     },
-    "CommitInfo": {
-        "msg_id": 506,
+    
+    "StackRemaining": {
+        "msg_id": 507,
         "cycle_time": 100,
-        "description": "DIM Current Running Git Commit Info",
+        "description": "Stack Remaining for different tasks.",
         "signals": {
-            "Hash": {
-                "bits": 32
+          
+            "StackRemainingTask1Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             },
-            "Clean": {
-                "bits": 1
+            "StackRemainingTask100Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTask1kHz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanRx": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanTx": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             }
         }
+    },
+    "CommitInfo": {
+      "msg_id": 506,
+      "cycle_time": 100,
+      "description": "DIM Current Running Git Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
     }
 }

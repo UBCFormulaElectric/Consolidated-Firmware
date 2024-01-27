@@ -27,7 +27,7 @@
                 "enum": "RtosTaskName"
             }
         }
-    },
+    },  
     "ImdStatus": {
         "msg_id": 105,
         "cycle_time": 1000,
@@ -360,5 +360,44 @@
               "bits": 1
           }
       }
+    },
+    "StackRemaining": {
+        "msg_id": 124,
+        "cycle_time": 100,
+        "description": "Stack Remaining for different tasks.",
+        "signals": {
+          
+            "StackRemainingTask1Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTask100Hz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTask1kHz": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanRx": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "StackRemainingTaskCanTx": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
     }
+
 }
