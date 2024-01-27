@@ -199,9 +199,7 @@ class JsonCanParser:
                         for alert in faults.signals
                     },
                 }
-                
-                print(self._alert_descriptions[node])
-                                
+                                                
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
             node_rx_json_data = self._get_raw_json_data_from_file(

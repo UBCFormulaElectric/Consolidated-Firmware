@@ -115,7 +115,7 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
+uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     switch (board)
@@ -124,13 +124,21 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Warning_Warning_Test1;
+                Fault_Warning_Info FSM_Warning_Warning_Test1;
+                FSM_Warning_Warning_Test1.name = "FSM_Warning_Warning_Test1";
+                FSM_Warning_Warning_Test1.id = 2059
+                FSM_Warning_Warning_Test1.description = "Example";
+                alert_array[element_num] = FSM_Warning_Warning_Test1 ;
                 element_num++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Warning_Warning_Test2;
+                Fault_Warning_Info FSM_Warning_Warning_Test2;
+                FSM_Warning_Warning_Test2.name = "FSM_Warning_Warning_Test2";
+                FSM_Warning_Warning_Test2.id = 2069
+                FSM_Warning_Warning_Test2.description = "Example";
+                alert_array[element_num] = FSM_Warning_Warning_Test2 ;
                 element_num++;
             }
             
@@ -140,7 +148,11 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray[element_num] = (uint8_t)JCT_Warning_Warning_Test;
+                Fault_Warning_Info JCT_Warning_Warning_Test;
+                JCT_Warning_Warning_Test.name = "JCT_Warning_Warning_Test";
+                JCT_Warning_Warning_Test.id = 2059
+                JCT_Warning_Warning_Test.description = "Example";
+                alert_array[element_num] = JCT_Warning_Warning_Test ;
                 element_num++;
             }
             
@@ -156,7 +168,7 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
     
 }
 
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray)
+uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     switch (board)
@@ -165,7 +177,11 @@ uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Fault_Fault_Test3;
+                Fault_Warning_Info FSM_Fault_Fault_Test3;
+                FSM_Fault_Fault_Test3.name = "FSM_Fault_Fault_Test3";
+                FSM_Fault_Fault_Test3.id = 3000
+                FSM_Fault_Fault_Test3.description = "Example";
+                alert_array[element_num] = FSM_Fault_Fault_Test3 ;
                 element_num++;
             }
             

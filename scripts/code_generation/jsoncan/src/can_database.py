@@ -270,16 +270,15 @@ class CanDatabase:
             else []
         )
         
-    def node_id_codes(self, node: str, alert_type :CanAlert) -> Dict[str,tuple(int, str)]:
+    def node_id_codes(self, node: str, alert_type :CanAlert) -> Dict[str,tuple[int, str]]:
         
         return(
             {
-                alert:
-                (code_id,self.descriptions[node])
+                alert.name:
+                (code_id,self.descriptions[node][alert])
                 for alert, code_id in self.alerts[node].items()
                 if alert.alert_type == alert_type
             }
-            
             if node in self.alerts
             else {}
         )
