@@ -4,8 +4,6 @@
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "app_utils.h"
 
-// clang-format off
-
 // Command used to start ADC conversions
 #define ADCV ((uint16_t)(((0x0060U + (MD << 7U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
 
@@ -16,8 +14,6 @@
 #define RDCVD (0x0A00U)
 #define RDCVE (0x0900U)
 #define RDCVF (0x0B00U)
-
-// clang-format on
 
 typedef enum
 {
@@ -38,8 +34,6 @@ static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
     [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB, [CELL_V_REG_GROUP_C] = RDCVC,
     [CELL_V_REG_GROUP_D] = RDCVD, [CELL_V_REG_GROUP_E] = RDCVE, [CELL_V_REG_GROUP_F] = RDCVF,
 };
-
-static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
 
 /**
  * Parse voltages from a single register group (consists of 3x cell voltage measurements) from all segments.
@@ -139,11 +133,6 @@ bool io_ltc6813CellVoltages_readVoltages(void)
     }
 
     return status;
-}
-
-uint16_t io_ltc6813CellVoltages_getCellsToDischarge(AccumulatorSegment segment)
-{
-    return discharge_bits[segment];
 }
 
 bool io_ltc6813CellVoltages_startAdcConversion(void)
