@@ -145,7 +145,7 @@ bool app_heartbeatMonitor_checkFaults(void)
     return res;
 }
 
-bool app_heartbeatMonitor_blockFaults(bool block_faults)
+void app_heartbeatMonitor_blockFaults(bool block_faults)
 {
     hb_monitor.block_faults = block_faults;
 }

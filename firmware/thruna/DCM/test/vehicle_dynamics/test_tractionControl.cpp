@@ -13,9 +13,6 @@ extern "C"
 
 class TractionControlTest : public testing::Test
 {
-  protected:
-    void SetUp() override { return; }
-    void TearDown() override { return; }
 };
 
 TEST(TractionControlTest, TractionControl_init)

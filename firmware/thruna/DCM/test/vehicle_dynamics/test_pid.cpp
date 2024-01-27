@@ -10,9 +10,6 @@ extern "C"
 
 class PIDTest : public testing::Test
 {
-  protected:
-    void SetUp() override { return; }
-    void TearDown() override { return; }
 };
 
 TEST(PIDTest, values_are_as_expected_after_initialization)

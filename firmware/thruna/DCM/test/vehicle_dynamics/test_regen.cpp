@@ -24,7 +24,6 @@ class TestRegen : public testing::Test
         App_CanTx_Init();
         App_CanRx_Init();
     }
-    void TearDown() override { return; }
 };
 
 TEST_F(TestRegen, active_differential_regen)

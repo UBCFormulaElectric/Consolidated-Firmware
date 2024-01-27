@@ -44,8 +44,6 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
 
     void TearDown() override
     {
-        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
         fake_io_lowVoltageBattery_hasChargeFault_reset();

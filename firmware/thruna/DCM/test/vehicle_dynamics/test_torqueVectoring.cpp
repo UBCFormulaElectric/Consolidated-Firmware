@@ -33,7 +33,6 @@ class TorqueVectoringTest : public testing::Test
         App_CanRx_Init();
         app_torqueVectoring_init();
     }
-    void TearDown() override { return; }
 };
 
 // TEST_F(TorqueVectoringTest, torques_are_zero_when_power_limit_is_zero)

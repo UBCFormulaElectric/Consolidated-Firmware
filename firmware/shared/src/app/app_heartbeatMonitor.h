@@ -32,4 +32,4 @@ void app_heartbeatMonitor_checkIn(void);
 
 bool app_heartbeatMonitor_checkFaults(void);
 
-bool app_heartbeatMonitor_blockFaults(bool block_faults);
+void app_heartbeatMonitor_blockFaults(bool block_faults);
