@@ -8,8 +8,8 @@ typedef enum
     NUM_POWER_STATES
 } PowerManagerState;
 
-/**
- * Sets the Power Manager state
- * @param state to open/close
- */
+static PowerManagerState current_power_state = POWER_MANAGER_SHUTDOWN;
+
 void app_powerManager_setState(PowerManagerState state);
+
+PowerManagerState app_powerManager_getState();
