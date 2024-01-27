@@ -40,6 +40,10 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
 
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
+
+        // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
+        // re-enable the heartbeat monitor.
+        app_heartbeatMonitor_blockFaults(true);
     }
 
     void SetInitialState(const State *const initial_state)

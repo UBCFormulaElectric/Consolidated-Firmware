@@ -9,6 +9,9 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
 {
     // Test that a missing heartbeat will put the FSM into fault state. The FSM only monitors the BMS' heartbeat.
 
+    // Re-enable heartbeat module.
+    app_heartbeatMonitor_blockFaults(false);
+
     // Start with a non-zero pedal positions to prevent false positive
     int time_ms = 0;
     fake_io_apps_getPrimary_returns(50);

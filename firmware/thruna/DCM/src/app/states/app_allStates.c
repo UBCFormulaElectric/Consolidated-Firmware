@@ -26,8 +26,8 @@ bool app_allStates_runOnTick100Hz(void)
         num_cycles++;
     }
 
-    // app_heartbeatMonitor_checkIn();
-    // app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
     {

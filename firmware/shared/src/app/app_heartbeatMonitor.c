@@ -26,6 +26,9 @@ typedef struct
 
     // getters for faults
     bool (*fault_getters[HEARTBEAT_BOARD_COUNT])();
+
+    // Override to block heartbeat faults during tests.
+    bool block_faults;
 } HeartbeatMonitor;
 
 static HeartbeatMonitor hb_monitor;
@@ -42,6 +45,7 @@ void app_heartbeatMonitor_init(
     hb_monitor.setter              = setter;
     hb_monitor.timeout_period_ms   = timeout_period_ms;
     hb_monitor.previous_timeout_ms = 0U;
+    hb_monitor.block_faults        = false;
 
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
@@ -103,6 +107,12 @@ void app_heartbeatMonitor_checkIn(void)
 // gets state to broadcast via can, and can callbacks to use to broadcast
 void app_heartbeatMonitor_broadcastFaults(void)
 {
+    // Don't check if blocking faults.
+    if (hb_monitor.block_faults)
+    {
+        return;
+    }
+
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         // send fault over CAN if state bit is false
@@ -117,9 +127,13 @@ void app_heartbeatMonitor_broadcastFaults(void)
 // returns false if all are false, else return true
 bool app_heartbeatMonitor_checkFaults(void)
 {
-    bool res = false;
+    if (hb_monitor.block_faults)
+    {
+        return false;
+    }
 
     // or over all bool results in callbacks
+    bool res = false;
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         if (hb_monitor.fault_getters[board] != NULL)
@@ -129,4 +143,9 @@ bool app_heartbeatMonitor_checkFaults(void)
     }
 
     return res;
+}
+
+bool app_heartbeatMonitor_blockFaults(bool block_faults)
+{
+    hb_monitor.block_faults = block_faults;
 }

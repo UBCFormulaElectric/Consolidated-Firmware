@@ -23,8 +23,7 @@ void mainStateRunOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    bool missing_hb = false; // app_heartbeatMonitor_checkFaults();
-
+    bool missing_hb = app_heartbeatMonitor_checkFaults();
     if (missing_hb)
     {
         // Redundancy if FSM is missing heartbeats

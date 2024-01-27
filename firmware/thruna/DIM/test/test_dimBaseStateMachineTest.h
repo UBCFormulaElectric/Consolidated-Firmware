@@ -40,6 +40,10 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         app_sevenSegDisplays_init();
         app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
+
+        // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
+        // re-enable the heartbeat monitor.
+        app_heartbeatMonitor_blockFaults(true);
     }
 
     void TearDown() override
