@@ -512,7 +512,7 @@ void StartTask1kHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    tasks_1kHz(argument);
+    tasks_1Khz(argument);
     /* USER CODE END 5 */
 }
 

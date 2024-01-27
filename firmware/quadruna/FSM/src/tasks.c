@@ -42,7 +42,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
-    __HAL_DBGMCU_FREEZE_IWDG1();
+    __HAL_DBGMCU_FREEZE_IWDG();
 
     // efuses:
     // HAL_ADC_Start_DMA(
