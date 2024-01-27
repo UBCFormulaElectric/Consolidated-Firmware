@@ -1,7 +1,6 @@
 // noinspection PointlessArithmeticExpressionJS
 
 import QtQuick
-import QtQuick.Effects
 
 import squircle
 import constants
@@ -58,15 +57,6 @@ Item {
                 fillMode: Image.PreserveAspectFit
             }
         }
-    }
-
-
-    MultiEffect {
-        source: mainStack
-        anchors.fill: parent
-        blurEnabled: true
-        blurMax: 64
-        blur: 0.8
     }
 
     // todo custom animations
