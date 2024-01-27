@@ -69,7 +69,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_dma_ex.c"
         "stm32f4xx_hal_dma.c"
         "stm32f4xx_hal_exti.c"
-        # "stm32f4xx_hal_fdcan.c"
         "stm32f4xx_hal_can.c"
         "stm32f4xx_hal_gpio.c"
         "stm32f4xx_hal_iwdg.c"
