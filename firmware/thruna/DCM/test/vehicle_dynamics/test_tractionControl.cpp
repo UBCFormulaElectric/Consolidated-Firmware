@@ -1,10 +1,10 @@
 
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
+#include "app_units.h"
 #include "app_torqueVectoring.h"
 #include "app_tractionControl.h"
 #include "app_vehicleDynamicsConstants.h"

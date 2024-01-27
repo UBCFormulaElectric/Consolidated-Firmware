@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
-#include "Test_BaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
-#include "fake_io_time.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_rgbLed.hpp"
 #include "fake_io_switch.hpp"
@@ -18,8 +16,7 @@ extern "C"
 #include "app_avgPower.h"
 #include "App_CanUtils.h"
 #include "app_utils.h"
-#include "states/app_driveState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
+#include "app_mainState.h"
 #include "app_globals.h"
 }
 
@@ -36,20 +33,17 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        heartbeat_monitor = app_heartbeatMonitor_init(
-            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-            heartbeatUpdaters, &App_CanTx_DIM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-
+        app_heartbeatMonitor_init(
+            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+            &App_CanTx_DIM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         app_avgPower_init();
         app_sevenSegDisplays_init();
         app_globals_init(&globals_config);
-        = heartbeat_monitor;
+        app_stateMachine_init(app_mainState_get());
     }
 
     void TearDown() override
     {
-        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
         fake_io_led_enable_reset();
@@ -57,9 +51,6 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         fake_io_rgbLed_disable_reset();
         fake_io_switch_isClosed_reset();
     }
-
-    struct StateMachine *state_machine;
-    HeartbeatMonitor *   heartbeat_monitor;
 
     const BinaryLed       imd_led           = {};
     const BinaryLed       bspd_led          = {};

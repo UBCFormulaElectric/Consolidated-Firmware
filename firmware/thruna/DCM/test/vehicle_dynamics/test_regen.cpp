@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
-#include "App_SharedMacros.h"
+#include "app_utils.h"
+#include "app_units.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"

@@ -40,8 +40,6 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_FSM_RxOverflowCount_Set(overflow_count);

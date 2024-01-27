@@ -34,6 +34,7 @@
 		"hw_hal.h": "c",
 		"hw_watchdogconfig.h": "c",
 		"hw_can.h": "c",
-		"hw_pwminputfreqonly.h": "c"
+		"hw_pwminputfreqonly.h": "c",
+		"app_utils.h": "c"
 	},
 }

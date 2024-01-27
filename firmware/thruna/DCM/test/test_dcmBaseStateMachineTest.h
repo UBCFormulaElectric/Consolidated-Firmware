@@ -1,8 +1,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
-#include "Test_BaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
 #include "fake_io_time.hpp"
 #include "fake_io_led.hpp"
@@ -18,7 +17,6 @@ extern "C"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_utils.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
@@ -35,32 +33,25 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        hb_monitor = app_heartbeatMonitor_init(
-            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-            heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-
+        app_heartbeatMonitor_init(
+            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+            &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         app_globals_init(&globals_config);
-        = hb_monitor;
 
         // Default to starting the state machine in the `init` state
-        state_machine = app_stateMachine_init(NULL, app_initState_get());
+        app_stateMachine_init(app_initState_get());
     }
-
-    void TearDown() override { TearDownObject(hb_monitor, App_SharedHeartbeatMonitor_Destroy); }
 
     void SetInitialState(const State *const initial_state)
     {
-        state_machine = app_stateMachine_init(NULL, initial_state);
-        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
     std::vector<const State *> GetAllStates(void)
     {
         return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
-
-    StateMachine *    state_machine;
-    HeartbeatMonitor *hb_monitor;
 
     const BinaryLed brake_light = {};
     const Buzzer    buzzer      = {};

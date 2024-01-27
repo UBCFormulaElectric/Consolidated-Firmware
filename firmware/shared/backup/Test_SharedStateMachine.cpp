@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include <fff.h>
 
-#include "Test_Utils.h"
-#include "App_TestWorld.h"
-
 extern "C"
 {
 #include "app_stateMachine.h"
@@ -62,7 +59,7 @@ class SharedStateMachineTest : public testing::Test
     {
         state_machine = app_stateMachine_init(world, initial_state);
         ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState(state_machine));
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
     // We provide our own implementation of the 1hz tick for state_A

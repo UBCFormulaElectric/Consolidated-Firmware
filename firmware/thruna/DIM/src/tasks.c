@@ -35,8 +35,6 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMarkConfig.h"
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-
 void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     App_CanTx_DIM_TxOverflowCount_Set(overflow_count);

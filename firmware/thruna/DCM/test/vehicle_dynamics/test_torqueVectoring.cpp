@@ -10,7 +10,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {

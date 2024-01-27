@@ -1,4 +1,5 @@
 #include "app_mainState.h"
+#include <stddef.h>
 #include "app_utils.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -10,43 +11,19 @@
 #include "app_wheels.h"
 #include "app_heartbeatMonitor.h"
 
-#define TORQUE_LIMIT_OFFSET_NM (5.0f)
-#define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
-
-static bool sendAndReceiveHeartbeat(void)
-{
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
-    app_heartbeatMonitor_broadcastFaults();
-
-    bool missing_hb = false;
-    // for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    // {
-    //     missing_hb |= !->status[board];
-    // }
-
-    return missing_hb;
-}
-
 void mainStateRunOnTick100Hz(void)
 {
-    // Check for torque plausibility
-    float left_torque_req  = (float)App_CanRx_DCM_LeftInverterTorqueCommand_Get();
-    float right_torque_req = (float)App_CanRx_DCM_RightInverterTorqueCommand_Get();
-
-    static uint8_t error_count = 0;
-
-    App_CanAlerts_FSM_Fault_TorquePlausabilityFailed_Set(error_count >= MAX_TORQUE_PLAUSIBILITY_ERR_CNT);
-
-    // Broadcast a new FSM torque limit based on pedal percentage
-
     app_apps_broadcast();
     app_brake_broadcast();
     app_coolant_broadcast();
     app_steering_broadcast();
     app_wheels_broadcast();
 
-    const bool missing_hb = sendAndReceiveHeartbeat();
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
+
+    bool missing_hb = false; // app_heartbeatMonitor_checkFaults();
 
     if (missing_hb)
     {

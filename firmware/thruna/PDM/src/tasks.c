@@ -31,8 +31,6 @@
 #include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     App_CanTx_PDM_RxOverflowCount_Set(overflow_count);

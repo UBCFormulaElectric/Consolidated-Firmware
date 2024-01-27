@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
-#include "Test_BaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
 #include "fake_io_time.hpp"
 #include "fake_io_apps.hpp"
@@ -18,9 +17,7 @@ extern "C"
 #include "app_stateMachine.h"
 #include "App_CanUtils.h"
 #include "app_utils.h"
-#include "states/app_mainState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "app_globals.h"
+#include "app_mainState.h"
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_coolant.h"
@@ -43,18 +40,14 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
 
         app_apps_init();
         app_coolant_init();
+        app_heartbeatMonitor_init(
+            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+            &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         app_stateMachine_init(app_mainState_get());
-
-        heartbeat_monitor = app_heartbeatMonitor_init(
-            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-            heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-        = heartbeat_monitor;
     }
 
     void TearDown() override
     {
-        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
         fake_io_apps_getPrimary_reset();
@@ -67,9 +60,6 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_coolant_getFlowRate_reset();
         fake_io_steering_sensorOCSC_reset();
     }
-
-    StateMachine *    state_machine;
-    HeartbeatMonitor *heartbeat_monitor;
 
     // config to forward can functions to shared heartbeat
     // FSM rellies on BMS

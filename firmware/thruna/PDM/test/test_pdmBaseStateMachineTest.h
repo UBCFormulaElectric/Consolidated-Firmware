@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
-#include "Test_BaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
 #include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
@@ -33,12 +32,10 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
+        app_heartbeatMonitor_init(
+            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+            &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
         app_stateMachine_init(app_driveState_get());
-
-        heartbeat_monitor = app_heartbeatMonitor_init(
-            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-            heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-        = heartbeat_monitor;
     }
 
     void TearDown() override
@@ -99,6 +96,4 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         [FSM_HEARTBEAT_BOARD] = NULL,
         [DIM_HEARTBEAT_BOARD] = NULL
     };
-
-    HeartbeatMonitor *heartbeat_monitor;
 };

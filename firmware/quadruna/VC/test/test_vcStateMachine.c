@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 #include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"

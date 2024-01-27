@@ -1,8 +1,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
-#include "Test_BaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
 #include "fake_io_time.hpp"
 #include "fake_io_led.hpp"
@@ -26,7 +25,6 @@ extern "C"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_utils.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
 #include "states/app_initState.h"
 #include "states/app_prechargeState.h"
 #include "states/app_driveState.h"
@@ -51,16 +49,15 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         App_CanTx_Init();
         App_CanRx_Init();
 
-        heartbeat_monitor = app_heartbeatMonitor_init(
-            io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-            heartbeatUpdaters, &App_CanTx_BMS_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
+        app_heartbeatMonitor_init(
+            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+            &App_CanTx_BMS_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         app_inverterOnState_init();
         app_accumulator_init();
         app_thermistors_init();
         app_soc_init();
         app_globals_init(&globals_config);
-        = heartbeat_monitor;
 
         app_soc_resetSocCustomValue(100.0f);
 
@@ -78,13 +75,11 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_charger_isConnected_returns(false);
 
         // Default to starting the state machine in the `init` state
-        = app_stateMachine_init(NULL, app_initState_get());
+        app_stateMachine_init(app_initState_get());
     }
 
     void TearDown() override
     {
-        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-
         fake_io_charger_hasFaulted_reset();
         fake_io_charger_isConnected_reset();
         fake_io_ltc6813CellTemps_getMinTempDegC_reset();
@@ -107,7 +102,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
     void SetInitialState(const State *const initial_state)
     {
-        = app_stateMachine_init(NULL, initial_state);
+        app_stateMachine_init(initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
@@ -117,9 +112,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
                                            app_chargeState_get(),   app_faultState_get(),     app_inverterOnState_get(),
                                            app_balancingState_get() };
     }
-
-    StateMachine *;
-    HeartbeatMonitor *heartbeat_monitor;
 
     const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};

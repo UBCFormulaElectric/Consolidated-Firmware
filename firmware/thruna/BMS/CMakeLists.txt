@@ -123,7 +123,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
 elseif("${TARGET}" STREQUAL "test")
-    set(HEADERS_TO_FAKE
+set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"

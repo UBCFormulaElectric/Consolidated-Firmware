@@ -7,7 +7,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
@@ -17,6 +16,7 @@ extern "C"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "math.h"
+#include "app_units.h"
 }
 /**
  * Define SetUp and TearDown to be called before every TEST_F call

@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
+
 typedef enum
 {
     BMS_HEARTBEAT_BOARD,
