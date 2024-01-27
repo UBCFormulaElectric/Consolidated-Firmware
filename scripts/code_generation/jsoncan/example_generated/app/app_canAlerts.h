@@ -10,6 +10,12 @@
 #include <stdbool.h>
 #include "app_canUtils.h"
 
+typedef enum
+{
+    FSM_ALERT_BOARD = 0,
+    JCT_ALERT_BOARD = 1,
+} CanAlertBoard;
+
 /* -------------------------------- Enums --------------------------------- */
 
 typedef enum

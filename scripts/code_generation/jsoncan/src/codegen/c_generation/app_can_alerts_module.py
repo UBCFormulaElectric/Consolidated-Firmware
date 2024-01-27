@@ -220,8 +220,26 @@ class AppCanAlertsModule(CModule):
         cw.add_line()
         cw.add_include("<stdbool.h>")
         cw.add_include('"app_canUtils.h"')
+        cw.add_line()
+
 
         # Add enums
+        boards_enum = CEnum(CTypesConfig.CAN_ALERT_BOARD_ENUM)
+        nodes_with_alerts = [
+            node
+            for node in self._db.nodes
+            if any(
+                [
+                    self._db.node_has_alert(node, alert_type)
+                    for alert_type in CanAlertType
+                ]
+            )
+        ]
+        for i, node in enumerate(nodes_with_alerts):
+            boards_enum.add_value(
+                CVar(ALERT_BOARD_ENUM_NAME.format(node=node.upper()), value=i)
+            )
+        cw.add_enum(boards_enum)
         cw.add_line()
         cw.add_header_comment("Enums")
         cw.add_line()
