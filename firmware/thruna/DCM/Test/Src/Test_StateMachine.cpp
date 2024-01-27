@@ -21,7 +21,6 @@ extern "C"
 namespace StateMachineTest
 {
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
@@ -44,6 +43,46 @@ FAKE_VALUE_FUNC(uint16_t, get_imu_general_status);
 FAKE_VALUE_FUNC(uint32_t, get_imu_com_status);
 FAKE_VALUE_FUNC(float, get_imu_output, EllipseImuOutput);
 
+// config to forward can functions to shared heartbeat
+// BMS rellies on DIM, FSM, and BMS
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
+                                                          [DCM_HEARTBEAT_BOARD] = false,
+                                                          [PDM_HEARTBEAT_BOARD] = false,
+                                                          [FSM_HEARTBEAT_BOARD] = true,
+                                                          [DIM_HEARTBEAT_BOARD] = true };
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Get,
+                                                      [DCM_HEARTBEAT_BOARD] = NULL,
+                                                      [PDM_HEARTBEAT_BOARD] = NULL,
+                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                      [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Get };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &App_CanRx_BMS_Heartbeat_Update,
+                                                           [DCM_HEARTBEAT_BOARD] = NULL,
+                                                           [PDM_HEARTBEAT_BOARD] = NULL,
+                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                           [DIM_HEARTBEAT_BOARD] = &App_CanRx_DIM_Heartbeat_Update };
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Set,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Set,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Set
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingBMSHeartbeat_Get,
+    [DCM_HEARTBEAT_BOARD] = NULL,
+    [PDM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingFSMHeartbeat_Get,
+    [DIM_HEARTBEAT_BOARD] = &App_CanAlerts_DCM_Fault_MissingDIMHeartbeat_Get
+};
+
 class DcmStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -56,7 +95,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_CanRx_Init();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
+            heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         brake_light = App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
 
@@ -80,7 +120,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_acceleration_x);
         RESET_FAKE(get_acceleration_y);
         RESET_FAKE(get_acceleration_z);
-        RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
@@ -114,7 +153,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     {
         return std::vector<const struct State *>{
             App_GetInitState(),
-            App_GetDriveState(),
+            app_driveState_get(),
         };
     }
 
@@ -133,7 +172,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
     void TestFaultBlocksDrive(std::function<void(void)> set_fault, std::function<void(void)> clear_fault)
     {
-        SetInitialState(App_GetDriveState());
+        SetInitialState(app_driveState_get());
 
         // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
@@ -207,7 +246,7 @@ TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
 
 TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
 
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 }
@@ -215,7 +254,7 @@ TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
 {
     // Start in drive with a non-zero torque request to prevent false positive.
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(1.0f);
     App_CanTx_DCM_RightInverterTorqueCommand_Set(1.0f);
     App_CanTx_DCM_LeftInverterEnable_Set(true);
@@ -239,7 +278,7 @@ TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
 
 TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     LetTimePass(state_machine, 10);
 
@@ -285,7 +324,7 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
 
 TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(app_driveState_get());
 
     // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
@@ -341,83 +380,10 @@ TEST_F(DcmStateMachineTest, drive_to_init_state_on_pdm_fault)
 
 TEST_F(DcmStateMachineTest, drive_to_init_state_on_dim_fault)
 {
-    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(true); };
-    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingHeartbeat_Update(false); };
+    auto set_fault   = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(true); };
+    auto clear_fault = []() { App_CanRx_DIM_Fault_MissingBMSHeartbeat_Update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
-}
-
-TEST_F(DcmStateMachineTest, minimum_torque_request_transmitted_in_drive_state)
-{
-    struct
-    {
-        float bms_available_power;
-        float motor_speed;
-        int   pedal_percentage;
-        float fsm_max_torque_request;
-        float expected_torque_request;
-    } test_params[4] = {
-        {
-            // Limited by FSM max torque request
-            .bms_available_power     = 78e3f,
-            .motor_speed             = 0.0f,
-            .pedal_percentage        = 100,
-            .fsm_max_torque_request  = 30,
-            .expected_torque_request = 30,
-        },
-        {
-            // Limited by BMS available power and motor speed
-            .bms_available_power     = 10e3f,
-            .motor_speed             = 1000.0f,
-            .pedal_percentage        = 100,
-            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
-            .expected_torque_request = 10e3f * 0.8 / (2 * RPM_TO_RADS(1000.0f)),
-        },
-        {
-            // Limited by accelerator pedal percentage
-            .bms_available_power     = 78e3f,
-            .motor_speed             = 0.0f,
-            .pedal_percentage        = 50,
-            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM,
-            .expected_torque_request = 0.5f * MAX_TORQUE_REQUEST_NM,
-        },
-        {
-            // Limited by max torque request (90Nm)
-            .bms_available_power     = 78e3f,
-            .motor_speed             = 1.0f, // Small motor speed allows for very high BMS torque limit (>>90Nm)
-            .pedal_percentage        = 100,
-            .fsm_max_torque_request  = MAX_TORQUE_REQUEST_NM + 20, // Not allowed to happen nominally
-            .expected_torque_request = MAX_TORQUE_REQUEST_NM,
-        },
-    };
-
-    for (int i = 0; i < 4; i++)
-    {
-        TearDown();
-        SetUp();
-        SetInitialState(App_GetDriveState());
-
-        // Set the DIM start switch to on, and the BMS to drive state, to prevent state transitions in
-        // the drive state.
-        App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
-        App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
-
-        // Set inital conditions
-        App_CanRx_BMS_AvailablePower_Update(test_params[i].bms_available_power);
-        App_CanRx_INVR_MotorSpeed_Update(test_params[i].motor_speed);
-        App_CanRx_INVL_MotorSpeed_Update(test_params[i].motor_speed);
-        App_CanRx_FSM_PappsMappedPedalPercentage_Update(test_params[i].pedal_percentage);
-        App_CanRx_FSM_TorqueLimit_Update(test_params[i].fsm_max_torque_request);
-
-        // Confirm expected torque request is set
-        LetTimePass(state_machine, 10);
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
-
-        LetTimePass(state_machine, 1000);
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
-        EXPECT_FLOAT_EQ(test_params[i].expected_torque_request, App_CanTx_DCM_RightInverterTorqueCommand_Get());
-    }
 }
 
 } // namespace StateMachineTest

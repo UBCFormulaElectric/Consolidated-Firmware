@@ -1,21 +1,10 @@
 set(ARM_CORE "cm4")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
-
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
-
-file(GLOB_RECURSE HW_SRCS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-)
-
-list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_bootup.c")
-list (APPEND HW_SRCS "${SHARED_DIR}/src/hw/hw_sd.c")
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
+list (APPEND EMBEDDED_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
@@ -35,7 +24,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_iwdg.c"
         "stm32f4xx_hal_rcc_ex.c"
         "stm32f4xx_hal_rcc.c"
-        "stm32f4xx_hal_spi.c"
         "stm32f4xx_hal_tim_ex.c"
         "stm32f4xx_hal_tim.c"
         "stm32f4xx_hal.c"
@@ -44,21 +32,19 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
         "f4dev_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
     )
 
-    set(SRCS  ${HW_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
         "f4dev"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
+        "${EMBEDDED_SRCS}"
+        "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )

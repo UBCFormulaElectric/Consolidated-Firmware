@@ -1,12 +1,20 @@
 #include <stdlib.h>
 #include <math.h>
 #include "App_SharedMacros.h"
+#include "App_SharedDcmConstants.h"
+#include "App_SharedConstants.h"
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "App_SharedConstants.h"
+#include "App_TorqueVectoring.h"
+#include "App_Regen.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
+
+static bool  torque_vectoring_switch_is_on;
+static float apps_pedal_percentage = 0.0f;
+#define PEDAL_SCALE 0.3f
+#define MAX_PEDAL_PERCENT 1.0f
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
@@ -24,14 +32,10 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float apps_pedal_percentage  = 0.01f * App_CanRx_FSM_PappsMappedPedalPercentage_Get();
     const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
 
-    // Get the maximum torque request, according to the FSM
-    const float max_fsm_torque_request = App_CanRx_FSM_TorqueLimit_Get();
-
     // Calculate the actual torque request to transmit
-    const float torque_request = MIN3(max_bms_torque_request, max_fsm_torque_request, MAX_TORQUE_REQUEST_NM);
+    const float torque_request = MIN(max_bms_torque_request, MAX_TORQUE_REQUEST_NM);
 
     // Transmit torque command to both inverters
     App_CanTx_DCM_LeftInverterTorqueCommand_Set(torque_request);
@@ -47,13 +51,20 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_DCM_State_Set(DCM_DRIVE_STATE);
 
-    // Enable inverters upon entering drive state.
     App_CanTx_DCM_LeftInverterEnable_Set(true);
     App_CanTx_DCM_RightInverterEnable_Set(true);
 
     // Set inverter directions.
     App_CanTx_DCM_LeftInverterDirectionCommand_Set(INVERTER_FORWARD_DIRECTION);
     App_CanTx_DCM_RightInverterDirectionCommand_Set(INVERTER_REVERSE_DIRECTION);
+
+    // Read torque vectoring switch only when entering drive state, not during driving
+    torque_vectoring_switch_is_on = App_IsAuxSwitchOn();
+
+    if (torque_vectoring_switch_is_on)
+    {
+        App_TorqueVectoring_Setup();
+    }
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -64,19 +75,39 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool all_states_ok    = App_AllStatesRunOnTick100Hz(state_machine);
-    const bool start_switch_off = !App_IsStartSwitchOn();
-    const bool bms_not_in_drive = !App_IsBmsInDriveState();
-    bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
+    const bool all_states_ok        = App_AllStatesRunOnTick100Hz(state_machine);
+    const bool start_switch_off     = !App_IsStartSwitchOn();
+    const bool bms_not_in_drive     = !App_IsBmsInDriveState();
+    bool       exit_drive           = !all_states_ok || start_switch_off || bms_not_in_drive;
+    bool       regen_switch_enabled = App_IsAuxSwitchOn();
+    apps_pedal_percentage           = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
 
-    if (all_states_ok)
+    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    if (regen_switch_enabled)
     {
-        App_SetPeriodicCanSignals_TorqueRequests();
+        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+        apps_pedal_percentage = apps_pedal_percentage < 0.0f
+                                    ? apps_pedal_percentage / PEDAL_SCALE
+                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
     if (exit_drive)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+        return;
+    }
+
+    if (apps_pedal_percentage < 0.0f)
+    {
+        App_Run_Regen(apps_pedal_percentage);
+    }
+    else if (torque_vectoring_switch_is_on)
+    {
+        App_TorqueVectoring_Run(apps_pedal_percentage);
+    }
+    else
+    {
+        App_SetPeriodicCanSignals_TorqueRequests();
     }
 }
 
@@ -90,7 +121,7 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
 }
 
-const struct State *App_GetDriveState(void)
+const struct State *app_driveState_get(void)
 {
     static struct State drive_state = {
         .name              = "DRIVE",

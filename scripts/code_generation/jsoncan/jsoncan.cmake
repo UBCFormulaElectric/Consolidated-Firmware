@@ -1,4 +1,4 @@
-function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO)
+function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
     message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR_RELATIVE}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/App_CanTx.c")
@@ -16,8 +16,8 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO)
 
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(DBC_OUTPUT ${CAN_DIR}/dbcs/CanMsgs.dbc)
-    set(CAN_JSON_DIR ${CAN_DIR}/json)
-    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
+    set(CAN_JSON_DIR ${CAN_DIR}/${CAR})
+    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)   
     file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py)
     add_custom_command(
             OUTPUT ${APP_CAN_TX_SRC_OUTPUT}

@@ -60,10 +60,14 @@ elseif("${TARGET}" STREQUAL "test")
     message("✅ GTest Included")
 endif()
 
-
-
 add_subdirectory(third_party)
 add_subdirectory(shared)
-add_subdirectory(thruna)
+
+IF("${PLATFORM}" STREQUAL "thruna_firmware")
+    add_subdirectory(thruna)
+ELSEIF("${PLATFORM}" STREQUAL "quadruna_firmware")
+    add_subdirectory(quadruna)
+ENDIF()
+
 add_subdirectory(dev)
 add_subdirectory(boot)

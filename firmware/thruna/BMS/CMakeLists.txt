@@ -1,26 +1,47 @@
 set(ARM_CORE "cm4")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/BMS.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Src/App/*.c")
-list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/App" "${SHARED_APP_INCLUDE_DIR}")
-
-file(GLOB_RECURSE IO_SRCS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/Src/Io/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c"
+file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+list(APPEND APP_SRCS 
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedClock.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_Timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedProcessing.c"
+    "${SHARED_APP_INCLUDE_DIR}/App_SharedRgbLedSequence.c"
 )
-list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io" "${SHARED_IO_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-set(HW_SRCS "${SHARED_HW_SRCS}")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_crc.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_flash.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c")
+file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+list(APPEND IO_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c"
+    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c"
+)
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
+file(GLOB_RECURSE HW_SRCS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+)
+list(APPEND HW_SRCS 
+    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+)
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
@@ -29,6 +50,7 @@ if("${TARGET}" STREQUAL "deploy")
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         BMS_can
@@ -52,7 +74,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_dma.c"
         "stm32f4xx_hal_exti.c"
         "stm32f4xx_hal_gpio.c"
-        "stm32f4xx_hal_i2c_ex.c"
         "stm32f4xx_hal_i2c.c"
         "stm32f4xx_hal_iwdg.c"
         "stm32f4xx_hal_rcc_ex.c"
@@ -60,22 +81,21 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_spi.c"
         "stm32f4xx_hal_tim_ex.c"
         "stm32f4xx_hal_tim.c"
-        "stm32f4xx_hal_uart.c"
         "stm32f4xx_hal.c"
-        "stm32f4xx_ll_adc.c"
     )
+
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
         "BMS_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
     )
 
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_HW_INCLUDE_DIR})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
         "BMS_app"
         "${SRCS}"
@@ -107,21 +127,38 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
 elseif("${TARGET}" STREQUAL "test")
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_eeprom.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_thermistors.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
+    )
+    create_fake_library(
+        "BMS_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
     jsoncan_library(
         "BMS_can"
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(BMS_can STATIC "${CAN_SRCS}")
     target_include_directories(BMS_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${FFF_DIR})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
         "BMS_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("BMS_test" "BMS_can" "shared_fakes")
+    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "BMS_commit_info" "shared_fakes")
 endif()
