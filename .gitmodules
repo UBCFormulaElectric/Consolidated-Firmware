@@ -1,12 +1,6 @@
-[submodule "firmware/third_party/profiler-cortex-m4"]
-	path = firmware/third_party/profiler-cortex-m4
-	url = https://github.com/UBCFormulaElectric/profiler-cortex-m4
 [submodule "firmware/third_party/sbgECom"]
 	path = firmware/third_party/sbgECom
 	url = https://github.com/UBCFormulaElectric/sbgECom.git
-[submodule "firmware/third_party/fff"]
-	path = firmware/third_party/fff
-	url = https://github.com/UBCFormulaElectric/fff.git
 [submodule "firmware/third_party/SEGGER_SystemView_Src"]
 	path = firmware/third_party/SEGGER_SystemView_Src
 	url = https://github.com/UBCFormulaElectric/SEGGER_SystemView_Src.git

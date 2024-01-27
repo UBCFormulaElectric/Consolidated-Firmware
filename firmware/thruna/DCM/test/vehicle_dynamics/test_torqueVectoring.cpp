@@ -21,9 +21,7 @@ extern "C"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 }
-/**
- * Define SetUp and TearDown to be called before every TEST_F call
- */
+
 class TorqueVectoringTest : public testing::Test
 {
   protected:

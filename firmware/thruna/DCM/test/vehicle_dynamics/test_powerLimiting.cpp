@@ -25,9 +25,6 @@ extern "C"
 #include "math.h"
 }
 
-/**
- * Define SetUp and TearDown to be called before every TEST_F call
- */
 class PowerLimitingTest : public testing::Test
 {
 };
