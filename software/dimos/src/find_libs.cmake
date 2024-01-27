@@ -14,7 +14,7 @@ if(${LINUX})
 endif ()
 
 # jsoncan
-jsoncan_library(dimos_can dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quantruna")
+jsoncan_library(dimos_can dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quadruna")
 add_library(dimos_can STATIC ${CAN_SRCS})
 target_include_directories(dimos_can PUBLIC ${CAN_INCLUDE_DIRS})
 target_compile_definitions(dimos_can PRIVATE -DTHREAD_SAFE_CAN_PACKING)
