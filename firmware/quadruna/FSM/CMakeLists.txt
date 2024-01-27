@@ -21,9 +21,13 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_sd.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_can.c")
+list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_fdcan.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_crc.c")
 list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_flash.c")
+
+# temporary until uart is finalized
+list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c")
+
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 file (GLOB_RECURSE TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/main.c")

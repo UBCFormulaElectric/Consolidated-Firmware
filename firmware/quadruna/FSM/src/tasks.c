@@ -13,12 +13,12 @@
 #include "io_jsoncan.h"
 #include "App_CommitInfo.h"
 
-extern ADC_HandleTypeDef *  hadc1;
-extern CAN_HandleTypeDef *  hcan1;
-extern IWDG_HandleTypeDef * hiwdg;
+extern ADC_HandleTypeDef * hadc1;
+extern CAN_HandleTypeDef * hcan1;
+extern IWDG_HandleTypeDef *hiwdg;
 extern TIM_HandleTypeDef * htim12;
-struct StateMachine *       state_machine;
-struct HeartbeatMonitor *   heartbeat_monitor;
+struct StateMachine *      state_machine;
+struct HeartbeatMonitor *  heartbeat_monitor;
 
 void CanRxQueueOverflowCallBack(uint32_t overflow_count)
 {

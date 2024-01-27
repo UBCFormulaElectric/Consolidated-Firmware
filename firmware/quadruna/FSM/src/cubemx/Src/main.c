@@ -174,7 +174,7 @@ int main(void)
     MX_TIM12_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    
+
     tasks_init();
 
     // Configure and initialize SEGGER SystemView.
