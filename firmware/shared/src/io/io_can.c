@@ -15,26 +15,26 @@ static const CanConfig *config;
 
 static osMessageQueueId_t tx_queue_id;
 static osMessageQueueId_t rx_queue_id;
-static StaticQueue_t      tx_queue_control_block;
-static StaticQueue_t      rx_queue_control_block;
-static uint8_t            tx_queue_buf[TX_QUEUE_BYTES];
-static uint8_t            rx_queue_buf[RX_QUEUE_BYTES];
+static StaticQueue_t tx_queue_control_block;
+static StaticQueue_t rx_queue_control_block;
+static uint8_t tx_queue_buf[TX_QUEUE_BYTES];
+static uint8_t rx_queue_buf[RX_QUEUE_BYTES];
 
 static const osMessageQueueAttr_t tx_queue_attr = {
-    .name      = "CAN TX Queue",
+    .name = "CAN TX Queue",
     .attr_bits = 0,
-    .cb_mem    = &tx_queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = tx_queue_buf,
-    .mq_size   = TX_QUEUE_BYTES,
+    .cb_mem = &tx_queue_control_block,
+    .cb_size = sizeof(StaticQueue_t),
+    .mq_mem = tx_queue_buf,
+    .mq_size = TX_QUEUE_BYTES,
 };
 static const osMessageQueueAttr_t rx_queue_attr = {
-    .name      = "CAN RX Queue",
+    .name = "CAN RX Queue",
     .attr_bits = 0,
-    .cb_mem    = &rx_queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = rx_queue_buf,
-    .mq_size   = RX_QUEUE_BYTES,
+    .cb_mem = &rx_queue_control_block,
+    .cb_size = sizeof(StaticQueue_t),
+    .mq_mem = rx_queue_buf,
+    .mq_size = RX_QUEUE_BYTES,
 };
 
 void io_can_init(const CanConfig *can_config)
@@ -72,18 +72,11 @@ void io_can_popRxMsgFromQueue(CanMsg *msg)
     osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
 }
 
-void io_can_msgReceivedCallback(uint32_t rx_fifo)
+void io_can_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
-    CanMsg rx_msg;
-    if (!hw_can_receive(rx_fifo, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg.std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
