@@ -1,7 +1,6 @@
 #include "lfs_config.h"
 #include "hw_sd.h"
 
-#define LFS_NO_MALLOC
 #define LFS_CACHE_SIZE 512
 #define LFS_LOOKAHEAD_SIZE 512
 
