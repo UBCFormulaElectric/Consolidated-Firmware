@@ -48,7 +48,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         heartbeat_monitor = app_heartbeatMonitor_init(
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
             heartbeatUpdaters, &App_CanTx_FSM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-        globals->heartbeat_monitor = heartbeat_monitor;
+        = heartbeat_monitor;
     }
 
     void TearDown() override

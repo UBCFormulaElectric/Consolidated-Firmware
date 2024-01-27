@@ -40,7 +40,7 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
             heartbeatUpdaters, &App_CanTx_DCM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         app_globals_init(&globals_config);
-        globals->hb_monitor = hb_monitor;
+        = hb_monitor;
 
         // Default to starting the state machine in the `init` state
         state_machine = app_stateMachine_init(NULL, app_initState_get());

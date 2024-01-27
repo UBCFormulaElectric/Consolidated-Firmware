@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Io_SharedSoftwareWatchdog.h"
+#include "hw_watchdog.h"
 
-void io_watchdogConfig_refresh(void);
-void io_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t sw_watchdog_handle);
+void hw_watchdogConfig_refresh(void);
+void hw_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t sw_watchdog_handle);

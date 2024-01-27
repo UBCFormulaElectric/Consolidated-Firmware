@@ -43,7 +43,7 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         app_avgPower_init();
         app_sevenSegDisplays_init();
         app_globals_init(&globals_config);
-        globals->heartbeat_monitor = heartbeat_monitor;
+        = heartbeat_monitor;
     }
 
     void TearDown() override

@@ -13,24 +13,6 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-static bool sendAndReceiveHeartbeat(HeartbeatMonitor *hb_monitor)
-{
-    App_CanTx_BMS_Heartbeat_Set(true);
-
-    app_heartbeatMonitor_checkIn(hb_monitor);
-
-    app_heartbeatMonitor_tick(hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(hb_monitor);
-
-    bool missing_hb = false;
-    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    {
-        missing_hb |= !hb_monitor->status[board];
-    }
-
-    return missing_hb;
-}
-
 void app_allStates_runOnTick1Hz(void)
 {
     bool charger_is_connected = io_charger_isConnected();
@@ -55,7 +37,11 @@ void app_allStates_runOnTick1Hz(void)
 
 bool app_allStates_runOnTick100Hz(void)
 {
-    const bool missing_hb = sendAndReceiveHeartbeat(globals->hb_monitor);
+    App_CanTx_BMS_Heartbeat_Set(true);
+
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 
     app_accumulator_runOnTick100Hz();
     app_thermistors_updateAuxThermistorTemps();

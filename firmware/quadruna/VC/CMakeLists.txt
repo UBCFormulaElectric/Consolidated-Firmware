@@ -10,7 +10,7 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOUR
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
+    "${SHARED_IO_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"

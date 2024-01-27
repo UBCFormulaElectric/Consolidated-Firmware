@@ -1,5 +1,4 @@
 #include "app_activeDifferential.h"
-#include "App_SharedConstants.h"
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 #include "app_units.h"

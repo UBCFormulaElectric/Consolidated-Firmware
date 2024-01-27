@@ -31,8 +31,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <cmsis_os.h>
 
-#define MAX_NUM_OF_SOFTWARE_WATCHDOG 5
+#define MAX_NUM_OF_SOFTWARE_WATCHDOG 10
+
+// Platform independent typedef for OS ticks. The C file will be implemented
+// using platform-specific OS ticks.
+typedef uint32_t Tick_t;
 
 typedef struct
 {
@@ -48,10 +53,6 @@ typedef struct
     uint8_t task_id;
 } WatchdogHandle;
 
-// Platform independent typedef for OS ticks. The C file will be implemented
-// using platform-specific OS ticks.
-typedef uint32_t Tick_t;
-
 /**
  * Initialize the watchdog library.
  * @param refresh_hardware_watchdog: Function to refresh the hardware watchdog
@@ -59,13 +60,13 @@ typedef uint32_t Tick_t;
  *        operations prior to the reset of the microcontroller. For example, a
  *        message may be written to a log file.
  */
-void io_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle));
+void hw_watchdog_init(void (*refresh_hardware_watchdog)(), void (*timeout_callback)(WatchdogHandle *));
 
 /**
  * Allocate memory for a software watchdog (if there's space left).
  * @return Handle to the allocated software watchdog
  */
-WatchdogHandle io_watchdog_allocateWatchdog(void);
+WatchdogHandle *hw_watchdog_allocateWatchdog(void);
 
 /**
  * Initialize a software watchdog. Once a software watchdog is initialized, it
@@ -74,14 +75,14 @@ WatchdogHandle io_watchdog_allocateWatchdog(void);
  * @param task_id: ID to identify the task this watchdog is monitoring
  * @param period_in_ticks: Period of the task in OS ticks
  */
-void io_watchdog_initWatchdog(WatchdogHandle watchdog, uint8_t task_id, Tick_t period_in_ticks);
+void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t period_in_ticks);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
  * end of each period.
  * @param watchdog: Handle to the software watchdog
  */
-void io_watchdog_checkIn(WatchdogHandle watchdog);
+void hw_watchdog_checkIn(WatchdogHandle *watchdog);
 
 /**
  * Check if any software watchdog has expired.
@@ -91,11 +92,11 @@ void io_watchdog_checkIn(WatchdogHandle watchdog);
  * @note  This function must be called periodically. It is good practice to call
  *        it from the system tick handler.
  */
-void io_watchdog_checkForTimeouts(void);
+void hw_watchdog_checkForTimeouts(void);
 
 /**
  * Get the ID of a software watchdog.
  * @param watchdog: Handle to the software watchdog
  * @return ID of the software watchdog
  */
-uint8_t io_watchdog_getTaskId(WatchdogHandle watchdog);
+uint8_t hw_watchdog_getTaskId(WatchdogHandle *watchdog);

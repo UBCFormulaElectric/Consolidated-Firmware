@@ -3,14 +3,13 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
 #include "app_vehicleDynamicsConstants.h"
-#include "App_SharedConstants.h"
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_regen.h"
+#include "app_units.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define PEDAL_SCALE 0.3f
@@ -63,17 +62,17 @@ static void driveStateRunOnEntry(void)
 
     if (globals->torque_vectoring_switch_is_on)
     {
-        app_torqueVectoring_setup();
+        app_torqueVectoring_init();
     }
 }
 
 static void driveStateRunOnTick100Hz(void)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool all_states_ok    = app_allStates_runOnTick100Hz();
-    const bool start_switch_off = App_CanRx_DIM_StartSwitch_Get() == SWITCH_OFF;
-    const bool bms_not_in_drive = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE;
-    bool       exit_drive       = !all_states_ok || start_switch_off || bms_not_in_drive;
+    const bool all_states_ok         = app_allStates_runOnTick100Hz();
+    const bool start_switch_off      = App_CanRx_DIM_StartSwitch_Get() == SWITCH_OFF;
+    const bool bms_not_in_drive      = App_CanRx_BMS_State_Get() != BMS_DRIVE_STATE;
+    bool       exit_drive            = !all_states_ok || start_switch_off || bms_not_in_drive;
     bool       regen_switch_enabled  = App_CanRx_DIM_AuxSwitch_Get() == SWITCH_ON;
     float      apps_pedal_percentage = App_CanRx_FSM_PappsMappedPedalPercentage_Get() * 0.01f;
 
@@ -113,7 +112,7 @@ static void driveStateRunOnTick100Hz(void)
     }
 }
 
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
+static void driveStateRunOnExit(void)
 {
     // Disable inverters and apply zero torque upon exiting drive state
     App_CanTx_DCM_LeftInverterEnable_Set(false);

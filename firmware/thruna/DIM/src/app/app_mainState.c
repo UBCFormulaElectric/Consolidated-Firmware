@@ -12,12 +12,6 @@
 #include "io_led.h"
 #include "io_switch.h"
 
-#define SSEG_HB_NOT_RECEIVED_ERR (888)
-#define WHEEL_DIAMETER_IN (16.0f)
-#define GEAR_RATIO (4.3f)
-#define MOTOR_RPM_TO_KMH(kmh) \
-    ((kmh) * (float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO) // take rpm of whell to kph
-
 static void mainStateRunOnTick100Hz(void)
 {
     const bool imd_fault_latched = App_CanRx_BMS_ImdLatchedFault_Get();
@@ -73,17 +67,9 @@ static void mainStateRunOnTick100Hz(void)
         }
     }
 
-    app_heartbeatMonitor_checkIn(globals->heartbeat_monitor);
-
-    app_heartbeatMonitor_tick(globals->heartbeat_monitor);
-    app_heartbeatMonitor_broadcastFaults(globals->heartbeat_monitor);
-
-    bool missing_hb = false;
-
-    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    {
-        missing_hb |= !globals->heartbeat_monitor->status[board];
-    }
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 
     const float avg_rpm =
         ((float)abs(App_CanRx_INVL_MotorSpeed_Get()) + (float)abs(App_CanRx_INVR_MotorSpeed_Get())) / 2;
@@ -94,18 +80,9 @@ static void mainStateRunOnTick100Hz(void)
 
     const float min_cell_voltage = App_CanRx_BMS_MinCellVoltage_Get();
 
-    if (missing_hb)
-    {
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, SSEG_HB_NOT_RECEIVED_ERR);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, SSEG_HB_NOT_RECEIVED_ERR);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, SSEG_HB_NOT_RECEIVED_ERR);
-    }
-    else
-    {
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
-    }
+    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
+    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
 }
 
 const State *app_mainState_get(void)

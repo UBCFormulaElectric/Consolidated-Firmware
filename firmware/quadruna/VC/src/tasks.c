@@ -2,8 +2,8 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "io_watchdogConfig.h"
+#include "hw_watchdog.h"
+#include "hw_watchdogConfig.h"
 #include "app_globals.h"
 #include "states/app_initState.h"
 
@@ -60,7 +60,7 @@ void tasks_init()
     hw_can_init(hfdcan1);
     io_can_init(&can_config);
 
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
+    hw_watchdog_Init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     App_CanTx_VC_Hash_Set(GIT_COMMIT_HASH);
     App_CanTx_VC_Clean_Set(GIT_COMMIT_CLEAN);
@@ -70,8 +70,8 @@ void tasks_100Hz(void *argument)
 {
     UNUSED(argument);
 
-    SoftwareWatchdogHandle_t watchdog = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, 10U);
+    SoftwareWatchdogHandle_t watchdog = hw_watchdog_AllocateWatchdog();
+    hw_watchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, 10U);
 
     /* Infinite loop */
     for (;;)
@@ -83,7 +83,7 @@ void tasks_100Hz(void *argument)
         };
         io_can_pushTxMsgToQueue(&msg);
 
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        hw_watchdog_CheckInWatchdog(watchdog);
     }
 }
 
@@ -112,13 +112,13 @@ void tasks_1Khz(void *argument)
 {
     UNUSED(argument);
 
-    SoftwareWatchdogHandle_t watchdog = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, 10U);
+    SoftwareWatchdogHandle_t watchdog = hw_watchdog_AllocateWatchdog();
+    hw_watchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, 10U);
 
     /* Infinite loop */
     for (;;)
     {
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        hw_watchdog_CheckInWatchdog(watchdog);
     }
 }
 
@@ -126,12 +126,12 @@ void tasks_1Hz(void *argument)
 {
     UNUSED(argument);
 
-    SoftwareWatchdogHandle_t watchdog = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, 10U);
+    SoftwareWatchdogHandle_t watchdog = hw_watchdog_AllocateWatchdog();
+    hw_watchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, 10U);
 
     /* Infinite loop */
     for (;;)
     {
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        hw_watchdog_CheckInWatchdog(watchdog);
     }
 }

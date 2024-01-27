@@ -60,7 +60,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         app_thermistors_init();
         app_soc_init();
         app_globals_init(&globals_config);
-        globals->hb_monitor = heartbeat_monitor;
+        = heartbeat_monitor;
 
         app_soc_resetSocCustomValue(100.0f);
 

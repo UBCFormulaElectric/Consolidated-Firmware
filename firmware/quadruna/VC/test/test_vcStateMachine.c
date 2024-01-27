@@ -36,7 +36,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
             io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
         state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
 
-        globals->heartbeat_monitor = heartbeat_monitor;
+        = heartbeat_monitor;
     }
 
     void TearDown() override

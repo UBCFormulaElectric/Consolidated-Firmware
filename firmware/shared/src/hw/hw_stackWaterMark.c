@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "io_stackWaterMark.h"
+#include "hw_stackWaterMark.h"
 
 /**
  * @brief  Check if the stack high watermark for a task exceeds the specified
@@ -11,9 +11,9 @@
  *         specified as a percentage
  * @return True if the watermark threshold is exceeded, false otherwise
  */
-static bool Io_IsStackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack_size, float watermark_threshold);
+static bool stackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack_size, float watermark_threshold);
 
-static bool Io_IsStackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack_size, float watermark_threshold)
+static bool stackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack_size, float watermark_threshold)
 {
     assert((0.0f < watermark_threshold) && (watermark_threshold < 1.0f));
 
@@ -29,11 +29,11 @@ static bool Io_IsStackAboveWatermarkThreshold(TaskHandle_t xTask, uint32_t stack
     return is_stack_above_watermark_threshold;
 }
 
-void io_stackWaterMark_check(struct stack_watermark *stacks, size_t num_of_stacks)
+void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks)
 {
     for (size_t i = 0; i < num_of_stacks; i++)
     {
-        if (Io_IsStackAboveWatermarkThreshold(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold))
+        if (stackAboveWatermarkThreshold(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold))
         {
             stacks[i].log_error(1);
         }

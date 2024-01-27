@@ -19,8 +19,6 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_stackWaterMark.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -35,6 +33,8 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 

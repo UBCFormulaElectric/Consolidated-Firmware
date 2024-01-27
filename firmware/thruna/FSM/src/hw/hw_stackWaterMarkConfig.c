@@ -1,9 +1,9 @@
 #include <assert.h>
 
-#include "io_stackWaterMark.h"
+#include "hw_stackWaterMarkConfig.h"
 #include "main.h"
 #include "app_utils.h"
-#include "io_stackWaterMark.h"
+#include "hw_stackWaterMark.h"
 #include "App_CanTx.h"
 #include "App_CanAlerts.h"
 
@@ -19,31 +19,31 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_DIM_Warning_StackWaterMarkHighTask1Hz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1kHz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_DIM_Warning_StackWaterMarkHighTask100Hz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask100Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_DIM_Warning_StackWaterMarkHighTask1kHz_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTask1Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_DIM_Warning_StackWaterMarkHighTaskCanRx_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanRx_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_DIM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
+    App_CanAlerts_FSM_Warning_StackWaterMarkHighTaskCanTx_Set(true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
-static struct stack_watermark stack_watermarks[] = {
+static StackWaterMark stack_watermarks[] = {
     {
         .handle              = &Task1HzHandle,
         .stack_size          = 512,
@@ -76,7 +76,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
 };
 
-void io_stackWaterMark_check(void)
+void hw_stackWaterMarkConfig_check(void)
 {
-    io_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

@@ -1,9 +1,6 @@
 #pragma once
 #include "app_pid.h"
 
-// Conversions
-#define IN_TO_M 0.0254f
-
 // Constants
 
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
@@ -27,6 +24,11 @@
 #define MAX_REGEN_Nm -30.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 10.0f // 10.5kW ~ 35A tbd varying limits?
+
+#define WHEEL_DIAMETER_IN (16.0f)
+#define GEAR_RATIO (4.3f)
+#define MOTOR_RPM_TO_KMH(kmh) \
+    ((kmh) * (float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO) // take rpm of whell to kph
 
 // Tunable parameters
 extern const PID_Config PID_POWER_CORRECTION_CONFIG;

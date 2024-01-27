@@ -8,27 +8,30 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "app_stateMachine.h"
+#include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_CommitInfo.h"
-#include "app_globals.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "io_stackWaterMark.h"
-#include "io_watchdogConfig.h"
 #include "io_lowVoltageBattery.h"
 #include "io_efuse.h"
-#include "hw_adc.h"
-#include "hw_hardFaultHandler.h"
 #include "io_can.h"
 #include "io_jsoncan.h"
 #include "io_time.h"
 #include "io_log.h"
+
+#include "hw_adc.h"
+#include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
 #include "hw_can.h"
 #include "hw_utils.h"
+#include "hw_watchdog.h"
+#include "hw_watchdogConfig.h"
+#include "hw_stackWaterMark.h"
+#include "hw_stackWaterMarkConfig.h"
+
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -51,8 +54,6 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
-
-HeartbeatMonitor *heartbeat_monitor;
 
 static const LvBatteryConfig lv_battery_config = {
     .lt3650_charger_fault_gpio = {
@@ -218,8 +219,8 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&hcan1);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    io_watchdog_init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
     Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
     Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
@@ -230,12 +231,10 @@ void tasks_init(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
+    app_heartbeatMonitor_init(
+        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
+        &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
-
-    heartbeat_monitor = app_heartbeatMonitor_init(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters,
-        heartbeatUpdaters, &App_CanTx_PDM_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
-    globals->heartbeat_monitor = heartbeat_monitor;
 
     io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
     io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
@@ -254,16 +253,15 @@ void tasks_init(void)
 void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
-    io_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    /* Infinite loop */
     for (;;)
     {
-        io_stackWaterMark_check();
+        hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
         const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
@@ -272,7 +270,7 @@ void tasks_run1Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        io_watchdog_checkIn(watchdog);
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -282,13 +280,12 @@ void tasks_run1Hz(void)
 void tasks_run100Hz(void)
 {
     static const TickType_t period_ms = 10U;
-    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
-    io_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
-    /* Infinite loop */
     for (;;)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
@@ -298,7 +295,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        io_watchdog_checkIn(watchdog);
+        hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -308,8 +305,8 @@ void tasks_run100Hz(void)
 void tasks_run1kHz(void)
 {
     static const TickType_t period_ms = 1U;
-    WatchdogHandle          watchdog  = io_watchdog_allocateWatchdog();
-    io_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -318,7 +315,7 @@ void tasks_run1kHz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        io_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
         Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
@@ -328,7 +325,7 @@ void tasks_run1kHz(void)
         // equal to the period ms
         if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
         {
-            io_watchdog_checkIn(watchdog);
+            hw_watchdog_checkIn(watchdog);
         }
 
         start_ticks += period_ms;

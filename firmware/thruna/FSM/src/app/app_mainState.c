@@ -1,31 +1,29 @@
 #include "app_mainState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_utils.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "app_globals.h"
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_coolant.h"
 #include "app_steering.h"
 #include "app_wheels.h"
+#include "app_heartbeatMonitor.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
 static bool sendAndReceiveHeartbeat(void)
 {
-    app_heartbeatMonitor_checkIn(globals->heartbeat_monitor);
-
-    app_heartbeatMonitor_tick(globals->heartbeat_monitor);
-    app_heartbeatMonitor_broadcastFaults(globals->heartbeat_monitor);
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 
     bool missing_hb = false;
-    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    {
-        missing_hb |= !globals->heartbeat_monitor->status[board];
-    }
+    // for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    // {
+    //     missing_hb |= !->status[board];
+    // }
 
     return missing_hb;
 }
