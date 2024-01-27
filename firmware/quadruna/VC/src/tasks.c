@@ -40,11 +40,14 @@ const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-void tasks_preInit() {}
+void tasks_preInit(void) {}
 
-void tasks_init()
+void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
 
     // efuses:
     // HAL_ADC_Start_DMA(
@@ -67,10 +70,8 @@ void tasks_init()
     App_CanTx_VC_Clean_Set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_100Hz(void *argument)
+void tasks_run100Hz(void)
 {
-    UNUSED(argument);
-
     WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, 10U);
 
@@ -87,20 +88,16 @@ void tasks_100Hz(void *argument)
     }
 }
 
-void tasks_canTx(void *argument)
+void tasks_runCanTx(void)
 {
-    UNUSED(argument);
-
     for (;;)
     {
         io_can_transmitMsgFromQueue();
     }
 }
 
-void tasks_canRx(void *argument)
+void tasks_runCanRx(void)
 {
-    UNUSED(argument);
-
     for (;;)
     {
         CanMsg rx_msg;
@@ -108,10 +105,8 @@ void tasks_canRx(void *argument)
     }
 }
 
-void tasks_1Khz(void *argument)
+void tasks_run1kHz(void)
 {
-    UNUSED(argument);
-
     WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, 10U);
 
@@ -121,10 +116,8 @@ void tasks_1Khz(void *argument)
     }
 }
 
-void tasks_1Hz(void *argument)
+void tasks_run1Hz(void)
 {
-    UNUSED(argument);
-
     WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, 10U);
 
