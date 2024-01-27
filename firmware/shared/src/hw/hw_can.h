@@ -10,7 +10,7 @@ typedef struct
 {
     uint32_t std_id;
     uint32_t dlc;
-    uint8_t  data[CAN_PAYLOAD_BYTES];
+    uint8_t data[CAN_PAYLOAD_BYTES];
 } CanMsg;
 
 typedef void (*MsgReceivedCallback)(void);
@@ -20,14 +20,14 @@ typedef void (*MsgReceivedCallback)(void);
 typedef struct
 {
     FDCAN_HandleTypeDef *can;
-    MsgReceivedCallback  can0MsgRecievecallback;
-    MsgReceivedCallback  can1MsgRecievecallback;
+    MsgReceivedCallback can0MsgRecievecallback;
+    MsgReceivedCallback can1MsgRecievecallback;
 } CanHandle;
 #else
 // STM32 HAL CAN handle.
 typedef struct
 {
-    CAN_HandleTypeDef * can;
+    CAN_HandleTypeDef *can;
     MsgReceivedCallback can0MsgRecievecallback;
     MsgReceivedCallback can1MsgRecievecallback;
 } CanHandle;

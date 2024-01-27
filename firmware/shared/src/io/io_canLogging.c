@@ -11,22 +11,27 @@ static const CanConfig *config;
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
-static StaticQueue_t      queue_control_block;
-static uint8_t            queue_buf[QUEUE_BYTES];
+static StaticQueue_t queue_control_block;
+static uint8_t queue_buf[QUEUE_BYTES];
 
 #define QUEUE_SIZE 20
 static uint32_t current_bootcount;
 
-static lfs_t      lfs;
+static lfs_t lfs;
 static lfs_file_t file;
 
 static const osMessageQueueAttr_t queue_attr = {
-    .name      = "CAN Logging Queue",
+    .name = "CAN Logging Queue",
     .attr_bits = 0,
-    .cb_mem    = &queue_control_block,
-    .cb_size   = sizeof(StaticQueue_t),
-    .mq_mem    = queue_buf,
-    .mq_size   = QUEUE_BYTES,
+    .cb_mem = &queue_control_block,
+    .cb_size = sizeof(StaticQueue_t),
+    .mq_mem = queue_buf,
+    .mq_size = QUEUE_BYTES,
+};
+
+static char buffer[512];
+const struct lfs_file_config fcfg = {
+    .buffer = buffer,
 };
 
 // assume the lfs is already mounted
@@ -34,7 +39,15 @@ static void createFolder(struct lfs_config *cfg)
 {
     // get bootcount
     uint32_t bootcount = 0;
-    lfs_file_open(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT);
+    int err = lfs_mount(&lfs, cfg);
+    if (err)
+    {
+
+        lfs_format(&lfs, cfg);
+        err = lfs_mount(&lfs, cfg);
+    }
+
+    lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
     lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
     // update bootcount
@@ -58,6 +71,7 @@ void io_canLogging_init(const CanConfig *can_config, struct lfs_config *cfg)
     config = can_config;
 
     // Initialize CAN queues.
+
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
 
     // create new folder for this boot
@@ -82,18 +96,11 @@ void io_canLogging_recordMsgFromQueue(void)
     // write the message to the file system
 }
 
-void io_canLogging_msgReceivedCallback(uint32_t rx_fifo)
+void io_canLogging_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
-    CanMsg rx_msg;
-    if (!hw_can_receive(rx_fifo, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg.std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
