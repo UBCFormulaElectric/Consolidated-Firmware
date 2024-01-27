@@ -147,12 +147,10 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line(f"{CTypesConfig.CAN_ALERT_INFO} {alert};")
-                get_alert.body.add_line(f'{alert}.name = "{alert}";')
-                get_alert.body.add_line(f"{alert}.id = {id_code}")
-                get_alert.body.add_line(f'{alert}.description = "{description}";')
-
-                get_alert.body.add_line(f"alert_array[element_num] = {alert} ;")
+                    
+                get_alert.body.add_line(f'alert_array[element_num].name = "{alert}";')
+                get_alert.body.add_line(f"alert_array[element_num].id = {id_code};")
+                get_alert.body.add_line(f'alert_array[element_num].description = "{description}";')
                 get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()
