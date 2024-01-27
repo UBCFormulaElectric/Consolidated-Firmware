@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgt6/stm32f412rgt6_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
@@ -70,6 +70,7 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_dma.c"
         "stm32f4xx_hal_exti.c"
         # "stm32f4xx_hal_fdcan.c"
+        "stm32f4xx_hal_can.c"
         "stm32f4xx_hal_gpio.c"
         "stm32f4xx_hal_iwdg.c"
         "stm32f4xx_hal_pwr_ex.c"
