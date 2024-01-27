@@ -5,16 +5,23 @@ services:
     build:
       context: ../../
       dockerfile: software/dimos/Dockerfile_build
-    image: dimos-build:latest
+    image: ubcformulaelectric/dimos-build
     volumes:
       - type: bind
         source: ../../
         target: /app
+    # FOR DEBUGGING
+#    stdin_open: true
+#    tty: true
+#    command: bash
+    command: >
+      bash -c "cmake -G 'Ninja' -S . -B build_dimos_docker -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DPLATFORM=dimos -DTARGET=deploy -DHANDLE_DEPS=OFF -DNO_VENV=ON -DFIX_FORMATTING=OFF -DUSE_COMMIT_INFO=ON &&
+               cmake --build build_dimos_docker --target dimos -- -j 14"
 
   dimos:
     container_name: dimos-container
     command: /app/dimos
-    image: dimos:latest
+    image: ubcformulaelectric/dimos
     build:
       context: ../../
       dockerfile: software/dimos/Dockerfile_container
