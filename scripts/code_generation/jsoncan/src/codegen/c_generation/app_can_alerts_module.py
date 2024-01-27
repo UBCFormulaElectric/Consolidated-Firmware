@@ -115,7 +115,7 @@ class AppCanAlertsModule(CModule):
             "uint8_t",
             args=[
                 CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
-                CVar("*alertArray", "uint8_t"),
+                CVar("*alert_array",CTypesConfig.CAN_ALERT_INFO)
             ],
             comment=f"Return whether or not a board has set a {comment}.",
         )
@@ -128,12 +128,17 @@ class AppCanAlertsModule(CModule):
         for node in nodes_with_alerts:
             get_alert.body.add_switch_case(
                 ALERT_BOARD_ENUM_NAME.format(node=node.upper())
-            )
+            )            
             get_alert.body.start_switch_case()
 
             for alert in self._db.node_alerts_with_rx_check(
                 node, self._node, alert_type
             ):
+                
+                item = self._db.node_id_codes(node, alert_type = alert_type)
+                
+                id_code, description = item[alert]
+
                 if node == self._node:
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_TX_GET_SIGNAL.format(signal=alert)}()"
@@ -142,7 +147,12 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray[element_num] = (uint8_t)" + alert + ";")
+                get_alert.body.add_line(f"{CTypesConfig.CAN_ALERT_INFO} {alert};")
+                get_alert.body.add_line(f'{alert}.name = "{alert}";')
+                get_alert.body.add_line(f"{alert}.id = {id_code}")
+                get_alert.body.add_line(f'{alert}.description = "{description}";')
+
+                get_alert.body.add_line(f"alert_array[element_num] = {alert} ;")
                 get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()
@@ -188,9 +198,7 @@ class AppCanAlertsModule(CModule):
         # Alert setters
         funcs.extend(self._set_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._set_alert_funcs(CanAlertType.FAULT))
-        
-        print(self._set_alert_funcs(CanAlertType.FAULT))
-        
+                
         # Alert getters
         funcs.extend(self._get_alert_funcs(CanAlertType.WARNING))
         funcs.extend(self._get_alert_funcs(CanAlertType.FAULT))
@@ -246,31 +254,15 @@ class AppCanAlertsModule(CModule):
             )
         cw.add_enum(boards_enum)   
         cw.add_line()
-    
-        for alert_type in CanAlertType:
-            
-         nodes_with_alerts = [
-            node for node in self._db.nodes if self._db.node_has_alert(node, alert_type)
-         ]
-         
-         breakpoint
-         for nodes in nodes_with_alerts:
-            for alert, item in self._db.node_id_codes(nodes, alert_type = alert_type).items():
-                alerts_sturct = CStruct(
-                    CTypesConfig.CODE_ENUM.format(node=alert.name, alert_type=alert_type)
-                )   
-                IDcode, description = item
-                alerts_sturct.add_member(CVar("id",type="uint8_t"))
-                alerts_sturct.add_member(CVar("description","char*"))
-                alerts_sturct.add_member(CVar("name", "char*"))
-                
-                cw.add_struct(alerts_sturct)
-                cw.add_line()
-                cw.add_line(alert.name + " " + alert.name + "." + "id = ")
-                cw.add_line(IDcode)
-                cw.add_line(alert.name + " " + alert.name + "." + "description = " + '"' + description + '"')
-
                     
+        fault_warining_struct = CStruct(CTypesConfig.CAN_ALERT_INFO)
+        fault_warining_struct.add_member(CVar("id",type="uint8_t"))
+        fault_warining_struct.add_member(CVar("description","char*"))
+        fault_warining_struct.add_member(CVar("name", "char*"))
+        
+        cw.add_struct(fault_warining_struct)
+        
+        
         # Add function prototypes
         cw.add_line()
         cw.add_header_comment("Function Prototypes")

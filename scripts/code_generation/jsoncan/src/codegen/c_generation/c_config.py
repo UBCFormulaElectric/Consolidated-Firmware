@@ -53,6 +53,7 @@ class CTypesConfig(StrEnum):
     CODE_ENUM = "{node}_{alert_type}Code"
     CAN_ALERT_BOARD_ENUM = "CanAlertBoard"
     CAN_MSG_STRUCT = "JsonCanMsg"
+    CAN_ALERT_INFO = "Fault_Warning_Info"
 
 
 class CMacrosConfig(StrEnum):

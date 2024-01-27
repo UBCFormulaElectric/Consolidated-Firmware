@@ -23,29 +23,7 @@ typedef struct
     uint8_t id;
     char* description;
     char* name;
-} FSM_Warning_Warning_Test1_WarningCode;
-
-typedef struct
-{
-    uint8_t id;
-    char* description;
-    char* name;
-} FSM_Warning_Warning_Test2_WarningCode;
-
-typedef struct
-{
-    uint8_t id;
-    char* description;
-    char* name;
-} JCT_Warning_Warning_Test_WarningCode;
-
-typedef struct
-{
-    uint8_t id;
-    char* description;
-    char* name;
-} FSM_Fault_Fault_Test3_FaultCode;
-
+} Fault_Warning_Info;
 
 /* ------------------------- Function Prototypes -------------------------- */
 
@@ -82,10 +60,10 @@ bool app_canAlerts_AnyBoardHasFault(void);
 /**
  * Return whether or not a board has set a warning.
  */
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray);
+uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, Fault_Warning_Info *alert_array);
 
 /**
  * Return whether or not a board has set a fault.
  */
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray);
+uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, Fault_Warning_Info *alert_array);
 
