@@ -9,4 +9,8 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"io_sharedstackwatermark.h": "c",
+		"io_stackwatermark.h": "c"
+	},
 }
