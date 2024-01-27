@@ -42,7 +42,6 @@ static void createFolder(struct lfs_config *cfg)
     int err = lfs_mount(&lfs, cfg);
     if (err)
     {
-
         lfs_format(&lfs, cfg);
         err = lfs_mount(&lfs, cfg);
     }
@@ -62,7 +61,7 @@ static void createFolder(struct lfs_config *cfg)
     // create new folder on root based on the bootcount
     const char path[PATH_LENGTH];
     sprintf((char *)path, "%lu", bootcount);
-    lfs_mkdir(&lfs, path);
+    lfs_file_opencfg(&lfs, &file, path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
 }
 
 void io_canLogging_init(const CanConfig *can_config, struct lfs_config *cfg)
@@ -93,6 +92,16 @@ void io_canLogging_recordMsgFromQueue(void)
 {
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
+
+    lfs_ssize_t size = lfs_file_write(&lfs, &file, (void *)&tx_msg, sizeof(tx_msg));
+    CanMsg w_msg;
+    if (size)
+    {
+    }
+    size = lfs_file_read(&lfs, &file, (void *)&w_msg, sizeof(tx_msg));
+
+    lfs_file_read(&lfs, &file, (void *)&w_msg, sizeof(tx_msg));
+
     // write the message to the file system
 }
 
