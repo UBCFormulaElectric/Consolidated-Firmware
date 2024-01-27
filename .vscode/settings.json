@@ -10,4 +10,8 @@
 	"cmake.buildDirectory": "${workspaceFolder}/${env:BUILD_DIR}",
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": true,
+	"files.associations": {
+		"typeinfo": "c",
+		"app_setperiodiccansignals.h": "c"
+	},
 }

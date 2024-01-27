@@ -19,8 +19,12 @@
   },
   "ImdActiveFrequency":
   {
-    "IMD_10Hz": 0,
-    "IMD_20Hz": 1
+    "IMD_0Hz" : 0,
+    "IMD_10Hz": 1,
+    "IMD_20Hz": 2,
+    "IMD_30Hz": 3,
+    "IMD_40Hz": 4,
+    "IMD_50Hz": 5
   },
   "ContactorState": {
     "CONTACTOR_STATE_OPEN": 0,

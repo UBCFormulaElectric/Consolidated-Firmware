@@ -55,8 +55,7 @@
                 "bits": 1
             },
             "ImdCondition": {
-                "signed": false,
-                "bits": 4
+                "enum": "ImdCondition"
             }
         }
     },

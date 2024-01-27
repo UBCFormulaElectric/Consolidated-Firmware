@@ -1,4 +1,5 @@
 #include "App_SetPeriodicCanSignals.h"
+#include "App_CanUtils.h"
 
 void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
 {
@@ -7,11 +8,16 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
     App_CanTx_BMS_ImdDutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
 
     const struct Imd_Condition condition = App_Imd_GetCondition(imd);
-    App_CanTx_BMS_ImdCondition_Set((uint8_t)condition.name);
+    App_CanTx_BMS_ImdCondition_Set((ImdCondition)condition.name);
     App_CanTx_BMS_ImdValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
+        case IMD_SHORT_CIRCUIT:
+        {
+            App_CanTx_BMS_ImdActiveFrequency_Set(IMD_0Hz);
+        }
+        break;
         case IMD_NORMAL:
         {
             if (condition.pwm_encoding.valid_duty_cycle)
@@ -35,6 +41,17 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         case IMD_SST:
         {
             App_CanTx_BMS_ImdSpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
+            App_CanTx_BMS_ImdActiveFrequency_Set(IMD_30Hz);
+        }
+        break;
+        case IMD_DEVICE_ERROR:
+        {
+            App_CanTx_BMS_ImdActiveFrequency_Set(IMD_40Hz);
+        }
+        break;
+        case IMD_CONDITION_GROUND_FAULT:
+        {
+            App_CanTx_BMS_ImdActiveFrequency_Set(IMD_50Hz);
         }
         break;
         default:
