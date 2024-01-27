@@ -25,4 +25,3 @@ struct stack_watermark
 void Io_SharedStackWaterMark_Check(struct stack_watermark *stacks, size_t num_of_stacks);
 
 void Io_SharedStackSize_Check(struct stack_watermark *stacks, size_t num_of_stacks);
-
