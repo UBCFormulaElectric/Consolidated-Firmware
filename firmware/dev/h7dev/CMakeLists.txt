@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
@@ -60,12 +60,13 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     embedded_binary(
-        "h7dev_app"
+        "h7dev"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+<<<<<<< HEAD
 
     embedded_library(
         "protobuf_library"
@@ -75,13 +76,16 @@ if("${TARGET}" STREQUAL "deploy")
         TRUE
     )
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm4")
+=======
+    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4")
+>>>>>>> 672ea0c3 (rm bootload for now)
 
-    embedded_image(
-        "h7dev"
-        "h7dev_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
-        "h7dev_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
-    )
+    # embedded_image(
+    #     "h7dev"
+    #     "h7dev_app.hex"
+    #     "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
+    #     "h7dev_boot.hex"
+    #     "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+    # )
 
 endif()

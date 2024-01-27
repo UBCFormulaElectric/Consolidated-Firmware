@@ -266,9 +266,8 @@
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/dev/h7dev/h7dev.hex",
       "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/h7boot/h7dev_boot.elf",
-        "build_fw_deploy/firmware/dev/h7dev/h7dev_app.elf",
+        "build_fw_deploy/firmware/dev/h7dev/h7dev.elf",
+        // "build_fw_deploy/firmware/boot/h7boot/h7dev_boot.elf"
       ],
       "request": "launch",
       "type": "cortex-debug",
