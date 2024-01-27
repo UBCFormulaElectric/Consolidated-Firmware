@@ -7,17 +7,12 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-    )
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
-find_package(Nanopb REQUIRED)
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
-    
-set(SRCS ${PROTO_SRCS})
-set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
-    
+    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+    # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/lfs_config.c"
+)
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
