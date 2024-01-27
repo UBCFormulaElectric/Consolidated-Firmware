@@ -81,7 +81,7 @@ void Squircle::paint(QPainter *p)
             path.cubicTo(p3_1, p2_1, p1_1);
         }
 
-#ifndef QT_DEBUG
+#ifdef QT_DEBUG
         p->setPen(QPen(QColorConstants::Red, 3));
         p->drawPoint(p1_1);
         p->setPen(QPen(QColorConstants::Magenta, 3));
