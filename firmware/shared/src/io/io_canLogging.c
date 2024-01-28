@@ -130,10 +130,6 @@ void io_canLogging_recordMsgFromQueue(void)
 {
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
-
-    tx_msg.dlc = 0xff;
-    tx_msg.std_id = 0xffff;
-    tx_msg.data[0] = 0xff;
     lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
     lfs_file_seek(&lfs, &file, 0, SEEK_END);
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
