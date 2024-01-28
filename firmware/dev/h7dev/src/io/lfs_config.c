@@ -20,9 +20,9 @@
 char *lfs_read_buffer;
 char *lfs_prog_buffer;
 
-extern SdCard      sd;
-extern Gpio sd_present;
-extern bool sd_inited;
+extern SdCard sd;
+extern Gpio   sd_present;
+extern bool   sd_inited;
 
 static bool sd_card_ready()
 {

@@ -56,6 +56,11 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
+static CanHandle can = {
+    .can                    = &hcan1,
+    .can0MsgRecievecallback = NULL,
+    .can1MsgRecievecallback = NULL,
+};
 
 UART imu_uart = { .handle = &huart1 };
 
@@ -128,7 +133,7 @@ void tasks_init(void)
     LOG_INFO("DCM reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

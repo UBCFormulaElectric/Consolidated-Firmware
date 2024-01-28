@@ -84,7 +84,11 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+CanHandle can = {
+    .can                    = &hcan1,
+    .can0MsgRecievecallback = NULL,
+    .can1MsgRecievecallback = NULL,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,7 +106,6 @@ void        runTickTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hcan1, .can0MsgRecievecallback = 0, .can1MsgRecievecallback = 0 }
 /* USER CODE END 0 */
 
 /**
@@ -136,7 +139,10 @@ int main(void)
     MX_CAN1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
-    hw_can_init(&hcan1);
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
+    hw_can_init(&can);
     bootloader_init();
     /* USER CODE END 2 */
 
