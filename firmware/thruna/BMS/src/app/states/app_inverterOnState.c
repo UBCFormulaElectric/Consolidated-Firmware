@@ -11,7 +11,7 @@ static bool         has_time_passed;
 
 static void inverterOnStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_INVERTER_ON_STATE);
+    app_canTx_BMS_State_set(BMS_INVERTER_ON_STATE);
     app_timer_init(&timer, CHARGING_MILLISECONDS);
     app_timer_restart(&timer);
 }

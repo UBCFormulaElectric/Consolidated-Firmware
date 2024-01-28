@@ -5,7 +5,7 @@
 
 static void balancingStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_BALANCING_STATE);
+    app_canTx_BMS_State_set(BMS_BALANCING_STATE);
     app_accumulator_enableBalancing(true);
 }
 
@@ -19,7 +19,7 @@ static void balancingStateRunOnTick100Hz(void)
     if (app_allStates_runOnTick100Hz())
     {
         const bool air_negative_open          = !io_airs_isNegativeClosed();
-        const bool stopped_requesting_balance = !App_CanRx_Debug_CellBalancingRequest_Get();
+        const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
         if (air_negative_open || stopped_requesting_balance)
         {
             app_stateMachine_setNextState(app_initState_get());

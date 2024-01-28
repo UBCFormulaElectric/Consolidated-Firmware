@@ -25,9 +25,9 @@
 #include "string.h"
 #include "tasks.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -1,7 +1,7 @@
 #include "app_accumulator.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 #include "app_math.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
@@ -126,8 +126,8 @@ static void app_accumulator_calculateCellsToBalance(void)
 {
     float target_voltage = data.voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
-    target_voltage = App_CanRx_Debug_CellBalancingOverrideTarget_Get()
-                         ? App_CanRx_Debug_CellBalancingOverrideTargetValue_Get()
+    target_voltage = app_canRx_Debug_CellBalancingOverrideTarget_get()
+                         ? app_canRx_Debug_CellBalancingOverrideTargetValue_get()
                          : target_voltage;
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
@@ -152,11 +152,11 @@ static void app_accumulator_balanceCells(void)
     io_ltc6813Shared_writeConfigurationRegisters(true);
 
     // Balance PWM settings
-    float    balance_pwm_freq = App_CanRx_Debug_CellBalancingOverridePWM_Get()
-                                    ? App_CanRx_Debug_CellBalancingOverridePWMFrequency_Get()
+    float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
+                                    ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()
                                     : BALANCE_DEFAULT_FREQ;
-    uint32_t balance_pwm_duty = App_CanRx_Debug_CellBalancingOverridePWM_Get()
-                                    ? App_CanRx_Debug_CellBalancingOverridePWMDuty_Get()
+    uint32_t balance_pwm_duty = app_canRx_Debug_CellBalancingOverridePWM_get()
+                                    ? app_canRx_Debug_CellBalancingOverridePWMDuty_get()
                                     : BALANCE_DEFAULT_DUTY;
 
     // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
@@ -251,15 +251,15 @@ void app_accumulator_runOnTick100Hz(void)
 void app_accumulator_broadcast(void)
 {
     // Broadcast pack voltage.
-    App_CanTx_BMS_PackVoltage_Set(data.voltage_stats.pack_voltage);
+    app_canTx_BMS_PackVoltage_set(data.voltage_stats.pack_voltage);
 
     // Broadcast min/max cell voltage information.
-    App_CanTx_BMS_MinCellVoltage_Set(data.voltage_stats.min_voltage.voltage);
-    App_CanTx_BMS_MaxCellVoltage_Set(data.voltage_stats.max_voltage.voltage);
-    App_CanTx_BMS_MinCellVoltageSegment_Set(data.voltage_stats.min_voltage.segment);
-    App_CanTx_BMS_MaxCellVoltageSegment_Set(data.voltage_stats.max_voltage.segment);
-    App_CanTx_BMS_MinCellVoltageIdx_Set(data.voltage_stats.min_voltage.cell);
-    App_CanTx_BMS_MaxCellVoltageIdx_Set(data.voltage_stats.min_voltage.cell);
+    app_canTx_BMS_MinCellVoltage_set(data.voltage_stats.min_voltage.voltage);
+    app_canTx_BMS_MaxCellVoltage_set(data.voltage_stats.max_voltage.voltage);
+    app_canTx_BMS_MinCellVoltageSegment_set(data.voltage_stats.min_voltage.segment);
+    app_canTx_BMS_MaxCellVoltageSegment_set(data.voltage_stats.max_voltage.segment);
+    app_canTx_BMS_MinCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
+    app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
 
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
@@ -271,22 +271,22 @@ void app_accumulator_broadcast(void)
     const float max_cell_temp = io_ltc6813CellTemps_getMaxTempDegC(&max_segment, &max_loc);
 
     // Broadcast min/max cell temp information.
-    App_CanTx_BMS_MinCellTemperature_Set(min_cell_temp);
-    App_CanTx_BMS_MaxCellTemperature_Set(max_cell_temp);
-    App_CanTx_BMS_MinTempSegment_Set(min_segment);
-    App_CanTx_BMS_MaxTempSegment_Set(max_segment);
-    App_CanTx_BMS_MinTempIdx_Set(min_loc);
-    App_CanTx_BMS_MaxTempIdx_Set(max_loc);
+    app_canTx_BMS_MinCellTemperature_set(min_cell_temp);
+    app_canTx_BMS_MaxCellTemperature_set(max_cell_temp);
+    app_canTx_BMS_MinTempSegment_set(min_segment);
+    app_canTx_BMS_MaxTempSegment_set(max_segment);
+    app_canTx_BMS_MinTempIdx_set(min_loc);
+    app_canTx_BMS_MaxTempIdx_set(max_loc);
 
     // Calculate and broadcast pack power.
     const float available_power =
         MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
-    App_CanTx_BMS_AvailablePower_Set(available_power);
-    App_CanTx_BMS_Seg4Cell2Temp_Set(
+    app_canTx_BMS_AvailablePower_set(available_power);
+    app_canTx_BMS_Seg4Cell2Temp_set(
         io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
-    App_CanTx_BMS_Seg4Cell2Temp_Set(
+    app_canTx_BMS_Seg4Cell2Temp_set(
         io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL8_REG_GROUP, SEG4_CELL8_THERMISTOR));
 }
 
@@ -313,11 +313,11 @@ bool app_accumulator_checkFaults(void)
     bool undervoltage_fault  = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
     bool communication_fault = data.num_comm_tries >= MAX_NUM_COMM_TRIES;
 
-    App_CanAlerts_BMS_Fault_CellUndervoltage_Set(undervoltage_fault);
-    App_CanAlerts_BMS_Fault_CellOvervoltage_Set(overvoltage_fault);
-    App_CanAlerts_BMS_Fault_CellUndertemp_Set(undertemp_fault);
-    App_CanAlerts_BMS_Fault_CellOvertemp_Set(overtemp_fault);
-    App_CanAlerts_BMS_Fault_ModuleCommunicationError_Set(communication_fault);
+    app_canAlerts_BMS_Fault_CellUndervoltage_set(undervoltage_fault);
+    app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
+    app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
+    app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
+    app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
     const bool acc_fault =
         overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault;

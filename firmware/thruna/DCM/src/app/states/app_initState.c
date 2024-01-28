@@ -1,25 +1,25 @@
 #include <stddef.h>
 #include "states/app_allStates.h"
 #include "states/app_driveState.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 #include "io_buzzer.h"
 #include "app_globals.h"
 
 static void initStateRunOnEntry(void)
 {
-    App_CanTx_DCM_State_Set(DCM_INIT_STATE);
+    app_canTx_DCM_State_set(DCM_INIT_STATE);
 
     // Disable inverters and apply zero torque upon entering init state
-    App_CanTx_DCM_LeftInverterEnable_Set(false);
-    App_CanTx_DCM_RightInverterEnable_Set(false);
-    App_CanTx_DCM_LeftInverterTorqueCommand_Set(0.0f);
-    App_CanTx_DCM_RightInverterTorqueCommand_Set(0.0f);
+    app_canTx_DCM_LeftInverterEnable_set(false);
+    app_canTx_DCM_RightInverterEnable_set(false);
+    app_canTx_DCM_LeftInverterTorqueCommand_set(0.0f);
+    app_canTx_DCM_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on transition to init.
     io_buzzer_enable(globals->config->buzzer, false);
-    App_CanTx_DCM_BuzzerOn_Set(false);
+    app_canTx_DCM_BuzzerOn_set(false);
 }
 
 static void initStateRunOnTick100Hz(void)
@@ -30,12 +30,12 @@ static void initStateRunOnTick100Hz(void)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
 
-    const bool curr_start_switch_pos      = App_CanRx_DIM_StartSwitch_Get();
+    const bool curr_start_switch_pos      = app_canRx_DIM_StartSwitch_get();
     const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
     prev_start_switch_pos                 = curr_start_switch_pos;
 
-    const bool bms_in_drive_state = App_CanRx_BMS_State_Get() == BMS_DRIVE_STATE;
-    const bool is_brake_actuated  = App_CanRx_FSM_BrakeActuated_Get();
+    const bool bms_in_drive_state = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool is_brake_actuated  = app_canRx_FSM_BrakeActuated_get();
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {

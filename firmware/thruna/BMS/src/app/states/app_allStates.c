@@ -16,7 +16,7 @@
 void app_allStates_runOnTick1Hz(void)
 {
     bool charger_is_connected = io_charger_isConnected();
-    App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
+    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
     const float    min_soc  = app_soc_getMinSocCoulombs();
     const uint16_t soc_addr = app_soc_getSocAddress();
@@ -37,7 +37,7 @@ void app_allStates_runOnTick1Hz(void)
 
 bool app_allStates_runOnTick100Hz(void)
 {
-    App_CanTx_BMS_Heartbeat_Set(true);
+    app_canTx_BMS_Heartbeat_set(true);
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
@@ -61,13 +61,13 @@ bool app_allStates_runOnTick100Hz(void)
     const bool ts_fault  = app_tractveSystem_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
-    App_CanTx_BMS_Soc_Set(app_soc_getMinSocPercent());
-    App_CanTx_BMS_BmsOk_Set(io_faultLatch_getCurrentStatus(globals->config->bms_ok_latch));
-    App_CanTx_BMS_ImdOk_Set(io_faultLatch_getCurrentStatus(globals->config->imd_ok_latch));
-    App_CanTx_BMS_BspdOk_Set(io_faultLatch_getCurrentStatus(globals->config->bspd_ok_latch));
-    App_CanTx_BMS_BmsLatchedFault_Set(io_faultLatch_getLatchedStatus(globals->config->bms_ok_latch));
-    App_CanTx_BMS_ImdLatchedFault_Set(io_faultLatch_getLatchedStatus(globals->config->imd_ok_latch));
-    App_CanTx_BMS_BspdLatchedFault_Set(io_faultLatch_getLatchedStatus(globals->config->bspd_ok_latch));
+    app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
+    app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(globals->config->bms_ok_latch));
+    app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(globals->config->imd_ok_latch));
+    app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(globals->config->bspd_ok_latch));
+    app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->bms_ok_latch));
+    app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->imd_ok_latch));
+    app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(globals->config->bspd_ok_latch));
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles

@@ -2,10 +2,10 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "App_CommitInfo.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
+#include "app_commitInfo.h"
 #include "app_timer.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
@@ -16,8 +16,8 @@
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
 
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
+#include "io_canTx.h"
+#include "io_canRx.h"
 #include "io_jsoncan.h"
 #include "io_time.h"
 #include "io_can.h"
@@ -47,14 +47,14 @@
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
-    App_CanTx_BMS_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_BMS_Warning_RxOverflow_Set(true);
+    app_canTx_BMS_RxOverflowCount_set(overflow_count);
+    app_canAlerts_BMS_Warning_RxOverflow_set(true);
 }
 
 static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
-    App_CanTx_BMS_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_BMS_Warning_TxOverflow_Set(true);
+    app_canTx_BMS_TxOverflowCount_set(overflow_count);
+    app_canAlerts_BMS_Warning_TxOverflow_set(true);
 }
 
 extern ADC_HandleTypeDef  hadc1;
@@ -65,7 +65,7 @@ extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim13;
 
 static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
+    .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
@@ -187,33 +187,33 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] 
                                                           [DIM_HEARTBEAT_BOARD] = false };
 // heartbeatGetters - get heartbeat signals from other boards
 bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
-                                                      [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Get,
-                                                      [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Get,
-                                                      [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Get,
+                                                      [DCM_HEARTBEAT_BOARD] = &app_canRx_DCM_Heartbeat_get,
+                                                      [PDM_HEARTBEAT_BOARD] = &app_canRx_PDM_Heartbeat_get,
+                                                      [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_get,
                                                       [DIM_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = NULL,
-                                                           [DCM_HEARTBEAT_BOARD] = &App_CanRx_DCM_Heartbeat_Update,
-                                                           [PDM_HEARTBEAT_BOARD] = &App_CanRx_PDM_Heartbeat_Update,
-                                                           [FSM_HEARTBEAT_BOARD] = &App_CanRx_FSM_Heartbeat_Update,
+                                                           [DCM_HEARTBEAT_BOARD] = &app_canRx_DCM_Heartbeat_update,
+                                                           [PDM_HEARTBEAT_BOARD] = &app_canRx_PDM_Heartbeat_update,
+                                                           [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_update,
                                                            [DIM_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD] = NULL,
-    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingDCMHeartbeat_Set,
-    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingPDMHeartbeat_Set,
-    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingFSMHeartbeat_Set,
+    [DCM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingDCMHeartbeat_set,
+    [PDM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingPDMHeartbeat_set,
+    [FSM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD] = NULL,
-    [DCM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingDCMHeartbeat_Get,
-    [PDM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingPDMHeartbeat_Get,
-    [FSM_HEARTBEAT_BOARD] = &App_CanAlerts_BMS_Fault_MissingFSMHeartbeat_Get,
+    [DCM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingDCMHeartbeat_get,
+    [PDM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingPDMHeartbeat_get,
+    [FSM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD] = NULL
 };
 
@@ -238,8 +238,8 @@ void tasks_init(void)
     hw_can_init(&hcan1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
 
     io_tractiveSystem_init(&ts_config);
@@ -249,8 +249,8 @@ void tasks_init(void)
     io_imd_init(&imd_pwm_input_config);
     io_charger_init(&charger_config);
 
-    App_CanTx_Init();
-    App_CanRx_Init();
+    app_canTx_init();
+    app_canRx_init();
 
     app_inverterOnState_init();
     app_accumulator_init();
@@ -261,11 +261,11 @@ void tasks_init(void)
 
     app_heartbeatMonitor_init(
         HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &App_CanTx_BMS_Heartbeat_Set, heartbeatFaultSetters, heartbeatFaultGetters);
+        &app_canTx_BMS_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
 
     // broadcast commit info
-    App_CanTx_BMS_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_BMS_Clean_Set(GIT_COMMIT_CLEAN);
+    app_canTx_BMS_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
 }
 
 void tasks_run1Hz(void)
@@ -282,9 +282,9 @@ void tasks_run1Hz(void)
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
-        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -307,7 +307,7 @@ void tasks_run100Hz(void)
     for (;;)
     {
         app_stateMachine_tick100Hz();
-        Io_CanTx_Enqueue100HzMsgs();
+        io_canTx_enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -338,7 +338,7 @@ void tasks_run1kHz(void)
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
@@ -370,6 +370,6 @@ void tasks_runCanRx(void)
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

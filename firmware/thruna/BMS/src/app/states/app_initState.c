@@ -10,7 +10,7 @@
 
 static void initStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_INIT_STATE);
+    app_canTx_BMS_State_set(BMS_INIT_STATE);
     app_accumulator_writeDefaultConfig();
     io_faultLatch_setCurrentStatus(globals->config->bms_ok_latch, true);
 
@@ -25,13 +25,13 @@ static void initStateRunOnTick1Hz(void)
     app_allStates_runOnTick1Hz();
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    if (App_CanRx_Debug_ResetSoc_MinCellV_Get())
+    if (app_canRx_Debug_ResetSoc_MinCellV_get())
     {
         app_soc_resetSocFromVoltage();
     }
-    else if (App_CanRx_Debug_ResetSoc_CustomEnable_Get())
+    else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
     {
-        app_soc_resetSocCustomValue(App_CanRx_Debug_ResetSoc_CustomVal_Get());
+        app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
     }
 }
 
@@ -45,8 +45,8 @@ static void initStateRunOnTick100Hz(void)
         if (air_negative_closed && ts_discharged)
         {
             const bool charger_connected         = io_charger_isConnected();
-            const bool cell_balancing_enabled    = App_CanRx_Debug_CellBalancingRequest_Get();
-            const bool external_charging_request = App_CanRx_Debug_StartCharging_Get();
+            const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
+            const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
             const bool precharge_for_charging = charger_connected && external_charging_request;
             // TODO: Check heartbeat from another board before continuing to precharge? will prevent unintended entry to

@@ -53,7 +53,7 @@ TEST_F(FsmAppTest, check_mapped_pedal_percentage_can_signals)
     fake_io_apps_getPrimary_returns(50.0);
     fake_io_apps_getSecondary_returns(50.0);
     LetTimePass(10);
-    ASSERT_NEAR(50.0, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
+    ASSERT_NEAR(50.0, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
 }
 
 TEST_F(FsmAppTest, check_brake_can_signals)
@@ -61,27 +61,27 @@ TEST_F(FsmAppTest, check_brake_can_signals)
     // front and rear pressure in range
     CheckInRangeCanSignals(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, fake_io_brake_getFrontPressurePsi_returns,
-        App_CanTx_FSM_FrontBrakePressure_Get, App_CanAlerts_FSM_Warning_FrontBrakePressureOutOfRange_Get);
+        app_canTx_FSM_FrontBrakePressure_get, app_canAlerts_FSM_Warning_FrontBrakePressureOutOfRange_get);
     CheckInRangeCanSignals(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, fake_io_brake_getRearPressurePsi_returns,
-        App_CanTx_FSM_RearBrakePressure_Get, App_CanAlerts_FSM_Warning_RearBrakePressureOutOfRange_Get);
+        app_canTx_FSM_RearBrakePressure_get, app_canAlerts_FSM_Warning_RearBrakePressureOutOfRange_get);
 
     // actuation
-    CheckBinaryStatusCanSignal(fake_io_brake_isActuated_returns, App_CanTx_FSM_BrakeActuated_Get);
+    CheckBinaryStatusCanSignal(fake_io_brake_isActuated_returns, app_canTx_FSM_BrakeActuated_get);
 
     // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignal(
-        fake_io_brake_frontPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_BrakePressureSensorOCSC_Get);
+        fake_io_brake_frontPressureSensorOCSC_returns, app_canAlerts_FSM_Warning_BrakePressureSensorOCSC_get);
 
     CheckBinaryStatusCanSignal(
-        fake_io_brake_rearPressureSensorOCSC_returns, App_CanAlerts_FSM_Warning_BrakePressureSensorOCSC_Get);
+        fake_io_brake_rearPressureSensorOCSC_returns, app_canAlerts_FSM_Warning_BrakePressureSensorOCSC_get);
 }
 
 TEST_F(FsmAppTest, check_primary_flow_rate_can_signals)
 {
     CheckInRangeCanSignals(
         MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, fake_io_coolant_getFlowRate_returns,
-        App_CanTx_FSM_CoolantFlowRate_Get, App_CanAlerts_FSM_Warning_FlowRateOutOfRange_Get);
+        app_canTx_FSM_CoolantFlowRate_get, app_canAlerts_FSM_Warning_FlowRateOutOfRange_get);
 }
 
 TEST_F(FsmAppTest, check_coolant_pressure_temperature_can_signals)
@@ -92,29 +92,29 @@ TEST_F(FsmAppTest, check_coolant_pressure_temperature_can_signals)
     fake_io_coolant_getPressureB_returns(30);
     LetTimePass(10);
 
-    ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureA_Get(), 30);
-    ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureB_Get(), 30);
-    ASSERT_EQ(App_CanTx_FSM_CoolantPressureA_Get(), 30);
-    ASSERT_EQ(App_CanTx_FSM_CoolantPressureB_Get(), 30);
+    ASSERT_EQ(app_canTx_FSM_CoolantTemperatureA_get(), 30);
+    ASSERT_EQ(app_canTx_FSM_CoolantTemperatureB_get(), 30);
+    ASSERT_EQ(app_canTx_FSM_CoolantPressureA_get(), 30);
+    ASSERT_EQ(app_canTx_FSM_CoolantPressureB_get(), 30);
 }
 
 TEST_F(FsmAppTest, check_steering_angle_can_signals)
 {
     CheckInRangeCanSignals(
         MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG, fake_io_steering_getAngleDegrees_returns,
-        App_CanTx_FSM_SteeringAngle_Get, App_CanAlerts_FSM_Warning_SteeringAngleOutOfRange_Get);
+        app_canTx_FSM_SteeringAngle_get, app_canAlerts_FSM_Warning_SteeringAngleOutOfRange_get);
 }
 
 TEST_F(FsmAppTest, check_left_wheel_speed_can_signals)
 {
     CheckInRangeCanSignals(
         MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, fake_io_wheels_getLeftSpeedKph_returns,
-        App_CanTx_FSM_LeftWheelSpeed_Get, App_CanAlerts_FSM_Warning_LeftWheelSpeedOutOfRange_Get);
+        app_canTx_FSM_LeftWheelSpeed_get, app_canAlerts_FSM_Warning_LeftWheelSpeedOutOfRange_get);
 }
 
 TEST_F(FsmAppTest, check_right_wheel_speed_can_signals)
 {
     CheckInRangeCanSignals(
         MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, fake_io_wheels_getRightSpeedKph_returns,
-        App_CanTx_FSM_RightWheelSpeed_Get, App_CanAlerts_FSM_Warning_RightWheelSpeedOutOfRange_Get);
+        app_canTx_FSM_RightWheelSpeed_get, app_canAlerts_FSM_Warning_RightWheelSpeedOutOfRange_get);
 }

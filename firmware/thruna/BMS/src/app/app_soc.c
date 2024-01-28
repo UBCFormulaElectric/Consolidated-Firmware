@@ -108,7 +108,7 @@ void app_soc_init(void)
     }
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 uint16_t app_soc_getSocAddress(void)
@@ -164,7 +164,7 @@ void app_soc_resetSocFromVoltage(void)
 
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 void app_soc_resetSocCustomValue(float soc_percent)
@@ -173,5 +173,5 @@ void app_soc_resetSocCustomValue(float soc_percent)
 
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }

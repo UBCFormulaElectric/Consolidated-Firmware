@@ -1,9 +1,9 @@
 #include "app_mainState.h"
 #include <stddef.h>
 #include "app_utils.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_coolant.h"
@@ -28,8 +28,8 @@ void mainStateRunOnTick100Hz(void)
     {
         // Redundancy if FSM is missing heartbeats
         // Suppress accelerator pedal percentages (set to 0%)
-        App_CanTx_FSM_PappsMappedPedalPercentage_Set(0);
-        App_CanTx_FSM_SappsMappedPedalPercentage_Set(0);
+        app_canTx_FSM_PappsMappedPedalPercentage_set(0);
+        app_canTx_FSM_SappsMappedPedalPercentage_set(0);
     }
 }
 
