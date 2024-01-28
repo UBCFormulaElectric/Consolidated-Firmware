@@ -165,11 +165,16 @@ void app_imd_broadcast()
     app_canTx_BMS_ImdSecondsSincePowerOn_set(io_imd_getTimeSincePowerOn());
 
     const ImdCondition condition = app_imd_getCondition();
-    app_canTx_BMS_ImdCondition_set((uint8_t)condition.name);
+    app_canTx_BMS_ImdCondition_set((ImdCondition)condition.name);
     app_canTx_BMS_ImdValidDutyCycle_set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
+        case IMD_SHORT_CIRCUIT:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_0Hz);
+        }
+        break;
         case IMD_NORMAL:
         {
             if (condition.pwm_encoding.valid_duty_cycle)
@@ -193,6 +198,17 @@ void app_imd_broadcast()
         case IMD_SST:
         {
             app_canTx_BMS_ImdSpeedStartStatus30Hz_set(condition.pwm_encoding.speed_start_status);
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_30Hz);
+        }
+        break;
+        case IMD_DEVICE_ERROR:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_40Hz);
+        }
+        break;
+        case IMD_GROUND_FAULT:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_50Hz);
         }
         break;
         default:

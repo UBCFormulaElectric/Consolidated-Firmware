@@ -20,7 +20,7 @@ typedef enum
     IMD_DEVICE_ERROR,
     IMD_GROUND_FAULT,
     NUM_OF_IMD_CONDITIONS,
-    IMD_INVALID,
+    IMD_INVALID = NUM_OF_IMD_CONDITIONS,
 } ImdConditionName;
 
 // The IMD has an PWM output that encodes information about the IMD condition:
