@@ -33,12 +33,25 @@ static CanHandle *handle;
 
 static void defaultCan0MsgRecievecallback(void)
 {
-    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+    CanMsg rx_msg;
+    if (!hw_can_receive(CAN_RX_FIFO0, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    io_can_msgReceivedCallback(CAN_RX_FIFO0, &rx_msg);
 }
 
-static defaultCan1MsgRecievecallback(void)
+static void defaultCan1MsgRecievecallback(void)
 {
-    io_can_msgReceivedCallback(CAN_RX_FIFO1);
+    CanMsg rx_msg;
+    if (!hw_can_receive(CAN_RX_FIFO1, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+    io_can_msgReceivedCallback(CAN_RX_FIFO1, &rx_msg);
 }
 
 void hw_can_init(CanHandle *can_handle)
@@ -63,7 +76,8 @@ void hw_can_init(CanHandle *can_handle)
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            handle, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
+            handle->can, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
+        HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
@@ -127,14 +141,12 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
-    // NOTE: All receive mailbox interrupts shall be handled in the same way.
-    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+    handle->can0MsgRecievecallback();
 }
 
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
-    // NOTE: All receive mailbox interrupts shall be handled in the same way.
-    io_can_msgReceivedCallback(CAN_RX_FIFO1);
+    handle->can1MsgRecievecallback();
 }
