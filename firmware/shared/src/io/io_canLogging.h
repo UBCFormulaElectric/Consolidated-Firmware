@@ -7,7 +7,7 @@
  * @param can_config
  *
  */
-void io_canLogging_init(const CanConfig *can_config, struct lfs_config *cfg);
+void io_canLogging_init(const CanConfig *can_config);
 
 /**
  * Create a push message to
