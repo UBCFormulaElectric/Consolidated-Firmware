@@ -2,8 +2,8 @@
 #include <stm32f4xx.h>
 #include <string.h>
 #include "hw_hal.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
 #include "Io_CanTx.h"
 
 #include "stm32f4xx_hal_iwdg.h"
@@ -21,6 +21,6 @@ void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
     BREAK_IF_DEBUGGER_CONNECTED();
 
     const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
-    App_CanAlerts_FSM_Warning_WatchdogTimeout_Set(true);
-    App_CanTx_FSM_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
+    app_canAlerts_FSM_Warning_WatchdogTimeout_set(true);
+    app_canTx_FSM_WatchdogTimeoutTaskName_set((RtosTaskName)watchdog_id);
 }

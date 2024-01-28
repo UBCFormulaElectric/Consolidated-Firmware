@@ -6,10 +6,10 @@
 #include "app_heartbeatMonitor.h"
 #include "states/app_driveState.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "App_CommitInfo.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
+#include "app_commitInfo.h"
 
 #include "io_jsoncan.h"
 
@@ -18,23 +18,23 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 
-extern ADC_HandleTypeDef * hadc1;
-extern CAN_HandleTypeDef * hcan1;
+extern ADC_HandleTypeDef  *hadc1;
+extern CAN_HandleTypeDef  *hcan1;
 extern IWDG_HandleTypeDef *hiwdg;
-extern TIM_HandleTypeDef * htim12;
-struct StateMachine *      state_machine;
-struct HeartbeatMonitor *  heartbeat_monitor;
+extern TIM_HandleTypeDef  *htim12;
+struct StateMachine       *state_machine;
+struct HeartbeatMonitor   *heartbeat_monitor;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
-    App_CanTx_FSM_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_FSM_Warning_RxOverflow_Set(true);
+    app_canTx_FSM_RxOverflowCount_set(overflow_count);
+    app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
 void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
-    App_CanTx_FSM_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_FSM_Warning_TxOverflow_Set(true);
+    app_canTx_FSM_TxOverflowCount_set(overflow_count);
+    app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
 const CanConfig can_config = {
@@ -58,15 +58,15 @@ void tasks_init(void)
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
 
-    App_CanTx_Init();
-    App_CanRx_Init();
+    app_canTx_init();
+    app_canRx_init();
 
-    App_CanTx_FSM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_FSM_Clean_Set(GIT_COMMIT_CLEAN);
+    app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
 }
 
 void tasks_run100Hz(void)

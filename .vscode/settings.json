@@ -8,5 +8,9 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "files.associations": {
+    "stm32f4xx.h": "c",
+    "hw_watchdogconfig.h": "c"
+  }
 }
