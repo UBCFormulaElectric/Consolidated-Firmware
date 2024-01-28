@@ -1,25 +1,26 @@
-#include "io_watchdogConfig.h"
+#include "hw_watchdogConfig.h"
 #include <stm32f4xx.h>
 #include <string.h>
 #include "hw_hal.h"
 #include "App_CanAlerts.h"
 #include "App_CanTx.h"
 #include "Io_CanTx.h"
-#include "Io_SharedMacros.h"
+
 #include "stm32f4xx_hal_iwdg.h"
+#include "hw_utils.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 
-void io_watchdogConfig_refresh(void)
+void hw_watchdogConfig_refresh(void)
 {
     HAL_IWDG_Refresh(&hiwdg);
 }
 
-void io_watchdogConfig_timeoutCallback(SoftwareWatchdogHandle_t watchdog)
+void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
+    const uint8_t watchdog_id = hw_watchdog_getTaskId(watchdog);
     App_CanAlerts_FSM_Warning_WatchdogTimeout_Set(true);
     App_CanTx_FSM_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }

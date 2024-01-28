@@ -1,46 +1,57 @@
-set(ARM_CORE "cm7")
+set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
+# app
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS "${SHARED_APP_SRCS}")
-list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedSetPeriodicCanSignals.c")
-list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedSignal.c")
-list(REMOVE_ITEM APP_SRCS "${SHARED_EMBEDDED_DIR}/app/App_SharedWaitSignal.c")
+list(APPEND APP_SRCS 
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+)
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
+# io
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS "${SHARED_IO_SRCS}")
-list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedAdc.c")
-list(REMOVE_ITEM IO_SRCS "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c")
+list(APPEND IO_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+)
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
+# hw
 file(GLOB_RECURSE HW_SRCS 
-"${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND HW_SRCS "${SHARED_HW_SRCS}")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_sd.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_fdcan.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_crc.c")
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_flash.c")
-
-# temporary until uart is finalized
-list(REMOVE_ITEM HW_SRCS "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c")
-
+list(APPEND HW_SRCS 
+    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    # "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c" # TODO: add back when uart finalized
+)
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
+# tasks
 file (GLOB_RECURSE TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/main.c")
 list (APPEND TASKS_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 
+# tests
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+
+# commit info
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "FSM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
@@ -77,7 +88,7 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_rcc.c"
         "stm32f4xx_hal_tim_ex.c"
         "stm32f4xx_hal_tim.c"
-        # "stm32f4xx_hal_uart_ex.c"
+        # "stm32f4xx_hal_uart_ex.c" # TODO: add back when uart finalized
         "stm32f4xx_hal_uart.c"
         "stm32f4xx_hal.c"
     )
@@ -101,9 +112,20 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    commit_info_library(
+        "FSM.elf"
+        "FSM_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("FSM_can" "FSM_stm32cube")
     target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info")
 
+    # TODO: embedded_image for boot
+    
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
         "FSM_can"
@@ -115,6 +137,8 @@ elseif("${TARGET}" STREQUAL "test")
     add_library(FSM_can STATIC "${CAN_SRCS}")
     target_include_directories(FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
+    # TODO: fake libraries
+    
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
@@ -122,5 +146,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("FSM_test" "FSM_can" "FSM_commit_info")
+    target_link_libraries("FSM_test" "FSM_can" "shared_fakes") # TODO: add fakes here
 endif()

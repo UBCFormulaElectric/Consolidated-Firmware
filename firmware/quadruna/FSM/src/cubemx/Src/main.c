@@ -148,7 +148,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -176,9 +176,6 @@ int main(void)
     /* USER CODE BEGIN 2 */
 
     tasks_init();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
 
     /* USER CODE END 2 */
 
@@ -584,7 +581,7 @@ void StartTask1kHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    tasks_1Khz(argument);
+    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -598,7 +595,7 @@ void StartTask1kHz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
-    tasks_100Hz(argument);
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -612,7 +609,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    tasks_canRx(argument);
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -626,7 +623,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    tasks_canTx(argument);
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -640,7 +637,7 @@ void RunTaskCanTx(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    tasks_1Hz(argument);
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
