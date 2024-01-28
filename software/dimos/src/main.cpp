@@ -2,11 +2,11 @@
 #include "can.h"
 extern "C"
 {
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "Io_CanRx.h"
-#include "Io_CanTx.h"
-#include "App_CommitInfo.h"
+#include "cpp_canTx.h"
+#include "cpp_canRx.h"
+#include "app_commitInfo.h"
+#include "io_canRx.h"
+#include "io_canTx.h"
 }
 
 #include <QtGui>
@@ -29,10 +29,10 @@ void set_qt_environment()
 
 void init_json_can()
 {
-    Io_CanTx_Init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    App_CanTx_Init();
-    App_CanRx_Init();
+    io_canTx_init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    app_canTx_init();
+    app_canRx_init();
     qInfo() << "[init_json_can] JsonCAN Initialized";
 
     // set values for commit info

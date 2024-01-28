@@ -256,7 +256,7 @@ class AppCanUtilsModule(CModule):
         cw.add_preamble()
         cw.add_line()
         cw.add_include("<stddef.h>")
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"app_canUtils.h"')
 
         # Add static packing/unpacking functions
         cw.add_line()

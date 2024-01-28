@@ -7,8 +7,8 @@
 
 extern "C"
 {
-#include <Io_CanRx.h>
-#include <Io_CanTx.h>
+#include <io_canRx.h>
+#include <io_canTx.h>
 }
 
 namespace can_handlers
@@ -38,10 +38,10 @@ void CanRXTask()
         // success
         auto message = get<JsonCanMsg>(res);
         // check with
-        // Io_CanRx_FilterMessageId
+        // io_canRx_filterMessageId
         // if we care about the message
         can_table_mutex.lock();
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        io_canRx_updateRxTableWithMessage(&message);
         can_table_mutex.unlock();
     }
     std::cout << "exiting CanRXTask now" << std::endl;
@@ -54,7 +54,7 @@ void CanPeriodicTXTask()
     {
         auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         can_table_mutex.lock();
-        Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
+        io_canTx_enqueueOtherPeriodicMsgs(ms.count());
         can_table_mutex.unlock();
         QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
@@ -64,14 +64,14 @@ void CanPeriodicTXTask()
 void CanTx100Hz()
 {
     can_table_mutex.lock();
-    Io_CanTx_Enqueue100HzMsgs();
+    io_canTx_enqueue100HzMsgs();
     can_table_mutex.unlock();
 }
 
 void CanTx1Hz()
 {
     can_table_mutex.lock();
-    Io_CanTx_Enqueue1HzMsgs();
+    io_canTx_enqueue1HzMsgs();
     can_table_mutex.unlock();
 }
 } // namespace can_handlers

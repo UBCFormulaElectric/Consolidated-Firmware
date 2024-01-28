@@ -8,7 +8,7 @@
 /* ------------------------------- Includes ------------------------------- */
 
 #include <stdbool.h>
-#include "App_CanUtils.h"
+#include "app_canUtils.h"
 
 /* -------------------------------- Enums --------------------------------- */
 
@@ -34,30 +34,30 @@ typedef enum
 /**
  * Set or clear an alert for this board.
  */
-void App_CanAlerts_JCT_Warning_Warning_Test_Set(bool set_alert);
+void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert);
 
 /**
  * Return whether or not a specific alert transmitted by this board is set.
  */
-bool App_CanAlerts_JCT_Warning_Warning_Test_Get(void);
+bool app_canAlerts_JCT_Warning_Warning_Test_get(void);
 
 /**
  * Return whether or not a board has set a warning.
  */
-bool App_CanAlerts_BoardHasWarning(CanAlertBoard board);
+bool app_canAlerts_BoardHasWarning(CanAlertBoard board);
 
 /**
  * Return whether or not a board has set a fault.
  */
-bool App_CanAlerts_BoardHasFault(CanAlertBoard board);
+bool app_canAlerts_BoardHasFault(CanAlertBoard board);
 
 /**
  * Return whether or not any board has set a warning.
  */
-bool App_CanAlerts_AnyBoardHasWarning(void);
+bool app_canAlerts_AnyBoardHasWarning(void);
 
 /**
  * Return whether or not any board has set a fault.
  */
-bool App_CanAlerts_AnyBoardHasFault(void);
+bool app_canAlerts_AnyBoardHasFault(void);
 

@@ -196,10 +196,10 @@ class IoCanTxModule(CModule):
         # Add includes
         cw.add_header_comment("Includes")
         cw.add_line()
-        cw.add_include('"Io_CanTx.h"')
+        cw.add_include('"io_canTx.h"')
         cw.add_include("<string.h>")
-        cw.add_include('"App_CanTx.h"')
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"app_canTx.h"')
+        cw.add_include('"app_canUtils.h"')
 
         cw.add_line()
         cw.add_line("#ifndef THREAD_SAFE_CAN_PACKING")

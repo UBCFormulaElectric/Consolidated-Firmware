@@ -5,10 +5,10 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "Io_CanTx.h"
+#include "io_canTx.h"
 #include <string.h>
-#include "App_CanTx.h"
-#include "App_CanUtils.h"
+#include "app_canTx.h"
+#include "app_canUtils.h"
 
 #ifndef THREAD_SAFE_CAN_PACKING
 #include <FreeRTOS.h>
@@ -18,17 +18,17 @@
 /* --------------------------- Static Variables --------------------------- */
 
 static uint32_t can_mode;
-static void (*transmit_func)(const CanMsg* tx_msg);
+static void (*transmit_func)(const JsonCanMsg* tx_msg);
 
 /* --------------------- Static Function Definitions ---------------------- */
 
-static void Io_CanTx_JCT_Vitals_SendPeriodic()
+static void io_canTx_JCT_Vitals_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT | CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_VITALS_ID;
         tx_msg.dlc = CAN_MSG_JCT_VITALS_BYTES;
         
@@ -36,7 +36,7 @@ static void Io_CanTx_JCT_Vitals_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_Vitals_Pack(App_CanTx_JCT_Vitals_GetData(), tx_msg.data);
+        app_canUtils_JCT_Vitals_pack(app_canTx_JCT_Vitals_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -46,13 +46,13 @@ static void Io_CanTx_JCT_Vitals_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_AirShutdownErrors_SendPeriodic()
+static void io_canTx_JCT_AirShutdownErrors_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_BYTES;
         
@@ -60,7 +60,7 @@ static void Io_CanTx_JCT_AirShutdownErrors_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_AirShutdownErrors_Pack(App_CanTx_JCT_AirShutdownErrors_GetData(), tx_msg.data);
+        app_canUtils_JCT_AirShutdownErrors_pack(app_canTx_JCT_AirShutdownErrors_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -70,13 +70,13 @@ static void Io_CanTx_JCT_AirShutdownErrors_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic()
+static void io_canTx_JCT_MotorShutdownErrors_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_ID;
         tx_msg.dlc = CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_BYTES;
         
@@ -84,7 +84,7 @@ static void Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_MotorShutdownErrors_Pack(App_CanTx_JCT_MotorShutdownErrors_GetData(), tx_msg.data);
+        app_canUtils_JCT_MotorShutdownErrors_pack(app_canTx_JCT_MotorShutdownErrors_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -94,13 +94,13 @@ static void Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_Status_SendPeriodic()
+static void io_canTx_JCT_Status_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_STATUS_ID;
         tx_msg.dlc = CAN_MSG_JCT_STATUS_BYTES;
         
@@ -108,7 +108,7 @@ static void Io_CanTx_JCT_Status_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_Status_Pack(App_CanTx_JCT_Status_GetData(), tx_msg.data);
+        app_canUtils_JCT_Status_pack(app_canTx_JCT_Status_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -118,13 +118,13 @@ static void Io_CanTx_JCT_Status_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_Warnings_SendPeriodic()
+static void io_canTx_JCT_Warnings_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_BYTES;
         
@@ -132,7 +132,7 @@ static void Io_CanTx_JCT_Warnings_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_Warnings_Pack(App_CanTx_JCT_Warnings_GetData(), tx_msg.data);
+        app_canUtils_JCT_Warnings_pack(app_canTx_JCT_Warnings_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -142,13 +142,13 @@ static void Io_CanTx_JCT_Warnings_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_Faults_SendPeriodic()
+static void io_canTx_JCT_Faults_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_FAULTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_FAULTS_BYTES;
         
@@ -156,7 +156,7 @@ static void Io_CanTx_JCT_Faults_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_Faults_Pack(App_CanTx_JCT_Faults_GetData(), tx_msg.data);
+        app_canUtils_JCT_Faults_pack(app_canTx_JCT_Faults_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -166,13 +166,13 @@ static void Io_CanTx_JCT_Faults_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_WarningsCounts_SendPeriodic()
+static void io_canTx_JCT_WarningsCounts_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_COUNTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_COUNTS_BYTES;
         
@@ -180,7 +180,7 @@ static void Io_CanTx_JCT_WarningsCounts_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_WarningsCounts_Pack(App_CanTx_JCT_WarningsCounts_GetData(), tx_msg.data);
+        app_canUtils_JCT_WarningsCounts_pack(app_canTx_JCT_WarningsCounts_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -190,13 +190,13 @@ static void Io_CanTx_JCT_WarningsCounts_SendPeriodic()
     }
 }
 
-static void Io_CanTx_JCT_FaultsCounts_SendPeriodic()
+static void io_canTx_JCT_FaultsCounts_sendPeriodic()
 {
     if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_FAULTS_COUNTS_ID;
         tx_msg.dlc = CAN_MSG_JCT_FAULTS_COUNTS_BYTES;
         
@@ -204,7 +204,7 @@ static void Io_CanTx_JCT_FaultsCounts_SendPeriodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_FaultsCounts_Pack(App_CanTx_JCT_FaultsCounts_GetData(), tx_msg.data);
+        app_canUtils_JCT_FaultsCounts_pack(app_canTx_JCT_FaultsCounts_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -216,12 +216,12 @@ static void Io_CanTx_JCT_FaultsCounts_SendPeriodic()
 
 /* --------------------- Public Function Definitions ---------------------- */
 
-void Io_CanTx_Init(void (*transmit_tx_msg_func)(const CanMsg*))
+void io_canTx_init(void (*transmit_tx_msg_func)(const JsonCanMsg*))
 {
     transmit_func = transmit_tx_msg_func;
 }
 
-void Io_CanTx_EnableMode(CanMode mode, bool enable)
+void io_canTx_enableMode(CanMode mode, bool enable)
 {
     if (enable)
     {
@@ -234,49 +234,49 @@ void Io_CanTx_EnableMode(CanMode mode, bool enable)
     }
 }
 
-void Io_CanTx_Enqueue1HzMsgs()
+void io_canTx_enqueue1HzMsgs()
 {
-    Io_CanTx_JCT_Vitals_SendPeriodic();
-    Io_CanTx_JCT_AirShutdownErrors_SendPeriodic();
-    Io_CanTx_JCT_Warnings_SendPeriodic();
-    Io_CanTx_JCT_WarningsCounts_SendPeriodic();
+    io_canTx_JCT_Vitals_sendPeriodic();
+    io_canTx_JCT_AirShutdownErrors_sendPeriodic();
+    io_canTx_JCT_Warnings_sendPeriodic();
+    io_canTx_JCT_WarningsCounts_sendPeriodic();
 }
 
-void Io_CanTx_Enqueue100HzMsgs()
+void io_canTx_enqueue100HzMsgs()
 {
 }
 
-void Io_CanTx_EnqueueOtherPeriodicMsgs(uint32_t time_ms)
+void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
 {
     if (time_ms % CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_CYCLE_TIME_MS == 0)
     {
-        Io_CanTx_JCT_MotorShutdownErrors_SendPeriodic();
+        io_canTx_JCT_MotorShutdownErrors_sendPeriodic();
     }
     
     if (time_ms % CAN_MSG_JCT_STATUS_CYCLE_TIME_MS == 0)
     {
-        Io_CanTx_JCT_Status_SendPeriodic();
+        io_canTx_JCT_Status_sendPeriodic();
     }
     
     if (time_ms % CAN_MSG_JCT_FAULTS_CYCLE_TIME_MS == 0)
     {
-        Io_CanTx_JCT_Faults_SendPeriodic();
+        io_canTx_JCT_Faults_sendPeriodic();
     }
     
     if (time_ms % CAN_MSG_JCT_FAULTS_COUNTS_CYCLE_TIME_MS == 0)
     {
-        Io_CanTx_JCT_FaultsCounts_SendPeriodic();
+        io_canTx_JCT_FaultsCounts_sendPeriodic();
     }
     
 }
 
-void Io_CanTx_JCT_WarningsTest_SendAperiodic()
+void io_canTx_JCT_WarningsTest_sendAperiodic()
 {
     if (can_mode & (CAN_MODE_DEBUG))
     {
         // Prepare msg header
-        CanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(CanMsg));
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
         tx_msg.std_id = CAN_MSG_JCT_WARNINGS_TEST_ID;
         tx_msg.dlc = CAN_MSG_JCT_WARNINGS_TEST_BYTES;
         
@@ -284,7 +284,7 @@ void Io_CanTx_JCT_WarningsTest_SendAperiodic()
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortEnterCritical();
         #endif
-        App_CanUtils_JCT_WarningsTest_Pack(App_CanTx_JCT_WarningsTest_GetData(), tx_msg.data);
+        app_canUtils_JCT_WarningsTest_pack(app_canTx_JCT_WarningsTest_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif

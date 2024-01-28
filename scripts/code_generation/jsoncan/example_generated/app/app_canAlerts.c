@@ -6,41 +6,41 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
 
 /* ------------------------- Function Definitions ------------------------- */
 
-void App_CanAlerts_JCT_Warning_Warning_Test_Set(bool set_alert)
+void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert)
 {
     // Increment alert counter.
-    if (set_alert && !App_CanTx_JCT_Warning_Warning_Test_Get())
+    if (set_alert && !app_canTx_JCT_Warning_Warning_Test_get())
     {
-        App_CanTx_JCT_Warning_Warning_TestCount_Set(App_CanTx_JCT_Warning_Warning_TestCount_Get() + 1);
+        app_canTx_JCT_Warning_Warning_TestCount_set(app_canTx_JCT_Warning_Warning_TestCount_get() + 1);
     }
     
     // Set alert.
-    App_CanTx_JCT_Warning_Warning_Test_Set(set_alert);
+    app_canTx_JCT_Warning_Warning_Test_set(set_alert);
 }
 
-bool App_CanAlerts_JCT_Warning_Warning_Test_Get()
+bool app_canAlerts_JCT_Warning_Warning_Test_get()
 {
-    return App_CanTx_JCT_Warning_Warning_Test_Get();
+    return app_canTx_JCT_Warning_Warning_Test_get();
 }
 
-bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
+bool app_canAlerts_BoardHasWarning(CanAlertBoard board)
 {
     switch (board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_Warning_Warning_Test1_Get())
+            if (app_canRx_FSM_Warning_Warning_Test1_get())
             {
                 return true;
             }
             
-            if (App_CanRx_FSM_Warning_Warning_Test2_Get())
+            if (app_canRx_FSM_Warning_Warning_Test2_get())
             {
                 return true;
             }
@@ -49,7 +49,7 @@ bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
         }
         case JCT_ALERT_BOARD:
         {
-            if (App_CanTx_JCT_Warning_Warning_Test_Get())
+            if (app_canTx_JCT_Warning_Warning_Test_get())
             {
                 return true;
             }
@@ -66,13 +66,13 @@ bool App_CanAlerts_BoardHasWarning(CanAlertBoard board)
     return false;
 }
 
-bool App_CanAlerts_BoardHasFault(CanAlertBoard board)
+bool app_canAlerts_BoardHasFault(CanAlertBoard board)
 {
     switch (board)
     {
         case FSM_ALERT_BOARD:
         {
-            if (App_CanRx_FSM_Fault_Fault_Test3_Get())
+            if (app_canRx_FSM_Fault_Fault_Test3_get())
             {
                 return true;
             }
@@ -89,14 +89,14 @@ bool App_CanAlerts_BoardHasFault(CanAlertBoard board)
     return false;
 }
 
-bool App_CanAlerts_AnyBoardHasWarning()
+bool app_canAlerts_AnyBoardHasWarning()
 {
-    if (App_CanAlerts_BoardHasWarning(FSM_ALERT_BOARD))
+    if (app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD))
     {
         return true;
     }
     
-    if (App_CanAlerts_BoardHasWarning(JCT_ALERT_BOARD))
+    if (app_canAlerts_BoardHasWarning(JCT_ALERT_BOARD))
     {
         return true;
     }
@@ -104,9 +104,9 @@ bool App_CanAlerts_AnyBoardHasWarning()
     return false;
 }
 
-bool App_CanAlerts_AnyBoardHasFault()
+bool app_canAlerts_AnyBoardHasFault()
 {
-    if (App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD))
+    if (app_canAlerts_BoardHasFault(FSM_ALERT_BOARD))
     {
         return true;
     }

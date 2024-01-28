@@ -325,60 +325,60 @@ typedef struct
 /**
  * Pack signals into CAN payload for JCT_Vitals.
  */
-void App_CanUtils_JCT_Vitals_Pack(const JCT_Vitals_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_Vitals_pack(const JCT_Vitals_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_WarningsTest.
  */
-void App_CanUtils_JCT_WarningsTest_Pack(const JCT_WarningsTest_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_WarningsTest_pack(const JCT_WarningsTest_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_AirShutdownErrors.
  */
-void App_CanUtils_JCT_AirShutdownErrors_Pack(const JCT_AirShutdownErrors_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_AirShutdownErrors_pack(const JCT_AirShutdownErrors_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_MotorShutdownErrors.
  */
-void App_CanUtils_JCT_MotorShutdownErrors_Pack(const JCT_MotorShutdownErrors_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_MotorShutdownErrors_pack(const JCT_MotorShutdownErrors_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_Status.
  */
-void App_CanUtils_JCT_Status_Pack(const JCT_Status_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_Status_pack(const JCT_Status_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_Warnings.
  */
-void App_CanUtils_JCT_Warnings_Pack(const JCT_Warnings_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_Warnings_pack(const JCT_Warnings_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_Faults.
  */
-void App_CanUtils_JCT_Faults_Pack(const JCT_Faults_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_Faults_pack(const JCT_Faults_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_WarningsCounts.
  */
-void App_CanUtils_JCT_WarningsCounts_Pack(const JCT_WarningsCounts_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_WarningsCounts_pack(const JCT_WarningsCounts_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Pack signals into CAN payload for JCT_FaultsCounts.
  */
-void App_CanUtils_JCT_FaultsCounts_Pack(const JCT_FaultsCounts_Signals* const in_msg, uint8_t* const out_data);
+void app_canUtils_JCT_FaultsCounts_pack(const JCT_FaultsCounts_Signals* const in_msg, uint8_t* const out_data);
 
 /**
  * Unpack signals from CAN payload for FSM_Apps.
  */
-void App_CanUtils_FSM_Apps_Unpack(const uint8_t* const in_data, FSM_Apps_Signals* const out_msg);
+void app_canUtils_FSM_Apps_unpack(const uint8_t* const in_data, FSM_Apps_Signals* const out_msg);
 
 /**
  * Unpack signals from CAN payload for FSM_Warnings.
  */
-void App_CanUtils_FSM_Warnings_Unpack(const uint8_t* const in_data, FSM_Warnings_Signals* const out_msg);
+void app_canUtils_FSM_Warnings_unpack(const uint8_t* const in_data, FSM_Warnings_Signals* const out_msg);
 
 /**
  * Unpack signals from CAN payload for FSM_Faults.
  */
-void App_CanUtils_FSM_Faults_Unpack(const uint8_t* const in_data, FSM_Faults_Signals* const out_msg);
+void app_canUtils_FSM_Faults_unpack(const uint8_t* const in_data, FSM_Faults_Signals* const out_msg);
 
