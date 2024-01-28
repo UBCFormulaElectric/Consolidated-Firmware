@@ -7,7 +7,7 @@ NUM_ALERTS = "NUM_{node}_{alert_type}S"
 BOARD_HAS_ALERT_FUNC_NAME = "app_canAlerts_BoardHas{alert_type}"
 ANY_ALERT_FUNC_NAME = "app_canAlerts_AnyBoardHas{alert_type}"
 ALERT_BOARD_ENUM_NAME = "{node}_ALERT_BOARD"
-GET_BOARD_FAULT_CODE = "App_CanAlerts_{alert_type}Code"
+GET_BOARD_FAULT_CODE = "app_canAlerts_{alert_type}Code"
 
 
 class AppCanAlertsModule(CModule):

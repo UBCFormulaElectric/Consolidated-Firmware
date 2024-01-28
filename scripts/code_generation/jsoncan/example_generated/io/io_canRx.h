@@ -23,4 +23,3 @@ bool io_canRx_filterMessageId(uint32_t std_id);
  */
 void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg);
 
-
