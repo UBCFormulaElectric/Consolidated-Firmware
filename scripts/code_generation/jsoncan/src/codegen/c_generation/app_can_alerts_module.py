@@ -115,7 +115,7 @@ class AppCanAlertsModule(CModule):
             "uint8_t",
             args=[
                 CVar("board", CTypesConfig.CAN_ALERT_BOARD_ENUM),
-                CVar("*alertArray", "uint8_t"),
+                CVar("*alert_array", "uint8_t"),
             ],
             comment=f"Return whether or not a board has set a {comment}.",
         )
@@ -142,7 +142,7 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                get_alert.body.add_line("alertArray[element_num] = (uint8_t)" + alert + ";")
+                get_alert.body.add_line("alert_array[element_num] = (uint8_t)" + alert + ";")
                 get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()

@@ -115,7 +115,7 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
+uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alert_array)
 {
     uint8_t element_num = 0;
     switch (board)
@@ -124,13 +124,13 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanRx_FSM_Warning_Warning_Test1_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Warning_Warning_Test1;
+                alert_array[element_num] = (uint8_t)FSM_Warning_Warning_Test1;
                 element_num++;
             }
             
             if (App_CanRx_FSM_Warning_Warning_Test2_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Warning_Warning_Test2;
+                alert_array[element_num] = (uint8_t)FSM_Warning_Warning_Test2;
                 element_num++;
             }
             
@@ -140,7 +140,7 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanTx_JCT_Warning_Warning_Test_Get())
             {
-                alertArray[element_num] = (uint8_t)JCT_Warning_Warning_Test;
+                alert_array[element_num] = (uint8_t)JCT_Warning_Warning_Test;
                 element_num++;
             }
             
@@ -156,7 +156,7 @@ uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, uint8_t *alertArray)
     
 }
 
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray)
+uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alert_array)
 {
     uint8_t element_num = 0;
     switch (board)
@@ -165,7 +165,7 @@ uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, uint8_t *alertArray)
         {
             if (App_CanRx_FSM_Fault_Fault_Test3_Get())
             {
-                alertArray[element_num] = (uint8_t)FSM_Fault_Fault_Test3;
+                alert_array[element_num] = (uint8_t)FSM_Fault_Fault_Test3;
                 element_num++;
             }
             
