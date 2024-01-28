@@ -2,7 +2,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"patternProperties": {
-		"(FSM|BMS|DCM|DIM|PDM|VC)_[A-Z]\\w+": {
+		"(FSM|BMS|DIM|VC|dimos)_[A-Z]\\w+": {
 			"type": "object",
 			"properties": {
 				"msg_id": {

@@ -1,5 +1,6 @@
 function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
-    message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR}")
+    file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
+    message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR_RELATIVE}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canTx.c")
     set(APP_CAN_TX_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canTx.h")
     set(IO_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/io/io_canTx.c")

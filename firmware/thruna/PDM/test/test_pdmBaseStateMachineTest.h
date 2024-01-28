@@ -15,7 +15,6 @@ extern "C"
 #include "app_canUtils.h"
 #include "app_utils.h"
 #include "states/app_initState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
 #include "app_globals.h"
 }
 
