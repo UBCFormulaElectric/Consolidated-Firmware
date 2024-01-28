@@ -1,12 +1,9 @@
 #include "hw_watchdogConfig.h"
-#include <stm32f4xx.h>
-#include <string.h>
 #include "hw_hal.h"
+#include <string.h>
 #include "app_canAlerts.h"
 #include "app_canTx.h"
-#include "Io_CanTx.h"
-
-#include "stm32f4xx_hal_iwdg.h"
+#include "io_canTx.h"
 #include "hw_utils.h"
 
 extern IWDG_HandleTypeDef hiwdg;
