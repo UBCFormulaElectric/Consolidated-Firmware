@@ -9,7 +9,7 @@
 typedef struct
 {
     uint32_t std_id;
-    uint32_t dlc;
+    uint32_t dlc;       // data length range : [0, 8]
     uint8_t data[CAN_PAYLOAD_BYTES];
 } CanMsg;
 
