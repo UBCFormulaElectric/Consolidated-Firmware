@@ -17,10 +17,10 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 
-extern ADC_HandleTypeDef *  hadc1;
-extern ADC_HandleTypeDef *  hadc3;
+extern ADC_HandleTypeDef   *hadc1;
+extern ADC_HandleTypeDef   *hadc3;
 extern FDCAN_HandleTypeDef *hfdcan1;
-extern IWDG_HandleTypeDef * hiwdg1;
+extern IWDG_HandleTypeDef  *hiwdg1;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {

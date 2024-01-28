@@ -251,7 +251,7 @@ void tasks_init(void)
 void tasks_run1Hz(void)
 {
     static const TickType_t period_ms = 1000U;
-    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     static uint32_t start_ticks = 0;
@@ -278,7 +278,7 @@ void tasks_run1Hz(void)
 void tasks_run100Hz(void)
 {
     static const TickType_t period_ms = 10U;
-    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     static uint32_t start_ticks = 0;
@@ -303,7 +303,7 @@ void tasks_run100Hz(void)
 void tasks_run1kHz(void)
 {
     static const TickType_t period_ms = 1U;
-    WatchdogHandle *        watchdog  = hw_watchdog_allocateWatchdog();
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;

@@ -7,7 +7,7 @@ typedef struct
 {
     float frequency_hz;
 
-    TIM_HandleTypeDef *   htim;
+    TIM_HandleTypeDef    *htim;
     float                 tim_frequency_hz;
     uint32_t              tim_channel;
     uint32_t              tim_auto_reload_reg;
@@ -33,8 +33,8 @@ typedef struct
  * @return Pointer to the allocated and initialized PWM input
  */
 void hw_pwmInputFreqOnly_init(
-    PwmInputFreqOnly *    pwm_input,
-    TIM_HandleTypeDef *   htim,
+    PwmInputFreqOnly     *pwm_input,
+    TIM_HandleTypeDef    *htim,
     float                 tim_frequency_hz,
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,

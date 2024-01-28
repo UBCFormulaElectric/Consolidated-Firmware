@@ -35,9 +35,9 @@ class ui_MainWindow
         FramesCount
     }; // order does matter :)
   private:
-    QWidget *       centerWidget{};
-    QVBoxLayout *   centerLayout{};
-    QWidget *       limiter{};
+    QWidget        *centerWidget{};
+    QVBoxLayout    *centerLayout{};
+    QWidget        *limiter{};
     QStackedWidget *MainStack{};
 
     // pages
@@ -46,13 +46,13 @@ class ui_MainWindow
 
     // racing pages
     AccelerationPage *acceleration_page{};
-    AutocrossPage *   autocross_page{};
-    BrakingPage *     braking_page{};
-    EndurancePage *   endurance_page{};
-    SkidpadPage *     skidpad_page{};
+    AutocrossPage    *autocross_page{};
+    BrakingPage      *braking_page{};
+    EndurancePage    *endurance_page{};
+    SkidpadPage      *skidpad_page{};
 
     // switcher logic
-    Switcher *                           SwitcherFrame{};
+    Switcher                            *SwitcherFrame{};
     std::unique_ptr<QGraphicsBlurEffect> switcherBackgroundEffect;
     bool                                 isSwitcherOpen = false;
 

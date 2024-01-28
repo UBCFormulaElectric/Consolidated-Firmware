@@ -39,14 +39,14 @@ class StartupPage
     QFrame *LowVoltageFrame{};
     QFrame *ShutdownLoopFrame{};
 
-    QLabel * DriverPhoto{};
-    QLabel * DriverName{};
-    QLabel * LogoPhoto{};
-    QLabel * LogoName{};
+    QLabel  *DriverPhoto{};
+    QLabel  *DriverName{};
+    QLabel  *LogoPhoto{};
+    QLabel  *LogoName{};
     QWidget *LowVoltageIcon{};
-    QLabel * LowVoltageName{};
+    QLabel  *LowVoltageName{};
     QWidget *ShutdownLoopIcon{};
-    QLabel * ShutdownLoopName{};
+    QLabel  *ShutdownLoopName{};
 
     const int PADDING = 50;
     const int MARGIN  = 25;

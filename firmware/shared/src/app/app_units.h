@@ -1,7 +1,7 @@
 #pragma once
 
 // Time conversions.
-#define S_TO_MS(time_s) ((uint32_t)((time_s)*1000U))
+#define S_TO_MS(time_s) ((uint32_t)((time_s) * 1000U))
 #define MIN_TO_HOUR (60.0f)
 #define SECONDS_TO_HOUR(s) ((s) * (1 / 3600.0f))
 #define HZ_TO_MS(hz) (1000 / (hz))

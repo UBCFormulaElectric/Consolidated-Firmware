@@ -3,7 +3,7 @@
 #include <QPainterPath>
 
 constexpr static double rad_deg_factor = 180 / M_PI;
-#define RAD_TO_DEG(x) ((x)*rad_deg_factor)
+#define RAD_TO_DEG(x) ((x) * rad_deg_factor)
 
 // ReSharper disable once CppPossiblyUninitializedMember
 Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {}

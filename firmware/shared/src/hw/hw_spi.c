@@ -14,9 +14,9 @@ void hw_spi_setNssHigh(const SpiInterface *spi)
 
 bool hw_spi_transmitAndReceive(
     const SpiInterface *spi,
-    uint8_t *           tx_buffer,
+    uint8_t            *tx_buffer,
     uint16_t            tx_buffer_size,
-    uint8_t *           rx_buffer,
+    uint8_t            *rx_buffer,
     uint16_t            rx_buffer_size)
 
 {

@@ -10,8 +10,8 @@ static const RangeCheck front_pressure_in_range_check = { .get_value = io_brake_
                                                           .min_value = MIN_BRAKE_PRESSURE_PSI,
                                                           .max_value = MAX_BRAKE_PRESSURE_PSI };
 static const RangeCheck rear_pressure_in_range_check  = { .get_value = io_brake_getRearPressurePsi,
-                                                         .min_value = MIN_BRAKE_PRESSURE_PSI,
-                                                         .max_value = MAX_BRAKE_PRESSURE_PSI };
+                                                          .min_value = MIN_BRAKE_PRESSURE_PSI,
+                                                          .max_value = MAX_BRAKE_PRESSURE_PSI };
 
 void app_brake_broadcast()
 {
