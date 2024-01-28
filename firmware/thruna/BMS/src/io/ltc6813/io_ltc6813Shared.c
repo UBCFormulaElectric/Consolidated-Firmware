@@ -51,7 +51,7 @@ typedef struct
 } LTC6813Configurations;
 
 extern const SpiInterface *ltc6813_spi;
-const SpiInterface *       ltc6813_spi = NULL;
+const SpiInterface        *ltc6813_spi = NULL;
 
 static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
 {

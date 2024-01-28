@@ -44,13 +44,13 @@ class NotifFrame final : public QFrame
 class RacingBase
 {
   public:
-    QFrame *    notifParentFrame;
-    QLabel *    notifBackgroundLogo;
+    QFrame     *notifParentFrame;
+    QLabel     *notifBackgroundLogo;
     NotifFrame *notifFrame;
 
     QGraphicsBlurEffect *notifLogoEffect;
 
-    QFrame *     innerElements;
+    QFrame      *innerElements;
     QGridLayout *splitLayout;
 
     void setupUi(QWidget *parent, QFrame *innerElems)

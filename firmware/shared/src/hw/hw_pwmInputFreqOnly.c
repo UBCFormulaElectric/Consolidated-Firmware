@@ -15,8 +15,8 @@ static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
 }
 
 void hw_pwmInputFreqOnly_init(
-    PwmInputFreqOnly *    pwm_input,
-    TIM_HandleTypeDef *   htim,
+    PwmInputFreqOnly     *pwm_input,
+    TIM_HandleTypeDef    *htim,
     float                 tim_frequency_hz,
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,

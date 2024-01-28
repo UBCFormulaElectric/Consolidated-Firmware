@@ -6,7 +6,7 @@
 typedef struct
 {
     SPI_HandleTypeDef *spi_handle;
-    GPIO_TypeDef *     nss_port;
+    GPIO_TypeDef      *nss_port;
     uint16_t           nss_pin;
     uint32_t           timeout_ms;
 } SpiInterface;
@@ -39,9 +39,9 @@ void hw_spi_setNssHigh(const SpiInterface *spi);
  */
 bool hw_spi_transmitAndReceive(
     const SpiInterface *spi,
-    uint8_t *           tx_buffer,
+    uint8_t            *tx_buffer,
     uint16_t            tx_buffer_size,
-    uint8_t *           rx_buffer,
+    uint8_t            *rx_buffer,
     uint16_t            rx_buffer_size);
 
 /**
