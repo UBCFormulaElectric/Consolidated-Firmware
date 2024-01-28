@@ -1,4 +1,4 @@
-#include "Test_Shared.h"
+#include <gtest/gtest.h>
 
 extern "C"
 {

@@ -11,16 +11,16 @@ class DcmStateMachineTest : public DcmBaseStateMachineTest
         // the drive state.
         App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
         App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 
         // Introduce fault, expect transition to init state.
         set_fault();
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 
         // Confirm we don't allow a transition back to drive until the fault clears.
-        LetTimePass(state_machine, 1000);
+        LetTimePass(1000);
         EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 
         // Clear fault and observe a transition back to drive, when the drive conditions are met.
@@ -28,9 +28,9 @@ class DcmStateMachineTest : public DcmBaseStateMachineTest
 
         App_CanRx_FSM_BrakeActuated_Update(true);
         App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
     }
 };
@@ -40,24 +40,24 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     // Pull start switch down and back up, expect no transition
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
     App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    LetTimePass(10);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 
     // Transition BMS to drive state, expect no transition
     App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    LetTimePass(10);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 
     // Actuate brake pedal
     App_CanRx_FSM_BrakeActuated_Update(true);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(app_initState_get(), App_SharedStateMachine_GetCurrentState(state_machine));
+    LetTimePass(10);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 
     // Pull start switch down and back up, expect init->drive transition
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
     App_CanRx_DIM_StartSwitch_Update(SWITCH_ON);
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_State_Get());
 }
 
@@ -92,7 +92,7 @@ TEST_F(DcmStateMachineTest, disable_inverters_in_init_state)
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
 
     // Now tick the state machine and check torque request gets zeroed on transition to init.
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
     EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
     EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
     EXPECT_FLOAT_EQ(false, App_CanTx_DCM_LeftInverterEnable_Get());
@@ -103,7 +103,7 @@ TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_sta
 {
     SetInitialState(app_driveState_get());
     App_CanRx_DIM_StartSwitch_Update(SWITCH_OFF);
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
 
     ASSERT_EQ(DCM_INIT_STATE, App_CanTx_DCM_State_Get());
 }
@@ -123,16 +123,16 @@ TEST_F(DcmStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_
             App_CanRx_BMS_State_Update(BMS_DRIVE_STATE);
             EXPECT_TRUE(App_CanTx_DCM_BuzzerOn_Get());
 
-            LetTimePass(state_machine, BUZZER_ON_DURATION_MS);
+            LetTimePass(BUZZER_ON_DURATION_MS);
             EXPECT_TRUE(App_CanTx_DCM_BuzzerOn_Get());
 
             // Check that the buzzer has been turned off after waiting for
             // BUZZER_ON_DURATION_MS.
-            LetTimePass(state_machine, 10);
+            LetTimePass(10);
             EXPECT_FALSE(App_CanTx_DCM_BuzzerOn_Get());
 
             // Check that the buzzer stays off indefinitely.
-            LetTimePass(state_machine, 100);
+            LetTimePass(100);
             EXPECT_FALSE(App_CanTx_DCM_BuzzerOn_Get());
         }
         else
@@ -154,7 +154,7 @@ TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pre
 
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
     EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterTorqueCommand_Get());
     EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterTorqueCommand_Get());
 }

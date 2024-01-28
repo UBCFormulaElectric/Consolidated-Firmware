@@ -10,7 +10,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
@@ -19,14 +18,10 @@ extern "C"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
 #include "math.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 }
-/**
- * Define SetUp and TearDown to be called before every TEST_F call
- */
+
 class TorqueVectoringTest : public testing::Test
 {
   protected:
@@ -36,7 +31,6 @@ class TorqueVectoringTest : public testing::Test
         App_CanRx_Init();
         app_torqueVectoring_init();
     }
-    void TearDown() override { return; }
 };
 
 // TEST_F(TorqueVectoringTest, torques_are_zero_when_power_limit_is_zero)

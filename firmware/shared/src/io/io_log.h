@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdio.h>
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.

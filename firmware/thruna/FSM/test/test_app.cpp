@@ -15,29 +15,29 @@ class FsmAppTest : public FsmBaseStateMachineTest
         // Normalnge
         const float nominal_val = (min_value + max_value) / 2;
         fake_setter(nominal_val);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         ASSERT_EQ(nominal_val, value_can_signal_getter());
         ASSERT_FALSE(alert_getter());
 
         // Underflow range
         fake_setter(std::nextafter(min_value, std::numeric_limits<float>::lowest()));
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         ASSERT_TRUE(alert_getter());
 
         // Overflow range
         fake_setter(std::nextafter(max_value, std::numeric_limits<float>::max()));
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         ASSERT_TRUE(alert_getter());
     }
 
     void CheckBinaryStatusCanSignal(void (*fake_setter)(bool), bool (*can_signal_getter)())
     {
         fake_setter(true);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         ASSERT_TRUE(can_signal_getter());
 
         fake_setter(false);
-        LetTimePass(state_machine, 10);
+        LetTimePass(10);
         ASSERT_FALSE(can_signal_getter());
     }
 };
@@ -52,7 +52,7 @@ TEST_F(FsmAppTest, check_mapped_pedal_percentage_can_signals)
     // Normal range
     fake_io_apps_getPrimary_returns(50.0);
     fake_io_apps_getSecondary_returns(50.0);
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
     ASSERT_NEAR(50.0, App_CanTx_FSM_PappsMappedPedalPercentage_Get(), 0.5f);
 }
 
@@ -90,7 +90,7 @@ TEST_F(FsmAppTest, check_coolant_pressure_temperature_can_signals)
     fake_io_coolant_getTemperatureB_returns(30);
     fake_io_coolant_getPressureA_returns(30);
     fake_io_coolant_getPressureB_returns(30);
-    LetTimePass(state_machine, 10);
+    LetTimePass(10);
 
     ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureA_Get(), 30);
     ASSERT_EQ(App_CanTx_FSM_CoolantTemperatureB_Get(), 30);

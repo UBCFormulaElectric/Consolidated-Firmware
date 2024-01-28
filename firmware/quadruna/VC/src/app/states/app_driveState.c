@@ -1,29 +1,23 @@
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
 
-static void driveStateRunOnEntry(struct StateMachine *const state_machine)
+static void driveStateRunOnEntry(void) {}
+
+static void driveStateRunOnTick1Hz(void)
 {
-    UNUSED(state_machine);
+    app_allStates_runOnTick1Hz();
 }
 
-static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
+    app_allStates_runOnTick100Hz();
 }
 
-static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
-{
-    app_allStates_runOnTick100Hz(state_machine);
-}
+static void driveStateRunOnExit(void) {}
 
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_driveState_get()
 {
-    UNUSED(state_machine);
-}
-
-const struct State *app_driveState_get()
-{
-    static struct State drive_state = {
+    static State drive_state = {
         .name              = "DRIVE",
         .run_on_entry      = driveStateRunOnEntry,
         .run_on_tick_1Hz   = driveStateRunOnTick1Hz,

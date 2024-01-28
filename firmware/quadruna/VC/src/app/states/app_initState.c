@@ -2,29 +2,23 @@
 #include "states/app_initState.h"
 #include "states/app_allStates.h"
 
-static void initStateRunOnEntry(struct StateMachine *const state_machine)
+static void initStateRunOnEntry(void) {}
+
+static void initStateRunOnTick1Hz(void)
 {
-    UNUSED(state_machine);
+    app_allStates_runOnTick1Hz();
 }
 
-static void initStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void initStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
+    app_allStates_runOnTick100Hz();
 }
 
-static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
-{
-    app_allStates_runOnTick100Hz(state_machine);
-}
+static void initStateRunOnExit(void) {}
 
-static void initStateRunOnExit(struct StateMachine *const state_machine)
+const State *app_initState_get()
 {
-    UNUSED(state_machine);
-}
-
-const struct State *app_initState_get()
-{
-    static struct State init_state = {
+    static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,
         .run_on_tick_1Hz   = initStateRunOnTick1Hz,

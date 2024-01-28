@@ -4,19 +4,16 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
-
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
@@ -26,6 +23,8 @@ file(GLOB_RECURSE HW_SRCS
 list(APPEND HW_SRCS 
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
