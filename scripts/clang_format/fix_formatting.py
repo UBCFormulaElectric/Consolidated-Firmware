@@ -20,7 +20,9 @@ platform = _get_platform()
 # Construct the command line input
 CLANG_FORMAT_VERSION = "17.0.6"
 CLANG_PLATFORM_SUFFIX = {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
-CLANG_FORMAT_BINARY = f'{os.path.join(".", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
+CLANG_FORMAT_BINARY = (
+    f'{os.path.join(".", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
+)
 CLANG_FORMAT_OPTIONS = "-i --style=file"
 CLANG_FORMAT_CMD = f"{CLANG_FORMAT_BINARY} {CLANG_FORMAT_OPTIONS}"
 
@@ -29,37 +31,21 @@ CLANG_FORMAT_CMD = f"{CLANG_FORMAT_BINARY} {CLANG_FORMAT_OPTIONS}"
 # Format C/C++ files
 INCLUDE_FILE_EXTENSIONS = (".c", ".cc", ".cpp", ".h", ".hpp", ".hh")
 
-# Files ignored by clang-format
-EXCLUDE_FILES = [
-    # Everytime we format these 2 files, we get an unwanted '\' at the end.
-    # Ignore them from clang-format as a workaround.
-    "stm32f3xx_hal_conf.h",
-    "system_stm32f3xx.c",
-]
 
-# Directories ignored by clang-format
-EXCLUDE_DIRS = [
-    "Middlewares",  # STM32CubeMX generated libraries
-    "Drivers",  # STM32CubeMX generated libraries
-    "cmake-build-embedded",
-    "cmake-build-gtest",
-    "third_party",
-]
-
-
-def find_all_files(path_from_root: str) -> list[str]:
+def find_all_files(
+    path_from_root: str, EXCLUDE_FILES: list[str], EXCLUDE_DIRS: list[str]
+) -> list[str]:
     """
     Find and return all files to run formatting on.
 
     """
     # Print the current working directory since the paths are relative
-    print("Current working directory: " + os.getcwd())
 
     # Prepare path to recursive traverse
     SOURCE_DIR = os.path.join("..", "..", path_from_root)
 
     # Recursively traverse through file tree and apply clang-format
-    print(f"Apply clang-format to files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
+    print(f"💡 Searching for files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
 
     source_files = []
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
@@ -73,6 +59,7 @@ def find_all_files(path_from_root: str) -> list[str]:
             if file.endswith(INCLUDE_FILE_EXTENSIONS) and file not in EXCLUDE_FILES
         ]
 
+    print(f"✅  Found {len(source_files)} files to format.")
     return source_files
 
 
@@ -83,9 +70,9 @@ def run_clang_format(source_file: str) -> bool:
     # Append the requisite .exe file ending for Windows
     # Construct and invoke clang-format
     if platform == "windows":
-        command = f"\"{CLANG_FORMAT_CMD} {source_file}\""
+        command = f'"{CLANG_FORMAT_CMD} {source_file}"'
     else:
-        command = f"{CLANG_FORMAT_CMD} \"{source_file}\""
+        command = f'{CLANG_FORMAT_CMD} "{source_file}"'
 
     try:
         return os.system(command) == 0
@@ -97,9 +84,27 @@ if __name__ == "__main__":
     # Change into the DIRECTORY OF THIS PYTHON FILE is in so we can use relative paths
     PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
+    print("Current working directory: " + os.getcwd())
 
     # Find all valid files
-    source_files = find_all_files("firmware") + find_all_files("software/dimos")
+    source_files = []
+    source_files += find_all_files(
+        "firmware",
+        [
+            # Everytime we format these 2 files, we get an unwanted '\' at the end.
+            # Ignore them from clang-format as a workaround.
+            "stm32f3xx_hal_conf.h",
+            "system_stm32f3xx.c",
+        ],
+        [
+            "Middlewares",  # STM32CubeMX generated libraries
+            "Drivers",  # STM32CubeMX generated libraries
+            "cmake-build-embedded",
+            "cmake-build-gtest",
+            "third_party",
+        ],
+    )
+    source_files += find_all_files("software/dimos", [], [])
 
     pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
     try:
@@ -107,7 +112,9 @@ if __name__ == "__main__":
         pool.close()
         success = all(results)
         for i, result in enumerate([result for result in results if not result]):
-            print(f"Encountered an error running clang-format against {source_files[i]}")
+            print(
+                f"Encountered an error running clang-format against {source_files[i]}"
+            )
     except KeyboardInterrupt:
         print("Interruption Detected")
         pool.terminate()
