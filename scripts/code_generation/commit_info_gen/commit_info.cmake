@@ -1,3 +1,4 @@
+# WE NEED bind_target in order to watch it to rebuild commitinfo
 function(commit_info_register_library bind_target src_location header_location)
     option(USE_COMMIT_INFO "Use commit info" ON)
     if (NOT USE_COMMIT_INFO)

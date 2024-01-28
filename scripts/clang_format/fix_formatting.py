@@ -1,7 +1,6 @@
 import os
 import sys
 import multiprocessing
-from typing import List, Any
 
 # The path to the directory this python file is in
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))

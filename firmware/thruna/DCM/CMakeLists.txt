@@ -143,5 +143,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DCM_test" "DCM_can" "DCM_fakes" "DCM_commit_info" "shared_fakes")
+    target_link_libraries("DCM_test" "DCM_can" "DCM_fakes" "shared_fakes")
 endif()

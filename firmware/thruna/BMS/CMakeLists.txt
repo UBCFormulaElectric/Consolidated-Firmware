@@ -160,5 +160,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "BMS_commit_info" "shared_fakes")
+    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "shared_fakes")
 endif()
