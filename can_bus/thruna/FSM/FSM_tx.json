@@ -6,9 +6,6 @@
 		"signals": {
 			"Heartbeat": {
 				"bits": 1
-			},
-			"State": {
-				"enum": "State_Machine"
 			}
 		}
 	},

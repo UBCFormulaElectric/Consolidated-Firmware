@@ -1,8 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedConstants.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -35,6 +34,27 @@ typedef enum
     SEVEN_SEG_SUBPOSITION_R,
     NUM_SEVEN_SEG_SUBPOSITIONS,
 } SevenSegSubposition;
+
+typedef enum
+{
+    HEX_DIGIT_0,
+    HEX_DIGIT_1,
+    HEX_DIGIT_2,
+    HEX_DIGIT_3,
+    HEX_DIGIT_4,
+    HEX_DIGIT_5,
+    HEX_DIGIT_6,
+    HEX_DIGIT_7,
+    HEX_DIGIT_8,
+    HEX_DIGIT_9,
+    HEX_DIGIT_A,
+    HEX_DIGIT_B,
+    HEX_DIGIT_C,
+    HEX_DIGIT_D,
+    HEX_DIGIT_E,
+    HEX_DIGIT_F,
+    NUM_HEX_DIGITS,
+} HexDigit;
 
 /**
  * Initialize the 7-seg displays.

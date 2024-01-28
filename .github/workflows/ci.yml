@@ -45,7 +45,7 @@ jobs:
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
           - board: DCM
-            ioc_dir: firmware/thruna/DCM
+            ioc_dir: firmware/thruna/DCM/src/cubemx
           - board: BMS
             ioc_dir: firmware/thruna/BMS/src/cubemx
           - board: f4boot

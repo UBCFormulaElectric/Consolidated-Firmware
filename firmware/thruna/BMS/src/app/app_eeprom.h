@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "io_eeprom.h"
-#include "App_SharedExitCode.h"
+#include "app_utils.h"
 
 #define EEPROM_PAGE_SIZE ((uint16_t)16U) // in Bytes
 #define DEFAULT_SOC_ADDR 1U

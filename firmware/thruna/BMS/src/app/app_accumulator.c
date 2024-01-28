@@ -2,7 +2,7 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "App_SharedProcessing.h"
+#include "app_math.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "ltc6813/io_ltc6813CellTemps.h"
@@ -280,8 +280,7 @@ void app_accumulator_broadcast(void)
 
     // Calculate and broadcast pack power.
     const float available_power =
-        MIN(App_SharedProcessing_LinearDerating(
-                max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
+        MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
     App_CanTx_BMS_AvailablePower_Set(available_power);

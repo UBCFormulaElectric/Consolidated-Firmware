@@ -1,6 +1,6 @@
 #include "states/app_allStates.h"
 #include "states/app_faultState.h"
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_tractiveSystem.h"
@@ -13,27 +13,8 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-static bool sendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+void app_allStates_runOnTick1Hz(void)
 {
-    App_CanTx_BMS_Heartbeat_Set(true);
-
-    App_SharedHeartbeatMonitor_CheckIn(hb_monitor);
-
-    App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_SharedHeartbeatMonitor_BroadcastFaults(hb_monitor);
-
-    bool missing_hb = false;
-    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    {
-        missing_hb |= !hb_monitor->status[board];
-    }
-
-    return missing_hb;
-}
-
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
     bool charger_is_connected = io_charger_isConnected();
     App_CanTx_BMS_ChargerConnected_Set(charger_is_connected);
 
@@ -54,9 +35,13 @@ void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
     }
 }
 
-bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+bool app_allStates_runOnTick100Hz(void)
 {
-    const bool missing_hb = sendAndReceiveHeartbeat(globals->hb_monitor);
+    App_CanTx_BMS_Heartbeat_Set(true);
+
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 
     app_accumulator_runOnTick100Hz();
     app_thermistors_updateAuxThermistorTemps();
@@ -94,7 +79,7 @@ bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
     else if (acc_fault || ts_fault)
     {
         status = false;
-        App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
 
     return status;

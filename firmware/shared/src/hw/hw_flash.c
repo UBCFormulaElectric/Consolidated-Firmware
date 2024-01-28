@@ -1,7 +1,7 @@
 #include "hw_flash.h"
 #include "hw_hal.h"
 #include <string.h>
-#include "Io_SharedMacros.h"
+#include "hw_utils.h"
 
 #if defined(STM32F412Rx)
 

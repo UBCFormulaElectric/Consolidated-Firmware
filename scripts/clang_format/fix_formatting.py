@@ -47,7 +47,7 @@ EXCLUDE_DIRS = [
 ]
 
 
-def find_all_files() -> list[str]:
+def find_all_files(path_from_root: str) -> list[str]:
     """
     Find and return all files to run formatting on.
 
@@ -56,7 +56,7 @@ def find_all_files() -> list[str]:
     print("Current working directory: " + os.getcwd())
 
     # Prepare path to recursive traverse
-    SOURCE_DIR = os.path.join("..", "..", "firmware")
+    SOURCE_DIR = os.path.join("..", "..", path_from_root)
 
     # Recursively traverse through file tree and apply clang-format
     print(f"Apply clang-format to files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
@@ -98,20 +98,8 @@ if __name__ == "__main__":
     PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
 
-    source_files = find_all_files()  # Find all valid files
-    pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
-    try:
-        results = pool.map(run_clang_format, source_files)
-        pool.close()
-        success = all(results)
-        for i, result in enumerate([result for result in results if not result]):
-            print(f"Encountered an error running clang-format against {source_files[i]}")
-    except KeyboardInterrupt:
-        print("Interruption Detected")
-        pool.terminate()
-        success = False
-    finally:
-        pool.join()
+    # Find all valid files
+    source_files = find_all_files("firmware") + find_all_files("software/dimos")
 
     if success:
         print("SUCCESS: clang-format ran on all files!")

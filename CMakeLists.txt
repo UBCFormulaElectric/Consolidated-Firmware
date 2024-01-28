@@ -14,6 +14,7 @@ set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
 include(scripts/code_generation/jsoncan/jsoncan.cmake)
+include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== CPM ========
 option(HANDLE_DEPS "Build build on the server" OFF)
@@ -59,18 +60,22 @@ IF (NO_VENV)
     set(PIP_COMMAND ${PIP_RAW_COMMAND})
     set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
 ELSE ()
-    execute_process(COMMAND ${PYTHON_COMMAND} -m pipenv --venv
-            RESULT_VARIABLE PIPENV_RESULT
-            OUTPUT_VARIABLE PIPENV_OUTPUT
-            ERROR_VARIABLE PIPENV_ERROR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE)
-    message("pipenv output: ${PIPENV_RESULT} ${PIPENV_OUTPUT} ${PIPENV_ERROR}")
     IF (WIN32)
         set(PYTHON_COMMAND pipenv run python)
     ELSE ()
         set(PYTHON_COMMAND pipenv run python3)
     ENDIF ()
+    execute_process(COMMAND pipenv --venv
+            RESULT_VARIABLE PIPENV_RESULT
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    if(${PIPENV_RESULT})
+        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}")
+    else ()
+        message("Pipenv path: ${PIPENV_OUTPUT}")
+    endif ()
 ENDIF ()
 
 find_package(Python3 COMPONENTS Interpreter)
@@ -86,11 +91,13 @@ message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 message("⚙️ Run Clang-Formatting for all boards")
 set(PYTHON_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
-
-execute_process(
-    COMMAND ${PYTHON_COMMAND}  ${PYTHON_SCRIPT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+option(FIX_FORMATTING "Run clang-format on all boards" ON)
+IF (FIX_FORMATTING)
+    execute_process(
+            COMMAND ${PYTHON_COMMAND} ${PYTHON_SCRIPT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+ENDIF ()
 
 message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
 IF ("${PLATFORM}" STREQUAL "thruna_firmware" OR "${PLATFORM}" STREQUAL "quadruna_firmware")
