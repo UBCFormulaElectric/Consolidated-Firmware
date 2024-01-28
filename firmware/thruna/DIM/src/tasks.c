@@ -56,6 +56,11 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallback,
     .rx_overflow_callback = canRxQueueOverflowCallback,
 };
+static CanHandle can = {
+    .can                    = &hcan1,
+    .can0MsgRecievecallback = NULL,
+    .can1MsgRecievecallback = NULL,
+};
 
 static const BinaryLed imd_led   = { .gpio = {
                                          .port = IMD_LED_GPIO_Port,
@@ -247,7 +252,7 @@ void tasks_init(void)
     LOG_INFO("DIM reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
