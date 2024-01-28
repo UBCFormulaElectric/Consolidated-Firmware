@@ -1,9 +1,11 @@
 #include "io_canLogging.h"
+#include "io_lfs_config.h"
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "cmsis_os.h"
 #include "queue.h"
+#include "hw_gpio.h"
 
 // Private globals.
 static const CanConfig *config;
@@ -20,6 +22,10 @@ static uint32_t current_bootcount;
 static lfs_t      lfs;
 static lfs_file_t file;
 
+extern SdCard sd;
+extern Gpio   sd_present;
+extern bool   sd_inited;
+
 static char current_path[10];
 
 static const osMessageQueueAttr_t queue_attr = {
@@ -31,78 +37,49 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-static char                  buffer[512];
+static char                  file_buffer[IO_LFS_CACHE_SIZE];
 const struct lfs_file_config fcfg = {
-    .buffer = buffer,
+    .buffer = file_buffer,
 };
 
-static void generateCANMsg(void)
-{
-    lfs_file_opencfg(&lfs, &file, "canMsg", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    CanMsg   msg;
-    uint32_t i = 0;
-    msg.dlc    = 1;
-
-    // write 0 to 99
-    for (i = 0; i < 100; i++)
-    {
-        msg.std_id  = i;
-        msg.data[0] = (uint8_t)i;
-        lfs_file_write(&lfs, &file, &msg, sizeof(msg));
-    }
-
-    msg.dlc = 5;
-    memcpy(&msg.data, "hello", 5);
-    // write hello
-    for (i = 0; i < 100; i++)
-    {
-        msg.std_id = i + 100;
-        lfs_file_write(&lfs, &file, &msg, sizeof(msg));
-    }
-    lfs_file_close(&lfs, &file);
-}
-
 // assume the lfs is already mounted
-static void createFolder(struct lfs_config *cfg)
+static void init_logging_file_system()
 {
-    // get bootcount
+    // early return
+    if (!sd_inited || hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
+
+    // config the file system
+    struct lfs_config cfg;
+    io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+
     uint32_t bootcount = 0;
-    int      err       = lfs_mount(&lfs, cfg);
+    int      err       = lfs_mount(&lfs, &cfg);
     if (err)
     {
-        lfs_format(&lfs, cfg);
-        err = lfs_mount(&lfs, cfg);
+        lfs_format(&lfs, &cfg);
+        err = lfs_mount(&lfs, &cfg);
     }
 
+    // get bootcount value from the file; use this to create new file for logging
     lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
     lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
-    // update bootcount
+    // update bootcount for next boot
     bootcount += 1;
     lfs_file_rewind(&lfs, &file);
     lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
     current_bootcount = bootcount;
-
-    // close the bootcount file
     lfs_file_close(&lfs, &file);
-    generateCANMsg();
 
-    // create new folder on root based on the bootcount
-
+    // create new file on root based on the bootcount
     sprintf((char *)current_path, "%lu", bootcount);
-
-    // open a file for logging can message
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    CanMsg msg = {
-        .dlc    = 12,
-        .std_id = 12,
-    };
-    msg.data[0] = 0xff;
-    lfs_file_write(&lfs, &file, &msg, sizeof(msg));
-    lfs_file_close(&lfs, &file);
+    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
 }
 
-void io_canLogging_init(const CanConfig *can_config, struct lfs_config *cfg)
+void io_canLogging_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
     config = can_config;
@@ -112,7 +89,7 @@ void io_canLogging_init(const CanConfig *can_config, struct lfs_config *cfg)
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
 
     // create new folder for this boot
-    createFolder(cfg);
+    init_logging_file_system();
 }
 
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
@@ -128,33 +105,41 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 
 void io_canLogging_recordMsgFromQueue(void)
 {
+    if (!sd_inited && hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    lfs_file_seek(&lfs, &file, 0, SEEK_END);
+
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    lfs_file_close(&lfs, &file);
-    if (size)
+    if (size != sizeof(tx_msg))
     {
+        // something happend
     }
-    // write the message to the file system
+    static uint32_t message_written = 0;
+    message_written++;
+    if (message_written > (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
+    {
+        lfs_file_sync(&lfs, &file);
+    }
 }
 
 void io_canLogging_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
-    // if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
-    // {
-    //     // Early return if we don't care about this msg via configured filter func.
-    //     return;
-    // }
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
+    {
+        // Early return if we don't care about this msg via configured filter func.
+        return;
+    }
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
     if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        config->rx_overflow_callback(++rx_overflow_count);
+        // config->rx_overflow_callback(++rx_overflow_count);
     }
 }
