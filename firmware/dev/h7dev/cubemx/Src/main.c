@@ -31,6 +31,7 @@
 #include "io_canLogging.h"
 
 #include "lfs_config.h"
+#include "hw_gpio.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
@@ -82,7 +83,7 @@ const osThreadAttr_t canTxTask_attributes = {
 };
 /* Definitions for canRxTask */
 osThreadId_t canRxTaskHandle;
-uint32_t canRxTaskBuffer[5120];
+uint32_t canRxTaskBuffer[512];
 osStaticThreadDef_t canRxTaskControlBlock;
 const osThreadAttr_t canRxTask_attributes = {
     .name = "canRxTask",
@@ -94,9 +95,10 @@ const osThreadAttr_t canRxTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 
+int ii = 0;
 static void callback(uint32_t i)
 {
-    (void)i;
+    i++;
 }
 static CanConfig can_config = {
     .rx_msg_filter = NULL,
@@ -128,6 +130,11 @@ CanHandle can1_handle = {.can = &hfdcan2,
                          .can0MsgRecievecallback = can0MsgRecievecallback,
                          .can1MsgRecievecallback = 0};
 extern SdCard sd;
+Gpio sd_enable = {
+    .pin = GPIO_PIN_8,
+    .port = GPIOA,
+};
+bool sd_inited;
 
 /* USER CODE END 0 */
 
@@ -169,16 +176,20 @@ int main(void)
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
+    io_can_init(&can_config);
     hw_hardFaultHandler_init();
     hw_can_init(&can1_handle);
 
-    io_can_init(&can_config);
+    if (sd_inited)
+    {
 
-    sd.hsd = &hsd1;
-    sd.timeout = osWaitForever;
+        sd.hsd = &hsd1;
+        sd.timeout = osWaitForever;
 
-    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
-    io_canLogging_init(&can_config, &cfg);
+        lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+        io_canLogging_init(&can_config, &cfg);
+    }
+
     // Configure and initialize SEGGER SystemView.
 
     SEGGER_SYSVIEW_Conf();
@@ -355,7 +366,13 @@ static void MX_FDCAN2_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
+    if (hw_gpio_readPin(&sd_enable))
+    {
+        sd_inited = false;
+        return;
+    }
 
+    sd_inited = true;
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
