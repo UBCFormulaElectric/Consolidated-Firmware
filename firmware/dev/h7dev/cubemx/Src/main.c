@@ -123,9 +123,7 @@ static void can0MsgRecievecallback(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can1_handle = { .can                    = &hfdcan2,
-                          .can0MsgRecievecallback = can0MsgRecievecallback,
-                          .can1MsgRecievecallback = 0 };
+CanHandle can = { .can = &hfdcan2, .can0MsgRecievecallback = can0MsgRecievecallback, .can1MsgRecievecallback = 0 };
 SdCard    sd;
 Gpio      sd_present = {
          .pin  = GPIO_PIN_8,
@@ -175,7 +173,7 @@ int main(void)
 
     io_can_init(&can_config);
     hw_hardFaultHandler_init();
-    hw_can_init(&can1_handle);
+    hw_can_init(&can);
 
     if (sd_inited)
     {

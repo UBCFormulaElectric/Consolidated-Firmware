@@ -52,6 +52,11 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
+static CanHandle can = {
+    .can                    = &hcan1,
+    .can0MsgRecievecallback = NULL,
+    .can1MsgRecievecallback = NULL,
+};
 
 static const LvBatteryConfig lv_battery_config = {
     .lt3650_charger_fault_gpio = {
@@ -216,7 +221,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
