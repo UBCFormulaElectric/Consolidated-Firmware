@@ -11,27 +11,27 @@ static const CanConfig *config;
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
-static StaticQueue_t queue_control_block;
-static uint8_t queue_buf[QUEUE_BYTES];
+static StaticQueue_t      queue_control_block;
+static uint8_t            queue_buf[QUEUE_BYTES];
 
 #define QUEUE_SIZE 20
 static uint32_t current_bootcount;
 
-static lfs_t lfs;
+static lfs_t      lfs;
 static lfs_file_t file;
 
 static char current_path[10];
 
 static const osMessageQueueAttr_t queue_attr = {
-    .name = "CAN Logging Queue",
+    .name      = "CAN Logging Queue",
     .attr_bits = 0,
-    .cb_mem = &queue_control_block,
-    .cb_size = sizeof(StaticQueue_t),
-    .mq_mem = queue_buf,
-    .mq_size = QUEUE_BYTES,
+    .cb_mem    = &queue_control_block,
+    .cb_size   = sizeof(StaticQueue_t),
+    .mq_mem    = queue_buf,
+    .mq_size   = QUEUE_BYTES,
 };
 
-static char buffer[512];
+static char                  buffer[512];
 const struct lfs_file_config fcfg = {
     .buffer = buffer,
 };
@@ -39,14 +39,14 @@ const struct lfs_file_config fcfg = {
 static void generateCANMsg(void)
 {
     lfs_file_opencfg(&lfs, &file, "canMsg", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    CanMsg msg;
+    CanMsg   msg;
     uint32_t i = 0;
-    msg.dlc = 1;
+    msg.dlc    = 1;
 
     // write 0 to 99
     for (i = 0; i < 100; i++)
     {
-        msg.std_id = i;
+        msg.std_id  = i;
         msg.data[0] = (uint8_t)i;
         lfs_file_write(&lfs, &file, &msg, sizeof(msg));
     }
@@ -67,7 +67,7 @@ static void createFolder(struct lfs_config *cfg)
 {
     // get bootcount
     uint32_t bootcount = 0;
-    int err = lfs_mount(&lfs, cfg);
+    int      err       = lfs_mount(&lfs, cfg);
     if (err)
     {
         lfs_format(&lfs, cfg);
@@ -94,7 +94,7 @@ static void createFolder(struct lfs_config *cfg)
     // open a file for logging can message
     lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
     CanMsg msg = {
-        .dlc = 12,
+        .dlc    = 12,
         .std_id = 12,
     };
     msg.data[0] = 0xff;
@@ -152,7 +152,7 @@ void io_canLogging_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(message_queue_id, &rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         config->rx_overflow_callback(++rx_overflow_count);

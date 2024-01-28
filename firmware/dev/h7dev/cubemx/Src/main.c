@@ -82,7 +82,7 @@ const osThreadAttr_t canTxTask_attributes = {
 };
 /* Definitions for canRxTask */
 osThreadId_t canRxTaskHandle;
-uint32_t canRxTaskBuffer[512];
+uint32_t canRxTaskBuffer[5120];
 osStaticThreadDef_t canRxTaskControlBlock;
 const osThreadAttr_t canRxTask_attributes = {
     .name = "canRxTask",
@@ -92,14 +92,12 @@ const osThreadAttr_t canRxTask_attributes = {
     .stack_size = sizeof(canRxTaskBuffer),
     .priority = (osPriority_t)osPriorityBelowNormal,
 };
-
-static void callback(uint32_t rx)
-{
-
-    (void)rx;
-}
-
 /* USER CODE BEGIN PV */
+
+static void callback(uint32_t i)
+{
+    (void)i;
+}
 static CanConfig can_config = {
     .rx_msg_filter = NULL,
     .tx_overflow_callback = callback,
@@ -407,6 +405,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : PA8 */
+    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /*Configure GPIO pin : PD0 */
     GPIO_InitStruct.Pin = GPIO_PIN_0;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -423,7 +427,7 @@ static void MX_GPIO_Init(void)
 
 static void can0MsgRecievecallback(void)
 {
-    CanMsg rx_msg;
+    CanMsg rx_msg = {0};
     if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg))
     {
         // Early return if RX msg is unavailable.
@@ -493,7 +497,7 @@ void runCanRxTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        CanMsg msg;
+        CanMsg msg = {0};
         io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
     }
