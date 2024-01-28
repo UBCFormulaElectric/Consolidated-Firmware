@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 #include "fake_io_imd.hpp"
 
@@ -20,10 +19,7 @@ class ImdTest : public testing::Test
     {
         fake_io_imd_getFrequency_reset();
         fake_io_imd_getDutyCycle_reset();
-
-        io_imd_init();
     }
-    void TearDown() override {}
 };
 
 static void test_imd_setImdCondition(ImdConditionName condition_name)

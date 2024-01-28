@@ -4,7 +4,8 @@
 #include "app_activeDifferential.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_units.h"
+#include "app_utils.h"
 #include <stdlib.h>
 #include "math.h"
 

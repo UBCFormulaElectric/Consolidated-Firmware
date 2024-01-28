@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedMacros.h"
+#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"

@@ -4,7 +4,7 @@
 #include "interfaces/sbgInterfaceSerial.h"
 #include "io_sbgEllipse.h"
 #include "App_RingQueue.h"
-#include "App_SharedMacros.h"
+#include "app_units.h"
 #include "FreeRTOS.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
@@ -268,7 +268,7 @@ bool io_sbgEllipse_init(UART *imu_uart)
     App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
 
     // Start waiting for UART packets
-    hw_uart_receive_dma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveDma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }

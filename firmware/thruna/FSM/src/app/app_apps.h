@@ -18,11 +18,6 @@
 void app_apps_init(void);
 
 /**
- * Deallocate the memory used by the given pair of accelerator pedals
- */
-void app_apps_destroy(void);
-
-/**
  * Primary Broadcast Function. Very important.
  */
 void app_apps_broadcast(void);

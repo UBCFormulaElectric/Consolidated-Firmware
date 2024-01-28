@@ -16,7 +16,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
@@ -26,15 +25,8 @@ extern "C"
 #include "math.h"
 }
 
-/**
- * Define SetUp and TearDown to be called before every TEST_F call
- */
 class PowerLimitingTest : public testing::Test
 {
-  protected:
-    // TODO: Find out if this is necessary if no IO functions are called.
-    void SetUp() override { return; }
-    void TearDown() override { return; }
 };
 
 /**

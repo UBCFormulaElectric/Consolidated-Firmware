@@ -1,13 +1,10 @@
-#include <stddef.h>
-#include "App_SharedMacros.h"
 #include "states/app_allStates.h"
 #include "app_sbgEllipse.h"
 #include "io_led.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanAlerts.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_SharedHeartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 #include "app_globals.h"
 #include "io_sbgEllipse.h"
 
@@ -17,12 +14,7 @@ static uint16_t num_cycles = 0;
 
 static void sendAndReceiveHeartbeat(void) {}
 
-void app_allStates_runOnTick1Hz(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-}
-
-bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
+bool app_allStates_runOnTick100Hz(void)
 {
     sendAndReceiveHeartbeat();
 
@@ -34,12 +26,12 @@ bool app_allStates_runOnTick100Hz(struct StateMachine *const state_machine)
         num_cycles++;
     }
 
-    App_SharedHeartbeatMonitor_CheckIn(globals->hb_monitor);
-    App_SharedHeartbeatMonitor_Tick(globals->hb_monitor);
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
     {
-        App_SharedHeartbeatMonitor_BroadcastFaults(globals->hb_monitor);
+        app_heartbeatMonitor_broadcastFaults();
     }
 
     const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;

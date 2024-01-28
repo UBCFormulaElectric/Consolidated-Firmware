@@ -1,13 +1,12 @@
+#include "app_timer.h"
 #include "app_torqueVectoring.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
 #include "app_tractionControl.h"
-#include "App_Timer.h"
 #include "App_CanRx.h"
 #include "App_CanTx.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
+#include "app_utils.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel pid_timeout;
@@ -45,7 +44,7 @@ void app_torqueVectoring_init(void)
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
     traction_control_inputs.pid = &pid_traction_control;
 
-    App_Timer_InitTimer(&pid_timeout, PID_TIMEOUT_ms);
+    app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
 
 void app_torqueVectoring_run(float accelerator_pedal_percentage)
@@ -72,13 +71,13 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
 void app_torqueVectoring_handleAcceleration(void)
 {
     // Reset control loops if timeout elapsed
-    TimerState timeout = App_Timer_UpdateAndGetState(&pid_timeout);
+    TimerState timeout = app_timer_updateAndGetState(&pid_timeout);
     if (timeout == TIMER_STATE_EXPIRED)
     {
         app_pid_requestReset(&pid_power_correction);
         app_pid_requestReset(&pid_traction_control);
     }
-    App_Timer_Restart(&pid_timeout);
+    app_timer_restart(&pid_timeout);
 
     // Power Limiting
     power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "App_SharedExitCode.h"
+#include "app_utils.h"
 #include "app_accumulator.h"
-#include "App_Timer.h"
+#include "app_timer.h"
 #include "app_eeprom.h"
 
 #define STATE_OF_HEALTH (0.94f)

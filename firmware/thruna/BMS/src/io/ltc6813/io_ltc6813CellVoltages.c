@@ -1,10 +1,8 @@
 #include <string.h>
-#include "Io_SharedSpi.h"
+#include "hw_spi.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
-#include "App_SharedMacros.h"
-
-// clang-format off
+#include "app_utils.h"
 
 // Command used to start ADC conversions
 #define ADCV ((uint16_t)(((0x0060U + (MD << 7U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
@@ -17,8 +15,6 @@
 #define RDCVE (0x0900U)
 #define RDCVF (0x0B00U)
 
-// clang-format on
-
 typedef enum
 {
     CELL_V_REG_GROUP_A = 0U,
@@ -30,7 +26,7 @@ typedef enum
     NUM_OF_CELL_V_REG_GROUPS
 } CellVoltageRegGroup;
 
-extern struct SharedSpi *ltc6813_spi;
+extern const SpiInterface *ltc6813_spi;
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
@@ -38,8 +34,6 @@ static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
     [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB, [CELL_V_REG_GROUP_C] = RDCVC,
     [CELL_V_REG_GROUP_D] = RDCVD, [CELL_V_REG_GROUP_E] = RDCVE, [CELL_V_REG_GROUP_F] = RDCVF,
 };
-
-static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
 
 /**
  * Parse voltages from a single register group (consists of 3x cell voltage measurements) from all segments.
@@ -129,7 +123,7 @@ bool io_ltc6813CellVoltages_readVoltages(void)
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = Io_SharedSpi_TransmitAndReceive(
+        bool voltage_read_success = hw_spi_transmitAndReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
@@ -139,11 +133,6 @@ bool io_ltc6813CellVoltages_readVoltages(void)
     }
 
     return status;
-}
-
-uint16_t io_ltc6813CellVoltages_getCellsToDischarge(AccumulatorSegment segment)
-{
-    return discharge_bits[segment];
 }
 
 bool io_ltc6813CellVoltages_startAdcConversion(void)

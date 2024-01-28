@@ -1,10 +1,10 @@
 
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
+#include "app_units.h"
 #include "app_torqueVectoring.h"
 #include "app_tractionControl.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -13,9 +13,6 @@ extern "C"
 
 class TractionControlTest : public testing::Test
 {
-  protected:
-    void SetUp() override { return; }
-    void TearDown() override { return; }
 };
 
 TEST(TractionControlTest, TractionControl_init)

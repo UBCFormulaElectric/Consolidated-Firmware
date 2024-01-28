@@ -1,42 +1,38 @@
 #include "io_imd.h"
 #include <assert.h>
 #include "main.h"
-#include <task.h>
-#include "Io_SharedPwmInput.h"
+#include "hw_pwmInput.h"
+#include "io_time.h"
 
-extern TIM_HandleTypeDef htim1;
+static PwmInput *pwm_input;
 
-static struct PwmInput *  imd_pwm_input;
-static TIM_HandleTypeDef *imd_htim;
-
-void io_imd_init(void)
+void io_imd_init(const PwmInputConfig *pwm_input_config)
 {
-    imd_pwm_input = Io_SharedPwmInput_Create(&htim1, TIM1_FREQUENCY / TIM1_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
-    imd_htim      = &htim1;
+    io_pwmInput_init(pwm_input, pwm_input_config);
 }
 
 float io_imd_getFrequency(void)
 {
-    return Io_SharedPwmInput_GetFrequency(imd_pwm_input);
+    return hw_pwmInput_getFrequency(pwm_input);
 }
 
 float io_imd_getDutyCycle(void)
 {
-    return Io_SharedPwmInput_GetDutyCycle(imd_pwm_input);
+    return hw_pwmInput_getDutyCycle(pwm_input);
 }
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == imd_htim)
+    if (htim == pwm_input->config->htim)
     {
-        Io_SharedPwmInput_Tick(imd_pwm_input);
+        hw_pwmInput_tick(pwm_input);
     }
 }
 
-uint16_t io_imd_getTimeSincePowerOn(void)
+uint32_t io_imd_getTimeSincePowerOn(void)
 {
     // The IMD shares the same power rail as the BMS, so we assume that the IMD
     // and BMS boot up at the same time. In other words, the IMD has been ON
     // for just as long as the BMS.
-    return (uint16_t)(xTaskGetTickCount() * portTICK_RATE_MS) / 1000U;
+    return io_time_getCurrentMs();
 }

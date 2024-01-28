@@ -7,26 +7,20 @@
  */
 
 #include <gtest/gtest.h>
-#include "Test_Utils.h"
 
 extern "C"
 {
+#include "app_utils.h"
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
-#include "App_SharedConstants.h"
-#include "App_SharedMacros.h"
 #include "math.h"
+#include "app_units.h"
 }
-/**
- * Define SetUp and TearDown to be called before every TEST_F call
- */
+
 class ActiveDifferentialTest : public testing::Test
 {
-  protected:
-    void SetUp() override { return; }
-    void TearDown() override { return; }
 };
 
 TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_turning_at_max_power)

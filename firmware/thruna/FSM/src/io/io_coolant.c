@@ -1,8 +1,9 @@
 #include "io_coolant.h"
 #include <assert.h>
 #include "main.h"
-#include "Io_SharedFreqOnlyPwmInput.h"
+#include "hw_pwmInputFreqOnly.h"
 #include "hw_adc.h"
+#include "app_utils.h"
 #include <math.h>
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
@@ -28,33 +29,34 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log(rtherm / R0) / B_COEFFIECNT)
 
-static struct FreqOnlyPwmInput *flow_meter;
+static PwmInputFreqOnly flow_meter;
 
 void io_coolant_init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
 
-    flow_meter = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIM8_PRESCALER, TIM_CHANNEL_1, TIM8_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+    hw_pwmInputFreqOnly_init(
+        &flow_meter, htim, TIMx_FREQUENCY / TIM8_PRESCALER, TIM_CHANNEL_1, TIM8_AUTO_RELOAD_REG,
+        HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
 void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(flow_meter) &&
-        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(flow_meter))
+    if (htim == hw_pwmInputFreqOnly_getTimerHandle(&flow_meter) &&
+        htim->Channel == hw_pwmInputFreqOnly_getTimerActiveChannel(&flow_meter))
     {
-        Io_SharedFreqOnlyPwmInput_Tick(flow_meter);
+        hw_pwmInputFreqOnly_tick(&flow_meter);
     }
 }
 
 float io_coolant_getFlowRate(void)
 {
-    return Io_SharedFreqOnlyPwmInput_GetFrequency(flow_meter) / FLOW_RATE_CONVERSION_FACTOR;
+    return hw_pwmInputFreqOnly_getFrequency(&flow_meter) / FLOW_RATE_CONVERSION_FACTOR;
 }
 
 void io_coolant_checkIfFlowMeterActive(void)
 {
-    Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
+    hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter);
 }
 
 float io_coolant_getTemperatureA(void)
