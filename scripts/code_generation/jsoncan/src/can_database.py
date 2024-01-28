@@ -256,6 +256,9 @@ class CanDatabase:
         )
         
     def node_id_codes(self, node: str, alert_type :CanAlert) -> Dict[str,int]:
+        """
+        Returns a list dictionary matching each alert with their assocaited id
+        """
         
         return(
             {
