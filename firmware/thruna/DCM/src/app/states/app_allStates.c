@@ -1,9 +1,9 @@
 #include "states/app_allStates.h"
 #include "app_sbgEllipse.h"
 #include "io_led.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_globals.h"
 #include "io_sbgEllipse.h"
@@ -18,7 +18,7 @@ bool app_allStates_runOnTick100Hz(void)
 {
     sendAndReceiveHeartbeat();
 
-    const bool brake_actuated = App_CanRx_FSM_BrakeActuated_Get();
+    const bool brake_actuated = app_canRx_FSM_BrakeActuated_get();
     io_led_enable(globals->config->brake_light, brake_actuated);
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
@@ -34,16 +34,16 @@ bool app_allStates_runOnTick100Hz(void)
         app_heartbeatMonitor_broadcastFaults();
     }
 
-    const bool left_inverter_fault  = App_CanRx_INVL_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
-    const bool right_inverter_fault = App_CanRx_INVR_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
-    App_CanAlerts_DCM_Fault_LeftInverterFault_Set(left_inverter_fault);
-    App_CanAlerts_DCM_Fault_RightInverterFault_Set(right_inverter_fault);
+    const bool left_inverter_fault  = app_canRx_INVL_VsmState_get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+    const bool right_inverter_fault = app_canRx_INVR_VsmState_get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+    app_canAlerts_DCM_Fault_LeftInverterFault_set(left_inverter_fault);
+    app_canAlerts_DCM_Fault_RightInverterFault_set(right_inverter_fault);
 
-    const bool bms_fault           = App_CanAlerts_BoardHasFault(BMS_ALERT_BOARD);
-    const bool dcm_fault           = App_CanAlerts_BoardHasFault(DCM_ALERT_BOARD);
-    const bool fsm_fault           = App_CanAlerts_BoardHasFault(FSM_ALERT_BOARD);
-    const bool pdm_fault           = App_CanAlerts_BoardHasFault(PDM_ALERT_BOARD);
-    const bool dim_fault           = App_CanAlerts_BoardHasFault(DIM_ALERT_BOARD);
+    const bool bms_fault           = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
+    const bool dcm_fault           = app_canAlerts_BoardHasFault(DCM_ALERT_BOARD);
+    const bool fsm_fault           = app_canAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool pdm_fault           = app_canAlerts_BoardHasFault(PDM_ALERT_BOARD);
+    const bool dim_fault           = app_canAlerts_BoardHasFault(DIM_ALERT_BOARD);
     const bool any_board_has_fault = bms_fault || dcm_fault || fsm_fault || pdm_fault || dim_fault;
 
     io_sbgEllipse_handleLogs();

@@ -3,7 +3,7 @@
 extern "C"
 {
 #include "app_units.h"
-#include "App_CanUtils.h"
+#include "app_canUtils.h"
 }
 
 TEST(CanMsgsTest, state_machine_message_frequency)

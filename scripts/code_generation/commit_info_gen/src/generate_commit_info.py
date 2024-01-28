@@ -31,8 +31,8 @@ if __name__ == "__main__":
   module_dir = os.path.dirname(os.path.relpath(__file__))
   template_dir = os.path.join(module_dir, "templates")
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-  header_template = env.get_template("./App_CommitInfo.h.j2")
-  source_template = env.get_template("./App_CommitInfo.c.j2")
+  header_template = env.get_template("./app_commitInfo.h.j2")
+  source_template = env.get_template("./app_commitInfo.c.j2")
 
   # data to expose to header
   data = {}

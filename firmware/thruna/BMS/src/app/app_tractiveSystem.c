@@ -1,6 +1,6 @@
 #include "app_tractiveSystem.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
 #include "io_tractiveSystem.h"
 
 float app_tractiveSystem_getVoltage()
@@ -29,9 +29,9 @@ void app_tractiveSystem_broadcast()
     const float ts_current = app_tractiveSystem_getCurrent();
     const float ts_power   = ts_voltage * ts_current;
 
-    App_CanTx_BMS_TractiveSystemVoltage_Set(ts_voltage);
-    App_CanTx_BMS_TractiveSystemCurrent_Set(ts_current);
-    App_CanTx_BMS_TractiveSystemPower_Set(ts_power);
+    app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
+    app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
+    app_canTx_BMS_TractiveSystemPower_set(ts_power);
 }
 
 bool app_tractveSystem_checkFaults()
@@ -40,7 +40,7 @@ bool app_tractveSystem_checkFaults()
     //    TS current should be in the range: (-265.5, 70.8)
     const float current_A         = app_tractiveSystem_getCurrent();
     bool ts_current_out_of_bounds = !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, current_A);
-    App_CanAlerts_BMS_Fault_TractiveSystemOvercurrent_Set(ts_current_out_of_bounds);
+    app_canAlerts_BMS_Fault_TractiveSystemOvercurrent_set(ts_current_out_of_bounds);
 
     return ts_current_out_of_bounds;
 }

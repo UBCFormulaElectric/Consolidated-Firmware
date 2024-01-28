@@ -1,8 +1,8 @@
-#include "App_CanTx.h"
+#include "app_canTx.h"
 #include "app_units.h"
 #include "app_tractionControl.h"
 #include "app_pid.h"
-#include "App_CanTx.h"
+#include "app_canTx.h"
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 
@@ -21,12 +21,12 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
-    App_CanTx_DCM_SlipRatioLeft_Set(slip_ratio_left);
-    App_CanTx_DCM_SlipRatioRight_Set(slip_ratio_right);
-    App_CanTx_DCM_PIDSlipRatioOutput_Set(k);
-    App_CanTx_DCM_PIDSlipRatioError_Set(pid->error);
-    App_CanTx_DCM_PIDSlipRatioDerivative_Set(pid->derivative);
-    App_CanTx_DCM_PIDSlipRatioIntegral_Set(pid->integral);
+    app_canTx_DCM_SlipRatioLeft_set(slip_ratio_left);
+    app_canTx_DCM_SlipRatioRight_set(slip_ratio_right);
+    app_canTx_DCM_PIDSlipRatioOutput_set(k);
+    app_canTx_DCM_PIDSlipRatioError_set(pid->error);
+    app_canTx_DCM_PIDSlipRatioDerivative_set(pid->derivative);
+    app_canTx_DCM_PIDSlipRatioIntegral_set(pid->integral);
 
     // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
     outputs->torque_left_final_Nm  = (1.0f + k) * inputs->torque_left_Nm;

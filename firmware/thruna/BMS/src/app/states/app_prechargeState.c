@@ -23,14 +23,14 @@ static bool checkPrechargeFaults(
     }
 
     globals->precharge_limit_exceeded = globals->num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS;
-    App_CanAlerts_BMS_Fault_PrechargeFailure_Set(globals->precharge_limit_exceeded);
+    app_canAlerts_BMS_Fault_PrechargeFailure_set(globals->precharge_limit_exceeded);
 
     return has_precharge_fault;
 }
 
 static void preChargeStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_PRECHARGE_STATE);
+    app_canTx_BMS_State_set(BMS_PRECHARGE_STATE);
     io_airs_closePrecharge();
 
     // Restart timers for checking if we're precharging too slow/quick.
@@ -100,8 +100,8 @@ static void preChargeStateRunOnTick100Hz(void)
         {
             // TODO: Consider reworking this transition.
             app_stateMachine_setNextState(app_faultState_get());
-            App_CanRx_Debug_StartCharging_Update(false);
-            App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(!is_charger_connected);
+            app_canRx_Debug_StartCharging_update(false);
+            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(!is_charger_connected);
         }
     }
 }
@@ -109,7 +109,7 @@ static void preChargeStateRunOnTick100Hz(void)
 static void preChargeStateRunOnExit(void)
 {
     // If we entered precharge to charge, disable this request on exit.
-    App_CanRx_Debug_StartCharging_Update(false);
+    app_canRx_Debug_StartCharging_update(false);
 
     // Open precharge relay.
     io_airs_openPrecharge();

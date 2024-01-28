@@ -4,10 +4,10 @@
 
 extern "C"
 {
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "Io_CanRx.h"
-#include "Io_CanTx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "io_canRx.h"
+#include "io_canTx.h"
 }
 
 const bool GIT_COMMIT_HASH = true;
@@ -15,14 +15,14 @@ const bool GIT_COMMIT_CLEAN = false;
 
 int main(int argc, char *argv[]) {
 	// IO init
-	Io_CanTx_Init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
-	Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
+	io_canTx_init(reinterpret_cast<void (*)(const JsonCanMsg *)>(Can_Write));
+	io_canTx_enableMode(CAN_MODE_DEFAULT, true);
 	// clear tables
-	App_CanTx_Init();
-	App_CanRx_Init();
+	app_canTx_init();
+	app_canRx_init();
 	// TODO commit hash
-	App_CanTx_dimos_Hash_Set(GIT_COMMIT_HASH);
-	App_CanTx_dimos_Clean_Set(GIT_COMMIT_CLEAN);
+	app_canTx_dimos_Hash_set(GIT_COMMIT_HASH);
+	app_canTx_dimos_Clean_set(GIT_COMMIT_CLEAN);
 
 	QApplication a(argc, argv);
 	MainWindow w;

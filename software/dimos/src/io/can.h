@@ -5,7 +5,7 @@
 #include "types.h"
 
 extern "C" {
-#include "Io_CanTx.h"
+#include "io_canTx.h"
 };
 
 enum CanConnectionError {

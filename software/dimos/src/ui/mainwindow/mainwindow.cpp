@@ -6,20 +6,20 @@
 #include "can.h"
 
 extern "C" {
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
+#include "io_canTx.h"
+#include "io_canRx.h"
 }
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
 	// CANTX TASK
 	tx100Hz.setInterval(10);
 	tx100Hz.setSingleShot(false);
-	QTimer::connect(&tx100Hz, &QTimer::timeout, Io_CanTx_Enqueue100HzMsgs);
+	QTimer::connect(&tx100Hz, &QTimer::timeout, io_canTx_enqueue100HzMsgs);
 	tx100Hz.start();
 
 	tx1Hz.setInterval(1000);
 	tx1Hz.setSingleShot(false);
-	QTimer::connect(&tx1Hz, &QTimer::timeout, Io_CanTx_Enqueue1HzMsgs);
+	QTimer::connect(&tx1Hz, &QTimer::timeout, io_canTx_enqueue1HzMsgs);
 	tx1Hz.start();
 
 	CanRxTaskThread = QThread::create(&MainWindow::CanRXTask);
@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		// success
 		JsonCanMsg message = get<JsonCanMsg>(res);
 		// acquire lock
-		Io_CanRx_UpdateRxTableWithMessage(&message);
+		io_canRx_updateRxTableWithMessage(&message);
 		// release lock
 	}
 }
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	using namespace std::chrono;
 	while (true) {
 		auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-		Io_CanTx_EnqueueOtherPeriodicMsgs(ms.count());
+		io_canTx_enqueueOtherPeriodicMsgs(ms.count());
 	}
 }
 

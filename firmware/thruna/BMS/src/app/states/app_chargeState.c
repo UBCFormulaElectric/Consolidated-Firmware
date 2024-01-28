@@ -8,7 +8,7 @@
 
 static void chargeStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_CHARGE_STATE);
+    app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     io_charger_enable(true);
 
     globals->ignore_charger_fault_counter = 0;
@@ -25,7 +25,7 @@ static void chargeStateRunOnTick100Hz(void)
     if (app_allStates_runOnTick100Hz())
     {
         const bool external_shutdown_occurred = !io_airs_isNegativeClosed();
-        const bool charging_enabled           = App_CanRx_Debug_StartCharging_Get();
+        const bool charging_enabled           = app_canRx_Debug_StartCharging_get();
         const bool is_charger_connected       = io_charger_isConnected();
 
         bool has_charger_faulted = false;
@@ -38,7 +38,7 @@ static void chargeStateRunOnTick100Hz(void)
             globals->ignore_charger_fault_counter++;
         }
 
-        App_CanAlerts_BMS_Fault_Charger_Set(has_charger_faulted);
+        app_canAlerts_BMS_Fault_Charger_set(has_charger_faulted);
 
         if (has_charger_faulted)
         {
@@ -49,8 +49,8 @@ static void chargeStateRunOnTick100Hz(void)
         if (!is_charger_connected || external_shutdown_occurred)
         {
             app_stateMachine_setNextState(app_faultState_get());
-            App_CanAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_Set(!is_charger_connected);
-            App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(external_shutdown_occurred);
+            app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(!is_charger_connected);
+            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(external_shutdown_occurred);
         }
         // If charging is disabled over CAN go back to init state.
         if (!charging_enabled)
@@ -71,7 +71,7 @@ static void chargeStateRunOnExit(void)
 {
     io_charger_enable(false);
     io_airs_openPositive();
-    App_CanRx_Debug_StartCharging_Update(false);
+    app_canRx_Debug_StartCharging_update(false);
 }
 
 const State *app_chargeState_get(void)
