@@ -115,76 +115,50 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t App_CanAlerts_WarningCode(CanAlertBoard board, Fault_Warning_Info *alert_array)
+uint8_t App_CanAlerts_WarningCode(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-    switch (board)
+    
+    if (App_CanRx_FSM_Warning_Warning_Test1_Get())
     {
-        case FSM_ALERT_BOARD:
-        {
-            if (App_CanRx_FSM_Warning_Warning_Test1_Get())
-            {
-                alert_array[element_num].name = "FSM_Warning_Warning_Test1";
-                alert_array[element_num].id = 2059;
-                alert_array[element_num].description = "Example";
-                element_num++;
-            }
-            
-            if (App_CanRx_FSM_Warning_Warning_Test2_Get())
-            {
-                alert_array[element_num].name = "FSM_Warning_Warning_Test2";
-                alert_array[element_num].id = 2069;
-                alert_array[element_num].description = "Example";
-                element_num++;
-            }
-            
-            break;
-        }
-        case JCT_ALERT_BOARD:
-        {
-            if (App_CanTx_JCT_Warning_Warning_Test_Get())
-            {
-                alert_array[element_num].name = "JCT_Warning_Warning_Test";
-                alert_array[element_num].id = 2059;
-                alert_array[element_num].description = "Example";
-                element_num++;
-            }
-            
-            break;
-        }
-        default:
-        {
-            // Do nothing
-            break;
-        }
+        alert_array[element_num].name = "FSM_Warning_Warning_Test1";
+        alert_array[element_num].id = 2059;
+        alert_array[element_num].description = "Example";
+        element_num++;
     }
+    
+    if (App_CanRx_FSM_Warning_Warning_Test2_Get())
+    {
+        alert_array[element_num].name = "FSM_Warning_Warning_Test2";
+        alert_array[element_num].id = 2069;
+        alert_array[element_num].description = "Example";
+        element_num++;
+    }
+    
+    if (App_CanTx_JCT_Warning_Warning_Test_Get())
+    {
+        alert_array[element_num].name = "JCT_Warning_Warning_Test";
+        alert_array[element_num].id = 2059;
+        alert_array[element_num].description = "Example";
+        element_num++;
+    }
+    
     return element_num;
     
 }
 
-uint8_t App_CanAlerts_FaultCode(CanAlertBoard board, Fault_Warning_Info *alert_array)
+uint8_t App_CanAlerts_FaultCode(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
-    switch (board)
+    
+    if (App_CanRx_FSM_Fault_Fault_Test3_Get())
     {
-        case FSM_ALERT_BOARD:
-        {
-            if (App_CanRx_FSM_Fault_Fault_Test3_Get())
-            {
-                alert_array[element_num].name = "FSM_Fault_Fault_Test3";
-                alert_array[element_num].id = 3000;
-                alert_array[element_num].description = "Example";
-                element_num++;
-            }
-            
-            break;
-        }
-        default:
-        {
-            // Do nothing
-            break;
-        }
+        alert_array[element_num].name = "FSM_Fault_Fault_Test3";
+        alert_array[element_num].id = 3000;
+        alert_array[element_num].description = "Example";
+        element_num++;
     }
+    
     return element_num;
     
 }
