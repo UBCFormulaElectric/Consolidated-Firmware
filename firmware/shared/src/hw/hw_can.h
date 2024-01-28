@@ -27,7 +27,7 @@ typedef struct
 // STM32 HAL CAN handle.
 typedef struct
 {
-    CAN_HandleTypeDef * can;
+    CAN_HandleTypeDef  *can;
     MsgReceivedCallback can0MsgRecievecallback;
     MsgReceivedCallback can1MsgRecievecallback;
 } CanHandle;
