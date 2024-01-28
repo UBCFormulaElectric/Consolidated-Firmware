@@ -4,7 +4,7 @@
 // clang-format off
 
 #include <stddef.h>
-#include "App_CanUtils.h"
+#include "app_canUtils.h"
 
 /* ------------------ Static Packing/Unpacking Functions ------------------ */
 
@@ -44,9 +44,14 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 /* ----------------------- Encoding/Decoding Macros ----------------------- */
 
 /**
- * Encode real signal value to payload representation, w/ scale and offset.
+ * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
-#define CAN_ENCODE(input, scale, offset, type) ((uint32_t)((type)(input - offset) / (type)scale))
+#define CAN_ENCODE(input, scale, offset, type) ((uint32_t)((input - offset) / scale))
+
+/**
+ * Encode real signal value to payload representation, w/ scale and offset (signed).
+ */
+#define CAN_SIGNED_ENCODE(input, scale, offset, type) ((int32_t)((input - offset) / scale))
 
 /**
  * Decode payload representation of signal to signal value, w/ scale and offset.
@@ -60,7 +65,7 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 
 /* ------------------------- Function Definitions ------------------------- */
 
-void App_CanUtils_JCT_Vitals_Pack(const JCT_Vitals_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_Vitals_pack(const JCT_Vitals_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 5-byte payload for message JCT_Vitals.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|_______B|BBBBBBBB|BBBBBBBB|BBBBBBBB|BBBBBBBA|
@@ -86,7 +91,7 @@ void App_CanUtils_JCT_Vitals_Pack(const JCT_Vitals_Signals* const in_msg, uint8_
     
 }
 
-void App_CanUtils_JCT_WarningsTest_Pack(const JCT_WarningsTest_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_WarningsTest_pack(const JCT_WarningsTest_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 1-byte payload for message JCT_WarningsTest.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_____CBA|
@@ -113,7 +118,7 @@ void App_CanUtils_JCT_WarningsTest_Pack(const JCT_WarningsTest_Signals* const in
     
 }
 
-void App_CanUtils_JCT_AirShutdownErrors_Pack(const JCT_AirShutdownErrors_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_AirShutdownErrors_pack(const JCT_AirShutdownErrors_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 1-byte payload for message JCT_AirShutdownErrors.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_______A|
@@ -130,7 +135,7 @@ void App_CanUtils_JCT_AirShutdownErrors_Pack(const JCT_AirShutdownErrors_Signals
     
 }
 
-void App_CanUtils_JCT_MotorShutdownErrors_Pack(const JCT_MotorShutdownErrors_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_MotorShutdownErrors_pack(const JCT_MotorShutdownErrors_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 1-byte payload for message JCT_MotorShutdownErrors.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_______A|
@@ -147,7 +152,7 @@ void App_CanUtils_JCT_MotorShutdownErrors_Pack(const JCT_MotorShutdownErrors_Sig
     
 }
 
-void App_CanUtils_JCT_Status_Pack(const JCT_Status_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_Status_pack(const JCT_Status_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 5-byte payload for message JCT_Status.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|___DDDDD|DDDDDDDC|CCCCCCCC|CCCBBBBB|BBBBBBBA|
@@ -177,13 +182,13 @@ void App_CanUtils_JCT_Status_Pack(const JCT_Status_Signals* const in_msg, uint8_
     
     // Pack 12-bit signal JCT_UnsignedTester into payload (at bit 25 to bit 37).
     const int JCT_UnsignedTester_val = in_msg->JCT_UnsignedTester_value;
-    const uint32_t JCT_UnsignedTester_raw = CAN_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, int);
+    const int32_t JCT_UnsignedTester_raw = CAN_SIGNED_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, int);
     out_data[3] |= packShiftLeft(JCT_UnsignedTester_raw, 1, 0xfe);   // Packs bits #######_ of byte 3
     out_data[4] |= packShiftRight(JCT_UnsignedTester_raw, 7, 0x1f);   // Packs bits ___##### of byte 4
     
 }
 
-void App_CanUtils_JCT_Warnings_Pack(const JCT_Warnings_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_Warnings_pack(const JCT_Warnings_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 1-byte payload for message JCT_Warnings.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_______A|
@@ -200,12 +205,12 @@ void App_CanUtils_JCT_Warnings_Pack(const JCT_Warnings_Signals* const in_msg, ui
     
 }
 
-void App_CanUtils_JCT_Faults_Pack(const JCT_Faults_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_Faults_pack(const JCT_Faults_Signals* const in_msg, uint8_t* const out_data)
 {
     // No data to pack!
 }
 
-void App_CanUtils_JCT_WarningsCounts_Pack(const JCT_WarningsCounts_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_WarningsCounts_pack(const JCT_WarningsCounts_Signals* const in_msg, uint8_t* const out_data)
 {
     // Pack 1-byte payload for message JCT_WarningsCounts.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_____AAA|
@@ -222,12 +227,12 @@ void App_CanUtils_JCT_WarningsCounts_Pack(const JCT_WarningsCounts_Signals* cons
     
 }
 
-void App_CanUtils_JCT_FaultsCounts_Pack(const JCT_FaultsCounts_Signals* const in_msg, uint8_t* const out_data)
+void app_canUtils_JCT_FaultsCounts_pack(const JCT_FaultsCounts_Signals* const in_msg, uint8_t* const out_data)
 {
     // No data to pack!
 }
 
-void App_CanUtils_FSM_Apps_Unpack(const uint8_t* const in_data, FSM_Apps_Signals* const out_msg)
+void app_canUtils_FSM_Apps_unpack(const uint8_t* const in_data, FSM_Apps_Signals* const out_msg)
 {
     // Unpack 8-byte payload for message FSM_Apps.
     // |BBBBBBBB|BBBBBBBB|BBBBBBBB|BBBBBBBB|AAAAAAAA|AAAAAAAA|AAAAAAAA|AAAAAAAA|
@@ -257,7 +262,7 @@ void App_CanUtils_FSM_Apps_Unpack(const uint8_t* const in_data, FSM_Apps_Signals
     
 }
 
-void App_CanUtils_FSM_Warnings_Unpack(const uint8_t* const in_data, FSM_Warnings_Signals* const out_msg)
+void app_canUtils_FSM_Warnings_unpack(const uint8_t* const in_data, FSM_Warnings_Signals* const out_msg)
 {
     // Unpack 1-byte payload for message FSM_Warnings.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|______BA|
@@ -281,7 +286,7 @@ void App_CanUtils_FSM_Warnings_Unpack(const uint8_t* const in_data, FSM_Warnings
     
 }
 
-void App_CanUtils_FSM_Faults_Unpack(const uint8_t* const in_data, FSM_Faults_Signals* const out_msg)
+void app_canUtils_FSM_Faults_unpack(const uint8_t* const in_data, FSM_Faults_Signals* const out_msg)
 {
     // Unpack 1-byte payload for message FSM_Faults.
     // |xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|xxxxxxxx|_______A|

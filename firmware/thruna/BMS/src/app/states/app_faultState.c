@@ -6,8 +6,8 @@
 
 static void faultStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_FAULT_STATE);
-    App_CanAlerts_BMS_Fault_StateMachine_Set(true);
+    app_canTx_BMS_State_set(BMS_FAULT_STATE);
+    app_canAlerts_BMS_Fault_StateMachine_set(true);
 
     io_airs_openPositive();
     io_faultLatch_setCurrentStatus(globals->config->bms_ok_latch, false);
@@ -36,7 +36,7 @@ static void faultStateRunOnTick100Hz(void)
 
 static void faultStateRunOnExit(void)
 {
-    App_CanAlerts_BMS_Fault_StateMachine_Set(false);
+    app_canAlerts_BMS_Fault_StateMachine_set(false);
 }
 
 const State *app_faultState_get()

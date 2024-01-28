@@ -6,10 +6,10 @@
 
 extern "C"
 {
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanUtils.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canUtils.h"
+#include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "states/app_initState.h"
@@ -26,8 +26,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        App_CanTx_Init();
-        App_CanRx_Init();
+        app_canTx_init();
+        app_canRx_init();
 
         app_heartbeatMonitor_init(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
         app_stateMachine_init(app_driveState_get());

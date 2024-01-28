@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "app_rangeCheck.h"
-#include "App_CanTx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
 #include "io_steering.h"
 
 static const RangeCheck steering_angle_in_range_check = {
@@ -14,17 +14,17 @@ static const RangeCheck steering_angle_in_range_check = {
 
 void app_steering_broadcast(void)
 {
-    App_CanTx_FSM_SteeringAngle_Set(io_steering_getAngleDegrees());
+    app_canTx_FSM_SteeringAngle_set(io_steering_getAngleDegrees());
 
     bool steering_sensor_ocsc = io_steering_sensorOCSC();
-    App_CanAlerts_FSM_Warning_SteeringAngleOCSC_Set(steering_sensor_ocsc);
+    app_canAlerts_FSM_Warning_SteeringAngleOCSC_set(steering_sensor_ocsc);
     if (steering_sensor_ocsc)
     {
-        App_CanTx_FSM_SteeringAngle_Set(0);
+        app_canTx_FSM_SteeringAngle_set(0);
     }
 
     float            steering_angle;
     RangeCheckStatus steering_in_range = app_rangeCheck_getValue(&steering_angle_in_range_check, &steering_angle);
-    App_CanTx_FSM_SteeringAngle_Set(steering_angle);
-    App_CanAlerts_FSM_Warning_SteeringAngleOutOfRange_Set(steering_in_range != VALUE_IN_RANGE);
+    app_canTx_FSM_SteeringAngle_set(steering_angle);
+    app_canAlerts_FSM_Warning_SteeringAngleOutOfRange_set(steering_in_range != VALUE_IN_RANGE);
 }

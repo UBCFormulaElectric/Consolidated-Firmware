@@ -4,8 +4,8 @@
 #include "main.h"
 #include "app_utils.h"
 #include "hw_stackWaterMarkConfig.h"
-#include "App_CanTx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canAlerts.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;
@@ -19,27 +19,27 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_Set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_Set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_Set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_Set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_Set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_set(true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

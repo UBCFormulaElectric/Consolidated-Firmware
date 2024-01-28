@@ -9,9 +9,9 @@
 #include "states/app_faultState.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
-#include "App_CanAlerts.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
 
 /**
  * On-tick 1Hz function for every state in the given state machine

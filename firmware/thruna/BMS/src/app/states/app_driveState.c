@@ -5,7 +5,7 @@
 
 static void driveStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_DRIVE_STATE);
+    app_canTx_BMS_State_set(BMS_DRIVE_STATE);
 }
 
 static void driveStateRunOnTick1Hz(void)

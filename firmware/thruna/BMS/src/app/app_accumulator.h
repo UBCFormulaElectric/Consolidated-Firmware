@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "App_CanTx.h"
+#include "app_canTx.h"
 #include "app_tractiveSystem.h"
 #include "ltc6813/io_ltc6813Shared.h"
 

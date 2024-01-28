@@ -20,7 +20,7 @@ typedef struct
     uint32_t std_id;
     uint32_t dlc;
     uint8_t data[8];
-} CanMsg;
+} JsonCanMsg;
 
 /* -------------------------------- Enums --------------------------------- */
 
@@ -35,30 +35,30 @@ typedef enum
 /**
  * Initialzie the IO CAN TX module.
  */
-void Io_CanTx_Init(void (*transmit_tx_msg_func)(const CanMsg*));
+void io_canTx_init(void (*transmit_tx_msg_func)(const JsonCanMsg*));
 
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
-void Io_CanTx_EnableMode(CanMode mode, bool enable);
+void io_canTx_enableMode(CanMode mode, bool enable);
 
 /**
  * Enqeue periodic CAN msgs of period 1000ms.
  */
-void Io_CanTx_Enqueue1HzMsgs(void);
+void io_canTx_enqueue1HzMsgs(void);
 
 /**
  * Enqeue periodic CAN msgs of period 10ms.
  */
-void Io_CanTx_Enqueue100HzMsgs(void);
+void io_canTx_enqueue100HzMsgs(void);
 
 /**
  * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.
  */
-void Io_CanTx_EnqueueOtherPeriodicMsgs(uint32_t time_ms);
+void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
 /**
  * Pack and send the aperiodic TX msg JCT_WarningsTest.
  */
-void Io_CanTx_JCT_WarningsTest_SendAperiodic(void);
+void io_canTx_JCT_WarningsTest_sendAperiodic(void);
 
