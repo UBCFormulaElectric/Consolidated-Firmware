@@ -92,11 +92,18 @@ const osThreadAttr_t canRxTask_attributes = {
     .stack_size = sizeof(canRxTaskBuffer),
     .priority = (osPriority_t)osPriorityBelowNormal,
 };
+
+static void callback(uint32_t rx)
+{
+
+    (void)rx;
+}
+
 /* USER CODE BEGIN PV */
 static CanConfig can_config = {
     .rx_msg_filter = NULL,
-    .tx_overflow_callback = NULL,
-    .rx_overflow_callback = NULL,
+    .tx_overflow_callback = callback,
+    .rx_overflow_callback = callback,
 };
 
 /* Little fs config*/
