@@ -42,16 +42,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "BMS_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
-
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "BMS_can"
@@ -111,6 +101,18 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+        "BMS_app.elf"
+        "BMS_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("BMS_can" "BMS_stm32cube")
     target_link_libraries("BMS_app.elf" "BMS_stm32cube" "BMS_can" "BMS_commit_info")
 
@@ -156,5 +158,5 @@ set(HEADERS_TO_FAKE
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "BMS_commit_info" "shared_fakes")
+    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "shared_fakes")
 endif()

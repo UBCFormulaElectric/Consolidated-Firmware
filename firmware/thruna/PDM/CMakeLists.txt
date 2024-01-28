@@ -37,16 +37,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "PDM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
-
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "PDM_can"
@@ -104,6 +94,18 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
+    commit_info_library(
+        "PDM_app.elf"
+        "PDM_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("PDM_can" "PDM_stm32cube")
     target_link_libraries("PDM_app.elf" "PDM_stm32cube" "PDM_can" "PDM_commit_info")
 
@@ -142,5 +144,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("PDM_test" "PDM_can" "PDM_fakes" "PDM_commit_info" "shared_fakes")
+    target_link_libraries("PDM_test" "PDM_can" "PDM_fakes" "shared_fakes")
 endif()

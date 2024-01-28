@@ -209,6 +209,16 @@
             }
         },
         {
+            "label": "Load Dimos",
+            "type": "shell",
+            "command": "cmake -S . -B build_dimos_dev -DPLATFORM=dimos"
+        },
+        {
+            "label": "Build: Dimos Development Binaries",
+            "type": "shell",
+            "command": "cmake --build build_dimos_dev --target dimos_dev"
+        },
+        {
             "label": "Launch: STM32CubeMX",
             "type": "shell",
             "command": "./STM32CubeMX",

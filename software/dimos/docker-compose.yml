@@ -1,44 +1,34 @@
 version: "3.9"
 services:
-  dimos-debug:
+  dimos-build:
+    container_name: dimos-build-container
     build:
-      context: .
-      dockerfile: Dockerfile.debug
-    image: dimos-debug:latest
-    ports:
-      # SSH debug
-      - "2231:2231"
-      # gdbserver
-      - "2232:2232"
-      # qml debug
-      - "2233:2233"
+      context: ../../
+      dockerfile: software/dimos/Dockerfile_build
+    image: ubcformulaelectric/dimos-build
     volumes:
       - type: bind
-        source: /tmp
-        target: /tmp
-      - type: bind
-        source: /dev
-        target: /dev
-    device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
-    depends_on: [
-      weston
-    ]
+        source: ../../
+        target: /app
+    # FOR DEBUGGING
+#    stdin_open: true
+#    tty: true
+#    command: bash
+    command: >
+      bash -c "cmake -G 'Ninja' -S . -B build_dimos_docker -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DPLATFORM=dimos -DTARGET=deploy -DHANDLE_DEPS=OFF -DNO_VENV=ON -DFIX_FORMATTING=OFF -DUSE_COMMIT_INFO=ON &&
+               cmake --build build_dimos_docker --target dimos -- -j 14"
 
   dimos:
     container_name: dimos-container
+    command: /app/dimos
+    image: ubcformulaelectric/dimos
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: dimos:latest
+      context: ../../
+      dockerfile: software/dimos/Dockerfile_container
+    ports:
+      - "2231:2231" # SSH debug
+      - "2232:2232" # gdbserver
+      - "2233:2233" # qml debug
     volumes:
       - type: bind
         source: /tmp
@@ -46,23 +36,27 @@ services:
       - type: bind
         source: /dev
         target: /dev
+      - type: bind
+        source: /dev/galcore
+        target: /dev/galcore
+      - type: bind
+        source: .
+        target: /app
     device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
+      - "c 4:0 rmw"   # tty0 (teletype)
+      - "c 4:7 rmw"   # tty7
+      - "c 13:* rmw"  # /dev/input devices
+      - "c 199:* rmw" # /dev/input devices
+      - "c 226:* rmw" # /dev/dri devices
+      - "c 254:* rmw" # for gpio
     depends_on: [
       weston
+#       condition: service_healthy
     ]
 
   weston:
     container_name: Weston_Container
-    image: torizon/weston${GPU}:3
+    image: torizon/weston-vivante:3
     environment:
       - ACCEPT_FSL_EULA=1
     # Required to get udev events from host udevd via netlink
@@ -77,18 +71,20 @@ services:
       - type: bind
         source: /run/udev
         target: /run/udev
+    # noinspection ComposeUnknownValues
     cap_add:
       - CAP_SYS_TTY_CONFIG
-    # Add device access rights through cgroup...
+    # Add device access rights through cgroup
     device_cgroup_rules:
-      # ... for tty0
-      - "c 4:0 rmw"
-      # ... for tty1
-      - "c 4:1 rmw"
-      # ... for tty7
-      - "c 4:7 rmw"
-      # ... for /dev/input devices
-      - "c 13:* rmw"
-      - "c 199:* rmw"
-      # ... for /dev/dri devices
-      - "c 226:* rmw"
+      - "c 4:0 rmw" # tty0
+      - "c 4:1 rmw" # tty1
+      - "c 4:7 rmw" # tty7
+      - "c 13:* rmw"  # /dev/input devices
+      - "c 199:* rmw" # /dev/input devices
+      - "c 226:* rmw" # /dev/dri devices
+#    healthcheck:
+#      test: [ "CMD", "test", "-S", "/tmp/.X11-unix/X0" ]
+#      interval: 5s
+#      timeout: 4s
+#      retries: 6
+#      start_period: 10s

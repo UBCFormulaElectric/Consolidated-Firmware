@@ -132,6 +132,7 @@ build_fw_test
 build_dimos_deploy
 build_dimos_dev
 build_dimos_test
+build_dimos_docker
 
 environment/bin
 CMakeUserPresets.json

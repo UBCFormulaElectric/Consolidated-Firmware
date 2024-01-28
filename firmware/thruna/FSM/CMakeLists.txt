@@ -40,16 +40,10 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# Autogenerate git commit info header/source.
 set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
 set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "FSM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
 
+# Autogenerate git commit info header/source.
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "FSM_can"
@@ -107,6 +101,15 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    commit_info_library(
+        "FSM_app.elf"
+        "FSM_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("FSM_can" "FSM_stm32cube")
     target_link_libraries("FSM_app.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
 
@@ -148,5 +151,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("FSM_test" "FSM_can" "FSM_fakes" "FSM_commit_info" "shared_fakes")
+    target_link_libraries("FSM_test" "FSM_can" "FSM_fakes" "shared_fakes")
 endif()
