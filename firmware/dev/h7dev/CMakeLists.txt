@@ -10,6 +10,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
     # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/lfs_config.c"
 )
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
