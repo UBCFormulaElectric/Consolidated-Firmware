@@ -4,33 +4,6 @@
 #include <stdbool.h>
 #include "io_time.h"
 
-typedef struct
-{
-    uint32_t timeout_period_ms;
-    uint32_t previous_timeout_ms;
-    bool     heartbeats_checked_in[HEARTBEAT_BOARD_COUNT];
-    bool     heartbeats_to_check[HEARTBEAT_BOARD_COUNT];
-    bool     status[HEARTBEAT_BOARD_COUNT];
-
-    // getters for other heartbeats
-    bool (*getters[HEARTBEAT_BOARD_COUNT])();
-
-    // updaters on the local CAN table for other heartbeats
-    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool);
-
-    // setter for own heartbeat
-    void (*setter)(bool);
-
-    // setters for faults
-    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool);
-
-    // getters for faults
-    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])();
-
-    // Override to block heartbeat faults during tests.
-    bool block_faults;
-} HeartbeatMonitor;
-
 static HeartbeatMonitor hb_monitor;
 
 void app_heartbeatMonitor_init(
@@ -148,4 +121,9 @@ bool app_heartbeatMonitor_checkFaults(void)
 void app_heartbeatMonitor_blockFaults(bool block_faults)
 {
     hb_monitor.block_faults = block_faults;
+}
+
+HeartbeatMonitor *app_heartbeatMonitor_get(void)
+{
+    return &hb_monitor;
 }
