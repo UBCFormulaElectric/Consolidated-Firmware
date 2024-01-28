@@ -120,5 +120,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("VC_test" "VC_can" "VC_commit_info")
+    target_link_libraries("VC_test" "VC_can")
 endif()
