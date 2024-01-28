@@ -4,8 +4,8 @@
 
 extern "C"
 {
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_mainState.h"
 #include "app_heartbeatMonitor.h"
 #include "app_globals.h"
@@ -21,8 +21,8 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        App_CanTx_Init();
-        App_CanRx_Init();
+        app_canTx_init();
+        app_canRx_ibunit();
 
         // TODO: replace first NULL argument with timer
         app_heartbeatMonitor_init(
