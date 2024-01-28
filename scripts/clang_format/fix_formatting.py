@@ -101,6 +101,20 @@ if __name__ == "__main__":
     # Find all valid files
     source_files = find_all_files("firmware") + find_all_files("software/dimos")
 
+    pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
+    try:
+        results = pool.map(run_clang_format, source_files)
+        pool.close()
+        success = all(results)
+        for i, result in enumerate([result for result in results if not result]):
+            print(f"Encountered an error running clang-format against {source_files[i]}")
+    except KeyboardInterrupt:
+        print("Interruption Detected")
+        pool.terminate()
+        success = False
+    finally:
+        pool.join()
+
     if success:
         print("SUCCESS: clang-format ran on all files!")
     else:
