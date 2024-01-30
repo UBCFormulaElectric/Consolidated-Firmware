@@ -45,7 +45,7 @@ def find_all_files(
     SOURCE_DIR = os.path.join("..", "..", path_from_root)
 
     # Recursively traverse through file tree and apply clang-format
-    print(f"💡 Searching for files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
+    print(f"Searching for files under {os.path.join(os.getcwd(), SOURCE_DIR)}:")
 
     source_files = []
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
@@ -59,7 +59,7 @@ def find_all_files(
             if file.endswith(INCLUDE_FILE_EXTENSIONS) and file not in EXCLUDE_FILES
         ]
 
-    print(f"✅  Found {len(source_files)} files to format.")
+    print(f"Found {len(source_files)} files to format.")
     return source_files
 
 

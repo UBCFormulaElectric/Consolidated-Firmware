@@ -2,8 +2,8 @@
 #include "can.h"
 extern "C"
 {
-#include "cpp_canTx.h"
-#include "cpp_canRx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_commitInfo.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
