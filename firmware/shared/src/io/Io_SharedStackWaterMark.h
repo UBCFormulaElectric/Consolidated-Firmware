@@ -13,7 +13,7 @@ struct stack_watermark
     float    watermark_threshold;
     void (*log_error)(uint8_t);
     void (*stack_remaining)(float);
-};
+} StackWaterMark;
 
 /**
  * @brief Check the stack high watermark for FreeRTOS tasks. Typically, you
@@ -22,6 +22,7 @@ struct stack_watermark
  * @param stacks An array of stacks whose watermarks we are checking for.
  * @param num_of_stacks Number of stacks in the array.
  */
-void Io_SharedStackWaterMark_Check(struct stack_watermark *stacks, size_t num_of_stacks);
+void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks);
 
-void Io_SharedStackSize_Check(struct stack_watermark *stacks, size_t num_of_stacks);
+void hw_stackSize_check(StackWaterMark *stacks, size_t num_of_stacks);
+

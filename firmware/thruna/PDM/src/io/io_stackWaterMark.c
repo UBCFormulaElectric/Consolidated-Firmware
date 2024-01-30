@@ -19,48 +19,48 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1kHz_Set(error);
+    app_canAlerts_PDM_Warning_StackWaterMarkHighTask1kHz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask100Hz_Set(error);
+    app_canAlerts_PDM_Warning_StackWaterMarkHighTask100Hz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTask1Hz_Set(error);
+    app_canAlerts_PDM_Warning_StackWaterMarkHighTask1Hz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanRx_Set(error);
+    app_canAlerts_PDM_Warning_StackWaterMarkHighTaskCanRx_set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_PDM_Warning_StackWaterMarkHighTaskCanTx_Set(error);
+    app_canAlerts_PDM_Warning_StackWaterMarkHighTaskCanTx_set(error);
 }
 
 static void logStackRemainingTask1Hz(float percent)
 {
-    App_CanTx_PDM_StackRemainingTask1Hz_Set(percent);
+    app_canTx_PDM_StackRemainingTask1Hz_Set(percent);
 }
 static void logStackRemainingTask100Hz(float percent)
 {
-    App_CanTx_PDM_StackRemainingTask100Hz_Set(percent);
+    app_canTx_PDM_StackRemainingTask100Hz_Set(percent);
 }
 static void logStackRemainingTask1kHz(float percent)
 {
-    App_CanTx_PDM_StackRemainingTask1kHz_Set(percent);
+    app_canTx_PDM_StackRemainingTask1kHz_Set(percent);
 }
 static void logStackRemainingTaskCanRx(float percent)
 {
-    App_CanTx_PDM_StackRemainingTaskCanRx_Set(percent);
+    app_canTx_PDM_StackRemainingTaskCanRx_Set(percent);
 }
 static void logStackRemainingTaskCanTx(float percent)
 {
-    App_CanTx_PDM_StackRemainingTaskCanTx_Set(percent);
+    app_canTx_PDM_StackRemainingTaskCanTx_Set(percent);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
@@ -104,6 +104,6 @@ static struct stack_watermark stack_watermarks[] = {
 
 void io_stackWaterMark_check(void)
 {
-    Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
-    Io_SharedStackSize_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    hw_stackSize_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }
