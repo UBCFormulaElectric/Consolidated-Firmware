@@ -10,6 +10,16 @@ Item {
     anchors.fill: parent
     readonly property int appIconSize: 225
 
+    Keys.onSpacePressed: () => {
+        switcher.visible = !switcher.visible
+    }
+
+    Keys.onReturnPressed: () => {
+        if(switcher.visible) {
+            switcher.visible = false
+        }
+    }
+
     // todo improved model
     ListModel {
         id: appModel
