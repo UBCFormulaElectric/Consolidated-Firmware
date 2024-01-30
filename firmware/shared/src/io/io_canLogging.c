@@ -125,7 +125,7 @@ void io_canLogging_recordMsgFromQueue(void)
     }
 }
 
-void io_canLogging_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
+void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
