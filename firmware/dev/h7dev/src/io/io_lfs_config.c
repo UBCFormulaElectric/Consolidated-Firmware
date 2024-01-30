@@ -71,7 +71,7 @@ int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config 
     cfg->erase = io_lfs_erase;
     cfg->sync  = io_lfs_sync;
 
-    assert(IO_LFS_BLOCK_SIZE == block_size);
+    assert(IO_LFS_BLOCK_SIZE % block_size == 0);
 
     cfg->read_size      = IO_LFS_READ_SIZE;
     cfg->prog_size      = IO_LFS_PROG_SIZE;
@@ -83,6 +83,7 @@ int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config 
     cfg->cache_size     = IO_LFS_CACHE_SIZE;
     cfg->read_buffer    = lfs_read_buffer;
     cfg->prog_buffer    = lfs_prog_buffer;
+    cfg->attr_max       = 0;
 
     return 0;
 }
