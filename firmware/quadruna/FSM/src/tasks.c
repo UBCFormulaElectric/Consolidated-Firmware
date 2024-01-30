@@ -15,9 +15,12 @@
 #include "io_canRx.h"
 
 #include "hw_bootup.h"
+#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
+#include "hw_stackWaterMark.h"
+#include "hw_stackWaterMarkConfig.h"
 
 extern ADC_HandleTypeDef  *hadc1;
 extern CAN_HandleTypeDef  *hcan1;
@@ -62,26 +65,95 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
+    // TODO: add heartbeat monitor
+    app_stateMachine_init(app_driveState_get());
+    // TODO: add globals
+
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run100Hz(void)
+void tasks_run1Hz(void)
 {
-    WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, 10U);
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
-    /* Infinite loop */
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     for (;;)
     {
-        // test can
-        CanMsg msg = {
-            .std_id = 100,
-            .dlc    = 0,
-        };
-        io_can_pushTxMsgToQueue(&msg);
+        hw_stackWaterMarkConfig_check();
+        app_stateMachine_tick1Hz();
 
+        // TODO: setup can debug
+        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
         hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_run100Hz(void)
+{
+    static const TickType_t period_ms = 10;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        app_stateMachine_tick100Hz();
+        io_canTx_enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_run1kHz(void)
+{
+    static const TickType_t period_ms = 1U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        hw_watchdog_checkForTimeouts();
+
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
+        {
+            hw_watchdog_checkIn(watchdog);
+        }
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
@@ -99,29 +171,9 @@ void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-    }
-}
 
-void tasks_run1kHz(void)
-{
-    WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, 10U);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        hw_watchdog_checkIn(watchdog);
-    }
-}
-
-void tasks_run1Hz(void)
-{
-    WatchdogHandle *watchdog = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, 10U);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        hw_watchdog_checkIn(watchdog);
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
