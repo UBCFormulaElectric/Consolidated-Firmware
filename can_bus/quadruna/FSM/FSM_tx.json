@@ -1,0 +1,47 @@
+{
+    "Vitals": {
+        "msg_id": 300, 
+        "cycle_time": 100,
+        "description": "FSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "FSMState"
+            }
+        }
+    },
+    "AlertsContext": {
+        "msg_id": 301,
+        "cycle_time": 1000,
+        "description": "Context info for FSM alerts",
+        "signals": {
+            "WatchdogTimeout": {
+                "bits": 1
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
+            },
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "CommitInfo": {
+      "msg_id": 302,
+      "cycle_time": 100,
+      "description": "FSM Current Running Git Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
+    }
+}
