@@ -22,12 +22,12 @@ function(commit_info_library
     OUTPUT_PATH
     ARM_CORE
 )
-    commit_info_register_library(${BIND_TARGET} ${OUTPUT_PATH})
+    commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"
-            "${SRC_OUTPUT_PATH}"
-            "${HEADER_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
+            "${COMMIT_INFO_INCLUDE_DIR}"
             "${ARM_CORE}"
             FALSE
         )
@@ -35,7 +35,7 @@ function(commit_info_library
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(
             "${LIB_NAME}" STATIC
-            "${SRC_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
         )
         target_include_directories("${LIB_NAME}" PUBLIC "${HEADER_DIR}")
     endif()

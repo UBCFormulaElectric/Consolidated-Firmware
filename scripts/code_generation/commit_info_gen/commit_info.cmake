@@ -1,14 +1,17 @@
 # WE NEED bind_target in order to watch it to rebuild commitinfo
-function(commit_info_register_library bind_target commit_info_directory)
+function(commit_info_generate_sources bind_target commit_info_directory)
     file(RELATIVE_PATH directory_location_relative ${CMAKE_SOURCE_DIR} ${commit_info_directory})
     message("📚 Registering commit info library ${bind_target} at ${directory_location_relative}")
 
     set(src_location "${commit_info_directory}/app_commitInfo.c")
     set(header_location "${commit_info_directory}/app_commitInfo.h")
 
+    set(COMMIT_INFO_SRC ${src_location} PARENT_SCOPE)
+    set(COMMIT_INFO_INCLUDE_DIR ${commit_info_directory} PARENT_SCOPE)
+
     option(USE_COMMIT_INFO "Use commit info" ON) # ON, OFF OR MINIMAL (generates commitinfo only at generate time (old behaviour))
     if (${USE_COMMIT_INFO} STREQUAL "OFF")
-        if(NOT EXISTS ${src_location} OR NOT EXISTS ${header_location})
+        if(NOT EXISTS ${COMMIT_INFO_SRC} OR NOT EXISTS ${COMMIT_INFO_HEADER})
             message(FATAL_ERROR "❌ commit_info file not found. Please add the '-DUSE_COMMIT_INFO' option")
         endif ()
         return()
