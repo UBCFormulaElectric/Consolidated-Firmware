@@ -5,6 +5,9 @@ function(commit_info_register_library bind_target src_location header_location)
 
     option(USE_COMMIT_INFO "Use commit info" ON) # ON, OFF OR MINIMAL (generates commitinfo only at generate time (old behaviour))
     if (${USE_COMMIT_INFO} STREQUAL "OFF")
+        if(NOT EXISTS ${src_location} OR NOT EXISTS ${header_location})
+            message(FATAL_ERROR "❌ commit_info file not found. Please add the '-DUSE_COMMIT_INFO' option")
+        endif ()
         return()
     endif()
 
