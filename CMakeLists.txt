@@ -88,13 +88,12 @@ ENDIF ()
 message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
 
 # ======== Python Checks ========
-
-message("⚙️ Run Clang-Formatting for all boards")
-set(PYTHON_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
+set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" ON)
 IF (FIX_FORMATTING)
+    message("⚙️ Run Clang-Formatting for all boards")
     execute_process(
-            COMMAND ${PYTHON_COMMAND} ${PYTHON_SCRIPT}
+            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 ENDIF ()
