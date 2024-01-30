@@ -22,7 +22,7 @@ function(commit_info_library
     OUTPUT_PATH
     ARM_CORE
 )
-    commit_info_register_library(${BIND_TARGET} OUTPUT_PATH)
+    commit_info_register_library(${BIND_TARGET} ${OUTPUT_PATH})
     if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"
