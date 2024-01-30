@@ -8,6 +8,9 @@ inputs:
     required: false
     description: The directory in which to build the binary
     default: build_fw_deploy
+  platform:
+    required: true
+    description: The platform for which to build a binary
 
 runs:
   using: "composite"
@@ -24,5 +27,5 @@ runs:
     - name: Build
       shell: bash
       run: |
-        cmake -B ${{ inputs.build_dir }} -DPLATFORM=${{inputs.platform}} -DTARGET=deploy -DHANDLE_DEPS=OFF
+        cmake -B ${{ inputs.build_dir }} -DPLATFORM=${{inputs.platform}} -DTARGET=deploy -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
         xvfb-run make --directory=${{ inputs.build_dir }} -j`nproc` ${{ inputs.board }}.hex

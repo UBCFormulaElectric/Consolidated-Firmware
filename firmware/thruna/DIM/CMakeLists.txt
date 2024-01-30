@@ -19,7 +19,6 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
 )
-message("${IO_SRCS}")
 
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -100,13 +99,10 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     # Autogenerate git commit info header/source.
-    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.h")
-    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.c")
     commit_info_library(
         "DIM_app.elf"
         "DIM_commit_info"
-        "${COMMIT_INFO_HEADER_PATH}"
-        "${COMMIT_INFO_SRC_PATH}"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 

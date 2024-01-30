@@ -89,13 +89,10 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     # Autogenerate git commit info header/source.
-    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.h")
-    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.c")
     commit_info_library(
         "VC.elf"
         "VC_commit_info"
-        "${COMMIT_INFO_HEADER_PATH}"
-        "${COMMIT_INFO_SRC_PATH}"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
