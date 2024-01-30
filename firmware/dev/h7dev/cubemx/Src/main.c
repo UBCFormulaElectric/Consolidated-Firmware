@@ -29,7 +29,7 @@
 #include "hw_bootup.h"
 #include "io_can.h"
 #include "io_canLogging.h"
-#include "lfs_config.h"
+#include "io_lfs_config.h"
 #include "hw_gpio.h"
 #include "io_log.h"
 /* USER CODE END Includes */

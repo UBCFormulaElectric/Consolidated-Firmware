@@ -1,11 +1,11 @@
 #include "io_canLogging.h"
+#include "io_lfs_config.h"
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "cmsis_os.h"
 #include "queue.h"
 #include "hw_gpio.h"
-#include "lfs_config.h"
 
 // Private globals.
 static const CanConfig *config;
@@ -37,9 +37,9 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-static char                  buffer[512];
+static char                  file_buffer[IO_LFS_CACHE_SIZE];
 const struct lfs_file_config fcfg = {
-    .buffer = buffer,
+    .buffer = file_buffer,
 };
 
 // assume the lfs is already mounted
@@ -53,7 +53,7 @@ static void init_logging_file_system()
 
     // config the file system
     struct lfs_config cfg;
-    lfs_config_object(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+    io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
     int      err       = lfs_mount(&lfs, &cfg);
@@ -119,7 +119,7 @@ void io_canLogging_recordMsgFromQueue(void)
     }
     static uint32_t message_written = 0;
     message_written++;
-    if (message_written > 128)
+    if (message_written > (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
     {
         lfs_file_sync(&lfs, &file);
     }
