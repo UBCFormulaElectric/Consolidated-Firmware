@@ -41,25 +41,25 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
     app_canAlerts_PDM_Warning_StackWaterMarkHighTaskCanTx_set(error);
 }
-
+static void logStackRemainingTask1Hz(float percent)
 {
-    app_canTx_PDM_StackRemainingTask1Hz_Set(percent);
+    app_canTx_PDM_StackRemainingTask1Hz_set(percent);
 }
 static void logStackRemainingTask100Hz(float percent)
 {
-    app_canTx_PDM_StackRemainingTask100Hz_Set(percent);
+    app_canTx_PDM_StackRemainingTask100Hz_set(percent);
 }
 static void logStackRemainingTask1kHz(float percent)
 {
-    app_canTx_PDM_StackRemainingTask1kHz_Set(percent);
+    app_canTx_PDM_StackRemainingTask1kHz_set(percent);
 }
 static void logStackRemainingTaskCanRx(float percent)
 {
-    app_canTx_PDM_StackRemainingTaskCanRx_Set(percent);
+    app_canTx_PDM_StackRemainingTaskCanRx_set(percent);
 }
 static void logStackRemainingTaskCanTx(float percent)
 {
-    app_canTx_PDM_StackRemainingTaskCanTx_Set(percent);
+    app_canTx_PDM_StackRemainingTaskCanTx_set(percent);
 }
 /** @brief Iterate through this table to check stack watermarks for each task */
 static StackWaterMark stack_watermarks[] = {

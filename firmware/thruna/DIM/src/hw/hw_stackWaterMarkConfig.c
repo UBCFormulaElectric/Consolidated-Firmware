@@ -44,23 +44,23 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 
 static void logStackRemainingTask1Hz(float percent)
 {
-    app_canTx_BMS_StackRemainingTask1Hz_Set(percent);
+    app_canTx_DIM_StackRemainingTask1Hz_set(percent);
 }
 static void logStackRemainingTask100Hz(float percent)
 {
-    app_canTx_BMS_StackRemainingTask100Hz_Set(percent);
+    app_canTx_DIM_StackRemainingTask100Hz_set(percent);
 }
 static void logStackRemainingTask1kHz(float percent)
 {
-    app_canTx_BMS_StackRemainingTask1kHz_Set(percent);
+    app_canTx_DIM_StackRemainingTask1kHz_set(percent);
 }
 static void logStackRemainingTaskCanRx(float percent)
 {
-    app_canTx_BMS_StackRemainingTaskCanRx_Set(percent);
+    app_canTx_DIM_StackRemainingTaskCanRx_set(percent);
 }
 static void logStackRemainingTaskCanTx(float percent)
 {
-    app_canTx_BMS_StackRemainingTaskCanTx_Set(percent);
+    app_canTx_DIM_StackRemainingTaskCanTx_set(percent);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

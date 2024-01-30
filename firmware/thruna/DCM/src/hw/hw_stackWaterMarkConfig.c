@@ -44,23 +44,23 @@ static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 
 static void logStackRemainingTask1Hz(float percent)
 {
-    app_canTx_DCM_StackRemainingTask1Hz_Set(percent);
+    app_canTx_DCM_StackRemainingTask1Hz_set(percent);
 }
 static void logStackRemainingTask100Hz(float percent)
 {
-    app_canTx_DCM_StackRemainingTask100Hz_Set(percent);
+    app_canTx_DCM_StackRemainingTask100Hz_set(percent);
 }
 static void logStackRemainingTask1kHz(float percent)
 {
-    app_canTx_DCM_StackRemainingTask1kHz_Set(percent);
+    app_canTx_DCM_StackRemainingTask1kHz_set(percent);
 }
 static void logStackRemainingTaskCanRx(float percent)
 {
-    app_canTx_DCM_StackRemainingTaskCanRx_Set(percent);
+    app_canTx_DCM_StackRemainingTaskCanRx_set(percent);
 }
 static void logStackRemainingTaskCanTx(float percent)
 {
-    app_canTx_DCM_StackRemainingTaskCanTx_Set(percent);
+    app_canTx_DCM_StackRemainingTaskCanTx_set(percent);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
@@ -102,7 +102,7 @@ static StackWaterMark stack_watermarks[] = {
     },
 };
 
-void Io_StackWaterMark_Check(void)
+void hw_stackWaterMarkConfig_check(void)
 {
     hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
     hw_stackSize_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));

@@ -50,7 +50,7 @@ static float hw_stackSize(TaskHandle_t xTask, uint32_t stack_size, float waterma
     return stack_high_watermark_percent_remaining;
 }
 
-void hw_stackSize_check(struct stack_watermark *stacks, size_t num_of_stacks)
+void hw_stackSize_check(StackWaterMark *stacks, size_t num_of_stacks)
 {
     for (size_t i = 0; i < num_of_stacks; i++)
     {

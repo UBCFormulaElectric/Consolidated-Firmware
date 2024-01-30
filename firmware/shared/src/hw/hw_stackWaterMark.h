@@ -25,4 +25,3 @@ typedef struct
 void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks);
 
 void hw_stackSize_check(StackWaterMark *stacks, size_t num_of_stacks);
-
