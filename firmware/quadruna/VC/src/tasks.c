@@ -36,7 +36,7 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
 }
 
 const CanConfig can_config = {
-    .rx_msg_filter = NULL,
+    .rx_msg_filter        = NULL,
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
