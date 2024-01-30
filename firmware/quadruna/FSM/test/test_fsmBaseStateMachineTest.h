@@ -22,9 +22,8 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         BaseStateMachineTest::SetUp();
 
         app_canTx_init();
-        app_canRx_ibunit();
+        app_canRx_init();
 
-        // TODO: replace first NULL argument with timer
         app_heartbeatMonitor_init(
             HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
             &app_canTx_FSM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
