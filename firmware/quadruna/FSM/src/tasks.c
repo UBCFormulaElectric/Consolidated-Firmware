@@ -55,8 +55,6 @@ void tasks_init(void)
     hw_can_init(hcan1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
-    __HAL_DBGMCU_FREEZE_IWDG();
-
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
