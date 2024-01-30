@@ -1,7 +1,10 @@
 # WE NEED bind_target in order to watch it to rebuild commitinfo
-function(commit_info_register_library bind_target src_location header_location)
-    file(RELATIVE_PATH header_location_relative ${CMAKE_SOURCE_DIR} ${header_location})
-    message("📚 Registering commit info library ${bind_target} with header at ${header_location_relative}")
+function(commit_info_register_library bind_target commit_info_directory)
+    file(RELATIVE_PATH directory_location_relative ${CMAKE_SOURCE_DIR} ${commit_info_directory})
+    message("📚 Registering commit info library ${bind_target} at ${directory_location_relative}")
+
+    set(src_location "${commit_info_directory}/app_commitInfo.c")
+    set(header_location "${commit_info_directory}/app_commitInfo.h")
 
     option(USE_COMMIT_INFO "Use commit info" ON) # ON, OFF OR MINIMAL (generates commitinfo only at generate time (old behaviour))
     if (${USE_COMMIT_INFO} STREQUAL "OFF")

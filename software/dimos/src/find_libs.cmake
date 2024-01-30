@@ -22,9 +22,7 @@ list(APPEND REQUIRED_LIBRARIES "dimos_can")
 message("📚✔️ Added JsonCAN library")
 
 # commit_info
-set(COMMIT_INFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/commit_info/app_commitInfo.c")
-set(COMMIT_INFO_HEADER "${CMAKE_CURRENT_BINARY_DIR}/commit_info/app_commitInfo.h")
-commit_info_register_library(${EXECUTABLE_NAME} ${COMMIT_INFO_SRC} ${COMMIT_INFO_HEADER})
+commit_info_register_library(${EXECUTABLE_NAME} "${CMAKE_CURRENT_BINARY_DIR}/commit_info")
 add_library(dimos_commit_info STATIC ${COMMIT_INFO_SRC})
 target_include_directories(dimos_commit_info PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/commit_info")
 list(APPEND REQUIRED_LIBRARIES "dimos_commit_info")
