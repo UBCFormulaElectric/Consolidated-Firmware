@@ -177,7 +177,7 @@
       },
     },
     {
-      "name": "Debug Embedded: DIM",
+      "name": "Debug Embedded: DIM (Thruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/DIM/thruna_DIM.hex",
       "symbolFiles": [
@@ -193,6 +193,36 @@
       ],
       "showDevDebugOutput": "none",
       "preLaunchTask": "Build Embedded: DIM",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: DIM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
+      "name": "Debug Embedded: DIM (Quadruna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/DIM/DIM.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_deploy/firmware/boot/f4boot/DIM_boot.elf",
+        "build_fw_deploy/firmware/quadruna/DIM/DIM_app.elf",
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: DIM",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -426,12 +456,26 @@
       }
     },
     {
-      "name": "Debug Tests: DIM",
+      "name": "Debug Tests: DIM (Thruna)",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/thruna_DIM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: DIM",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: DIM (Quadruna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/DIM/DIM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build: DIM_test",
       "linux": {
         "MIMode": "gdb"
       },
