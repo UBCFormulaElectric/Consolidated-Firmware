@@ -4,9 +4,7 @@
  * @file           : main.c
  * @brief          : Main program body
  ******************************************************************************
- * @attention
- *
- * Copyright (c) 2023 STMicroelectronics.
+ * @attenti * Copyright (c) 2023 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -117,13 +115,13 @@ void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-static void can0MsgRecievecallback(void);
+static void canMsgRecievecallback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan2, .can0MsgRecievecallback = can0MsgRecievecallback, .can1MsgRecievecallback = 0 };
+CanHandle can = { .can = &hfdcan2, .canMsgRecievecallback = canMsgRecievecallback };
 SdCard    sd;
 Gpio      sd_present = {
          .pin  = GPIO_PIN_8,
@@ -434,17 +432,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-static void can0MsgRecievecallback(void)
+static void canMsgRecievecallback(CanMsg *rx_msg)
 {
-    CanMsg rx_msg = { 0 };
-    if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO0, &rx_msg);
-    io_canLogging_msgReceivedCallback(FDCAN_RX_FIFO0, &rx_msg);
+    io_can_msgReceivedCallback(rx_msg);
+    io_canLogging_msgReceivedCallback(rx_msg);
 }
 
 /* USER CODE END 4 */
@@ -509,8 +500,12 @@ void runCanRxTask(void *argument)
         CanMsg msg = { 0 };
         io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
+        for (;;)
+        {
+            osDelay(1);
+        }
+        /* USER CODE END runCanTxTask */
     }
-    /* USER CODE END runCanRxTask */
 }
 
 /**
