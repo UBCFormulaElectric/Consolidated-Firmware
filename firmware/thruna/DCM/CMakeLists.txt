@@ -99,14 +99,11 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     # Autogenerate git commit info header/source.
-    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.h")
-    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.c")
     commit_info_library(
-            "DCM_app.elf"
-            "DCM_commit_info"
-            "${COMMIT_INFO_HEADER_PATH}"
-            "${COMMIT_INFO_SRC_PATH}"
-            "${ARM_CORE}"
+        "DCM_app.elf"
+        "DCM_commit_info"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
+        "${ARM_CORE}"
     )
 
     target_link_libraries("DCM_can" "DCM_stm32cube")

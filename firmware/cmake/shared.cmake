@@ -19,16 +19,15 @@ file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/*.c")
 function(commit_info_library
     BIND_TARGET
     LIB_NAME
-    HEADER_OUTPUT_PATH
-    SRC_OUTPUT_PATH
+    OUTPUT_PATH
     ARM_CORE
 )
-    commit_info_register_library(${BIND_TARGET} ${SRC_OUTPUT_PATH} ${HEADER_OUTPUT_PATH})
+    commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"
-            "${SRC_OUTPUT_PATH}"
-            "${HEADER_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
+            "${COMMIT_INFO_INCLUDE_DIR}"
             "${ARM_CORE}"
             FALSE
         )
@@ -36,7 +35,7 @@ function(commit_info_library
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(
             "${LIB_NAME}" STATIC
-            "${SRC_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
         )
         target_include_directories("${LIB_NAME}" PUBLIC "${HEADER_DIR}")
     endif()

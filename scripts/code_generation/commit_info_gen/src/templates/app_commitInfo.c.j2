@@ -2,7 +2,8 @@
 /* 
   This file is intentionally empty,
   it only exists to tell cmake to scan {{header_path}}
+
+  and to make pedantic compilation happy (avoid empty translation unit error)
 */
 
-// to make pedantic compilation happy (avoid empty translation unit error)
-extern int commit_info_happy_pedantic_compilation;
+enum commit_info { happy_pedantic_compilation };
