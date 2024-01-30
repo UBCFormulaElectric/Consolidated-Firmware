@@ -11,7 +11,6 @@
 #include "app_commitInfo.h"
 
 #include "io_jsoncan.h"
-#include "io_canRx.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
