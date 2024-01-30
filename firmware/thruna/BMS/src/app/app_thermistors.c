@@ -1,5 +1,5 @@
 #include "app_thermistors.h"
-#include "App_CanTx.h"
+#include "app_canTx.h"
 
 #define NUM_AUX_THERMISTORS (6U)
 
@@ -28,10 +28,10 @@ void app_thermistors_updateAuxThermistorTemps()
 
 void app_thermistors_broadcast()
 {
-    App_CanTx_BMS_ThermTemp0_Set(therm_temps[0]);
-    App_CanTx_BMS_ThermTemp1_Set(therm_temps[1]);
-    App_CanTx_BMS_ThermTemp2_Set(therm_temps[2]);
-    App_CanTx_BMS_ThermTemp3_Set(therm_temps[3]);
-    App_CanTx_BMS_ThermTemp4_Set(therm_temps[4]);
-    App_CanTx_BMS_ThermTemp5_Set(therm_temps[5]);
+    app_canTx_BMS_ThermTemp0_set(therm_temps[0]);
+    app_canTx_BMS_ThermTemp1_set(therm_temps[1]);
+    app_canTx_BMS_ThermTemp2_set(therm_temps[2]);
+    app_canTx_BMS_ThermTemp3_set(therm_temps[3]);
+    app_canTx_BMS_ThermTemp4_set(therm_temps[4]);
+    app_canTx_BMS_ThermTemp5_set(therm_temps[5]);
 }

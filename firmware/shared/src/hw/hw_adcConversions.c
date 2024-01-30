@@ -1,5 +1,5 @@
 #include "hw_adcConversions.h"
-#include "App_SharedConstants.h"
+#include "app_utils.h"
 
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)

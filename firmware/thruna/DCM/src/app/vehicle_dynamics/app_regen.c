@@ -2,9 +2,10 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerLimiting.h"
 #include "app_activeDifferential.h"
-#include "App_CanRx.h"
-#include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_canRx.h"
+#include "app_canTx.h"
+#include "app_units.h"
+#include "app_utils.h"
 #include <stdlib.h>
 #include "math.h"
 
@@ -33,8 +34,8 @@ static bool powerLimitCheck(RegenBraking_Inputs *regenAttr);
  */
 static void computeRegenTorqueRequest(
     ActiveDifferential_Inputs *inputs,
-    RegenBraking_Inputs *      regenAttr,
-    PowerLimiting_Inputs *     powerInputs);
+    RegenBraking_Inputs       *regenAttr,
+    PowerLimiting_Inputs      *powerInputs);
 
 static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
@@ -46,17 +47,17 @@ void app_regen_run(float accelerator_pedal_percentage)
 
     if (app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs))
     {
-        activeDifferentialInputs.wheel_angle_deg = App_CanRx_FSM_SteeringAngle_Get() * APPROX_STEERING_TO_WHEEL_ANGLE;
+        activeDifferentialInputs.wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
         computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, &powerLimitingInputs);
-        App_CanTx_DCM_Warning_RegenNotAvailable_Set(false);
+        app_canTx_DCM_Warning_RegenNotAvailable_set(false);
     }
     else
     {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
         regenAttributes.right_inverter_torque_Nm = 0.0;
 
-        App_CanTx_DCM_Warning_RegenNotAvailable_Set(true);
+        app_canTx_DCM_Warning_RegenNotAvailable_set(true);
     }
 
     app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
@@ -64,14 +65,14 @@ void app_regen_run(float accelerator_pedal_percentage)
 
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
 {
-    bool battery_temp_in_range = App_CanRx_BMS_MaxCellTemperature_Get() < MAX_BATTERY_TEMP;
+    bool battery_temp_in_range = app_canRx_BMS_MaxCellTemperature_get() < MAX_BATTERY_TEMP;
     return battery_temp_in_range && wheelSpeedInRange(inputs) && powerLimitCheck(regenAttr);
 }
 
 void app_regen_sendTorqueRequest(float left, float right)
 {
-    App_CanTx_DCM_LeftInverterTorqueCommand_Set(left);
-    App_CanTx_DCM_RightInverterTorqueCommand_Set(right);
+    app_canTx_DCM_LeftInverterTorqueCommand_set(left);
+    app_canTx_DCM_RightInverterTorqueCommand_set(right);
 }
 
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
@@ -100,8 +101,8 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
 
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 {
-    inputs->motor_speed_right_rpm = -(float)App_CanRx_INVR_MotorSpeed_Get();
-    inputs->motor_speed_left_rpm  = (float)App_CanRx_INVL_MotorSpeed_Get();
+    inputs->motor_speed_right_rpm = -(float)app_canRx_INVR_MotorSpeed_get();
+    inputs->motor_speed_left_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
 
     return MOTOR_RPM_TO_KMH(inputs->motor_speed_right_rpm) > SPEED_MIN_kph &&
            MOTOR_RPM_TO_KMH(inputs->motor_speed_left_rpm) > SPEED_MIN_kph;
@@ -109,21 +110,21 @@ static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 
 static bool powerLimitCheck(RegenBraking_Inputs *regenAttr)
 {
-    regenAttr->current_battery_level = App_CanRx_BMS_MaxCellVoltage_Get();
+    regenAttr->current_battery_level = app_canRx_BMS_MaxCellVoltage_get();
     return regenAttr->current_battery_level < 4.1f;
 }
 
 static void computeRegenTorqueRequest(
     ActiveDifferential_Inputs *activeDiffInputs,
-    RegenBraking_Inputs *      regenAttr,
-    PowerLimiting_Inputs *     powerInputs)
+    RegenBraking_Inputs       *regenAttr,
+    PowerLimiting_Inputs      *powerInputs)
 {
     float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
     float min_motor_speed =
         MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_right_rpm, activeDiffInputs->motor_speed_left_rpm));
 
-    powerInputs->left_motor_temp_C  = App_CanRx_INVL_MotorTemperature_Get();
-    powerInputs->right_motor_temp_C = App_CanRx_INVR_MotorTemperature_Get();
+    powerInputs->left_motor_temp_C  = app_canRx_INVL_MotorTemperature_get();
+    powerInputs->right_motor_temp_C = app_canRx_INVR_MotorTemperature_get();
 
     if (regenAttr->current_battery_level > 3.9f)
     {

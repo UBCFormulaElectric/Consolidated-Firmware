@@ -1,6 +1,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_hal.h"
-#include "Io_SharedMacros.h"
+#include "hw_utils.h"
 
 void hw_hardFaultHandler_init(void)
 {

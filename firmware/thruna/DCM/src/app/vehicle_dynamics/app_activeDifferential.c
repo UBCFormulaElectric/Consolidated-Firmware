@@ -1,8 +1,7 @@
 #include "app_activeDifferential.h"
-#include "App_SharedConstants.h"
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
-#include "App_SharedMacros.h"
+#include "app_units.h"
 #include <stdlib.h>
 
 void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)

@@ -99,7 +99,7 @@ class AppCanTxModule(CModule):
         cw.add_line()
         cw.add_header_comment("Includes")
         cw.add_line()
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"app_canUtils.h"')
 
         # Add function prototypes
         cw.add_line()
@@ -122,7 +122,7 @@ class AppCanTxModule(CModule):
         cw.add_line()
         cw.add_include("<math.h>")
         cw.add_include("<string.h>")
-        cw.add_include('"App_CanTx.h"')
+        cw.add_include('"app_canTx.h"')
         cw.add_line()
 
         if self._db.node_has_tx_msgs(self._node):

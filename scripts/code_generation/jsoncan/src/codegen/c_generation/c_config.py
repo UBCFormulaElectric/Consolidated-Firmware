@@ -7,35 +7,34 @@ from ...utils import *
 
 class CFuncsConfig(StrEnum):
     # Io Tx
-    IO_TX_INIT = "Io_CanTx_Init"
-    IO_TX_ENABLE_MODE = "Io_CanTx_EnableMode"
-    IO_TX_ENQUEUE_PERIODIC = "Io_CanTx_Enqueue{freq}Msgs"
-    IO_TX_ENQUEUE_OTHER_PERIODIC = "Io_CanTx_EnqueueOtherPeriodicMsgs"
-    IO_TX_SEND = "Io_CanTx_{msg}_Send{mode}"
+    IO_TX_INIT = "io_canTx_init"
+    IO_TX_ENABLE_MODE = "io_canTx_enableMode"
+    IO_TX_ENQUEUE_PERIODIC = "io_canTx_enqueue{freq}Msgs"
+    IO_TX_ENQUEUE_OTHER_PERIODIC = "io_canTx_enqueueOtherPeriodicMsgs"
+    IO_TX_SEND = "io_canTx_{msg}_send{mode}"
 
     # App Tx
-    APP_TX_INIT = "App_CanTx_Init"
-    APP_TX_SET_SIGNAL = "App_CanTx_{signal}_Set"
-    APP_TX_GET_SIGNAL = "App_CanTx_{signal}_Get"
-    APP_TX_GET_MSG = "App_CanTx_{msg}_GetData"
+    APP_TX_INIT = "app_canTx_init"
+    APP_TX_SET_SIGNAL = "app_canTx_{signal}_set"
+    APP_TX_GET_SIGNAL = "app_canTx_{signal}_get"
+    APP_TX_GET_MSG = "app_canTx_{msg}_getData"
 
     # Io Rx
-    IO_RX_UPDATE_TABLE = "Io_CanRx_UpdateRxTableWithMessage"
-    IO_RX_FILTER_ID = "Io_CanRx_FilterMessageId"
+    IO_RX_UPDATE_TABLE = "io_canRx_updateRxTableWithMessage"
+    IO_RX_FILTER_ID = "io_canRx_filterMessageId"
 
     # App Rx
-    APP_RX_INIT = "App_CanRx_Init"
-    APP_RX_SET_SIGNAL = "App_CanRx_{signal}_Update"
-    APP_RX_GET_SIGNAL = "App_CanRx_{signal}_Get"
+    APP_RX_INIT = "app_canRx_init"
+    APP_RX_SET_SIGNAL = "app_canRx_{signal}_update"
+    APP_RX_GET_SIGNAL = "app_canRx_{signal}_get"
 
     # Utils
-    UTILS_PACK = "App_CanUtils_{msg}_Pack"
-    UTILS_UNPACK = "App_CanUtils_{msg}_Unpack"
+    UTILS_PACK = "app_canUtils_{msg}_pack"
+    UTILS_UNPACK = "app_canUtils_{msg}_unpack"
 
     # Alerts
-    APP_ALERTS_INIT = "App_CanAlerts_Init"
-    APP_ALERTS_SET = "App_CanAlerts_{alert}_Set"
-    APP_ALERTS_GET = "App_CanAlerts_{alert}_Get"
+    APP_ALERTS_SET = "app_canAlerts_{alert}_set"
+    APP_ALERTS_GET = "app_canAlerts_{alert}_get"
 
 
 class CVarsConfig(StrEnum):

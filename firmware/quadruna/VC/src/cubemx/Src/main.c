@@ -25,9 +25,9 @@
 #include "string.h"
 #include "tasks.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -148,7 +148,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // tasks_preinit(); // bootloader
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -178,9 +178,6 @@ int main(void)
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -726,7 +723,7 @@ static void MX_GPIO_Init(void)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    tasks_100Hz(argument);
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -740,7 +737,7 @@ void RunTask100Hz(void *argument)
 void RunCanTxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanTxTask */
-    tasks_canTx(argument);
+    tasks_runCanTx();
     /* USER CODE END RunCanTxTask */
 }
 
@@ -755,7 +752,7 @@ void RunCanRxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanRxTask */
     /* Infinite loop */
-    tasks_canRx(argument);
+    tasks_runCanRx();
     /* USER CODE END RunCanRxTask */
 }
 
@@ -769,7 +766,7 @@ void RunCanRxTask(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
-    tasks_1Khz(argument);
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -783,7 +780,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    tasks_1Hz(argument);
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 

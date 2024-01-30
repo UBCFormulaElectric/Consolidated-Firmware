@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
-#include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_canTx.h"
+#include "app_utils.h"
 
 #define HIGH_RES_MAX_CURRENT_READING (50.0f)
 #define MAX_TS_CHARGE_CURRENT_AMPS (70.8f)

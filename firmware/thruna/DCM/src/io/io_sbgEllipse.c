@@ -4,7 +4,7 @@
 #include "interfaces/sbgInterfaceSerial.h"
 #include "io_sbgEllipse.h"
 #include "App_RingQueue.h"
-#include "App_SharedMacros.h"
+#include "app_units.h"
 #include "FreeRTOS.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
@@ -54,7 +54,7 @@ typedef struct
 
 /* --------------------------------- Variables ---------------------------------- */
 
-static UART *        uart;
+static UART         *uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -81,11 +81,11 @@ float *sensor_output_map[NUM_SBG_OUTPUTS] = {
 static void         io_sbgEllipse_createSerialInterface(SbgInterface *interface);
 static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
 static SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle *         handle,
+    SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
-    void *                  user_arg);
+    void                   *user_arg);
 static void io_sbgEllipse_processMsg_imu(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data);
@@ -166,11 +166,11 @@ static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, si
  * Callback called when a log is successfully received and parsed.
  */
 SbgErrorCode io_sbgEllipse_logReceivedCallback(
-    SbgEComHandle *         handle,
+    SbgEComHandle          *handle,
     SbgEComClass            msg_class,
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
-    void *                  user_arg)
+    void                   *user_arg)
 {
     assert(log_data);
 
@@ -268,7 +268,7 @@ bool io_sbgEllipse_init(UART *imu_uart)
     App_RingQueue_Init(&rx_queue, RING_QUEUE_MAX_SIZE);
 
     // Start waiting for UART packets
-    hw_uart_receive_dma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
+    hw_uart_receiveDma(uart, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     return true;
 }

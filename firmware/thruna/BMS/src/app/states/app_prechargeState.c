@@ -23,29 +23,29 @@ static bool checkPrechargeFaults(
     }
 
     globals->precharge_limit_exceeded = globals->num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS;
-    App_CanAlerts_BMS_Fault_PrechargeFailure_Set(globals->precharge_limit_exceeded);
+    app_canAlerts_BMS_Fault_PrechargeFailure_set(globals->precharge_limit_exceeded);
 
     return has_precharge_fault;
 }
 
-static void preChargeStateRunOnEntry(struct StateMachine *const state_machine)
+static void preChargeStateRunOnEntry(void)
 {
-    App_CanTx_BMS_State_Set(BMS_PRECHARGE_STATE);
+    app_canTx_BMS_State_set(BMS_PRECHARGE_STATE);
     io_airs_closePrecharge();
 
     // Restart timers for checking if we're precharging too slow/quick.
-    App_Timer_Restart(&globals->precharge_lower_bound_timer);
-    App_Timer_Restart(&globals->precharge_upper_bound_timer);
+    app_timer_restart(&globals->precharge_lower_bound_timer);
+    app_timer_restart(&globals->precharge_upper_bound_timer);
 }
 
-static void preChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void preChargeStateRunOnTick1Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
+    app_allStates_runOnTick1Hz();
 }
 
-static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void preChargeStateRunOnTick100Hz(void)
 {
-    if (app_allStates_runOnTick100Hz(state_machine))
+    if (app_allStates_runOnTick100Hz())
     {
         float ts_voltage        = app_tractiveSystem_getVoltage();
         float threshold_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
@@ -54,10 +54,10 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         const bool is_air_negative_open = !io_airs_isNegativeClosed();
         const bool is_ts_rising_slowly =
             (ts_voltage < threshold_voltage) &&
-            (App_Timer_UpdateAndGetState(&globals->precharge_upper_bound_timer) == TIMER_STATE_EXPIRED);
+            (app_timer_updateAndGetState(&globals->precharge_upper_bound_timer) == TIMER_STATE_EXPIRED);
         const bool is_ts_rising_quickly =
             (ts_voltage > threshold_voltage) &&
-            (App_Timer_UpdateAndGetState(&globals->precharge_lower_bound_timer) == TIMER_STATE_RUNNING);
+            (app_timer_updateAndGetState(&globals->precharge_lower_bound_timer) == TIMER_STATE_RUNNING);
 
         const bool has_precharge_fault =
             checkPrechargeFaults(is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly, is_air_negative_open);
@@ -69,11 +69,11 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         {
             if (globals->precharge_limit_exceeded)
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
+                app_stateMachine_setNextState(app_faultState_get());
             }
             else
             {
-                App_SharedStateMachine_SetNextState(state_machine, app_initState_get());
+                app_stateMachine_setNextState(app_initState_get());
             }
         }
         // If there is no precharge fault and the charger is connected
@@ -81,7 +81,7 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         // Else close the AIRs+, reset fault counter and go to Drive State
         else if (ts_voltage >= threshold_voltage)
         {
-            const struct State *next_state;
+            const State *next_state;
             if (is_charger_connected)
             {
                 next_state = app_chargeState_get();
@@ -92,32 +92,32 @@ static void preChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             }
 
             globals->num_precharge_failures = 0U;
-            App_SharedStateMachine_SetNextState(state_machine, next_state);
+            app_stateMachine_setNextState(next_state);
             io_airs_closePositive();
         }
 
         if (is_air_negative_open && is_charger_connected)
         {
             // TODO: Consider reworking this transition.
-            App_SharedStateMachine_SetNextState(state_machine, app_faultState_get());
-            App_CanRx_Debug_StartCharging_Update(false);
-            App_CanAlerts_BMS_Fault_ChargerExternalShutdown_Set(!is_charger_connected);
+            app_stateMachine_setNextState(app_faultState_get());
+            app_canRx_Debug_StartCharging_update(false);
+            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(!is_charger_connected);
         }
     }
 }
 
-static void preChargeStateRunOnExit(struct StateMachine *const state_machine)
+static void preChargeStateRunOnExit(void)
 {
     // If we entered precharge to charge, disable this request on exit.
-    App_CanRx_Debug_StartCharging_Update(false);
+    app_canRx_Debug_StartCharging_update(false);
 
     // Open precharge relay.
     io_airs_openPrecharge();
 }
 
-const struct State *app_prechargeState_get(void)
+const State *app_prechargeState_get(void)
 {
-    static struct State pre_charge_state = {
+    static State pre_charge_state = {
         .name              = "PRECHARGE",
         .run_on_entry      = preChargeStateRunOnEntry,
         .run_on_tick_1Hz   = preChargeStateRunOnTick1Hz,

@@ -23,10 +23,10 @@ The main entry point is `generate_can_from_json.py`, and the paths to input JSON
 
 The generated C files are: 
 
-1. `Io_CanTx.h/c`: Functions for sending messages, at certain cycle times and asynchronously. Pulls the signal values to send from the CAN TX table in `App_CanTx.h/c`. 
-2. `App_CanTx.h/c`: Holds the CAN TX table, a big struct to hold the current data that is to be transmitted on the bus.
-3. `Io_CanRx.h/c`: Functions for receiving messages. One for filtering a message by ID (i.e. deciding if this node should respond) and another for unpacking a received message into the CAN RX table.
-4. `App_CanRx.h/c`: Holds the CAN RX table, a big struct to hold the current data that was received from the bus. 
+1. `io_canTx.h/c`: Functions for sending messages, at certain cycle times and asynchronously. Pulls the signal values to send from the CAN TX table in `app_canTx.h/c`. 
+2. `app_canTx.h/c`: Holds the CAN TX table, a big struct to hold the current data that is to be transmitted on the bus.
+3. `io_canRx.h/c`: Functions for receiving messages. One for filtering a message by ID (i.e. deciding if this node should respond) and another for unpacking a received message into the CAN RX table.
+4. `app_canRx.h/c`: Holds the CAN RX table, a big struct to hold the current data that was received from the bus. 
 
 ## Examples
 

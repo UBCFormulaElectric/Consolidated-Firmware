@@ -36,8 +36,6 @@ class BmsEepromTest : public testing::Test
         fake_io_eeprom_writePage_reset();
         fake_io_eeprom_pageErase_reset();
     }
-
-    void TearDown() override {}
 };
 
 TEST_F(BmsEepromTest, test_float_converted_to_bytes_full_page)

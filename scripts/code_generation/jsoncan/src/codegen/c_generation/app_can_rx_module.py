@@ -84,7 +84,7 @@ class AppCanRxModule(CModule):
         cw.add_line()
         cw.add_header_comment("Includes")
         cw.add_line()
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"app_canUtils.h"')
 
         # Add function prototypes
         cw.add_line()
@@ -108,7 +108,7 @@ class AppCanRxModule(CModule):
         cw.add_line()
         cw.add_include("<math.h>")
         cw.add_include("<string.h>")
-        cw.add_include('"App_CanRx.h"')
+        cw.add_include('"app_canRx.h"')
 
         if self._db.node_has_rx_msgs(self._node):
             # RX table struct

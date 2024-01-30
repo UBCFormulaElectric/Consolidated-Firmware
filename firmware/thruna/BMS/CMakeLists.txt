@@ -4,12 +4,10 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedClock.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_Timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedProcessing.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedRgbLedSequence.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_math.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -19,16 +17,12 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedPwmInput.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSpi.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS 
@@ -37,22 +31,16 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
 )
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "BMS_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
@@ -113,6 +101,18 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    # Autogenerate git commit info header/source.
+    set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.h")
+    set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.c")
+    commit_info_library(
+        "BMS_app.elf"
+        "BMS_commit_info"
+        "${COMMIT_INFO_HEADER_PATH}"
+        "${COMMIT_INFO_SRC_PATH}"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("BMS_can" "BMS_stm32cube")
     target_link_libraries("BMS_app.elf" "BMS_stm32cube" "BMS_can" "BMS_commit_info")
 
@@ -125,7 +125,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
 elseif("${TARGET}" STREQUAL "test")
-    set(HEADERS_TO_FAKE
+set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
@@ -158,5 +158,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "BMS_commit_info" "shared_fakes")
+    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "shared_fakes")
 endif()

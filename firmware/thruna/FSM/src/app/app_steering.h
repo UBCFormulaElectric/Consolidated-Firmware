@@ -6,6 +6,4 @@
 #define MIN_STEERING_ANGLE_DEG (-130.0f)
 #define MAX_STEERING_ANGLE_DEG (130.0f)
 
-void app_steering_init(void);
-void app_steering_destroy(void);
 void app_steering_broadcast(void);

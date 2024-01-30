@@ -1,10 +1,8 @@
 #pragma once
 
-#include "App_SharedHeartbeatMonitor.h"
-
 typedef struct
 {
-    struct HeartbeatMonitor *heartbeat_monitor;
+    int unused;
 } Globals;
 
 extern Globals *const globals;

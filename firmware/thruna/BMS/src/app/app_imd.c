@@ -3,9 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "App_CanUtils.h"
-#include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_canUtils.h"
+#include "app_canTx.h"
+#include "app_utils.h"
 
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 
@@ -160,13 +160,13 @@ float app_imd_getPwmDutyCycle()
 
 void app_imd_broadcast()
 {
-    App_CanTx_BMS_ImdFrequency_Set(app_imd_getPwmFrequency());
-    App_CanTx_BMS_ImdDutyCycle_Set(app_imd_getPwmDutyCycle());
-    App_CanTx_BMS_ImdSecondsSincePowerOn_Set(io_imd_getTimeSincePowerOn());
+    app_canTx_BMS_ImdFrequency_set(app_imd_getPwmFrequency());
+    app_canTx_BMS_ImdDutyCycle_set(app_imd_getPwmDutyCycle());
+    app_canTx_BMS_ImdSecondsSincePowerOn_set(io_imd_getTimeSincePowerOn());
 
     const ImdCondition condition = app_imd_getCondition();
-    App_CanTx_BMS_ImdCondition_Set((uint8_t)condition.name);
-    App_CanTx_BMS_ImdValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
+    app_canTx_BMS_ImdCondition_set((uint8_t)condition.name);
+    app_canTx_BMS_ImdValidDutyCycle_set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
@@ -174,9 +174,9 @@ void app_imd_broadcast()
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Set(
+                app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMS_ImdActiveFrequency_Set(IMD_10Hz);
+                app_canTx_BMS_ImdActiveFrequency_set(IMD_10Hz);
             }
         }
         break;
@@ -184,15 +184,15 @@ void app_imd_broadcast()
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Set(
+                app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMS_ImdActiveFrequency_Set(IMD_20Hz);
+                app_canTx_BMS_ImdActiveFrequency_set(IMD_20Hz);
             }
         }
         break;
         case IMD_SST:
         {
-            App_CanTx_BMS_ImdSpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
+            app_canTx_BMS_ImdSpeedStartStatus30Hz_set(condition.pwm_encoding.speed_start_status);
         }
         break;
         default:

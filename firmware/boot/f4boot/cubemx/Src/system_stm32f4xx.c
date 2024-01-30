@@ -448,7 +448,7 @@ void SystemInit_ExtMemCtl(void)
  */
 void SystemInit_ExtMemCtl(void)
 {
-    __IO uint32_t          tmp    = 0x00;
+    __IO uint32_t tmp = 0x00;
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 #if defined(DATA_IN_ExtSDRAM)
@@ -608,10 +608,10 @@ void SystemInit_ExtMemCtl(void)
 #if defined(STM32F446xx)
     FMC_Bank5_6->SDCMR = 0x000000F3;
 #else
-    FMC_Bank5_6->SDCMR   = 0x00000073;
+    FMC_Bank5_6->SDCMR = 0x00000073;
 #endif /* STM32F446xx */
-    tmpreg             = FMC_Bank5_6->SDSR & 0x00000020;
-    timeout            = 0xFFFF;
+    tmpreg  = FMC_Bank5_6->SDSR & 0x00000020;
+    timeout = 0xFFFF;
     while ((tmpreg != 0) && (timeout-- > 0))
     {
         tmpreg = FMC_Bank5_6->SDSR & 0x00000020;
@@ -621,21 +621,21 @@ void SystemInit_ExtMemCtl(void)
 #if defined(STM32F446xx)
     FMC_Bank5_6->SDCMR = 0x00044014;
 #else
-    FMC_Bank5_6->SDCMR   = 0x00046014;
+    FMC_Bank5_6->SDCMR = 0x00046014;
 #endif /* STM32F446xx */
-    tmpreg             = FMC_Bank5_6->SDSR & 0x00000020;
-    timeout            = 0xFFFF;
+    tmpreg  = FMC_Bank5_6->SDSR & 0x00000020;
+    timeout = 0xFFFF;
     while ((tmpreg != 0) && (timeout-- > 0))
     {
         tmpreg = FMC_Bank5_6->SDSR & 0x00000020;
     }
 
     /* Set refresh count */
-    tmpreg             = FMC_Bank5_6->SDRTR;
+    tmpreg = FMC_Bank5_6->SDRTR;
 #if defined(STM32F446xx)
     FMC_Bank5_6->SDRTR = (tmpreg | (0x0000050C << 1));
 #else
-    FMC_Bank5_6->SDRTR   = (tmpreg | (0x0000027C << 1));
+    FMC_Bank5_6->SDRTR = (tmpreg | (0x0000027C << 1));
 #endif /* STM32F446xx */
 
     /* Disable write protection */

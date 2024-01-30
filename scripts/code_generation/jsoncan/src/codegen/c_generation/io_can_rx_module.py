@@ -96,7 +96,7 @@ class IoCanRxModule(CModule):
         cw.add_line()
         cw.add_include("<stdint.h>")
         cw.add_include("<stdbool.h>")
-        cw.add_include('"Io_CanTx.h"')
+        cw.add_include('"io_canTx.h"')
 
         # Add function prototypes
         cw.add_line()
@@ -118,9 +118,9 @@ class IoCanRxModule(CModule):
         # Add includes
         cw.add_header_comment("Includes")
         cw.add_line()
-        cw.add_include('"Io_CanRx.h"')
-        cw.add_include('"App_CanRx.h"')
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"io_canRx.h"')
+        cw.add_include('"app_canRx.h"')
+        cw.add_include('"app_canUtils.h"')
 
         # Add function definitions
         cw.add_line()
