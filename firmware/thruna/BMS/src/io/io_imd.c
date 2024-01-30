@@ -4,28 +4,28 @@
 #include "hw_pwmInput.h"
 #include "io_time.h"
 
-static PwmInput *pwm_input;
+static PwmInput pwm_input;
 
 void io_imd_init(const PwmInputConfig *pwm_input_config)
 {
-    io_pwmInput_init(pwm_input, pwm_input_config);
+    io_pwmInput_init(&pwm_input, pwm_input_config);
 }
 
 float io_imd_getFrequency(void)
 {
-    return hw_pwmInput_getFrequency(pwm_input);
+    return hw_pwmInput_getFrequency(&pwm_input);
 }
 
 float io_imd_getDutyCycle(void)
 {
-    return hw_pwmInput_getDutyCycle(pwm_input);
+    return hw_pwmInput_getDutyCycle(&pwm_input);
 }
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == pwm_input->config->htim)
+    if (htim == pwm_input.config->htim)
     {
-        hw_pwmInput_tick(pwm_input);
+        hw_pwmInput_tick(&pwm_input);
     }
 }
 

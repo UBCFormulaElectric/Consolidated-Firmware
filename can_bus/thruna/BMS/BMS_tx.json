@@ -46,7 +46,7 @@
                 "bits": 1
             },
             "ImdCondition": {
-                "enum": "ImdCondition"
+                "enum": "ImdConditionName"
             },
             "ImdDutyCycle": {
                 "bits": 8,

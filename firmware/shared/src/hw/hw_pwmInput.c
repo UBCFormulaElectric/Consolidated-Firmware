@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include "hw_pwmInput.h"
 
+static uint8_t pwm_counter = 0;
+
+uint8_t pwm_counter_tick(void)
+{
+    if (pwm_counter != PWM_TICKS_MAX)
+    {
+        pwm_counter++;
+        return pwm_counter;
+    }
+    return pwm_counter;
+}
+
 void io_pwmInput_init(PwmInput *pwm_input, const PwmInputConfig *config)
 {
     assert(pwm_input != NULL);
@@ -29,6 +41,7 @@ void hw_pwmInput_tick(PwmInput *pwm_input)
         pwm_input->duty_cycle   = 0.0f;
         pwm_input->frequency_hz = 0.0f;
     }
+    pwm_counter = 0; // Reset the ticks since the last pwm reading
 }
 
 float hw_pwmInput_getDutyCycle(const PwmInput *pwm_input)

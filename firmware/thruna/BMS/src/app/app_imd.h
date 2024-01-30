@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <app_canUtils.h>
+
+#define NUM_OF_IMD_CONDITIONS 6
 
 // States for speed start measurement
 typedef enum
@@ -10,18 +13,6 @@ typedef enum
     SST_BAD,
     SST_INVALID
 } ImdSst;
-
-typedef enum
-{
-    IMD_SHORT_CIRCUIT,
-    IMD_NORMAL,
-    IMD_UNDERVOLTAGE_DETECTED,
-    IMD_SST,
-    IMD_DEVICE_ERROR,
-    IMD_GROUND_FAULT,
-    NUM_OF_IMD_CONDITIONS,
-    IMD_INVALID = NUM_OF_IMD_CONDITIONS,
-} ImdConditionName;
 
 // The IMD has an PWM output that encodes information about the IMD condition:
 //   - The frequency encodes a name
