@@ -25,7 +25,7 @@ void CanRXTask()
             switch (get<CanReadError>(res))
             {
                 case ReadInterfaceNotCreated:
-                    qWarning("Can interface not created");
+                    qWarning("[task_CAN] Can interface not created");
                     return;
                 case Timeout:
                 case SocketReadError:
@@ -44,7 +44,7 @@ void CanRXTask()
         io_canRx_updateRxTableWithMessage(&message);
         can_table_mutex.unlock();
     }
-    std::cout << "exiting CanRXTask now" << std::endl;
+    qInfo("[task_CAN] exiting CanRXTask now");
 }
 
 void CanPeriodicTXTask()
@@ -58,7 +58,7 @@ void CanPeriodicTXTask()
         can_table_mutex.unlock();
         QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
-    std::cout << "exiting CanPeriodicTXTask now" << std::endl;
+    qInfo("[task_CAN] exiting CanPeriodicTXTask now");
 }
 
 void CanTx100Hz()

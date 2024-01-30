@@ -1,18 +1,23 @@
 #include "gpio.h"
+
 #include <iostream>
 #include <array>
+#include <qlogging.h>
 
-// PUBLIC FUNCTIONS
+#include "dev_io_utils.h"
+
+using std::cout, std::endl;
 
 std::array<bool, GPIO_COUNT> gpio_init()
 {
     std::array<bool, GPIO_COUNT> out{};
-    std::fill(out.begin(), out.end(), true); // tell the caller that all GPIOs are errored
+    std::fill(out.begin(), out.end(), false);
     return out;
 }
 
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i)
 {
-    std::cout << "Requested GPIO Input DEV" << std::endl;
-    return RISING_EDGE; // shouldn't ever be read
+    wait_delegate_thread();
+    qInfo("[dev_GPIO] Requested %s, responding with DEV_DUMMY_DATA", GPIO_inputs_info.at(i).enum_name.c_str());
+    return DEV_DUMMY_DATA;
 }
