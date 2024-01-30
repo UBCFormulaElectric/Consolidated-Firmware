@@ -5,6 +5,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
 
     set(src_location "${commit_info_directory}/app_commitInfo.c")
     set(header_location "${commit_info_directory}/app_commitInfo.h")
+    set(GENERATE_COMMIT_INFO_SCRIPT_PY ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
 
     set(COMMIT_INFO_SRC ${src_location} PARENT_SCOPE)
     set(COMMIT_INFO_INCLUDE_DIR ${commit_info_directory} PARENT_SCOPE)
@@ -17,27 +18,20 @@ function(commit_info_generate_sources bind_target commit_info_directory)
         return()
     endif()
 
-    set(GENERATE_COMMIT_INFO_SCRIPT_PY ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
-    if (${USE_COMMIT_INFO} STREQUAL "MINIMAL")
-        execute_process(COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
+    execute_process(
+        COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
+        --output-header ${header_location}
+        --output-source ${src_location}
+        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    )
+
+    if (${USE_COMMIT_INFO} STREQUAL "ON")
+        add_custom_command( # we create this one so that it updates the file every build
+            TARGET ${bind_target}
+            COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
             --output-header ${header_location}
             --output-source ${src_location}
-            WORKING_DIRECTORY ${REPO_ROOT_DIR})
-        return ()
+            WORKING_DIRECTORY ${REPO_ROOT_DIR}
+        )
     endif ()
-
-    add_custom_command( # we create this one so that it updates the file every build
-        TARGET ${bind_target}
-        COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
-        --output-header ${header_location}
-        --output-source ${src_location}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )
-    add_custom_command(
-        OUTPUT ${header_location} ${src_location}
-        COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
-        --output-header ${header_location}
-        --output-source ${src_location}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )
 endfunction()

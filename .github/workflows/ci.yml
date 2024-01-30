@@ -225,7 +225,7 @@ jobs:
 
       - name: Build (Thruna)
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run Tests (Thruna)
@@ -269,7 +269,7 @@ jobs:
 
       - name: Build (Quadruna)
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=quadruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=quadruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run Tests (Quadruna)
@@ -303,7 +303,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -337,7 +337,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests
