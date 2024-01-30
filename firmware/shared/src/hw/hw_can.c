@@ -31,29 +31,6 @@
 
 static CanHandle *handle;
 
-static void defaultCan0MsgRecievecallback(void)
-{
-    CanMsg rx_msg;
-    if (!hw_can_receive(CAN_RX_FIFO0, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    io_can_msgReceivedCallback(CAN_RX_FIFO0, &rx_msg);
-}
-
-static void defaultCan1MsgRecievecallback(void)
-{
-    CanMsg rx_msg;
-    if (!hw_can_receive(CAN_RX_FIFO1, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-    io_can_msgReceivedCallback(CAN_RX_FIFO1, &rx_msg);
-}
-
 void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
@@ -82,10 +59,8 @@ void hw_can_init(CanHandle *can_handle)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    if (!handle->can0MsgRecievecallback)
-        handle->can0MsgRecievecallback = defaultCan0MsgRecievecallback;
-    if (!handle->can1MsgRecievecallback)
-        handle->can1MsgRecievecallback = defaultCan1MsgRecievecallback;
+    if (!handle->canMsgRecievecallback)
+        handle->canMsgRecievecallback = io_can_msgReceivedCallback;
 }
 
 void hw_can_deinit()
@@ -143,10 +118,24 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 
 void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
-    handle->can0MsgRecievecallback();
+    CanMsg rx_msg;
+    if (!hw_can_receive(RxFifo0ITs, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->canMsgRecievecallback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
-    handle->can1MsgRecievecallback();
+    CanMsg rx_msg;
+    if (!hw_can_receive(RxFifo1ITs, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->canMsgRecievecallback(&rx_msg);
 }
