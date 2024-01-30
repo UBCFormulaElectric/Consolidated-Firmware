@@ -82,41 +82,41 @@ void        StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
-int lfs_erase(const struct lfs_config *c, lfs_block_t block);
-int lfs_sync(const struct lfs_config *c);
+int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
+int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
+int io_lfs_erase(const struct lfs_config *c, lfs_block_t block);
+int io_lfs_sync(const struct lfs_config *c);
 
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
+int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
     SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
 
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
+int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
     SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_erase(const struct lfs_config *c, lfs_block_t block)
+int io_lfs_erase(const struct lfs_config *c, lfs_block_t block)
 {
     SdCardStatus status = hw_sd_erase(sd, (uint32_t)block, (uint32_t)block);
     return (status != SD_CARD_OK) ? 0 : 1;
 }
 
-int lfs_sync(const struct lfs_config *c)
+int io_lfs_sync(const struct lfs_config *c)
 {
     return 0;
 }
 
 struct lfs_config cfg = {
     // block device operations
-    .read  = lfs_read,
-    .prog  = lfs_prog,
-    .erase = lfs_erase,
-    .sync  = lfs_sync,
+    .read  = io_lfs_read,
+    .prog  = io_lfs_prog,
+    .erase = io_lfs_erase,
+    .sync  = io_lfs_sync,
 
     // block device configuration
     .read_size        = 16,
