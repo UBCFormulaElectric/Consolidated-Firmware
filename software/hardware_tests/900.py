@@ -9,8 +9,8 @@ def main():
     try:
         while True:
             msg = "hello lara\n"
-            print(msg)
             send_msg(ser,msg)
+            print(msg)
 
 
     except KeyboardInterrupt:
