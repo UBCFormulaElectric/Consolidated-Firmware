@@ -4,29 +4,6 @@
 
 static CanHandle *handle;
 
-static void defaultCan0MsgRecievecallback(void)
-{
-    CanMsg rx_msg;
-    if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO0, &rx_msg);
-}
-
-static void defaultCan1MsgRecievecallback(void)
-{
-    CanMsg rx_msg;
-    if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-    io_can_msgReceivedCallback(FDCAN_RX_FIFO1, &rx_msg);
-}
-
 void hw_can_init(CanHandle *can_handle)
 {
     handle = can_handle;
@@ -51,10 +28,8 @@ void hw_can_init(CanHandle *can_handle)
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
 
-    if (!handle->can0MsgRecievecallback)
-        handle->can0MsgRecievecallback = defaultCan0MsgRecievecallback;
-    if (!handle->can1MsgRecievecallback)
-        handle->can1MsgRecievecallback = defaultCan1MsgRecievecallback;
+    if (!handle->canMsgRecievecallback)
+        handle->canMsgRecievecallback = io_can_msgReceivedCallback;
 }
 
 void hw_can_deinit()
@@ -96,12 +71,26 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
-    handle->can0MsgRecievecallback();
+    CanMsg rx_msg;
+    if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->canMsgRecievecallback(&rx_msg);
 }
 
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
-    handle->can1MsgRecievecallback();
+    CanMsg rx_msg;
+    if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->canMsgRecievecallback(&rx_msg);
 }

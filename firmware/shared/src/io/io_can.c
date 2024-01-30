@@ -72,7 +72,7 @@ void io_can_popRxMsgFromQueue(CanMsg *msg)
     osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
 }
 
-void io_can_msgReceivedCallback(uint32_t rx_fifo, CanMsg *rx_msg)
+void io_can_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 

@@ -65,9 +65,8 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 static CanHandle can = {
-    .can                    = &hcan1,
-    .can0MsgRecievecallback = NULL,
-    .can1MsgRecievecallback = NULL,
+    .can                   = &hcan1,
+    .canMsgRecievecallback = NULL,
 };
 // config to forward can functions to shared heartbeat
 // FSM rellies on BMS
