@@ -81,7 +81,7 @@ const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { LINE_
                                                                            "[main_GPIO] Line Setup Error" } };
 static std::optional<std::unique_ptr<QThread>> gpio_monitor_threads[GPIO_COUNT];
 
-static QThread *GPIO_TEST_THREAD;
+static std::unique_ptr<QThread>          GpioThread;
 
 Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
 {
@@ -105,10 +105,10 @@ Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplication
     // }
     // if (has_gpio_err)
     //     return LINE_SETUP_ERROR;
-    GPIO_TEST_THREAD = QThread::create(&gpio_handlers::gpio_monitor, GPIO1);
-    GPIO_TEST_THREAD->start();
-    qInfo("%d", GPIO_TEST_THREAD->isRunning());
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, GPIO_TEST_THREAD, &QThread::requestInterruption);
+    GpioThread = std::unique_ptr<QThread>(QThread::create(&gpio_handlers::gpio_monitor, GPIO1));
+    GpioThread->start();
+    qInfo("%d", GpioThread->isRunning());
+    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, GpioThread.get(), &QThread::requestInterruption);
     qInfo("[main_GPIO] GPIO Threads Sucessfully Initialized");
     return std::monostate{};
 }
