@@ -119,11 +119,11 @@ void io_canLogging_recordMsgFromQueue(void)
     }
     static uint32_t message_written = 0;
     message_written++;
+    // write the buffer to the storage
     if (message_written >= (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
     {
         message_written = 0;
-        lfs_file_close(&lfs, &file);
-        lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+        lfs_file_sync(&lfs, &file);
     }
 }
 
