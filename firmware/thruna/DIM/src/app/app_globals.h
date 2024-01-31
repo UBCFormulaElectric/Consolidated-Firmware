@@ -23,7 +23,6 @@ typedef struct
 typedef struct
 {
     const GlobalsConfig     *config;
-    struct HeartbeatMonitor *heartbeat_monitor;
 } Globals;
 
 extern Globals *const globals;
