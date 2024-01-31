@@ -11,9 +11,16 @@
 #include "app_avgPower.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "io_time.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
+    uint8_t *fault_array   = globals->fault_code_array;
+    uint8_t *warning_array = globals->warning_code_array;
+    uint8_t  element_num   = globals->element_num;
+    uint32_t current_time  = io_time_getCurrentMs();
+    uint32_t previous_time = globals->previous_time;
+
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
 
@@ -45,7 +52,6 @@ static void mainStateRunOnTick100Hz(void)
         [BMS_LED] = BMS_ALERT_BOARD, [DCM_LED] = DCM_ALERT_BOARD, [DIM_LED] = DIM_ALERT_BOARD,
         [FSM_LED] = FSM_ALERT_BOARD, [PDM_LED] = PDM_ALERT_BOARD,
     };
-
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         const RgbLed *board_status_led = board_status_leds[i];
@@ -53,11 +59,13 @@ static void mainStateRunOnTick100Hz(void)
         if (app_canAlerts_BoardHasFault(alert_board_ids[i]))
         {
             // Turn red.
+            globals->fault_element_num += app_canAlerts_FaultCode(alert_board_ids[i], fault_array);
             io_rgbLed_enable(board_status_led, true, false, false);
         }
         else if (app_canAlerts_BoardHasWarning(alert_board_ids[i]))
         {
             // Turn blue.
+            globals->warning_element_num += app_canAlerts_WarningCode(alert_board_ids[i], warning_array);
             io_rgbLed_enable(board_status_led, false, false, true);
         }
         else
@@ -71,6 +79,9 @@ static void mainStateRunOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
+    uint8_t fault_num   = globals->fault_element_num;
+    uint8_t warning_num = globals->warning_element_num;
+
     const float avg_rpm =
         ((float)abs(app_canRx_INVL_MotorSpeed_get()) + (float)abs(app_canRx_INVR_MotorSpeed_get())) / 2;
     const float speed_kph = MOTOR_RPM_TO_KMH(avg_rpm);
@@ -79,8 +90,40 @@ static void mainStateRunOnTick100Hz(void)
         app_canRx_BMS_TractiveSystemVoltage_get() * app_canRx_BMS_TractiveSystemCurrent_get() / 1000.0f; // instant kW
 
     const float min_cell_voltage = app_canRx_BMS_MinCellVoltage_get();
+    uint32_t    time_difference  = current_time - previous_time;
 
-    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+    if (globals->fault_in_car)
+    {
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
+        globals->element_num++;
+    }
+
+    else if (time_difference > 2000 && time_difference < 2500)
+    {
+        if (fault_num > 0)
+        {
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
+            globals->element_num  = 0;
+            globals->fault_in_car = true;
+        }
+
+        else if (element_num < warning_num)
+        {
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
+        }
+
+        else
+        {
+            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+            globals->element_num = 0;
+        }
+        globals->previous_time = previous_time;
+    }
+
+    else
+    {
+        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+    }
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
 }
