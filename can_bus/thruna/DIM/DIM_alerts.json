@@ -4,19 +4,19 @@
     "warnings_counts_id": 550,
     "faults_counts_id": 551,
     "warnings": {
-        "StackWaterMarkHighTask1Hz": 401,
-        "StackWaterMarkHighTask100Hz": 402,
-        "StackWaterMarkHighTask1kHz": 403,
-        "StackWaterMarkHighTaskCanRx": 404,
-        "StackWaterMarkHighTaskCanTx": 405,
-        "WatchdogTimeout": 406,
-        "TxOverflow": 407,
-        "RxOverflow": 408
+        "StackWaterMarkHighTask1Hz": "description",
+        "StackWaterMarkHighTask100Hz": "description",
+        "StackWaterMarkHighTask1kHz": "description",
+        "StackWaterMarkHighTaskCanRx": "description",
+        "StackWaterMarkHighTaskCanTx": "description",
+        "WatchdogTimeout": "description",
+        "TxOverflow": "description",
+        "RxOverflow": "description"
     },
     "faults": {
-        "MissingBMSHeartbeat": 451,
-        "MissingFSMHeartbeat":452,
-        "MissingPDMHeartbeat":453,
-        "MissingDCMHeartbeat":454
+        "MissingBMSHeartbeat": "description",
+        "MissingFSMHeartbeat":"description",
+        "MissingPDMHeartbeat":"description",
+        "MissingDCMHeartbeat":"description"
     }
 }

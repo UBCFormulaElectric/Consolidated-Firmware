@@ -198,7 +198,7 @@ class BmsFaultTest : public BaseStateMachineTest
     void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *   clock = App_BmsWorld_GetClock(world);
+        struct Clock    *clock = App_BmsWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
     }
 
@@ -209,24 +209,24 @@ class BmsFaultTest : public BaseStateMachineTest
         UNUSED(current_time_ms);
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
+    struct World             *world;
+    struct StateMachine      *state_machine;
     struct BmsCanTxInterface *can_tx_interface;
     struct BmsCanRxInterface *can_rx_interface;
-    struct Imd *              imd;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
-    struct Charger *          charger;
-    struct OkStatus *         bms_ok;
-    struct OkStatus *         imd_ok;
-    struct OkStatus *         bspd_ok;
-    struct Accumulator *      accumulator;
-    struct SocStats *         soc_stats;
-    struct Airs *             airs;
-    struct PrechargeRelay *   precharge_relay;
-    struct TractiveSystem *   ts;
-    struct Clock *            clock;
-    struct Eeprom *           eeprom;
+    struct Imd               *imd;
+    struct HeartbeatMonitor  *heartbeat_monitor;
+    struct RgbLedSequence    *rgb_led_sequence;
+    struct Charger           *charger;
+    struct OkStatus          *bms_ok;
+    struct OkStatus          *imd_ok;
+    struct OkStatus          *bspd_ok;
+    struct Accumulator       *accumulator;
+    struct SocStats          *soc_stats;
+    struct Airs              *airs;
+    struct PrechargeRelay    *precharge_relay;
+    struct TractiveSystem    *ts;
+    struct Clock             *clock;
+    struct Eeprom            *eeprom;
 };
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
