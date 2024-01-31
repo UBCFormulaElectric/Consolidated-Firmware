@@ -60,7 +60,6 @@ class JsonCanParser:
             msgs=self._messages.values(),
             shared_enums=self._shared_enums,
             alerts=self._alerts,
-            descriptions=self._alert_descriptions
         )
 
     def _parse_json_data(self, dir: str):

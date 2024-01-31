@@ -207,11 +207,8 @@ class CanDatabase:
     msgs: List[CanMessage]  # All messages being sent to the bus
     shared_enums: List[CanEnum]  # Enums used by all nodes
     alerts: Dict[
-        str, Dict[CanAlert,int]
-    ]  # Dictionary of node to list of alerts set by node
-    descriptions: Dict[
         str, Dict[CanAlert,str]
-    ]
+    ]  # Dictionary of node to list of alerts set by node
 
     def tx_msgs_for_node(self, tx_node: str) -> List[CanMessage]:
         """
