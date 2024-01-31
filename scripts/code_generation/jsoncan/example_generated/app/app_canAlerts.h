@@ -20,7 +20,6 @@ typedef enum
 
 typedef struct
 {
-    uint8_t id;
     char* description;
     char* name;
 } Fault_Warning_Info;
