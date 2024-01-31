@@ -24,13 +24,6 @@ typedef struct
 {
     const GlobalsConfig     *config;
     struct HeartbeatMonitor *heartbeat_monitor;
-    uint32_t                 previous_time;
-    uint8_t                 *fault_code_array;
-    uint8_t                 *warning_code_array;
-    uint8_t                  fault_element_num;
-    uint8_t                  warning_element_num;
-    uint8_t                  element_num;
-    bool                     fault_in_car;
 } Globals;
 
 extern Globals *const globals;
