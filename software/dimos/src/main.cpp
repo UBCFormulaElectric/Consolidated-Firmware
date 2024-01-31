@@ -77,38 +77,33 @@ enum GPIO_setup_errors
 {
     LINE_SETUP_ERROR
 };
-const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { LINE_SETUP_ERROR,
-                                                                           "[main_GPIO] Line Setup Error" } };
-static std::optional<std::unique_ptr<QThread>> gpio_monitor_threads[GPIO_COUNT];
-
-static std::unique_ptr<QThread>          GpioThread;
+const std::map<GPIO_setup_errors, std::string>                         GPIO_setup_errors_str = { { LINE_SETUP_ERROR,
+                                                                                                   "[main_GPIO] Line Setup Error" } };
+static std::array<std::optional<std::unique_ptr<QThread>>, GPIO_COUNT> gpio_monitor_threads;
 
 Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
 {
-    // const std::array<bool, GPIO_COUNT> gpio_has_err = gpio_init();
-    // bool                               has_gpio_err = false;
-    // for (int i = 0; i < GPIO_COUNT; i++)
-    // {
-    //     const auto GPIO_ENUM = static_cast<gpio_input>(i);
-    //     if (gpio_has_err[i])
-    //     {
-    //         has_gpio_err = true;
-    //         continue;
-    //     }
-    //     gpio_monitor_threads[i] = std::make_unique<QThread>(QThread::create(&gpio_handlers::gpio_monitor,
-    //     GPIO_ENUM));
-    //     QObject::connect(
-    //         engine_ref, &QQmlApplicationEngine::quit, gpio_monitor_threads[i].value().get(),
-    //         &QThread::requestInterruption);
-    //     qInfo("[main_GPIO] Started Thread for %s", GPIO_inputs_info.at(GPIO_ENUM).enum_name.c_str());
-    //     gpio_monitor_threads[i].value()->start();
-    // }
-    // if (has_gpio_err)
-    //     return LINE_SETUP_ERROR;
-    GpioThread = std::unique_ptr<QThread>(QThread::create(&gpio_handlers::gpio_monitor, GPIO1));
-    GpioThread->start();
-    qInfo("%d", GpioThread->isRunning());
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, GpioThread.get(), &QThread::requestInterruption);
+    const std::array<bool, GPIO_COUNT> gpio_has_err = gpio_init();
+    bool                               has_gpio_err = false;
+    for (int i = 0; i < GPIO_COUNT; i++)
+    {
+        const auto GPIO_ENUM = static_cast<gpio_input>(i);
+        if (gpio_has_err[i])
+        {
+            has_gpio_err = true;
+            continue;
+        }
+        gpio_monitor_threads[i] = std::unique_ptr<QThread>(QThread::create(&gpio_handlers::gpio_monitor, GPIO_ENUM));
+        gpio_monitor_threads[i].value()->start();
+        QObject::connect(
+            engine_ref, &QQmlApplicationEngine::quit, gpio_monitor_threads[i].value().get(),
+            &QThread::requestInterruption);
+    }
+
+    if (has_gpio_err)
+    {
+        return LINE_SETUP_ERROR;
+    }
     qInfo("[main_GPIO] GPIO Threads Sucessfully Initialized");
     return std::monostate{};
 }
