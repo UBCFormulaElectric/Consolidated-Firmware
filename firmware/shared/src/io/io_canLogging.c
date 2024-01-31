@@ -19,8 +19,8 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 #define QUEUE_SIZE 20
 static uint32_t current_bootcount;
 
-static lfs_t      lfs;
-static lfs_file_t file;
+static lfs_t             lfs;
+static lfs_file_t        file;
 static struct lfs_config cfg;
 
 extern SdCard sd;
@@ -124,7 +124,6 @@ void io_canLogging_recordMsgFromQueue(void)
         message_written = 0;
         lfs_file_close(&lfs, &file);
         lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-
     }
 }
 
