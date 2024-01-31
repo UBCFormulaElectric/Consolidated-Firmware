@@ -240,7 +240,6 @@ class AppCanAlertsModule(CModule):
         cw.add_line()
                     
         fault_warining_struct = CStruct(CTypesConfig.CAN_ALERT_INFO)
-        fault_warining_struct.add_member(CVar("id",type="uint8_t"))
         fault_warining_struct.add_member(CVar("description","char*"))
         fault_warining_struct.add_member(CVar("name", "char*"))
         
