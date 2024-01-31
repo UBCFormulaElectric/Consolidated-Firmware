@@ -496,11 +496,10 @@ void runCanRxTask(void *argument)
     /* USER CODE BEGIN runCanRxTask */
     /* Infinite loop */
     for (;;)
-    {   
+    {
         CanMsg msg;
         io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
-    
     }
     /* USER CODE END runCanRxTask */
 }
