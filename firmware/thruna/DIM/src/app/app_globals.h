@@ -22,7 +22,7 @@ typedef struct
 
 typedef struct
 {
-    const GlobalsConfig     *config;
+    const GlobalsConfig *config;
 } Globals;
 
 extern Globals *const globals;
