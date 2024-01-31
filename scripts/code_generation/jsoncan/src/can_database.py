@@ -185,19 +185,6 @@ class CanAlertType(StrEnum):
     WARNING = "Warning"  # Warnings sent periodically, for notifying driver
     FAULT = "Fault"  # Faults sent periodically, contactors open if a fault is set
     
-    
-class BoardNumbering (StrEnum):
-    
-    """
-    Enum for the possible boards that can be faulting or sending a warning
-    """
-    
-    BMS = "1" #The numbering is associated with the order of LED on the DIM
-    FSM = "2"
-    DCM = "3"
-    DIM = "4"
-    PDM = "5"
-    JCT = "6"
 
 @dataclass(frozen=True)
 class CanAlert:
@@ -270,13 +257,15 @@ class CanDatabase:
             else []
         )
         
-    def node_id_codes(self, node: str, alert_type :CanAlert) -> Dict[str,tuple[int, str]]:
+    def node_name_description(self, node: str, alert_type :CanAlert) -> Dict[str, str]:
+        
+        "Returns a dictionary containing a the alert names as the key and a description as the item"
         
         return(
             {
                 alert.name:
-                (code_id,self.descriptions[node][alert])
-                for alert, code_id in self.alerts[node].items()
+                description
+                for alert, description in self.alerts[node].items()
                 if alert.alert_type == alert_type
             }
             if node in self.alerts

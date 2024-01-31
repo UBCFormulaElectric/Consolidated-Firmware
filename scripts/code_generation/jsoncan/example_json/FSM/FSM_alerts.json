@@ -4,19 +4,10 @@
     "warnings_counts_id": 43,
     "faults_counts_id": 44,
     "warnings": {
-        "Warning_Test1" :{
-            "id" :2059,
-            "description" : "Example"
-        },
-        "Warning_Test2" : {
-            "id" :2069,
-            "description" : "Example"
-        }
+        "Warning_Test1" : "Example",
+        "Warning_Test2" : "Example"
     },
     "faults": {
-        "Fault_Test3": {
-            "id" :3000,
-            "description" : "Example"
-        }
+        "Fault_Test3": "Example"
     }
 }

@@ -12,8 +12,8 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 
-void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert)
 
+void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert)
 {
     // Increment alert counter.
     if (set_alert && !app_canTx_JCT_Warning_Warning_Test_get())
@@ -115,30 +115,27 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t App_CanAlerts_WarningCode(Fault_Warning_Info *alert_array)
+uint8_t app_canAlerts_WarningCode(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     
-    if (App_CanRx_FSM_Warning_Warning_Test1_Get())
+    if (app_canRx_FSM_Warning_Warning_Test1_get())
     {
         alert_array[element_num].name = "FSM_Warning_Warning_Test1";
-        alert_array[element_num].id = 2059;
         alert_array[element_num].description = "Example";
         element_num++;
     }
     
-    if (App_CanRx_FSM_Warning_Warning_Test2_Get())
+    if (app_canRx_FSM_Warning_Warning_Test2_get())
     {
         alert_array[element_num].name = "FSM_Warning_Warning_Test2";
-        alert_array[element_num].id = 2069;
         alert_array[element_num].description = "Example";
         element_num++;
     }
     
-    if (App_CanTx_JCT_Warning_Warning_Test_Get())
+    if (app_canTx_JCT_Warning_Warning_Test_get())
     {
         alert_array[element_num].name = "JCT_Warning_Warning_Test";
-        alert_array[element_num].id = 2059;
         alert_array[element_num].description = "Example";
         element_num++;
     }
@@ -147,14 +144,13 @@ uint8_t App_CanAlerts_WarningCode(Fault_Warning_Info *alert_array)
     
 }
 
-uint8_t App_CanAlerts_FaultCode(Fault_Warning_Info *alert_array)
+uint8_t app_canAlerts_FaultCode(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     
-    if (App_CanRx_FSM_Fault_Fault_Test3_Get())
+    if (app_canRx_FSM_Fault_Fault_Test3_get())
     {
         alert_array[element_num].name = "FSM_Fault_Fault_Test3";
-        alert_array[element_num].id = 3000;
         alert_array[element_num].description = "Example";
         element_num++;
     }
