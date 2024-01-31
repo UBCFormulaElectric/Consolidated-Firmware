@@ -177,25 +177,12 @@ class JsonCanParser:
                 self._alerts[node] ={
                     **{
                         CanAlert(alert.name, CanAlertType.WARNING):
-                        warinings_meta_data[alert.name]["id"]
+                        warinings_meta_data[alert.name]
                         for alert in warnings.signals
                     },
                     **{
                         CanAlert(alert.name, CanAlertType.FAULT):
-                        faults_meta_data[alert.name]["id"]
-                        for alert in faults.signals
-                    },
-                }
-                
-                self._alert_descriptions[node] ={
-                    **{
-                        CanAlert(alert.name, CanAlertType.WARNING):
-                        warinings_meta_data[alert.name]["description"]
-                        for alert in warnings.signals
-                    },
-                    **{
-                        CanAlert(alert.name, CanAlertType.FAULT):
-                        faults_meta_data[alert.name]["description"]
+                        faults_meta_data[alert.name]
                         for alert in faults.signals
                     },
                 }

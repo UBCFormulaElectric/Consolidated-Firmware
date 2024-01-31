@@ -7,7 +7,7 @@ NUM_ALERTS = "NUM_{node}_{alert_type}S"
 BOARD_HAS_ALERT_FUNC_NAME = "app_canAlerts_BoardHas{alert_type}"
 ANY_ALERT_FUNC_NAME = "app_canAlerts_AnyBoardHas{alert_type}"
 ALERT_BOARD_ENUM_NAME = "{node}_ALERT_BOARD"
-GET_BOARD_FAULT_CODE = "App_CanAlerts_{alert_type}Code"
+GET_BOARD_FAULT_CODE = "app_canAlerts_{alert_type}Code"
 
 
 class AppCanAlertsModule(CModule):
@@ -129,9 +129,9 @@ class AppCanAlertsModule(CModule):
                 node, self._node, alert_type
             ):
                 
-                item = self._db.node_id_codes(node, alert_type = alert_type)
+                item = self._db.node_name_description(node, alert_type = alert_type)
                 
-                id_code, description = item[alert]
+                description = item[alert]
 
                 if node == self._node:
                     get_alert.body.start_if(
@@ -143,7 +143,6 @@ class AppCanAlertsModule(CModule):
                     )
                     
                 get_alert.body.add_line(f'alert_array[element_num].name = "{alert}";')
-                get_alert.body.add_line(f"alert_array[element_num].id = {id_code};")
                 get_alert.body.add_line(f'alert_array[element_num].description = "{description}";')
                 get_alert.body.add_line("element_num++;")
 
