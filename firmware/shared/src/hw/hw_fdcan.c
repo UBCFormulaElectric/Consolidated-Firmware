@@ -74,7 +74,7 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
     CanMsg rx_msg;
-    if (!hw_can_receive(RxFifo0ITs, &rx_msg))
+    if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg))
     {
         // Early return if RX msg is unavailable.
         return;
@@ -86,7 +86,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
     CanMsg rx_msg;
-    if (!hw_can_receive(RxFifo1ITs, &rx_msg))
+    if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg))
     {
         // Early return if RX msg is unavailable.
         return;

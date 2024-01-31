@@ -21,6 +21,7 @@ static uint32_t current_bootcount;
 
 static lfs_t      lfs;
 static lfs_file_t file;
+static struct lfs_config cfg;
 
 extern SdCard sd;
 extern Gpio   sd_present;
@@ -52,7 +53,6 @@ static void init_logging_file_system()
     }
 
     // config the file system
-    struct lfs_config cfg;
     io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
@@ -119,9 +119,12 @@ void io_canLogging_recordMsgFromQueue(void)
     }
     static uint32_t message_written = 0;
     message_written++;
-    if (message_written > (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
+    if (message_written >= (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
     {
-        lfs_file_sync(&lfs, &file);
+        message_written = 0;
+        lfs_file_close(&lfs, &file);
+        lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+
     }
 }
 

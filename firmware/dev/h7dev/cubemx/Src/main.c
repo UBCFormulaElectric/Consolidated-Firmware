@@ -80,7 +80,7 @@ const osThreadAttr_t canTxTask_attributes = {
 };
 /* Definitions for canRxTask */
 osThreadId_t         canRxTaskHandle;
-uint32_t             canRxTaskBuffer[512];
+uint32_t             canRxTaskBuffer[5120];
 osStaticThreadDef_t  canRxTaskControlBlock;
 const osThreadAttr_t canRxTask_attributes = {
     .name       = "canRxTask",
@@ -496,8 +496,11 @@ void runCanRxTask(void *argument)
     /* USER CODE BEGIN runCanRxTask */
     /* Infinite loop */
     for (;;)
-    {
-        osDelay(1);
+    {   
+        CanMsg msg;
+        io_can_popRxMsgFromQueue(&msg);
+        io_canLogging_recordMsgFromQueue();
+    
     }
     /* USER CODE END runCanRxTask */
 }
