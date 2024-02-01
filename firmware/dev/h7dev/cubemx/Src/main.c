@@ -94,7 +94,7 @@ const osThreadAttr_t canTxTask_attributes = {
 };
 /* Definitions for canRxTask */
 osThreadId_t         canRxTaskHandle;
-uint32_t             canRxTaskBuffer[5120];
+uint32_t             canRxTaskBuffer[512];
 osStaticThreadDef_t  canRxTaskControlBlock;
 const osThreadAttr_t canRxTask_attributes = {
     .name       = "canRxTask",
@@ -424,7 +424,7 @@ static void MX_SDMMC1_SD_Init(void)
 
     /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
-    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_FALLING;
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
@@ -435,7 +435,7 @@ static void MX_SDMMC1_SD_Init(void)
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
     sd_inited = true;
-
+    HAL_SD_ConfigWideBusOperation(&hsd1, SDMMC_BUS_WIDE_4B);
     /* USER CODE END SDMMC1_Init 2 */
 }
 
@@ -512,6 +512,10 @@ static void MX_GPIO_Init(void)
 
 static void canMsgRecievecallback(CanMsg *rx_msg)
 {
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
     io_can_msgReceivedCallback(rx_msg);
     io_canLogging_msgReceivedCallback(rx_msg);
 }
