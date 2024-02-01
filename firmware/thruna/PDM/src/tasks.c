@@ -54,8 +54,7 @@ static const CanConfig can_config = {
 };
 static CanHandle can = {
     .can                    = &hcan1,
-    .can0MsgRecievecallback = NULL,
-    .can1MsgRecievecallback = NULL,
+    .canMsgRecievecallback = NULL,
 };
 
 static const LvBatteryConfig lv_battery_config = {
