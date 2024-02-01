@@ -58,8 +58,7 @@ static const CanConfig can_config = {
 };
 static CanHandle can = {
     .can                    = &hcan1,
-    .can0MsgRecievecallback = NULL,
-    .can1MsgRecievecallback = NULL,
+    .canMsgRecievecallback = NULL,
 };
 
 UART imu_uart = { .handle = &huart1 };
