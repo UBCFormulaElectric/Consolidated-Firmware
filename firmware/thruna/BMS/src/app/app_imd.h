@@ -59,3 +59,9 @@ float app_imd_getPwmDutyCycle(void);
  * Broadcast state of the IMD over the CAN bus.
  */
 void app_imd_broadcast(void);
+
+/**
+ * Increments software counter that checks how long ago IMD pwm signal was received
+ * @return The current count of the counter
+ */
+uint8_t app_imd_pwmCounterTick(void);

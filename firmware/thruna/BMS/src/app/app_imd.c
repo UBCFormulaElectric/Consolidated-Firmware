@@ -6,7 +6,6 @@
 #include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_utils.h"
-#include "hw_pwmInput.h"
 
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 
@@ -66,7 +65,7 @@ ImdCondition app_imd_getCondition()
     ImdCondition condition;
     memset(&condition, 0, sizeof(condition));
 
-    uint8_t ticks_since_pwm_update = pwm_counter_tick();
+    const uint8_t ticks_since_pwm_update = app_imd_pwmCounterTick();
 
     if (ticks_since_pwm_update == PWM_TICKS_MAX)
     {
@@ -157,6 +156,11 @@ ImdCondition app_imd_getCondition()
     }
 
     return condition;
+}
+
+uint8_t app_imd_pwmCounterTick()
+{
+    return io_pwm_counter_tick();
 }
 
 float app_imd_getPwmFrequency()

@@ -6,6 +6,11 @@
 
 static PwmInput pwm_input;
 
+uint8_t io_pwm_counter_tick()
+{
+    return hw_pwm_counter_tick();
+}
+
 void io_imd_init(const PwmInputConfig *pwm_input_config)
 {
     io_pwmInput_init(&pwm_input, pwm_input_config);

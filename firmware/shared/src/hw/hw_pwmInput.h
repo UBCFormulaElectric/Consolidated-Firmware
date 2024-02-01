@@ -71,4 +71,4 @@ float hw_pwmInput_getFrequency(const PwmInput *pwm_input);
  * Increment the number of ticks since the last pwm was interpreted from the imd.
  * @return The number of ticks since the last pwm was interpreted from the imd.
  */
-uint8_t pwm_counter_tick(void);
+uint8_t hw_pwm_counter_tick(void);
