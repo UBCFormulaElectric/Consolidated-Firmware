@@ -9,17 +9,19 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"linux": {
-        "C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6",
-    },
-	"win32" : {
-		"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6.exe",
+	"platformSettings.platforms" : {
+		"linux": {
+			"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6",
+		},
+		"win32" : {
+			"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6.exe",
+		},
+		"darwin" : {
+			"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6-mac",
+		}
 	},
-	"darwin" : {
-		"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6-mac",
-	}
 	 
 	"C_Cpp.clang_format_style": "file:${workspaceFolder}/.clang-format",
 	"platformSettings.autoLoad": true,
-	"application.experimental.rendererProfiling": true
+	"application.experimental.rendererProfiling": true,
 }
