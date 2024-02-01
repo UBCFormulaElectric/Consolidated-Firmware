@@ -62,7 +62,7 @@ void tasks_init(void)
     //     hw_tasks_config->hadc1->Init.NbrOfConversion);
     can.can                   = hfdcan1;
     can.canMsgRecievecallback = NULL;
-    
+
     hw_hardFaultHandler_init();
     hw_can_init(hfdcan1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
