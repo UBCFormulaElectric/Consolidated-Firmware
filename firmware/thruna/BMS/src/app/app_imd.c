@@ -7,7 +7,9 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 
+//PWM_TICKS_MAX also defined and explained in "hw_pwmInputs.c"
 #define IMD_FREQUENCY_TOLERANCE 2.0f
+#define PWM_TICKS_MAX 255
 
 /**
  * Get the ideal frequency for the given IMD condition name

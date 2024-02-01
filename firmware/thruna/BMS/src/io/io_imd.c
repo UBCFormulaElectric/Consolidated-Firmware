@@ -6,7 +6,7 @@
 
 static PwmInput pwm_input;
 
-uint8_t io_pwm_counter_tick()
+uint8_t io_pwm_counter_tick(void)
 {
     return hw_pwm_counter_tick();
 }
