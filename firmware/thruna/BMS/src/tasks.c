@@ -71,9 +71,8 @@ static const CanConfig can_config = {
 };
 
 static CanHandle can = {
-    .can                    = &hcan1,
-    .can0MsgRecievecallback = NULL,
-    .can1MsgRecievecallback = NULL,
+    .can                   = &hcan1,
+    .canMsgRecievecallback = NULL,
 };
 
 PwmInputConfig imd_pwm_input_config = {
