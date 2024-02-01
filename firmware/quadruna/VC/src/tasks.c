@@ -60,12 +60,12 @@ void tasks_init(void)
     // HAL_ADC_Start_DMA(
     //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
     //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-
+    can.can                   = hfdcan1;
+    can.canMsgRecievecallback = NULL;
+    
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
-
-    // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_can_init(hfdcan1);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
