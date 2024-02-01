@@ -140,7 +140,7 @@ void tasks_init(void)
 
     can.can                   = hfdcan1;
     can.canMsgRecievecallback = NULL;
-    
+
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
