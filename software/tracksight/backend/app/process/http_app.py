@@ -40,6 +40,7 @@ def return_query():
 
     try:
         data = influx.query(measurement, fields, [start_epoch, end_epoch])
+        print(data)
     except NoDataForQueryException as e:
         return responsify({"error": str(e)}), 400
 

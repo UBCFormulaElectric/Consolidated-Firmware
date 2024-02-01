@@ -9,11 +9,11 @@ import Dashboard from './components/dashboard';
 import Visualize from './components/visualize';
 
 //const FLASK_URL = "http://evanyl.pythonanywhere.com";
-const FLASK_URL = "http://localhost:5000";
+const FLASK_URL = "http://localhost:4999";
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize'); 
     const [socketInstance, setSocketInstance] = useState<Socket | null>(null); 
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [graphs, setGraphs] = useState<number[]>([]);
     const [liveGraphs, setLiveGraphs] = useState<number[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
@@ -40,7 +40,6 @@ const Home = () => {
     };
 
     useEffect(() => {
-        // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
         const socket = io(FLASK_URL, {
             transports: ["websocket"],
             transportOptions: {

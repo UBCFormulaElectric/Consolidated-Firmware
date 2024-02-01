@@ -23,8 +23,8 @@ export interface GraphProps {
     id: number,
     url: string,
     sync: boolean,
-    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    zoomData: PlotRelayoutEvent,
+    startEpoch: string,
+    endEpoch: string,
     onDelete: MouseEventHandler<HTMLElement>,
     messageApi: MessageInstance,
 }
@@ -51,10 +51,6 @@ const Graph = (props: GraphProps) => {
         setData({});
     }
 
-
-    // creates a new graph with request signals
-    // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
-    // suggestions for improvements appreciated. 
     useEffect(() => {
         const tempFormattedData: Plotly.Data[] = [];
         for (const name in data) {
@@ -83,38 +79,10 @@ const Graph = (props: GraphProps) => {
         setFormattedData(tempFormattedData);
     }, [data]);
 
-
-    // updates graph layout when zoomed 
-    useEffect(() => {
-        if (props.zoomData && 'xaxis.range[0]' in props.zoomData) {
-            const xaxisRange0 = props.zoomData['xaxis.range[0]'];
-            const xaxisRange1 = props.zoomData['xaxis.range[1]'];
-            const yaxisRange0 = props.zoomData['yaxis.range[0]'];
-            const yaxisRange1 = props.zoomData['yaxis.range[1]'];
-    
-            // Update the graph's layout with the new axis ranges
-            setGraphLayout(prevLayout => ({
-                ...prevLayout,
-                xaxis: {
-                    range: [xaxisRange0, xaxisRange1],
-                },
-                yaxis: {
-                    range: [yaxisRange0, yaxisRange1],
-                },
-            }));
-        }
-    }, [props.zoomData]);
-
-    const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
-        if (props.sync) {
-        props.setZoomData(e);
-        }
-    }
-
     return (
         <Card
         bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryData url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
+            <QueryData startEpoch={props.startEpoch} endEpoch={props.endEpoch} url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
@@ -123,7 +91,6 @@ const Graph = (props: GraphProps) => {
                     displaylogo: false,
                     scrollZoom: true,
                   }}
-                  onRelayout={handleZoom}
             />
             <br></br>
             <Space.Compact size={"middle"}>
