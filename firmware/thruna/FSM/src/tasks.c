@@ -66,8 +66,7 @@ static const CanConfig can_config = {
 };
 static CanHandle can = {
     .can                    = &hcan1,
-    .can0MsgRecievecallback = NULL,
-    .can1MsgRecievecallback = NULL,
+    .canMsgRecievecallback = NULL,
 };
 // config to forward can functions to shared heartbeat
 // FSM rellies on BMS
