@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "hw_pwmInput.h"
 
+/*
+This is a software counter that is incremented everytime the status of the IMD
+is broadcasted to CAN and the counter resets everytime the pwm signal from the 
+IMD is received and turned into an IMD state to broadcast. When the counter reaches
+255 it will result in a 0 hz reading from the pwm signal. Usually if the IMD was not
+sending a frequency, it would not trigger the interrupt that updates IMD state
+*/
 static uint8_t pwm_counter = 0;
 
 uint8_t pwm_counter_tick(void)

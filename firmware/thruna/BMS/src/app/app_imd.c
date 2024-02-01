@@ -6,6 +6,7 @@
 #include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "hw_pwmInput.h"
 
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 
