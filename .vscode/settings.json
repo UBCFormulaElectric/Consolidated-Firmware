@@ -8,5 +8,6 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"C_Cpp.clang_format_path": "${workspaceFolder}/scripts/clang_format/clang-format-17.0.6"
 }
