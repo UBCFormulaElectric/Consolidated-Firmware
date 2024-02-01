@@ -62,8 +62,10 @@ endif()
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
+
 add_subdirectory(thruna)
 add_subdirectory(quadruna)
+
 add_subdirectory(dev)
 add_subdirectory(boot)
 

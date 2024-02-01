@@ -8,5 +8,10 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"": "",
+		"hw_can.h": "c",
+		"app_imd.h": "c"
+	}
 }

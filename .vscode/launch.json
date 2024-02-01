@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Embedded: BMS",
+      "name": "Debug Embedded: BMS (Thruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/BMS/thruna_BMS.hex",
       "symbolFiles": [
@@ -17,7 +17,37 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build Embedded: BMS",
+      "preLaunchTask": "Build Embedded: BMS (Thruna)",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: BMS",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
+      "name": "Debug Embedded: BMS (Quadruna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/BMS/BMS_quadruna.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        // "build_fw_deploy/firmware/boot/h7boot/BMS_quadruna_boot.elf",
+        "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS.elf",
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32h7x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build Embedded: BMS (Quadruna)",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -262,12 +292,26 @@
       }
     },
     {
-      "name": "Debug Tests: BMS",
+      "name": "Debug Tests: BMS (Thruna)",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/thruna_BMS_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: BMS",
+      "preLaunchTask": "Build: BMS_test Thruna",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: BMS (Quadruna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/BMS/quadruna_BMS_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build: BMS_test Quadruna",
       "linux": {
         "MIMode": "gdb"
       },
