@@ -57,7 +57,7 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 static CanHandle can = {
-    .can                    = &hcan1,
+    .can                   = &hcan1,
     .canMsgRecievecallback = NULL,
 };
 
