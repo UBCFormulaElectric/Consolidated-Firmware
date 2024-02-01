@@ -60,7 +60,9 @@ void tasks_init(void)
     // HAL_ADC_Start_DMA(
     //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
     //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-
+    can.can                   = hfdcan1;
+    can.canMsgRecievecallback = NULL;
+    
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
