@@ -7,12 +7,6 @@
 #include "hw_pwmInput.h"
 
 /**
- * Increments software counter that checks how long ago IMD pwm signal was received
- * @return The current count of the counter
- */
-uint8_t io_pwm_counter_tick(void);
-
-/**
  * Initialize the PWM input for measuring the IMD's PWM output
  * @param pwm_input_config The config for measuring the IMD's PWM output.
  */
@@ -46,3 +40,9 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
  * @return The the time elapsed since the IMD was powered on, in seconds
  */
 uint32_t io_imd_getTimeSincePowerOn(void);
+
+/**
+ * Increments software counter that checks how long ago IMD pwm signal was received
+ * @return The current count of the counter
+ */
+uint8_t io_pwm_counter_tick(void);
