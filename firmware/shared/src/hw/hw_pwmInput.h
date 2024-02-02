@@ -2,8 +2,6 @@
 
 #include "hw_hal.h"
 
-#define PWM_TICKS_MAX 255
-
 /*
  * PWM input driver notes:
  *
@@ -66,9 +64,3 @@ float hw_pwmInput_getDutyCycle(const PwmInput *pwm_input);
  * @return The frequency for the given PWM input
  */
 float hw_pwmInput_getFrequency(const PwmInput *pwm_input);
-
-/**
- * Increment the number of ticks since the last pwm was interpreted from the imd.
- * @return The number of ticks since the last pwm was interpreted from the imd.
- */
-uint8_t hw_pwm_counter_tick(void);

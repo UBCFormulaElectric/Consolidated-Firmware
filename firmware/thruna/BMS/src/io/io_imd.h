@@ -45,4 +45,4 @@ uint32_t io_imd_getTimeSincePowerOn(void);
  * Increments software counter that checks how long ago IMD pwm signal was received
  * @return The current count of the counter
  */
-uint8_t io_pwm_counter_tick(void);
+uint8_t io_imd_pwmCounterTick(void);

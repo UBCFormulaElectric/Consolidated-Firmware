@@ -4,11 +4,27 @@
 #include "hw_pwmInput.h"
 #include "io_time.h"
 
+#define PWM_TICKS_MAX 255
+
 static PwmInput pwm_input;
 
-uint8_t io_pwm_counter_tick(void)
+static uint8_t pwm_counter = 0;
+/*
+This is a software counter that is incremented everytime the status of the IMD
+is broadcasted to CAN and the counter resets everytime the pwm signal from the
+IMD is received and turned into an IMD state to broadcast. When the counter reaches
+255 it will result in a 0 hz reading from the pwm signal. Usually if the IMD was not
+sending a frequency, it would not trigger the interrupt that updates IMD state
+*/
+
+uint8_t io_imd_pwmCounterTick(void)
 {
-    return hw_pwm_counter_tick();
+    if (pwm_counter != PWM_TICKS_MAX)
+    {
+        pwm_counter++;
+        return pwm_counter;
+    }
+    return pwm_counter;
 }
 
 void io_imd_init(const PwmInputConfig *pwm_input_config)
@@ -31,6 +47,7 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
     if (htim == pwm_input.config->htim)
     {
         hw_pwmInput_tick(&pwm_input);
+        pwm_counter = 0; // Reset the ticks since the last pwm reading
     }
 }
 

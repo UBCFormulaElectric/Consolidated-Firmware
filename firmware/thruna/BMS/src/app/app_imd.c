@@ -9,7 +9,6 @@
 
 // PWM_TICKS_MAX also defined and explained in "hw_pwmInputs.c"
 #define IMD_FREQUENCY_TOLERANCE 2.0f
-#define PWM_TICKS_MAX 255
 
 /**
  * Get the ideal frequency for the given IMD condition name
@@ -67,9 +66,9 @@ ImdCondition app_imd_getCondition()
     ImdCondition condition;
     memset(&condition, 0, sizeof(condition));
 
-    const uint8_t ticks_since_pwm_update = app_imd_pwmCounterTick();
+    const uint8_t ticks_since_pwm_update = io_imd_pwmCounterTick();
 
-    if (ticks_since_pwm_update == PWM_TICKS_MAX)
+    if (ticks_since_pwm_update == MAX_8_BITS_VALUE)
     {
         condition.name = IMD_CONDITION_SHORT_CIRCUIT;
     }
@@ -158,11 +157,6 @@ ImdCondition app_imd_getCondition()
     }
 
     return condition;
-}
-
-uint8_t app_imd_pwmCounterTick()
-{
-    return io_pwm_counter_tick();
 }
 
 float app_imd_getPwmFrequency()
