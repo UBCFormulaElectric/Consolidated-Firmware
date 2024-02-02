@@ -89,20 +89,20 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        test_imd_setImdCondition(IMD_NORMAL);
+        test_imd_setImdCondition(IMD_CONDITION_NORMAL);
 
         // Test an arbitrarily chosen valid resistance
         fake_io_imd_getDutyCycle_returns(50.0f);
         LetTimePass(10);
 
-        EXPECT_EQ(IMD_NORMAL, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_NORMAL, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
         EXPECT_EQ(1200, app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_get());
 
         // Test an arbitrarily chosen invalid resistance
         fake_io_imd_getDutyCycle_returns(0.0f);
         LetTimePass(10);
-        EXPECT_EQ(IMD_NORMAL, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_NORMAL, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
     }
 }
@@ -112,20 +112,20 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        test_imd_setImdCondition(IMD_UNDERVOLTAGE_DETECTED);
+        test_imd_setImdCondition(IMD_CONDITION_UNDERVOLTAGE_DETECTED);
 
         // Test an arbitrarily chosen valid resistance
         fake_io_imd_getDutyCycle_returns(50.0f);
         LetTimePass(10);
 
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
         EXPECT_EQ(1200, app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_get());
 
         // Test an arbitrarily chosen invalid resistance
         fake_io_imd_getDutyCycle_returns(0.0f);
         LetTimePass(10);
-        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_UNDERVOLTAGE_DETECTED, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
     }
 }
@@ -135,13 +135,13 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        test_imd_setImdCondition(IMD_SST);
+        test_imd_setImdCondition(IMD_CONDITION_SST);
 
         // Test an arbitrarily chosen SST_GOOD
         fake_io_imd_getDutyCycle_returns(7.5f);
 
         LetTimePass(10);
-        EXPECT_EQ(IMD_SST, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
         EXPECT_EQ(SST_GOOD, app_canTx_BMS_ImdSpeedStartStatus30Hz_get());
 
@@ -149,7 +149,7 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
         fake_io_imd_getDutyCycle_returns(92.5f);
 
         LetTimePass(10);
-        EXPECT_EQ(IMD_SST, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(true, app_canTx_BMS_ImdValidDutyCycle_get());
         EXPECT_EQ(SST_BAD, app_canTx_BMS_ImdSpeedStartStatus30Hz_get());
 
@@ -157,7 +157,7 @@ TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_ove
         fake_io_imd_getDutyCycle_returns(0.0f);
 
         LetTimePass(10);
-        EXPECT_EQ(IMD_SST, app_canTx_BMS_ImdCondition_get());
+        EXPECT_EQ(IMD_CONDITION_SST, app_canTx_BMS_ImdCondition_get());
         EXPECT_EQ(false, app_canTx_BMS_ImdValidDutyCycle_get());
     }
 }

@@ -2,7 +2,7 @@
 
 TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
-    std::vector<ImdConditionName> condition_names = { IMD_NORMAL, IMD_UNDERVOLTAGE_DETECTED };
+    std::vector<ImdConditionName> condition_names = { IMD_CONDITION_NORMAL, IMD_CONDITION_UNDERVOLTAGE_DETECTED };
 
     for (auto &condition_name : condition_names)
     {
@@ -41,7 +41,7 @@ TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditio
 
 TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 {
-    test_imd_setImdCondition(IMD_SST);
+    test_imd_setImdCondition(IMD_CONDITION_SST);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 5...10% ("good")
@@ -91,7 +91,7 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 {
-    test_imd_setImdCondition(IMD_DEVICE_ERROR);
+    test_imd_setImdCondition(IMD_CONDITION_DEVICE_ERROR);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -114,7 +114,7 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition)
 {
-    test_imd_setImdCondition(IMD_GROUND_FAULT);
+    test_imd_setImdCondition(IMD_CONDITION_GROUND_FAULT);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -144,38 +144,38 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
     };
 
     std::vector<struct ConditionLut> lookup_table = {
-        { 0.0f, IMD_SHORT_CIRCUIT },
-        { 1.0f, IMD_SHORT_CIRCUIT },
-        { 2.0f, IMD_SHORT_CIRCUIT },
-        { 3.0f, IMD_INVALID },
-        { 17.0f, IMD_INVALID },
-        { 18.0f, IMD_UNDERVOLTAGE_DETECTED },
-        { 19.0f, IMD_UNDERVOLTAGE_DETECTED },
-        { 20.0f, IMD_UNDERVOLTAGE_DETECTED },
-        { 21.0f, IMD_UNDERVOLTAGE_DETECTED },
-        { 22.0f, IMD_UNDERVOLTAGE_DETECTED },
-        { 23.0f, IMD_INVALID },
-        { 27.0f, IMD_INVALID },
-        { 28.0f, IMD_SST },
-        { 29.0f, IMD_SST },
-        { 30.0f, IMD_SST },
-        { 31.0f, IMD_SST },
-        { 32.0f, IMD_SST },
-        { 33.0f, IMD_INVALID },
-        { 37.0f, IMD_INVALID },
-        { 38.0f, IMD_DEVICE_ERROR },
-        { 39.0f, IMD_DEVICE_ERROR },
-        { 40.0f, IMD_DEVICE_ERROR },
-        { 41.0f, IMD_DEVICE_ERROR },
-        { 42.0f, IMD_DEVICE_ERROR },
-        { 43.0f, IMD_INVALID },
-        { 47.0f, IMD_INVALID },
-        { 48.0f, IMD_GROUND_FAULT },
-        { 49.0f, IMD_GROUND_FAULT },
-        { 50.0f, IMD_GROUND_FAULT },
-        { 51.0f, IMD_GROUND_FAULT },
-        { 52.0f, IMD_GROUND_FAULT },
-        { 53.0f, IMD_INVALID },
+        { 0.0f, IMD_CONDITION_SHORT_CIRCUIT },
+        { 1.0f, IMD_CONDITION_SHORT_CIRCUIT },
+        { 2.0f, IMD_CONDITION_SHORT_CIRCUIT },
+        { 3.0f, IMD_CONDITION_INVALID },
+        { 17.0f, IMD_CONDITION_INVALID },
+        { 18.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED },
+        { 19.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED },
+        { 20.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED },
+        { 21.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED },
+        { 22.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED },
+        { 23.0f, IMD_CONDITION_INVALID },
+        { 27.0f, IMD_CONDITION_INVALID },
+        { 28.0f, IMD_CONDITION_SST },
+        { 29.0f, IMD_CONDITION_SST },
+        { 30.0f, IMD_CONDITION_SST },
+        { 31.0f, IMD_CONDITION_SST },
+        { 32.0f, IMD_CONDITION_SST },
+        { 33.0f, IMD_CONDITION_INVALID },
+        { 37.0f, IMD_CONDITION_INVALID },
+        { 38.0f, IMD_CONDITION_DEVICE_ERROR },
+        { 39.0f, IMD_CONDITION_DEVICE_ERROR },
+        { 40.0f, IMD_CONDITION_DEVICE_ERROR },
+        { 41.0f, IMD_CONDITION_DEVICE_ERROR },
+        { 42.0f, IMD_CONDITION_DEVICE_ERROR },
+        { 43.0f, IMD_CONDITION_INVALID },
+        { 47.0f, IMD_CONDITION_INVALID },
+        { 48.0f, IMD_CONDITION_GROUND_FAULT },
+        { 49.0f, IMD_CONDITION_GROUND_FAULT },
+        { 50.0f, IMD_CONDITION_GROUND_FAULT },
+        { 51.0f, IMD_CONDITION_GROUND_FAULT },
+        { 52.0f, IMD_CONDITION_GROUND_FAULT },
+        { 53.0f, IMD_CONDITION_INVALID },
     };
 
     for (auto &entry : lookup_table)
