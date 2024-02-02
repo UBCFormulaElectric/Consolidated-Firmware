@@ -168,42 +168,42 @@ int main(void)
     MX_ADC1_Init();
     MX_CAN2_Init();
     /* USER CODE BEGIN 2 */
-    sd->hsd     = &hsd;
-    sd->timeout = 1000;
+    // sd->hsd     = &hsd;
+    // sd->timeout = 1000;
 
-    // config littlefs
-    cfg.block_size  = sd->hsd->SdCard.BlockSize;
-    cfg.block_count = sd->hsd->SdCard.BlockNbr;
+    // // config littlefs
+    // cfg.block_size  = sd->hsd->SdCard.BlockSize;
+    // cfg.block_count = sd->hsd->SdCard.BlockNbr;
 
-    // mount the filesystem
-    int err = lfs_mount(&lfs, &cfg);
-    // write the hello world
-    if (err)
-    {
-        // reformat if we can't mount the filesystem
-        // this should only happen on the first boot
-        err = lfs_format(&lfs, &cfg);
-        err = lfs_mount(&lfs, &cfg);
-    }
+    // // mount the filesystem
+    // int err = lfs_mount(&lfs, &cfg);
+    // // write the hello world
+    // if (err)
+    // {
+    //     // reformat if we can't mount the filesystem
+    //     // this should only happen on the first boot
+    //     err = lfs_format(&lfs, &cfg);
+    //     err = lfs_mount(&lfs, &cfg);
+    // }
 
-    // read current count
-    uint32_t boot_count = 0;
-    // mkdir
-    err = lfs_mkdir(&lfs, "helloworld_dir");
+    // // read current count
+    // uint32_t boot_count = 0;
+    // // mkdir
+    // err = lfs_mkdir(&lfs, "helloworld_dir");
 
-    err = lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-    if (!err)
-    {
-        err = lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
-    }
+    // err = lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    // if (!err)
+    // {
+    //     err = lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+    // }
 
-    // update boot count
-    boot_count += 1;
-    err = lfs_file_rewind(&lfs, &file);
-    if (!err)
-    {
-        err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
-    }
+    // // update boot count
+    // boot_count += 1;
+    // err = lfs_file_rewind(&lfs, &file);
+    // if (!err)
+    // {
+    //     err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
+    // }
 
     /* USER CODE END 2 */
 
