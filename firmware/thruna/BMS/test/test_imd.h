@@ -25,8 +25,9 @@ class ImdTest : public testing::Test
 static void test_imd_setImdCondition(ImdConditionName condition_name)
 {
     const float mapping[NUM_OF_IMD_CONDITIONS] = {
-        [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
-        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_GROUND_FAULT] = 50.0f,
+        [IMD_CONDITION_SHORT_CIRCUIT] = 0.0f,          [IMD_CONDITION_NORMAL] = 10.0f,
+        [IMD_CONDITION_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_CONDITION_SST] = 30.0f,
+        [IMD_CONDITION_DEVICE_ERROR] = 40.0f,          [IMD_CONDITION_GROUND_FAULT] = 50.0f,
     };
 
     fake_io_imd_getFrequency_returns(mapping[condition_name]);

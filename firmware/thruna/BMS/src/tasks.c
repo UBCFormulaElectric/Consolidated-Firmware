@@ -252,12 +252,12 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
+    app_globals_init(&globals_config);
     app_inverterOnState_init();
     app_accumulator_init();
     app_thermistors_init();
     app_soc_init();
     app_stateMachine_init(app_initState_get());
-    app_globals_init(&globals_config);
 
     app_heartbeatMonitor_init(
         HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,

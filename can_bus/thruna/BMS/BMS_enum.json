@@ -8,7 +8,7 @@
     "BMS_FAULT_STATE": 5,
     "BMS_INVERTER_ON_STATE": 6
   },
-  "ImdCondition": {
+  "ImdConditionName": {
     "IMD_CONDITION_SHORT_CIRCUIT": 0,
     "IMD_CONDITION_NORMAL": 1,
     "IMD_CONDITION_UNDERVOLTAGE_DETECTED": 2,
@@ -19,8 +19,12 @@
   },
   "ImdActiveFrequency":
   {
-    "IMD_10Hz": 0,
-    "IMD_20Hz": 1
+    "IMD_0Hz":  0,
+    "IMD_10Hz": 1,
+    "IMD_20Hz": 2,
+    "IMD_30Hz": 3,
+    "IMD_40Hz": 4,
+    "IMD_50Hz": 5
   },
   "ContactorState": {
     "CONTACTOR_STATE_OPEN": 0,
