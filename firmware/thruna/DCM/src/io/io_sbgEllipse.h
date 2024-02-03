@@ -2,38 +2,55 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "app_sbgEllipse.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"
 #endif
 
-// Enum of all the values read from the SBG Ellipse N sensor
+// Enum of all the values read from the SBG Ellipse N sensortypedef enum
 typedef enum
 {
     // Transational acceleration (m/s^2)
-    SBG_ELLIPSE_OUT_ACCELERATION_X,
-    SBG_ELLIPSE_OUT_ACCELERATION_Y,
-    SBG_ELLIPSE_OUT_ACCELERATION_Z,
+    ELLIPSE_OUTPUT_ACCELERATION_X,
+    ELLIPSE_OUTPUT_ACCELERATION_Y,
+    ELLIPSE_OUTPUT_ACCELERATION_Z,
 
     // Angular velocity (deg/s)
-    SBG_ELLIPSE_OUT_ANGULAR_VELOCITY_ROLL,
-    SBG_ELLIPSE_OUT_ANGULAR_VELOCITY_PITCH,
-    SBG_ELLIPSE_OUT_ANGULAR_VELOCITY_YAW,
+    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_ROLL,
+    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_PITCH,
+    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_YAW,
 
     // Euler angles (deg)
-    SBG_ELLIPSE_OUT_EULER_ROLL,
-    SBG_ELLIPSE_OUT_EULER_PITCH,
-    SBG_ELLIPSE_OUT_EULER_YAW,
+    ELLIPSE_OUTPUT_EULER_ROLL,
+    ELLIPSE_OUTPUT_EULER_PITCH,
+    ELLIPSE_OUTPUT_EULER_YAW,
+
+    // Position Info
+    ELLIPSE_OUTPUT_GPS_POS_STATUS,
+    ELLIPSE_OUTPUT_GPS_LAT,
+    ELLIPSE_OUTPUT_GPS_LAT_ACC,
+    ELLIPSE_OUTPUT_GPS_LONG,
+    ELLIPSE_OUTPUT_GPS_LONG_ACC,
+    ELLIPSE_OUTPUT_GPS_ALT,
+    ELLIPSE_OUTPUT_GPS_ALT_ACC,
+
+    // Velocity Info
+    ELLIPSE_OUTPUT_GPS_VEL_STATUS,
+    ELLIPSE_OUTPUT_GPS_VEL_N,
+    ELLIPSE_OUTPUT_GPS_VEL_N_ACC,
+    ELLIPSE_OUTPUT_GPS_VEL_E,
+    ELLIPSE_OUTPUT_GPS_VEL_E_ACC,
+    ELLIPSE_OUTPUT_GPS_VEL_D,
+    ELLIPSE_OUTPUT_GPS_VEL_D_ACC,
 
     NUM_SBG_OUTPUTS,
 } SbgEllipseOutput;
 
-#ifdef TARGET_EMBEDDED
 /*
  * Initialize the SBG Ellipse N sensor IO module.
  */
 bool io_sbgEllipse_init(UART *imu_uart);
-#endif
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.
