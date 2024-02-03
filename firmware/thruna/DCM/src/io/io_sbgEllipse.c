@@ -82,6 +82,11 @@ typedef struct
     Gps1Data         gps_data;
 } SensorData;
 
+typedef struct
+{
+    void (*const sensor_rx_overflow_callback)(bool); // callback on ring queue overflow
+} sensor_msg_config;
+
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
