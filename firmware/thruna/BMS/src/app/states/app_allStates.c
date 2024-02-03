@@ -35,6 +35,8 @@ void app_allStates_runOnTick1Hz(void)
     }
 }
 
+uint32_t owcCounter = 0;
+
 bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
@@ -43,7 +45,19 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    app_accumulator_runOnTick100Hz();
+    owcCounter++;
+    if (owcCounter >= 500) // run Open Wire Check every 5 seconds
+    {
+        if (app_accumulator_openWireCheck())
+        {
+            owcCounter = 0;
+        }
+    }
+    else
+    {
+        app_accumulator_runOnTick100Hz();
+    }
+
     app_thermistors_updateAuxThermistorTemps();
 
     app_accumulator_broadcast();

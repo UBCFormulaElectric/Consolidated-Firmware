@@ -27,6 +27,12 @@
         "ChargerDisconnectedDuringCharge",
         "ChargerExternalShutdown",
         "TractiveSystemOvercurrent",
-        "PrechargeFailure"
+        "PrechargeFailure",
+        "OpenWireCheckFault",
+        "OpenWireCheck_Segment0_GND",
+        "OpenWireCheck_Segment1_GND",
+        "OpenWireCheck_Segment2_GND",
+        "OpenWireCheck_Segment3_GND",
+        "OpenWireCheck_Segment4_GND"
     ]
 }

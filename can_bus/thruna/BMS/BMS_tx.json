@@ -359,5 +359,34 @@
               "bits": 1
           }
       }
+    },
+    "OWC_Segment0to2_Status": {
+        "msg_id": 141,
+        "cycle_time": 100,
+        "description": "Open Wire Check Segment 0 to 2 Status",
+        "signals": {
+            "Segment0_OWC_Cells_Status": {
+                "bits": 16
+            },
+            "Segment1_OWC_Cells_Status": {
+                "bits": 16
+            },
+            "Segment2_OWC_Cells_Status": {
+                "bits": 16
+            }
+        }
+    },
+    "OWC_Segment3to4_Status": {
+        "msg_id": 142,
+        "cycle_time": 100,
+        "description": "Open Wire Check Segment 3 to 4 Status",
+        "signals": {
+            "Segment3_OWC_Cells_Status": {
+                "bits": 16
+            },
+            "Segment4_OWC_Cells_Status": {
+                "bits": 16
+            }
+        }
     }
 }

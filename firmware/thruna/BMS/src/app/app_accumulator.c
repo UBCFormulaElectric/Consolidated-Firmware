@@ -13,6 +13,13 @@
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
+// Number of open wire check commands (ADOW) to send before open wire check
+#define OPEN_WIRE_CHECK_NUM_ADOW_CMDS (2)
+
+// Open Wire Check Modes
+#define PULL_UP (1U)
+#define PULL_DOWN (0U)
+
 // Discharging cells continuously generates too much heat.
 // So balance cells for 100 ticks (the cell monitoring code runs in the 100Hz task, so 100 ticks = 1s),
 // then disable discharge for the next 100 ticks to keep temperatures manageable.
@@ -49,6 +56,14 @@ typedef enum
     GET_CELL_TEMP_STATE,
 } AccumulatorMonitorState;
 
+typedef enum
+{
+    START_OPEN_WIRE_CHECK = 0U,
+    GET_PU_CELL_VOLTAGE_STATE,
+    GET_PD_CELL_VOLTAGE_STATE,
+    CHECK_OPEN_WIRE_FAULT_STATE,
+} AccumulatorOpenWireCheckState;
+
 typedef struct
 {
     uint8_t segment;
@@ -66,11 +81,21 @@ typedef struct
 
 typedef struct
 {
+    uint16_t owcStatus[ACCUMULATOR_NUM_SEGMENTS];
+    bool     owcFaultGND[ACCUMULATOR_NUM_SEGMENTS];
+    bool     owcGlobalFault;
+} OWCFaults;
+
+typedef struct
+{
     // Cells information
     uint8_t                 num_comm_tries;
     VoltageStats            voltage_stats;
     AccumulatorMonitorState state;
 
+    // OWC information
+    OWCFaults                     owc_faults;
+    AccumulatorOpenWireCheckState owc_state;
     // Balancing information
     bool     balance_enabled;
     bool     cells_to_balance[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
@@ -79,6 +104,8 @@ typedef struct
 } Accumulator;
 
 static Accumulator data;
+static uint8_t     open_wire_pu_readings;
+static uint8_t     open_wire_pd_readings;
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -203,6 +230,10 @@ void app_accumulator_init(void)
 
     // Balancing information
     memset(&data.cells_to_balance, 0U, sizeof(data.cells_to_balance));
+
+    open_wire_pu_readings = 0;
+    open_wire_pd_readings = 0;
+    data.owc_state        = START_OPEN_WIRE_CHECK;
 }
 
 void app_accumulator_writeDefaultConfig()
@@ -248,6 +279,112 @@ void app_accumulator_runOnTick100Hz(void)
     }
 }
 
+static void app_accumulator_owcCalculateFaults(void)
+{
+    OWCFaults owcFaults = { .owcStatus = { 0U }, .owcFaultGND = { 0U }, .owcGlobalFault = 0U };
+
+    owcFaults.owcGlobalFault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
+
+    if (owcFaults.owcGlobalFault)
+    {
+        for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+        {
+            if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0))
+            {
+                owcFaults.owcFaultGND[segment] = true;
+                owcFaults.owcStatus[segment]   = (uint16_t)1;
+            }
+            else
+            {
+                for (uint8_t cell = 1; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+                {
+                    if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell))
+                    {
+                        owcFaults.owcStatus[segment] |= ((uint16_t)(1 << cell));
+                    }
+                }
+            }
+        }
+    }
+
+    data.owc_faults = owcFaults;
+}
+
+bool app_accumulator_openWireCheck(void)
+{
+    bool is_finished = false;
+
+    switch (data.owc_state)
+    {
+        case START_OPEN_WIRE_CHECK:
+        {
+            // update the number of commands that've been run already before starting Open Wire Check
+            open_wire_pu_readings = 0;
+            open_wire_pd_readings = 0;
+
+            // Set up or acquire the Mutex for iso-SPI
+            bool Mutex_Acquired = true; // this line is just a reminder to fix it with proper code
+
+            if (Mutex_Acquired)
+            {
+                io_ltc6813CellVoltages_owcStart(PULL_UP);
+                open_wire_pu_readings++;
+                data.owc_state = GET_PU_CELL_VOLTAGE_STATE;
+            }
+            break;
+        }
+        case GET_PU_CELL_VOLTAGE_STATE:
+        {
+            if (open_wire_pu_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
+                UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_UP), data.num_comm_tries);
+
+                io_ltc6813CellVoltages_owcStart(PULL_DOWN);
+                open_wire_pd_readings++;
+                data.owc_state = GET_PD_CELL_VOLTAGE_STATE;
+            }
+            else
+            {
+                io_ltc6813CellVoltages_owcStart(PULL_UP);
+                open_wire_pu_readings++;
+            }
+            break;
+        }
+        case GET_PD_CELL_VOLTAGE_STATE:
+        {
+            if (open_wire_pd_readings >= OPEN_WIRE_CHECK_NUM_ADOW_CMDS)
+            {
+                UPDATE_PEC15_ERROR_COUNT(io_ltc6813CellVoltages_owcReadVoltages(PULL_DOWN), data.num_comm_tries);
+
+                data.owc_state = CHECK_OPEN_WIRE_FAULT_STATE;
+            }
+            else
+            {
+                io_ltc6813CellVoltages_owcStart(PULL_DOWN);
+                open_wire_pd_readings++;
+            }
+            break;
+        }
+        case CHECK_OPEN_WIRE_FAULT_STATE:
+        {
+            io_ltc6813CellVoltages_checkOpenWireStatus();
+            data.owc_state = START_OPEN_WIRE_CHECK;
+
+            app_accumulator_owcCalculateFaults();
+
+            // give away mutex for iso-SPI
+
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return is_finished;
+}
+
 void app_accumulator_broadcast(void)
 {
     // Broadcast pack voltage.
@@ -277,6 +414,13 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MaxTempSegment_set(max_segment);
     app_canTx_BMS_MinTempIdx_set(min_loc);
     app_canTx_BMS_MaxTempIdx_set(max_loc);
+
+    // Broadcast OWC information
+    app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.owcStatus[0]);
+    app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owcStatus[1]);
+    app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owcStatus[2]);
+    app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owcStatus[3]);
+    app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owcStatus[4]);
 
     // Calculate and broadcast pack power.
     const float available_power =
@@ -319,8 +463,17 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
-    const bool acc_fault =
-        overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault;
+    bool owc_fault = data.owc_faults.owcGlobalFault;
+
+    app_canAlerts_BMS_Fault_OpenWireCheckFault_set(data.owc_faults.owcGlobalFault);
+    app_canAlerts_BMS_Fault_OpenWireCheck_Segment0_GND_set(data.owc_faults.owcFaultGND[0]);
+    app_canAlerts_BMS_Fault_OpenWireCheck_Segment1_GND_set(data.owc_faults.owcFaultGND[1]);
+    app_canAlerts_BMS_Fault_OpenWireCheck_Segment2_GND_set(data.owc_faults.owcFaultGND[2]);
+    app_canAlerts_BMS_Fault_OpenWireCheck_Segment3_GND_set(data.owc_faults.owcFaultGND[3]);
+    app_canAlerts_BMS_Fault_OpenWireCheck_Segment4_GND_set(data.owc_faults.owcFaultGND[4]);
+
+    const bool acc_fault = overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault ||
+                           communication_fault || owc_fault;
 
     return acc_fault;
 }
