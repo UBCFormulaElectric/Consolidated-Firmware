@@ -21,10 +21,10 @@ static void initStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     app_allStates_runOnTick100Hz(state_machine);
 
-    bool isInverterOnOrDriveState =
+    bool is_inverter_on_or_drive_state =
         App_CanRx_BMS_State_Get() == BMS_INVERTER_ON_STATE || App_CanRx_BMS_State_Get() == BMS_DRIVE_STATE;
 
-    if (isInverterOnOrDriveState)
+    if (is_inverter_on_or_drive_state)
     {
         App_SharedStateMachine_SetNextState(state_machine, app_driveState_get());
     }
