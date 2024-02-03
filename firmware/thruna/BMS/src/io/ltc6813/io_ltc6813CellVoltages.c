@@ -37,7 +37,7 @@
 
 // clang-format on
 
-typedef enum CellVoltageRegGroup
+typedef enum
 {
     CELL_V_REG_GROUP_A = 0U,
     CELL_V_REG_GROUP_B,
@@ -55,8 +55,8 @@ static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELL
 // Open Wire Check voltage measurements
 static float owc_cell_V_PU[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]; // Pull-up Measurement
 static float owc_cell_V_PD[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]; // Pull-down Measurement
-static bool owc_status[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT] = { 0U };
-static bool owc_fault;
+static bool  owc_status[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT] = { 0U };
+static bool  owc_fault;
 
 static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
     [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB, [CELL_V_REG_GROUP_C] = RDCVC,

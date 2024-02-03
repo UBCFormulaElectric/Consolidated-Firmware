@@ -35,7 +35,7 @@ void app_allStates_runOnTick1Hz(void)
     }
 }
 
-static uint32_t owcCounter = 0;
+uint32_t owcCounter = 0;
 
 bool app_allStates_runOnTick100Hz(void)
 {
@@ -45,9 +45,8 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-
     owcCounter++;
-    if (owcCounter >= 300)
+    if (owcCounter >= 500) // run Open Wire Check every 5 seconds
     {
         if (app_accumulator_openWireCheck())
         {
