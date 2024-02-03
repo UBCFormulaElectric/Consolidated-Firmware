@@ -115,7 +115,7 @@ bool app_canAlerts_AnyBoardHasFault()
     return false;
 }
 
-uint8_t app_canAlerts_WarningCode(Fault_Warning_Info *alert_array)
+uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     
@@ -144,7 +144,7 @@ uint8_t app_canAlerts_WarningCode(Fault_Warning_Info *alert_array)
     
 }
 
-uint8_t app_canAlerts_FaultCode(Fault_Warning_Info *alert_array)
+uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
 {
     uint8_t element_num = 0;
     
