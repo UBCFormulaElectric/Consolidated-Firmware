@@ -39,6 +39,11 @@ void app_accumulator_writeDefaultConfig(void);
 void app_accumulator_runOnTick100Hz(void);
 
 /**
+ * Open Wire Check state machine
+ */
+bool app_accumulator_openWireCheck(void);
+
+/**
  * Broadcast state of the accumulator over CAN.
  */
 void app_accumulator_broadcast(void);
