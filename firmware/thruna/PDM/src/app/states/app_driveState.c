@@ -1,41 +1,32 @@
+#include <stddef.h>
+
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
-#include "App_SharedMacros.h"
-#include "App_CanUtils.h"
+#include "app_canUtils.h"
 #include "app_powerManager.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
 #include "states/app_initState.h"
 
-static void driveStateRunOnEntry(struct StateMachine *const state_machine)
+static void driveStateRunOnEntry(void)
 {
-    App_CanTx_PDM_State_Set(PDM_DRIVE_STATE);
+    app_canTx_PDM_State_set(PDM_DRIVE_STATE);
     app_powerManager_setState(POWER_MANAGER_DRIVE);
 }
 
-static void driveStateRunOnTick1Hz(struct StateMachine *const state_machine)
+static void driveStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick1Hz(state_machine);
+    app_allStates_runOnTick100Hz();
 }
 
-static void driveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+const State *app_driveState_get(void)
 {
-    app_allStates_runOnTick100Hz(state_machine);
-}
-
-static void driveStateRunOnExit(struct StateMachine *const state_machine)
-{
-    UNUSED(state_machine);
-}
-
-const struct State *app_driveState_get()
-{
-    static struct State drive_state = {
+    static State drive_state = {
         .name              = "DRIVE",
         .run_on_entry      = driveStateRunOnEntry,
-        .run_on_tick_1Hz   = driveStateRunOnTick1Hz,
+        .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = driveStateRunOnTick100Hz,
-        .run_on_exit       = driveStateRunOnExit,
+        .run_on_exit       = NULL,
     };
 
     return &drive_state;

@@ -16,8 +16,6 @@ extern "C"
 #include "app_utils.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "app_globals.h"
 #include "app_powerManager.h"
 }
 
@@ -37,7 +35,8 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
             &app_canTx_PDM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
-        app_stateMachine_init(app_driveState_get());
+
+        app_stateMachine_init(app_initState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
@@ -68,11 +67,10 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
                                                               [PDM_HEARTBEAT_BOARD] = false,
                                                               [FSM_HEARTBEAT_BOARD] = false,
                                                               [DIM_HEARTBEAT_BOARD] = false };
-    void SetInitialState(const struct State *const initial_state)
+    void SetInitialState(const State *const initial_state)
     {
-        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        state_machine = App_SharedStateMachine_Create(NULL, initial_state);
-        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
     // heartbeatGetters - get heartbeat signals from other boards
