@@ -19,27 +19,48 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask100Hz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanRx_set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTaskCanTx_set(error);
+}
+
+static void logStackRemainingTask1Hz(float percent)
+{
+    app_canTx_BMS_StackRemainingTask1Hz_set(percent);
+}
+static void logStackRemainingTask100Hz(float percent)
+{
+    app_canTx_BMS_StackRemainingTask100Hz_set(percent);
+}
+static void logStackRemainingTask1kHz(float percent)
+{
+    app_canTx_BMS_StackRemainingTask1kHz_set(percent);
+}
+static void logStackRemainingTaskCanRx(float percent)
+{
+    app_canTx_BMS_StackRemainingTaskCanRx_set(percent);
+}
+static void logStackRemainingTaskCanTx(float percent)
+{
+    app_canTx_BMS_StackRemainingTaskCanTx_set(percent);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
@@ -49,34 +70,40 @@ static StackWaterMark stack_watermarks[] = {
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1Hz,
+        .stack_remaining     = logStackRemainingTask1Hz,
     },
     {
         .handle              = &Task100HzHandle,
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask100Hz,
+        .stack_remaining     = logStackRemainingTask100Hz,
     },
     {
         .handle              = &Task1kHzHandle,
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask1kHz,
+        .stack_remaining     = logStackRemainingTask1kHz,
     },
     {
         .handle              = &TaskCanRxHandle,
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanRx,
+        .stack_remaining     = logStackRemainingTaskCanRx,
     },
     {
         .handle              = &TaskCanTxHandle,
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
+        .stack_remaining     = logStackRemainingTaskCanTx,
     },
 };
 
 void hw_stackWaterMarkConfig_check(void)
 {
     hw_stackWaterMark_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    hw_stackSize_check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

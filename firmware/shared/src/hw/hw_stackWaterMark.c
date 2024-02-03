@@ -39,3 +39,22 @@ void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks)
         }
     }
 }
+
+static float hw_stackSize(TaskHandle_t xTask, uint32_t stack_size, float watermark_threshold)
+{
+    assert((0.0f < watermark_threshold) && (watermark_threshold < 1.0f));
+
+    float stack_high_watermark_percent_remaining =
+        100.0f * (float)uxTaskGetStackHighWaterMark(xTask) / (float)stack_size;
+
+    return stack_high_watermark_percent_remaining;
+}
+
+void hw_stackSize_check(StackWaterMark *stacks, size_t num_of_stacks)
+{
+    for (size_t i = 0; i < num_of_stacks; i++)
+    {
+        stacks[i].stack_remaining(
+            hw_stackSize(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold));
+    }
+}

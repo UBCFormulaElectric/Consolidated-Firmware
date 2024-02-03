@@ -12,6 +12,7 @@ typedef struct
     uint32_t stack_size;
     float    watermark_threshold;
     void (*log_error)(uint8_t);
+    void (*stack_remaining)(float);
 } StackWaterMark;
 
 /**
@@ -22,3 +23,5 @@ typedef struct
  * @param num_of_stacks Number of stacks in the array.
  */
 void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks);
+
+void hw_stackSize_check(StackWaterMark *stacks, size_t num_of_stacks);
