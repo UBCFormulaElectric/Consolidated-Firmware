@@ -3,30 +3,30 @@
     "faults_id": 151,
     "warnings_counts_id": 152,
     "faults_counts_id": 153,
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow"
-    ],
-    "faults": [
-        "MissingFSMHeartbeat",
-        "MissingDCMHeartbeat",
-        "MissingPDMHeartbeat",
-        "StateMachine",
-        "CellUndervoltage",
-        "CellOvervoltage",
-        "ModuleCommunicationError",
-        "CellUndertemp",
-        "CellOvertemp",
-        "Charger",
-        "ChargerDisconnectedDuringCharge",
-        "ChargerExternalShutdown",
-        "TractiveSystemOvercurrent",
-        "PrechargeFailure"
-    ]
+    "warnings": {
+        "StackWaterMarkHighTask1Hz" :  "description",
+        "StackWaterMarkHighTask100Hz":  "description",
+        "StackWaterMarkHighTask1kHz":  "description",
+        "StackWaterMarkHighTaskCanRx":  "description",
+        "StackWaterMarkHighTaskCanTx":  "description",
+        "WatchdogTimeout":  "description",
+        "TxOverflow":  "description",
+        "RxOverflow":  "description"
+    },
+    "faults": {
+        "MissingFSMHeartbeat": "description",
+        "MissingDCMHeartbeat": "description",
+        "MissingPDMHeartbeat": "description",
+        "StateMachine": "description",
+        "CellUndervoltage": "description",
+        "CellOvervoltage": "description",
+        "ModuleCommunicationError": "description",
+        "CellUndertemp": "description",
+        "CellOvertemp": "description",
+        "Charger": "description",
+        "ChargerDisconnectedDuringCharge": "description",
+        "ChargerExternalShutdown": "description",
+        "TractiveSystemOvercurrent": "description",
+        "PrechargeFailure": "description"
+    }
 }

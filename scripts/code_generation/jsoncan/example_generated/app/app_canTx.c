@@ -114,10 +114,9 @@ void app_canTx_JCT_Voltage_set(float value)
     tx_table.JCT_Status_signals.JCT_Voltage_value = tmp > CANSIG_JCT_STATUS_JCT_VOLTAGE_MAX ? CANSIG_JCT_STATUS_JCT_VOLTAGE_MAX : tmp;
 }
 
-void app_canTx_JCT_UnsignedTester_set(int value)
+void app_canTx_JCT_UnsignedTester_set(uint32_t value)
 {
-    const int tmp = value < CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MIN ? CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MIN : value;
-    tx_table.JCT_Status_signals.JCT_UnsignedTester_value = tmp > CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MAX ? CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MAX : tmp;
+    tx_table.JCT_Status_signals.JCT_UnsignedTester_value = (value > CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MAX) ? CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_MAX : value;
 }
 
 void app_canTx_JCT_Warning_Warning_Test_set(bool value)
@@ -180,7 +179,7 @@ float app_canTx_JCT_Voltage_get()
     return tx_table.JCT_Status_signals.JCT_Voltage_value;
 }
 
-int app_canTx_JCT_UnsignedTester_get()
+uint32_t app_canTx_JCT_UnsignedTester_get()
 {
     return tx_table.JCT_Status_signals.JCT_UnsignedTester_value;
 }

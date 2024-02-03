@@ -181,8 +181,8 @@ void app_canUtils_JCT_Status_pack(const JCT_Status_Signals* const in_msg, uint8_
     out_data[3] |= packShiftRight(JCT_Voltage_raw, 11, 0x1);   // Packs bits _______# of byte 3
     
     // Pack 12-bit signal JCT_UnsignedTester into payload (at bit 25 to bit 37).
-    const int JCT_UnsignedTester_val = in_msg->JCT_UnsignedTester_value;
-    const int32_t JCT_UnsignedTester_raw = CAN_SIGNED_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, int);
+    const uint32_t JCT_UnsignedTester_val = in_msg->JCT_UnsignedTester_value;
+    const uint32_t JCT_UnsignedTester_raw = CAN_ENCODE(JCT_UnsignedTester_val, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_SCALE, CANSIG_JCT_STATUS_JCT_UNSIGNED_TESTER_OFFSET, uint32_t);
     out_data[3] |= packShiftLeft(JCT_UnsignedTester_raw, 1, 0xfe);   // Packs bits #######_ of byte 3
     out_data[4] |= packShiftRight(JCT_UnsignedTester_raw, 7, 0x1f);   // Packs bits ___##### of byte 4
     

@@ -3,6 +3,6 @@
 	"faults_id": 801,
 	"warnings_counts_id": 850,
 	"faults_counts_id": 851,
-	"warnings": [],
-	"faults": []
+	"warnings": {},
+	"faults": {}
 }
