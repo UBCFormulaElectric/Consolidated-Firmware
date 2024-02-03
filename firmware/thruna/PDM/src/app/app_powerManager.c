@@ -1,5 +1,5 @@
 #include "app_powerManager.h"
-#include "App_CanRx.h"
+#include "app_canRx.h"
 
 typedef struct
 {
