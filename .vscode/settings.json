@@ -8,5 +8,9 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"stdint.h": "c",
+		"hw_hal.h": "c"
+	}
 }
