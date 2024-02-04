@@ -33,32 +33,6 @@ qt_add_qml_module(${EXECUTABLE_NAME}
     VERSION 1.0
     QML_FILES ui/MainWindow.qml
 )
-#qt_query_qml_module(
-#    ${EXECUTABLE_NAME}
-#    URI uri_var
-#    VERSION version_var
-#    PLUGIN_TARGET plugin_target_var
-#    TARGET_PATH target_path_var
-#    MODULE_RESOURCE_PATH module_resource_path_var
-#    QMLDIR qmldir_var
-#    TYPEINFO typeinfo_var
-#    QML_FILES qml_files_var
-#    QML_FILES_DEPLOY_PATHS qml_files_deploy_paths_var
-#    QML_FILES_PREFIX_OVERRIDES qml_files_prefix_overrides_var
-#    RESOURCES resources_var
-#    RESOURCES_DEPLOY_PATHS resources_deploy_paths_var
-#    RESOURCES_PREFIX_OVERRIDES resources_prefix_overrides_var
-#)
-#
-#message(
-#"URI: ${uri_var}
-#TARGET_PATH: ${target_path_var}
-#MODULE_RESOURCE_PATH: ${module_resource_path_var}
-#QMLDIR: ${qmldir_var}
-#TYPEINFO: ${typeinfo_var}
-#QML_FILES: ${qml_files_var}
-#QML_FILES_DEPLOY_PATHS: ${qml_files_deploy_paths_var}"
-#)
 # add qml modules
 add_subdirectory(ui)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin)
