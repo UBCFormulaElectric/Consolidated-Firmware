@@ -40,6 +40,7 @@ enum gpio_edge
 enum line_read_error
 {
     LINE_READ_SYSTEM_ERROR, // caused by not requesting?
-    DEV_DUMMY_DATA // returned on dev gpio
+    DEV_DUMMY_DATA, // returned on dev gpio
+    TIMEOUT
 };
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i);

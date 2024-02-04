@@ -15,7 +15,8 @@ Result<std::monostate, CanConnectionError> Can_Init()
 
 Result<JsonCanMsg, CanReadError> Can_Read()
 {
-    wait_delegate_thread();
+    if (const WaitDelegateResult res = wait_delegate_thread(); res == WaitDelegateResult::INTERRUPTED)
+        return Timeout;
     qInfo("Can Read Requested");
     return JsonCanMsg{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }

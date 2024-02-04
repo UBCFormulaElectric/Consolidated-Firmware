@@ -29,6 +29,8 @@ void CanRXTask()
                     qWarning("Can interface not created");
                     return;
                 case Timeout:
+                    qWarning("CANRX Timeout");
+                    break;
                 case SocketReadError:
                 case IncompleteCanFrame:
                     break;

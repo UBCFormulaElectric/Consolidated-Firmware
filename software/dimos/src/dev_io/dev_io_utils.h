@@ -1,3 +1,9 @@
 #pragma once
 
-void wait_delegate_thread();
+enum struct WaitDelegateResult
+{
+    TIMEOUT,
+    INTERRUPTED
+};
+
+[[nodiscard]] WaitDelegateResult wait_delegate_thread();
