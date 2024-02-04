@@ -1,6 +1,6 @@
 #pragma once
 
-enum struct WaitDelegateResult
+enum class WaitDelegateResult
 {
     TIMEOUT,
     INTERRUPTED

@@ -25,14 +25,14 @@ void CanRXTask()
         {
             switch (get<CanReadError>(res))
             {
-                case ReadInterfaceNotCreated:
+                case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
                     return;
-                case Timeout:
+                case CanReadError::Timeout:
                     qWarning("CANRX Timeout");
                     break;
-                case SocketReadError:
-                case IncompleteCanFrame:
+                case CanReadError::SocketReadError:
+                case CanReadError::IncompleteCanFrame:
                     break;
             }
             continue;

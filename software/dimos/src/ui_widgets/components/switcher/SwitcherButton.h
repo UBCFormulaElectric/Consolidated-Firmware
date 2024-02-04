@@ -10,7 +10,7 @@ class SwitcherButton : public QWidget
 {
     Q_OBJECT
   public:
-    enum SwitcherButtonOption
+    enum class SwitcherButtonOption
     {
         ENDURANCE,
         ACCELERATION,

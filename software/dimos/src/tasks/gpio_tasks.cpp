@@ -51,7 +51,7 @@ void gpio_monitor(const gpio_input i)
             qWarning("GPIO READ ERROR");
             continue;
         }
-        gpio_handler_funcs[i](std::get<gpio_edge>(l_event));
+        gpio_handler_funcs[static_cast<int>(i)](std::get<gpio_edge>(l_event));
     }
     qInfo("exiting %s thread now", GPIO_inputs_info.at(i).enum_name.c_str());
 }

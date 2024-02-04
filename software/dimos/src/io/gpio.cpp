@@ -20,7 +20,7 @@ const std::map<gpio_input, gpio_hw_info> GPIO_inputs_hw_info{
 
 std::array<gpiod::line, GPIO_COUNT> gpio_lines;
 
-enum gpiod_line_init_error
+enum class gpiod_line_init_error
 {
     INPUT_RANGE_ERROR,   // developer error
     CHIP_INIT_ERROR,     // system error

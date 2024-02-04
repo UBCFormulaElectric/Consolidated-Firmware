@@ -45,7 +45,7 @@ void init_json_can()
     app_canTx_dimos_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-enum CAN_setup_errors
+enum class CAN_setup_errors
 {
 };
 static QTimer                            tx100Hz{}, tx1Hz{}, uiUpdate{};
@@ -85,12 +85,12 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     return std::monostate{};
 }
 
-enum GPIO_setup_errors
+enum class GPIO_setup_errors
 {
     LINE_SETUP_ERROR
 };
-const std::map<GPIO_setup_errors, std::string>                         GPIO_setup_errors_str = { { LINE_SETUP_ERROR,
-                                                                                                   "[main_GPIO] Line Setup Error" } };
+const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { GPIO_setup_errors::LINE_SETUP_ERROR,
+                                                                           "[main_GPIO] Line Setup Error" } };
 static std::array<std::optional<std::unique_ptr<QThread>>, GPIO_COUNT> gpio_monitor_threads;
 
 Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
@@ -113,9 +113,7 @@ Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplication
     }
 
     if (has_gpio_err)
-    {
-        return LINE_SETUP_ERROR;
-    }
+        return GPIO_setup_errors::LINE_SETUP_ERROR;
     qInfo("GPIO Threads Sucessfully Initialized");
     return std::monostate{};
 }
@@ -141,9 +139,9 @@ int main(int argc, char *argv[])
 
     // setup task threads
     if (const Result<std::monostate, CAN_setup_errors> r = setupCanThreads(&engine); r.index() == 1)
-        qWarning() << "CAN setup error " << get<CAN_setup_errors>(r);
+        qWarning("CAN setup error %d", get<CAN_setup_errors>(r));
     if (const Result<std::monostate, GPIO_setup_errors> r = setupGPIOThreads(&engine); r.index() == 1)
-        qWarning() << QString::fromStdString(GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r))->second);
+        qWarning(GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r))->second.c_str());
 
     return QGuiApplication::exec();
 }

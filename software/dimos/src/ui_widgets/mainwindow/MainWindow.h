@@ -22,14 +22,14 @@ class MainWindow final : public QMainWindow
   private:
     std::unique_ptr<ui::MainWindow> ui;
 
-    enum GPIO_setup_errors
+    enum class GPIO_setup_errors
     {
         LINE_SETUP_ERROR
     };
     Result<std::monostate, GPIO_setup_errors>                       setupGPIO();
     std::array<std::optional<std::unique_ptr<QThread>>, GPIO_COUNT> gpio_monitor_threads = { std::nullopt };
 
-    enum CAN_setup_errors
+    enum class CAN_setup_errors
     {
     };
     Result<std::monostate, CAN_setup_errors> setupCanBroadcasting();

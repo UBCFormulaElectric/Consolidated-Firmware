@@ -23,7 +23,7 @@ class ui_MainWindow
 {
   public:
     // Frames should only be switching when indicated by switcher
-    enum Frames
+    enum class Frames
     {
         LandingFrame,
         EnduranceFrame,
