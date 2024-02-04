@@ -16,12 +16,12 @@ Result<std::monostate, CanConnectionError> Can_Init()
 Result<JsonCanMsg, CanReadError> Can_Read()
 {
     wait_delegate_thread();
-    qInfo("[dev_CAN] Can Read Requested");
+    qInfo("Can Read Requested");
     return JsonCanMsg{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 {
-    qInfo("[dev_CAN] Can with id %d Written", msg->std_id);
+    qInfo("Can with id %d Written", msg->std_id);
     return std::monostate{};
 }

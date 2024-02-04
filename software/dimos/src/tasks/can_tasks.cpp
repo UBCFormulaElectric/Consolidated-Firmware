@@ -9,6 +9,7 @@ extern "C"
 {
 #include <io_canRx.h>
 #include <io_canTx.h>
+#include <app_canRx.h>
 }
 
 namespace can_handlers
@@ -25,7 +26,7 @@ void CanRXTask()
             switch (get<CanReadError>(res))
             {
                 case ReadInterfaceNotCreated:
-                    qWarning("[task_CAN] Can interface not created");
+                    qWarning("Can interface not created");
                     return;
                 case Timeout:
                 case SocketReadError:
@@ -42,9 +43,11 @@ void CanRXTask()
         // if we care about the message
         can_table_mutex.lock();
         io_canRx_updateRxTableWithMessage(&message);
+        app_canRx_VC_Fault_DummyFault_update(!app_canRx_VC_Fault_DummyFault_get());
+        qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
         can_table_mutex.unlock();
     }
-    qInfo("[task_CAN] exiting CanRXTask now");
+    qInfo("exiting CanRXTask now");
 }
 
 void CanPeriodicTXTask()
@@ -58,7 +61,7 @@ void CanPeriodicTXTask()
         can_table_mutex.unlock();
         QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
-    qInfo("[task_CAN] exiting CanPeriodicTXTask now");
+    qInfo("exiting CanPeriodicTXTask now");
 }
 
 void CanTx100Hz()

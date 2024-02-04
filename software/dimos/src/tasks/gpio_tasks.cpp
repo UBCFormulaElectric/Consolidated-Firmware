@@ -40,7 +40,7 @@ namespace gpio_handlers
 {
 void gpio_monitor(const gpio_input i)
 {
-    qInfo("[task_GPIO] %s thread started", GPIO_inputs_info.at(i).enum_name.c_str());
+    qInfo("%s thread started", GPIO_inputs_info.at(i).enum_name.c_str());
     while (!QThread::currentThread()->isInterruptionRequested())
     {
         const auto l_event = wait_for_line_event(i);
@@ -48,12 +48,11 @@ void gpio_monitor(const gpio_input i)
         {
             if (get<line_read_error>(l_event) == DEV_DUMMY_DATA)
                 continue;
-            qWarning("[task_GPIO] GPIO READ ERROR");
+            qWarning("GPIO READ ERROR");
             continue;
         }
         gpio_handler_funcs[i](std::get<gpio_edge>(l_event));
-        qInfo("[task_GPIO] end mainloop for %s", GPIO_inputs_info.at(i).enum_name.c_str());
     }
-    qInfo("[task_GPIO] exiting %s thread now", GPIO_inputs_info.at(i).enum_name.c_str());
+    qInfo("exiting %s thread now", GPIO_inputs_info.at(i).enum_name.c_str());
 }
 } // namespace gpio_handlers

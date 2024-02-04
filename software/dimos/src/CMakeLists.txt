@@ -25,6 +25,7 @@ include(find_libs.cmake)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
+target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DQT_DEBUG -DQT_MESSAGELOGCONTEXT) # W mans https://stackoverflow.com/a/43549795/6833423
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}

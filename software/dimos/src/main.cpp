@@ -1,5 +1,6 @@
 // can
 #include "can.h"
+#include "jsoncanqml.h"
 extern "C"
 {
 #include "app_canTx.h"
@@ -25,6 +26,10 @@ void set_qt_environment()
 #ifdef Q_OS_WIN
     qputenv("QT_WIN_DEBUG_CONSOLE", "attach");
 #endif
+
+    qSetMessagePattern("[%{time hh:mm:ss.z} | %{function}] %{message}"
+                       // "%{file}:%{line}"
+    );
 }
 
 void init_json_can()
@@ -33,7 +38,7 @@ void init_json_can()
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
-    qInfo() << "[main_JsonCAN] JsonCAN Initialized";
+    qInfo() << "JsonCAN Initialized";
 
     // set values for commit info
     app_canTx_dimos_Hash_set(GIT_COMMIT_HASH);
@@ -43,8 +48,9 @@ void init_json_can()
 enum CAN_setup_errors
 {
 };
-static QTimer                            tx100Hz{}, tx1Hz{};
+static QTimer                            tx100Hz{}, tx1Hz{}, uiUpdate{};
 static std::unique_ptr<QThread>          CanRxTaskThread, CanTxPeriodicTaskThread;
+static JSONCANQML                        jsoncan_qml_interface;
 Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref)
 {
     // tx 100hz
@@ -59,6 +65,12 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     QObject::connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx1Hz);
     QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &tx1Hz, &QTimer::stop);
     tx1Hz.start();
+    // ui update
+    uiUpdate.setInterval(can_handlers::TASK_INTERVAL_UI_UPDATE);
+    uiUpdate.setSingleShot(false);
+    QObject::connect(&uiUpdate, &QTimer::timeout, &jsoncan_qml_interface, jsoncan_qml_interface.notify_all_signals);
+    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &uiUpdate, &QTimer::stop);
+    uiUpdate.start();
     // rx
     CanRxTaskThread = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));
     CanRxTaskThread->start();
@@ -69,7 +81,7 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     QObject::connect(
         engine_ref, &QQmlApplicationEngine::quit, CanTxPeriodicTaskThread.get(), &QThread::requestInterruption);
 
-    qInfo() << "[main_CAN] CAN Threads Successfully Initialized";
+    qInfo() << "CAN Threads Successfully Initialized";
     return std::monostate{};
 }
 
@@ -104,16 +116,17 @@ Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplication
     {
         return LINE_SETUP_ERROR;
     }
-    qInfo("[main_GPIO] GPIO Threads Sucessfully Initialized");
+    qInfo("GPIO Threads Sucessfully Initialized");
     return std::monostate{};
 }
 
 int main(int argc, char *argv[])
 {
     set_qt_environment();
-    const QGuiApplication app(argc, argv);
     init_json_can();
+    qmlRegisterSingletonInstance("JSONCANQML", 1, 0, "JSONCANQML", &jsoncan_qml_interface);
 
+    const QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     engine.addImportPath(":/");
     // engine.loadFromModule("MainWindow", "MainWindow"); // this does not work on Qt < 6.6
@@ -128,13 +141,9 @@ int main(int argc, char *argv[])
 
     // setup task threads
     if (const Result<std::monostate, CAN_setup_errors> r = setupCanThreads(&engine); r.index() == 1)
-    {
         qWarning() << "CAN setup error " << get<CAN_setup_errors>(r);
-    }
     if (const Result<std::monostate, GPIO_setup_errors> r = setupGPIOThreads(&engine); r.index() == 1)
-    {
         qWarning() << QString::fromStdString(GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r))->second);
-    }
 
     return QGuiApplication::exec();
 }
