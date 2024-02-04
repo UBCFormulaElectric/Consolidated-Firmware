@@ -7,6 +7,8 @@
 // Check here for documentation about the type defined by HAL
 // https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
 
+#define HW_DEVICE_SECTOR_SIZE 512
+
 typedef struct
 {
     SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card

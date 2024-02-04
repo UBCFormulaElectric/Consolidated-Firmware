@@ -77,7 +77,6 @@ int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config 
     cfg->prog_size      = IO_LFS_PROG_SIZE;
     cfg->block_size     = IO_LFS_BLOCK_SIZE;
     cfg->lookahead_size = IO_LFS_LOOKAHEAD_SIZE;
-    cfg->block_size     = BLOCKSIZE;
     cfg->block_count    = block_number;
     cfg->block_cycles   = IO_LFS_BLOCK_CYCLES;
     cfg->cache_size     = IO_LFS_CACHE_SIZE;

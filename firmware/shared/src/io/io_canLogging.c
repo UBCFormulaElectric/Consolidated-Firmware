@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 20
+#define QUEUE_SIZE 50
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
