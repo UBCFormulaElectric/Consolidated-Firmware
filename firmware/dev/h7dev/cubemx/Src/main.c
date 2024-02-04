@@ -434,6 +434,10 @@ static void MX_GPIO_Init(void)
 
 static void canMsgRecievecallback(CanMsg *rx_msg)
 {
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
     io_can_msgReceivedCallback(rx_msg);
     io_canLogging_msgReceivedCallback(rx_msg);
 }
