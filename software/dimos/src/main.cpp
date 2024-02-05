@@ -48,10 +48,11 @@ void init_json_can()
 enum class CAN_setup_errors
 {
 };
-static QTimer                            tx100Hz{}, tx1Hz{}, uiUpdate{};
-static std::unique_ptr<QThread>          CanRxTaskThread, CanTxPeriodicTaskThread;
-static JSONCANQML                        jsoncan_qml_interface;
-Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref)
+static const std::map<CAN_setup_errors, std::string> CAN_setup_errors_str = {};
+static QTimer                                        tx100Hz{}, tx1Hz{}, uiUpdate{};
+static std::unique_ptr<QThread>                      CanRxTaskThread, CanTxPeriodicTaskThread;
+static JSONCANQML                                    jsoncan_qml_interface;
+Result<std::monostate, CAN_setup_errors>             setupCanThreads(const QQmlApplicationEngine *engine_ref)
 {
     // tx 100hz
     tx100Hz.setInterval(can_handlers::TASK_INTERVAL_100HZ);
@@ -68,7 +69,7 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     // ui update
     uiUpdate.setInterval(can_handlers::TASK_INTERVAL_UI_UPDATE);
     uiUpdate.setSingleShot(false);
-    QObject::connect(&uiUpdate, &QTimer::timeout, &jsoncan_qml_interface, jsoncan_qml_interface.notify_all_signals);
+    QObject::connect(&uiUpdate, &QTimer::timeout, &jsoncan_qml_interface, &JSONCANQML::notify_all_signals);
     QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &uiUpdate, &QTimer::stop);
     uiUpdate.start();
     // rx
@@ -91,28 +92,29 @@ enum class GPIO_setup_errors
 };
 const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { GPIO_setup_errors::LINE_SETUP_ERROR,
                                                                            "[main_GPIO] Line Setup Error" } };
-static std::array<std::optional<std::unique_ptr<QThread>>, GPIO_COUNT> gpio_monitor_threads;
+static std::vector<std::unique_ptr<QThread>>   gpio_monitor_threads;
 
 Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
 {
-    const std::array<bool, GPIO_COUNT> gpio_has_err = gpio_init();
-    bool                               has_gpio_err = false;
-    for (int i = 0; i < GPIO_COUNT; i++)
+    const std::map<gpio_input, bool> gpio_has_err     = gpio_init();
+    bool                             any_gpio_has_err = false;
+    for (auto &gpio_input : gpio_inputs)
     {
-        const auto GPIO_ENUM = static_cast<gpio_input>(i);
-        if (gpio_has_err[i])
+        if (const auto gpiokvpair = gpio_has_err.find(gpio_input);
+            gpiokvpair == gpio_has_err.end() || gpiokvpair->second)
         {
-            has_gpio_err = true;
+            any_gpio_has_err = true;
             continue;
         }
-        gpio_monitor_threads[i] = std::unique_ptr<QThread>(QThread::create(&gpio_handlers::gpio_monitor, GPIO_ENUM));
-        gpio_monitor_threads[i].value()->start();
+
+        auto new_gpio_thread = std::unique_ptr<QThread>(QThread::create(&gpio_handlers::gpio_monitor, gpio_input));
+        gpio_monitor_threads.push_back(std::move(new_gpio_thread));
+        gpio_monitor_threads.back()->start();
         QObject::connect(
-            engine_ref, &QQmlApplicationEngine::quit, gpio_monitor_threads[i].value().get(),
-            &QThread::requestInterruption);
+            engine_ref, &QQmlApplicationEngine::quit, gpio_monitor_threads.back().get(), &QThread::requestInterruption);
     }
 
-    if (has_gpio_err)
+    if (any_gpio_has_err)
         return GPIO_setup_errors::LINE_SETUP_ERROR;
     qInfo("GPIO Threads Sucessfully Initialized");
     return std::monostate{};
@@ -139,9 +141,21 @@ int main(int argc, char *argv[])
 
     // setup task threads
     if (const Result<std::monostate, CAN_setup_errors> r = setupCanThreads(&engine); r.index() == 1)
-        qWarning("CAN setup error %d", get<CAN_setup_errors>(r));
+    {
+        if (const auto can_err_kv = CAN_setup_errors_str.find(get<CAN_setup_errors>(r));
+            can_err_kv == CAN_setup_errors_str.end())
+            qWarning("Unknown CAN Setup Error");
+        else
+            qWarning("CAN Setup Error: %s", can_err_kv->second.c_str());
+    }
     if (const Result<std::monostate, GPIO_setup_errors> r = setupGPIOThreads(&engine); r.index() == 1)
-        qWarning(GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r))->second.c_str());
+    {
+        if (const auto gpio_err_kv = GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r));
+            gpio_err_kv == GPIO_setup_errors_str.end())
+            qWarning("Unknown GPIO Setup Error");
+        else
+            qWarning("GPIO Setup Error: %s", gpio_err_kv->second.c_str());
+    }
 
     return QGuiApplication::exec();
 }
