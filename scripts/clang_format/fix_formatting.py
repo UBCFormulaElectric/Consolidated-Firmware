@@ -3,7 +3,7 @@ import sys
 import multiprocessing
 
 
-def _get_platform() -> str:
+def get_platform() -> str:
     """
     Get platform this script is running on.
     """
@@ -15,13 +15,9 @@ def _get_platform() -> str:
         return "linux"
 
 
-platform = _get_platform()
-
 # Construct the command line input
-CLANG_FORMAT_VERSION = "17.0.6"
-CLANG_PLATFORM_SUFFIX = {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
 CLANG_FORMAT_BINARY = (
-    f'{os.path.join(".", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
+    "clang-format"  # Must install clang-format locally, and add to path
 )
 CLANG_FORMAT_OPTIONS = "-i --style=file"
 CLANG_FORMAT_CMD = f"{CLANG_FORMAT_BINARY} {CLANG_FORMAT_OPTIONS}"
@@ -69,7 +65,7 @@ def run_clang_format(source_file: str) -> bool:
     """
     # Append the requisite .exe file ending for Windows
     # Construct and invoke clang-format
-    if platform == "windows":
+    if get_platform() == "windows":
         command = f'"{CLANG_FORMAT_CMD} {source_file}"'
     else:
         command = f'{CLANG_FORMAT_CMD} "{source_file}"'
