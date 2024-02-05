@@ -11,6 +11,7 @@
 #include "app_commitInfo.h"
 
 #include "io_jsoncan.h"
+#include "io_log.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -49,6 +50,7 @@ void tasks_init(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
 
     // efuses:
     // HAL_ADC_Start_DMA(
