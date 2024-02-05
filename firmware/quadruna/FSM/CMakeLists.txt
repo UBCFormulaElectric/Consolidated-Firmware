@@ -45,10 +45,6 @@ file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
-# commit info
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/app_commitInfo.c")
-
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "FSM_can"
@@ -112,8 +108,7 @@ if("${TARGET}" STREQUAL "deploy")
     commit_info_library(
         "FSM.elf"
         "FSM_commit_info"
-        "${COMMIT_INFO_HEADER_PATH}"
-        "${COMMIT_INFO_SRC_PATH}"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 

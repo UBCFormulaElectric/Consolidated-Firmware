@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -143,14 +144,14 @@ int main(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
-    // Support using different FDCAN peripherals (FDCAN1 or FDCAN2) for
-    // the bootloader on different boards. This just depends on the hardware
-    // this will be flashed to. So we only need to make one STM32CubeMX project,
-    // both FDCAN peripherals are enabled and configured identically, but we only
-    // pass one the `hw_can` driver to be used during operation.
-#ifdef FDCAN1
+// Support using different FDCAN peripherals (FDCAN1 or FDCAN2) for
+// the bootloader on different boards. This just depends on the hardware
+// this will be flashed to. So we only need to make one STM32CubeMX project,
+// both FDCAN peripherals are enabled and configured identically, but we only
+// pass one the `hw_can` driver to be used during operation.
+#ifdef BOOT_FDCAN1
     hw_can_init(&hfdcan1);
-#elif defined(FDCAN2)
+#elif defined(BOOT_FDCAN2)
     hw_can_init(&hfdcan2);
 #else
 #error Define which FDCAN peripheral is used!
