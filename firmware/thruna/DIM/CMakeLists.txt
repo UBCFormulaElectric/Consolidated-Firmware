@@ -34,6 +34,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
