@@ -1,6 +1,7 @@
 #pragma once
 #include "types.h"
 
+#include <array>
 #include <map>
 #include <string>
 

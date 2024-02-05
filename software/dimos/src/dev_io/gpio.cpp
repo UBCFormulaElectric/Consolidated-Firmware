@@ -1,17 +1,17 @@
 #include "gpio.h"
 
 #include <iostream>
-#include <array>
 #include <qlogging.h>
 
 #include "dev_io_utils.h"
 
 using std::cout, std::endl;
 
-std::array<bool, GPIO_COUNT> gpio_init()
+std::map<gpio_input, bool> gpio_init()
 {
-    std::array<bool, GPIO_COUNT> out{};
-    std::fill(out.begin(), out.end(), false);
+    std::map<gpio_input, bool> out{};
+    for (const gpio_input i : gpio_inputs)
+        out[i] = true;
     return out;
 }
 
