@@ -1,0 +1,11 @@
+{
+    "VC": {
+        "msg_id": 1219,
+        "cycle_time": 100,
+        "signals": {
+            "BMS_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    }
+}

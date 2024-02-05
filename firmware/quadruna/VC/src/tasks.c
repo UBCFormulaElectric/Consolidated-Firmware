@@ -16,11 +16,12 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
+#include "hw_gpio.h"
 
-extern ADC_HandleTypeDef   *hadc1;
-extern ADC_HandleTypeDef   *hadc3;
-extern FDCAN_HandleTypeDef *hfdcan1;
-extern IWDG_HandleTypeDef  *hiwdg1;
+extern ADC_HandleTypeDef   hadc1;
+extern ADC_HandleTypeDef   hadc3;
+extern FDCAN_HandleTypeDef hfdcan1;
+// extern IWDG_HandleTypeDef  hiwdg1;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -55,8 +56,10 @@ void tasks_init(void)
     //     hw_tasks_config->hadc1->Init.NbrOfConversion);
 
     hw_hardFaultHandler_init();
-    hw_can_init(hfdcan1);
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_can_init(&hfdcan1);
+
+    // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -77,14 +80,8 @@ void tasks_run100Hz(void)
 
     for (;;)
     {
-        // test fdcan
-        CanMsg msg = {
-            .std_id = 100,
-            .dlc    = 0,
-        };
-        io_can_pushTxMsgToQueue(&msg);
-
-        hw_watchdog_checkIn(watchdog);
+        // TODO: Implement task behavior.
+        osDelay(osWaitForever);
     }
 }
 
@@ -112,7 +109,8 @@ void tasks_run1kHz(void)
 
     for (;;)
     {
-        hw_watchdog_checkIn(watchdog);
+        // TODO: Implement task behavior.
+        osDelay(osWaitForever);
     }
 }
 
@@ -123,6 +121,14 @@ void tasks_run1Hz(void)
 
     for (;;)
     {
-        hw_watchdog_checkIn(watchdog);
+        // TODO: Implement task behavior.
+        // Enqueue 1Hz messages for basic CAN testing.
+        io_canTx_enqueue1HzMsgs();
+
+        Gpio blinky = { .pin = GPIO_PIN_3, .port = GPIOA };
+        hw_gpio_writePin(&blinky, true);
+        osDelay(500);
+        hw_gpio_writePin(&blinky, false);
+        osDelay(500);
     }
 }

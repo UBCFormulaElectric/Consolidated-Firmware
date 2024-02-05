@@ -239,7 +239,12 @@
     {
       "name": "Debug Embedded: VC",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/quadruna/VC/VC.elf",
+      "executable": "build_fw_deploy/firmware/quadruna/VC/VC.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_deploy/firmware/boot/h7boot/VC_boot.elf",
+        "build_fw_deploy/firmware/quadruna/VC/VC_app.elf",
+      ],
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
