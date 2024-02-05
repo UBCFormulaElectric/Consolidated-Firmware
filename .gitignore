@@ -132,10 +132,10 @@ build_fw_deploy_wsl
 build_fw_test
 build_fw_test_wsl
 
-build_dimos_deploy
-build_dimos_dev
-build_dimos_test
-build_dimos_docker
+build_dimos_deploy*
+build_dimos_dev*
+build_dimos_test*
+build_dimos_docker*
 
 environment/bin
 CMakeUserPresets.json
