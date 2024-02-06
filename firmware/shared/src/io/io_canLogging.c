@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 200
+#define QUEUE_SIZE 2000
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -78,6 +78,7 @@ static void init_logging_file_system()
 
     // create new file on root based on the bootcount
     sprintf((char *)current_path, "%lu", bootcount);
+
     lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
 }
 

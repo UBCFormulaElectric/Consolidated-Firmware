@@ -97,7 +97,7 @@ int         ii = 0;
 static void callback(uint32_t i)
 {
     // i++;
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static CanConfig can_config = {
@@ -496,11 +496,11 @@ void runCanTxTask(void *argument)
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
 
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10000; i++)
     {
         CanMsg msg = { .std_id = 100, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
         io_canLogging_pushTxMsgToQueue(&msg);
-        osDelay(10);
+        osDelay(1);
     }
 
     osDelay(osWaitForever);
