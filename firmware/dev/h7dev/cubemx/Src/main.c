@@ -468,7 +468,7 @@ void runDefaultTask(void *argument)
     {
         // Just blinky for now
         HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_6);
-        osDelay(1000);
+        osDelay(100);
 
         CanMsg msg = {
             .std_id = 100,
@@ -492,7 +492,10 @@ void runCanTxTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg msg = { 0 };
+        // io_can_transmitMsgFromQueue();
+        osDelay(100);
+        io_canLogging_pushTxMsgToQueue(&msg);
     }
     /* USER CODE END runCanTxTask */
 }
@@ -511,7 +514,7 @@ void runCanRxTask(void *argument)
     for (;;)
     {
         CanMsg msg;
-        io_can_popRxMsgFromQueue(&msg);
+        // io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
     }
     /* USER CODE END runCanRxTask */
