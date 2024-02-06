@@ -1,6 +1,6 @@
 // TODO: Remove this test
 // this is only here to make sure te state machine compiles
-#include "test_fsmBaseStateMachineTest.h"
+#include "test_vcBaseStateMachineTest.h"
 
 class FsmFaultsTest : public FsmBaseStateMachineTest
 {
