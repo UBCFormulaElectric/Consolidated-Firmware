@@ -55,7 +55,7 @@ static void init_logging_file_system()
     io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
-    lfs_format(&lfs, &cfg);
+    // lfs_format(&lfs, &cfg); // test for now
     int err = lfs_mount(&lfs, &cfg);
     if (err)
     {
