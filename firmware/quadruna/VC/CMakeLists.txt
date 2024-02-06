@@ -27,6 +27,8 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -99,7 +101,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "VC_debug_modules")
 
     embedded_image(
         "quadruna_VC"
