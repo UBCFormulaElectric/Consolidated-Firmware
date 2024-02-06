@@ -92,38 +92,30 @@ static void mainStateRunOnTick100Hz(void)
     const float min_cell_voltage = app_canRx_BMS_MinCellVoltage_get();
     uint32_t    time_difference  = current_time - previous_time;
 
-    if (globals->fault_in_car)
+    if (fault_num > 0)
     {
-        app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
-        globals->element_num++;
-    }
-
-    else if (time_difference > 2000 && time_difference < 2500)
-    {
-        if (fault_num > 0)
+        if (time_difference > 100 && time_difference < 200)
         {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
-            globals->element_num  = 0;
-            globals->fault_in_car = true;
-        }
 
-        else if (element_num < warning_num)
-        {
-            app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
+            for (uint8_t element =0; element < fault_num; element++)
+            {
+                app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)fault_array[element_num]);
+                globals->element_num++;
+            }
         }
 
         else
         {
             app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
-            globals->element_num = 0;
+            globals->previous_time = previous_time;
         }
-        globals->previous_time = previous_time;
     }
 
     else
     {
         app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
     }
+
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
 }

@@ -31,7 +31,7 @@ void app_coolant_broadcast(void)
     RangeCheckStatus coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, &coolant_flow);
     app_canTx_FSM_CoolantFlowRate_set(coolant_flow);
     // app_canAlerts_FSM_Warning_FlowRateOutOfRange_set(coolant_status != VALUE_IN_RANGE);
-     app_canAlerts_FSM_Warning_FlowRateOutOfRange_set(true);
+    app_canAlerts_FSM_Warning_FlowRateOutOfRange_set(true);
 
     // motor shutdown in flow rate check
     const bool  in_drive_state             = app_canRx_DCM_State_get() == DCM_DRIVE_STATE;
