@@ -91,7 +91,7 @@ enum class GPIO_setup_errors
     LINE_SETUP_ERROR
 };
 const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { GPIO_setup_errors::LINE_SETUP_ERROR,
-                                                                           "[main_GPIO] Line Setup Error" } };
+                                                                           "Line Setup Error" } };
 static std::vector<std::unique_ptr<QThread>>   gpio_monitor_threads;
 
 Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
