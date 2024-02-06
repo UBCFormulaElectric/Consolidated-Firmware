@@ -12,6 +12,7 @@
 
 #include "io_jsoncan.h"
 #include "io_log.h"
+#include "io_canRx.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -37,7 +38,7 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
 }
 
 const CanConfig can_config = {
-    .rx_msg_filter        = NULL,
+    .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
@@ -65,7 +66,6 @@ void tasks_init(void)
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
     io_can_init(&can_config);
 
     app_canTx_init();
@@ -101,6 +101,10 @@ void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
