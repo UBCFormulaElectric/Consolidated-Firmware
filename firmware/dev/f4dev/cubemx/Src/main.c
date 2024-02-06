@@ -510,7 +510,7 @@ void StartDefaultTask(void *argument)
     UART modem_uart = { .handle = &huart2 };
     /* Infinite loop */
 
-    uint8_t message[7] = {66, 79, 79, 66, 83, 13, 10};
+    uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
     for (;;)
     {
         // hw_uart_transmitDma(&modem_uart, message, sizeof(message));
