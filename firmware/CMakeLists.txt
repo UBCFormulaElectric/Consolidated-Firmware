@@ -71,3 +71,4 @@ ENDIF()
 
 add_subdirectory(dev)
 add_subdirectory(boot)
+add_subdirectory(serial_debugger)

@@ -143,11 +143,11 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
+    app_globals_init(&globals_config);
     app_heartbeatMonitor_init(
         HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
         &app_canTx_DCM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
-    app_globals_init(&globals_config);
 
     // broadcast commit info
     app_canTx_DCM_Hash_set(GIT_COMMIT_HASH);
@@ -165,8 +165,8 @@ void tasks_run1Hz(void)
 
     for (;;)
     {
-        io_sbgEllipse_getComStatus();
         app_stateMachine_tick1Hz();
+        hw_stackWaterMarkConfig_check();
 
         const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
         io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
@@ -215,7 +215,6 @@ void tasks_run1kHz(void)
 
     for (;;)
     {
-        hw_stackWaterMarkConfig_check();
         hw_watchdog_checkForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
