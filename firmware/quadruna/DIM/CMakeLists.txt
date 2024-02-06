@@ -41,16 +41,6 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "DIM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
-
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "DIM_can"
@@ -101,10 +91,17 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "DIM_app"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
+        DIM_app
+        "${CAN_SRCS}"
+        "${CAN_INCLUDE_DIRS}"
+        "${ARM_CORE}"
+        TRUE
+    )
+
+        commit_info_library(
+        "DIM_app.elf"
+        "DIM_commit_info"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
     target_link_libraries("DIM_can" "DIM_stm32cube")
