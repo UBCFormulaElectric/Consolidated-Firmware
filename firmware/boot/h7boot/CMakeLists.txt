@@ -77,4 +77,5 @@ if("${TARGET}" STREQUAL "deploy")
     endfunction()
 
     stm32h7_bootloader("h7dev_boot" "h7dev" "")
+    stm32h7_bootloader("VC_boot" "VC" "")
 endif()

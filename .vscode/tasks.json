@@ -121,7 +121,7 @@
         {
             "label": "Build: VC",
             "type": "shell",
-            "command": "make -j`nproc` VC.elf",
+            "command": "make -j`nproc` VC.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
