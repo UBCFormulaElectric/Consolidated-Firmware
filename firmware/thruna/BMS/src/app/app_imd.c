@@ -3,10 +3,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "App_CanUtils.h"
-#include "App_CanTx.h"
-#include "App_SharedMacros.h"
+#include "app_canUtils.h"
+#include "app_canTx.h"
+#include "app_utils.h"
 
+// PWM_TICKS_MAX also defined and explained in "hw_pwmInputs.c"
 #define IMD_FREQUENCY_TOLERANCE 2.0f
 
 /**
@@ -21,8 +22,9 @@ static float getIdealPwmFrequency(ImdConditionName condition_name)
     // Key: IMD condition
     // Value: PWM output frequency
     static const float imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
-        [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
-        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_GROUND_FAULT] = 50.0f,
+        [IMD_CONDITION_SHORT_CIRCUIT] = 0.0f,          [IMD_CONDITION_NORMAL] = 10.0f,
+        [IMD_CONDITION_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_CONDITION_SST] = 30.0f,
+        [IMD_CONDITION_DEVICE_ERROR] = 40.0f,          [IMD_CONDITION_GROUND_FAULT] = 50.0f,
     };
 
     return imd_frequency_lookup[condition_name];
@@ -36,11 +38,11 @@ static float getIdealPwmFrequency(ImdConditionName condition_name)
  */
 static ImdConditionName estimateConditionName(const float frequency)
 {
-    ImdConditionName condition_name = IMD_INVALID;
+    ImdConditionName condition_name = IMD_CONDITION_INVALID;
 
     for (ImdConditionName i = 0U; i < NUM_OF_IMD_CONDITIONS; i++)
     {
-        // Use min() because subtracting from 0Hz (IMD_SHORT_CIRCUIT) causes an
+        // Use min() because subtracting from 0Hz (IMD_CONDITION_SHORT_CIRCUIT) causes an
         // underflow
         const float lower_bound = MIN(getIdealPwmFrequency(i), getIdealPwmFrequency(i) - IMD_FREQUENCY_TOLERANCE);
 
@@ -64,20 +66,29 @@ ImdCondition app_imd_getCondition()
     ImdCondition condition;
     memset(&condition, 0, sizeof(condition));
 
-    condition.name = estimateConditionName(pwm_frequency);
+    const uint8_t ticks_since_pwm_update = io_imd_pwmCounterTick();
+
+    if (ticks_since_pwm_update == MAX_8_BITS_VALUE)
+    {
+        condition.name = IMD_CONDITION_SHORT_CIRCUIT;
+    }
+    else
+    {
+        condition.name = estimateConditionName(pwm_frequency);
+    }
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
     {
-        case IMD_SHORT_CIRCUIT:
+        case IMD_CONDITION_SHORT_CIRCUIT:
         {
             // This condition doesn't use duty cycle to encode information so
             // any duty cycle is valid.
             condition.pwm_encoding.valid_duty_cycle = true;
         }
         break;
-        case IMD_NORMAL:
-        case IMD_UNDERVOLTAGE_DETECTED:
+        case IMD_CONDITION_NORMAL:
+        case IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
             condition.pwm_encoding.valid_duty_cycle =
                 (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 95.0f) ? true : false;
@@ -106,7 +117,7 @@ ImdCondition app_imd_getCondition()
             }
         }
         break;
-        case IMD_SST:
+        case IMD_CONDITION_SST:
         {
             condition.pwm_encoding.valid_duty_cycle = ((pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f) ||
                                                        (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f))
@@ -126,14 +137,14 @@ ImdCondition app_imd_getCondition()
             }
         }
         break;
-        case IMD_DEVICE_ERROR:
-        case IMD_GROUND_FAULT:
+        case IMD_CONDITION_DEVICE_ERROR:
+        case IMD_CONDITION_GROUND_FAULT:
         {
             condition.pwm_encoding.valid_duty_cycle =
                 (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
         }
         break;
-        case IMD_INVALID:
+        case IMD_CONDITION_INVALID:
         {
             condition.pwm_encoding.valid_duty_cycle = false;
         }
@@ -160,39 +171,55 @@ float app_imd_getPwmDutyCycle()
 
 void app_imd_broadcast()
 {
-    App_CanTx_BMS_ImdFrequency_Set(app_imd_getPwmFrequency());
-    App_CanTx_BMS_ImdDutyCycle_Set(app_imd_getPwmDutyCycle());
-    App_CanTx_BMS_ImdSecondsSincePowerOn_Set(io_imd_getTimeSincePowerOn());
+    app_canTx_BMS_ImdFrequency_set(app_imd_getPwmFrequency());
+    app_canTx_BMS_ImdDutyCycle_set(app_imd_getPwmDutyCycle());
+    app_canTx_BMS_ImdSecondsSincePowerOn_set(io_imd_getTimeSincePowerOn());
 
     const ImdCondition condition = app_imd_getCondition();
-    App_CanTx_BMS_ImdCondition_Set((uint8_t)condition.name);
-    App_CanTx_BMS_ImdValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
+    app_canTx_BMS_ImdCondition_set((ImdConditionName)condition.name);
+    app_canTx_BMS_ImdValidDutyCycle_set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
-        case IMD_NORMAL:
+        case IMD_CONDITION_SHORT_CIRCUIT:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_0Hz);
+        }
+        break;
+        case IMD_CONDITION_NORMAL:
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp10Hz_Set(
+                app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMS_ImdActiveFrequency_Set(IMD_10Hz);
+                app_canTx_BMS_ImdActiveFrequency_set(IMD_10Hz);
             }
         }
         break;
-        case IMD_UNDERVOLTAGE_DETECTED:
+        case IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMS_ImdInsulationMeasurementDcp20Hz_Set(
+                app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMS_ImdActiveFrequency_Set(IMD_20Hz);
+                app_canTx_BMS_ImdActiveFrequency_set(IMD_20Hz);
             }
         }
         break;
-        case IMD_SST:
+        case IMD_CONDITION_SST:
         {
-            App_CanTx_BMS_ImdSpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
+            app_canTx_BMS_ImdSpeedStartStatus30Hz_set(condition.pwm_encoding.speed_start_status);
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_30Hz);
+        }
+        break;
+        case IMD_CONDITION_DEVICE_ERROR:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_40Hz);
+        }
+        break;
+        case IMD_CONDITION_GROUND_FAULT:
+        {
+            app_canTx_BMS_ImdActiveFrequency_set(IMD_50Hz);
         }
         break;
         default:

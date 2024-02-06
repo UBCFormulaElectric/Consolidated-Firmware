@@ -10,8 +10,8 @@ void app_globals_init(const GlobalsConfig *config)
     memset(globals, 0U, sizeof(Globals));
     globals->config = config;
 
-    App_Timer_InitTimer(&globals->precharge_lower_bound_timer, PRECHARGE_COMPLETION_LOWER_BOUND);
-    App_Timer_InitTimer(&globals->precharge_upper_bound_timer, PRECHARGE_COMPLETION_UPPER_BOUND);
+    app_timer_init(&globals->precharge_lower_bound_timer, PRECHARGE_COMPLETION_LOWER_BOUND);
+    app_timer_init(&globals->precharge_upper_bound_timer, PRECHARGE_COMPLETION_UPPER_BOUND);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;

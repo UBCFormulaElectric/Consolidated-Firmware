@@ -4,8 +4,9 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedStateMachine.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_SharedHeartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -13,14 +14,13 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedSoftwareWatchdog.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedStackWaterMark.c"
-    "${SHARED_IO_INCLUDE_DIR}/Io_SharedHeartbeatMonitor.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS 
@@ -29,22 +29,13 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
 )
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DIR}")
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-
-# Autogenerate git commit info header/source.
-set(COMMIT_INFO_HEADER_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.h")
-set(COMMIT_INFO_SRC_PATH "${CMAKE_CURRENT_BINARY_DIR}/app/App_CommitInfo.c")
-commit_info_library(
-    "PDM_commit_info"
-    "${COMMIT_INFO_HEADER_PATH}"
-    "${COMMIT_INFO_SRC_PATH}"
-    "${ARM_CORE}"
-)
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
@@ -52,6 +43,7 @@ if("${TARGET}" STREQUAL "deploy")
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
+        "thruna"
     )
     embedded_library(
         PDM_can
@@ -102,6 +94,15 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
+
+    # Autogenerate git commit info header/source.
+    commit_info_library(
+        "PDM_app.elf"
+        "PDM_commit_info"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
+        "${ARM_CORE}"
+    )
+
     target_link_libraries("PDM_can" "PDM_stm32cube")
     target_link_libraries("PDM_app.elf" "PDM_stm32cube" "PDM_can" "PDM_commit_info")
 
@@ -119,6 +120,7 @@ elseif("${TARGET}" STREQUAL "test")
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
     add_library(PDM_can STATIC "${CAN_SRCS}")
     target_include_directories(PDM_can PUBLIC "${CAN_INCLUDE_DIRS}")
@@ -139,5 +141,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("PDM_test" "PDM_can" "PDM_fakes" "PDM_commit_info" "shared_fakes")
+    target_link_libraries("PDM_test" "PDM_can" "PDM_fakes" "shared_fakes")
 endif()

@@ -62,13 +62,43 @@
       },
     },
     {
-      "name": "Debug Embedded: FSM",
+      "name": "Debug Embedded: FSM (Thruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_deploy/firmware/boot/f4boot/FSM_boot.elf",
         "build_fw_deploy/firmware/thruna/FSM/FSM_app.elf",
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: FSM",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: FSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
+      "name": "Debug Embedded: FSM (Quadruna)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/FSM/FSM.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_deploy/firmware/boot/f4boot/FSM_boot.elf",
+        "build_fw_deploy/firmware/quadruna/FSM/FSM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -207,6 +237,36 @@
       }
     },
     {
+      "name": "Debug Embedded: VC",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/VC/VC.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_deploy/firmware/boot/h7boot/VC_boot.elf",
+        "build_fw_deploy/firmware/quadruna/VC/VC_app.elf",
+      ],
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32h7x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build: VC",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: h7dev",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
       "name": "Debug Tests: BMS",
       "type": "cppdbg",
       "request": "launch",
@@ -235,10 +295,24 @@
       }
     },
     {
-      "name": "Debug Tests: FSM",
+      "name": "Debug Tests: FSM (Thruna)",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/thruna/FSM/FSM_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build: FSM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: FSM (Quadruna)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/FSM/FSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: FSM_test",
       "linux": {
@@ -269,6 +343,20 @@
       "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/DIM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build: DIM_test",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: VC",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/VC/VC_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build: VC_test",
       "linux": {
         "MIMode": "gdb"
       },

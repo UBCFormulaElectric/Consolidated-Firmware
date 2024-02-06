@@ -2,8 +2,7 @@
 #include "app_soc.h"
 #include <stdint.h>
 #include <float.h>
-#include "App_SharedConstants.h"
-#include "App_SharedProcessing.h"
+#include "app_math.h"
 #include "lut/app_cellVoltageToSocLut.h"
 #include "app_tractiveSystem.h"
 
@@ -108,8 +107,8 @@ void app_soc_init(void)
         stats.soc_address = DEFAULT_SOC_ADDR;
     }
 
-    App_Timer_InitTimer(&stats.soc_timer, SOC_TIMER_DURATION);
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 uint16_t app_soc_getSocAddress(void)
@@ -126,14 +125,14 @@ void app_soc_updateSocStats(void)
 {
     // NOTE current sign is relative to current into the battery
     double *charge_c     = &stats.charge_c;
-    float * prev_current = &stats.prev_current_A;
+    float  *prev_current = &stats.prev_current_A;
     float   current      = app_tractiveSystem_getCurrent();
 
-    double elapsed_time_s = (double)App_Timer_GetElapsedTime(&stats.soc_timer) * MS_TO_S;
-    App_Timer_Restart(&stats.soc_timer);
+    double elapsed_time_s = (double)app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
+    app_timer_restart(&stats.soc_timer);
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
-    App_SharedProcessing_TrapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
+    app_math_trapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
 }
 
 float app_soc_getMinSocCoulombs(void)
@@ -165,7 +164,7 @@ void app_soc_resetSocFromVoltage(void)
 
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }
 
 void app_soc_resetSocCustomValue(float soc_percent)
@@ -174,5 +173,5 @@ void app_soc_resetSocCustomValue(float soc_percent)
 
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
-    App_CanTx_BMS_SocCorrupt_Set(stats.is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
 }

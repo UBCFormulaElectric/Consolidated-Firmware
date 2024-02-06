@@ -1,27 +1,29 @@
 #pragma once
-
-#include <optional>
-#include <cstdint>
 #include "types.h"
 
-extern "C" {
-#include "Io_CanTx.h"
+extern "C"
+{
+#include "io_canTx.h"
 };
 
-enum CanConnectionError {
-	SocketError,
-	BindError
+enum CanConnectionError
+{
+    SocketError,
+    BindError
 };
 
-enum CanReadError {
-	ReadInterfaceNotCreated,
-	SocketReadError,
-	IncompleteCanFrame
+enum CanReadError
+{
+    ReadInterfaceNotCreated,
+    SocketReadError,
+    IncompleteCanFrame,
+    Timeout,
 };
 
-enum CanWriteError {
-	WriteInterfaceNotCreated,
-	SocketWriteError,
+enum CanWriteError
+{
+    WriteInterfaceNotCreated,
+    SocketWriteError,
 };
 
 Result<std::monostate, CanConnectionError> Can_Init();

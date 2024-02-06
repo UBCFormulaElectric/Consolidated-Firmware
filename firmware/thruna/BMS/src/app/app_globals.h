@@ -4,9 +4,8 @@
 #include "io_faultLatch.h"
 #include "io_charger.h"
 #include "io_thermistors.h"
-#include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedClock.h"
-#include "App_Timer.h"
+#include "app_heartbeatMonitor.h"
+#include "app_timer.h"
 
 typedef struct
 {
@@ -18,8 +17,7 @@ typedef struct
 typedef struct
 {
     // Config.
-    const GlobalsConfig *    config;
-    struct HeartbeatMonitor *hb_monitor;
+    const GlobalsConfig *config;
 
     // State variables.
     uint32_t     cell_monitor_settle_count;

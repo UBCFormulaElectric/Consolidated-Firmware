@@ -1,42 +1,60 @@
 #include "io_imd.h"
 #include <assert.h>
 #include "main.h"
-#include <task.h>
-#include "Io_SharedPwmInput.h"
+#include "hw_pwmInput.h"
+#include "io_time.h"
 
-extern TIM_HandleTypeDef htim1;
+#define PWM_TICKS_MAX 255
 
-static struct PwmInput *  imd_pwm_input;
-static TIM_HandleTypeDef *imd_htim;
+static PwmInput pwm_input;
 
-void io_imd_init(void)
+static uint8_t pwm_counter = 0;
+/*
+This is a software counter that is incremented everytime the status of the IMD
+is broadcasted to CAN and the counter resets everytime the pwm signal from the
+IMD is received and turned into an IMD state to broadcast. When the counter reaches
+255 it will result in a 0 hz reading from the pwm signal. Usually if the IMD was not
+sending a frequency, it would not trigger the interrupt that updates IMD state
+*/
+
+uint8_t io_imd_pwmCounterTick(void)
 {
-    imd_pwm_input = Io_SharedPwmInput_Create(&htim1, TIM1_FREQUENCY / TIM1_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
-    imd_htim      = &htim1;
+    if (pwm_counter != PWM_TICKS_MAX)
+    {
+        pwm_counter++;
+        return pwm_counter;
+    }
+    return pwm_counter;
+}
+
+void io_imd_init(const PwmInputConfig *pwm_input_config)
+{
+    io_pwmInput_init(&pwm_input, pwm_input_config);
 }
 
 float io_imd_getFrequency(void)
 {
-    return Io_SharedPwmInput_GetFrequency(imd_pwm_input);
+    return hw_pwmInput_getFrequency(&pwm_input);
 }
 
 float io_imd_getDutyCycle(void)
 {
-    return Io_SharedPwmInput_GetDutyCycle(imd_pwm_input);
+    return hw_pwmInput_getDutyCycle(&pwm_input);
 }
 
 void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == imd_htim)
+    if (htim == pwm_input.config->htim)
     {
-        Io_SharedPwmInput_Tick(imd_pwm_input);
+        hw_pwmInput_tick(&pwm_input);
+        pwm_counter = 0; // Reset the ticks since the last pwm reading
     }
 }
 
-uint16_t io_imd_getTimeSincePowerOn(void)
+uint32_t io_imd_getTimeSincePowerOn(void)
 {
     // The IMD shares the same power rail as the BMS, so we assume that the IMD
     // and BMS boot up at the same time. In other words, the IMD has been ON
     // for just as long as the BMS.
-    return (uint16_t)(xTaskGetTickCount() * portTICK_RATE_MS) / 1000U;
+    return io_time_getCurrentMs();
 }

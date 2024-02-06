@@ -4,12 +4,14 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
-#endif
+#include "hw_pwmInput.h"
 
 /**
  * Initialize the PWM input for measuring the IMD's PWM output
+ * @param pwm_input_config The config for measuring the IMD's PWM output.
  */
-void io_imd_init(void);
+void io_imd_init(const PwmInputConfig *pwm_input_config);
+#endif
 
 /**
  * Get the frequency of the IMD's PWM output
@@ -37,4 +39,10 @@ void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim);
  * Get the time elapsed since the IMD was powered on
  * @return The the time elapsed since the IMD was powered on, in seconds
  */
-uint16_t io_imd_getTimeSincePowerOn(void);
+uint32_t io_imd_getTimeSincePowerOn(void);
+
+/**
+ * Increments software counter that checks how long ago IMD pwm signal was received
+ * @return The current count of the counter
+ */
+uint8_t io_imd_pwmCounterTick(void);

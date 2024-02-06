@@ -9,7 +9,7 @@
 #include "io_can.h"
 #include "hw_flash.h"
 #include "hw_hardFaultHandler.h"
-#include "Io_SharedMacros.h"
+#include "hw_utils.h"
 #include "hw_crc.h"
 #include "main.h"
 #include "hw_gpio.h"

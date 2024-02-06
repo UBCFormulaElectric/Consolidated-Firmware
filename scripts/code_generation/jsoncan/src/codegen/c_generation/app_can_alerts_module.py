@@ -4,8 +4,8 @@ from .c_config import *
 from .c_writer import *
 
 NUM_ALERTS = "NUM_{node}_{alert_type}S"
-BOARD_HAS_ALERT_FUNC_NAME = "App_CanAlerts_BoardHas{alert_type}"
-ANY_ALERT_FUNC_NAME = "App_CanAlerts_AnyBoardHas{alert_type}"
+BOARD_HAS_ALERT_FUNC_NAME = "app_canAlerts_BoardHas{alert_type}"
+ANY_ALERT_FUNC_NAME = "app_canAlerts_AnyBoardHas{alert_type}"
 ALERT_BOARD_ENUM_NAME = "{node}_ALERT_BOARD"
 
 
@@ -162,7 +162,7 @@ class AppCanAlertsModule(CModule):
         cw.add_header_comment("Includes")
         cw.add_line()
         cw.add_include("<stdbool.h>")
-        cw.add_include('"App_CanUtils.h"')
+        cw.add_include('"app_canUtils.h"')
 
         # Add enums
         cw.add_line()
@@ -227,9 +227,9 @@ class AppCanAlertsModule(CModule):
         cw.add_line()
         cw.add_header_comment("Includes")
         cw.add_line()
-        cw.add_include('"App_CanAlerts.h"')
-        cw.add_include('"App_CanTx.h"')
-        cw.add_include('"App_CanRx.h"')
+        cw.add_include('"app_canAlerts.h"')
+        cw.add_include('"app_canTx.h"')
+        cw.add_include('"app_canRx.h"')
 
         # Add function definitions
         cw.add_line()

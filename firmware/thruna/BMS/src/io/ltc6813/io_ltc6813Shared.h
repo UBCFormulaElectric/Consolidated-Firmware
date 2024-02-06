@@ -1,11 +1,15 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedConstants.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+#include "hw_spi.h"
 #endif
+
+// clang-format off
+// Time that a SPI transaction should wait for until until an error is returned
+#define LTC6813_SPI_TIMEOUT_MS (10U)
 
 typedef enum
 {
@@ -63,6 +67,10 @@ typedef enum
 // ADC mode selection
 #define MD (1U)
 
+// ADOW mode selection
+#define PUP_PU (1U) // Pull-up current
+#define PUP_PD (0U) // Pull-down current
+
 // clang-format on
 
 // Each command sent includes: 1 cmd word + 1 PEC15 word, which is
@@ -90,9 +98,9 @@ typedef enum
 #ifdef TARGET_EMBEDDED
 /**
  * Initialize the SPI handle used to communicate with the LTC6813
- * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
+ * @param spi The given SPI handle for the LTC6813 daisy chain.
  */
-void io_ltc6813Shared_init(SPI_HandleTypeDef *spi_handle);
+void io_ltc6813Shared_init(const SpiInterface *spi);
 #endif
 
 /**

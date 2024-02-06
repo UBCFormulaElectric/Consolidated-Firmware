@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Io_SharedSoftwareWatchdog.h"
+#include "hw_watchdog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

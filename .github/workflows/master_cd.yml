@@ -5,9 +5,9 @@ on:
       - master
 
 jobs:
-  # Build DBC and Binaries
+  # Build DBC and Binaries (Thruna)
   build:
-    name: Build Firmware Binaries
+    name: Build Firmware Binaries (Thruna)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -47,6 +47,7 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
+          platform: thruna_firmware
       # Uploads .hex binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v3

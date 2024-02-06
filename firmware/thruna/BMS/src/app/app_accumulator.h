@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "App_SharedConstants.h"
-#include "App_CanTx.h"
+#include "app_canTx.h"
 #include "app_tractiveSystem.h"
 #include "ltc6813/io_ltc6813Shared.h"
 
@@ -38,6 +37,11 @@ void app_accumulator_writeDefaultConfig(void);
  * Tick function to be called at 100Hz.
  */
 void app_accumulator_runOnTick100Hz(void);
+
+/**
+ * Open Wire Check state machine
+ */
+bool app_accumulator_openWireCheck(void);
 
 /**
  * Broadcast state of the accumulator over CAN.
