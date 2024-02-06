@@ -22,16 +22,16 @@ typedef struct
 
 typedef struct
 {
-    const GlobalsConfig     *config;
-    HeartbeatMonitor *heartbeat_monitor;
-    uint32_t                 previous_time;
-    uint32_t                 *fault_code_array;
-    uint32_t                 *warning_code_array;
-    uint32_t                 *total_faults;
-    uint8_t                  fault_element_num;
-    uint8_t                  warning_element_num;
-    uint8_t                  element_num;
-    uint8_t                  total_element_num;
+    const GlobalsConfig *config;
+    HeartbeatMonitor    *heartbeat_monitor;
+    uint32_t             previous_time;
+    uint32_t            *fault_code_array;
+    uint32_t            *warning_code_array;
+    uint32_t            *total_faults;
+    uint8_t              fault_element_num;
+    uint8_t              warning_element_num;
+    uint8_t              element_num;
+    uint8_t              total_element_num;
 } Globals;
 
 extern Globals *const globals;

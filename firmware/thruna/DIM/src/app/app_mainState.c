@@ -17,10 +17,10 @@ static void mainStateRunOnTick100Hz(void)
 {
     uint32_t *fault_array   = globals->fault_code_array;
     uint32_t *warning_array = globals->warning_code_array;
-    uint8_t  element_num   = globals->element_num;
-    uint32_t current_time  = io_time_getCurrentMs();
-    uint32_t previous_time = globals->previous_time;
-    bool     present       = false;
+    uint8_t   element_num   = globals->element_num;
+    uint32_t  current_time  = io_time_getCurrentMs();
+    uint32_t  previous_time = globals->previous_time;
+    bool      present       = false;
 
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
     io_led_enable(globals->config->imd_led, imd_fault_latched);
@@ -83,9 +83,9 @@ static void mainStateRunOnTick100Hz(void)
     uint8_t fault_num   = globals->fault_element_num;
     uint8_t warning_num = globals->warning_element_num;
 
-    for (int i = 0; i<=fault_num; i++)
+    for (int i = 0; i <= fault_num; i++)
     {
-        for (int j = 0; j <= globals->total_element_num;j++)
+        for (int j = 0; j <= globals->total_element_num; j++)
         {
             if (fault_array[i] == globals->total_faults[j])
             {
@@ -120,7 +120,7 @@ static void mainStateRunOnTick100Hz(void)
             app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, (float)globals->total_faults[element_num]);
         }
 
-        else if (time_difference>=4000)
+        else if (time_difference >= 4000)
         {
             globals->previous_time = current_time;
             globals->element_num++;
