@@ -14,6 +14,7 @@ list (APPEND BOOT_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(BOOT_INCLUDE_DIRS 
     "${BOOT_DIR}"
