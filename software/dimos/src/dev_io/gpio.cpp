@@ -11,7 +11,7 @@ std::map<gpio_input, bool> gpio_init()
 {
     std::map<gpio_input, bool> out{};
     for (const gpio_input i : gpio_inputs)
-        out[i] = true;
+        out[i] = false;
     return out;
 }
 
