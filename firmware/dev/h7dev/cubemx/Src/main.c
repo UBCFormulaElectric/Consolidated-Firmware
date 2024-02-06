@@ -181,7 +181,16 @@ int main(void)
     }
 
     // Configure and initialize SEGGER SystemView.
-
+    // static int e = 0;
+    // uint8_t    buff[4096];
+    // for (size_t i = 0; i < 1000; i++)
+    // {
+    //     uint32_t start = i * 4096 / 512;
+    //     if (hw_sd_write(&sd, buff, start, 4096 / 512) != SD_CARD_OK)
+    //     {
+    //         e++;
+    //     }
+    // }
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
