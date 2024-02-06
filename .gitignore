@@ -140,5 +140,6 @@ build_dimos_docker
 environment/bin
 CMakeUserPresets.json
 build
+!/Makefile
 
 zadig.exe

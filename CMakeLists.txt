@@ -26,10 +26,10 @@ ELSE ()
     set(NO_VENV ON)
 ENDIF ()
 file(
-        DOWNLOAD
-        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-        EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
@@ -50,43 +50,49 @@ ENDIF ()
 
 # ======== Python Checks ========
 IF (WIN32)
-    set(PIP_RAW_COMMAND pip)
+    set(PIP_COMMAND pip)
     set(PYTHON_RAW_COMMAND python)
 ELSE ()
-    set(PIP_RAW_COMMAND pip3)
+    set(PIP_COMMAND pip3)
     set(PYTHON_RAW_COMMAND python3)
 ENDIF ()
 IF (NO_VENV)
-    set(PIP_COMMAND ${PIP_RAW_COMMAND})
     set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
 ELSE ()
-    IF (WIN32)
-        set(PYTHON_COMMAND pipenv run python)
-    ELSE ()
-        set(PYTHON_COMMAND pipenv run python3)
-    ENDIF ()
-    execute_process(COMMAND pipenv --venv
-            RESULT_VARIABLE PIPENV_RESULT
-            OUTPUT_VARIABLE PIPENV_OUTPUT
-            ERROR_VARIABLE PIPENV_ERROR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE)
-    if(${PIPENV_RESULT})
-        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}")
-    else ()
-        message("Pipenv path: ${PIPENV_OUTPUT}")
-    endif ()
+    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
 ENDIF ()
 
 find_package(Python3 COMPONENTS Interpreter)
-find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
 IF (Python3_VERSION VERSION_LESS 3.8)
     message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
     message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
-message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
+message("🐍 Found Python ${Python3_VERSION} with command \"${PYTHON_COMMAND}\"")
 
+find_program(HAS_PIP_COMMAND ${PIP_COMMAND})
+IF (NOT HAS_PIP_COMMAND)
+    message(FATAL_ERROR "❌ pip not found. Please reinstall Python and make sure to click the buttons to install pip")
+ENDIF ()
+
+IF(NOT NO_VENV) # USE_VENV in effect
+    find_program(HAS_PIPENV_COMMAND pipenv)
+    IF (NOT HAS_PIPENV_COMMAND)
+        message(FATAL_ERROR "❌ pipenv not found. Please install it with \"pip install pipenv\"")
+    ENDIF ()
+    execute_process(COMMAND pipenv --venv
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            RESULT_VARIABLE PIPENV_RESULT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    if(${PIPENV_RESULT})
+        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}
+        Make sure that you have ran \"pipenv install\" in the root directory")
+    else ()
+        message("Pipenv path: ${PIPENV_OUTPUT}")
+    endif ()
+ENDIF()
 # ======== Python Checks ========
 set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" ON)
