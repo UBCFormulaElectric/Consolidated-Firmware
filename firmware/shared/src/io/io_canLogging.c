@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 30
+#define QUEUE_SIZE 200
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -36,6 +36,8 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_mem    = queue_buf,
     .mq_size   = QUEUE_BYTES,
 };
+
+#define MAX_NUM_MSGS (IO_LFS_CACHE_SIZE / sizeof(CanMsg))
 
 static char                  file_buffer[IO_LFS_CACHE_SIZE];
 const struct lfs_file_config fcfg = {
@@ -109,22 +111,28 @@ void io_canLogging_recordMsgFromQueue(void)
     {
         return;
     }
+
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
-
+    // lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT | LFS_O_APPEND, &fcfg); // this file opens
+    // forever
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    if (size != sizeof(tx_msg))
-    {
-        // something happend
-    }
-    static uint32_t message_written = 0;
-    message_written++;
-    // write the buffer to the storage
-    if (message_written >= (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
-    {
-        message_written = 0;
-        lfs_file_sync(&lfs, &file);
-    }
+    // lfs_file_sync(&lfs, &file);
+    // lfs_file_close(&lfs, &file); // this file opens forever
+    assert(size = sizeof(tx_msg));
+
+    // static uint32_t msgs_written = 0;
+    // msgs_written++;
+    // if(msgs_written > MAX_NUM_MSGS/2)
+    // {
+    //     io_canLogging_sync();
+    //     msgs_written = 0;
+    // }
+}
+
+void io_canLogging_sync(void)
+{
+    assert(lfs_file_sync(&lfs, &file) == 0);
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)

@@ -14,6 +14,8 @@ void io_canLogging_init(const CanConfig *can_config);
  */
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg);
 
+void io_canLogging_sync(void);
+
 /**
  * write the can message to the sdcard
  * pop the massage from queue
