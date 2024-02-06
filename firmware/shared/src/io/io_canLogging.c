@@ -9,14 +9,13 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 50
+#define QUEUE_SIZE 30
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 
-#define QUEUE_SIZE 20
 static uint32_t current_bootcount;
 
 static lfs_t             lfs;
@@ -56,7 +55,8 @@ static void init_logging_file_system()
     io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
-    int      err       = lfs_mount(&lfs, &cfg);
+    lfs_format(&lfs, &cfg);
+    int err = lfs_mount(&lfs, &cfg);
     if (err)
     {
         lfs_format(&lfs, &cfg);

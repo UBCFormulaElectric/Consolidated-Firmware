@@ -31,15 +31,7 @@ SdCardStatus hw_sd_readOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, u
         return (SdCardStatus)status;
     }
 
-    uint8_t local_buffer[HW_DEVICE_SECTOR_SIZE];
-
-    status = hw_sd_read(sd, local_buffer, block_addr, 1); // write the whole
-    if (status != SD_CARD_OK)
-        return status;
-
-    memcpy(pdata, (void *)(local_buffer + offset), size); // copy a section of data out
-
-    return status;
+    return SD_CARD_ERROR;
 }
 
 SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
@@ -66,16 +58,7 @@ SdCardStatus hw_sd_writeOffset(SdCard *sd, uint8_t *pdata, uint32_t block_addr, 
         return status;
     }
 
-    uint8_t local_buffer[HW_DEVICE_SECTOR_SIZE];
-
-    status = hw_sd_read(sd, local_buffer, block_addr, 1); // read the whole block
-    if (status != SD_CARD_OK)
-        return status;
-
-    memcpy((void *)(local_buffer + offset), pdata, size);  // write to local buffer from offet to offset + size
-    status = hw_sd_write(sd, local_buffer, block_addr, 1); // write back
-
-    return status;
+    return SD_CARD_ERROR;
 }
 
 SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
