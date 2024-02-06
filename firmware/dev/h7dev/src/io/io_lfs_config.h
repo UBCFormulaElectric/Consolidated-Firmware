@@ -3,11 +3,11 @@
 #include <stdint.h>
 
 // those factor will be multiple with the block size
-#define IO_LFS_BLOCK_SIZE_FACTOR 8
+#define IO_LFS_BLOCK_SIZE_FACTOR 1
 #define IO_LFS_READ_SIZE_FACTOR 1
 #define IO_LFS_PROG_SIZE_FACTOR 1
 #define IO_LFS_LOOKAHEAD_SIZE_FACTOR 1
-#define IO_LFS_CACHE_SIZE_FACTOR 4 // a multiple of the read and program sizes
+#define IO_LFS_CACHE_SIZE_FACTOR 1 // a multiple of the read and program sizes
 #define IO_LFS_BLOCK_CYCLES -1
 
 #define IO_LFS_BLOCK_SIZE HW_DEVICE_SECTOR_SIZE *IO_LFS_BLOCK_SIZE_FACTOR
