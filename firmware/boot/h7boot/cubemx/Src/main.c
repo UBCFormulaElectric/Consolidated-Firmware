@@ -47,8 +47,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 CRC_HandleTypeDef hcrc;
 
-CRC_HandleTypeDef hcrc;
-
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
@@ -108,7 +106,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan2, .can0MsgRecievecallback = 0, .can1MsgRecievecallback = 0 };
+CanHandle can = { .canMsgRecievecallback = NULL };
 /* USER CODE END 0 */
 
 /**
@@ -149,9 +147,11 @@ int main(void)
 // both FDCAN peripherals are enabled and configured identically, but we only
 // pass one the `hw_can` driver to be used during operation.
 #ifdef BOOT_FDCAN1
-    hw_can_init(&hfdcan1);
+    can.can = &hfdcan1;
+    hw_can_init(&can);
 #elif defined(BOOT_FDCAN2)
-    hw_can_init(&hfdcan2);
+    can.can = &hfdcan2;
+    hw_can_init(&can);
 #else
 #error Define which FDCAN peripheral is used!
 #endif

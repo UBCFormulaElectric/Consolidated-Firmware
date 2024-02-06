@@ -2,6 +2,7 @@
 // interface read  write
 // using HAL layer
 #include "hw_sd.h"
+#include "hw_utils.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,19 +74,20 @@ SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
 
 SdCardStatus hw_sd_write_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
-        ;
     while (!dma_tx_completed)
         ;
+    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
+        ;
 
-    HAL_StatusTypeDef status = HAL_SD_WriteBlocks_DMA(sd->hsd, pdata, block_addr, num_blocks);
     dma_tx_completed         = false;
+    HAL_StatusTypeDef status = HAL_SD_WriteBlocks_DMA(sd->hsd, pdata, block_addr, num_blocks);
     return (SdCardStatus)status;
 }
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
     dma_tx_completed = true;
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)

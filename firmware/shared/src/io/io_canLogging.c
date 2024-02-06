@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 30
+#define QUEUE_SIZE 4096
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -55,7 +55,7 @@ static void init_logging_file_system()
     io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
-    lfs_format(&lfs, &cfg);
+    // lfs_format(&lfs, &cfg); // test for now
     int err = lfs_mount(&lfs, &cfg);
     if (err)
     {
@@ -64,7 +64,9 @@ static void init_logging_file_system()
     }
 
     // get bootcount value from the file; use this to create new file for logging
-    lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    if (err)
+        return;
     lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
     // update bootcount for next boot
@@ -90,6 +92,15 @@ void io_canLogging_init(const CanConfig *can_config)
 
     // create new folder for this boot
     init_logging_file_system();
+    // CanMsg   tx_msg = { 0 };
+    // uint64_t start  = HAL_GetTick();
+    // for (int i = 0; i < 20000; i++)
+    // {
+    //     lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+    // }
+    // lfs_file_close(&lfs, &file);
+    // uint64_t end = HAL_GetTick();
+    // uint64_t a   = end - start;
 }
 
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
@@ -113,18 +124,7 @@ void io_canLogging_recordMsgFromQueue(void)
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    if (size != sizeof(tx_msg))
-    {
-        // something happend
-    }
-    static uint32_t message_written = 0;
-    message_written++;
-    // write the buffer to the storage
-    if (message_written >= (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
-    {
-        message_written = 0;
-        lfs_file_sync(&lfs, &file);
-    }
+    assert(size = sizeof(tx_msg));
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
@@ -144,4 +144,13 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         // config->rx_overflow_callback(++rx_overflow_count);
     }
+}
+
+void io_canLogging_sync()
+{
+    // SAVe the seek before close
+    lfs_soff_t seek = lfs_file_seek(&lfs, &file, 0, LFS_SEEK_CUR);
+    lfs_file_close(&lfs, &file);
+    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
+    lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
 }

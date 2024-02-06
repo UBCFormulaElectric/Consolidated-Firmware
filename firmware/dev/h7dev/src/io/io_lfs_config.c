@@ -20,7 +20,9 @@ int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, vo
     {
         return LFS_ERR_IO;
     }
-    if (hw_sd_readOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
+    if (hw_sd_readOffset(
+            &sd, (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) !=
+        SD_CARD_OK)
     {
         return LFS_ERR_IO;
     }
@@ -34,7 +36,9 @@ int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, co
     {
         return LFS_ERR_IO;
     }
-    if (hw_sd_writeOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
+    if (hw_sd_writeOffset(
+            &sd, (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) !=
+        SD_CARD_OK)
     {
         return LFS_ERR_IO;
     }
@@ -47,7 +51,8 @@ int io_lfs_erase(const struct lfs_config *c, lfs_block_t block)
     {
         return LFS_ERR_IO;
     }
-    if (hw_sd_erase(&sd, (uint32_t)block, (uint32_t)block))
+    uint32_t start = block * IO_LFS_BLOCK_SIZE_FACTOR;
+    if (hw_sd_erase(&sd, start, start + IO_LFS_BLOCK_SIZE_FACTOR - 1))
     {
         return LFS_ERR_IO;
     }
@@ -77,12 +82,13 @@ int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config 
     cfg->prog_size      = IO_LFS_PROG_SIZE;
     cfg->block_size     = IO_LFS_BLOCK_SIZE;
     cfg->lookahead_size = IO_LFS_LOOKAHEAD_SIZE;
-    cfg->block_count    = block_number;
-    cfg->block_cycles   = IO_LFS_BLOCK_CYCLES;
-    cfg->cache_size     = IO_LFS_CACHE_SIZE;
-    cfg->read_buffer    = lfs_read_buffer;
-    cfg->prog_buffer    = lfs_prog_buffer;
-    cfg->attr_max       = 0;
+    // cfg->block_count    = block_number / IO_LFS_BLOCK_SIZE_FACTOR;
+    cfg->block_count  = 1000000;
+    cfg->block_cycles = IO_LFS_BLOCK_CYCLES;
+    cfg->cache_size   = IO_LFS_CACHE_SIZE;
+    cfg->read_buffer  = lfs_read_buffer;
+    cfg->prog_buffer  = lfs_prog_buffer;
+    cfg->attr_max     = 0;
 
     return 0;
 }
