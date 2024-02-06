@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "app_sbgEllipse.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"
@@ -47,10 +46,12 @@ typedef enum
     NUM_SBG_OUTPUTS,
 } SbgEllipseOutput;
 
+#ifdef TARGET_EMBEDDED
 /*
  * Initialize the SBG Ellipse N sensor IO module.
  */
 bool io_sbgEllipse_init(UART *imu_uart);
+#endif
 
 /*
  * Parse all logs which are currently residing in the UART RX buffer.
