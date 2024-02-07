@@ -62,29 +62,33 @@ bool BMS_fakeCanHeartbeatGetter(void)
 }
 
 // callback config structs to be passed in to methods later on
-void (*fault_can_setters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &BMS_fakeCanFaultSetter,
-                                                           [DCM_HEARTBEAT_BOARD] = NULL,
-                                                           [PDM_HEARTBEAT_BOARD] = NULL,
-                                                           [FSM_HEARTBEAT_BOARD] = NULL,
-                                                           [DIM_HEARTBEAT_BOARD] = &DIM_fakeCanFaultSetter };
+void (*fault_can_setters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = &BMS_fakeCanFaultSetter,
+                                                           [VC_HEARTBEAT_BOARD]   = NULL,
+                                                           [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [DIM_HEARTBEAT_BOARD]  = &DIM_fakeCanFaultSetter,
+                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
 
-void (*heartbeat_can_updaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = &BMS_fakeCanHeartbeatUpdater,
-                                                                [DCM_HEARTBEAT_BOARD] = NULL,
-                                                                [PDM_HEARTBEAT_BOARD] = NULL,
-                                                                [FSM_HEARTBEAT_BOARD] = NULL,
-                                                                [DIM_HEARTBEAT_BOARD] = &DIM_fakeCanHeartbeatUpdater };
+void (*heartbeat_can_updaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = &BMS_fakeCanHeartbeatUpdater,
+                                                                [VC_HEARTBEAT_BOARD]   = NULL,
+                                                                [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                                [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                                [DIM_HEARTBEAT_BOARD]  = &DIM_fakeCanHeartbeatUpdater,
+                                                                [CRIT_HEARTBEAT_BOARD] = NULL };
 
-bool (*heartbeat_can_getters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &BMS_fakeCanHeartbeatGetter,
-                                                           [DCM_HEARTBEAT_BOARD] = NULL,
-                                                           [PDM_HEARTBEAT_BOARD] = NULL,
-                                                           [FSM_HEARTBEAT_BOARD] = NULL,
-                                                           [DIM_HEARTBEAT_BOARD] = &DIM_fakeCanHeartbeatGetter };
+bool (*heartbeat_can_getters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = &BMS_fakeCanHeartbeatGetter,
+                                                           [VC_HEARTBEAT_BOARD]   = NULL,
+                                                           [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [DIM_HEARTBEAT_BOARD]  = &DIM_fakeCanHeartbeatGetter,
+                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
 
-bool (*fault_can_getters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &BMS_fakeCanFaultGetter,
-                                                       [DCM_HEARTBEAT_BOARD] = NULL,
-                                                       [PDM_HEARTBEAT_BOARD] = NULL,
-                                                       [FSM_HEARTBEAT_BOARD] = NULL,
-                                                       [DIM_HEARTBEAT_BOARD] = &DIM_fakeCanFaultGetter };
+bool (*fault_can_getters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = &BMS_fakeCanFaultGetter,
+                                                       [VC_HEARTBEAT_BOARD]   = NULL,
+                                                       [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                       [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                       [DIM_HEARTBEAT_BOARD]  = &DIM_fakeCanFaultGetter,
+                                                       [CRIT_HEARTBEAT_BOARD] = NULL };
 
 TEST(HeartbeatMonitor, test_check_faults)
 {
@@ -100,7 +104,7 @@ TEST(HeartbeatMonitor, test_check_faults)
     heartbeats_to_check[DIM_HEARTBEAT_BOARD] = true;
 
     app_heartbeatMonitor_init(
-        100, heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
+        heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
 
     // check that there are no faults
@@ -132,11 +136,10 @@ TEST(HeartbeatMonitor, test_create)
 
     // create and assert time fields work
     app_heartbeatMonitor_init(
-        100, heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
+        heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
-    ASSERT_EQ(heartbeat_monitor->timeout_period_ms, 100);
     ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
 
     // check self heartbeat setter
@@ -160,14 +163,13 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
     /* test broadcast faults */
     // initialize monitor
 
-    bool heartbeats_to_check[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
-                                                        [DCM_HEARTBEAT_BOARD] = false,
-                                                        [PDM_HEARTBEAT_BOARD] = false,
-                                                        [FSM_HEARTBEAT_BOARD] = false,
-                                                        [DIM_HEARTBEAT_BOARD] = true };
+    bool heartbeats_to_check[HEARTBEAT_BOARD_COUNT] = {
+        [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = false,
+        [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = false
+    };
 
     app_heartbeatMonitor_init(
-        100, heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
+        heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
@@ -233,36 +235,38 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     heartbeats_to_check[DIM_HEARTBEAT_BOARD] = true;
 
     app_heartbeatMonitor_init(
-        100, heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
+        heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &FSM_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
     // assert nothing changed (0 ms)
     app_heartbeatMonitor_tick();
-    ASSERT_EQ(heartbeat_monitor->timeout_period_ms, 100);
     ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[BMS_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[VC_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[FSM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[RSM_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DIM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[PDM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DCM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[CRIT_HEARTBEAT_BOARD]);
 
     ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[BMS_HEARTBEAT_BOARD], heartbeats_to_check[BMS_HEARTBEAT_BOARD]);
+    ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[VC_HEARTBEAT_BOARD], heartbeats_to_check[VC_HEARTBEAT_BOARD]);
     ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[FSM_HEARTBEAT_BOARD], heartbeats_to_check[FSM_HEARTBEAT_BOARD]);
+    ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[RSM_HEARTBEAT_BOARD], heartbeats_to_check[RSM_HEARTBEAT_BOARD]);
     ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[DIM_HEARTBEAT_BOARD], heartbeats_to_check[DIM_HEARTBEAT_BOARD]);
-    ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[PDM_HEARTBEAT_BOARD], heartbeats_to_check[PDM_HEARTBEAT_BOARD]);
-    ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[DCM_HEARTBEAT_BOARD], heartbeats_to_check[DCM_HEARTBEAT_BOARD]);
+    ASSERT_EQ(heartbeat_monitor->heartbeats_to_check[CRIT_HEARTBEAT_BOARD], heartbeats_to_check[CRIT_HEARTBEAT_BOARD]);
 
     // confirm status good
     ASSERT_TRUE(heartbeat_monitor->status[BMS_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[VC_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[FSM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[RSM_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[DIM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[PDM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[DCM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[CRIT_HEARTBEAT_BOARD]);
 
-    // check in BMS and DIM (50 ms)
-    fake_io_time_getCurrentMs_returns(50);
+    // check in BMS and DIM midway (150 ms)
+    fake_io_time_getCurrentMs_returns(150);
 
     DIM_fake_can_heartbeat_state = true;
     BMS_fake_can_heartbeat_state = true;
@@ -277,26 +281,28 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     ASSERT_TRUE(heartbeat_monitor->heartbeats_checked_in[BMS_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->heartbeats_checked_in[DIM_HEARTBEAT_BOARD]);
 
-    // progress to timeout period and verify all good (100 ms)
-    fake_io_time_getCurrentMs_returns(100);
+    // progress to timeout period and verify all good (300 ms)
+    fake_io_time_getCurrentMs_returns(300);
     app_heartbeatMonitor_tick();
 
-    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 100);
+    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 300);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[BMS_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[VC_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[FSM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[RSM_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DIM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[PDM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DCM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[CRIT_HEARTBEAT_BOARD]);
 
     ASSERT_TRUE(heartbeat_monitor->status[BMS_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[VC_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[FSM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[RSM_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[DIM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[PDM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[DCM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[CRIT_HEARTBEAT_BOARD]);
 
-    // check in DIM (150ms)
-    fake_io_time_getCurrentMs_returns(150);
+    // check in DIM midway (450 ms)
+    fake_io_time_getCurrentMs_returns(450);
 
     DIM_fake_can_heartbeat_state = true;
     BMS_fake_can_heartbeat_state = false;
@@ -311,22 +317,24 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     ASSERT_TRUE(heartbeat_monitor->heartbeats_checked_in[DIM_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[BMS_HEARTBEAT_BOARD]);
 
-    // progress to timeout period and verify bms missing (200 ms)
-    fake_io_time_getCurrentMs_returns(200);
+    // progress to timeout period and verify bms missing (600 ms)
+    fake_io_time_getCurrentMs_returns(600);
     app_heartbeatMonitor_tick();
 
-    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 200);
+    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 600);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[BMS_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[VC_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[FSM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[RSM_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DIM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[PDM_HEARTBEAT_BOARD]);
-    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[DCM_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[CRIT_HEARTBEAT_BOARD]);
 
     // BMS not checked in returns false
     ASSERT_FALSE(heartbeat_monitor->status[BMS_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[VC_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[FSM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[RSM_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[DIM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[PDM_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[DCM_HEARTBEAT_BOARD]);
+    ASSERT_TRUE(heartbeat_monitor->status[CRIT_HEARTBEAT_BOARD]);
 }

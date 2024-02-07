@@ -8,16 +8,16 @@
 typedef enum
 {
     BMS_HEARTBEAT_BOARD,
-    DCM_HEARTBEAT_BOARD,
-    PDM_HEARTBEAT_BOARD,
+    VC_HEARTBEAT_BOARD,
+    RSM_HEARTBEAT_BOARD,
     FSM_HEARTBEAT_BOARD,
     DIM_HEARTBEAT_BOARD,
+    CRIT_HEARTBEAT_BOARD,
     HEARTBEAT_BOARD_COUNT
 } HeartbeatBoards;
 
 typedef struct
 {
-    uint32_t timeout_period_ms;
     uint32_t previous_timeout_ms;
     bool     heartbeats_checked_in[HEARTBEAT_BOARD_COUNT];
     bool     heartbeats_to_check[HEARTBEAT_BOARD_COUNT];
@@ -43,8 +43,7 @@ typedef struct
 } HeartbeatMonitor;
 
 void app_heartbeatMonitor_init(
-    uint32_t timeout_period_ms,
-    bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
+    bool boards_to_check[HEARTBEAT_BOARD_COUNT],
     bool (*heartbeat_getters[HEARTBEAT_BOARD_COUNT])(),
     void (*heartbeat_updaters[HEARTBEAT_BOARD_COUNT])(bool),
     void (*heartbeat_setter)(bool),

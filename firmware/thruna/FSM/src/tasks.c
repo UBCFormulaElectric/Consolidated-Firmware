@@ -142,8 +142,8 @@ void tasks_init(void)
     app_stateMachine_init(app_mainState_get());
 
     app_heartbeatMonitor_init(
-        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &app_canTx_FSM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
 
     // broadcast commit info
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);

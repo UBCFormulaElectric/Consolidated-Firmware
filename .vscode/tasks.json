@@ -218,9 +218,27 @@
             }
         },
         {
-            "label": "Build Tests: Shared",
+            "label": "Build Tests: Shared (All Boards)",
             "type": "shell",
             "command": "make -j`nproc` shared_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: Shared (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_shared_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: Shared (Thruna)",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_shared_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
