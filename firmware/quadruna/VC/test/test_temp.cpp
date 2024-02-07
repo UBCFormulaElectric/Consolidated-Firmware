@@ -2,11 +2,11 @@
 // this is only here to make sure te state machine compiles
 #include "test_vcBaseStateMachineTest.h"
 
-class FsmFaultsTest : public FsmBaseStateMachineTest
+class VcFaultsTest : public VcBaseStateMachineTest
 {
 };
 
-TEST_F(FsmFaultsTest, temporary)
+TEST_F(VcFaultsTest, temporary)
 {
     ASSERT_TRUE(true);
 }
