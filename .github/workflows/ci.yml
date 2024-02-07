@@ -134,25 +134,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: thruna_FSM
+          - board: FSM
             car: thruna
-          - board: thruna_PDM
+          - board: PDM
             car: thruna
-          - board: thruna_BMS
+          - board: BMS
             car: thruna
-          - board: thruna_DCM
+          - board: DCM
             car: thruna
-          - board: thruna_DIM
+          - board: DIM
             car: thruna
-          - board: quadruna_VC
+          - board: VC
             car: quadruna
-          - board: quadruna_BMS
+          - board: BMS
             car: quadruna
-          - board: quadruna_FSM
+          - board: FSM
             car: quadruna
-          - board: quadruna_RSM
+          - board: RSM
             car: quadruna
-          - board: quadruna_CRIT
+          - board: CRIT
             car: quadruna
 
     container:
@@ -178,12 +178,12 @@ jobs:
       - name: Build
         run: |
           cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.car }}_${{ matrix.board }}_test
 
       - name: Run Tests
         run: |
           cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
 
   test-shared:
     name: Test Shared
