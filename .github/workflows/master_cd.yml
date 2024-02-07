@@ -5,9 +5,9 @@ on:
       - master
 
 jobs:
-  # Build DBC and Binaries (Thruna)
+  # Build DBC and Binaries
   build:
-    name: Build Firmware Binaries (Thruna)
+    name: Build Firmware
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

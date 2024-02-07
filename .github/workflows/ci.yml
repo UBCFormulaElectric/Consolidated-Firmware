@@ -95,7 +95,7 @@ jobs:
 
   build-firmware:
     needs: [ clang-format ]
-    name: Build Firmware Binaries (Quadruna)
+    name: Build Firmware Binaries
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -128,22 +128,32 @@ jobs:
 
   test:
     needs: [ clang-format ]
-    name: Test Thruna
+    name: Test Firmware
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - thruna_FSM
-          - thruna_PDM
-          - thruna_BMS
-          - thruna_DCM
-          - thruna_DIM
-          - quadruna_VC
-          - quadruna_BMS
-          - quadruna_FSM
-          - quadruna_RSM
-          - quadruna_CRIT
+        include:
+          - board: thruna_FSM
+            car: thruna
+          - board: thruna_PDM
+            car: thruna
+          - board: thruna_BMS
+            car: thruna
+          - board: thruna_DCM
+            car: thruna
+          - board: thruna_DIM
+            car: thruna
+          - board: quadruna_VC
+            car: quadruna
+          - board: quadruna_BMS
+            car: quadruna
+          - board: quadruna_FSM
+            car: quadruna
+          - board: quadruna_RSM
+            car: quadruna
+          - board: quadruna_CRIT
+            car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -165,14 +175,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build (Thruna)
+      - name: Build
         run: |
-          cmake -B $BUILD_DIR -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
-      - name: Run Tests (Thruna)
+      - name: Run Tests
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
+          cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-shared:
