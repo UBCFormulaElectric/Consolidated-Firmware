@@ -45,14 +45,14 @@ list(REMOVE_ITEM HW_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "DIM_can"
+        "thruna_DIM_can"
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "thruna"
     )
     embedded_library(
-        DIM_can
+        thruna_DIM_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -82,7 +82,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "DIM_stm32cube"
+        "thruna_DIM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -92,7 +92,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "DIM_app"
+        "thruna_DIM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -101,21 +101,21 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "DIM_app.elf"
-        "DIM_commit_info"
+        "thruna_DIM_app.elf"
+        "thruna_DIM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("DIM_can" "DIM_stm32cube")
-    target_link_libraries("DIM_app.elf" "DIM_can" "DIM_stm32cube" "DIM_commit_info")
+    target_link_libraries("thruna_DIM_can" "thruna_DIM_stm32cube")
+    target_link_libraries("thruna_DIM_app.elf" "thruna_DIM_can" "thruna_DIM_stm32cube" "thruna_DIM_commit_info")
     
     embedded_image(
-        "DIM"
-        "DIM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/DIM_app.hex"
-        "DIM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/DIM_boot.hex"
+        "thruna_DIM"
+        "thruna_DIM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_DIM_app.hex"
+        "thruna_DIM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_DIM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
@@ -123,26 +123,26 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sevenSegDisplays.h"
     )
     create_fake_library(
-        "DIM_fakes"
+        "thruna_DIM_fakes"
         "${HEADERS_TO_FAKE}"
     )
 
     jsoncan_library(
-        "DIM_can"
+        "thruna_DIM_can"
         "DIM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "thruna"
     )
-    add_library(DIM_can STATIC "${CAN_SRCS}")
-    target_include_directories(DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(thruna_DIM_can STATIC "${CAN_SRCS}")
+    target_include_directories(thruna_DIM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "DIM_test"
+        "thruna_DIM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DIM_test" "DIM_can" "DIM_fakes" "shared_fakes")
+    target_link_libraries("thruna_DIM_test" "thruna_DIM_can" "thruna_DIM_fakes" "shared_fakes")
 endif()

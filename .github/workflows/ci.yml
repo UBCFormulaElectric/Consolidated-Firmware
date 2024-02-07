@@ -30,24 +30,34 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
-  codegen-thruna:
-    name: Check CubeMX Code Gen (Thruna)
+  codegen:
+    name: Check CubeMX Code Gen
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     strategy:
       fail-fast: false
       matrix:
         include:
-          - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: BMS
+            ioc_dir: firmware/thruna/BMS/src/cubemx
+          - board: DCM
+            ioc_dir: firmware/thruna/DCM/src/cubemx
           - board: FSM
             ioc_dir: firmware/thruna/FSM/src/cubemx
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
-          - board: DCM
-            ioc_dir: firmware/thruna/DCM/src/cubemx
+          - board: DIM
+            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: VC
+            ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
-            ioc_dir: firmware/thruna/BMS/src/cubemx
+            ioc_dir: firmware/quadruna/BMS/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/quadruna/FSM/src/cubemx
+          - board: RSM
+            ioc_dir: firmware/quadruna/RSM/src/cubemx
+          - board: DIM
+            ioc_dir: firmware/quadruna/DIM/src/cubemx
           - board: f4boot
             ioc_dir: firmware/boot/f4boot/cubemx
           - board: f4dev
@@ -83,84 +93,7 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
-  codegen-quadruna:
-    name: Check CubeMX Code Gen (Quadruna)
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - board: DIM
-            ioc_dir: firmware/quadruna/DIM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/quadruna/FSM/src/cubemx
-          - board: VC
-            ioc_dir: firmware/quadruna/VC/src/cubemx
-          - board: BMS
-            ioc_dir: firmware/quadruna/BMS/src/cubemx
-          - board: RSM
-            ioc_dir: firmware/quadruna/RSM/src/cubemx
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    steps:
-      # Fix to get git diff working in a Docker container
-      # https://github.com/actions/checkout/issues/363
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we 
-      # we also generate a checksum from the .ioc file when code is generated during builds.
-      # During CI, we re-generate the checksum. If it matches, then the code is up to date, 
-      # otherwise, you need to re-generate STM32CubeMX code locally.
-      - name: Generate checksum
-        run: |
-          python3 scripts/utilities/generate_md5_checksum.py \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc \
-            $GITHUB_WORKSPACE/${{ matrix.ioc_dir }}/${{ matrix.board }}.ioc.md5
-
-      - name: Check for differences
-        run: git --no-pager diff --color --exit-code
-
-  build-firmware-thruna:
-    needs: [ clang-format ]
-    name: Build Firmware Binaries (Thruna)
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
-          - f4dev
-          - h7dev
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.docker_token }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: ./.github/actions/build_binary
-        with:
-          board: ${{ matrix.board }}
-          platform: thruna_firmware
-
-  build-firmware-quadruna:
+  build-firmware:
     needs: [ clang-format ]
     name: Build Firmware Binaries (Quadruna)
     runs-on: ubuntu-latest
@@ -168,11 +101,16 @@ jobs:
       fail-fast: false
       matrix:
         board:
-          - FSM
-          - BMS
-          - VC
-          - DIM
-          - RSM
+          - thruna_BMS
+          - thruna_DCM
+          - thruna_FSM
+          - thruna_PDM
+          - thruna_DIM
+          - quadruna_VC
+          - quadruna_BMS
+          - quadruna_FSM
+          - quadruna_RSM
+          - quadruna_CRIT
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -187,9 +125,8 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
-          platform: quadruna_firmware
 
-  test-thruna:
+  test:
     needs: [ clang-format ]
     name: Test Thruna
     runs-on: ubuntu-22.04
@@ -197,11 +134,16 @@ jobs:
       fail-fast: false
       matrix:
         board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
+          - thruna_FSM
+          - thruna_PDM
+          - thruna_BMS
+          - thruna_DCM
+          - thruna_DIM
+          - quadruna_VC
+          - quadruna_BMS
+          - quadruna_FSM
+          - quadruna_RSM
+          - quadruna_CRIT
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -225,56 +167,12 @@ jobs:
 
       - name: Build (Thruna)
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
 
       - name: Run Tests (Thruna)
         run: |
           cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
-
-  test-quadruna:
-    needs: [ clang-format ]
-    name: Test Quadruna
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        board:
-          - FSM
-          - BMS
-          - VC
-          - DIM
-          - RSM
-
-    container:
-      image: ubcformulaelectric/environment:latest
-      credentials:
-        username: ubcformulaelectric
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    env:
-      BUILD_DIR: build_fw_test
-
-    steps:
-      # Fix to ensure that commands like git status work in child directories 
-      # for gitpython in git_commit_info
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Build (Quadruna)
-        run: |
-          cmake -B $BUILD_DIR -DPLATFORM=quadruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
-
-      - name: Run Tests (Quadruna)
-        run: |
-          cd $BUILD_DIR/firmware/quadruna/${{ matrix.board }}
           valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
 
   test-shared:
@@ -303,7 +201,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -337,7 +235,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=thruna_firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests
