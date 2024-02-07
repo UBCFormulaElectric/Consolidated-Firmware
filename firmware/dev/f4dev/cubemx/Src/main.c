@@ -510,12 +510,23 @@ void StartDefaultTask(void *argument)
     UART modem_uart = { .handle = &huart2 };
     /* Infinite loop */
 
-    uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+    //uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+    
+    uint8_t = predicData; //use this if just want numbers
+    //uint8_t = message [8]; //use this if you want fun string
+
     for (;;)
     {
-        // hw_uart_transmitDma(&modem_uart, message, sizeof(message));
-        hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100);
+        for(predicData = 0; predicData <= 255; predicData++){
+
+        hw_uart_transmitPoll(&modem_uart, &predicData , 1 , 100); //this is for 0->255
+
+        // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
+        // hw_uart_transmitPoll(&modem)uart, messsage, sizeof(message), 100); //fun string 
+        
         osDelay(1);
+        }
+      
     }
     /* USER CODE END 5 */
 }
