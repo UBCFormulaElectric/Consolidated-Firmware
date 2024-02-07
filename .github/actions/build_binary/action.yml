@@ -1,5 +1,5 @@
 name: Build Firmware Binaries Action
-description: Builds the binaryZ for a given board
+description: Builds the binary for a given board
 inputs:
   board:
     description: The board for which to build a binary
