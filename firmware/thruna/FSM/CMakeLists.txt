@@ -44,14 +44,14 @@ list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 # Autogenerate git commit info header/source.
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "FSM_can"
+        "thruna_FSM_can"
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "thruna"
     )
     embedded_library(
-        FSM_can
+        thruna_FSM_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -83,7 +83,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "FSM_stm32cube"
+        "thruna_FSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -93,7 +93,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "FSM_app"
+        "thruna_FSM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -101,33 +101,33 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     commit_info_library(
-        "FSM_app.elf"
-        "FSM_commit_info"
+        "thruna_FSM_app.elf"
+        "thruna_FSM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("FSM_can" "FSM_stm32cube")
-    target_link_libraries("FSM_app.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info" "m")
+    target_link_libraries("thruna_FSM_can" "thruna_FSM_stm32cube")
+    target_link_libraries("thruna_FSM_app.elf" "thruna_FSM_stm32cube" "thruna_FSM_can" "thruna_FSM_commit_info" "m")
 
     embedded_image(
-        "FSM"
-        "FSM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/FSM_app.hex"
-        "FSM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/FSM_boot.hex"
+        "thruna_FSM"
+        "thruna_FSM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_FSM_app.hex"
+        "thruna_FSM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_FSM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
-        "FSM_can"
+        "thruna_FSM_can"
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "thruna"
     )
-    add_library(FSM_can STATIC "${CAN_SRCS}")
-    target_include_directories(FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(thruna_FSM_can STATIC "${CAN_SRCS}")
+    target_include_directories(thruna_FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"
@@ -137,16 +137,16 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
     )
     create_fake_library(
-        "FSM_fakes"
+        "thruna_FSM_fakes"
         "${HEADERS_TO_FAKE}"
     )
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "FSM_test"
+        "thruna_FSM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("FSM_test" "FSM_can" "FSM_fakes" "shared_fakes")
+    target_link_libraries("thruna_FSM_test" "thruna_FSM_can" "thruna_FSM_fakes" "shared_fakes")
 endif()

@@ -99,7 +99,7 @@ IF (FIX_FORMATTING)
 ENDIF ()
 
 message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
-IF ("${PLATFORM}" STREQUAL "thruna_firmware" OR "${PLATFORM}" STREQUAL "quadruna_firmware")
+IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Dependency Handling ========
     IF (HANDLE_DEPS)
         include(firmware/cmake/dependencies.cmake)
@@ -130,10 +130,10 @@ IF ("${PLATFORM}" STREQUAL "thruna_firmware" OR "${PLATFORM}" STREQUAL "quadruna
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
 ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'thruna_firmware', 'quadruna_firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF()
 
-IF (("${PLATFORM}" STREQUAL "thruna_firmware") OR ("${PLATFORM}" STREQUAL "quadruna_firmware"))
+IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
