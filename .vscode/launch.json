@@ -34,7 +34,7 @@
     {
       "name": "Debug Embedded: BMS (Quadruna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/quadruna/BMS/BMS_quadruna.hex",
+      "executable": "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         // "build_fw_deploy/firmware/boot/h7boot/BMS_quadruna_boot.elf",
