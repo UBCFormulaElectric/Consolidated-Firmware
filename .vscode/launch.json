@@ -4,11 +4,11 @@
     {
       "name": "Debug Embedded: BMS",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/BMS/BMS.hex",
+      "executable": "build_fw_deploy/firmware/thruna/BMS/thruna_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/BMS_boot.elf",
-        "build_fw_deploy/firmware/thruna/BMS/BMS_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/thruna_BMS_boot.elf",
+        "build_fw_deploy/firmware/thruna/BMS/thruna_BMS_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -17,7 +17,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: BMS",
+      "preLaunchTask": "Build Embedded: BMS",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -34,11 +34,11 @@
     {
       "name": "Debug Embedded: DCM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/DCM/DCM.hex",
+      "executable": "build_fw_deploy/firmware/thruna/DCM/thruna_DCM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/DCM_boot.elf",
-        "build_fw_deploy/firmware/thruna/DCM/DCM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/thruna_DCM_boot.elf",
+        "build_fw_deploy/firmware/thruna/DCM/thruna_DCM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -47,7 +47,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DCM",
+      "preLaunchTask": "Build Embedded: DCM",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -64,11 +64,11 @@
     {
       "name": "Debug Embedded: FSM (Thruna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/FSM/FSM.hex",
+      "executable": "build_fw_deploy/firmware/thruna/FSM/thruna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/FSM_boot.elf",
-        "build_fw_deploy/firmware/thruna/FSM/FSM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/thruna_FSM_boot.elf",
+        "build_fw_deploy/firmware/thruna/FSM/thruna_FSM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -77,7 +77,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: FSM",
+      "preLaunchTask": "Build Embedded: FSM (Thruna)",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -94,12 +94,7 @@
     {
       "name": "Debug Embedded: FSM (Quadruna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/quadruna/FSM/FSM.hex",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/FSM_boot.elf",
-        "build_fw_deploy/firmware/quadruna/FSM/FSM_app.elf",
-      ],
+      "executable": "build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM.elf",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "openocd",
@@ -107,7 +102,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: FSM",
+      "preLaunchTask": "Build Embedded: FSM (Quadruna)",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -124,11 +119,11 @@
     {
       "name": "Debug Embedded: PDM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/PDM/PDM.hex",
+      "executable": "build_fw_deploy/firmware/thruna/PDM/thruna_PDM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/PDM_boot.elf",
-        "build_fw_deploy/firmware/thruna/PDM/PDM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/thruna_PDM_boot.elf",
+        "build_fw_deploy/firmware/thruna/PDM/thruna_PDM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -137,7 +132,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: PDM",
+      "preLaunchTask": "Build Embedded: PDM",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -154,11 +149,11 @@
     {
       "name": "Debug Embedded: DIM",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/thruna/DIM/DIM.hex",
+      "executable": "build_fw_deploy/firmware/thruna/DIM/thruna_DIM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/DIM_boot.elf",
-        "build_fw_deploy/firmware/thruna/DIM/DIM_app.elf",
+        "build_fw_deploy/firmware/boot/f4boot/thruna_DIM_boot.elf",
+        "build_fw_deploy/firmware/thruna/DIM/thruna_DIM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -167,7 +162,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DIM",
+      "preLaunchTask": "Build Embedded: DIM",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -192,7 +187,7 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: f4dev",
+      "preLaunchTask": "Build Embedded: f4dev",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -222,7 +217,7 @@
         "tools/openocd/stm32h7x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: h7dev",
+      "preLaunchTask": "Build Embedded: h7dev",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -239,11 +234,11 @@
     {
       "name": "Debug Embedded: VC",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/quadruna/VC/VC.hex",
+      "executable": "build_fw_deploy/firmware/quadruna/VC/quadruna_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/h7boot/VC_boot.elf",
-        "build_fw_deploy/firmware/quadruna/VC/VC_app.elf",
+        "build_fw_deploy/firmware/boot/h7boot/quadruna_VC_boot.elf",
+        "build_fw_deploy/firmware/quadruna/VC/quadruna_VC_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -252,7 +247,7 @@
         "tools/openocd/stm32h7x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: VC",
+      "preLaunchTask": "Build Embedded: VC",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
@@ -270,9 +265,9 @@
       "name": "Debug Tests: BMS",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/BMS_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/thruna_BMS_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: BMS_test",
+      "preLaunchTask": "Build Tests: BMS",
       "linux": {
         "MIMode": "gdb"
       },
@@ -284,9 +279,9 @@
       "name": "Debug Tests: DCM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DCM/DCM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DCM/thruna_DCM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: DCM_test",
+      "preLaunchTask": "Build Tests: DCM",
       "linux": {
         "MIMode": "gdb"
       },
@@ -298,9 +293,9 @@
       "name": "Debug Tests: FSM (Thruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/FSM/FSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/FSM/thruna_FSM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: FSM_test",
+      "preLaunchTask": "Build Tests: FSM (Thruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -312,9 +307,9 @@
       "name": "Debug Tests: FSM (Quadruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/FSM/FSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/FSM/quadruna_FSM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: FSM_test",
+      "preLaunchTask": "Build Tests: FSM (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -326,9 +321,9 @@
       "name": "Debug Tests: PDM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/PDM/PDM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/PDM/thruna_PDM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: PDM_test",
+      "preLaunchTask": "Build Tests: PDM",
       "linux": {
         "MIMode": "gdb"
       },
@@ -340,9 +335,9 @@
       "name": "Debug Tests: DIM",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/DIM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/DIM/thruna_DIM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: DIM_test",
+      "preLaunchTask": "Build Tests: DIM",
       "linux": {
         "MIMode": "gdb"
       },
@@ -354,9 +349,9 @@
       "name": "Debug Tests: VC",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/VC/VC_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/VC/quadruna_VC_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: VC_test",
+      "preLaunchTask": "Build Tests: VC",
       "linux": {
         "MIMode": "gdb"
       },
@@ -370,7 +365,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: shared_test",
+      "preLaunchTask": "Build Tests: Shared",
       "linux": {
         "MIMode": "gdb"
       },
