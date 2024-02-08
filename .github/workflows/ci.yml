@@ -111,6 +111,8 @@ jobs:
           - quadruna_FSM
           - quadruna_RSM
           - quadruna_CRIT
+          - f4dev
+          - h7dev
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -211,7 +213,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -245,7 +247,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests
