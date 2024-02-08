@@ -48,14 +48,14 @@ list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "FSM_can"
+        "quadruna_FSM_can"
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "quadruna"
     )
     embedded_library(
-        FSM_can
+        quadruna_FSM_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -89,7 +89,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "FSM_stm32cube"
+        "quadruna_FSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -99,7 +99,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "FSM"
+        "quadruna_FSM"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -107,36 +107,36 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     commit_info_library(
-        "FSM.elf"
-        "FSM_commit_info"
+        "quadruna_FSM.elf"
+        "quadruna_FSM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("FSM_can" "FSM_stm32cube")
-    target_link_libraries("FSM.elf" "FSM_stm32cube" "FSM_can" "FSM_commit_info")
+    target_link_libraries("quadruna_FSM_can" "quadruna_FSM_stm32cube")
+    target_link_libraries("quadruna_FSM.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info")
 
     # TODO: embedded_image for boot
     
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
-        "FSM_can"
+        "quadruna_FSM_can"
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "quadruna"
     )
-    add_library(FSM_can STATIC "${CAN_SRCS}")
-    target_include_directories(FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(quadruna_FSM_can STATIC "${CAN_SRCS}")
+    target_include_directories(quadruna_FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     # TODO: fake libraries
     
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "FSM_test"
+        "quadruna_FSM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("FSM_test" "FSM_can" "shared_fakes") # TODO: add fakes here
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "shared_fakes") # TODO: add fakes here
 endif()
