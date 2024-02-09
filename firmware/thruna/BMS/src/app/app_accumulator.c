@@ -428,7 +428,7 @@ void app_accumulator_broadcast(void)
         MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP, REDUCE_X),
             MAX_POWER_LIMIT_W);
 
-    app_canTx_BMS_AvailablePower_set(available_power);
+    // app_canTx_BMS_AvailablePower_set(available_power);
     app_canTx_BMS_Seg4Cell2Temp_set(
         io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
     app_canTx_BMS_Seg4Cell2Temp_set(

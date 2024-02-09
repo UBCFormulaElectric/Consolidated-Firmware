@@ -12,7 +12,6 @@
         "INVR_InternalStates",
         "INVL_MotorPositionInfo",
         "INVR_MotorPositionInfo",
-        "BMS_AvailablePower",
         "Debug_CanMode",
         "INVL_Temperatures3",
         "INVR_Temperatures3",

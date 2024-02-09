@@ -291,18 +291,24 @@
             }
         }
     },
-    "AvailablePower": {
+    "AvailableCurrentLimit": {
         "msg_id": 132,
         "cycle_time": 100,
-        "description": "BMS Available Power",
+        "description": "BMS Available Current Limit",
         "signals": {
-            "AvailablePower": {
+            "AvailableCurrentLimit": {
                 "resolution": 0.1,
                 "min": 0,
-                "max": 100000,
-                "unit": "W"
+                "max": 265.5,
+                "unit": "A"
+            },
+            "ChargingCurrentLimitCondition": {
+                "enum": "ChargingCurrentLimitConditionName"
+            },
+            "DischargingCurrentLimitCondition": {
+                "enum": "DischargingCurrentLimitConditionName"
             }
-        }
+        }    
     },
     "AuxThermistors": {
         "msg_id": 133,
