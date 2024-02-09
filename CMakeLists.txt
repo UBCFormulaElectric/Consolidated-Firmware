@@ -49,12 +49,7 @@ ELSE ()
 ENDIF ()
 
 # ======== Python Checks ========
-IF (WIN32)
-    set(PYTHON_RAW_COMMAND python)
-ELSE ()
-    set(PYTHON_RAW_COMMAND python3)
-ENDIF ()
-
+#checks if python is present
 find_package(Python3 COMPONENTS Interpreter)
 IF (Python3_VERSION VERSION_LESS 3.8)
     message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
@@ -62,15 +57,7 @@ ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
     message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
 message("🐍 Found Python ${Python3_VERSION}")
-
-
-IF (NO_VENV)
-    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
-ELSE ()
-    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
-ENDIF ()
-message("Using Python Command: \"${PYTHON_COMMAND}\"")
-
+# checks venv is using venv
 IF(NOT NO_VENV) # USE_VENV in effect
     find_program(HAS_PIPENV_COMMAND pipenv)
     IF (NOT HAS_PIPENV_COMMAND)
@@ -89,18 +76,33 @@ IF(NOT NO_VENV) # USE_VENV in effect
         message("Pipenv path: ${PIPENV_OUTPUT}")
     endif ()
 ENDIF()
-# ======== Python Checks ========
+
+# generates the usable python command
+IF (WIN32)
+    set(PYTHON_RAW_COMMAND python)
+ELSE ()
+    set(PYTHON_RAW_COMMAND python3)
+ENDIF ()
+IF (NO_VENV)
+    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
+ELSE ()
+    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
+ENDIF ()
+message("🐍 Using Python Command: \"${PYTHON_COMMAND}\"")
+
+# ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" ON)
 IF (FIX_FORMATTING)
     message("⚙️ Run Clang-Formatting for all boards")
     execute_process(
-            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 ENDIF ()
 
-message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
+# ======== Code Time ========
+message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Dependency Handling ========
     IF (HANDLE_DEPS)
@@ -129,17 +131,14 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ELSE()
         message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
     ENDIF()
-ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
-ENDIF()
 
-IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
+    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
     add_subdirectory(software/dimos)
-ENDIF ()
+ELSE ()
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+ENDIF()
