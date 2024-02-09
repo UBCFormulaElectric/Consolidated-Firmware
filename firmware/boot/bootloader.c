@@ -157,9 +157,9 @@ void bootloader_init()
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
-    // resistor alone isn't strong enough to pull up the enable line, and so the 
+    // resistor alone isn't strong enough to pull up the enable line, and so the
     // PDM will fail to boot. A bad fix for this is to turn on the rest of the
-    // boards here first, so the PDM will get help pulling up the line from the 
+    // boards here first, so the PDM will get help pulling up the line from the
     // other MCUs.
     bootloader_boardSpecific_init();
 
