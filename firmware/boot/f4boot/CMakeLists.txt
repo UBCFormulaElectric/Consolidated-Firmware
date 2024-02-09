@@ -14,6 +14,7 @@ list (APPEND BOOT_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(BOOT_INCLUDE_DIRS 
     "${BOOT_DIR}"
@@ -66,9 +67,9 @@ if("${TARGET}" STREQUAL "deploy")
         target_compile_definitions("${NAME}.elf" PRIVATE "${BOARD_DEFINE}")
     endfunction()
 
-    stm32f4_bootloader("BMS_boot" "BMS" "")
-    stm32f4_bootloader("DCM_boot" "DCM" "")
-    stm32f4_bootloader("FSM_boot" "FSM" "")
-    stm32f4_bootloader("PDM_boot" "PDM" "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_PDM.c")
-    stm32f4_bootloader("DIM_boot" "DIM" "")
+    stm32f4_bootloader("thruna_BMS_boot" "BMS" "")
+    stm32f4_bootloader("thruna_DCM_boot" "DCM" "")
+    stm32f4_bootloader("thruna_FSM_boot" "FSM" "")
+    stm32f4_bootloader("thruna_PDM_boot" "PDM" "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_PDM.c")
+    stm32f4_bootloader("thruna_DIM_boot" "DIM" "")
 endif()

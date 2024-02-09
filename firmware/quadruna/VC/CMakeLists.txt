@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
@@ -25,19 +25,21 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "VC_can"
+        "quadruna_VC_can"
         "VC"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "quadruna"
     )
     embedded_library(
-        VC_can
+        quadruna_VC_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -71,7 +73,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
-        "VC_stm32cube"
+        "quadruna_VC_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -81,7 +83,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "VC"
+        "quadruna_VC_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -90,32 +92,40 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "VC.elf"
-        "VC_commit_info"
+        "quadruna_VC_app.elf"
+        "quadruna_VC_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("VC_can" "VC_stm32cube")
-    target_link_libraries("VC.elf" "VC_stm32cube" "VC_can" "VC_commit_info")
+    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info")
+
+    embedded_image(
+        "quadruna_VC"
+        "quadruna_VC_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_app.hex"
+        "quadruna_VC_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_VC_boot.hex"
+    )
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
-        "VC_can"
+        "quadruna_VC_can"
         "VC"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "quadruna"
     )
-    add_library(VC_can STATIC "${CAN_SRCS}")
-    target_include_directories(VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
+    target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "VC_test"
+        "quadruna_VC_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("VC_test" "VC_can")
+    target_link_libraries("quadruna_VC_test" "quadruna_VC_can")
 endif()

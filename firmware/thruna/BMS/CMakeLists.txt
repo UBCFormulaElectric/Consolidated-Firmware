@@ -35,6 +35,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -44,14 +45,14 @@ list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "BMS_can"
+        "thruna_BMS_can"
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "thruna"
     )
     embedded_library(
-        BMS_can
+        thruna_BMS_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -85,7 +86,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "BMS_stm32cube"
+        "thruna_BMS_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -95,7 +96,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "BMS_app"
+        "thruna_BMS_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -104,21 +105,21 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "BMS_app.elf"
-        "BMS_commit_info"
+        "thruna_BMS_app.elf"
+        "thruna_BMS_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("BMS_can" "BMS_stm32cube")
-    target_link_libraries("BMS_app.elf" "BMS_stm32cube" "BMS_can" "BMS_commit_info")
+    target_link_libraries("thruna_BMS_can" "thruna_BMS_stm32cube")
+    target_link_libraries("thruna_BMS_app.elf" "thruna_BMS_stm32cube" "thruna_BMS_can" "thruna_BMS_commit_info")
 
     embedded_image(
-        "BMS"
-        "BMS_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/BMS_app.hex"
-        "BMS_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/BMS_boot.hex"
+        "thruna_BMS"
+        "thruna_BMS_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_BMS_app.hex"
+        "thruna_BMS_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_BMS_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
@@ -135,25 +136,25 @@ set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
     )
     create_fake_library(
-        "BMS_fakes"
+        "thruna_BMS_fakes"
         "${HEADERS_TO_FAKE}"
     )
     jsoncan_library(
-        "BMS_can"
+        "thruna_BMS_can"
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "thruna"
     )
-    add_library(BMS_can STATIC "${CAN_SRCS}")
-    target_include_directories(BMS_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(thruna_BMS_can STATIC "${CAN_SRCS}")
+    target_include_directories(thruna_BMS_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "BMS_test"
+        "thruna_BMS_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("BMS_test" "BMS_can" "BMS_fakes" "shared_fakes")
+    target_link_libraries("thruna_BMS_test" "thruna_BMS_can" "thruna_BMS_fakes" "shared_fakes")
 endif()
