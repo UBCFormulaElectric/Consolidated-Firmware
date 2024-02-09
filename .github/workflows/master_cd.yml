@@ -5,29 +5,29 @@ on:
       - master
 
 jobs:
-  # Build DBC and Binaries (Thruna)
+  # Build DBC and Binaries
   build:
-    name: Build Firmware Binaries (Thruna)
+    name: Build Firmware
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - board: DIM
-            bin_name: DIM_app_metadata.hex
-            build_dir: firmware/thruna/DIM/DIM_app_metadata.hex
-          - board: FSM
-            bin_name: FSM_app_metadata.hex
-            build_dir: firmware/thruna/FSM/FSM_app_metadata.hex
-          - board: PDM
-            bin_name: PDM_app_metadata.hex
-            build_dir: firmware/thruna/PDM/PDM_app_metadata.hex
-          - board: DCM
-            bin_name: DCM_app_metadata.hex
-            build_dir: firmware/thruna/DCM/DCM_app_metadata.hex
-          - board: BMS
-            bin_name: BMS_app_metadata.hex
-            build_dir: firmware/thruna/BMS/BMS_app_metadata.hex
+          - board: thruna_DIM
+            bin_name: thruna_DIM_app_metadata.hex
+            build_dir: firmware/thruna/DIM/thruna_DIM_app_metadata.hex
+          - board: thruna_FSM
+            bin_name: thruna_FSM_app_metadata.hex
+            build_dir: firmware/thruna/FSM/thruna_FSM_app_metadata.hex
+          - board: thruna_PDM
+            bin_name: thruna_PDM_app_metadata.hex
+            build_dir: firmware/thruna/PDM/thruna_PDM_app_metadata.hex
+          - board: thruna_DCM
+            bin_name: thruna_DCM_app_metadata.hex
+            build_dir: firmware/thruna/DCM/thruna_DCM_app_metadata.hex
+          - board: thruna_BMS
+            bin_name: thruna_BMS_app_metadata.hex
+            build_dir: firmware/thruna/BMS/thruna_BMS_app_metadata.hex
           - board: f4dev
             bin_name: f4dev.hex
             build_dir: firmware/dev/f4dev/f4dev.hex
@@ -47,7 +47,6 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
-          platform: thruna_firmware
       # Uploads .hex binary to Github Actions workflow
       - name: Save built artifact
         uses: actions/upload-artifact@v3

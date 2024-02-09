@@ -6,6 +6,7 @@ file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
@@ -30,23 +31,23 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
+file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "PDM_can"
+        "thruna_PDM_can"
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "thruna"
     )
     embedded_library(
-        PDM_can
+        thruna_PDM_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -78,7 +79,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "PDM_stm32cube"
+        "thruna_PDM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -88,7 +89,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "PDM_app"
+        "thruna_PDM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -97,49 +98,49 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "PDM_app.elf"
-        "PDM_commit_info"
+        "thruna_PDM_app.elf"
+        "thruna_PDM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("PDM_can" "PDM_stm32cube")
-    target_link_libraries("PDM_app.elf" "PDM_stm32cube" "PDM_can" "PDM_commit_info")
+    target_link_libraries("thruna_PDM_can" "thruna_PDM_stm32cube")
+    target_link_libraries("thruna_PDM_app.elf" "thruna_PDM_stm32cube" "thruna_PDM_can" "thruna_PDM_commit_info")
 
     embedded_image(
-        "PDM"
-        "PDM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/PDM_app.hex"
-        "PDM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/PDM_boot.hex"
+        "thruna_PDM"
+        "thruna_PDM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_PDM_app.hex"
+        "thruna_PDM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_PDM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
-        "PDM_can"
+        "thruna_PDM_can"
         "PDM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "thruna"
     )
-    add_library(PDM_can STATIC "${CAN_SRCS}")
-    target_include_directories(PDM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(thruna_PDM_can STATIC "${CAN_SRCS}")
+    target_include_directories(thruna_PDM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
     )
     create_fake_library(
-        "PDM_fakes"
+        "thruna_PDM_fakes"
         "${HEADERS_TO_FAKE}"
     )
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "PDM_test"
+        "thruna_PDM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("PDM_test" "PDM_can" "PDM_fakes" "shared_fakes")
+    target_link_libraries("thruna_PDM_test" "thruna_PDM_can" "thruna_PDM_fakes" "shared_fakes")
 endif()

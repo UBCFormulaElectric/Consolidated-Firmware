@@ -23,6 +23,8 @@
 #define SET_BIT_HIGH(input, bit) (input | (1U << bit))
 #define SET_BIT_LOW(input, bit) (input & ~(1U << bit))
 
+#define APPROX_EQUAL(a, b, threshold) ((bool)(fabs((a) - (b)) < threshold))
+
 // Extra guard because HAL defines the same macro
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)

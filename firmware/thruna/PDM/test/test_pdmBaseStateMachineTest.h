@@ -15,7 +15,8 @@ extern "C"
 #include "app_canUtils.h"
 #include "app_utils.h"
 #include "states/app_initState.h"
-#include "app_globals.h"
+#include "states/app_driveState.h"
+#include "app_powerManager.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -34,7 +35,8 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
             &app_canTx_PDM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
-        app_stateMachine_init(app_driveState_get());
+
+        app_stateMachine_init(app_initState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
@@ -65,6 +67,11 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
                                                               [PDM_HEARTBEAT_BOARD] = false,
                                                               [FSM_HEARTBEAT_BOARD] = false,
                                                               [DIM_HEARTBEAT_BOARD] = false };
+    void SetInitialState(const State *const initial_state)
+    {
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
+    }
 
     // heartbeatGetters - get heartbeat signals from other boards
     bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = &app_canRx_BMS_Heartbeat_get,

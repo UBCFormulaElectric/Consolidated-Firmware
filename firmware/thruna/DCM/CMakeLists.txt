@@ -35,6 +35,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -44,14 +45,14 @@ list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
-        "DCM_can"
+        "thruna_DCM_can"
         "DCM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
         "thruna"
     )
     embedded_library(
-        DCM_can
+        thruna_DCM_can
         "${CAN_SRCS}"
         "${CAN_INCLUDE_DIRS}"
         "${ARM_CORE}"
@@ -81,7 +82,7 @@ if("${TARGET}" STREQUAL "deploy")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "DCM_stm32cube"
+        "thruna_DCM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
@@ -91,7 +92,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "DCM_app"
+        "thruna_DCM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -100,21 +101,21 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "DCM_app.elf"
-        "DCM_commit_info"
+        "thruna_DCM_app.elf"
+        "thruna_DCM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
-    target_link_libraries("DCM_can" "DCM_stm32cube")
-    target_link_libraries("DCM_app.elf" "DCM_stm32cube" "DCM_can" "DCM_commit_info" "sbg_ecom_cm4" m)
+    target_link_libraries("thruna_DCM_can" "thruna_DCM_stm32cube")
+    target_link_libraries("thruna_DCM_app.elf" "thruna_DCM_stm32cube" "thruna_DCM_can" "thruna_DCM_commit_info" "sbg_ecom_cm4" m)
 
     embedded_image(
-        "DCM"
-        "DCM_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/DCM_app.hex"
-        "DCM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/DCM_boot.hex"
+        "thruna_DCM"
+        "thruna_DCM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_DCM_app.hex"
+        "thruna_DCM_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_DCM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
@@ -122,25 +123,25 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
     )
     create_fake_library(
-        "DCM_fakes"
+        "thruna_DCM_fakes"
         "${HEADERS_TO_FAKE}"
     )
     jsoncan_library(
-        "DCM_can"
+        "thruna_DCM_can"
         "DCM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
         "thruna"
     )
-    add_library(DCM_can STATIC "${CAN_SRCS}")
-    target_include_directories(DCM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+    add_library(thruna_DCM_can STATIC "${CAN_SRCS}")
+    target_include_directories(thruna_DCM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
-        "DCM_test"
+        "thruna_DCM_test"
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("DCM_test" "DCM_can" "DCM_fakes" "shared_fakes")
+    target_link_libraries("thruna_DCM_test" "thruna_DCM_can" "thruna_DCM_fakes" "shared_fakes")
 endif()
