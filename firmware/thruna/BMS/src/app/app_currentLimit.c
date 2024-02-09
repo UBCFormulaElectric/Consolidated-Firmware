@@ -1,8 +1,10 @@
+#include "app_currentLimit.h"
+
 #include "app_soc.h"
 #include "app_accumulator.h"
 #include "app_math.h"
 
-#include "ltc6813/io_ltc6813CellVoltages.h"
+#include "io/ltc6813/io_ltc6813CellTemps.h"
 #include "math.h"
 #include "stdbool.h"
 
@@ -34,7 +36,7 @@ float app_currentLimit_getDischargeLimit(void)
 {
     uint8_t     max_segment   = 0U;
     uint8_t     max_loc       = 0U;
-    float max_cell_temp = io_ltc6813CellTemps_getMaxTempDegC(&max_segment, &max_loc);
+    float max_cell_temp = ((float)io_ltc6813CellTemps_getMaxTempDegC(&max_segment, &max_loc));
     float tempDischargeCurrLimit = app_currentLimit_calcTempCurrentLimit(max_cell_temp);
 
     float lowVoltDischargeCurrLimit = app_currentLimit_calcLowVoltClampCurrentLimit();
@@ -46,7 +48,7 @@ float app_currentLimit_getDischargeLimit(void)
                             lowSocDischargeCurrLimit };
 
     float current_limit = MAX_CONTINUOUS_CURRENT;
-    for(int i = 0; i < sizeof(currLimits); i++)
+    for(uint8_t i = 0; i < sizeof(currLimits); i++)
     {
         if (currLimits[i] < current_limit)
         {
@@ -91,7 +93,7 @@ float app_currentLimit_calcLowSocCurrentLimit(void)
     float measured_soc = app_soc_getMinSocPercent();
     return app_math_linearDerating(measured_soc, MAX_CONTINUOUS_CURRENT, LOW_SOC_WARNING_THRESHOLD, LOW_SOC_FAULT_THRESHOLD, false);
 }
-//TODO: implement app_soc_getMaxSOCPercent() and then set up the following functionality
+//TODO: implement app_soc_getMaxSOCPercent() to current limit during charging and then set up the following functionality
 // float app_currentLimit_calcHighSocCurrentLimit(void)
 // {
 //     float measured_soc = app_soc_getMaxSocPercent(); //This measure the lowest SOC but maybe we want high SOC here
