@@ -1,0 +1,20 @@
+{
+    "VC": {
+        "msg_id": 1219,
+        "cycle_time": 100,
+        "signals": {
+            "BMS_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "H7Dev": {
+        "msg_id": 1309,
+        "cycle_time": 100,
+        "signals": {
+            "H7Dev_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    }
+}

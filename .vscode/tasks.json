@@ -2,36 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Load CMake: Thruna Embedded",
+            "label": "Load CMake: Embedded",
             "type": "shell",
-            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=thruna_firmware -DTARGET=deploy",
+            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=firmware -DTARGET=deploy",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
         },
         {
-            "label": "Load CMake: Thruna Tests",
+            "label": "Load CMake: Tests",
             "type": "shell",
-            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=thruna_firmware -DTARGET=test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-        },
-        {
-            "label": "Load CMake: Quadruna Embedded",
-            "type": "shell",
-            "command": "mkdir -p build_fw_deploy && cmake -S . -B build_fw_deploy -DPLATFORM=quadruna_firmware -DTARGET=deploy",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-        },
-        {
-            "label": "Load CMake: Quadruna Tests",
-            "type": "shell",
-            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=quadruna_firmware -DTARGET=test",
+            "command": "mkdir -p build_fw_test && cmake -S . -B build_fw_test -DPLATFORM=firmware -DTARGET=test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -56,52 +38,61 @@
             },
         },
         {
-            "label": "Build: BMS",
+            "label": "Build Embedded: BMS (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` BMS.hex",
+            "command": "make -j`nproc` thruna_BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DCM",
+            "label": "Build Embedded: BMS (Quadruna)",
             "type": "shell",
-            "command": "make -j`nproc` DCM.hex",
+            "command": "make -j`nproc` quadruna_BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: FSM",
+            "label": "Build Embedded: DCM",
             "type": "shell",
-            "command": "make -j`nproc` FSM.hex",
+            "command": "make -j`nproc` thruna_DCM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: PDM",
+            "label": "Build Embedded: FSM (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` PDM.hex",
+            "command": "make -j`nproc` thruna_FSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DIM",
+            "label": "Build Embedded: PDM",
             "type": "shell",
-            "command": "make -j`nproc` DIM.hex",
+            "command": "make -j`nproc` thruna_PDM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: f4dev",
+            "label": "Build Embedded: DIM",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_DIM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: f4dev",
             "type": "shell",
             "command": "make -j`nproc` f4dev.elf",
             "group": "build",
@@ -110,7 +101,7 @@
             }
         },
         {
-            "label": "Build: h7dev",
+            "label": "Build Embedded: h7dev",
             "type": "shell",
             "command": "make -j`nproc` h7dev.hex",
             "group": "build",
@@ -119,70 +110,88 @@
             }
         },
         {
-            "label": "Build: VC",
+            "label": "Build Embedded: VC",
             "type": "shell",
-            "command": "make -j`nproc` VC.elf",
+            "command": "make -j`nproc` quadruna_VC.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: BMS_test",
+            "label": "Build: BMS_test Thruna",
             "type": "shell",
-            "command": "make -j`nproc` BMS_test",
+            "command": "make -j`nproc` BMS_test (Thruna)",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: DCM_test",
+            "label": "Build: BMS_test Quadruna",
             "type": "shell",
-            "command": "make -j`nproc` DCM_test",
+            "command": "make -j`nproc` quadruna_BMS_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: FSM_test",
+            "label": "Build Tests: DCM",
             "type": "shell",
-            "command": "make -j`nproc` FSM_test",
+            "command": "make -j`nproc` thruna_DCM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: PDM_test",
+            "label": "Build Tests: FSM (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` PDM_test",
+            "command": "make -j`nproc` thruna_FSM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: DIM_test",
+            "label": "Build Tests: PDM",
             "type": "shell",
-            "command": "make -j`nproc` DIM_test",
+            "command": "make -j`nproc` thruna_PDM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: VC_test",
+            "label": "Build Tests: DIM",
             "type": "shell",
-            "command": "make -j`nproc` VC_test",
+            "command": "make -j`nproc` thruna_DIM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: shared_test",
+            "label": "Build Tests: VC",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_VC_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: FSM (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_FSM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: Shared",
             "type": "shell",
             "command": "make -j`nproc` shared_test",
             "group": "build",
@@ -191,7 +200,7 @@
             }
         },
         {
-            "label": "Build: All Embedded Binaries",
+            "label": "Build Embedded: All",
             "type": "shell",
             "command": "make -j`nproc`",
             "group": "build",
@@ -200,7 +209,7 @@
             }
         },
         {
-            "label": "Build: All Tests",
+            "label": "Build Tests: All",
             "type": "shell",
             "command": "make -j`nproc`",
             "group": "build",
