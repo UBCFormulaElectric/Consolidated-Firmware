@@ -64,7 +64,8 @@ TEST_F(TorqueVectoringTest, torques_are_zero_when_pedal_is_not_pressed)
     app_canRx_BMS_TractiveSystemVoltage_update(390);
     app_canRx_INVL_MotorTemperature_update(50);
     app_canRx_INVR_MotorTemperature_update(50);
-    // app_canRx_BMS_AvailablePower_update(50);
+    app_canRx_BMS_PackVoltage_update(1);
+    app_canRx_BMS_AvailableDischargingCurrentLimit_update(50);
     app_canRx_FSM_Warning_SteeringAngleOCSC_update(30);
     app_torqueVectoring_run(0.0f);
     float expected_torque_left_nM  = 0.0;
