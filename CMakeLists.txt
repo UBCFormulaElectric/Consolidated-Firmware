@@ -50,16 +50,9 @@ ENDIF ()
 
 # ======== Python Checks ========
 IF (WIN32)
-    set(PIP_COMMAND pip)
     set(PYTHON_RAW_COMMAND python)
 ELSE ()
-    set(PIP_COMMAND pip3)
     set(PYTHON_RAW_COMMAND python3)
-ENDIF ()
-IF (NO_VENV)
-    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
-ELSE ()
-    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
 ENDIF ()
 
 find_package(Python3 COMPONENTS Interpreter)
@@ -68,12 +61,15 @@ IF (Python3_VERSION VERSION_LESS 3.8)
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
     message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
-message("🐍 Found Python ${Python3_VERSION} with command \"${PYTHON_COMMAND}\"")
+message("🐍 Found Python ${Python3_VERSION}")
 
-find_program(HAS_PIP_COMMAND ${PIP_COMMAND})
-IF (NOT HAS_PIP_COMMAND)
-    message(FATAL_ERROR "❌ pip not found. Please reinstall Python and make sure to click the buttons to install pip")
+
+IF (NO_VENV)
+    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
+ELSE ()
+    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
 ENDIF ()
+message("Using Python Command: \"${PYTHON_COMMAND}\"")
 
 IF(NOT NO_VENV) # USE_VENV in effect
     find_program(HAS_PIPENV_COMMAND pipenv)

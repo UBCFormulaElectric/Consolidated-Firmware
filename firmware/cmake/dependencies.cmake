@@ -11,9 +11,14 @@ ENDIF ()
 execute_process(COMMAND "git submodule update --init --recursive" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 message("✅ Git Submodules Updated")
 
-# check pip is ok
-find_program(PIP_HAS_COMMAND pip)
-IF (NOT PIP_HAS_COMMAND)
+# setup pip
+IF (WIN32)
+    set(PIP_COMMAND pip)
+ELSE ()
+    set(PIP_COMMAND pip3)
+ENDIF ()
+find_program(HAS_PIP_COMMAND pip)
+IF (NOT HAS_PIP_COMMAND)
     message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
 ELSE ()
     message("📥 Found pip")
