@@ -2,6 +2,10 @@
 
 #include "stdbool.h"
 
+// Direction to derate x variable
+#define REDUCE_X true
+#define INCREASE_X false
+
 /**
  * Trapezoidal approximation used to approximate a definite integral
  * @param integral The current value of the integral

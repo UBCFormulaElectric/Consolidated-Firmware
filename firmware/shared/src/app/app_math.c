@@ -1,6 +1,5 @@
 #include "app_math.h"
 
-
 float app_math_linearDerating(float x, float max_y, float roll_off_x, float limit_x, bool derating_direction)
 {
     float derated_y = 0.0f;

@@ -59,9 +59,30 @@ float app_currentLimit_getDischargeLimit(void)
     return current_limit;
 }
 
+float app_currentLimit_getChargeLimit(void)
+{
+    uint8_t     max_segment   = 0U;
+    uint8_t     max_loc       = 0U;
+    float max_cell_temp = ((float)io_ltc6813CellTemps_getMaxTempDegC(&max_segment, &max_loc));
+    float tempChargeCurrLimit = app_currentLimit_calcTempCurrentLimit(max_cell_temp);
+
+    float currLimits[1] = { tempChargeCurrLimit };
+
+    float current_limit = MAX_CONTINUOUS_CURRENT;
+    for(uint8_t i = 0; i < sizeof(currLimits); i++)
+    {
+        if(currLimits[i] < current_limit)
+        {
+            current_limit = currLimits[i];
+        }
+    }
+
+    return current_limit;
+}
+
 float app_currentLimit_calcTempCurrentLimit(float measured_max_cell_temp)
 {
-    return app_math_linearDerating(measured_max_cell_temp,  MAX_CONTINUOUS_CURRENT, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, true);
+    return app_math_linearDerating(measured_max_cell_temp,  MAX_CONTINUOUS_CURRENT, TEMP_WARNING_THRESHOLD, TEMP_FAULT_THRESHOLD, REDUCE_X);
 }
 
 float app_currentLimit_calcLowVoltClampCurrentLimit(void)
@@ -76,26 +97,31 @@ float app_currentLimit_calcLowVoltClampCurrentLimit(void)
     return currLimit;
 }
 
-float app_currentLimit_calcHighVoltClampCurrentLimit(void)
-{
-    float v_max = HIGH_VOLTAGE_WARNING_THRESHOLD;
-    float v_oc = app_soc_getMinOcvFromSoc();
-    float currLimit = (v_max - v_oc) / SERIES_ELEMENT_RESISTANCE;
-    if(currLimit < 0)
-    {
-        currLimit = MAX_CONTINUOUS_CURRENT;
-    }
-    return currLimit;
-}
+//TODO: implement app_soc_getMaxSOCPercent() to current limit during charging and then set up the following functionality
+//source: Read 2.3 SOC Based Limiting at "https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting"
+// float app_currentLimit_calcHighVoltClampCurrentLimit(void)
+// {
+//     float v_max = HIGH_VOLTAGE_WARNING_THRESHOLD;
+//     float v_oc = app_soc_getMaxOcvFromSoc();
+//     float currLimit = (v_max - v_oc) / SERIES_ELEMENT_RESISTANCE;
+//     if(currLimit < 0)
+//     {
+//         currLimit = MAX_CONTINUOUS_CURRENT;
+//     }
+//     return currLimit;
+// }
 
 float app_currentLimit_calcLowSocCurrentLimit(void)
 {
     float measured_soc = app_soc_getMinSocPercent();
-    return app_math_linearDerating(measured_soc, MAX_CONTINUOUS_CURRENT, LOW_SOC_WARNING_THRESHOLD, LOW_SOC_FAULT_THRESHOLD, false);
+    return app_math_linearDerating(measured_soc, MAX_CONTINUOUS_CURRENT, LOW_SOC_WARNING_THRESHOLD, LOW_SOC_FAULT_THRESHOLD, INCREASE_X);
 }
+
 //TODO: implement app_soc_getMaxSOCPercent() to current limit during charging and then set up the following functionality
+//source: Read 2.4 SOC Based Limiting at "https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting"
 // float app_currentLimit_calcHighSocCurrentLimit(void)
 // {
 //     float measured_soc = app_soc_getMaxSocPercent(); //This measure the lowest SOC but maybe we want high SOC here
 //     return app_math_linearDerating(measured_soc, MAX_CONTINUOUS_CURRENT, HIGH_SOC_WARNING_THRESHOLD, HIGH_SOC_FAULT_THRESHOLD);
 // }
+
