@@ -130,6 +130,9 @@ static bool     update_in_progress;
 
 void bootloader_init()
 {
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
 #ifndef BOOT_AUTO
     // This file is shared between multiple boards, meaning we cannot rely on STM32CubeMX
     // to initialize the peripherals. So we do it manually here.
@@ -151,6 +154,15 @@ void bootloader_init()
     hw_crc_init(&hcrc);
     io_can_init(&can_config);
 
+    // This order is important! The bootloader starts the app when the bootloader
+    // enable pin is high, which is caused by pullup resistors internal to each
+    // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
+    // resistor alone isn't strong enough to pull up the enable line, and so the 
+    // PDM will fail to boot. A bad fix for this is to turn on the rest of the
+    // boards here first, so the PDM will get help pulling up the line from the 
+    // other MCUs.
+    bootloader_boardSpecific_init();
+
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO
@@ -169,8 +181,6 @@ void bootloader_init()
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
-
-    bootloader_boardSpecific_init();
 }
 
 void bootloader_runInterfaceTask()
