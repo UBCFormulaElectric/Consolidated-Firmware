@@ -42,7 +42,10 @@ const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
