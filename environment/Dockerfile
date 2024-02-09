@@ -6,10 +6,11 @@ FROM ubuntu:22.04
 # pip: For installing python packages
 # git: For pulling external repos, invoked via cmake
 # git-lfs: Large file storage, used for saving zipped STM32CubeMX installer
+# protobuf-compiler: For compiling .proto files into Python or C
 # xvfb: Virtual frame buffer service, mocks out a display which doesn't exist on the CI machines
 # (required to run STM32CubeMX without a GUI)
-# libncurses5: Library required by clang-format
 # valgrind: Used to check for memory leaks during x86 tests
+# clang-format: C/C++ linter, used to check formatting in CI
 # libgtk-3-0: Random library required for running STM32CubeMX in container
 # libxi6: Random library required for running STM32CubeMX V6 in container
 # libxtst6: Random library required for running STM32CubeMX V6 in container
@@ -20,9 +21,10 @@ RUN apt update -y && apt install -y \
     pip \
     git \
     git-lfs \
+    protobuf-compiler \
     xvfb \
-    libncurses5 \
     valgrind \
+    clang-format \
     libgtk-3-0 \
     libxi6 \
     libxtst6 \
