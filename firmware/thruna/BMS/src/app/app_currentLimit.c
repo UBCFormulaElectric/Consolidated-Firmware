@@ -32,6 +32,21 @@
 #define HIGH_SOC_FAULT_THRESHOLD 85.0f //Limit to stop charging
 #define HIGH_SOC_WARNING_THRESHOLD 75.0f 
 
+void app_currentLimit_broadcast(void)
+{
+    float dischargingCurrentLimit = app_currentLimit_getDischargeLimit();
+    float chargingCurrentLimit = app_currentLimit_getChargeLimit();
+
+    if((dischargingCurrentLimit < MAX_CONTINUOUS_CURRENT) || (chargingCurrentLimit < MAX_CONTINUOUS_CURRENT))
+    {
+        app_canTx_BMS_Fault_CurrentLimitActive_set(true);
+    }
+    else
+    {
+        app_canTx_BMS_Fault_CurrentLimitActive_set(false);
+    }
+}
+
 float app_currentLimit_getDischargeLimit(void)
 {
     uint8_t     max_segment   = 0U;
@@ -47,16 +62,36 @@ float app_currentLimit_getDischargeLimit(void)
                             lowVoltDischargeCurrLimit,
                             lowSocDischargeCurrLimit };
 
-    float current_limit = MAX_CONTINUOUS_CURRENT;
+    float currentLimit = MAX_CONTINUOUS_CURRENT;
+    uint8_t currLimitCondtion = 0;
     for(uint8_t i = 0; i < sizeof(currLimits); i++)
     {
-        if (currLimits[i] < current_limit)
+        if (currLimits[i] < currentLimit)
         {
-            current_limit = currLimits[i];
+            currentLimit = currLimits[i];
+            currLimitCondtion = i;
         }
     }
 
-    return current_limit;
+    switch(currLimitCondtion)
+    {
+        case 0: 
+            app_canTx_BMS_DischargingCurrentLimitCondition_set(NO_DISCHARGING_CURRENT_LIMIT);
+            break;
+        case 1:
+            app_canTx_BMS_DischargingCurrentLimitCondition_set(HIGH_TEMP_BASED_DISCHARGING_CURRENT_LIMIT);
+            break;
+        case 2:
+            app_canTx_BMS_DischargingCurrentLimitCondition_set(LOW_VOLT_BASED_DISCHARGING_CURRENT_LIMIT);
+            break;
+        case 3:
+            app_canTx_BMS_DischargingCurrentLimitCondition_set(LOW_SOC_BASED_DISCHARGING_CURRENT_LIMIT);
+            break;
+    }
+
+    app_canTx_BMS_AvailableDischargingCurrentLimit_set(currentLimit);
+
+    return currentLimit;
 }
 
 float app_currentLimit_getChargeLimit(void)
@@ -68,16 +103,29 @@ float app_currentLimit_getChargeLimit(void)
 
     float currLimits[1] = { tempChargeCurrLimit };
 
-    float current_limit = MAX_CONTINUOUS_CURRENT;
+    float currentLimit = MAX_CONTINUOUS_CURRENT;
+    uint8_t currLimitCondtion = 0;
     for(uint8_t i = 0; i < sizeof(currLimits); i++)
     {
-        if(currLimits[i] < current_limit)
+        if(currLimits[i] < currentLimit)
         {
-            current_limit = currLimits[i];
+            currentLimit = currLimits[i];
+            currLimitCondtion = i;
         }
     }
 
-    return current_limit;
+    switch(currLimitCondtion)
+    {
+        case 0: 
+            app_canTx_BMS_ChargingCurrentLimitCondition_set(NO_CHARGING_CURRENT_LIMIT);
+            break;
+        case 1:
+            app_canTx_BMS_ChargingCurrentLimitCondition_set(HIGH_TEMP_BASED_CHARGING_CURRENT_LIMIT);
+            break;
+    }
+
+    app_canTx_BMS_AvailableChargingCurrentLimit_set(currentLimit);
+    return currentLimit;
 }
 
 float app_currentLimit_calcTempCurrentLimit(float measured_max_cell_temp)

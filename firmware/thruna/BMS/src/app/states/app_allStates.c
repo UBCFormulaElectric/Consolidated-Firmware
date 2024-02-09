@@ -7,6 +7,7 @@
 #include "app_imd.h"
 #include "app_airs.h"
 #include "app_soc.h"
+#include "app_currentLimit.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 
@@ -65,6 +66,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_thermistors_broadcast();
+    app_currentLimit_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {

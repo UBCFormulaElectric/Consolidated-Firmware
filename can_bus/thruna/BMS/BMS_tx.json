@@ -296,7 +296,13 @@
         "cycle_time": 100,
         "description": "BMS Available Current Limit",
         "signals": {
-            "AvailableCurrentLimit": {
+            "AvailableChargingCurrentLimit": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 265.5,
+                "unit": "A"
+            },
+            "AvailableDischargingCurrentLimit": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 265.5,

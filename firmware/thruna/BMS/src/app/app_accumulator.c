@@ -422,13 +422,6 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owcStatus[3]);
     app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owcStatus[4]);
 
-    //This needs to be moved to app_CurrentLimit once that's ready, not moving it rn so DCM doesn't just shut down.
-    // Calculate and broadcast pack power.
-    const float available_power =
-        MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP, REDUCE_X),
-            MAX_POWER_LIMIT_W);
-
-    // app_canTx_BMS_AvailablePower_set(available_power);
     app_canTx_BMS_Seg4Cell2Temp_set(
         io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
     app_canTx_BMS_Seg4Cell2Temp_set(

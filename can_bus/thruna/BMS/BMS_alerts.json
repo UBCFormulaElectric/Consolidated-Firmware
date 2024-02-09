@@ -23,6 +23,7 @@
         "ModuleCommunicationError",
         "CellUndertemp",
         "CellOvertemp",
+        "CurrentLimitActive",
         "Charger",
         "ChargerDisconnectedDuringCharge",
         "ChargerExternalShutdown",

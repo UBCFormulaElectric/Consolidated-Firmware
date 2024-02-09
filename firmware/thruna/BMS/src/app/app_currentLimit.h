@@ -1,6 +1,11 @@
 #pragma once
 
 /**
+ * @brief runs the current limit checking algorithm and updates all the current limit CAN messages
+ */
+void app_currentLimit_broadcast(void);
+
+/**
  * @brief Gets the min discharge current Limit based on all of the current 
  * limiting conditions
  * @return Minimum Discharge current limit value
