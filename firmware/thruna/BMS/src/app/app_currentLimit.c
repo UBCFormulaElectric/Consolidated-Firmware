@@ -4,7 +4,7 @@
 #include "app_accumulator.h"
 #include "app_math.h"
 
-#include "io/ltc6813/io_ltc6813CellTemps.h"
+#include "ltc6813/io_ltc6813CellTemps.h"
 #include "math.h"
 #include "stdbool.h"
 
