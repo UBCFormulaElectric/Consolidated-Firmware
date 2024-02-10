@@ -27,6 +27,7 @@ extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 // extern IWDG_HandleTypeDef  hiwdg1;
+CanHandle can;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -60,7 +61,7 @@ void tasks_init(void)
     // HAL_ADC_Start_DMA(
     //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
     //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-    can.can                   = hfdcan1;
+    can.can                   = &hfdcan1;
     can.canMsgRecievecallback = NULL;
 
     hw_hardFaultHandler_init();

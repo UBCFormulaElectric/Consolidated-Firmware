@@ -75,6 +75,8 @@ PwmInputConfig imd_pwm_input_config = {
     .falling_edge_tim_channel = TIM_CHANNEL_1,
 };
 
+CanHandle can;
+
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
                                           .nss_pin    = SPI_CS_Pin,
@@ -229,12 +231,14 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS reset!");
+    can.can                   = &hfdcan1;
+    can.canMsgRecievecallback = NULL;
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim15);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
