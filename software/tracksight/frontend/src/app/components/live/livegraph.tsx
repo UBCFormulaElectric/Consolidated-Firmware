@@ -33,18 +33,20 @@ const DEFAULT_LAYOUT = {
     yaxis: {},
     legend: { "orientation": "h" },
 };
-const UPDATE_INTERVAL_MS = 100; // changes update speed
-const MAX_DATA_POINTS = 100; // max amount of data points on the graph at a time
 
+const MAX_DATA_POINTS = 100; // max amount of data points on the graph at a time
+const UPDATE_INTERVAL_MS = 1000; // how often the graph updates
 export interface LiveGraphProps {
+    updateGraphSignals: any;
     id: number,
     onDelete: MouseEventHandler<HTMLElement>,
     socket: Socket,
+    signals?: string[],
 }
 const LiveGraph = (props: LiveGraphProps) => {
     const [data, setData] = useState<Data>({ id: 0, signals: {} });
     const [formattedData, setFormattedData] = useState<FormattedData[]>([]);
-    const [signals, setSignals] = useState<string[]>([]);
+    const [signals, setSignals] = useState<string[]>(props.signals || []);
     const [avail, setAvail] = useState<string[]>([]);
     const [graphLayout, setGraphLayout] = useState(DEFAULT_LAYOUT);
 
@@ -63,6 +65,7 @@ const LiveGraph = (props: LiveGraphProps) => {
     }
 
     const formatData = () => {
+        console.log(data['id']);
         if (data['id'] === props.id && data['signals']) {
             const signals = data['signals'];
             const newFormattedData: FormattedData[] = [];
@@ -118,6 +121,11 @@ const LiveGraph = (props: LiveGraphProps) => {
         };
     }, [props.socket]);
 
+    useEffect(() => {
+        props.updateGraphSignals(props.id, signals);
+    }, [signals]);
+
+
     // for testing purposes only. uncomment to see live data simulation
     /*
     useEffect(() => {
@@ -155,7 +163,7 @@ const LiveGraph = (props: LiveGraphProps) => {
             <Switch onChange={changeLive} checked={useLive} />
             <Space size={"middle"}>
             <LiveDropdownMenu setSignal={setSignals} signals={signals} avail={avail} />
-            <WebSocketComponent id={props.id} socket={props.socket} setData={setData} signals={signals}></WebSocketComponent>
+            <WebSocketComponent id={props.id} socket={props.socket} setData={setData} signals={props.signals || signals}></WebSocketComponent>
             </Space>
             </Space>
             {/*data and layout data were having overload issues, so the "as any" is a temp fix.*/}
