@@ -10,7 +10,8 @@ def generate_data_rate(target_data_rate_kbps):
 
     try:
         while True:
-            ser.write(b"asdfghjklp") #10 characters at 8 bits each
+            msg = str(int(tick_count)) +'\n'
+            ser.write(msg) #10 characters at 8 bits each
             # 80 bits
 
             time.sleep(delay)
