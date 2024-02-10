@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 30
+#define QUEUE_SIZE 2000
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -120,7 +120,7 @@ void io_canLogging_recordMsgFromQueue(void)
     static uint32_t message_written = 0;
     message_written++;
     // write the buffer to the storage
-    if (message_written >= (IO_LFS_CACHE_SIZE / sizeof(tx_msg)))
+    if (message_written >= (100))
     {
         message_written = 0;
         lfs_file_sync(&lfs, &file);
