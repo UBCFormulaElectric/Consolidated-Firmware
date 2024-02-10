@@ -199,13 +199,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart == debug_uart.handle)
     {
         // This interrupt is fired when DEBUG_BUF_SIZE bytes are received via UART.
-        // NOTE: If you send more or less data in a UART transaction, seems like the 
+        // NOTE: If you send more or less data in a UART transaction, seems like the
         // peripheral can get confused...
 
         // Just re-transmit whatever data was received, as a demo.
         hw_uart_transmitPoll(&debug_uart, data, sizeof(data), osWaitForever);
 
-        // Start receiving data in interrupt mode again so this interrupt will get fired if 
+        // Start receiving data in interrupt mode again so this interrupt will get fired if
         // more data is recieved.
         hw_uart_receiveIt(&debug_uart, data, sizeof(data));
     }
