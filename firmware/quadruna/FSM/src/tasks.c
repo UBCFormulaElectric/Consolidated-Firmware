@@ -27,6 +27,8 @@ extern CAN_HandleTypeDef  *hcan1;
 extern IWDG_HandleTypeDef *hiwdg;
 extern TIM_HandleTypeDef  *htim12;
 
+CanHandle can;
+
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_FSM_RxOverflowCount_set(overflow_count);
@@ -50,12 +52,14 @@ void tasks_preInit(void) {}
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
+    can.can                   = hcan1;
+    can.canMsgRecievecallback = NULL;
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
 
     hw_hardFaultHandler_init();
-    hw_can_init(hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
