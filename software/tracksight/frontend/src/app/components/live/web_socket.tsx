@@ -23,19 +23,16 @@ export interface SocketProps {
 const WebSocketComponent = (props: SocketProps) => {
 
 const handleSubmit = () => {
-  console.log(props.signals)
   props.socket.emit("signal", {"graph": props.id, "ids": props.signals });  
 };
 
+useEffect(() => {
+    handleSubmit()
+}, []);
 
     useEffect(() => {
         props.socket.on("signal_response", (data) => {
-            console.log(data);
-            if (typeof props.setData === 'function') {
             props.setData(data);
-            } else {
-                console.error('setData is not a function');
-            }
         });
     }, []);
 
