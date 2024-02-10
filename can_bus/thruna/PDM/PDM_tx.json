@@ -35,6 +35,9 @@
             "WatchdogTimeout": {
                 "bits": 1
             },
+            "EfuseFault": {
+                "bits": 1
+            },
             "TxOverflowCount": {
                 "bits": 8
             },

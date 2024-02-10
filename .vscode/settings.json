@@ -8,5 +8,10 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
+<<<<<<< HEAD
 	"cmake.configureOnOpen": false,
 }
+=======
+	"cmake.configureOnOpen": false
+}
+>>>>>>> 5fdcb35f (created retry protocol)
