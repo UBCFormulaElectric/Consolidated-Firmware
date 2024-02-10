@@ -65,7 +65,7 @@ void tasks_init(void)
     hw_can_init(&hfdcan1);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -73,6 +73,7 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+    app_stateMachine_init(app_initState_get());
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
