@@ -17,7 +17,7 @@ extern "C"
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class FsmBaseStateMachineTest : public BaseStateMachineTest
+class VcBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -29,7 +29,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
 
         app_heartbeatMonitor_init(
             HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-            &app_canTx_FSM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+            &app_canTx_VC_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
