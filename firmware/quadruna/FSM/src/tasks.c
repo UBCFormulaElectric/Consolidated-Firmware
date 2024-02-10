@@ -41,6 +41,8 @@ extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
 extern CAN_HandleTypeDef  hcan1;
 extern TIM_HandleTypeDef  htim12;
+
+CanHandle can;
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -139,6 +141,8 @@ void tasks_preInit(void) {}
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
+    can.can                   = hcan1;
+    can.canMsgRecievecallback = NULL;
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
@@ -148,7 +152,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

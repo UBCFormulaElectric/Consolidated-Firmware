@@ -35,6 +35,7 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 // extern IWDG_HandleTypeDef  hiwdg1;
+CanHandle can;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -138,7 +139,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
-    can.can                   = hfdcan1;
+
+    can.can                   = &hfdcan1;
     can.canMsgRecievecallback = NULL;
 
     hw_hardFaultHandler_init();
