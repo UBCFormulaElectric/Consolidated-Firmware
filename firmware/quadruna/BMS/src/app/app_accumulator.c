@@ -424,7 +424,7 @@ void app_accumulator_broadcast(void)
 
     // Calculate and broadcast pack power.
     const float available_power =
-        MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
+        MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP, REDUCE_X),
             MAX_POWER_LIMIT_W);
 
     app_canTx_BMS_AvailablePower_set(available_power);
