@@ -522,7 +522,7 @@ void StartDefaultTask(void *argument)
     {
         // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
 
-        for (num = 48; num <= 57; num++)
+        for (num = 48; num < 57; num++)
         {
             predicData[0] = num;
             hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
