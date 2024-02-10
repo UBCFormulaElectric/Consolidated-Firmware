@@ -64,24 +64,24 @@ const osThreadAttr_t Task100Hz_attributes = {
     .stack_size = sizeof(Task100HzBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for CanTxTask */
-osThreadId_t         CanTxTaskHandle;
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
 uint32_t             canTxTaskBuffer[512];
 osStaticThreadDef_t  canTxTaskControlBlock;
-const osThreadAttr_t CanTxTask_attributes = {
-    .name       = "CanTxTask",
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
     .cb_mem     = &canTxTaskControlBlock,
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
-/* Definitions for CanRxTask */
-osThreadId_t         CanRxTaskHandle;
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
 uint32_t             canRxTaskBuffer[512];
 osStaticThreadDef_t  canRxTaskControlBlock;
-const osThreadAttr_t CanRxTask_attributes = {
-    .name       = "CanRxTask",
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
     .cb_mem     = &canRxTaskControlBlock,
     .cb_size    = sizeof(canRxTaskControlBlock),
     .stack_mem  = &canRxTaskBuffer[0],
@@ -199,11 +199,11 @@ int main(void)
     /* creation of Task100Hz */
     Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
 
-    /* creation of CanTxTask */
-    CanTxTaskHandle = osThreadNew(RunCanTxTask, NULL, &CanTxTask_attributes);
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
 
-    /* creation of CanRxTask */
-    CanRxTaskHandle = osThreadNew(RunCanRxTask, NULL, &CanRxTask_attributes);
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunCanRxTask, NULL, &TaskCanRx_attributes);
 
     /* creation of Task1kHz */
     Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);

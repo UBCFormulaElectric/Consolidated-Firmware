@@ -6,7 +6,12 @@
     "warnings": [
         "WatchdogTimeout",
         "TxOverflow",
-        "RxOverflow"
+        "RxOverflow",
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx"
     ],
     "faults": [
         "DummyFault"
