@@ -1,45 +1,77 @@
 #include "app_powerManager.h"
 #include "app_canRx.h"
+#include "app_retryHandler.h"
+#include "app_canTx.h"
 
 typedef struct
 {
-    bool efuses[NUM_EFUSE_CHANNELS];
+    bool          efuse_state;
+    RetryProtocol retry_protocol;
+    int           retry_limit;
+} EFuseConfig;
+
+typedef struct
+{
+    EFuseConfig efuse_configs[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     [POWER_MANAGER_SHUTDOWN] = {
-        .efuses = {
-            [EFUSE_CHANNEL_AIR] = true,
-            [EFUSE_CHANNEL_LVPWR] = true,
-            [EFUSE_CHANNEL_EMETER] = false,
-            [EFUSE_CHANNEL_AUX] = false,
-            [EFUSE_CHANNEL_DRS] = false,
-            [EFUSE_CHANNEL_FAN] = false,
-            [EFUSE_CHANNEL_DI_LHS] = false,
-            [EFUSE_CHANNEL_DI_RHS] = false,
+        .efuse_configs = {
+            [EFUSE_CHANNEL_AIR] = {true, RETRY_PROTOCOL_AIR, 1},
+            [EFUSE_CHANNEL_LVPWR] = {true, RETRY_PROTOCOL_LV, 1},
+            [EFUSE_CHANNEL_EMETER] = {false, RETRY_PROTOCOL_EMETER, 3},
+            [EFUSE_CHANNEL_AUX] = {false, RETRY_PROTOCOL_AUX, 3},
+            [EFUSE_CHANNEL_DRS] = {false, RETRY_PROTOCOL_DRS, 3},
+            [EFUSE_CHANNEL_FAN] = {false, RETRY_PROTOCOL_FANS, 3},
+            [EFUSE_CHANNEL_DI_LHS] = {false, RETRY_PROTOCOL_INVERTERS, 1},
+            [EFUSE_CHANNEL_DI_RHS] = {false, RETRY_PROTOCOL_INVERTERS, 1},
         }
     },
     [POWER_MANAGER_DRIVE] = {
-        .efuses = {
-            [EFUSE_CHANNEL_AIR] = true,
-            [EFUSE_CHANNEL_LVPWR] = true,
-            [EFUSE_CHANNEL_EMETER] = false,
-            [EFUSE_CHANNEL_AUX] = false,
-            [EFUSE_CHANNEL_DRS] = false,
-            [EFUSE_CHANNEL_FAN] = true,
-            [EFUSE_CHANNEL_DI_LHS] = true,
-            [EFUSE_CHANNEL_DI_RHS] = true,
+        .efuse_configs = {
+            [EFUSE_CHANNEL_AIR] = {true, RETRY_PROTOCOL_AIR, 1},
+            [EFUSE_CHANNEL_LVPWR] = {true, RETRY_PROTOCOL_LV, 1},
+            [EFUSE_CHANNEL_EMETER] = {false, RETRY_PROTOCOL_EMETER, 3},
+            [EFUSE_CHANNEL_AUX] = {false, RETRY_PROTOCOL_AUX, 3},
+            [EFUSE_CHANNEL_DRS] = {false, RETRY_PROTOCOL_DRS, 3},
+            [EFUSE_CHANNEL_FAN] = {true, RETRY_PROTOCOL_FANS, 3},
+            [EFUSE_CHANNEL_DI_LHS] = {true, RETRY_PROTOCOL_INVERTERS, 1},
+            [EFUSE_CHANNEL_DI_RHS] = {true, RETRY_PROTOCOL_INVERTERS, 1},
         }
     }
 };
 
 void app_powerManager_setState(PowerManagerState state)
 {
+    TimerState timer_state;
+    app_timer_init(&timer, CHECK_TIME);
     current_power_state = state;
+    bool success = false;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        io_efuse_setChannel(efuse, power_states_config[state].efuses[efuse]);
+        EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
+
+        for (int attempt = 0; (attempt <= efuse_config.retry_limit) && !success; attempt++)
+        {
+            app_timer_restart(&timer);
+            io_efuse_setChannel(efuse, efuse_config.efuse_state);
+            timer_state = app_timer_updateAndGetState(&timer);
+
+            while (timer_state != TIMER_STATE_EXPIRED) {
+                timer_state = app_timer_updateAndGetState(&timer);
+            }
+
+            success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
+            apply_retry_protocol(efuse_config.retry_protocol, success);
+            timer_state = app_timer_updateAndGetState(&timer);
+        }
+    }
+
+    if (!success)
+    {
+        app_canTx_PDM_EfuseFault_set(true);
     }
 }
 
