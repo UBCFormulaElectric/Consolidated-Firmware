@@ -113,18 +113,7 @@ void io_canLogging_recordMsgFromQueue(void)
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    if (size != sizeof(tx_msg))
-    {
-        // something happend
-    }
-    static uint32_t message_written = 0;
-    message_written++;
-    // write the buffer to the storage
-    if (message_written >= (100))
-    {
-        message_written = 0;
-        lfs_file_sync(&lfs, &file);
-    }
+    assert(size = sizeof(tx_msg));
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
@@ -144,4 +133,9 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         // config->rx_overflow_callback(++rx_overflow_count);
     }
+}
+
+void io_canLogging_sync()
+{
+    assert(lfs_file_sync(&lfs, &file) == LFS_ERR_OK);
 }

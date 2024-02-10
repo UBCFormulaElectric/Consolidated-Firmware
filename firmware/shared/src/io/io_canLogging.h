@@ -22,3 +22,5 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg);
 void io_canLogging_recordMsgFromQueue(void);
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg);
+
+void io_canLogging_sync(void);
