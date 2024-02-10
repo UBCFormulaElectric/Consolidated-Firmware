@@ -46,6 +46,6 @@ typedef struct PowerLimiting_Inputs
 {
     float       left_motor_temp_C;
     float       right_motor_temp_C;
-    const float power_limit_kW;
+    float       power_limit_kW;
     float       accelerator_pedal_percent;
 } PowerLimiting_Inputs;

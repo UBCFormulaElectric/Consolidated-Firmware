@@ -83,6 +83,9 @@ void app_torqueVectoring_handleAcceleration(void)
     power_limiting_inputs.left_motor_temp_C         = left_motor_temp_C;
     power_limiting_inputs.right_motor_temp_C        = right_motor_temp_C;
     power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
+    float bms_pack_voltage = (float)app_canRx_BMS_PackVoltage_get();
+    float bms_availableCurrentLimit = (float)app_canRx_BMS_AvailableDischargingCurrentLimit_get();
+    power_limiting_inputs.power_limit_kW = bms_pack_voltage * bms_availableCurrentLimit;
     float estimated_power_limit;
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
 
