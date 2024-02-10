@@ -18,12 +18,12 @@
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
     // const float bms_available_power   = app_canRx_BMS_AvailablePower_get();
-    const float bms_pack_voltage = (float)app_canRx_BMS_PackVoltage_get();
+    const float bms_pack_voltage          = (float)app_canRx_BMS_PackVoltage_get();
     const float bms_availableCurrentLimit = (float)app_canRx_BMS_AvailableDischargingCurrentLimit_get();
-    const float bms_available_power = (bms_pack_voltage * bms_availableCurrentLimit) / 1000.0f;
-    const float right_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
-    const float left_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
-    float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
+    const float bms_available_power       = (bms_pack_voltage * bms_availableCurrentLimit) / 1000.0f;
+    const float right_motor_speed_rpm     = (float)app_canRx_INVR_MotorSpeed_get();
+    const float left_motor_speed_rpm      = (float)app_canRx_INVL_MotorSpeed_get();
+    float       bms_torque_limit          = MAX_TORQUE_REQUEST_NM;
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {

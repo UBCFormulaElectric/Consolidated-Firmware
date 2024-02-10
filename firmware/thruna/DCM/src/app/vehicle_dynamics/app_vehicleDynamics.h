@@ -44,8 +44,8 @@ typedef struct ActiveDifferential_Outputs
 
 typedef struct PowerLimiting_Inputs
 {
-    float       left_motor_temp_C;
-    float       right_motor_temp_C;
-    float       power_limit_kW;
-    float       accelerator_pedal_percent;
+    float left_motor_temp_C;
+    float right_motor_temp_C;
+    float power_limit_kW;
+    float accelerator_pedal_percent;
 } PowerLimiting_Inputs;

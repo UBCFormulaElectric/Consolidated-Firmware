@@ -4,9 +4,9 @@ float app_math_linearDerating(float x, float max_y, float roll_off_x, float limi
 {
     float derated_y = 0.0f;
 
-    if(derating_direction)
+    if (derating_direction)
     {
-         if (x <= roll_off_x)
+        if (x <= roll_off_x)
         {
             derated_y = max_y;
         }
@@ -33,8 +33,7 @@ float app_math_linearDerating(float x, float max_y, float roll_off_x, float limi
         {
             derated_y = max_y - max_y * (roll_off_x - x) / (roll_off_x - limit_x);
         }
-        }
-    
+    }
 
     return derated_y;
 }
