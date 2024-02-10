@@ -8,43 +8,37 @@
 #include "math.h"
 #include "stdbool.h"
 
-#define NOMINAL_CELL_V 3.7f
+#define NOMINAL_CELL_V (3.7f)
 #define MAX_PACK_V (NOMINAL_CELL_V * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL)
-#define MAX_CELL_DISCHARGE_CURRENT 88.5f //source - https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting
+#define MAX_CELL_DISCHARGE_CURRENT (88.5f) //source - https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting
 #define MAX_CONTINUOUS_CURRENT (MAX_CELL_DISCHARGE_CURRENT * NUM_PARALLEL_CELLS)
 #define MAX_POWER_LIMIT_W (78e3f)
 
-#define TEMP_FAULT_THRESHOLD 60U
-#define TEMP_WARNING_THRESHOLD 40U
+#define TEMP_FAULT_THRESHOLD (60U)
+#define TEMP_WARNING_THRESHOLD (40U)
 
-#define LOW_VOLTAGE_FAULT_THRESHOLD 3.0f
-#define LOW_VOLTAGE_WARNING_THRESHOLD 3.2f
-#define HIGH_VOLTAGR_FAULT_THRESHOLD 4.2f
-#define HIGH_VOLTAGE_WARNING_THRESHOLD 4.0f
+#define LOW_VOLTAGE_FAULT_THRESHOLD (3.0f)
+#define LOW_VOLTAGE_WARNING_THRESHOLD (3.2f)
+#define HIGH_VOLTAGR_FAULT_THRESHOLD (4.2f)
+#define HIGH_VOLTAGE_WARNING_THRESHOLD (4.0f)
 #define NUM_PARALLEL_CELLS (3U)
 #define INTERNAL_R_PER_CELL_OHMS (2.5e-3f)
 #define SERIES_ELEMENT_RESISTANCE (INTERNAL_R_PER_CELL_OHMS / NUM_PARALLEL_CELLS)
 
-
 //need to be updated after discussion -----------------------
-#define LOW_SOC_FAULT_THRESHOLD 20.0f //Limit to stop discharging
-#define LOW_SOC_WARNING_THRESHOLD 30.0f
-#define HIGH_SOC_FAULT_THRESHOLD 85.0f //Limit to stop charging
-#define HIGH_SOC_WARNING_THRESHOLD 75.0f 
+#define LOW_SOC_FAULT_THRESHOLD (20.0f) //Limit to stop discharging
+#define LOW_SOC_WARNING_THRESHOLD (30.0f)
+#define HIGH_SOC_FAULT_THRESHOLD (85.0f) //Limit to stop charging
+#define HIGH_SOC_WARNING_THRESHOLD (75.0f) 
 
 void app_currentLimit_broadcast(void)
 {
-    float dischargingCurrentLimit = app_currentLimit_getDischargeLimit();
-    float chargingCurrentLimit = app_currentLimit_getChargeLimit();
+    const float dischargingCurrentLimit = app_currentLimit_getDischargeLimit();
+    const float chargingCurrentLimit = app_currentLimit_getChargeLimit();
 
-    if((dischargingCurrentLimit < MAX_CONTINUOUS_CURRENT) || (chargingCurrentLimit < MAX_CONTINUOUS_CURRENT))
-    {
-        app_canTx_BMS_Fault_CurrentLimitActive_set(true);
-    }
-    else
-    {
-        app_canTx_BMS_Fault_CurrentLimitActive_set(false);
-    }
+    const bool currentLimitActive = ((dischargingCurrentLimit < MAX_CONTINUOUS_CURRENT) || (chargingCurrentLimit < MAX_CONTINUOUS_CURRENT)) ? true: false;
+
+    app_canTx_BMS_Warning_CurrentLimitActive_set(currentLimitActive);
 }
 
 float app_currentLimit_getDischargeLimit(void)

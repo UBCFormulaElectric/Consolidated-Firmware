@@ -9,6 +9,7 @@
         "StackWaterMarkHighTask1kHz",
         "StackWaterMarkHighTaskCanRx",
         "StackWaterMarkHighTaskCanTx",
+        "CurrentLimitActive",
         "WatchdogTimeout",
         "TxOverflow",
         "RxOverflow"
@@ -23,7 +24,6 @@
         "ModuleCommunicationError",
         "CellUndertemp",
         "CellOvertemp",
-        "CurrentLimitActive",
         "Charger",
         "ChargerDisconnectedDuringCharge",
         "ChargerExternalShutdown",
