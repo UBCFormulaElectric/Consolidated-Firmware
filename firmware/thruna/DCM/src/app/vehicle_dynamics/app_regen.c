@@ -77,7 +77,8 @@ void app_regen_sendTorqueRequest(float left, float right)
 
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)
 {
-    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg);
+    const float buffer = .85; // .9, .8, .65
+    float Delta = app_activeDifferential_wheelAngleToSpeedDelta(inputs->wheel_angle_deg) * buffer;
 
     float cl = (1 + Delta);
     float cr = (1 - Delta);
