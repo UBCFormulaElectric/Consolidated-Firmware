@@ -372,6 +372,8 @@ bool app_accumulator_openWireCheck(void)
 
             app_accumulator_owcCalculateFaults();
 
+            is_finished = true;
+
             // give away mutex for iso-SPI
 
             break;
@@ -429,9 +431,9 @@ void app_accumulator_broadcast(void)
 
     app_canTx_BMS_AvailablePower_set(available_power);
     app_canTx_BMS_Seg4Cell2Temp_set(
-        io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
+        io_ltc6813CellTemperatures_getSpecificCellTempDegC(0, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
     app_canTx_BMS_Seg4Cell2Temp_set(
-        io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL8_REG_GROUP, SEG4_CELL8_THERMISTOR));
+        io_ltc6813CellTemperatures_getSpecificCellTempDegC(0, SEG4_CELL8_REG_GROUP, SEG4_CELL8_THERMISTOR));
 }
 
 bool app_accumulator_checkFaults(void)
