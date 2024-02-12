@@ -372,6 +372,8 @@ bool app_accumulator_openWireCheck(void)
 
             app_accumulator_owcCalculateFaults();
 
+            is_finished = true;
+
             // give away mutex for iso-SPI
 
             break;
