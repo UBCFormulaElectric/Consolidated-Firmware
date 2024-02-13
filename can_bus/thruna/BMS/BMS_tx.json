@@ -89,13 +89,31 @@
             }
         }
     },
-    "Charger": {
+    "NLG5_CTL": {
         "msg_id": 110,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "Flags relaying BMS Charger Status",
         "signals": {
-            "ChargerConnected": {
+            "NLG5_C_C_EN": {
                 "bits": 1
+            },
+            "NLG5_C_C_EL": {
+                "bits": 1
+            },
+            "NLG5_C_CP_V": {
+                "bits": 1
+            },
+            "NLG5_C_MR": {
+                "bits": 1
+            },
+            "NLGG5_MC_MAX": {
+                "bits": 16
+            },
+            "NLG5_OV_COM": {
+                "bits": 16
+            },
+            "NLG5_OC_COM": {
+                "bits": 16
             }
         }
     },

@@ -45,6 +45,7 @@ static void initStateRunOnTick100Hz(void)
     {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
+        const bool missing_hb          = app_heartbeatMonitor_checkFaults();
 
         if (air_negative_closed && ts_discharged)
         {
@@ -55,7 +56,7 @@ static void initStateRunOnTick100Hz(void)
             const bool precharge_for_charging = charger_connected && external_charging_request;
             // TODO: Check heartbeat from another board before continuing to precharge? will prevent unintended entry to
             // precharge when preparing to charge
-            const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled;
+            const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
 
             if (precharge_for_charging)
             {
