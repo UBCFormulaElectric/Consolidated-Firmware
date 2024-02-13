@@ -119,7 +119,7 @@
             }
         },
         {
-            "label": "Build: BMS_test (Thruna)",
+            "label": "Build Tests: BMS (Thruna)",
             "type": "shell",
             "command": "make -j`nproc` thruna_BMS_test",
             "group": "build",
@@ -128,7 +128,7 @@
             }
         },
         {
-            "label": "Build: BMS_test (Quadruna)",
+            "label": "Build Tests: BMS (Quadruna)",
             "type": "shell",
             "command": "make -j`nproc` quadruna_BMS_test",
             "group": "build",
