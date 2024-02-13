@@ -180,15 +180,15 @@ int main(void)
     {
         sd.hsd     = &hsd1;
         sd.timeout = osWaitForever;
-        // io_canLogging_init(&can_config);
+        io_canLogging_init(&can_config);
     }
 
     // Configure and initialize SEGGER SystemView.
-    static int   e = 0;
-    uint8_t      buff[4096];
-    SdCardStatus d = hw_sd_write_dma(&sd, buff, 0, 1);
-    d              = hw_sd_write_dma(&sd, buff, 1, 1);
-    (void)d;
+    static int e = 0;
+    uint8_t    buff[4096];
+    // SdCardStatus d = hw_sd_write_dma(&sd, buff, 0, 1);
+    // d              = hw_sd_write_dma(&sd, buff, 1, 1);
+    // (void)d;
     // for (size_t i = 0; i < 1000; i++)
     // {
     //     uint32_t start = i * 4096 / 512;
@@ -502,7 +502,7 @@ void runCanTxTask(void *argument)
     for (unsigned int i = 0; i < 100000; i++)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        // io_canLogging_pushTxMsgToQueue(&msg);
+        io_canLogging_pushTxMsgToQueue(&msg);
         osDelay(1);
     }
 
@@ -524,14 +524,14 @@ void runCanRxTask(void *argument)
     static uint32_t count = 0;
     for (;;)
     {
-        // CanMsg msg;
-        // io_can_popRxMsgFromQueue(&msg);
-        // io_canLogging_recordMsgFromQueue();
+        CanMsg msg;
+        io_can_popRxMsgFromQueue(&msg);
+        io_canLogging_recordMsgFromQueue();
         count++;
 
         if (count >= 100)
         {
-            // io_canLogging_sync();
+            io_canLogging_sync();
             count = 0;
         }
     }
