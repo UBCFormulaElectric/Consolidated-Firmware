@@ -525,7 +525,7 @@ void runCanRxTask(void *argument)
     for (;;)
     {
         CanMsg msg;
-        io_can_popRxMsgFromQueue(&msg);
+        // io_can_popRxMsgFromQueue(&msg);
         io_canLogging_recordMsgFromQueue();
         count++;
 
