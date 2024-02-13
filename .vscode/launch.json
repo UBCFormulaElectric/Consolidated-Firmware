@@ -297,7 +297,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/thruna/BMS/thruna_BMS_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build: BMS_test Thruna",
+      "preLaunchTask": "Build: BMS_test (Thruna)",
       "linux": {
         "MIMode": "gdb"
       },
