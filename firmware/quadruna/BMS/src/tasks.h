@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hw_sd.h"
+
 void tasks_preInit(void);
 void tasks_init(void);
 void tasks_run1Hz(void);

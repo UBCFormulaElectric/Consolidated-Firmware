@@ -18,23 +18,20 @@ void app_allStates_runOnTick1Hz(void)
     bool charger_is_connected = io_charger_isConnected();
     app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
-    // const float    min_soc  = app_soc_getMinSocCoulombs();
-    // const uint16_t soc_addr = app_soc_getSocAddress();
-
-    // TODO: Update to SD Card Logic
+    const float min_soc = app_soc_getMinSocCoulombs();
 
     // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
-    // if (min_soc < 0)
-    // {
-    //     if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
-    //     {
-    //          app_soc_resetSocFromVoltage();
-    //     }
-    // }
-    // else
-    // {
-    //     app_eeprom_writeMinSoc(min_soc, soc_addr);
-    // }
+    if (min_soc < 0)
+    {
+        if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
+        {
+            app_soc_resetSocFromVoltage();
+        }
+    }
+    else
+    {
+        app_soc_writeValue();
+    }
 }
 
 uint32_t owcCounter = 0;
