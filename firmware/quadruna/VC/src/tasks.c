@@ -25,6 +25,10 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 
+#include <pb_decode.h>
+#include <pb_encode.h>
+#include "debug_modules.pb.h"
+
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
@@ -52,6 +56,7 @@ static const CanConfig can_config = {
 #define DEBUG_BUF_SIZE 12
 static UART    debug_uart = { .handle = &huart7 };
 static uint8_t data[DEBUG_BUF_SIZE];
+static Gpio decoded_msg; 
 
 void tasks_preInit(void) {}
 
@@ -202,8 +207,24 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         // NOTE: If you send more or less data in a UART transaction, seems like the
         // peripheral can get confused...
 
-        // Just re-transmit whatever data was received, as a demo.
-        hw_uart_transmitPoll(&debug_uart, data, sizeof(data), osWaitForever);
+        /* Allocate space for the decoded message. */
+        Gpio pb_msg;
+        
+        /* Create a stream that reads from the buffer. */
+        pb_istream_t stream = pb_istream_from_buffer(data, DEBUG_BUF_SIZE);
+        
+        /* Now we are ready to decode the message. */
+        status = pb_decode(&stream, Gpio_fields, &pb_msg);
+        
+        /* Check for errors... */
+        if (!status)
+        {
+            printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
+            return 1;
+        }
+        
+        /* Print the data contained in the message. */
+        printf("Gpio received: { .pin = %d, .value = %d }\n", message.pin, message.value);
 
         // Start receiving data in interrupt mode again so this interrupt will get fired if
         // more data is recieved.
