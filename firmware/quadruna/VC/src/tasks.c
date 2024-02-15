@@ -53,9 +53,9 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-#define DEBUG_BUF_SIZE 12
+// #define DEBUG_BUF_SIZE 12
 static UART    debug_uart = { .handle = &huart7 };
-static uint8_t data[DEBUG_BUF_SIZE];
+static uint8_t data[sizeof(Gpio)];
 static Gpio decoded_msg; 
 
 void tasks_preInit(void) {}
@@ -211,7 +211,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         Gpio pb_msg;
         
         /* Create a stream that reads from the buffer. */
-        pb_istream_t stream = pb_istream_from_buffer(data, DEBUG_BUF_SIZE);
+        pb_istream_t stream = pb_istream_from_buffer(data, sizeof(Gpio));
         
         /* Now we are ready to decode the message. */
         status = pb_decode(&stream, Gpio_fields, &pb_msg);
