@@ -3,6 +3,7 @@
 #include "cmsis_os.h"
 
 #include "hw_can.h"
+#include "hw_sd.h"
 #include "hw_adc.h"
 #include "hw_hardFaultHandler.h"
 // #include "hw_bootup.h"
@@ -61,6 +62,7 @@ extern IWDG_HandleTypeDef  hiwdg;
 extern SPI_HandleTypeDef   hspi2;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim15;
+extern SD_HandleTypeDef    hsd1;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
@@ -79,6 +81,11 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
                                           .nss_pin    = SPI_CS_Pin,
                                           .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
+
+static SdCard sd = { .hsd              = &hsd1,
+                     .timeout          = osWaitForever,
+                     .sd_present       = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
+                     .sd_init_complete = false };
 
 // TODO: Update for new charger
 

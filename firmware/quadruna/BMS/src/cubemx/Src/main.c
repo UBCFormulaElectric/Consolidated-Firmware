@@ -55,6 +55,8 @@ FDCAN_HandleTypeDef hfdcan1;
 
 IWDG_HandleTypeDef hiwdg1;
 
+SD_HandleTypeDef hsd1;
+
 SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim1;
@@ -134,6 +136,7 @@ static void MX_IWDG1_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
@@ -184,6 +187,7 @@ int main(void)
     MX_TIM15_Init();
     MX_ADC1_Init();
     MX_TIM1_Init();
+    MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -475,6 +479,41 @@ static void MX_IWDG1_Init(void)
     /* USER CODE BEGIN IWDG1_Init 2 */
 
     /* USER CODE END IWDG1_Init 2 */
+}
+
+/**
+ * @brief SDMMC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SDMMC1_SD_Init(void)
+{
+    /* USER CODE BEGIN SDMMC1_Init 0 */
+
+    if (!hw_sd_checkSdPresent())
+    {
+        return;
+    }
+
+    /* USER CODE END SDMMC1_Init 0 */
+
+    /* USER CODE BEGIN SDMMC1_Init 1 */
+
+    /* USER CODE END SDMMC1_Init 1 */
+    hsd1.Instance                 = SDMMC1;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_FALLING;
+    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd1.Init.ClockDiv            = 4;
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SDMMC1_Init 2 */
+    HAL_SD_ConfigWideBusOperation(&hsd1, SDMMC_BUS_WIDE_4B);
+    hw_sd_markInitComplete();
+    /* USER CODE END SDMMC1_Init 2 */
 }
 
 /**
