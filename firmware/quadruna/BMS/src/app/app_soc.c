@@ -3,8 +3,9 @@
 #include "app_tractiveSystem.h"
 #include "lut/app_cellVoltageToSocLut.h"
 
+#ifdef TARGET_EMBEDDED
 #include "hw_sd.h"
-
+#endif
 #include <stdint.h>
 #include <float.h>
 #include <string.h>
@@ -107,6 +108,8 @@ void app_soc_init(void)
     // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
 
+#ifdef TARGET_EMBEDDED
+
     // TODO: Update to SD Card logic
     // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
     // {
@@ -132,6 +135,8 @@ void app_soc_init(void)
     // {
     //     stats.soc_address = DEFAULT_SOC_ADDR;
     // }
+
+#endif
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
@@ -208,5 +213,7 @@ void app_soc_writeValue(void)
     uint8_t     sd_write_data[4];
 
     convert_float_to_bytes(sd_write_data, min_soc);
+#ifdef TARGET_EMBEDDED
     hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
+#endif
 }
