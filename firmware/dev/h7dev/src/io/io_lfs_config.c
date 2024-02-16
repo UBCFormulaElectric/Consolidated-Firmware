@@ -20,7 +20,9 @@ int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, vo
     {
         return LFS_ERR_IO;
     }
-    if (hw_sd_readOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
+    if (hw_sd_readOffset(
+            &sd, (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) !=
+        SD_CARD_OK)
     {
         return LFS_ERR_IO;
     }
@@ -34,7 +36,9 @@ int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, co
     {
         return LFS_ERR_IO;
     }
-    if (hw_sd_writeOffset(&sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
+    if (hw_sd_writeOffset(
+            &sd, (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) !=
+        SD_CARD_OK)
     {
         return LFS_ERR_IO;
     }

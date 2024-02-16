@@ -87,7 +87,7 @@ SdCardStatus hw_sd_write_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, ui
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
     dma_tx_completed = true;
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)

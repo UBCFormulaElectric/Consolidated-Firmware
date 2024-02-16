@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 2000
+#define QUEUE_SIZE 4096
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -90,6 +90,14 @@ void io_canLogging_init(const CanConfig *can_config)
 
     // create new folder for this boot
     init_logging_file_system();
+    CanMsg   tx_msg = { 0 };
+    uint64_t start  = osKernelGetTickCount() * portTICK_RATE_MS;
+    for (int i = 0; i < 1000; i++)
+    {
+        lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+    }
+    uint64_t end = osKernelGetTickCount() * portTICK_RATE_MS;
+    uint64_t a   = end - start;
 }
 
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
