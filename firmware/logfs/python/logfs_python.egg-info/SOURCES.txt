@@ -1,0 +1,7 @@
+__init__.py
+logfs_bindings.cpython-311-darwin.so
+setup.py
+logfs_python.egg-info/PKG-INFO
+logfs_python.egg-info/SOURCES.txt
+logfs_python.egg-info/dependency_links.txt
+logfs_python.egg-info/top_level.txt

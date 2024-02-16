@@ -62,13 +62,13 @@ endif()
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
+add_subdirectory(logfs)
 
 add_subdirectory(thruna)
 add_subdirectory(quadruna)
 
 add_subdirectory(dev)
 add_subdirectory(boot)
-add_subdirectory(logfs)
 
 if("${PLATFORM}" STREQUAL "quadruna_firmware")
 add_subdirectory(serial_debugger)

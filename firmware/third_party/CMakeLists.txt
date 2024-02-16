@@ -1,5 +1,7 @@
 include(../cmake/embedded.cmake)
 
+add_subdirectory(pybind11)
+
 if("${TARGET}" STREQUAL "deploy")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
@@ -20,6 +22,8 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
+# elseif("${TARGET}" STREQUAL "test")
+#     add_subdirectory(pybind11)
 endif()
 
 
