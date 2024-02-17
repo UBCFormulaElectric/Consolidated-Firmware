@@ -29,14 +29,17 @@ Item {
             // Add image and subtext later
             ListElement {
                 name: "ERROR EXAMPLE"
+                description: "This is an error"
                 colorType: "#FF3B30"
             }
             ListElement {
                 name: "WARNING EXAMPLE"
+                description: "This is a warning"
                 colorType: "#F6AA06"
             }
             ListElement {
                 name: "DECAYED EXAMPLE"
+                description: "This notification has decayed"
                 colorType: "#8C8C8C"
             }
         }
@@ -54,8 +57,18 @@ Item {
                     radius: 10
                     color: colorType
                     Text {
-                        anchors.centerIn: parent
+                        anchors.top: parent.top
+                        font.family: "Sans Serif"
+                        font.bold: true
+                        font.pointSize: 30
                         text: name
+                        color: "#000000"
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        font.family: "Sans Serif"
+                        font.pointSize: 16
+                        text: description
                         color: "#000000"
                     }
                 }
@@ -63,7 +76,6 @@ Item {
         }
 
         ListView {
-
             anchors.fill: notifRectangle
             anchors.horizontalCenter: notifRectangle
             model: errorModel
