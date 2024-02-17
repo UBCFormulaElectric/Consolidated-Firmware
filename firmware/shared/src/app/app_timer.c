@@ -62,7 +62,7 @@ uint32_t app_timer_getElapsedTime(const TimerChannel *const timer)
             // Get elapsed time, but clamp to duration
             uint32_t total_elapsed_time = io_time_getCurrentMs() - timer->start_time_ms;
             elapsed_time = (total_elapsed_time > timer->duration_ms) ? timer->duration_ms : total_elapsed_time;
-            break;e
+            break;
         }
         case TIMER_STATE_EXPIRED:
         {
