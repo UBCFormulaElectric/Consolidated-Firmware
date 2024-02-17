@@ -7,7 +7,7 @@
 #include "hw_uart.h"
 #endif
 
-// Enum of all the values read from the SBG Ellipse N sensortypedef enum
+// Enum of all the values read from the SBG Ellipse N sensor
 typedef enum
 {
     // Transational acceleration (m/s^2)
