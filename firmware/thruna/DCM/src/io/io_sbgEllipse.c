@@ -94,7 +94,7 @@ static SensorData    sensor_data;                         // Struct of all senso
 static osMessageQueueId_t sensor_rx_queue_id;
 static StaticQueue_t      rx_queue_control_block;
 static uint8_t            sensor_rx_queue_buf[QUEUE_MAX_SIZE];
-static uint32_t sbg_queue_overflow_count; 
+static uint32_t           sbg_queue_overflow_count;
 
 static const osMessageQueueAttr_t sensor_rx_queue_attr = {
     .name      = "SensorRxQueue",
@@ -172,7 +172,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
         {
-           sbg_queue_overflow_count++;
+            sbg_queue_overflow_count++;
         }
     }
 }
@@ -418,7 +418,7 @@ uint32_t io_sbgEllipse_getComStatus()
     return sensor_data.status_data.com_status;
 }
 
-uint32_t io_sbgEllipse_getOverflowCount() {
+uint32_t io_sbgEllipse_getOverflowCount()
+{
     return sbg_queue_overflow_count;
 }
-

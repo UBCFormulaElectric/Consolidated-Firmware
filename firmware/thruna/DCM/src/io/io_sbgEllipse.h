@@ -85,7 +85,7 @@ uint16_t io_sbgEllipse_getGeneralStatus(void);
 uint32_t io_sbgEllipse_getComStatus(void);
 
 /*
-* Get queue overflow status
-* @return the overflow uint32_t
-*/
+ * Get queue overflow status
+ * @return the overflow uint32_t
+ */
 uint32_t io_sbgEllipse_getOverflowCount(void);
