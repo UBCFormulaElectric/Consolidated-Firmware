@@ -147,7 +147,7 @@ void tasks_init(void)
     can.canMsgRecievecallback = NULL;
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
 
     const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN3_24V_ACC_SENSE];
     const uint16_t *adc3_buf_start = &hw_adc_getRawValuesBuffer()[ADC3_IN0_AUX_PWR_I_SNS];

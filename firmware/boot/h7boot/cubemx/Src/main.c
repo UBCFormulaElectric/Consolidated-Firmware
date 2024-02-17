@@ -50,8 +50,6 @@ CRC_HandleTypeDef hcrc;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
 
-CanHandle can;
-
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
 uint32_t             interfaceTaskBuffer[512];
