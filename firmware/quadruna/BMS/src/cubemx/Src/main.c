@@ -490,8 +490,16 @@ static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
 
-    if (!hw_sd_checkSdPresent())
+    // if (hw_sd_checkSdPresent() == false)
+    // {
+    //     // return; FIX THIS
+    // }
+
+    Gpio sd_present = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
+
+    if (hw_gpio_readPin(&sd_present))
     {
+        // sd_inited = false;
         return;
     }
 

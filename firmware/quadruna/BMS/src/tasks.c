@@ -227,6 +227,7 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     // hw_bootup_enableInterruptsForApp();
+    hw_sd_init(&sd);
 }
 
 void tasks_init(void)
