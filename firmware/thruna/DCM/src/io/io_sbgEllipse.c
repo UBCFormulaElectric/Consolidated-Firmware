@@ -82,11 +82,6 @@ typedef struct
     Gps1Data         gps_data;
 } SensorData;
 
-typedef struct
-{
-    void (*const sensor_rx_overflow_callback)(bool); // callback on ring queue overflow
-} sensor_msg_config;
-
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
@@ -99,6 +94,7 @@ static SensorData    sensor_data;                         // Struct of all senso
 static osMessageQueueId_t sensor_rx_queue_id;
 static StaticQueue_t      rx_queue_control_block;
 static uint8_t            sensor_rx_queue_buf[QUEUE_MAX_SIZE];
+static uint32_t sbg_queue_overflow_count; 
 
 static const osMessageQueueAttr_t sensor_rx_queue_attr = {
     .name      = "SensorRxQueue",
@@ -157,8 +153,6 @@ static void io_sbgEllipse_processMsg_gpsVel(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_gpsPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
-
-static const sensor_msg_config msg_config = { .sensor_rx_overflow_callback = app_canTx_DCM_Warning_SbgRxOverflow_set };
 /*
  * Callback called when a UART packet is received.
  */
@@ -174,11 +168,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // Push newly received data to queue
     for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
     {
-        static uint32_t ring_queue_overflow_count = 0;
+        sbg_queue_overflow_count = 0;
 
         if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
         {
-            msg_config.sensor_rx_overflow_callback(++ring_queue_overflow_count);
+           sbg_queue_overflow_count++;
         }
     }
 }
@@ -385,8 +379,6 @@ bool io_sbgEllipse_init(UART *imu_uart)
     // Set the callback function (callback is called when a new log is successfully received and parsed)
     sbgEComSetReceiveLogCallback(&com_handle, io_sbgEllipse_logReceivedCallback, NULL);
     // Init RX queue for UART data
-    assert(&msg_config != NULL);
-
     sensor_rx_queue_id = osMessageQueueNew(QUEUE_MAX_SIZE, sizeof(uint8_t), &sensor_rx_queue_attr);
 
     assert(sensor_rx_queue_id != NULL);
@@ -425,3 +417,8 @@ uint32_t io_sbgEllipse_getComStatus()
 {
     return sensor_data.status_data.com_status;
 }
+
+uint32_t io_sbgEllipse_getOverflowCount() {
+    return sbg_queue_overflow_count;
+}
+

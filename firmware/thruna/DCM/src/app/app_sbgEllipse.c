@@ -9,8 +9,12 @@ void app_sbgEllipse_broadcast()
     const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
     const uint32_t com_status     = io_sbgEllipse_getComStatus();
 
+    //Overflow msg
+    const uint32_t overflow_status = io_sbgEllipse_getOverflowCount(); 
+
     app_canTx_DCM_EllipseGeneralStatusBitmask_set(general_status);
     app_canTx_DCM_EllipseComStatusBitmask_set(com_status);
+    app_canTx_DCM_Warning_SbgRxOverflowCount_set(overflow_status);
 
     // Time msg
     const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();

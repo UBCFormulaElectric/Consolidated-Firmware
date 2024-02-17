@@ -7,7 +7,7 @@
 #include "hw_uart.h"
 #endif
 
-// Enum of all the values read from the SBG Ellipse N sensortypedef enum
+// Enum of all the values read from the SBG Ellipse N sensor
 typedef enum
 {
     // Transational acceleration (m/s^2)
@@ -83,3 +83,9 @@ uint16_t io_sbgEllipse_getGeneralStatus(void);
  * @return Bitmask of faults, 0 indiciates a fault
  */
 uint32_t io_sbgEllipse_getComStatus(void);
+
+/*
+* Get queue overflow status
+* @return the overflow uint32_t
+*/
+uint32_t io_sbgEllipse_getOverflowCount(void);

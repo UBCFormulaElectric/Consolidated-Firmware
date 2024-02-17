@@ -427,13 +427,11 @@
         "description": "Car position info", 
             "signals":{
                 "PositionStatus":{
-                    "resolution": 0.5,
-                    "min": 0,
-                    "max": 3
+                    "enum": "DcmSbgStatus"
                 },
                 "Latitude":{
-                    "resolution": 0.0005,
-                    "min": 40,
+                    "resolution": 0.00005,
+                    "min": 47,
                     "max": 50,
                     "unit": "deg"  
                 },
@@ -444,8 +442,8 @@
                     "unit": "m" 
                 },
                 "Longtitude":{
-                    "resolution": 0.0005,
-                    "min": 80,
+                    "resolution": 0.00005,
+                    "min": 122,
                     "max": 125,
                     "unit": "deg" 
                 },
@@ -475,9 +473,7 @@
         "description": "Car Velocity info",
         "signals":{
             "VelocityStatus":{
-                "resolution": 0.5,
-                "min": 0,
-                "max": 3
+                "enum":"DcmSbgStatus"
             },
             "VelocityNorth":{
                 "resolution": 0.1,
