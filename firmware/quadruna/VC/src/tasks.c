@@ -65,7 +65,7 @@ void tasks_init(void)
     can.canMsgRecievecallback = NULL;
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
