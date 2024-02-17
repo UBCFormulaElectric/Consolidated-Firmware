@@ -28,8 +28,10 @@ void CanRXTask()
                 case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
                     return;
-                case CanReadError::Timeout:
+                case CanReadError::Timeout: // NOLINT(*-branch-clone)
+#ifdef USING_dimos
                     qWarning("CANRX Timeout");
+#endif
                     break;
                 case CanReadError::SocketReadError:
                 case CanReadError::IncompleteCanFrame:
@@ -49,7 +51,7 @@ void CanRXTask()
         qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
         can_table_mutex.unlock();
     }
-    qInfo("exiting CanRXTask now");
+    qInfo("KILL CanRXTask thread");
 }
 
 void CanPeriodicTXTask()
@@ -63,7 +65,7 @@ void CanPeriodicTXTask()
         can_table_mutex.unlock();
         QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
-    qInfo("exiting CanPeriodicTXTask now");
+    qInfo("KILL CanPeriodicTXTask thread");
 }
 
 void CanTx100Hz()

@@ -10,7 +10,7 @@ class JSONCANQML final : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
-    QML_UNCREATABLE("Class only exposes constants to QML.")
+    QML_UNCREATABLE("Class exposes CAN values to QML")
     QML_SINGLETON
 
   public:

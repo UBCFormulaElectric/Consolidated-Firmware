@@ -1,7 +1,7 @@
 # FROM THE PARENT SCOPE, WE INHERIT
 # - EXECUTABLE_NAME
 include(find_qt_libs.cmake) # we need to do this super early because this provides Qt CMake functions
-set(CMAKE_AUTOUIC OFF)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 # define sources
@@ -26,6 +26,7 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DQT_DEBUG -DQT_MESSAGELOGCONTEXT) # W mans https://stackoverflow.com/a/43549795/6833423
+target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}

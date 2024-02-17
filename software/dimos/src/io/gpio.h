@@ -30,15 +30,15 @@ typedef struct
     std::string name, enum_name;
 } gpio_info;
 
-const std::map<gpio_input, gpio_info> GPIO_inputs_info{
-    { gpio_input::GPIO1, { .name = "ROT_S_SOM", .enum_name = "GPIO1" } },
-    { gpio_input::GPIO2, { .name = "ROT_A_SOM", .enum_name = "GPIO2" } },
-    { gpio_input::GPIO3, { .name = "ROT_B_SOM", .enum_name = "GPIO3" } },
-    { gpio_input::GPIO4, { .name = "SW_UP", .enum_name = "GPIO4" } },
-    { gpio_input::GPIO5, { .name = "SW_RIGHT", .enum_name = "GPIO5" } },
-    { gpio_input::GPIO6, { .name = "SW_LEFT", .enum_name = "GPIO6" } },
-    { gpio_input::GPIO7, { .name = "SW_DOWN", .enum_name = "GPIO7" } },
-    { gpio_input::GPIO8, { .name = "SW_1", .enum_name = "GPIO8" } },
+const std::map<gpio_input, gpio_info> GPIO_inputs_info {
+    { gpio_input::GPIO1, { .name = "F1", .enum_name = "GPIO1" } },
+    { gpio_input::GPIO2, { .name = "ROT_A", .enum_name = "GPIO2" } },
+    { gpio_input::GPIO3, { .name = "OUT", .enum_name = "GPIO3" } },
+    { gpio_input::GPIO4, { .name = "F2", .enum_name = "GPIO4" } },
+    { gpio_input::GPIO5, { .name = "STG", .enum_name = "GPIO5" } },
+    { gpio_input::GPIO6, { .name = "ERR", .enum_name = "GPIO6" } },
+    { gpio_input::GPIO7, { .name = "ROT_S", .enum_name = "GPIO7" } },
+    { gpio_input::GPIO8, { .name = "ROT_B", .enum_name = "GPIO8" } },
 };
 
 std::map<gpio_input, bool> gpio_init();
