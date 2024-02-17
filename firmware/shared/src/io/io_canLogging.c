@@ -56,15 +56,17 @@ static void init_logging_file_system()
 
     uint32_t bootcount = 0;
     // lfs_format(&lfs, &cfg); // test for now
+    lfs_format(&lfs, &cfg);
     int err = lfs_mount(&lfs, &cfg);
     if (err)
     {
-        lfs_format(&lfs, &cfg);
         err = lfs_mount(&lfs, &cfg);
     }
 
     // get bootcount value from the file; use this to create new file for logging
-    lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    if (err)
+        return;
     lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
     // update bootcount for next boot
@@ -91,12 +93,13 @@ void io_canLogging_init(const CanConfig *can_config)
     // create new folder for this boot
     init_logging_file_system();
     CanMsg   tx_msg = { 0 };
-    uint64_t start  = osKernelGetTickCount() * portTICK_RATE_MS;
-    for (int i = 0; i < 1000; i++)
+    uint64_t start  = HAL_GetTick();
+    for (int i = 0; i < 20000; i++)
     {
         lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
     }
-    uint64_t end = osKernelGetTickCount() * portTICK_RATE_MS;
+    lfs_file_close(&lfs, &file);
+    uint64_t end = HAL_GetTick();
     uint64_t a   = end - start;
 }
 

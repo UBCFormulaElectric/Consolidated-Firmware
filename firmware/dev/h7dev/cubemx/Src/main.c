@@ -183,7 +183,7 @@ int main(void)
         io_canLogging_init(&can_config);
     }
 
-        // Configure and initialize SEGGER SystemView.
+    // Configure and initialize SEGGER SystemView.
     // static int   e = 0;
     // uint8_t      buff[4096];
     // SdCardStatus d = hw_sd_write_dma(&sd, buff, 0, 1);
@@ -532,7 +532,7 @@ void runCanRxTask(void *argument)
         io_canLogging_recordMsgFromQueue();
         count++;
 
-        if (count >= 256)
+        if (count >= 1000)
         {
             io_canLogging_sync();
             count = 0;
