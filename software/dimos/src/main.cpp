@@ -2,6 +2,8 @@
 #include "can.h"
 #include "jsoncanqml.h"
 #include "ui/dimswitches/DimSwitchEmitter.h"
+#include "can_tasks.h"
+#include "gpio_tasks.h"
 extern "C"
 {
 #include "app_canTx.h"
@@ -10,15 +12,13 @@ extern "C"
 #include "io_canRx.h"
 #include "io_canTx.h"
 }
-
+// qt
 #include <QtGui>
 #include <QQmlApplicationEngine>
 #include <QString>
-
 #include <QThread>
+// std
 #include <map>
-#include "can_tasks.h"
-#include "gpio_tasks.h"
 
 void set_qt_environment()
 {
@@ -94,8 +94,7 @@ enum class GPIO_setup_errors
 const std::map<GPIO_setup_errors, std::string> GPIO_setup_errors_str = { { GPIO_setup_errors::LINE_SETUP_ERROR,
                                                                            "Line Setup Error" } };
 static std::vector<std::unique_ptr<QThread>>   gpio_monitor_threads;
-
-Result<std::monostate, GPIO_setup_errors> setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
+Result<std::monostate, GPIO_setup_errors>      setupGPIOThreads(const QQmlApplicationEngine *engine_ref)
 {
     const std::map<gpio_input, bool> gpio_has_err     = gpio_init();
     bool                             any_gpio_has_err = false;
