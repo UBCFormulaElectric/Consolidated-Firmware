@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "string.h"
 
 #include "app_globals.h"
 #include "app_heartbeatMonitor.h"
@@ -13,6 +14,7 @@
 #include "io_jsoncan.h"
 #include "io_log.h"
 #include "io_canRx.h"
+#include "io_led.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -22,10 +24,17 @@
 #include "hw_gpio.h"
 #include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
+#include "hw_uart.h"
+#include "hw_adc.h"
+
+#include "VC.pb.h"
+#include <pb_decode.h>
+#include <pb_encode.h>
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern UART_HandleTypeDef  huart7;
 // extern IWDG_HandleTypeDef  hiwdg1;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
@@ -40,11 +49,30 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_VC_Warning_TxOverflow_set(true);
 }
 
-const CanConfig can_config = {
+static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
+
+static const BinaryLed led = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
+
+static const Gpio *id_to_gpio[] = {
+    [GpioNetName_LED_GPIO] = &led.gpio,
+};
+
+static const AdcChannel inv_r_pwr_i_sns = ADC1_CHANNEL_10;
+
+static const AdcChannel *id_to_adc[] = {
+    [AdcNetName_INV_R_PWR_I_SNS] = &inv_r_pwr_i_sns,
+};
+
+#define MAX_DEBUG_BUF_SIZE 100
+#define DEBUG_SIZE_MSG_BUF_SIZE 1
+static UART    debug_uart = { .handle = &huart7 };
+static uint8_t data[MAX_DEBUG_BUF_SIZE];
+static bool    is_mid_debug_msg = false;
+static uint8_t packet_size;
 
 void tasks_preInit(void) {}
 
@@ -77,6 +105,9 @@ void tasks_init(void)
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+
+    // Receive data over the debug UART line in interrupt mode.
+    hw_uart_receiveIt(&debug_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
 }
 
 void tasks_run1Hz(void)
@@ -181,5 +212,77 @@ void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == debug_uart.handle)
+    {
+        // This interrupt is fired when DEBUG_BUF_SIZE bytes are received via UART.
+        // NOTE: If you send more or less data in a UART transaction, seems like the
+        // peripheral can get confused...
+
+        if (is_mid_debug_msg)
+        {
+            DebugMessage msg       = DebugMessage_init_zero;
+            pb_istream_t in_stream = pb_istream_from_buffer(data, packet_size);
+            bool         status    = pb_decode(&in_stream, DebugMessage_fields, &msg);
+
+            if (!status)
+            {
+                printf("Decoding failed: %s\n", PB_GET_ERROR(&in_stream));
+            }
+
+            switch (msg.which_payload)
+            {
+                case 1:
+                {
+                    const Gpio *gpio            = id_to_gpio[msg.payload.gpio_read.net_name];
+                    msg.payload.gpio_read.value = hw_gpio_readPin(gpio) + 1; // add one for enum scale offset
+                    break;
+                }
+                case 2:
+                {
+                    const Gpio *gpio = id_to_gpio[msg.payload.gpio_write.net_name];
+                    hw_gpio_writePin(gpio, msg.payload.gpio_write.value - 1); // add one for enum scale offset
+                    break;
+                }
+                case 3:
+                {
+                    const AdcChannel *adc = id_to_adc[msg.payload.adc.net_name];
+                    msg.payload.adc.value = hw_adc_getVoltage(*adc);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
+            status                  = pb_encode(&out_stream, DebugMessage_fields, &msg);
+            packet_size             = (u_int8_t)out_stream.bytes_written;
+
+            if (!status)
+            {
+                printf("Encoding failed: %s\n", PB_GET_ERROR(&out_stream));
+            }
+
+            uint8_t size_data[DEBUG_SIZE_MSG_BUF_SIZE];
+            size_data[0] = packet_size;
+            hw_uart_transmitPoll(&debug_uart, size_data, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
+
+            hw_uart_transmitPoll(&debug_uart, data, packet_size, osWaitForever);
+            is_mid_debug_msg = false;
+            packet_size      = DEBUG_SIZE_MSG_BUF_SIZE;
+        }
+        else
+        {
+            is_mid_debug_msg = true;
+            packet_size      = data[0];
+        }
+
+        // Start receiving data in interrupt mode again so this interrupt will get fired if
+        // more data is recieved.
+        hw_uart_receiveIt(&debug_uart, data, packet_size);
     }
 }
