@@ -65,23 +65,23 @@ static uint32_t logfs_util_crc(const void *buf, size_t size)
 
 uint32_t logfs_util_getBlockCrc(const LogFs *fs)
 {
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_buf;
+    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     return *block_crc;
 }
 
 void logfs_util_stampBlockCrc(const LogFs *fs)
 {
     // Set first word to 0, then stamp first word with CRC.
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_buf;
+    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     *block_crc                = 0;
-    *block_crc                = logfs_util_crc(fs->cfg->block_buf, fs->cfg->block_size);
+    *block_crc                = logfs_util_crc(fs->cfg->block_cache, fs->cfg->block_size);
 }
 
 bool logfs_util_checkBlockCrc(const LogFs *fs)
 {
     // Check block with CRC (first word) set to zero.
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_buf;
+    uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     uint32_t        crc       = *block_crc;
     *block_crc                = 0;
-    return crc == logfs_util_crc(fs->cfg->block_buf, fs->cfg->block_size);
+    return crc == logfs_util_crc(fs->cfg->block_cache, fs->cfg->block_size);
 }

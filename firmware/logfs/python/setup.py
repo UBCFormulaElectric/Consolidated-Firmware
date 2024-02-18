@@ -10,4 +10,5 @@ setup(
     packages=["."],
     install_requires=[],
     package_data={".": [logfs_lib]},
+    include_package_data=True,
 )
