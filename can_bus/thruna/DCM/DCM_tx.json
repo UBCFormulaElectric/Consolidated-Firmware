@@ -16,7 +16,7 @@
         }
     },
     "LeftInverterCommand": {
-        "msg_id": 1000,
+        "msg_id": 32,
         "cycle_time": 10,
         "signals": {
             "LeftInverterTorqueCommand": {
@@ -75,7 +75,7 @@
         }
     },
     "RightInverterCommand": {
-        "msg_id": 1001,
+        "msg_id": 82,
         "cycle_time": 10,
         "signals": {
             "RightInverterTorqueCommand": {
