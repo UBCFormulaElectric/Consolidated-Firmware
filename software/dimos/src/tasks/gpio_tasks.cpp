@@ -1,10 +1,12 @@
 #include "gpio.h"
+#include "ui/DimSwitches/DimSwitchEmitter.h"
 
 #include <QThread>
-#include <iostream>
 #include <QtLogging>
 
 // Functions handlers here correspond to the names given to the lines in altium.
+const gpio_edge last_a_edge = gpio_edge::RISING_EDGE, last_b_edge = gpio_edge::RISING_EDGE;
+
 void ROT_A(const gpio_edge edge)
 {
     Q_UNUSED(edge);
@@ -15,9 +17,10 @@ void ROT_B(const gpio_edge edge)
 }
 void ROT_S(const gpio_edge edge)
 {
-    if (edge == RISING_EDGE)
+    if (edge == gpio_edge::RISING_EDGE)
     {
         qInfo("Rotary Push Button Pressed");
+        emit DimSwitchEmitter::getInstance()->pushRot();
     }
     else
     {
@@ -26,24 +29,39 @@ void ROT_S(const gpio_edge edge)
 }
 void OUT(const gpio_edge edge)
 {
-    Q_UNUSED(edge);
+    if (edge == gpio_edge::RISING_EDGE)
+    {
+        emit DimSwitchEmitter::getInstance()->outButtonPressed();
+    }
 }
 void ERR(const gpio_edge edge)
 {
-    Q_UNUSED(edge);
+    if (edge == gpio_edge::RISING_EDGE)
+    {
+        emit DimSwitchEmitter::getInstance()->errButtonPressed();
+    }
 }
 void STG(const gpio_edge edge)
 {
-    Q_UNUSED(edge);
+    if (edge == gpio_edge::RISING_EDGE)
+    {
+        emit DimSwitchEmitter::getInstance()->settingsButtonPressed();
+    }
 }
 
 void F1(const gpio_edge edge)
 {
-    Q_UNUSED(edge);
+    if (edge == gpio_edge::RISING_EDGE)
+    {
+        emit DimSwitchEmitter::getInstance()->f1ButtonPressed();
+    }
 }
 void F2(const gpio_edge edge)
 {
-    Q_UNUSED(edge);
+    if (edge == gpio_edge::RISING_EDGE)
+    {
+        emit DimSwitchEmitter::getInstance()->f2ButtonPressed();
+    }
 }
 
 // gpio handlers
@@ -63,10 +81,10 @@ void gpio_monitor(const gpio_input i)
         const Result<gpio_edge, line_read_error> l_event = wait_for_line_event(i);
         if (l_event.index() == 1)
         {
-            if (get<line_read_error>(l_event) == DEV_DUMMY_DATA)
+            if (get<line_read_error>(l_event) == line_read_error::DEV_DUMMY_DATA)
                 continue;
 #ifdef USING_dimos_dev
-            if (get<line_read_error>(l_event) == TIMEOUT)
+            if (get<line_read_error>(l_event) == line_read_error::TIMEOUT)
                 continue;
 #endif
             qWarning("GPIO READ ERROR: %d", get<line_read_error>(l_event));

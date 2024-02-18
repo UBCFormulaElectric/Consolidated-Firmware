@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import constants
 import switcher
 import pages
+import dimswitches
 
 Window {
     minimumWidth: Constants.SCREEN_WIDTH
@@ -48,5 +49,21 @@ Window {
             }
         }
         Switcher { }
+    }
+
+    // DimSwitches {
+    //     onButtonPressed: {
+    //         console.log("happy time")
+    //     }
+    // }
+
+    function handleOnButtonPressed() {
+        console.log("happy time")
+    }
+    Connections {
+        target: DimSwitchEmitter
+        function onStgButtonPressed() {
+            handleOnButtonPressed()
+        }
     }
 }

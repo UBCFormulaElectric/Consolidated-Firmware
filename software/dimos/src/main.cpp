@@ -1,6 +1,7 @@
 // can
 #include "can.h"
 #include "jsoncanqml.h"
+#include "ui/dimswitches/DimSwitchEmitter.h"
 extern "C"
 {
 #include "app_canTx.h"
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     engine.addImportPath(":/");
     // engine.loadFromModule("MainWindow", "MainWindow"); // this does not work on Qt < 6.6
     // const QUrl url("./MainWindow/ui/MainWindow.qml"); // this also works, but is cringe
-    const QUrl url(u"qrc:/MainWindow/ui/MainWindow.qml"_qs);
+    const QUrl url(u"qrc:/Dimos/ui/MainWindow.qml"_qs);
     engine.load(url);
 
     // graceful exit

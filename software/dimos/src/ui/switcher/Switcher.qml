@@ -1,5 +1,3 @@
-// noinspection PointlessArithmeticExpressionJS
-
 import QtQuick
 
 import squircle
@@ -10,15 +8,24 @@ Item {
     anchors.fill: parent
     readonly property int appIconSize: 225
 
-    Keys.onSpacePressed: () => {
-        switcher.visible = !switcher.visible
-    }
+    // Keys.onSpacePressed: () => {
+    //     switcher.visible = !switcher.visible
+    // }
+    //
+    // Keys.onReturnPressed: () => {
+    //     if(switcher.visible) {
+    //         switcher.visible = false
+    //     }
+    // }
 
-    Keys.onReturnPressed: () => {
-        if(switcher.visible) {
-            switcher.visible = false
-        }
-    }
+    // DimSwitches.onKnobPressed: () => {}
+    // DimSwitches.onBackPressed: () => {}
+    // DimSwitches.onKnobLeft: () => {}
+    // DimSwitches.onKnobRight: () => {}
+
+    // DimSwitches.onButtonPressed: {
+    //     switcher.visible = !switcher.visible
+    // }
 
     // todo improved model
     ListModel {
@@ -109,8 +116,8 @@ Item {
         clip: true
         pathItemCount: 5
         focus: true
-        Keys.onLeftPressed: decrementCurrentIndex()
-        Keys.onRightPressed: incrementCurrentIndex()
+        // Keys.onLeftPressed: decrementCurrentIndex()
+        // Keys.onRightPressed: incrementCurrentIndex()
     }
 
     Text {

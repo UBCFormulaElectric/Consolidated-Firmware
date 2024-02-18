@@ -43,12 +43,12 @@ const std::map<gpio_input, gpio_info> GPIO_inputs_info {
 
 std::map<gpio_input, bool> gpio_init();
 
-enum gpio_edge
+enum class gpio_edge
 {
     RISING_EDGE,
     FALLING_EDGE
 };
-enum line_read_error
+enum class line_read_error
 {
     LINE_READ_SYSTEM_ERROR, // caused by not requesting?
     DEV_DUMMY_DATA,         // returned on dev gpio

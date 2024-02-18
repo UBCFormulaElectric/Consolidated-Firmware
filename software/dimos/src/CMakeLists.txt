@@ -30,13 +30,13 @@ target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
-    URI "MainWindow"
+    URI "Dimos"
     VERSION 1.0
     QML_FILES ui/MainWindow.qml
 )
 # add qml modules
 add_subdirectory(ui)
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin DimSwitchesplugin)
 target_compile_definitions(DimosConstants PUBLIC "USING_${EXECUTABLE_NAME}") # L QML compiler
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
