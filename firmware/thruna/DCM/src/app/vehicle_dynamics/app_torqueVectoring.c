@@ -17,7 +17,7 @@ static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 static TractionControl_Outputs    traction_control_outputs;
 
-static bool run_traction_control = false; 
+static bool run_traction_control = false;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -104,7 +104,8 @@ void app_torqueVectoring_handleAcceleration(void)
      *  TRACTION CONTROL NOT TESTED ON CAR YET
      */
     // Traction Control
-    if (run_traction_control) {
+    if (run_traction_control)
+    {
         traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
         traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
         traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
@@ -117,10 +118,13 @@ void app_torqueVectoring_handleAcceleration(void)
     // Inverter Torque Request
     float torque_left_final_Nm;
     float torque_right_final_Nm;
-    if (run_traction_control) {
-        torque_left_final_Nm  = traction_control_outputs.torque_left_Nm;
-        torque_right_final_Nm = traction_control_outputs.torque_right_Nm;
-    } else {
+    if (run_traction_control)
+    {
+        torque_left_final_Nm  = traction_control_outputs.torque_left_final_Nm;
+        torque_right_final_Nm = traction_control_outputs.torque_right_final_Nm;
+    }
+    else
+    {
         torque_left_final_Nm  = active_differential_outputs.torque_left_Nm;
         torque_right_final_Nm = active_differential_outputs.torque_right_Nm;
     }
