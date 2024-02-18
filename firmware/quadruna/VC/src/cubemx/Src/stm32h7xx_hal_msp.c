@@ -97,6 +97,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         __HAL_RCC_GPIOC_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
         PC1     ------> ADC1_INP11
@@ -106,16 +107,23 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA6     ------> ADC1_INP3
         PA7     ------> ADC1_INP7
         PC4     ------> ADC1_INP4
+        PB1     ------> ADC1_INP5
         */
-        GPIO_InitStruct.Pin  = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
+        GPIO_InitStruct.Pin  = INV_R_PWR_I_SNS_Pin | INV_L_PWR_I_SNS_Pin | LV_PWR_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
+        GPIO_InitStruct.Pin =
+            BAT_I_SNS_Pin | SHDN_PWR_I_SNS_Pin | VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _22V_BOOST_SENSE_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin  = ACC_I_SENSE_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(ACC_I_SENSE_GPIO_Port, &GPIO_InitStruct);
 
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -132,8 +140,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**ADC3 GPIO Configuration
         PC2_C     ------> ADC3_INP0
+        PC3_C     ------> ADC3_INP1
         */
         HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC2, SYSCFG_SWITCH_PC2_OPEN);
+
+        HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PC3, SYSCFG_SWITCH_PC3_OPEN);
 
         /* USER CODE BEGIN ADC3_MspInit 1 */
 
@@ -166,10 +177,14 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA6     ------> ADC1_INP3
         PA7     ------> ADC1_INP7
         PC4     ------> ADC1_INP4
+        PB1     ------> ADC1_INP5
         */
-        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4);
+        HAL_GPIO_DeInit(GPIOC, INV_R_PWR_I_SNS_Pin | INV_L_PWR_I_SNS_Pin | LV_PWR_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+        HAL_GPIO_DeInit(
+            GPIOA, BAT_I_SNS_Pin | SHDN_PWR_I_SNS_Pin | VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _22V_BOOST_SENSE_Pin);
+
+        HAL_GPIO_DeInit(ACC_I_SENSE_GPIO_Port, ACC_I_SENSE_Pin);
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
