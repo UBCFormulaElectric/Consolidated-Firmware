@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x08VC.proto\"E\n\x08GpioRead\x12\x1e\n\x08net_name\x18\x01 \x01(\x0e\x32\x0c.GpioNetName\x12\x19\n\x05value\x18\x02 \x01(\x0e\x32\n.GpioValue\"F\n\tGpioWrite\x12\x1e\n\x08net_name\x18\x01 \x01(\x0e\x32\x0c.GpioNetName\x12\x19\n\x05value\x18\x02 \x01(\x0e\x32\n.GpioValue\"3\n\x03\x41\x64\x63\x12\x1d\n\x08net_name\x18\x01 \x01(\x0e\x32\x0b.AdcNetName\x12\r\n\x05value\x18\x02 \x01(\x02\"p\n\x0c\x44\x65\x62ugMessage\x12\x1e\n\tgpio_read\x18\x01 \x01(\x0b\x32\t.GpioReadH\x00\x12 \n\ngpio_write\x18\x02 \x01(\x0b\x32\n.GpioWriteH\x00\x12\x13\n\x03\x61\x64\x63\x18\x03 \x01(\x0b\x32\x04.AdcH\x00\x42\t\n\x07payload*:\n\x0bGpioNetName\x12\x1d\n\x19GPIO_NET_NAME_UNSPECIFIED\x10\x00\x12\x0c\n\x08LED_GPIO\x10\x01*:\n\tGpioValue\x12\x1a\n\x16GPIO_VALUE_UNSPECIFIED\x10\x00\x12\x07\n\x03LOW\x10\x01\x12\x08\n\x04HIGH\x10\x02*?\n\nAdcNetName\x12\x1c\n\x18\x41\x44\x43_NET_NAME_UNSPECIFIED\x10\x00\x12\x13\n\x0fINV_R_PWR_I_SNS\x10\x01\x62\x06proto3'
+  serialized_pb=b'\n\x08VC.proto\"E\n\x08GpioRead\x12\x1e\n\x08net_name\x18\x01 \x01(\x0e\x32\x0c.GpioNetName\x12\x19\n\x05value\x18\x02 \x01(\x0e\x32\n.GpioValue\"F\n\tGpioWrite\x12\x1e\n\x08net_name\x18\x01 \x01(\x0e\x32\x0c.GpioNetName\x12\x19\n\x05value\x18\x02 \x01(\x0e\x32\n.GpioValue\"3\n\x03\x41\x64\x63\x12\x1d\n\x08net_name\x18\x01 \x01(\x0e\x32\x0b.AdcNetName\x12\r\n\x05value\x18\x02 \x01(\x02\"p\n\x0c\x44\x65\x62ugMessage\x12\x1e\n\tgpio_read\x18\x01 \x01(\x0b\x32\t.GpioReadH\x00\x12 \n\ngpio_write\x18\x02 \x01(\x0b\x32\n.GpioWriteH\x00\x12\x13\n\x03\x61\x64\x63\x18\x03 \x01(\x0b\x32\x04.AdcH\x00\x42\t\n\x07payload*\xad\x02\n\x0bGpioNetName\x12\x1d\n\x19GPIO_NET_NAME_UNSPECIFIED\x10\x00\x12\x11\n\rBUZZER_PWR_EN\x10\x01\x12\x12\n\x0e\x42\x41T_I_SNS_NFLT\x10\x02\x12\x07\n\x03LED\x10\x03\x12\x10\n\x0cTELEM_PWR_EN\x10\x04\x12\x0b\n\x07NPCM_EN\x10\x05\x12\x14\n\x10\x41\x43\x43_I_SENSE_NFLT\x10\x06\x12\t\n\x05PGOOD\x10\x07\x12\r\n\tLV_PWR_EN\x10\x08\x12\x0e\n\nAUX_PWR_EN\x10\t\x12\x0f\n\x0bPUMP_PWR_EN\x10\n\x12\x0e\n\n_900K_GPIO\x10\x0b\x12\x0f\n\x0bNCHRG_FAULT\x10\x0c\x12\t\n\x05NCHRG\x10\r\x12\x10\n\x0cINV_L_PWR_EN\x10\x0e\x12\x10\n\x0cINV_R_PWR_EN\x10\x0f\x12\x0f\n\x0bSHDN_PWR_EN\x10\x10*:\n\tGpioValue\x12\x1a\n\x16GPIO_VALUE_UNSPECIFIED\x10\x00\x12\x07\n\x03LOW\x10\x01\x12\x08\n\x04HIGH\x10\x02*\xd6\x01\n\nAdcNetName\x12\x1c\n\x18\x41\x44\x43_NET_NAME_UNSPECIFIED\x10\x00\x12\x13\n\x0fINV_R_PWR_I_SNS\x10\x01\x12\x13\n\x0fINV_L_PWR_I_SNS\x10\x02\x12\x11\n\rAUX_PWR_I_SNS\x10\x03\x12\r\n\tBAT_I_SNS\x10\x04\x12\x12\n\x0eSHDN_PWR_I_SNS\x10\x05\x12\x0e\n\nVBAT_SENSE\x10\x06\x12\x12\n\x0e_24V_ACC_SENSE\x10\x07\x12\x14\n\x10_22V_BOOST_SENSE\x10\x08\x12\x10\n\x0cLV_PWR_I_SNS\x10\tb\x06proto3'
 )
 
 _GPIONETNAME = _descriptor.EnumDescriptor(
@@ -36,15 +36,90 @@ _GPIONETNAME = _descriptor.EnumDescriptor(
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='LED_GPIO', index=1, number=1,
+      name='BUZZER_PWR_EN', index=1, number=1,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='BAT_I_SNS_NFLT', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LED', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='TELEM_PWR_EN', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NPCM_EN', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='ACC_I_SENSE_NFLT', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='PGOOD', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LV_PWR_EN', index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='AUX_PWR_EN', index=9, number=9,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='PUMP_PWR_EN', index=10, number=10,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='_900K_GPIO', index=11, number=11,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NCHRG_FAULT', index=12, number=12,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='NCHRG', index=13, number=13,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='INV_L_PWR_EN', index=14, number=14,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='INV_R_PWR_EN', index=15, number=15,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='SHDN_PWR_EN', index=16, number=16,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=322,
-  serialized_end=380,
+  serialized_start=323,
+  serialized_end=624,
 )
 _sym_db.RegisterEnumDescriptor(_GPIONETNAME)
 
@@ -74,8 +149,8 @@ _GPIOVALUE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=382,
-  serialized_end=440,
+  serialized_start=626,
+  serialized_end=684,
 )
 _sym_db.RegisterEnumDescriptor(_GPIOVALUE)
 
@@ -97,22 +172,85 @@ _ADCNETNAME = _descriptor.EnumDescriptor(
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='INV_L_PWR_I_SNS', index=2, number=2,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='AUX_PWR_I_SNS', index=3, number=3,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='BAT_I_SNS', index=4, number=4,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='SHDN_PWR_I_SNS', index=5, number=5,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='VBAT_SENSE', index=6, number=6,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='_24V_ACC_SENSE', index=7, number=7,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='_22V_BOOST_SENSE', index=8, number=8,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='LV_PWR_I_SNS', index=9, number=9,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=442,
-  serialized_end=505,
+  serialized_start=687,
+  serialized_end=901,
 )
 _sym_db.RegisterEnumDescriptor(_ADCNETNAME)
 
 AdcNetName = enum_type_wrapper.EnumTypeWrapper(_ADCNETNAME)
 GPIO_NET_NAME_UNSPECIFIED = 0
-LED_GPIO = 1
+BUZZER_PWR_EN = 1
+BAT_I_SNS_NFLT = 2
+LED = 3
+TELEM_PWR_EN = 4
+NPCM_EN = 5
+ACC_I_SENSE_NFLT = 6
+PGOOD = 7
+LV_PWR_EN = 8
+AUX_PWR_EN = 9
+PUMP_PWR_EN = 10
+_900K_GPIO = 11
+NCHRG_FAULT = 12
+NCHRG = 13
+INV_L_PWR_EN = 14
+INV_R_PWR_EN = 15
+SHDN_PWR_EN = 16
 GPIO_VALUE_UNSPECIFIED = 0
 LOW = 1
 HIGH = 2
 ADC_NET_NAME_UNSPECIFIED = 0
 INV_R_PWR_I_SNS = 1
+INV_L_PWR_I_SNS = 2
+AUX_PWR_I_SNS = 3
+BAT_I_SNS = 4
+SHDN_PWR_I_SNS = 5
+VBAT_SENSE = 6
+_24V_ACC_SENSE = 7
+_22V_BOOST_SENSE = 8
+LV_PWR_I_SNS = 9
 
 
 
