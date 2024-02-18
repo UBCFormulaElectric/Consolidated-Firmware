@@ -15,6 +15,9 @@
 #define PEDAL_SCALE 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
 
+static bool run_torque_vectoring = true; 
+static bool run_regen = true;
+
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
     const float bms_available_power   = app_canRx_BMS_AvailablePower_get();
@@ -60,7 +63,7 @@ static void driveStateRunOnEntry(void)
     // Read torque vectoring switch only when entering drive state, not during driving
     globals->torque_vectoring_switch_is_on = app_canRx_DIM_AuxSwitch_get() == SWITCH_ON;
 
-    if (globals->torque_vectoring_switch_is_on)
+    if (run_torque_vectoring && globals->torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_init();
     }
@@ -84,7 +87,7 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
-    if (regen_switch_enabled)
+    if (run_regen && regen_switch_enabled)
     {
         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
         apps_pedal_percentage = apps_pedal_percentage < 0.0f
@@ -98,11 +101,11 @@ static void driveStateRunOnTick100Hz(void)
         return;
     }
 
-    if (apps_pedal_percentage < 0.0f)
+    if (run_regen && apps_pedal_percentage < 0.0f)
     {
         app_regen_run(apps_pedal_percentage);
     }
-    else if (globals->torque_vectoring_switch_is_on)
+    else if (run_torque_vectoring && globals->torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_run(apps_pedal_percentage);
     }
