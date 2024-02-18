@@ -106,3 +106,19 @@ Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
         return LINE_READ_SYSTEM_ERROR;
     }
 }
+
+Result<gpio_level, line_read_error> read_gpio(gpio_input i)
+{
+    const gpiod::line &l = gpio_lines[i];
+    try
+    {
+        return l.get_value() == 0 ? LOW : HIGH; // TODO validate this is correct
+    }
+    catch (std::system_error &e)
+    {
+        std::string s = "Line Read Error ";
+        s += e.what();
+        qErrnoWarning(s.c_str());
+        return LINE_READ_SYSTEM_ERROR;
+    }
+}

@@ -43,6 +43,10 @@ const std::map<gpio_input, gpio_info> GPIO_inputs_info {
 
 std::map<gpio_input, bool> gpio_init();
 
+/**
+ * \brief Waits for a line event on the given gpio input
+ * \return The line event that occurred (either rising or falling)
+ */
 enum class gpio_edge
 {
     RISING_EDGE,
@@ -55,3 +59,9 @@ enum class line_read_error
     TIMEOUT
 };
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i);
+
+enum class gpio_level {
+    LOW,
+    HIGH
+};
+Result<gpio_level, line_read_error> read_gpio(gpio_input i);
