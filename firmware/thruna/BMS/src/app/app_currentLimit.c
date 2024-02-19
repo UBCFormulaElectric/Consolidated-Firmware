@@ -87,7 +87,6 @@ float app_currentLimit_getDischargeLimit(void)
     }
 
     app_canTx_BMS_AvailableDischargingCurrentLimit_set(currentLimit);
-
     return currentLimit;
 }
 
