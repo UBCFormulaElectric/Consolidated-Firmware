@@ -28,7 +28,7 @@
 #define SERIES_ELEMENT_RESISTANCE ((float)(INTERNAL_R_PER_CELL_OHMS / NUM_PARALLEL_CELLS))
 
 // need to be updated after discussion -----------------------
-#define LOW_SOC_FAULT_THRESHOLD (20.0f) // Limit to stop discharging
+#define LOW_SOC_FAULT_THRESHOLD (15.0f) // Limit to stop discharging
 #define LOW_SOC_WARNING_THRESHOLD (30.0f)
 #define HIGH_SOC_FAULT_THRESHOLD (85.0f) // Limit to stop charging
 #define HIGH_SOC_WARNING_THRESHOLD (75.0f)

@@ -728,7 +728,7 @@ TEST_F(BmsStateMachineTest, low_volt_based_current_limiting_tests)
     ASSERT_EQ(NO_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
     ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
 
-    app_soc_resetSocCustomValue(7.5);
+    app_soc_resetSocCustomValue(25);
     LetTimePass(10);
     ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
     ASSERT_EQ(LOW_VOLT_BASED_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
