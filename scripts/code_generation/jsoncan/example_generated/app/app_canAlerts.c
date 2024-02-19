@@ -12,6 +12,7 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 
+
 void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert)
 {
     // Increment alert counter.
@@ -112,5 +113,41 @@ bool app_canAlerts_AnyBoardHasFault()
     }
     
     return false;
+}
+
+uint8_t app_canAlerts_WarningCode(uint8_t *alert_array)
+{
+    uint8_t element_num = 0;
+    if (app_canRx_FSM_Warning_Warning_Test1_get())
+    {
+        alert_array[element_num] = (uint8_t)FSM_Warning_Warning_Test1;
+        element_num++;
+    }
+    
+    if (app_canRx_FSM_Warning_Warning_Test2_get())
+    {
+        alert_array[element_num] = (uint8_t)FSM_Warning_Warning_Test2;
+        element_num++;
+    }
+    
+    if (app_canTx_JCT_Warning_Warning_Test_get())
+    {
+        alert_array[element_num] = (uint8_t)JCT_Warning_Warning_Test;
+        element_num++;
+    }
+    
+    return element_num;
+}
+
+uint8_t app_canAlerts_FaultCode(uint8_t *alert_array)
+{
+    uint8_t element_num = 0;
+    if (app_canRx_FSM_Fault_Fault_Test3_get())
+    {
+        alert_array[element_num] = (uint8_t)FSM_Fault_Fault_Test3;
+        element_num++;
+    }
+    
+    return element_num;
 }
 

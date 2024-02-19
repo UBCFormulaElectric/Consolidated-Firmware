@@ -3,20 +3,20 @@
     "faults_id": 501,
     "warnings_counts_id": 550,
     "faults_counts_id": 551,
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow"
-    ],
-    "faults": [
-        "MissingBMSHeartbeat",
-        "MissingFSMHeartbeat",
-        "MissingPDMHeartbeat",
-        "MissingDCMHeartbeat"
-    ]
+    "warnings": {
+        "StackWaterMarkHighTask1Hz": 401,
+        "StackWaterMarkHighTask100Hz": 402,
+        "StackWaterMarkHighTask1kHz": 403,
+        "StackWaterMarkHighTaskCanRx": 404,
+        "StackWaterMarkHighTaskCanTx": 405,
+        "WatchdogTimeout": 406,
+        "TxOverflow": 407,
+        "RxOverflow": 408
+    },
+    "faults": {
+        "MissingBMSHeartbeat": 451,
+        "MissingFSMHeartbeat":452,
+        "MissingPDMHeartbeat":453,
+        "MissingDCMHeartbeat":454
+    }
 }
