@@ -697,25 +697,63 @@ TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
 
 TEST_F(BmsStateMachineTest, temp_based_current_limiting_tests)
 {
-    //Temp based Current Limit shouldn't run before 40degree C yet
+    // Temp based Current Limit shouldn't run before 40degree C yet
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(35.0f);
     LetTimePass(10);
     ASSERT_EQ(false, app_canTx_BMS_Warning_CurrentLimitActive_get());
     ASSERT_EQ(NO_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
     ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
 
-    //Current Limit Should be running after 40degree C
+    // Current Limit Should be running after 40degree C
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(45.0f);
     LetTimePass(10);
     ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
     ASSERT_EQ(HIGH_TEMP_BASED_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
     ASSERT_EQ(HIGH_TEMP_BASED_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
 
-    //The current limit should have reached to 0A at the max cell temp of 60degree C
+    // The current limit should have reached to 0A at the max cell temp of 60degree C
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(60.0f);
     LetTimePass(10);
     ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
     ASSERT_EQ(HIGH_TEMP_BASED_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
     ASSERT_EQ(HIGH_TEMP_BASED_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
     ASSERT_FLOAT_EQ(0, app_canTx_BMS_AvailableDischargingCurrentLimit_get());
+}
+
+// still need o figure this out
+TEST_F(BmsStateMachineTest, low_volt_based_current_limiting_tests)
+{
+    // app_soc_resetSocCustomValue(0);
+    // LetTimePass(10);
+    // ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
+    // ASSERT_EQ(NO_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
+    // ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
+}
+
+TEST_F(BmsStateMachineTest, low_soc_based_current_limiting_tests)
+{
+    app_soc_resetSocCustomValue(65); // No current limit when soc value is in acceptable range
+    LetTimePass(10);
+    ASSERT_EQ(false, app_canTx_BMS_Warning_CurrentLimitActive_get());
+    ASSERT_EQ(NO_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
+    ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
+
+    app_soc_resetSocCustomValue(25); // current limit starts soc fells below reaches 30
+    LetTimePass(10);
+    ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
+    ASSERT_EQ(LOW_SOC_BASED_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
+    ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
+
+    app_soc_resetSocCustomValue(20); // current limit reaches to 0A when soc is less than equal to 20
+    LetTimePass(10);
+    ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
+    ASSERT_EQ(LOW_SOC_BASED_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
+    ASSERT_EQ(NO_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
+
+    // Charging based current limit should be tested once high soc based current limiting is implemented
+    //  app_soc_resetSocCustomValue(80);
+    //  LetTimePass(10);
+    //  ASSERT_EQ(true, app_canTx_BMS_Warning_CurrentLimitActive_get());
+    //  ASSERT_EQ(NO_DISCHARGING_CURRENT_LIMIT, app_canTx_BMS_DischargingCurrentLimitCondition_get());
+    //  ASSERT_EQ(HIGH_SOC_BASED_CHARGING_CURRENT_LIMIT, app_canTx_BMS_ChargingCurrentLimitCondition_get());
 }

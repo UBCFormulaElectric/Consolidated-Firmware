@@ -10,7 +10,9 @@
 
 #define NOMINAL_CELL_V (3.7f)
 #define MAX_PACK_V (NOMINAL_CELL_V * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL)
-#define MAX_CELL_DISCHARGE_CURRENT (88.5f) // source - https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting
+#define MAX_CELL_DISCHARGE_CURRENT \
+    (88.5f) // source -
+            // https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/720972/Software+-+Thruna+FW+-+BMS+-+Current+Limiting
 #define MAX_CONTINUOUS_CURRENT ((float)(MAX_CELL_DISCHARGE_CURRENT * NUM_PARALLEL_CELLS))
 #define MAX_POWER_LIMIT_W (78e3f)
 
@@ -54,11 +56,12 @@ float app_currentLimit_getDischargeLimit(void)
 
     float lowSocDischargeCurrLimit = app_currentLimit_calcLowSocCurrentLimit();
 
-    float currLimits[4] = { MAX_CONTINUOUS_CURRENT, tempDischargeCurrLimit, lowVoltDischargeCurrLimit, lowSocDischargeCurrLimit };
+    float currLimits[4] = { MAX_CONTINUOUS_CURRENT, tempDischargeCurrLimit, lowVoltDischargeCurrLimit,
+                            lowSocDischargeCurrLimit };
 
     float   currentLimit      = MAX_CONTINUOUS_CURRENT;
     uint8_t currLimitCondtion = 0;
-    for (uint8_t i = 0; i < sizeof(currLimits)/sizeof(float); i++)
+    for (uint8_t i = 0; i < sizeof(currLimits) / sizeof(float); i++)
     {
         if (currLimits[i] < currentLimit)
         {
@@ -99,7 +102,7 @@ float app_currentLimit_getChargeLimit(void)
 
     float   currentLimit      = MAX_CONTINUOUS_CURRENT;
     uint8_t currLimitCondtion = 0;
-    for (uint8_t i = 0; i < sizeof(currLimits)/sizeof(float); i++)
+    for (uint8_t i = 0; i < sizeof(currLimits) / sizeof(float); i++)
     {
         if (currLimits[i] < currentLimit)
         {
