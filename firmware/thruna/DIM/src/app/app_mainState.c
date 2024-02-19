@@ -80,7 +80,9 @@ static void mainStateRunOnTick100Hz(void)
 
     const float min_cell_voltage = app_canRx_BMS_MinCellVoltage_get();
 
-    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+    // app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, speed_kph);
+    const float currentLimit = app_canRx_BMS_AvailableDischargingCurrentLimit_get();
+    app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_L, currentLimit);
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_M, min_cell_voltage);
     app_sevenSegDisplays_setGroup(SEVEN_SEG_GROUP_R, instant_power);
 }
