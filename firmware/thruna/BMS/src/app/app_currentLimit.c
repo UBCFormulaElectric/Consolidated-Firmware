@@ -20,12 +20,12 @@
 #define TEMP_WARNING_THRESHOLD (40U)
 
 #define LOW_VOLTAGE_FAULT_THRESHOLD (3.0f)
-#define LOW_VOLTAGE_WARNING_THRESHOLD (3.2f)
+#define LOW_VOLTAGE_WARNING_THRESHOLD (3.55f)
 #define HIGH_VOLTAGR_FAULT_THRESHOLD (4.2f)
 #define HIGH_VOLTAGE_WARNING_THRESHOLD (4.0f)
 #define NUM_PARALLEL_CELLS (3U)
 #define INTERNAL_R_PER_CELL_OHMS (2.5e-3f)
-#define SERIES_ELEMENT_RESISTANCE (INTERNAL_R_PER_CELL_OHMS / NUM_PARALLEL_CELLS)
+#define SERIES_ELEMENT_RESISTANCE ((float)(INTERNAL_R_PER_CELL_OHMS / NUM_PARALLEL_CELLS))
 
 // need to be updated after discussion -----------------------
 #define LOW_SOC_FAULT_THRESHOLD (20.0f) // Limit to stop discharging
@@ -133,12 +133,12 @@ float app_currentLimit_calcTempCurrentLimit(float measured_max_cell_temp)
 
 float app_currentLimit_calcLowVoltClampCurrentLimit(void)
 {
-    float v_cutoff  = LOW_VOLTAGE_WARNING_THRESHOLD;
-    float v_oc      = app_soc_getMinOcvFromSoc();
-    float currLimit = -(v_oc - v_cutoff) / SERIES_ELEMENT_RESISTANCE;
+    const float v_cutoff  = LOW_VOLTAGE_WARNING_THRESHOLD;
+    float       v_oc      = app_soc_getMinOcvFromSoc();
+    float       currLimit = (v_oc - v_cutoff) / SERIES_ELEMENT_RESISTANCE;
     if (currLimit < 0)
     {
-        currLimit = MAX_CONTINUOUS_CURRENT;
+        currLimit = 0.0f;
     }
     return currLimit;
 }

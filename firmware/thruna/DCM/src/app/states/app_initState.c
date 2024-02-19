@@ -42,11 +42,7 @@ static void initStateRunOnTick100Hz(void)
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
 
-        // TODO: Could not thoroughly validate DCM refactor without a working BMS.
-// Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
-#ifndef TARGET_EMBEDDED
         app_stateMachine_setNextState(app_driveState_get());
-#endif
     }
 }
 
