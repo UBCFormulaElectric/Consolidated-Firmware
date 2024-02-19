@@ -89,30 +89,28 @@
             }
         }
     },
-    "NLG5_CTL": {
-        "msg_id": 110,
+
+    "BrusaControl": {
+        "msg_id": 1560,
         "cycle_time": 100,
-        "description": "Flags relaying BMS Charger Status",
+        "description": "Flags and parameters for controlling the BRUSA charger",
         "signals": {
-            "NLG5_C_C_EN": {
+            "ChargerEnable": {
                 "bits": 1
             },
-            "NLG5_C_C_EL": {
+            "ClearLatch": {
                 "bits": 1
             },
-            "NLG5_C_CP_V": {
-                "bits": 1
-            },
-            "NLG5_C_MR": {
-                "bits": 1
-            },
-            "NLGG5_MC_MAX": {
+            "MaxChargingCurrent": {
+                "start_bit": 8,
                 "bits": 16
             },
-            "NLG5_OV_COM": {
+            "ChargingVoltage": {
+                "start_bit": 24,
                 "bits": 16
             },
-            "NLG5_OC_COM": {
+            "ChargingCurrent": {
+                "start_bit": 40,
                 "bits": 16
             }
         }

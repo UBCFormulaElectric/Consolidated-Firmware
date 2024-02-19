@@ -1,0 +1,21 @@
+{
+    "Vitals": {
+        "msg_id": 1552,
+        "cycle_time": 100,
+        "description": "Flags relaying BMS Charger Faults",
+        "signals": {
+            "OnStatus": {
+                "start_bit": 0,
+                "bits": 1
+            },
+            "Error": {
+                "start_bit": 1,
+                "bits": 1
+            },
+            "PowerLimmitedWarning": {
+                "start_bit": 2,
+                "bits": 1
+            }
+        }
+    }
+}
