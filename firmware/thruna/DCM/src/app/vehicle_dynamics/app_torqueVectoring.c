@@ -17,7 +17,7 @@ static ActiveDifferential_Outputs active_differential_outputs;
 static TractionControl_Inputs     traction_control_inputs;
 static TractionControl_Outputs    traction_control_outputs;
 
-static bool run_traction_control = false;
+static bool run_traction_control = true;
 
 // NOTE: Correction factor centered about 0.0f
 

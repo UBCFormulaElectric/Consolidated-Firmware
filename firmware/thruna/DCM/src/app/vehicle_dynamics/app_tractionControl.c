@@ -35,7 +35,7 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
 
 float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
-    return (GEAR_RATIO * motor_speed_rpm - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
+    return (motor_speed_rpm / GEAR_RATIO - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
 }
 
 float app_tractionControl_wheelSpeedKPHToRPM(float speed_kph)
