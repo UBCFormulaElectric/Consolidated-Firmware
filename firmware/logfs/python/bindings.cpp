@@ -1,9 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/functional.h>
 #include <stdlib.h>
-#include "logfs.h"
-#include "assert.h"
 #include <iostream>
+#include "logfs.h"
 
 namespace py = pybind11;
 
@@ -27,7 +26,7 @@ class PyLogFsCfg
         cfg.erase       = &this->erase;
 
         // Allocate block cache on heap.
-        cfg.block_cache = (uint8_t *)malloc(block_size);
+        cfg.block_cache = malloc(block_size);
     }
 
     ~PyLogFsCfg()
@@ -71,12 +70,6 @@ class PyLogFsCfg
     std::function<LogFsErr(uint32_t)>            py_erase;
 };
 
-class PyLogFsFile
-{
-  public:
-    LogFsFile impl;
-};
-
 class PyLogFs
 {
   public:
@@ -84,23 +77,23 @@ class PyLogFs
 
     LogFsErr mount(void) { return logfs_mount(&fs, &cfg.cfg); }
     LogFsErr format(void) { return logfs_format(&fs, &cfg.cfg); }
-    LogFsErr open(PyLogFsFile &file, char *path) { return logfs_open(&fs, &file.impl, path); }
-    LogFsErr close(PyLogFsFile &file) { return logfs_close(&fs, &file.impl); }
+    LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&fs, &file, path); }
 
-    py::tuple read(PyLogFsFile &file, uint32_t size)
+    py::tuple read(LogFsFile &file, uint32_t size)
     {
-        // Read file.
+        // Create an empty string to hold the read data.
         std::string buf(size, '\0');
-        uint32_t    num_read = logfs_read(&fs, &file.impl, (void *)buf.data(), size);
+        uint32_t    num_read = logfs_read(&fs, &file, (void *)buf.data(), size);
 
+        // Return a tuple of (read size, read bytes).
         py::bytes bytes = py::bytes(buf);
         return py::make_tuple(num_read, bytes);
     }
 
-    uint32_t write(PyLogFsFile &file, const py::bytes bytes, uint32_t size)
+    uint32_t write(LogFsFile &file, const py::bytes bytes, uint32_t size)
     {
         const std::string buf = bytes.cast<std::string>();
-        return logfs_write(&fs, &file.impl, (void *)buf.data(), size);
+        return logfs_write(&fs, &file, (void *)buf.data(), size);
     }
 
   private:
@@ -113,9 +106,13 @@ PYBIND11_MODULE(logfs_lib, m)
     // clang-format off
     py::enum_<LogFsErr>(m, "LogFsErr")
         .value("OK", LOGFS_ERR_OK)
+        .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
         .value("CORRUPT", LOGFS_ERR_CORRUPT)
         .value("DNE", LOGFS_ERR_DNE)
         .export_values();
+
+    py::class_<LogFsFile>(m, "LogFsFile")
+        .def(py::init<>());
 
     py::class_<PyLogFsCfg>(m, "LogFsCfg")
         .def(py::init<uint32_t, uint32_t, std::function<py::tuple(uint32_t)>, std::function<LogFsErr(uint32_t, py::bytes)>, std::function<LogFsErr(uint32_t)>>());
@@ -125,11 +122,7 @@ PYBIND11_MODULE(logfs_lib, m)
         .def("mount", &PyLogFs::mount)
         .def("format", &PyLogFs::format)
         .def("open", &PyLogFs::open)
-        .def("close", &PyLogFs::close)
         .def("read", &PyLogFs::read)
         .def("write", &PyLogFs::write);
-
-    py::class_<PyLogFsFile>(m, "LogFsFile")
-        .def(py::init<>());
     // clang-format on
 }

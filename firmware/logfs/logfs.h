@@ -5,34 +5,13 @@ extern "C"
 {
 #endif
 
-    /*
-
-    Make a new "superblock" header that pre-fixes every data section.
-    These can be used to identify the bounds of blocks. And should make
-    it better to implement O(1) writes.
-    Probably needs to be COW.
-    Means we need to add a "block ID" param so the filesystem can identify
-    which block is which.
-
-    */
-
-    // Block 0: Fs info 1
-    // Block 1: Fs info 2
-    // Block 2: File info 1
-    // Block 3: File info 2
-    // Block 4: File header 1
-    // Block 5: File header 2
-    // Block 6: Data
-
 #include <stdint.h>
 #include <stdbool.h>
 
-#define LOGFS_ORIGIN 0 // Filesystem starts at address zero
-#define LOGFS_FIRST_FILE 2
+#define LOGFS_ORIGIN 0        // Filesystem starts at address zero
 #define LOGFS_COW_SIZE 2      // 2 copies for copy-on-write (COW)
 #define LOGFS_MAX_PATH_LEN 24 // TODO: Pick a better value for this!
-#define LOGFS_BLOCK_ADDR_INVALID 0xFFFFFFFF
-#define LOGFS_BLOCK_ADDR_NEXT 0
+#define LOGFS_INVALID_BLOCK 0xFFFFFFFF
 
 #define LOGFS_VERSION_MAJOR 0
 #define LOGFS_VERSION_MINOR 1
@@ -41,7 +20,7 @@ extern "C"
     {
         LOGFS_ERR_OK,            // No error
         LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
-        LOGFS_ERR_CORRUPT,       // File system was corrupted
+        LOGFS_ERR_CORRUPT,       // File system was corrupted (bad CRC)
         LOGFS_ERR_DNE,           // File does not exist
     } LogFsErr;
 
@@ -65,14 +44,23 @@ extern "C"
     typedef struct
     {
         uint32_t info_block;
-        uint32_t head;
         uint32_t last_hdr;
+        uint32_t head;
     } LogFsFile;
 
     // Block types.
+    typedef enum
+    {
+        LOGFS_BLOCK_FS_INFO,
+        LOGFS_BLOCK_FILE_INFO,
+        LOGFS_BLOCK_DATA_HDR,
+        LOGFS_BLOCK_DATA,
+    } LogFsBlockType;
+
     typedef struct
     {
-        uint32_t crc; // First word has to be 32-bit CRC.
+        uint32_t crc;  // First word has to be 32-bit CRC.
+        uint8_t  type; // Next byte needs to be block type.
         uint8_t  version_major;
         uint8_t  version_minor;
     } LogFsBlock_FsInfo;
@@ -80,6 +68,7 @@ extern "C"
     typedef struct
     {
         uint32_t crc;                      // First word has to be 32-bit CRC.
+        uint8_t  type;                     // Next byte needs to be block type.
         uint32_t next;                     // Next file info block.
         char     path[LOGFS_MAX_PATH_LEN]; // Path to file.
     } LogFsBlock_FileInfo;
@@ -87,12 +76,14 @@ extern "C"
     typedef struct
     {
         uint32_t crc;  // First word has to be 32-bit CRC.
+        uint8_t  type; // Next byte needs to be block type.
         uint32_t next; // Address of next data header for this file.
     } LogFsBlock_DataHeader;
 
     typedef struct
     {
         uint32_t crc;   // First word has to be 32-bit CRC.
+        uint8_t  type;  // Next byte needs to be block type.
         uint32_t bytes; // Number of bytes in this file.
         uint8_t  data;  // Used to get address of first data element.
     } LogFsBlock_Data;
@@ -118,7 +109,6 @@ extern "C"
     LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
     LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
     LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path);
-    LogFsErr logfs_close(LogFs *fs, LogFsFile *file);
     uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
     uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
 

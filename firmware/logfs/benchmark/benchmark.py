@@ -2,8 +2,8 @@ from logfs_lib import LogFsCfg, LogFs, LogFsErr, LogFsFile
 from littlefs import LittleFS, UserContext
 import time
 
-N = 1000000
-BLOCK_COUNT = 100000
+N = 1_000_000
+BLOCK_COUNT = 125_000_000
 BLOCK_SIZE = 512
 
 disk_reads = 0
@@ -49,7 +49,12 @@ start_time = time.time()
 fs.write(file, data, len(data))
 
 end_time = time.time()
-print(f"Execution time: {end_time - start_time} seconds")
+logfs_time = end_time - start_time
+print(f"Execution time: {logfs_time} seconds")
+
+read_size, read_data = fs.read(file, len(data))
+assert(read_data == data)
+print(f"Read size: {read_size / 1e6} Mb")
 
 # fs.write(file2, data, len(data))
 # fs.write(file2, data, len(data))
@@ -59,22 +64,21 @@ print(f"Execution time: {end_time - start_time} seconds")
 print(disk_reads, disk_progs, disk_erases)
 
 
-
-
-
-
 ctx = UserContext(buffsize=BLOCK_SIZE * BLOCK_COUNT)
 fs = LittleFS(block_size=BLOCK_SIZE, block_count=BLOCK_COUNT, context=ctx)
 
 start_time = time.time()
 
 # Open a file and write some content
-with fs.open('test.txt', 'w') as fh:
+with fs.open("test.txt", "w") as fh:
     fh.write(str(data))
 
 
 end_time = time.time()
-print(f"Execution time: {end_time - start_time} seconds")
+lfs_time = end_time - start_time
+print(f"Execution time: {lfs_time} seconds")
 
+print(ctx.reads, ctx.progs, ctx.erases, ctx.syncs)
 
-print(ctx.reads, ctx.progs, ctx.erases, ctx.syncs)  
+print(lfs_time / logfs_time)
+

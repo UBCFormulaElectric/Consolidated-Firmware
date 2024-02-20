@@ -17,8 +17,21 @@
         return val;              \
     }
 
-static LogFsErr inline logfs_writeBlock(const LogFs *fs, uint32_t block)
+static void inline logfs_setBlockType(const LogFs *fs, LogFsBlockType type)
 {
+    // First word is CRC, next byte is block type.
+    *((uint8_t *)fs->cfg->block_cache + sizeof(uint32_t)) = (uint8_t)type;
+}
+
+static LogFsBlockType inline logfs_getBlockType(const LogFs *fs)
+{
+    // First word is CRC, next byte is block type.
+    return *((uint8_t *)fs->cfg->block_cache + sizeof(uint32_t));
+}
+
+static LogFsErr inline logfs_writeBlock(const LogFs *fs, uint32_t block, LogFsBlockType type)
+{
+    logfs_setBlockType(fs, type);
     logfs_util_stampBlockCrc(fs);
     RET_ERR(fs->cfg->erase(fs->cfg, block));
     RET_ERR(fs->cfg->prog(fs->cfg, block, fs->cfg->block_cache));
@@ -31,7 +44,7 @@ static LogFsErr inline logfs_readBlock(const LogFs *fs, uint32_t block)
     return logfs_util_checkBlockCrc(fs) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
 }
 
-static LogFsErr inline logfs_writeCowBlock(const LogFs *fs, uint32_t block)
+static LogFsErr inline logfs_writeCowBlock(const LogFs *fs, uint32_t block, LogFsBlockType type)
 {
     // Power-loss resilience for critical blocks is maintained by keeping a
     // copy. In the event of a failed transaction (due to power-loss or other),
@@ -40,16 +53,16 @@ static LogFsErr inline logfs_writeCowBlock(const LogFs *fs, uint32_t block)
 
     // Write the primary block first.
     uint32_t block_primary = block;
-    RET_ERR(logfs_writeBlock(fs, block_primary));
+    RET_ERR(logfs_writeBlock(fs, block_primary, type));
 
     // Write the second block next.
     uint32_t block_secondary = block + 1;
-    RET_ERR(logfs_writeBlock(fs, block_secondary));
+    RET_ERR(logfs_writeBlock(fs, block_secondary, type));
 
     return LOGFS_ERR_OK;
 }
 
-static LogFsErr inline logfs_readBlock(const LogFs *fs, uint32_t block)
+static LogFsErr inline logfs_readCowBlock(const LogFs *fs, uint32_t block)
 {
     uint32_t block_primary   = block;
     uint32_t block_secondary = block + 1;
@@ -66,13 +79,13 @@ static LogFsErr inline logfs_readBlock(const LogFs *fs, uint32_t block)
             // first, it has the most recent data, and so the secondary
             // should be updated.
             RET_ERR(logfs_readBlock(fs, block_primary));
-            RET_ERR(logfs_writeBlock(fs, block_secondary));
+            RET_ERR(logfs_writeBlock(fs, block_secondary, logfs_getBlockType(fs)));
         }
     }
     else if (logfs_readBlock(fs, block_secondary) == LOGFS_ERR_OK)
     {
         // We already know primary is invalid, so update it to the secondary block's copy.
-        RET_ERR(logfs_writeBlock(fs, block_primary));
+        RET_ERR(logfs_writeBlock(fs, block_primary, logfs_getBlockType(fs)));
     }
     else
     {
@@ -83,35 +96,42 @@ static LogFsErr inline logfs_readBlock(const LogFs *fs, uint32_t block)
     return LOGFS_ERR_OK;
 }
 
-static LogFsErr logfs_createNewFile(LogFs *fs, const char *path, uint32_t prev_file)
+static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, const char *path, uint32_t prev_file)
 {
     // Write new file to head.
     uint32_t new_file = fs->head;
 
     // Create COW block for new file.
-    fs->cache_file_info->next = LOGFS_BLOCK_ADDR_INVALID;
+    fs->cache_file_info->next = LOGFS_INVALID_BLOCK;
     strcpy(fs->cache_file_info->path, path);
-    RET_ERR(logfs_writeCowBlock(fs, new_file));
+    RET_ERR(logfs_writeCowBlock(fs, new_file, LOGFS_BLOCK_FILE_INFO));
 
     // Create data header for first data blocks.
-    fs->cache_data_hdr->next = LOGFS_BLOCK_ADDR_INVALID;
-    RET_ERR(logfs_writeCowBlock(fs, new_file + LOGFS_COW_SIZE));
+    fs->cache_data_hdr->next = LOGFS_INVALID_BLOCK;
+    RET_ERR(logfs_writeCowBlock(fs, new_file + LOGFS_COW_SIZE, LOGFS_BLOCK_DATA_HDR));
 
-    // Create emtpy data file.  
+    // Create emtpy data file.
     fs->cache_data->bytes = 0U;
-    RET_ERR(logfs_writeBlock(fs, new_file + 2 * LOGFS_COW_SIZE));
+    RET_ERR(logfs_writeBlock(fs, new_file + 2 * LOGFS_COW_SIZE, LOGFS_BLOCK_DATA));
 
-    if (prev_file != LOGFS_BLOCK_ADDR_INVALID)
+    if (prev_file != LOGFS_INVALID_BLOCK)
     {
-        // This means it's the first file, so update the pointer in the
-        // filesystem info blocks.
+        // Link previous file to the new one. Do this last so if previous
+        // writes fail, the last file won't point to garbage.
         RET_ERR(logfs_readCowBlock(fs, prev_file));
         fs->cache_file_info->next = new_file;
-        RET_ERR(logfs_writeCowBlock(fs, prev_file));
+        RET_ERR(logfs_writeCowBlock(fs, prev_file, LOGFS_BLOCK_FILE_INFO));
     }
 
-    fs->empty = false;
+    // 2 blocks each for file info and header, 1 for data.
     fs->head += 2 * LOGFS_COW_SIZE + 1;
+    fs->empty = false;
+
+    // Creating new file succeeded, write metadata to file struct.
+    file->info_block = new_file;
+    file->last_hdr   = new_file + LOGFS_COW_SIZE;
+    file->head       = fs->head - 1;
+
     return LOGFS_ERR_OK;
 }
 
@@ -120,8 +140,8 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg) {}
 LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
 {
     // Set filesystem config.
-    fs->cfg  = cfg;
-    fs->head = 2;
+    fs->cfg   = cfg;
+    fs->head  = 2;
     fs->empty = true;
 
     // Setup cache pointers.
@@ -139,8 +159,13 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     fs_info->version_major           = LOGFS_VERSION_MINOR;
     logfs_util_stampBlockCrc(fs);
 
+    for (int i = 0; i < fs->cfg->block_count; i++)
+    {
+        logfs_writeBlock(fs, i, LOGFS_BLOCK_DATA);
+    }
+
     // Write first block.
-    RET_ERR(logfs_writeCowBlock(fs, LOGFS_ORIGIN));
+    RET_ERR(logfs_writeCowBlock(fs, LOGFS_ORIGIN, LOGFS_BLOCK_FS_INFO));
     return LOGFS_ERR_OK;
 }
 
@@ -149,11 +174,12 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
     // If filesystem is empty, just create a new file.
     if (fs->empty)
     {
-        return logfs_createNewFile(fs, path, LOGFS_BLOCK_ADDR_INVALID);
+        return logfs_createNewFile(fs, file, path, LOGFS_INVALID_BLOCK);
     }
 
     // Traverse the file info blocks as a linked-list.
-    uint32_t cur_file = LOGFS_FIRST_FILE;
+    // First file placed directly after the filesystem info blocks.
+    uint32_t cur_file = LOGFS_ORIGIN + LOGFS_COW_SIZE;
     while (true)
     {
         RET_ERR(logfs_readCowBlock(fs, cur_file) != LOGFS_ERR_OK);
@@ -163,13 +189,13 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
             // File has been found, return.
             // First block of data is right after the COW file info pair.
             file->info_block = cur_file;
-            file->head       = LOGFS_BLOCK_ADDR_INVALID; // TODO: Also get the head pointer!
+            file->head       = LOGFS_INVALID_BLOCK; // TODO: Also get the head pointer!
             return LOGFS_ERR_OK;
         }
 
         // If we've reached the end of the file linked-list, break out of the
         // loop. Otherwise, jump to the next file.
-        if (fs->cache_file_info->next == LOGFS_BLOCK_ADDR_INVALID)
+        if (fs->cache_file_info->next == LOGFS_INVALID_BLOCK)
         {
             break;
         }
@@ -180,104 +206,143 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
     }
 
     // File couldn't be found, so create a new one.
-    return logfs_createNewFile(fs, path, cur_file);
-}
-
-LogFsErr logfs_close(LogFs *fs, LogFsFile *file)
-{
-    // No-op - this doesn't need to do anything since we currently don't cache
-    // anything. So anything that needs to be written to disk already has been.
-    return LOGFS_ERR_UNIMPLEMENTED;
+    return logfs_createNewFile(fs, file, path, cur_file);
 }
 
 uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
 {
-    return LOGFS_ERR_OK;
+    uint32_t cur_data = file->info_block + 2 * LOGFS_COW_SIZE;
+    uint32_t cur_hdr  = file->info_block + LOGFS_COW_SIZE;
+    uint32_t num_read = 0;
 
-    // uint32_t                     cur_data  = file->info_block + LOGFS_COW_SIZE;
-    // uint32_t                     num_read  = 0;
-    // const LogFsBlock_Data *const file_data = fs->cfg->block_cache;
+    // Read next header's address.
+    RET_VAL_IF_ERR(logfs_readCowBlock(fs, cur_hdr), 0);
+    uint32_t next_hdr = fs->cache_data_hdr->next;
 
-    // while (num_read < size)
-    // {
-    //     // Read block into cache.
-    //     if (logfs_readBlock(fs, cur_data) != LOGFS_ERR_OK)
-    //     {
-    //         // Read failure, return what we've read.
-    //         return num_read;
-    //     }
+    while (num_read < size)
+    {
+        if (cur_data == fs->head)
+        {
+            // If we've reached the head, we've read the entire filesystem.
+            return num_read;
+        }
 
-    //     // Read out data from cached block.
-    //     uint32_t num_available = LOGFS_UTIL_MIN(size - num_read, file_data->bytes);
-    //     memcpy(((uint8_t *)buf) + num_read, &file_data->data, num_available);
-    //     num_read += num_available;
+        // Read current block.
+        RET_VAL_IF_ERR(logfs_readBlock(fs, cur_data), num_read);
 
-    //     if (file_data->next == LOGFS_BLOCK_ADDR_INVALID)
-    //     {
-    //         // No more data in file, return what we've read.
-    //         return num_read;
-    //     }
-    //     else
-    //     {
-    //         cur_data = file_data->next;
-    //     }
-    // }
+        // If the next block type isn't a data block, that means we've reached
+        // the end of the current data chunk.
+        if (logfs_getBlockType(fs) != LOGFS_BLOCK_DATA)
+        {
+            if (next_hdr != LOGFS_INVALID_BLOCK)
+            {
+                // Reached end of current header, move to the next one.
+                cur_data = next_hdr + LOGFS_COW_SIZE;
+                RET_VAL_IF_ERR(logfs_readCowBlock(fs, next_hdr), num_read);
+                next_hdr = fs->cache_data_hdr->next;
+                continue;
+            }
+            else
+            {
+                // Reached end of file.
+                return num_read;
+            }
+        }
 
-    // return num_read;
+        // Read out data from cached block.
+        uint32_t num_available = LOGFS_UTIL_MIN(size - num_read, fs->cache_data->bytes);
+        memcpy(((uint8_t *)buf) + num_read, &fs->cache_data->data, num_available);
+        num_read += num_available;
+        cur_data++;
+    }
+
+    return num_read;
 }
 
 uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
 {
-    uint32_t               cur_data    = file->head;
-    uint32_t               prev_data   = LOGFS_BLOCK_ADDR_INVALID;
-    uint32_t               num_written = 0;
-    bool                   new_block   = false;
-    bool                   needs_hdr = false;
+    uint32_t num_written = 0;     // Number of bytes successfully written to disk.
+    bool     new_block   = false; // Whether or not a new data block needs to be created.
+    bool     new_hdr     = false; // If we need to make a new header for the next block.
+
+    // Read file header data block into cache.
+    RET_ERR(logfs_readBlock(fs, file->head));
 
     while (num_written < size)
     {
-        if(needs_hdr)
+        uint32_t cur_data = file->head; // Current file data block we're updating
+        if (new_block || new_hdr)
         {
-            // Create hdr for 
-            fs->cache_data_hdr->next = LOGFS_BLOCK_ADDR_INVALID;
-            RET_ERR(logfs_writeCowBlock(fs, new_file + LOGFS_COW_SIZE));
+            // Writes to new blocks are done at the head.
+            cur_data = fs->head;
         }
 
-        if (new_block && needs_hdr)
+        if (new_hdr)
         {
-            // Update previous block to point to new block.
-            // Previous block's data should still be in cache.
-            file_data->next = cur_data;
-            RET_VAL_IF_ERR(logfs_writeBlock(fs, prev_data), num_written);
+            // Create new data header COW block.
+            fs->cache_data_hdr->next = LOGFS_INVALID_BLOCK;
+            RET_ERR(logfs_writeCowBlock(fs, cur_data, LOGFS_BLOCK_DATA_HDR));
+            cur_data += LOGFS_COW_SIZE;
         }
 
-        if (new_block || logfs_readBlock(fs, cur_data) != LOGFS_ERR_OK)
+        if (new_block)
         {
             // Init metadata for new block.
-            file_data->next  = LOGFS_BLOCK_ADDR_INVALID;
-            file_data->bytes = 0;
+            fs->cache_data->bytes = 0U;
         }
 
         // Write new data to disk.
-        uint32_t num_available = LOGFS_UTIL_MIN(fs->eff_block_size - file_data->bytes, size - num_written);
-        memcpy(&file_data->data + file_data->bytes, ((uint8_t *)buf) + num_written, num_available);
-        file_data->bytes += num_available;
-
-        RET_VAL_IF_ERR(logfs_writeBlock(fs, cur_data), num_written);
+        const uint32_t num_available = LOGFS_UTIL_MIN(fs->eff_block_size - fs->cache_data->bytes, size - num_written);
+        memcpy(&fs->cache_data->data + fs->cache_data->bytes, ((uint8_t *)buf) + num_written, num_available);
+        fs->cache_data->bytes += num_available;
+        const bool cur_block_full = fs->cache_data->bytes == fs->eff_block_size; // Current block is full!
+        RET_VAL_IF_ERR(logfs_writeBlock(fs, cur_data, LOGFS_BLOCK_DATA), num_written);
         num_written += num_available;
 
-        // Head pointers should be moved to current block because we've
-        // written to it.
-        file->head = cur_data;
-        fs->head   = LOGFS_UTIL_MAX(fs->head, cur_data);
+        if (new_hdr)
+        {
+            // If creating a new header, update the last header to point to the new one.
+            // Also update it in the file handle.
+            RET_VAL_IF_ERR(logfs_readCowBlock(fs, file->last_hdr), num_written);
+            fs->cache_data_hdr->next = cur_data - LOGFS_COW_SIZE;
+            RET_VAL_IF_ERR(logfs_writeCowBlock(fs, file->last_hdr, LOGFS_BLOCK_DATA_HDR), num_written);
+            file->last_hdr = cur_data - LOGFS_COW_SIZE;
+        }
 
-        // Need to initialize a new block on next write since we're moving to
-        // a new block.
-        new_block = true;
+        // After a successful write, update the head. Update here, because
+        // if a previous read/write failed, changing filesystem state
+        // prematurely could leave it in a bad state.
+        if (new_hdr)
+        {
+            // 3 new blocks: 2 for COW, 1 for data.
+            fs->head += LOGFS_COW_SIZE + 1;
+            file->head = fs->head; // We always write new blocks to the head.
+        }
+        else if (new_block)
+        {
+            // 1 new block for data.
+            fs->head++;
+            file->head = fs->head; // We always write new blocks to the head.
+        }
 
-        // New data should be written to head.
-        prev_data = cur_data;
-        cur_data  = fs->head + 1;
+        if (cur_block_full)
+        {
+            new_block = true;
+
+            // If the filesystem head is greater than the last written block,
+            // there is other file's data between here and the head. So, we
+            // need to add a header
+            if (fs->head > cur_data + 1)
+            {
+                new_hdr = true;
+            }
+        }
+        else
+        {
+            // There is space left in the current block, don't create anything new.
+            new_block = false;
+            new_hdr   = false;
+        }
     }
 
     return LOGFS_ERR_OK;
