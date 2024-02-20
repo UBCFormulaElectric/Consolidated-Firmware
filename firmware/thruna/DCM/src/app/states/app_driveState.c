@@ -16,7 +16,7 @@
 #define MAX_PEDAL_PERCENT 1.0f
 
 static bool run_torque_vectoring = true;
-static bool run_regen            = true;
+static bool run_regen            = false;
 
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
