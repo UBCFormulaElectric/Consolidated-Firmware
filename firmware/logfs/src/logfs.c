@@ -1,23 +1,10 @@
 #include "logfs.h"
-#include "logfs_util.h"
 #include <string.h>
 #include <assert.h>
-
 #include <stdio.h>
-
-#define CHECK_ERR(err) (err != LOGFS_ERR_OK)
-
-#define RET_ERR(err)    \
-    if (CHECK_ERR(err)) \
-    {                   \
-        return err;     \
-    }
-
-#define RET_VAL_IF_ERR(err, val) \
-    if (CHECK_ERR(err))          \
-    {                            \
-        return val;              \
-    }
+#include "logfs_crc.h"
+#include "logfs_util.h"
+#include "logfs_blocks.h"
 
 static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
 {
@@ -33,85 +20,6 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->cache_data      = fs->cfg->block_cache;
 }
 
-static void inline logfs_setBlockType(const LogFs *fs, LogFsBlockType type)
-{
-    // First word is CRC, next byte is block type.
-    *((uint8_t *)fs->cfg->block_cache + sizeof(uint32_t)) = (uint8_t)type;
-}
-
-static LogFsBlockType inline logfs_getBlockType(const LogFs *fs)
-{
-    // First word is CRC, next byte is block type.
-    return *((uint8_t *)fs->cfg->block_cache + sizeof(uint32_t));
-}
-
-static LogFsErr inline logfs_writeBlock(const LogFs *fs, uint32_t block, LogFsBlockType type)
-{
-    logfs_setBlockType(fs, type);
-    logfs_util_stampBlockCrc(fs);
-    RET_ERR(fs->cfg->erase(fs->cfg, block));
-    RET_ERR(fs->cfg->prog(fs->cfg, block, fs->cfg->block_cache));
-    return LOGFS_ERR_OK;
-}
-
-static LogFsErr inline logfs_readBlock(const LogFs *fs, uint32_t block)
-{
-    RET_ERR(fs->cfg->read(fs->cfg, block, fs->cfg->block_cache));
-    return logfs_util_checkBlockCrc(fs) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
-}
-
-static LogFsErr inline logfs_writeCowBlock(const LogFs *fs, uint32_t block, LogFsBlockType type)
-{
-    // Power-loss resilience for critical blocks is maintained by keeping a
-    // copy. In the event of a failed transaction (due to power-loss or other),
-    // the data can be retrieved from the copy. Which one is invalid is
-    // determined via calculating a checksum.
-
-    // Write the primary block first.
-    uint32_t block_primary = block;
-    RET_ERR(logfs_writeBlock(fs, block_primary, type));
-
-    // Write the second block next.
-    uint32_t block_secondary = block + 1;
-    RET_ERR(logfs_writeBlock(fs, block_secondary, type));
-
-    return LOGFS_ERR_OK;
-}
-
-static LogFsErr inline logfs_readCowBlock(const LogFs *fs, uint32_t block)
-{
-    uint32_t block_primary   = block;
-    uint32_t block_secondary = block + 1;
-
-    if (logfs_readBlock(fs, block_primary) == LOGFS_ERR_OK)
-    {
-        uint32_t   primary_crc     = logfs_util_getBlockCrc(fs);
-        const bool secondary_valid = logfs_readBlock(fs, block_secondary) == LOGFS_ERR_OK;
-        bool       secondary_match = (secondary_valid && logfs_util_getBlockCrc(fs) == primary_crc);
-
-        if (!secondary_match)
-        {
-            // CRCs do not match! Since the primary block gets  to
-            // first, it has the most recent data, and so the secondary
-            // should be updated.
-            RET_ERR(logfs_readBlock(fs, block_primary));
-            RET_ERR(logfs_writeBlock(fs, block_secondary, logfs_getBlockType(fs)));
-        }
-    }
-    else if (logfs_readBlock(fs, block_secondary) == LOGFS_ERR_OK)
-    {
-        // We already know primary is invalid, so update it to the secondary block's copy.
-        RET_ERR(logfs_writeBlock(fs, block_primary, logfs_getBlockType(fs)));
-    }
-    else
-    {
-        // Both primary and secondary copies are invalid. Corrupt!
-        return LOGFS_ERR_CORRUPT;
-    }
-
-    return LOGFS_ERR_OK;
-}
-
 static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, const char *path, uint32_t prev_file)
 {
     // Write new file to head.
@@ -120,23 +28,23 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, const char *path
     // Create COW block for new file.
     fs->cache_file_info->next = LOGFS_INVALID_BLOCK;
     strcpy(fs->cache_file_info->path, path);
-    RET_ERR(logfs_writeCowBlock(fs, new_file, LOGFS_BLOCK_FILE_INFO));
+    RET_ERR(logfs_blocks_cowWrite(fs, new_file, LOGFS_BLOCK_FILE_INFO));
 
     // Create data header for first data blocks.
     fs->cache_data_hdr->next = LOGFS_INVALID_BLOCK;
-    RET_ERR(logfs_writeCowBlock(fs, new_file + LOGFS_COW_SIZE, LOGFS_BLOCK_DATA_HDR));
+    RET_ERR(logfs_blocks_cowWrite(fs, new_file + LOGFS_COW_SIZE, LOGFS_BLOCK_DATA_HDR));
 
     // Create emtpy data file.
     fs->cache_data->bytes = 0U;
-    RET_ERR(logfs_writeBlock(fs, new_file + 2 * LOGFS_COW_SIZE, LOGFS_BLOCK_DATA));
+    RET_ERR(logfs_blocks_write(fs, new_file + 2 * LOGFS_COW_SIZE, LOGFS_BLOCK_DATA));
 
     if (prev_file != LOGFS_INVALID_BLOCK)
     {
         // Link previous file to the new one. Do this last so if previous
         // writes fail, the last file won't point to garbage.
-        RET_ERR(logfs_readCowBlock(fs, prev_file));
+        RET_ERR(logfs_blocks_cowRead(fs, prev_file));
         fs->cache_file_info->next = new_file;
-        RET_ERR(logfs_writeCowBlock(fs, prev_file, LOGFS_BLOCK_FILE_INFO));
+        RET_ERR(logfs_blocks_cowWrite(fs, prev_file, LOGFS_BLOCK_FILE_INFO));
     }
 
     // 2 blocks each for file info and header, 1 for data.
@@ -158,7 +66,7 @@ static uint32_t logfs_findLastDataHdr(LogFs *fs, uint32_t file_info_block)
     uint32_t file_hdr = file_info_block + LOGFS_COW_SIZE;
     while (true)
     {
-        RET_VAL_IF_ERR(logfs_readCowBlock(fs, file_hdr), LOGFS_INVALID_BLOCK);
+        RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, file_hdr), LOGFS_INVALID_BLOCK);
 
         if (fs->cache_data_hdr->next != LOGFS_INVALID_BLOCK)
         {
@@ -183,9 +91,9 @@ static uint32_t logfs_findEndOfChunk(LogFs *fs, uint32_t data_hdr)
     {
         // If this fails, that probably means we've reached the end of the
         // filesystem image.
-        RET_VAL_IF_ERR(logfs_readBlock(fs, cur_data), cur_data - 1);
+        RET_VAL_IF_ERR(logfs_blocks_read(fs, cur_data), cur_data - 1);
 
-        if (logfs_getBlockType(fs) != LOGFS_BLOCK_DATA)
+        if (logfs_blocks_getType(fs) != LOGFS_BLOCK_DATA)
         {
             // If we reach another type of block, we've reached the end of the
             // file.
@@ -207,7 +115,7 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
     logfs_init(fs, cfg);
 
     // First just try reading the filesystem info blocks.
-    RET_ERR(logfs_readCowBlock(fs, LOGFS_ORIGIN));
+    RET_ERR(logfs_blocks_cowRead(fs, LOGFS_ORIGIN));
 
     // Binary search the filesystem image to find the head, which will be the
     // greatest valid block.
@@ -216,7 +124,7 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
     while ((right - left) > 1U)
     {
         const uint32_t mid = (right + left) / 2;
-        if (CHECK_ERR(logfs_readBlock(fs, mid)))
+        if (CHECK_ERR(logfs_blocks_read(fs, mid)))
         {
             right = mid;
         }
@@ -244,10 +152,10 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     LogFsBlock_FsInfo *const fs_info = fs->cfg->block_cache;
     fs_info->version_major           = LOGFS_VERSION_MAJOR;
     fs_info->version_major           = LOGFS_VERSION_MINOR;
-    logfs_util_stampBlockCrc(fs);
+    logfs_crc_stampBlock(fs);
 
     // Write first block.
-    RET_ERR(logfs_writeCowBlock(fs, LOGFS_ORIGIN, LOGFS_BLOCK_FS_INFO));
+    RET_ERR(logfs_blocks_cowWrite(fs, LOGFS_ORIGIN, LOGFS_BLOCK_FS_INFO));
     return LOGFS_ERR_OK;
 }
 
@@ -264,7 +172,7 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
     uint32_t cur_file = LOGFS_ORIGIN + LOGFS_COW_SIZE;
     while (true)
     {
-        RET_ERR(logfs_readCowBlock(fs, cur_file));
+        RET_ERR(logfs_blocks_cowRead(fs, cur_file));
 
         if (strcmp(fs->cache_file_info->path, path) == 0)
         {
@@ -299,7 +207,7 @@ uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
     uint32_t num_read = 0;
 
     // Read next header's address.
-    RET_VAL_IF_ERR(logfs_readCowBlock(fs, cur_hdr), 0);
+    RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, cur_hdr), 0);
     uint32_t next_hdr = fs->cache_data_hdr->next;
 
     while (num_read < size)
@@ -311,17 +219,17 @@ uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
         }
 
         // Read current block.
-        RET_VAL_IF_ERR(logfs_readBlock(fs, cur_data), num_read);
+        RET_VAL_IF_ERR(logfs_blocks_read(fs, cur_data), num_read);
 
         // If the next block type isn't a data block, that means we've reached
         // the end of the current data chunk.
-        if (logfs_getBlockType(fs) != LOGFS_BLOCK_DATA)
+        if (logfs_blocks_getType(fs) != LOGFS_BLOCK_DATA)
         {
             if (next_hdr != LOGFS_INVALID_BLOCK)
             {
                 // Reached end of current header, move to the next one.
                 cur_data = next_hdr + LOGFS_COW_SIZE;
-                RET_VAL_IF_ERR(logfs_readCowBlock(fs, next_hdr), num_read);
+                RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, next_hdr), num_read);
                 next_hdr = fs->cache_data_hdr->next;
                 continue;
             }
@@ -333,7 +241,7 @@ uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
         }
 
         // Read out data from cached block.
-        uint32_t num_available = LOGFS_UTIL_MIN(size - num_read, fs->cache_data->bytes);
+        uint32_t num_available = MIN(size - num_read, fs->cache_data->bytes);
         memcpy(((uint8_t *)buf) + num_read, &fs->cache_data->data, num_available);
         num_read += num_available;
         cur_data++;
@@ -349,7 +257,7 @@ uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
     bool     new_hdr     = false; // If we need to make a new header for the next block.
 
     // Read file header data block into cache.
-    RET_ERR(logfs_readBlock(fs, file->head));
+    RET_ERR(logfs_blocks_read(fs, file->head));
 
     while (num_written < size)
     {
@@ -364,7 +272,7 @@ uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
         {
             // Create new data header COW block.
             fs->cache_data_hdr->next = LOGFS_INVALID_BLOCK;
-            RET_ERR(logfs_writeCowBlock(fs, cur_data, LOGFS_BLOCK_DATA_HDR));
+            RET_ERR(logfs_blocks_cowWrite(fs, cur_data, LOGFS_BLOCK_DATA_HDR));
             cur_data += LOGFS_COW_SIZE;
         }
 
@@ -375,20 +283,20 @@ uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
         }
 
         // Write new data to disk.
-        const uint32_t num_available = LOGFS_UTIL_MIN(fs->eff_block_size - fs->cache_data->bytes, size - num_written);
+        const uint32_t num_available = MIN(fs->eff_block_size - fs->cache_data->bytes, size - num_written);
         memcpy(&fs->cache_data->data + fs->cache_data->bytes, ((uint8_t *)buf) + num_written, num_available);
         fs->cache_data->bytes += num_available;
         const bool cur_block_full = fs->cache_data->bytes == fs->eff_block_size; // Current block is full!
-        RET_VAL_IF_ERR(logfs_writeBlock(fs, cur_data, LOGFS_BLOCK_DATA), num_written);
+        RET_VAL_IF_ERR(logfs_blocks_write(fs, cur_data, LOGFS_BLOCK_DATA), num_written);
         num_written += num_available;
 
         if (new_hdr)
         {
             // If creating a new header, update the last header to point to the new one.
             // Also update it in the file handle.
-            RET_VAL_IF_ERR(logfs_readCowBlock(fs, file->last_hdr), num_written);
+            RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, file->last_hdr), num_written);
             fs->cache_data_hdr->next = cur_data - LOGFS_COW_SIZE;
-            RET_VAL_IF_ERR(logfs_writeCowBlock(fs, file->last_hdr, LOGFS_BLOCK_DATA_HDR), num_written);
+            RET_VAL_IF_ERR(logfs_blocks_cowWrite(fs, file->last_hdr, LOGFS_BLOCK_DATA_HDR), num_written);
             file->last_hdr = cur_data - LOGFS_COW_SIZE;
         }
 

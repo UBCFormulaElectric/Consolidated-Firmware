@@ -1,4 +1,4 @@
-#include "logfs_util.h"
+#include "logfs_crc.h"
 
 // clang-format off
 static const uint32_t crc32_lut[] = {
@@ -49,7 +49,7 @@ static const uint32_t crc32_lut[] = {
 // clang-format on
 
 // Shamelessly stolen from https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
-static uint32_t logfs_util_crc(const void *buf, size_t size)
+static uint32_t crc32(const void *buf, size_t size)
 {
     const uint8_t *p   = buf;
     uint32_t       crc = ~0U;
@@ -63,25 +63,25 @@ static uint32_t logfs_util_crc(const void *buf, size_t size)
     return crc ^ ~0U;
 }
 
-uint32_t logfs_util_getBlockCrc(const LogFs *fs)
+uint32_t logfs_crc_getFromBlock(const LogFs *fs)
 {
     uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     return *block_crc;
 }
 
-void logfs_util_stampBlockCrc(const LogFs *fs)
+void logfs_crc_stampBlock(const LogFs *fs)
 {
     // Set first word to 0, then stamp first word with CRC.
     uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     *block_crc                = 0;
-    *block_crc                = logfs_util_crc(fs->cfg->block_cache, fs->cfg->block_size);
+    *block_crc                = crc32(fs->cfg->block_cache, fs->cfg->block_size);
 }
 
-bool logfs_util_checkBlockCrc(const LogFs *fs)
+bool logfs_crc_checkBlock(const LogFs *fs)
 {
     // Check block with CRC (first word) set to zero.
     uint32_t *const block_crc = (uint32_t *)fs->cfg->block_cache;
     uint32_t        crc       = *block_crc;
     *block_crc                = 0;
-    return crc == logfs_util_crc(fs->cfg->block_cache, fs->cfg->block_size);
+    return crc == crc32(fs->cfg->block_cache, fs->cfg->block_size);
 }
