@@ -6,84 +6,69 @@
 
 namespace py = pybind11;
 
-class PyLogFsCfg
+static LogFsErr _read_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
-  public:
-    PyLogFsCfg(
-        uint32_t                                     block_size,
-        uint32_t                                     block_count,
-        std::function<py::tuple(uint32_t)>           read,
-        std::function<LogFsErr(uint32_t, py::bytes)> prog,
-        std::function<LogFsErr(uint32_t)>            erase)
-      : py_read(read), py_prog(prog), py_erase(erase)
-    {
-        // Init config struct.
-        cfg.context     = this;
-        cfg.block_size  = block_size;
-        cfg.block_count = block_count;
-        cfg.read        = &this->read;
-        cfg.prog        = &this->prog;
-        cfg.erase       = &this->erase;
+    // Invoke user-defined read function.
+    py::object *context = (py::object *)cfg->context;
+    py::tuple   result  = context->attr("read")(block);
+    LogFsErr    err     = result[0].cast<LogFsErr>();
+    py::bytes   bytes   = result[1].cast<py::bytes>();
 
-        // Allocate block cache on heap.
-        cfg.block_cache = malloc(block_size);
-    }
+    // Copy returned data into buffer.
+    const std::string byte_str = bytes.cast<std::string>();
+    memcpy(buf, byte_str.data(), cfg->block_size);
+    return err;
+}
 
-    ~PyLogFsCfg()
-    {
-        // Deallocate block cache.
-        free(cfg.block_cache);
-    }
+static LogFsErr _prog_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
+{
+    // Invoke user-defined program function.
+    py::object *context = (py::object *)cfg->context;
+    py::bytes   bytes   = py::bytes((char *)buf, cfg->block_size);
+    py::object  result  = context->attr("prog")(block, bytes);
+    return result.cast<LogFsErr>();
+}
 
-    LogFsCfg cfg;
-
-  private:
-    static LogFsErr read(const LogFsCfg *cfg, uint32_t block, void *buf)
-    {
-        // Read via user-defined function.
-        const PyLogFsCfg *context = (const PyLogFsCfg *)cfg->context;
-        py::tuple         result  = context->py_read(block);
-        LogFsErr          err     = result[0].cast<LogFsErr>();
-        py::bytes         bytes   = result[1].cast<py::bytes>();
-
-        // Copy returned data into buffer.
-        const std::string byte_str = bytes.cast<std::string>();
-        memcpy(buf, byte_str.data(), cfg->block_size);
-        return err;
-    }
-
-    static LogFsErr prog(const LogFsCfg *cfg, uint32_t block, void *buf)
-    {
-        const PyLogFsCfg *context = (const PyLogFsCfg *)cfg->context;
-        py::bytes         bytes   = py::bytes((char *)buf, cfg->block_size);
-        return context->py_prog(block, bytes);
-    }
-
-    static LogFsErr erase(const LogFsCfg *cfg, uint32_t block)
-    {
-        const PyLogFsCfg *context = (const PyLogFsCfg *)cfg->context;
-        return context->py_erase(block);
-    }
-
-    std::function<py::tuple(uint32_t)>           py_read;
-    std::function<LogFsErr(uint32_t, py::bytes)> py_prog;
-    std::function<LogFsErr(uint32_t)>            py_erase;
-};
+static LogFsErr _erase_wrapper(const LogFsCfg *cfg, uint32_t block)
+{
+    // Invoke user-defined erase function.
+    py::object *context = (py::object *)cfg->context;
+    py::object  result  = context->attr("erase")(block);
+    return result.cast<LogFsErr>();
+}
 
 class PyLogFs
 {
   public:
-    PyLogFs(PyLogFsCfg &cfg) : cfg(cfg){};
+    PyLogFs(uint32_t block_size, uint32_t block_count, py::object context) : _context(context)
+    {
+        // Init config struct.
+        _cfg.block_size  = block_size;
+        _cfg.block_count = block_count;
+        _cfg.context     = &_context;
+        _cfg.read        = _read_wrapper;
+        _cfg.prog        = _prog_wrapper;
+        _cfg.erase       = _erase_wrapper;
 
-    LogFsErr mount(void) { return logfs_mount(&fs, &cfg.cfg); }
-    LogFsErr format(void) { return logfs_format(&fs, &cfg.cfg); }
-    LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&fs, &file, path); }
+        // Allocate block cache on heap.
+        _cfg.block_cache = malloc(block_size);
+    };
+
+    ~PyLogFs()
+    {
+        // Deallocate block cache.
+        free(_cfg.block_cache);
+    }
+
+    LogFsErr mount(void) { return logfs_mount(&_fs, &_cfg); }
+    LogFsErr format(void) { return logfs_format(&_fs, &_cfg); }
+    LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&_fs, &file, path); }
 
     py::tuple read(LogFsFile &file, uint32_t size)
     {
         // Create an empty string to hold the read data.
         std::string buf(size, '\0');
-        uint32_t    num_read = logfs_read(&fs, &file, (void *)buf.data(), size);
+        uint32_t    num_read = logfs_read(&_fs, &file, (void *)buf.data(), size);
 
         // Return a tuple of (read size, read bytes).
         py::bytes bytes = py::bytes(buf);
@@ -93,12 +78,13 @@ class PyLogFs
     uint32_t write(LogFsFile &file, const py::bytes bytes, uint32_t size)
     {
         const std::string buf = bytes.cast<std::string>();
-        return logfs_write(&fs, &file, (void *)buf.data(), size);
+        return logfs_write(&_fs, &file, (void *)buf.data(), size);
     }
 
   private:
-    PyLogFsCfg &cfg;
-    LogFs       fs;
+    LogFsCfg   _cfg;
+    LogFs      _fs;
+    py::object _context;
 };
 
 PYBIND11_MODULE(logfs_lib, m)
@@ -114,11 +100,8 @@ PYBIND11_MODULE(logfs_lib, m)
     py::class_<LogFsFile>(m, "LogFsFile")
         .def(py::init<>());
 
-    py::class_<PyLogFsCfg>(m, "LogFsCfg")
-        .def(py::init<uint32_t, uint32_t, std::function<py::tuple(uint32_t)>, std::function<LogFsErr(uint32_t, py::bytes)>, std::function<LogFsErr(uint32_t)>>());
-
-    py::class_<PyLogFs>(m, "LogFs")
-        .def(py::init<PyLogFsCfg&>())
+    py::class_<PyLogFs>(m, "PyLogFs")
+        .def(py::init<uint32_t, uint32_t, py::object&>())
         .def("mount", &PyLogFs::mount)
         .def("format", &PyLogFs::format)
         .def("open", &PyLogFs::open)

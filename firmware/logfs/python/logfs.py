@@ -1,5 +1,5 @@
 from typing import Tuple
-from logfs_lib import LogFsErr, PyLogFsCfg, PyLogFs, LogFsFile
+from logfs_lib import LogFsErr, PyLogFs, LogFsFile
 
 
 def _check_err(err: LogFsErr):
@@ -20,9 +20,11 @@ class LogFsContext:
 
 class LogFsDummyContext:
     def __init__(self, block_size: int, block_count: int) -> None:
-        self.disk = []
+        self.block_size = block_size
+        self.block_count = block_count
 
-        for block in range(block_count):
+        self.disk = []
+        for _ in range(block_count):
             self.disk.append(bytes(block_size))
 
     def read(self, block: int) -> Tuple[LogFsErr, bytes]:
@@ -34,55 +36,25 @@ class LogFsDummyContext:
         self.disk[block] = data
         return LogFsErr.OK
 
-    def erase(block: int):
+    def erase(self, block: int) -> LogFsErr:
         # print(f"erase: {block}")
+        self.disk[block] = bytes(self.block_size)
         return LogFsErr.OK
-
-
-BLOCK_COUNT = 100
-BLOCK_SIZE = 32
-
-
-disk = []
-for block in range(BLOCK_COUNT):
-    disk.append(bytes(BLOCK_SIZE))
-
-def read(block):
-    # print(f"read: {block}, {disk[block]}")
-    return LogFsErr.OK, disk[block]
-
-
-def prog(block, buf):
-    # print(f"prog: {block}, {buf}")
-    disk[block] = buf
-    return LogFsErr.OK
-
-
-def erase(block):
-    # print(f"erase: {block}")
-    return LogFsErr.OK
 
 
 class LogFs:
     def __init__(
         self, block_size: int, block_count: int, context: LogFsContext
     ) -> None:
-        read_lamda = lambda block: context.read(block)
-        prog_lambda = lambda block, data: context.prog(block, data)
-        erase_lamda = lambda block: context.erase(block)
+        self.fs = PyLogFs(block_size, block_count, context)
 
-        self.cfg = PyLogFsCfg(
-            block_size, block_count, read_lamda, prog_lambda, erase
-        )
-        self.fs = PyLogFs(self.cfg)
-
-    def format(self) -> LogFsErr:
+    def format(self) -> None:
         _check_err(self.fs.format())
 
-    def mount(self) -> LogFsErr:
+    def mount(self) -> None:
         _check_err(self.fs.mount())
 
-    def open(self, path: str) -> LogFsErr:
+    def open(self, path: str) -> None:
         file = LogFsFile()
         _check_err(self.fs.open(file, path))
         return file
@@ -91,5 +63,5 @@ class LogFs:
         num_read, data = self.fs.read(file, size)
         return data[:num_read]
 
-    def write(self, file: LogFsFile, data: bytes):
+    def write(self, file: LogFsFile, data: bytes) -> None:
         _check_err(self.fs.write(file, data, len(data)))

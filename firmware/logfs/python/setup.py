@@ -5,8 +5,6 @@ from setuptools import setup
 logfs_lib = os.getenv("LOGFS_LIB")
 logfs_lib = os.fspath(Path(logfs_lib).resolve())
 
-# raise ValueError(logfs_lib)
-
 setup(
     name="logfs-python",
     packages=["."],
