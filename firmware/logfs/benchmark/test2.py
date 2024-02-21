@@ -1,5 +1,5 @@
 from logfs import LogFs, LogFsDummyContext, LogFsErr
-from logfs_lib import PyLogFs, PyLogFsCfg
+from logfs_src import PyLogFs, PyLogFsCfg
 
 BLOCK_COUNT = 100
 BLOCK_SIZE = 32

@@ -1,4 +1,4 @@
-from logfs_lib import PyLogFs, LogFsErr, LogFsFile
+from logfs_src import PyLogFs, LogFsErr, LogFsFile
 from typing import Tuple
 
 BLOCK_COUNT = 100

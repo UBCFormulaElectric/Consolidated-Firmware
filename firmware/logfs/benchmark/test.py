@@ -1,4 +1,4 @@
-from logfs_lib import LogFsCfg, LogFs, LogFsErr, LogFsFile
+from logfs_src import LogFsCfg, LogFs, LogFsErr, LogFsFile
 
 BLOCK_COUNT = 100
 BLOCK_SIZE = 32

@@ -87,7 +87,7 @@ class PyLogFs
     py::object _context;
 };
 
-PYBIND11_MODULE(logfs_lib, m)
+PYBIND11_MODULE(logfs_src, m)
 {
     // clang-format off
     py::enum_<LogFsErr>(m, "LogFsErr")

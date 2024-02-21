@@ -1,5 +1,6 @@
 import pytest
-from logfs import LogFs, LogFsDummyContext, LogFsErr
+from logfs.fs import LogFs
+from logfs.context import LogFsDummyContext
 
 
 BLOCK_COUNT = 10000

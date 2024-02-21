@@ -1,10 +1,10 @@
 include(../cmake/embedded.cmake)
 
 set(LOGFS_INCLUDE_DIRS 
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 file(GLOB_RECURSE LOGFS_SRCS
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
 if("${TARGET}" STREQUAL "deploy")
@@ -20,12 +20,12 @@ elseif("${TARGET}" STREQUAL "test")
 
     # Create pybind11 module.
     pybind11_add_module(
-        logfs_lib
+        logfs_src
         ${LOGFS_SRCS} 
         "${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp"
     )
-    target_include_directories(logfs_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-    set_target_properties(logfs_lib PROPERTIES
+    target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
+    set_target_properties(logfs_src PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
     )
 
@@ -33,7 +33,7 @@ elseif("${TARGET}" STREQUAL "test")
     # TODO: Make this invocation portable.
     add_custom_target(install_python_logfs
         COMMAND 
-        LOGFS_LIB="logfs_lib.cpython-311-darwin.so" pip3 install .
+        LOGFS_SRC="logfs_src.cpython-311-darwin.so" pip3 install .
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
-        DEPENDS logfs_lib)
+        DEPENDS logfs_src)
 endif()
