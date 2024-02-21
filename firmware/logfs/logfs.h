@@ -90,13 +90,10 @@ extern "C"
 
     typedef struct
     {
-        // Config info.
-        const LogFsCfg *cfg;
-
-        // State info.
-        uint32_t head;
-        uint32_t eff_block_size;
-        bool     empty;
+        const LogFsCfg *cfg; // Config info.
+        uint32_t        eff_block_size;
+        uint32_t        head;
+        bool            empty;
 
         // Block-specific pointers to the cache.
         LogFsBlock_FsInfo     *cache_fs_info;

@@ -15,6 +15,7 @@ extern "C"
     uint32_t logfs_util_getBlockCrc(const LogFs *fs);
     void     logfs_util_stampBlockCrc(const LogFs *fs);
     bool     logfs_util_checkBlockCrc(const LogFs *fs);
+    uint32_t logfs_util_binarySearch(const LogFs *fs);
 
 #ifdef __cplusplus
 }

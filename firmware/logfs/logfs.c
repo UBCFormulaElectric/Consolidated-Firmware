@@ -5,17 +5,33 @@
 
 #include <stdio.h>
 
-#define RET_ERR(err)         \
-    if (err != LOGFS_ERR_OK) \
-    {                        \
-        return err;          \
+#define CHECK_ERR(err) (err != LOGFS_ERR_OK)
+
+#define RET_ERR(err)    \
+    if (CHECK_ERR(err)) \
+    {                   \
+        return err;     \
     }
 
 #define RET_VAL_IF_ERR(err, val) \
-    if (err != LOGFS_ERR_OK)     \
+    if (CHECK_ERR(err))          \
     {                            \
         return val;              \
     }
+
+static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
+{
+    // Set filesystem config.
+    fs->cfg                                 = cfg;
+    const uint32_t data_block_metadata_size = sizeof(LogFsBlock_Data) - 1;
+    fs->eff_block_size                      = cfg->block_size - data_block_metadata_size;
+
+    // Setup cache pointers.
+    fs->cache_fs_info   = fs->cfg->block_cache;
+    fs->cache_file_info = fs->cfg->block_cache;
+    fs->cache_data_hdr  = fs->cfg->block_cache;
+    fs->cache_data      = fs->cfg->block_cache;
+}
 
 static void inline logfs_setBlockType(const LogFs *fs, LogFsBlockType type)
 {
@@ -135,34 +151,100 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, const char *path
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg) {}
+static uint32_t logfs_findLastDataHdr(LogFs *fs, uint32_t file_info_block)
+{
+    // Iterate over linked-list of data headers to find the last (most recently
+    // written) chunk of data.
+    uint32_t file_hdr = file_info_block + LOGFS_COW_SIZE;
+    while (true)
+    {
+        RET_VAL_IF_ERR(logfs_readCowBlock(fs, file_hdr), LOGFS_INVALID_BLOCK);
+
+        if (fs->cache_data_hdr->next != LOGFS_INVALID_BLOCK)
+        {
+            file_hdr = fs->cache_data_hdr->next;
+        }
+        else
+        {
+            // Reached last header.
+            return file_hdr;
+        }
+    }
+
+    // Should never get here.
+    return LOGFS_INVALID_BLOCK;
+}
+
+static uint32_t logfs_findEndOfChunk(LogFs *fs, uint32_t data_hdr)
+{
+    // Iterate over data chunk started by the last header.
+    uint32_t cur_data = data_hdr + LOGFS_COW_SIZE;
+    while (true)
+    {
+        // If this fails, that probably means we've reached the end of the
+        // filesystem image.
+        RET_VAL_IF_ERR(logfs_readBlock(fs, cur_data), cur_data - 1);
+
+        if (logfs_getBlockType(fs) != LOGFS_BLOCK_DATA)
+        {
+            // If we reach another type of block, we've reached the end of the
+            // file.
+            return cur_data - 1;
+        }
+        else
+        {
+            cur_data++;
+        }
+    }
+
+    // Should never get here.
+    return LOGFS_INVALID_BLOCK;
+}
+
+LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
+{
+    // Shared initialization.
+    logfs_init(fs, cfg);
+
+    // First just try reading the filesystem info blocks.
+    RET_ERR(logfs_readCowBlock(fs, LOGFS_ORIGIN));
+
+    // Binary search the filesystem image to find the head, which will be the
+    // greatest valid block.
+    uint32_t left  = LOGFS_COW_SIZE;
+    uint32_t right = fs->cfg->block_count;
+    while ((right - left) > 1U)
+    {
+        const uint32_t mid = (right + left) / 2;
+        if (CHECK_ERR(logfs_readBlock(fs, mid)))
+        {
+            right = mid;
+        }
+        else
+        {
+            left = mid;
+        }
+    }
+
+    // If head is only right after the filesystem info blocks, the filesystem is empty.
+    fs->empty = fs->head == LOGFS_COW_SIZE;
+    fs->head  = right;
+    return LOGFS_ERR_OK;
+}
 
 LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
 {
-    // Set filesystem config.
-    fs->cfg   = cfg;
-    fs->head  = 2;
+    // Shared initialization.
+    logfs_init(fs, cfg);
+
+    fs->head  = LOGFS_COW_SIZE;
     fs->empty = true;
-
-    // Setup cache pointers.
-    fs->cache_fs_info   = fs->cfg->block_cache;
-    fs->cache_file_info = fs->cfg->block_cache;
-    fs->cache_data_hdr  = fs->cfg->block_cache;
-    fs->cache_data      = fs->cfg->block_cache;
-
-    const uint32_t data_block_metadata_size = sizeof(LogFsBlock_Data) - 1;
-    fs->eff_block_size                      = cfg->block_size - data_block_metadata_size;
 
     // Write file system info block
     LogFsBlock_FsInfo *const fs_info = fs->cfg->block_cache;
     fs_info->version_major           = LOGFS_VERSION_MAJOR;
     fs_info->version_major           = LOGFS_VERSION_MINOR;
     logfs_util_stampBlockCrc(fs);
-
-    for (int i = 0; i < fs->cfg->block_count; i++)
-    {
-        logfs_writeBlock(fs, i, LOGFS_BLOCK_DATA);
-    }
 
     // Write first block.
     RET_ERR(logfs_writeCowBlock(fs, LOGFS_ORIGIN, LOGFS_BLOCK_FS_INFO));
@@ -182,14 +264,15 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
     uint32_t cur_file = LOGFS_ORIGIN + LOGFS_COW_SIZE;
     while (true)
     {
-        RET_ERR(logfs_readCowBlock(fs, cur_file) != LOGFS_ERR_OK);
+        RET_ERR(logfs_readCowBlock(fs, cur_file));
 
         if (strcmp(fs->cache_file_info->path, path) == 0)
         {
             // File has been found, return.
             // First block of data is right after the COW file info pair.
             file->info_block = cur_file;
-            file->head       = LOGFS_INVALID_BLOCK; // TODO: Also get the head pointer!
+            file->last_hdr   = logfs_findLastDataHdr(fs, cur_file);
+            file->head       = logfs_findEndOfChunk(fs, file->last_hdr);
             return LOGFS_ERR_OK;
         }
 
