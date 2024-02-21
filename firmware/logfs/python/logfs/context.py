@@ -4,16 +4,16 @@ from logfs_src import LogFsErr
 
 class LogFsContext:
     def read(self, block: int) -> Tuple[LogFsErr, bytes]:
-        return LogFsErr.UNIMPLEMENTED
+        return LogFsErr.IO
 
     def prog(self, block: int, data: bytes) -> LogFsErr:
-        return LogFsErr.UNIMPLEMENTED
+        return LogFsErr.IO
 
     def erase(self, block: int) -> LogFsErr:
-        return LogFsErr.UNIMPLEMENTED
+        return LogFsErr.IO
 
     def mass_erase(self) -> LogFsErr:
-        return LogFsErr.UNIMPLEMENTED
+        return LogFsErr.IO
 
 
 class LogFsDummyContext(LogFsContext):

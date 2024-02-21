@@ -1,6 +1,6 @@
-from typing import Tuple, Union
+from typing import Union, Optional
 from logfs.context import LogFsContext
-from logfs_src import LogFsErr, PyLogFs, LogFsFile
+from logfs_src import LogFsErr, PyLogFs, LogFsFile, PyLogFsRead, PyLogFsWrite
 
 
 class LogFsError(Exception):
@@ -15,34 +15,51 @@ class LogFsError(Exception):
         return f"LogFsErr: {self.err}"
 
 
-def _check_err(err: LogFsErr):
-    if err != LogFsErr.OK:
-        raise LogFsError(err)
-
-
 class LogFs:
+    READ_ITER_CHUNK_SIZE = 32
+
     def __init__(
         self, block_size: int, block_count: int, context: LogFsContext
     ) -> None:
         self.fs = PyLogFs(block_size, block_count, context)
 
     def format(self) -> None:
-        _check_err(self.fs.format())
+        self._check_err(self.fs.format())
 
     def mount(self) -> None:
-        _check_err(self.fs.mount())
+        self._check_err(self.fs.mount())
 
     def open(self, path: str) -> None:
         file = LogFsFile()
-        _check_err(self.fs.open(file, path))
+        self._check_err(self.fs.open(file, path))
         return file
 
-    def read(self, file: LogFsFile, size: int) -> int:
-        num_read, data = self.fs.read(file, size)
-        return data[:num_read]
+    def read(self, file: LogFsFile, size: Optional[int] = None) -> int:
+        if size is None:
+            file_data = b""
+            file_num_read = 0
+
+            while True:
+                num_read, data = self.fs.read(
+                    file, self.READ_ITER_CHUNK_SIZE, PyLogFsRead.ITER
+                )
+                if num_read == 0:
+                    break
+
+                file_data += data
+                file_num_read += num_read
+
+            return file_data[:file_num_read]
+        else:
+            num_read, data = self.fs.read(file, size, PyLogFsRead.START)
+            return data[:num_read]
 
     def write(self, file: LogFsFile, data: Union[bytes, str]) -> None:
         if isinstance(data, str):
             data = data.encode("utf-8")
 
-        _check_err(self.fs.write(file, data, len(data)))
+        self._check_err(self.fs.write(file, data, len(data), PyLogFsWrite.APPEND))
+
+    def _check_err(self, err: LogFsErr) -> None:
+        if err != LogFsErr.OK:
+            raise LogFsError(err)

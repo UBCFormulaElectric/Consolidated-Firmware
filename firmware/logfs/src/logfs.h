@@ -13,15 +13,15 @@ extern "C"
 #define LOGFS_MAX_PATH_LEN 24 // TODO: Pick a better value for this!
 #define LOGFS_INVALID_BLOCK 0xFFFFFFFF
 
-#define LOGFS_VERSION_MAJOR 0
-#define LOGFS_VERSION_MINOR 1
+#define LOGFS_VERSION_MAJOR 1
+#define LOGFS_VERSION_MINOR 0
 
     typedef enum
     {
         LOGFS_ERR_OK,            // No error
-        LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
+        LOGFS_ERR_IO,            // Error during I/O operation
         LOGFS_ERR_CORRUPT,       // File system was corrupted (bad CRC)
-        LOGFS_ERR_DNE,           // File does not exist
+        LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
     } LogFsErr;
 
     typedef struct _LogFsCfg
@@ -37,15 +37,35 @@ extern "C"
         LogFsErr (*prog)(const struct _LogFsCfg *cfg, uint32_t block, void *buf);
         // Erase a block at a given address.
         LogFsErr (*erase)(const struct _LogFsCfg *cfg, uint32_t block);
+        // Erase the entire filesystem image.
+        LogFsErr (*mass_erase)(const struct _LogFsCfg *cfg);
         // Cache for reading blocks (must be block_size bytes in length).
         void *block_cache;
     } LogFsCfg;
+
+    typedef enum
+    {
+        LOGFS_READ_START,
+        LOGFS_READ_ITER,
+    } LogFsRead;
+
+    typedef enum
+    {
+        LOGFS_WRITE_APPEND,
+        LOGFS_WRITE_EDIT,
+    } LogFsWrite;
 
     typedef struct
     {
         uint32_t info_block;
         uint32_t last_hdr;
         uint32_t head;
+
+        // State for iterating reads.
+        uint32_t read_uninit;
+        uint32_t read_cur_byte; // Current byte to read from
+        uint32_t read_cur_data; // Current data block being read from.
+        uint32_t read_cur_hdr;  // Current header for chunk being read from.
     } LogFsFile;
 
     // Block types.
@@ -106,8 +126,8 @@ extern "C"
     LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
     LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
     LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path);
-    uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
-    uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
+    uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode);
+    uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsWrite mode);
 
 #ifdef __cplusplus
 }

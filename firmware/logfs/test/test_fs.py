@@ -109,3 +109,17 @@ def test_mount(fs, fs_unformatted):
     # Read data back.
     read_data = fs_unformatted.read(file, len(data))
     assert read_data == data
+
+
+def test_read_entire_file_iter(fs):
+    # Create dummy data.
+    data_len = 10_000
+    data = " ".join(["hello world!" for _ in range(data_len)]).encode()
+
+    # Write data.
+    file = fs.open("test.txt")
+    fs.write(file, data)
+
+    # Read data back.
+    read_data = fs.read(file)
+    assert data == read_data

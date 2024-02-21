@@ -52,9 +52,10 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, const char *path
     fs->empty = false;
 
     // Creating new file succeeded, write metadata to file struct.
-    file->info_block = new_file;
-    file->last_hdr   = new_file + LOGFS_COW_SIZE;
-    file->head       = fs->head - 1;
+    file->info_block  = new_file;
+    file->last_hdr    = new_file + LOGFS_COW_SIZE;
+    file->head        = fs->head - 1;
+    file->read_uninit = true;
 
     return LOGFS_ERR_OK;
 }
@@ -145,6 +146,13 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     // Shared initialization.
     logfs_init(fs, cfg);
 
+    // The filesystem design requires that all blocks greater than the current
+    // head be invalid (i.e. bad CRC). This means we need to perform a mass
+    // erase at formatting. Otherwise, if there are currently blocks on the
+    // disk with valid CRCs, such as from previous logfs images, the filesystem
+    // operation could be unreliable.
+    fs->cfg->mass_erase(fs->cfg);
+
     fs->head  = LOGFS_COW_SIZE;
     fs->empty = true;
 
@@ -178,9 +186,10 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
         {
             // File has been found, return.
             // First block of data is right after the COW file info pair.
-            file->info_block = cur_file;
-            file->last_hdr   = logfs_findLastDataHdr(fs, cur_file);
-            file->head       = logfs_findEndOfChunk(fs, file->last_hdr);
+            file->info_block  = cur_file;
+            file->last_hdr    = logfs_findLastDataHdr(fs, cur_file);
+            file->head        = logfs_findEndOfChunk(fs, file->last_hdr);
+            file->read_uninit = true;
             return LOGFS_ERR_OK;
         }
 
@@ -200,26 +209,32 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path)
     return logfs_createNewFile(fs, file, path, cur_file);
 }
 
-uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode)
 {
-    uint32_t cur_data = file->info_block + 2 * LOGFS_COW_SIZE;
-    uint32_t cur_hdr  = file->info_block + LOGFS_COW_SIZE;
-    uint32_t num_read = 0;
+    if (mode == LOGFS_READ_START || file->read_uninit)
+    {
+        // Set read iterator state variables to start of file.
+        file->read_cur_data = file->info_block + 2 * LOGFS_COW_SIZE;
+        file->read_cur_hdr  = file->info_block + LOGFS_COW_SIZE;
+        file->read_cur_byte = 0;
+        file->read_uninit   = false;
+    }
 
     // Read next header's address.
-    RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, cur_hdr), 0);
+    RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, file->read_cur_hdr), 0);
     uint32_t next_hdr = fs->cache_data_hdr->next;
 
+    uint32_t num_read = 0;
     while (num_read < size)
     {
-        if (cur_data == fs->head)
+        if (file->read_cur_data == fs->head)
         {
             // If we've reached the head, we've read the entire filesystem.
             return num_read;
         }
 
         // Read current block.
-        RET_VAL_IF_ERR(logfs_blocks_read(fs, cur_data), num_read);
+        RET_VAL_IF_ERR(logfs_blocks_read(fs, file->read_cur_data), num_read);
 
         // If the next block type isn't a data block, that means we've reached
         // the end of the current data chunk.
@@ -228,7 +243,7 @@ uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             if (next_hdr != LOGFS_INVALID_BLOCK)
             {
                 // Reached end of current header, move to the next one.
-                cur_data = next_hdr + LOGFS_COW_SIZE;
+                file->read_cur_data = next_hdr + LOGFS_COW_SIZE;
                 RET_VAL_IF_ERR(logfs_blocks_cowRead(fs, next_hdr), num_read);
                 next_hdr = fs->cache_data_hdr->next;
                 continue;
@@ -240,17 +255,35 @@ uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             }
         }
 
+        // Calculate number of available bytes.
+        const uint32_t num_in_block     = fs->cache_data->bytes - file->read_cur_byte;
+        const uint32_t num_left_to_read = size - num_read;
+        uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
+        if (num_available == 0)
+        {
+            // No more data left in this chunk, return.
+            return num_read;
+        }
+
         // Read out data from cached block.
-        uint32_t num_available = MIN(size - num_read, fs->cache_data->bytes);
-        memcpy(((uint8_t *)buf) + num_read, &fs->cache_data->data, num_available);
+        uint8_t *const buf_ptr  = (uint8_t *)buf + num_read;
+        uint8_t *const read_ptr = &fs->cache_data->data + file->read_cur_byte;
+        memcpy(buf_ptr, read_ptr, num_available);
         num_read += num_available;
-        cur_data++;
+
+        // Move to next block if we've read all bytes from the current block.
+        file->read_cur_byte += num_available;
+        if (file->read_cur_byte == fs->eff_block_size)
+        {
+            file->read_cur_byte = 0;
+            file->read_cur_data++;
+        }
     }
 
     return num_read;
 }
 
-uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
+uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsWrite mode)
 {
     uint32_t num_written = 0;     // Number of bytes successfully written to disk.
     bool     new_block   = false; // Whether or not a new data block needs to be created.

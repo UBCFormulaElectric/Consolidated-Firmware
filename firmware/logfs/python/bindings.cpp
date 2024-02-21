@@ -37,6 +37,14 @@ static LogFsErr _erase_wrapper(const LogFsCfg *cfg, uint32_t block)
     return result.cast<LogFsErr>();
 }
 
+static LogFsErr _mass_erase_wrapper(const LogFsCfg *cfg)
+{
+    // Invoke user-defined erase function.
+    py::object *context = (py::object *)cfg->context;
+    py::object  result  = context->attr("mass_erase")();
+    return result.cast<LogFsErr>();
+}
+
 class PyLogFs
 {
   public:
@@ -49,6 +57,7 @@ class PyLogFs
         _cfg.read        = _read_wrapper;
         _cfg.prog        = _prog_wrapper;
         _cfg.erase       = _erase_wrapper;
+        _cfg.mass_erase  = _mass_erase_wrapper;
 
         // Allocate block cache on heap.
         _cfg.block_cache = malloc(block_size);
@@ -64,21 +73,21 @@ class PyLogFs
     LogFsErr format(void) { return logfs_format(&_fs, &_cfg); }
     LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&_fs, &file, path); }
 
-    py::tuple read(LogFsFile &file, uint32_t size)
+    py::tuple read(LogFsFile &file, uint32_t size, LogFsRead mode)
     {
         // Create an empty string to hold the read data.
         std::string buf(size, '\0');
-        uint32_t    num_read = logfs_read(&_fs, &file, (void *)buf.data(), size);
+        uint32_t    num_read = logfs_read(&_fs, &file, (void *)buf.data(), size, mode);
 
         // Return a tuple of (read size, read bytes).
         py::bytes bytes = py::bytes(buf);
         return py::make_tuple(num_read, bytes);
     }
 
-    uint32_t write(LogFsFile &file, const py::bytes bytes, uint32_t size)
+    uint32_t write(LogFsFile &file, const py::bytes bytes, uint32_t size, LogFsWrite mode)
     {
         const std::string buf = bytes.cast<std::string>();
-        return logfs_write(&_fs, &file, (void *)buf.data(), size);
+        return logfs_write(&_fs, &file, (void *)buf.data(), size, mode);
     }
 
   private:
@@ -92,9 +101,19 @@ PYBIND11_MODULE(logfs_src, m)
     // clang-format off
     py::enum_<LogFsErr>(m, "LogFsErr")
         .value("OK", LOGFS_ERR_OK)
-        .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
+        .value("IO", LOGFS_ERR_IO)
         .value("CORRUPT", LOGFS_ERR_CORRUPT)
-        .value("DNE", LOGFS_ERR_DNE)
+        .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
+        .export_values();
+
+    py::enum_<LogFsRead>(m, "PyLogFsRead")
+        .value("START", LOGFS_READ_START)
+        .value("ITER", LOGFS_READ_ITER)
+        .export_values();
+
+    py::enum_<LogFsWrite>(m, "PyLogFsWrite")
+        .value("APPEND", LOGFS_WRITE_APPEND)
+        .value("EDIT", LOGFS_WRITE_EDIT)
         .export_values();
 
     py::class_<LogFsFile>(m, "LogFsFile")
