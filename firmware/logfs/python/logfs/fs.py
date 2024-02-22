@@ -38,6 +38,8 @@ class LogFs:
         if size is None:
             file_data = b""
             file_num_read = 0
+            
+            self.fs.read(file, 0, PyLogFsRead.START) # Reset file read iterator
 
             while True:
                 num_read, data = self.fs.read(
