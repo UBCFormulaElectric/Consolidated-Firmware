@@ -5,6 +5,8 @@ For enums, the default value is the first defined enum value, which must be 0.
 For numeric types, the default value is zero.
 */
 
+package BMS;
+
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED  = 0;
   LED_GPIO = 1;

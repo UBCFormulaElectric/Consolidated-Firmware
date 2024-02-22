@@ -6,14 +6,20 @@ import subprocess
 import serial
 from importlib import reload
 import board_libs.VC_pb2 as VC_lib
+import board_libs.BMS_pb2 as BMS_lib
+import board_libs.CRIT_pb2 as CRIT_lib
+import board_libs.FSM_pb2 as FSM_lib
+import board_libs.RSM_pb2 as RSM_lib
 
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
+BOARD_LIBS = [VC_lib, BMS_lib, CRIT_lib, FSM_lib, RSM_lib]
 
 class Board():
     def __init__(self, com_port: str) -> None:
         subprocess.call("./generate_board_libs.sh")
-        reload(VC_lib)
+        for lib in BOARD_LIBS:
+            reload(lib)
         # NOTE: If you send more or less data in a UART transaction, seems like the
         # peripheral can get confused...
         self.ser = serial.Serial(com_port, baudrate=115200)
