@@ -33,6 +33,8 @@
 #define HIGH_SOC_FAULT_THRESHOLD (85.0f) // Limit to stop charging
 #define HIGH_SOC_WARNING_THRESHOLD (75.0f)
 
+#define MIN_CURRENT_LIMIT_CUTTOFF (10.0f)
+
 void app_currentLimit_broadcast(void)
 {
     const float dischargingCurrentLimit = app_currentLimit_getDischargeLimit();
@@ -86,6 +88,7 @@ float app_currentLimit_getDischargeLimit(void)
             break;
     }
 
+    currentLimit = (currentLimit > MIN_CURRENT_LIMIT_CUTTOFF) ? currentLimit : MIN_CURRENT_LIMIT_CUTTOFF;
     app_canTx_BMS_AvailableDischargingCurrentLimit_set(currentLimit);
     return currentLimit;
 }
@@ -120,6 +123,7 @@ float app_currentLimit_getChargeLimit(void)
             break;
     }
 
+    currentLimit = (currentLimit > MIN_CURRENT_LIMIT_CUTTOFF) ? currentLimit : MIN_CURRENT_LIMIT_CUTTOFF;
     app_canTx_BMS_AvailableChargingCurrentLimit_set(currentLimit);
     return currentLimit;
 }
