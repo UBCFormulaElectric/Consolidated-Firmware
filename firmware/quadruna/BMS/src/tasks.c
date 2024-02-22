@@ -137,8 +137,8 @@ static const TractiveSystemConfig ts_config = { .ts_vsense_p_channel        = AD
 
 static const FaultLatch bms_ok_latch = {
     .current_status_gpio = {
-        .port = BMS_OK_GPIO_Port,
-        .pin = BMS_OK_Pin,
+        .port = BMS_OK_3V3_GPIO_Port,
+        .pin = BMS_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = BMS_LATCH_GPIO_Port,
@@ -149,8 +149,8 @@ static const FaultLatch bms_ok_latch = {
 
 static const FaultLatch imd_ok_latch = {
     .current_status_gpio = {
-        .port = IMD_OK_GPIO_Port,
-        .pin = IMD_OK_Pin,
+        .port = IMD_OK_3V3_GPIO_Port,
+        .pin = IMD_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = IMD_LATCH_GPIO_Port,
@@ -161,8 +161,8 @@ static const FaultLatch imd_ok_latch = {
 
 static const FaultLatch bspd_ok_latch = {
     .current_status_gpio = {
-        .port = BSPD_OK_GPIO_Port,
-        .pin = BSPD_OK_Pin,
+        .port = BSPD_OK_3V3_GPIO_Port,
+        .pin = BSPD_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = BSPD_LATCH_GPIO_Port,

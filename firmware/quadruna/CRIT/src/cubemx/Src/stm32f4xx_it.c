@@ -22,7 +22,6 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,10 +55,11 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern CAN_HandleTypeDef hcan1;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim12;
-extern TIM_HandleTypeDef htim6;
+extern DMA_HandleTypeDef  hdma_adc1;
+extern CAN_HandleTypeDef  hcan1;
+extern TIM_HandleTypeDef  htim3;
+extern UART_HandleTypeDef huart2;
+extern TIM_HandleTypeDef  htim6;
 
 /* USER CODE BEGIN EV */
 
@@ -89,7 +89,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-    hw_hardFaultHandler_handleFault();
+
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -206,17 +206,17 @@ void TIM3_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM8 break interrupt and TIM12 global interrupt.
+ * @brief This function handles USART2 global interrupt.
  */
-void TIM8_BRK_TIM12_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 0 */
+    /* USER CODE BEGIN USART2_IRQn 0 */
 
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim12);
-    /* USER CODE BEGIN TIM8_BRK_TIM12_IRQn 1 */
+    /* USER CODE END USART2_IRQn 0 */
+    HAL_UART_IRQHandler(&huart2);
+    /* USER CODE BEGIN USART2_IRQn 1 */
 
-    /* USER CODE END TIM8_BRK_TIM12_IRQn 1 */
+    /* USER CODE END USART2_IRQn 1 */
 }
 
 /**
@@ -231,6 +231,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA2 stream0 global interrupt.
+ */
+void DMA2_Stream0_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
+
+    /* USER CODE END DMA2_Stream0_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_adc1);
+    /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
+
+    /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
