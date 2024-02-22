@@ -58,13 +58,13 @@ static const CanConfig can_config = {
 static const BinaryLed led = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 
 static const Gpio *id_to_gpio[] = {
-    [GpioNetName_LED_GPIO] = &led.gpio,
+    [VC_GpioNetName_LED_GPIO] = &led.gpio,
 };
 
 static const AdcChannel inv_r_pwr_i_sns = ADC1_CHANNEL_10;
 
 static const AdcChannel *id_to_adc[] = {
-    [AdcNetName_INV_R_PWR_I_SNS] = &inv_r_pwr_i_sns,
+    [VC_AdcNetName_INV_R_PWR_I_SNS] = &inv_r_pwr_i_sns,
 };
 
 #define MAX_DEBUG_BUF_SIZE 100
@@ -225,9 +225,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         if (is_mid_debug_msg)
         {
-            DebugMessage msg       = DebugMessage_init_zero;
-            pb_istream_t in_stream = pb_istream_from_buffer(data, packet_size);
-            bool         status    = pb_decode(&in_stream, DebugMessage_fields, &msg);
+            VC_DebugMessage msg       = VC_DebugMessage_init_zero;
+            pb_istream_t    in_stream = pb_istream_from_buffer(data, packet_size);
+            bool            status    = pb_decode(&in_stream, VC_DebugMessage_fields, &msg);
 
             if (!status)
             {
@@ -259,7 +259,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             }
 
             pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
-            status                  = pb_encode(&out_stream, DebugMessage_fields, &msg);
+            status                  = pb_encode(&out_stream, VC_DebugMessage_fields, &msg);
             packet_size             = (u_int8_t)out_stream.bytes_written;
 
             if (!status)
