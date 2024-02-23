@@ -81,8 +81,8 @@ extern "C"
 #define TS_VSENSE_N_GPIO_Port GPIOC
 #define AIR_P_EN_Pin GPIO_PIN_2
 #define AIR_P_EN_GPIO_Port GPIOC
-#define PRECHARGE_EN_Pin GPIO_PIN_3
-#define PRECHARGE_EN_GPIO_Port GPIOC
+#define PRE_CHARGE_EN_Pin GPIO_PIN_3
+#define PRE_CHARGE_EN_GPIO_Port GPIOC
 #define HVD_SHDN_OK_Pin GPIO_PIN_0
 #define HVD_SHDN_OK_GPIO_Port GPIOA
 #define TS_ILCK_SHDN_OK_Pin GPIO_PIN_1

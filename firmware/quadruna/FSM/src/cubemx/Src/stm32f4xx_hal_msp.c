@@ -115,7 +115,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = LOAD_CELL_2_3V3_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin;
+        GPIO_InitStruct.Pin  = LOAD_CELL_1_3V3A1_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -160,7 +160,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         */
         HAL_GPIO_DeInit(GPIOC, SteeingAngle_3V3_Pin | APPS1_3V3_Pin | LOAD_CELL_1_3V3_Pin | BPS_B_3V3_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, LOAD_CELL_2_3V3_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin);
+        HAL_GPIO_DeInit(GPIOA, LOAD_CELL_1_3V3A1_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin);
 
         HAL_GPIO_DeInit(GPIOB, SUSP_TRAVEL_FL_3V3_Pin | SUSP_TRAVEL_FR_3V3_Pin);
 

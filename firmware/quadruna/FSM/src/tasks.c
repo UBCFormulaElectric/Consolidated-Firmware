@@ -13,6 +13,7 @@
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
+#include "io_log.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -21,11 +22,13 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
+#include "hw_adc.h"
 
-extern ADC_HandleTypeDef  *hadc1;
-extern CAN_HandleTypeDef  *hcan1;
-extern IWDG_HandleTypeDef *hiwdg;
-extern TIM_HandleTypeDef  *htim12;
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim3;
+extern CAN_HandleTypeDef hcan1;
+extern TIM_HandleTypeDef htim12;
+// extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -53,9 +56,13 @@ void tasks_init(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM reset!");
+
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(hcan1);
+    hw_can_init(&hcan1);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

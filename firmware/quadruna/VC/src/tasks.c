@@ -35,6 +35,7 @@ extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
+extern TIM_HandleTypeDef  htim3;
 // extern IWDG_HandleTypeDef  hiwdg1;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
@@ -156,6 +157,9 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
+
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);

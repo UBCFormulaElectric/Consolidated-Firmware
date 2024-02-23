@@ -68,6 +68,19 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
+// clang-format off
+static const Gpio accel_brake_ok_pin      = { .port = ACCEL_BRAKE_OK_3V3_GPIO_Port, .pin = ACCEL_BRAKE_OK_3V3_Pin };
+static const Gpio bspd_test_en_pin        = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
+static const Gpio led_pin                 = { .port = LED_GPIO_Port, .pin = LED_Pin };
+static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin = nCHIMERA_Pin };
+static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
+static const Gpio n_program               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
+static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
+static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_Port, .pin = TS_ISENSE_OCSC_OK_3V3_Pin };
+static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
+static const Gpio spi_cs                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
+// clang-format on
+
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
     .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
@@ -111,7 +124,7 @@ static const ThermistorsConfig thermistors_config = {.mux_0_gpio = {
                                        .port = AUX_TSENSE_MUX3_GPIO_Port,
                                        .pin  = AUX_TSENSE_MUX3_Pin,
                                    },
-                                   .thermistor_adc_channel = ADC1_CHANNEL_4
+                                   .thermistor_adc_channel = ADC1_IN4_AUX_TSENSE
                                    };
 
 static const AirsConfig airs_config = { .air_p_gpio = {
@@ -123,15 +136,15 @@ static const AirsConfig airs_config = { .air_p_gpio = {
                                        .pin  = HVD_SHDN_OK_Pin,
                                    },
                                    .precharge_gpio = {
-                                       .port = PRECHARGE_EN_GPIO_Port,
-                                       .pin  = PRECHARGE_EN_Pin,
+                                       .port = PRE_CHARGE_EN_GPIO_Port,
+                                       .pin  = PRE_CHARGE_EN_Pin,
                                    }
 };
 
-static const TractiveSystemConfig ts_config = { .ts_vsense_p_channel        = ADC1_CHANNEL_10,
-                                                .ts_vsense_n_channel        = ADC1_CHANNEL_11,
-                                                .ts_isense_high_res_channel = ADC1_CHANNEL_5,
-                                                .ts_isense_low_res_channel  = ADC1_CHANNEL_9
+// TODO: Test differential ADC for voltage measurement
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC1_IN10_TS_VSENSE_DIFF,
+                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
+                                                .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
 };
 

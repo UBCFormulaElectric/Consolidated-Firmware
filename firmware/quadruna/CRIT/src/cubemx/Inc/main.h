@@ -137,8 +137,8 @@ extern "C"
 #define LED_GPIO_Port GPIOA
 #define INERTIA_SEN_Pin GPIO_PIN_10
 #define INERTIA_SEN_GPIO_Port GPIOC
-#define SDHN_SEN_Pin GPIO_PIN_11
-#define SDHN_SEN_GPIO_Port GPIOC
+#define SHDN_SEN_Pin GPIO_PIN_11
+#define SHDN_SEN_GPIO_Port GPIOC
 #define IMD_R_Pin GPIO_PIN_12
 #define IMD_R_GPIO_Port GPIOC
 #define AMS_R_Pin GPIO_PIN_2

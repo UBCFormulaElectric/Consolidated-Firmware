@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
@@ -34,7 +34,8 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c" # TODO: add back when uart finalized
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 

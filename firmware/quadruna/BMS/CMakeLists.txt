@@ -39,7 +39,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    # "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c" # TODO: add back when uart finalized
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c" # TODO: add back when uart finalized
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
