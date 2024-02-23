@@ -9,7 +9,7 @@ static float    adc_voltages[NUM_ADC_CHANNELS];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    for (AdcChannel i = ADC1_CHANNEL_10; i < NUM_ADC_CHANNELS; i++)
+    for (AdcChannel i = ADC1_CHANNEL_3; i < NUM_ADC_CHANNELS; i++)
     {
         adc_voltages[i] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[i]);
     }

@@ -15,9 +15,21 @@ for port in ports:
 
 # Transmit data.
 vc = serial_debugger.VC(ports[0].device)
-print(vc.gpio_read("LED_GPIO"))
-vc.gpio_write("LED_GPIO", True)
-print(vc.gpio_read("LED_GPIO"))
-vc.gpio_write("LED_GPIO", False)
-print(vc.gpio_read("LED_GPIO"))
-print(vc.adc_read("INV_R_PWR_I_SNS"))
+
+# Note: All testable VC pin names are listed in Consolidated-Firmware/serial_debugger/board_protos/VC.proto
+
+####### WRITE YOUR SCRIPT HERE 
+
+# Read LED
+print(vc.gpio_read("LED"))
+# Write 1 to LED and read again
+vc.gpio_write("LED", True)
+print(vc.gpio_read("LED"))
+# Write 0 to LED and read again
+vc.gpio_write("LED", False)
+print(vc.gpio_read("LED"))
+
+# Read ADC value: VBAT_SENSE
+print(vc.adc_read("VBAT_SENSE"))
+
+#######
