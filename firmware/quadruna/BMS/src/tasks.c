@@ -4,6 +4,7 @@
 
 #include "hw_can.h"
 #include "hw_adc.h"
+#include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
 // #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -16,6 +17,7 @@
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
+#include "io_led.h"
 #include "io_time.h"
 #include "io_can.h"
 #include "io_airs.h"
@@ -40,6 +42,10 @@
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
+
+#include "BMS.pb.h"
+#include <pb_decode.h>
+#include <pb_encode.h>
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
 
@@ -68,6 +74,7 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
+<<<<<<< HEAD
 // clang-format off
 static const Gpio accel_brake_ok_pin      = { .port = ACCEL_BRAKE_OK_3V3_GPIO_Port, .pin = ACCEL_BRAKE_OK_3V3_Pin };
 static const Gpio bspd_test_en_pin        = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
@@ -80,6 +87,44 @@ static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_P
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
 static const Gpio spi_cs                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
+
+static const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_3v3,
+                                    [BMS_GpioNetName_AIRPLUS_EN]             = &airplus_en,
+                                    [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &aux_tsense_mux0,
+                                    [BMS_GpioNetName_AUX_TSENSE_MUX1]        = &aux_tsense_mux1,
+                                    [BMS_GpioNetName_AUX_TSENSE_MUX2]        = &aux_tsense_mux2,
+                                    [BMS_GpioNetName_AUX_TSENSE_MUX3]        = &aux_tsense_mux3,
+                                    [BMS_GpioNetName_BMS_LATCH]              = &bms_latch,
+                                    [BMS_GpioNetName_BMS_OK_3V3]             = &bms_ok_3v3,
+                                    [BMS_GpioNetName_BSPD_LATCH]             = &bspd_latch,
+                                    [BMS_GpioNetName_BSPD_OK_3V3]            = &bspd_ok_3v3,
+                                    [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_en,
+                                    [BMS_GpioNetName_HVD_SHDN_OK]            = &hvd_shdn_ok,
+                                    [BMS_GpioNetName_IMD_LATCH]              = &imd_latch,
+                                    [BMS_GpioNetName_IMD_OK_3V3]             = &imd_ok_3v3,
+                                    [BMS_GpioNetName_LED]                    = &led.gpio,
+                                    [BMS_GpioNetName_NCHIMERA]               = &nchimera,
+                                    [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &nhigh_current_bspd_3v3,
+                                    [BMS_GpioNetName_NPROGRAM_3V3]           = &nprogram_3v3,
+                                    [BMS_GpioNetName_PRE_CHARGE_EN]          = &pre_charge_en,
+                                    [BMS_GpioNetName_TS_ILCK_SHDN_OK]        = &ts_ilck_shdn_ok,
+                                    [BMS_GpioNetName_TS_ISENSE_OCSC_OK_3V3]  = &ts_isense_ocsc_ok_3v3,
+                                    [BMS_GpioNetName_SD_CD]                  = &sd_cd,
+                                    [BMS_GpioNetName_SPI_CS]                 = &spi_cs };
+
+static const AdcChannel *id_to_adc[] = {
+    [BMS_AdcNetName_AUX_TSENSE] = &aux_tsense,       [BMS_AdcNetName_TS_ISENSE_400A] = &ts_isense_400a,
+    [BMS_AdcNetName_TS_ISENSE_50A] = &ts_isense_50a, [BMS_AdcNetName_TS_VSENSE_N] = &ts_vsense_n,
+    [BMS_AdcNetName_TS_VSENSE_P] = &ts_vsense_p,
+};
+
+// TODO: Set up UART with cube
+#define MAX_DEBUG_BUF_SIZE 100
+#define DEBUG_SIZE_MSG_BUF_SIZE 1
+static UART    debug_uart = { .handle = &huart7 };
+static uint8_t data[MAX_DEBUG_BUF_SIZE];
+static bool    is_mid_debug_msg = false;
+static uint8_t packet_size;
 
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
@@ -383,5 +428,77 @@ void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == debug_uart.handle)
+    {
+        // This interrupt is fired when DEBUG_BUF_SIZE bytes are received via UART.
+        // NOTE: If you send more or less data in a UART transaction, seems like the
+        // peripheral can get confused...
+
+        if (is_mid_debug_msg)
+        {
+            BMS_DebugMessage msg       = BMS_DebugMessage_init_zero;
+            pb_istream_t     in_stream = pb_istream_from_buffer(data, packet_size);
+            bool             status    = pb_decode(&in_stream, BMS_DebugMessage_fields, &msg);
+
+            if (!status)
+            {
+                printf("Decoding failed: %s\n", PB_GET_ERROR(&in_stream));
+            }
+
+            switch (msg.which_payload)
+            {
+                case 1:
+                {
+                    const Gpio *gpio            = id_to_gpio[msg.payload.gpio_read.net_name];
+                    msg.payload.gpio_read.value = hw_gpio_readPin(gpio) + 1; // add one for enum scale offset
+                    break;
+                }
+                case 2:
+                {
+                    const Gpio *gpio = id_to_gpio[msg.payload.gpio_write.net_name];
+                    hw_gpio_writePin(gpio, msg.payload.gpio_write.value - 1); // add one for enum scale offset
+                    break;
+                }
+                case 3:
+                {
+                    const AdcChannel *adc = id_to_adc[msg.payload.adc.net_name];
+                    msg.payload.adc.value = hw_adc_getVoltage(*adc);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
+            status                  = pb_encode(&out_stream, BMS_DebugMessage_fields, &msg);
+            packet_size             = (u_int8_t)out_stream.bytes_written;
+
+            if (!status)
+            {
+                printf("Encoding failed: %s\n", PB_GET_ERROR(&out_stream));
+            }
+
+            uint8_t size_data[DEBUG_SIZE_MSG_BUF_SIZE];
+            size_data[0] = packet_size;
+            hw_uart_transmitPoll(&debug_uart, size_data, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
+
+            hw_uart_transmitPoll(&debug_uart, data, packet_size, osWaitForever);
+            is_mid_debug_msg = false;
+            packet_size      = DEBUG_SIZE_MSG_BUF_SIZE;
+        }
+        else
+        {
+            is_mid_debug_msg = true;
+            packet_size      = data[0];
+        }
+
+        // Start receiving data in interrupt mode again so this interrupt will get fired if
+        // more data is recieved.
+        hw_uart_receiveIt(&debug_uart, data, packet_size);
     }
 }

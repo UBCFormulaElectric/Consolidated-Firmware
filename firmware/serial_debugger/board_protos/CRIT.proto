@@ -15,37 +15,48 @@ variables, so the following changes are made:
 * Any Altium pin name starting wtih a numeric character has an added _ to the beginning
 */
 
-package VC;
+package CRIT;
 
 enum GpioNetName {
-  GPIO_NET_NAME_UNSPECIFIED  = 0;
-  BUZZER_PWR_EN = 1;
-  BAT_I_SNS_NFLT = 2;
-  LED = 3;
-  TELEM_PWR_EN = 4;
-  NPCM_EN = 5; 
-  ACC_I_SENSE_NFLT = 6;
-  PGOOD = 7;
-  LV_PWR_EN = 8; 
-  AUX_PWR_EN = 9;
-  PUMP_PWR_EN = 10;
-  _900K_GPIO = 11; 
-  NCHRG_FAULT = 12; 
-  NCHRG = 13; 
-  INV_L_PWR_EN = 14; 
-  INV_R_PWR_EN = 15; 
-  SHDN_PWR_EN = 16; 
-  FR_STBY1 = 17; 
-  FR_STBY2 = 18;
-  FR_STBY3 = 19;
-  INV_L_PROGRAM = 20; 
-  INV_R_PROGRAM = 21; 
-  L_SHDN_SNS = 22; 
-  R_SHDN_SNS = 23; 
-  NCHIMERA = 24; 
-  NPROGRAM_3V3 = 25; 
-  SB_ILCK_SHDN_SNS = 26; 
-  TSMS_SHDN_SNS = 27;
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  TORQUE_VECTORING_LED = 1;
+  START_LED = 2;
+  REGEN_LED = 3;
+  AUX_DB_R = 4;
+  CRIT_DB_R = 5;
+  CRIT_DB_G = 6;
+  CRIT_DB_B = 7;
+  AUX_DB_G = 8;
+  AUX_DB_B = 9;
+  BSPD_R = 10;
+  SHDN_R = 11;
+  RSM_B = 12;
+  VC_R = 13;
+  VC_B = 14;
+  FSM_R = 15;
+  BMS_R = 16;
+  BMS_G = 17;
+  BMS_B = 18;
+  AMS_R = 19;
+  NDRIVE_MODE_1b = 20;
+  IMD_R = 21;
+  SDHN_SEN = 22;
+  INERTIA_SEN = 23;
+  FSM_G = 24;
+  FSM_B = 25;
+  RSM_R = 26;
+  RSM_G = 27;
+  VC_G = 28;
+  SHDN_G = 29;
+  NDRIVE_MODE_2b = 30;
+  NDRIVE_MODE_3b = 31;
+  NDRIVE_MODE_0b = 32;
+  TORQUE_VECTORING_SIG = 33;
+  REGEN_SIG = 34;
+  LED = 35;
+  nPROGRAM_3V3 = 36;
+  START_SIG = 37;
+  nCHIMERA = 38;
 }
 
 enum GpioValue {
@@ -65,18 +76,8 @@ message GpioWrite {
 }
 
 enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED  = 0;
-  INV_R_PWR_I_SNS = 1;
-  INV_L_PWR_I_SNS = 2;
-  AUX_PWR_I_SNS = 3; 
-  BAT_I_SNS = 4; 
-  SHDN_PWR_I_SNS = 5;
-  VBAT_SENSE = 6; 
-  _24V_ACC_SENSE = 7; 
-  _22V_BOOST_SENSE = 8; 
-  LV_PWR_I_SNS = 9; 
-  ACC_I_SENSE = 10; 
-  PUMP_PWR_I_SNS = 11;
+  ADC_NET_NAME_UNSPECIFIED = 0;
+  REGEN_3V3 = 1;
 }
 
 message Adc {

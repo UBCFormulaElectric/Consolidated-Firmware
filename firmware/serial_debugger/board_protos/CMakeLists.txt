@@ -2,13 +2,13 @@ include(../../cmake/embedded.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
 find_package(Nanopb REQUIRED)
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS VC.proto)
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS VC.proto BMS.proto FSM.proto RSM.proto CRIT.proto)
 
 set(SRCS ${PROTO_SRCS})
 set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 
 embedded_library(
-    "VC_debug_modules"
+    "debug_modules"
     "${SRCS}"
     "${HDRS}"
     "cm4"
