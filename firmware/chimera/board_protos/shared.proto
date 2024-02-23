@@ -11,7 +11,7 @@ Pin Naming Conventions
 Not all the characters supported for naming pins in Altium are supported for naming
 variables, so the following changes are made: 
 * ! in Altium is replaced with N
-* + in Altium is replaced with PLUS
+* + in Altium is replaced with _P
 * Any Altium pin name starting wtih a numeric character has an added _ to the beginning
 */
 
