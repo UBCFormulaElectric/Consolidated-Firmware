@@ -106,29 +106,17 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-static const AdcChannel inv_r_pwr_i_sns  = ADC1_CHANNEL_10;
-static const AdcChannel inv_l_pwr_i_sns  = ADC1_CHANNEL_11;
-static const AdcChannel aux_pwr_i_sns    = ADC3_CHANNEL_0;
-static const AdcChannel bat_i_sns        = ADC1_CHANNEL_14;
-static const AdcChannel shdn_pwr_i_sns   = ADC1_CHANNEL_18;
-static const AdcChannel vbat_sense       = ADC1_CHANNEL_19;
-static const AdcChannel _24v_acc_sense   = ADC1_CHANNEL_3;
-static const AdcChannel _22v_boost_sense = ADC1_CHANNEL_7;
-static const AdcChannel lv_pwr_i_sns     = ADC1_CHANNEL_4;
-static const AdcChannel acc_i_sense      = ADC1_CHANNEL_5;
-static const AdcChannel pump_pwr_i_sns   = ADC3_CHANNEL_1;
-
-const AdcChannel *id_to_adc[] = {
-    [VC_AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
-    [VC_AdcNetName_INV_L_PWR_I_SNS]  = &inv_l_pwr_i_sns,
-    [VC_AdcNetName_AUX_PWR_I_SNS]    = &aux_pwr_i_sns,
-    [VC_AdcNetName_SHDN_PWR_I_SNS]   = &shdn_pwr_i_sns,
-    [VC_AdcNetName_VBAT_SENSE]       = &vbat_sense,
-    [VC_AdcNetName__24V_ACC_SENSE]   = &_24v_acc_sense,
-    [VC_AdcNetName__22V_BOOST_SENSE] = &_22v_boost_sense,
-    [VC_AdcNetName_LV_PWR_I_SNS]     = &lv_pwr_i_sns,
-    [VC_AdcNetName_ACC_I_SENSE]      = &acc_i_sense,
-    [VC_AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
+const AdcChannel id_to_adc[] = {
+    [VC_AdcNetName_INV_R_PWR_I_SNS]  = ADC1_IN10_INV_R_PWR_I_SNS,
+    [VC_AdcNetName_INV_L_PWR_I_SNS]  = ADC1_IN11_INV_L_PWR_I_SNS,
+    [VC_AdcNetName_AUX_PWR_I_SNS]    = ADC3_IN0_AUX_PWR_I_SNS,
+    [VC_AdcNetName_SHDN_PWR_I_SNS]   = ADC1_IN18_SHDN_PWR_I_SNS,
+    [VC_AdcNetName_VBAT_SENSE]       = ADC1_IN19_VBAT_SENSE,
+    [VC_AdcNetName__24V_ACC_SENSE]   = ADC1_IN3_24V_ACC_SENSE,
+    [VC_AdcNetName__22V_BOOST_SENSE] = ADC1_IN7_22V_BOOST_SENSE,
+    [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
+    [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
+    [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
 };
 
 static UART debug_uart = { .handle = &huart7 };
@@ -151,7 +139,10 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN3_24V_ACC_SENSE];
+    const uint16_t *adc3_buf_start = &hw_adc_getRawValuesBuffer()[ADC3_IN0_AUX_PWR_I_SNS];
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc3_buf_start, hadc3.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
