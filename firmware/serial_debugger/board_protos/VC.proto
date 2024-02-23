@@ -5,6 +5,15 @@ For enums, the default value is the first defined enum value, which must be 0.
 For numeric types, the default value is zero.
 */
 
+/* 
+Pin Naming Conventions
+---
+Not all the characters supported for naming pins in Altium are supported for naming
+variables, so the following changes are made: 
+* ! in Altium is replaced with N
+* Any Altium pin name starting wtih a numeric character has an added _ to the beginning
+*/
+
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED  = 0;
   BUZZER_PWR_EN = 1;
