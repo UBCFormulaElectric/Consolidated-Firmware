@@ -5,7 +5,7 @@ package BMS;
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
   ACCEL_BRAKE_OK_3V3 = 1;
-  AIRPLUS_EN = 2;
+  AIR_P_EN = 2;
   AUX_TSENSE_MUX0 = 3;
   AUX_TSENSE_MUX1 = 4;
   AUX_TSENSE_MUX2 = 5;
@@ -34,6 +34,5 @@ enum AdcNetName {
   AUX_TSENSE = 1;
   TS_ISENSE_400A = 2;
   TS_ISENSE_50A = 3;
-  TS_VSENSE_N = 4;
-  TS_VSENSE_P = 5;
+  TS_VSENSE = 4;
 }

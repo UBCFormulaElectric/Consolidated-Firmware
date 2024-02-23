@@ -13,6 +13,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
+#include "hw_uart.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -28,6 +29,7 @@
 #include "io_thermistors.h"
 #include "io_tractiveSystem.h"
 #include "io_log.h"
+#include "io_chimera.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -43,9 +45,8 @@
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
 
+#include "shared.pb.h"
 #include "BMS.pb.h"
-#include <pb_decode.h>
-#include <pb_encode.h>
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
 
@@ -63,10 +64,11 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
-extern IWDG_HandleTypeDef  hiwdg;
-extern SPI_HandleTypeDef   hspi2;
-extern TIM_HandleTypeDef   htim1;
-extern TIM_HandleTypeDef   htim15;
+// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
+extern SPI_HandleTypeDef  hspi2;
+extern TIM_HandleTypeDef  htim1;
+extern TIM_HandleTypeDef  htim15;
+extern UART_HandleTypeDef huart1;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
@@ -74,57 +76,18 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-<<<<<<< HEAD
 // clang-format off
 static const Gpio accel_brake_ok_pin      = { .port = ACCEL_BRAKE_OK_3V3_GPIO_Port, .pin = ACCEL_BRAKE_OK_3V3_Pin };
 static const Gpio bspd_test_en_pin        = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
 static const Gpio led_pin                 = { .port = LED_GPIO_Port, .pin = LED_Pin };
 static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin = nCHIMERA_Pin };
 static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
-static const Gpio n_program               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
+static const Gpio n_program_pin               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
 static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
 static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_Port, .pin = TS_ISENSE_OCSC_OK_3V3_Pin };
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
-static const Gpio spi_cs                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
+static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
-
-static const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_3v3,
-                                    [BMS_GpioNetName_AIRPLUS_EN]             = &airplus_en,
-                                    [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &aux_tsense_mux0,
-                                    [BMS_GpioNetName_AUX_TSENSE_MUX1]        = &aux_tsense_mux1,
-                                    [BMS_GpioNetName_AUX_TSENSE_MUX2]        = &aux_tsense_mux2,
-                                    [BMS_GpioNetName_AUX_TSENSE_MUX3]        = &aux_tsense_mux3,
-                                    [BMS_GpioNetName_BMS_LATCH]              = &bms_latch,
-                                    [BMS_GpioNetName_BMS_OK_3V3]             = &bms_ok_3v3,
-                                    [BMS_GpioNetName_BSPD_LATCH]             = &bspd_latch,
-                                    [BMS_GpioNetName_BSPD_OK_3V3]            = &bspd_ok_3v3,
-                                    [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_en,
-                                    [BMS_GpioNetName_HVD_SHDN_OK]            = &hvd_shdn_ok,
-                                    [BMS_GpioNetName_IMD_LATCH]              = &imd_latch,
-                                    [BMS_GpioNetName_IMD_OK_3V3]             = &imd_ok_3v3,
-                                    [BMS_GpioNetName_LED]                    = &led.gpio,
-                                    [BMS_GpioNetName_NCHIMERA]               = &nchimera,
-                                    [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &nhigh_current_bspd_3v3,
-                                    [BMS_GpioNetName_NPROGRAM_3V3]           = &nprogram_3v3,
-                                    [BMS_GpioNetName_PRE_CHARGE_EN]          = &pre_charge_en,
-                                    [BMS_GpioNetName_TS_ILCK_SHDN_OK]        = &ts_ilck_shdn_ok,
-                                    [BMS_GpioNetName_TS_ISENSE_OCSC_OK_3V3]  = &ts_isense_ocsc_ok_3v3,
-                                    [BMS_GpioNetName_SD_CD]                  = &sd_cd,
-                                    [BMS_GpioNetName_SPI_CS]                 = &spi_cs };
-
-static const AdcChannel *id_to_adc[] = {
-    [BMS_AdcNetName_AUX_TSENSE] = &aux_tsense,       [BMS_AdcNetName_TS_ISENSE_400A] = &ts_isense_400a,
-    [BMS_AdcNetName_TS_ISENSE_50A] = &ts_isense_50a, [BMS_AdcNetName_TS_VSENSE_N] = &ts_vsense_n,
-    [BMS_AdcNetName_TS_VSENSE_P] = &ts_vsense_p,
-};
-
-// TODO: Set up UART with cube
-#define MAX_DEBUG_BUF_SIZE 100
-#define DEBUG_SIZE_MSG_BUF_SIZE 1
-static UART    debug_uart = { .handle = &huart7 };
-static uint8_t data[MAX_DEBUG_BUF_SIZE];
-static bool    is_mid_debug_msg = false;
-static uint8_t packet_size;
 
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
@@ -274,6 +237,39 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [DIM_HEARTBEAT_BOARD] = NULL
 };
 
+const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
+                             [BMS_GpioNetName_AIR_P_EN]               = &airs_config.air_p_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &thermistors_config.mux_0_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX1]        = &thermistors_config.mux_1_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX2]        = &thermistors_config.mux_2_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX3]        = &thermistors_config.mux_3_gpio,
+                             [BMS_GpioNetName_BMS_LATCH]              = &bms_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_BMS_OK_3V3]             = &bms_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_BSPD_LATCH]             = &bspd_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_BSPD_OK_3V3]            = &bspd_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_en_pin,
+                             [BMS_GpioNetName_HVD_SHDN_OK]            = &airs_config.air_n_gpio,
+                             [BMS_GpioNetName_IMD_LATCH]              = &imd_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_IMD_OK_3V3]             = &imd_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_LED]                    = &led_pin,
+                             [BMS_GpioNetName_NCHIMERA]               = &n_chimera_pin,
+                             [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &n_high_current_bspd_pin,
+                             [BMS_GpioNetName_NPROGRAM_3V3]           = &n_program_pin,
+                             [BMS_GpioNetName_PRE_CHARGE_EN]          = &airs_config.precharge_gpio,
+                             [BMS_GpioNetName_TS_ILCK_SHDN_OK]        = &ts_ilck_shdn_pin,
+                             [BMS_GpioNetName_TS_ISENSE_OCSC_OK_3V3]  = &ts_isense_ocsc_ok_pin,
+                             [BMS_GpioNetName_SD_CD]                  = &sd_cd_pin,
+                             [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
+
+const AdcChannel id_to_adc[] = {
+    [BMS_AdcNetName_AUX_TSENSE]     = ADC1_IN4_AUX_TSENSE,
+    [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
+    [BMS_AdcNetName_TS_ISENSE_50A]  = ADC1_IN5_TS_ISENSE_50A,
+    [BMS_AdcNetName_TS_VSENSE]      = ADC1_IN10_TS_VSENSE_DIFF,
+};
+
+static UART debug_uart = { .handle = &huart1 };
+
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -304,6 +300,7 @@ void tasks_init(void)
     io_ltc6813Shared_init(&ltc6813_spi);
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
+    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     // io_charger_init(&charger_config);
 
     app_canTx_init();
@@ -327,6 +324,9 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
@@ -354,6 +354,9 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -377,6 +380,9 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -412,6 +418,9 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -420,6 +429,9 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         CanMsg rx_msg;
@@ -435,70 +447,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart == debug_uart.handle)
     {
-        // This interrupt is fired when DEBUG_BUF_SIZE bytes are received via UART.
-        // NOTE: If you send more or less data in a UART transaction, seems like the
-        // peripheral can get confused...
-
-        if (is_mid_debug_msg)
-        {
-            BMS_DebugMessage msg       = BMS_DebugMessage_init_zero;
-            pb_istream_t     in_stream = pb_istream_from_buffer(data, packet_size);
-            bool             status    = pb_decode(&in_stream, BMS_DebugMessage_fields, &msg);
-
-            if (!status)
-            {
-                printf("Decoding failed: %s\n", PB_GET_ERROR(&in_stream));
-            }
-
-            switch (msg.which_payload)
-            {
-                case 1:
-                {
-                    const Gpio *gpio            = id_to_gpio[msg.payload.gpio_read.net_name];
-                    msg.payload.gpio_read.value = hw_gpio_readPin(gpio) + 1; // add one for enum scale offset
-                    break;
-                }
-                case 2:
-                {
-                    const Gpio *gpio = id_to_gpio[msg.payload.gpio_write.net_name];
-                    hw_gpio_writePin(gpio, msg.payload.gpio_write.value - 1); // add one for enum scale offset
-                    break;
-                }
-                case 3:
-                {
-                    const AdcChannel *adc = id_to_adc[msg.payload.adc.net_name];
-                    msg.payload.adc.value = hw_adc_getVoltage(*adc);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
-            status                  = pb_encode(&out_stream, BMS_DebugMessage_fields, &msg);
-            packet_size             = (u_int8_t)out_stream.bytes_written;
-
-            if (!status)
-            {
-                printf("Encoding failed: %s\n", PB_GET_ERROR(&out_stream));
-            }
-
-            uint8_t size_data[DEBUG_SIZE_MSG_BUF_SIZE];
-            size_data[0] = packet_size;
-            hw_uart_transmitPoll(&debug_uart, size_data, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
-
-            hw_uart_transmitPoll(&debug_uart, data, packet_size, osWaitForever);
-            is_mid_debug_msg = false;
-            packet_size      = DEBUG_SIZE_MSG_BUF_SIZE;
-        }
-        else
-        {
-            is_mid_debug_msg = true;
-            packet_size      = data[0];
-        }
-
-        // Start receiving data in interrupt mode again so this interrupt will get fired if
-        // more data is recieved.
-        hw_uart_receiveIt(&debug_uart, data, packet_size);
+        io_chimera_msgRxCallback();
     }
 }

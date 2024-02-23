@@ -172,6 +172,9 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
@@ -200,6 +203,9 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -225,6 +231,9 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -256,6 +265,9 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -264,6 +276,9 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         CanMsg rx_msg;
