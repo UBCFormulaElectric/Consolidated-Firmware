@@ -122,7 +122,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_BMS_can" "quadruna_BMS_stm32cube")
-    target_link_libraries("quadruna_BMS.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info")
+    target_link_libraries("quadruna_BMS.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "debug_modules")
 
     # embedded_image(
     #     "quadruna_BMS"
