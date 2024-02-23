@@ -17,6 +17,7 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -110,7 +111,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_RSM_can" "quadruna_RSM_stm32cube")
-    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info")
+    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules")
 
     # TODO: embedded_image for boot
     

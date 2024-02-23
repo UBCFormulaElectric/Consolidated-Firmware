@@ -62,7 +62,7 @@ endif()
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
-add_subdirectory(serial_debugger)
+add_subdirectory(chimera)
 
 add_subdirectory(thruna)
 add_subdirectory(quadruna)

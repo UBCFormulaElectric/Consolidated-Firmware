@@ -115,7 +115,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = LOAD_CELL_1_3V3A1_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin;
+        GPIO_InitStruct.Pin  = LOAD_CELL_2_3V3_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -160,7 +160,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         */
         HAL_GPIO_DeInit(GPIOC, SteeingAngle_3V3_Pin | APPS1_3V3_Pin | LOAD_CELL_1_3V3_Pin | BPS_B_3V3_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, LOAD_CELL_1_3V3A1_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin);
+        HAL_GPIO_DeInit(GPIOA, LOAD_CELL_2_3V3_Pin | APPS2_3V3_Pin | BPS_F_3V3_Pin);
 
         HAL_GPIO_DeInit(GPIOB, SUSP_TRAVEL_FL_3V3_Pin | SUSP_TRAVEL_FR_3V3_Pin);
 
@@ -386,6 +386,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* USART1 interrupt Init */
+        HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(USART1_IRQn);
         /* USER CODE BEGIN USART1_MspInit 1 */
 
         /* USER CODE END USART1_MspInit 1 */
@@ -414,6 +417,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         */
         HAL_GPIO_DeInit(GPIOA, UART4_RX_Pin | UART4_TX_Pin);
 
+        /* USART1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(USART1_IRQn);
         /* USER CODE BEGIN USART1_MspDeInit 1 */
 
         /* USER CODE END USART1_MspDeInit 1 */

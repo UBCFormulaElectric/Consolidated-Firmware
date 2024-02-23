@@ -487,19 +487,19 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(AMS_R_GPIO_Port, AMS_R_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : nDRIVE_MODE_1b_Pin nDRIVE_MODE_0b_Pin nDRIVE_MODE_3b_Pin nDRIVE_MODE_2b_Pin
+    /*Configure GPIO pins : NDRIVE_MODE_1b_Pin NDRIVE_MODE_0b_Pin NDRIVE_MODE_3b_Pin NDRIVE_MODE_2b_Pin
                              INERTIA_SEN_Pin SHDN_SEN_Pin */
-    GPIO_InitStruct.Pin = nDRIVE_MODE_1b_Pin | nDRIVE_MODE_0b_Pin | nDRIVE_MODE_3b_Pin | nDRIVE_MODE_2b_Pin |
+    GPIO_InitStruct.Pin = NDRIVE_MODE_1b_Pin | NDRIVE_MODE_0b_Pin | NDRIVE_MODE_3b_Pin | NDRIVE_MODE_2b_Pin |
                           INERTIA_SEN_Pin | SHDN_SEN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nCHIMERA_Pin */
-    GPIO_InitStruct.Pin  = nCHIMERA_Pin;
+    /*Configure GPIO pin : NCHIMERA_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : SHDN_G_Pin VC_G_Pin RSM_G_Pin RSM_R_Pin
                              FSM_B_Pin FSM_G_Pin IMD_R_Pin */
@@ -527,11 +527,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nPROGRAM_3V3_Pin */
-    GPIO_InitStruct.Pin  = nPROGRAM_3V3_Pin;
+    /*Configure GPIO pin : NPROGRAM_3V3_Pin */
+    GPIO_InitStruct.Pin  = NPROGRAM_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : VC_B_Pin */
     GPIO_InitStruct.Pin  = VC_B_Pin;

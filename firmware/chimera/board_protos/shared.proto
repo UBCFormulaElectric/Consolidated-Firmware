@@ -15,22 +15,26 @@ variables, so the following changes are made:
 * Any Altium pin name starting wtih a numeric character has an added _ to the beginning
 */
 
-package FSM;
-
-enum GpioNetName {
-  GPIO_NET_NAME_UNSPECIFIED = 0;
-  BRAKE_OCSC_OK_3V3 = 1;
-  NCHIMERA = 2;
-  LED = 3;
-  NBSPD_BRAKE_PRESSED_3V3 = 4;
-  NPROGRAM_3V3 = 5;
-  FSM_SHDN = 6;
-}
+import "VC.proto";
+import "BMS.proto";
+import "FSM.proto";
+import "RSM.proto";
+import "CRIT.proto";
 
 enum GpioValue {
   GPIO_VALUE_UNSPECIFIED = 0;
   LOW = 1;
   HIGH = 2;
+}
+
+message GpioNetName {
+    oneof name {
+        VC.GpioNetName vc_net_name = 1;
+        BMS.GpioNetName bms_net_name = 2;
+        FSM.GpioNetName fsm_net_name = 3;
+        RSM.GpioNetName rsm_net_name = 4;
+        CRIT.GpioNetName crit_net_name = 5;
+    }
 }
 
 message GpioRead {
@@ -43,17 +47,14 @@ message GpioWrite {
   GpioValue value = 2;
 }
 
-enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED = 0;
-  SUSP_TRAVEL_FR_3V3 = 1;
-  SUSP_TRAVEL_FL_3V3 = 2;
-  LOAD_CELL_2_3V3 = 3;
-  APPS2_3V3 = 4;
-  BPS_F_3V3 = 5;
-  BPS_B_3V3 = 6;
-  LOAD_CELL_1_3V3 = 7;
-  APPS1_3V3 = 8;
-  SteeringAngle_3V3 = 9;
+message AdcNetName {
+    oneof name {
+      VC.AdcNetName vc_net_name = 1;
+      BMS.AdcNetName bms_net_name = 2;
+      FSM.AdcNetName fsm_net_name = 3;
+      RSM.AdcNetName rsm_net_name = 4;
+      CRIT.AdcNetName crit_net_name = 5;
+    }
 }
 
 message Adc {

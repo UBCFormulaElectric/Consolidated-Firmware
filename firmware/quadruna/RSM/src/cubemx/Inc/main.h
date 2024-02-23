@@ -95,8 +95,8 @@ extern "C"
 #define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
 #define FR_STBY_Pin GPIO_PIN_6
 #define FR_STBY_GPIO_Port GPIOA
-#define nCHIMERA_Pin GPIO_PIN_7
-#define nCHIMERA_GPIO_Port GPIOA
+#define NCHIMERA_Pin GPIO_PIN_7
+#define NCHIMERA_GPIO_Port GPIOA
 #define RAD_FAN_I_SNS_Pin GPIO_PIN_4
 #define RAD_FAN_I_SNS_GPIO_Port GPIOC
 #define ACC_FAN_I_SNS_Pin GPIO_PIN_5
@@ -105,8 +105,8 @@ extern "C"
 #define RAD_FAN_EN_GPIO_Port GPIOB
 #define ACC_FAN_EN_Pin GPIO_PIN_10
 #define ACC_FAN_EN_GPIO_Port GPIOB
-#define nProgram_3V3_Pin GPIO_PIN_12
-#define nProgram_3V3_GPIO_Port GPIOB
+#define NProgram_3V3_Pin GPIO_PIN_12
+#define NProgram_3V3_GPIO_Port GPIOB
 #define UART_RX_Pin GPIO_PIN_9
 #define UART_RX_GPIO_Port GPIOA
 #define UART_TX_Pin GPIO_PIN_10

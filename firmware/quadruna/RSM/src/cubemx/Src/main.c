@@ -572,11 +572,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nCHIMERA_Pin */
-    GPIO_InitStruct.Pin  = nCHIMERA_Pin;
+    /*Configure GPIO pin : NCHIMERA_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : RAD_FAN_EN_Pin ACC_FAN_EN_Pin */
     GPIO_InitStruct.Pin   = RAD_FAN_EN_Pin | ACC_FAN_EN_Pin;
@@ -585,11 +585,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nProgram_3V3_Pin */
-    GPIO_InitStruct.Pin  = nProgram_3V3_Pin;
+    /*Configure GPIO pin : NProgram_3V3_Pin */
+    GPIO_InitStruct.Pin  = NProgram_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nProgram_3V3_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NProgram_3V3_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

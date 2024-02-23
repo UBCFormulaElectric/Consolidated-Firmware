@@ -27,7 +27,7 @@
 
 typedef enum
 {
-    ADC1_IN1_LOAD_CELL_1,
+    ADC1_IN1_LOAD_CELL_2,
     ADC1_IN5_APPS2,
     ADC1_IN7_BPS_F,
     ADC1_IN8_SUSP_TRAVEL_FL,

@@ -56,6 +56,7 @@ extern "C"
     void CAN1_RX0_IRQHandler(void);
     void CAN1_RX1_IRQHandler(void);
     void TIM3_IRQHandler(void);
+    void USART1_IRQHandler(void);
     void TIM8_BRK_TIM12_IRQHandler(void);
     void TIM6_IRQHandler(void);
     /* USER CODE BEGIN EFP */

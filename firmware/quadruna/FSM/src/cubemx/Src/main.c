@@ -587,23 +587,23 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(BRAKE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nBSPD_BRAKE_PRESSED_3V3_Pin FSM_SHDN_Pin */
-    GPIO_InitStruct.Pin  = nBSPD_BRAKE_PRESSED_3V3_Pin | FSM_SHDN_Pin;
+    /*Configure GPIO pins : NBSPD_BRAKE_PRESSED_3V3_Pin FSM_SHDN_Pin */
+    GPIO_InitStruct.Pin  = NBSPD_BRAKE_PRESSED_3V3_Pin | FSM_SHDN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nPROGRAM_3V3_Pin */
-    GPIO_InitStruct.Pin  = nPROGRAM_3V3_Pin;
+    /*Configure GPIO pin : NPROGRAM_3V3_Pin */
+    GPIO_InitStruct.Pin  = NPROGRAM_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nCHIMERA_Pin */
-    GPIO_InitStruct.Pin  = nCHIMERA_Pin;
+    /*Configure GPIO pin : NCHIMERA_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(NCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
