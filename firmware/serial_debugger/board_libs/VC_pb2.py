@@ -16,326 +16,74 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='VC.proto',
-  package='VC',
+  package='',
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x08VC.proto\x12\x02VC\"K\n\x08GpioRead\x12!\n\x08net_name\x18\x01 \x01(\x0e\x32\x0f.VC.GpioNetName\x12\x1c\n\x05value\x18\x02 \x01(\x0e\x32\r.VC.GpioValue\"L\n\tGpioWrite\x12!\n\x08net_name\x18\x01 \x01(\x0e\x32\x0f.VC.GpioNetName\x12\x1c\n\x05value\x18\x02 \x01(\x0e\x32\r.VC.GpioValue\"6\n\x03\x41\x64\x63\x12 \n\x08net_name\x18\x01 \x01(\x0e\x32\x0e.VC.AdcNetName\x12\r\n\x05value\x18\x02 \x01(\x02\"y\n\x0c\x44\x65\x62ugMessage\x12!\n\tgpio_read\x18\x01 \x01(\x0b\x32\x0c.VC.GpioReadH\x00\x12#\n\ngpio_write\x18\x02 \x01(\x0b\x32\r.VC.GpioWriteH\x00\x12\x16\n\x03\x61\x64\x63\x18\x03 \x01(\x0b\x32\x07.VC.AdcH\x00\x42\t\n\x07payload*:\n\x0bGpioNetName\x12\x1d\n\x19GPIO_NET_NAME_UNSPECIFIED\x10\x00\x12\x0c\n\x08LED_GPIO\x10\x01*:\n\tGpioValue\x12\x1a\n\x16GPIO_VALUE_UNSPECIFIED\x10\x00\x12\x07\n\x03LOW\x10\x01\x12\x08\n\x04HIGH\x10\x02*?\n\nAdcNetName\x12\x1c\n\x18\x41\x44\x43_NET_NAME_UNSPECIFIED\x10\x00\x12\x13\n\x0fINV_R_PWR_I_SNS\x10\x01\x62\x06proto3'
+  serialized_pb=b'\n\x08VC.proto*B\n\rVcGpioNetName\x12 \n\x1cVC_GPIO_NET_NAME_UNSPECIFIED\x10\x00\x12\x0f\n\x0bVC_LED_GPIO\x10\x01*G\n\x0cVcAdcNetName\x12\x1f\n\x1bVC_ADC_NET_NAME_UNSPECIFIED\x10\x00\x12\x16\n\x12VC_INV_R_PWR_I_SNS\x10\x01\x62\x06proto3'
 )
 
-_GPIONETNAME = _descriptor.EnumDescriptor(
-  name='GpioNetName',
-  full_name='VC.GpioNetName',
+_VCGPIONETNAME = _descriptor.EnumDescriptor(
+  name='VcGpioNetName',
+  full_name='VcGpioNetName',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='GPIO_NET_NAME_UNSPECIFIED', index=0, number=0,
+      name='VC_GPIO_NET_NAME_UNSPECIFIED', index=0, number=0,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='LED_GPIO', index=1, number=1,
+      name='VC_LED_GPIO', index=1, number=1,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=350,
-  serialized_end=408,
+  serialized_start=12,
+  serialized_end=78,
 )
-_sym_db.RegisterEnumDescriptor(_GPIONETNAME)
+_sym_db.RegisterEnumDescriptor(_VCGPIONETNAME)
 
-GpioNetName = enum_type_wrapper.EnumTypeWrapper(_GPIONETNAME)
-_GPIOVALUE = _descriptor.EnumDescriptor(
-  name='GpioValue',
-  full_name='VC.GpioValue',
+VcGpioNetName = enum_type_wrapper.EnumTypeWrapper(_VCGPIONETNAME)
+_VCADCNETNAME = _descriptor.EnumDescriptor(
+  name='VcAdcNetName',
+  full_name='VcAdcNetName',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='GPIO_VALUE_UNSPECIFIED', index=0, number=0,
+      name='VC_ADC_NET_NAME_UNSPECIFIED', index=0, number=0,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='LOW', index=1, number=1,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='HIGH', index=2, number=2,
+      name='VC_INV_R_PWR_I_SNS', index=1, number=1,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=410,
-  serialized_end=468,
+  serialized_start=80,
+  serialized_end=151,
 )
-_sym_db.RegisterEnumDescriptor(_GPIOVALUE)
+_sym_db.RegisterEnumDescriptor(_VCADCNETNAME)
 
-GpioValue = enum_type_wrapper.EnumTypeWrapper(_GPIOVALUE)
-_ADCNETNAME = _descriptor.EnumDescriptor(
-  name='AdcNetName',
-  full_name='VC.AdcNetName',
-  filename=None,
-  file=DESCRIPTOR,
-  create_key=_descriptor._internal_create_key,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='ADC_NET_NAME_UNSPECIFIED', index=0, number=0,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='INV_R_PWR_I_SNS', index=1, number=1,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=470,
-  serialized_end=533,
-)
-_sym_db.RegisterEnumDescriptor(_ADCNETNAME)
-
-AdcNetName = enum_type_wrapper.EnumTypeWrapper(_ADCNETNAME)
-GPIO_NET_NAME_UNSPECIFIED = 0
-LED_GPIO = 1
-GPIO_VALUE_UNSPECIFIED = 0
-LOW = 1
-HIGH = 2
-ADC_NET_NAME_UNSPECIFIED = 0
-INV_R_PWR_I_SNS = 1
+VcAdcNetName = enum_type_wrapper.EnumTypeWrapper(_VCADCNETNAME)
+VC_GPIO_NET_NAME_UNSPECIFIED = 0
+VC_LED_GPIO = 1
+VC_ADC_NET_NAME_UNSPECIFIED = 0
+VC_INV_R_PWR_I_SNS = 1
 
 
-
-_GPIOREAD = _descriptor.Descriptor(
-  name='GpioRead',
-  full_name='VC.GpioRead',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='net_name', full_name='VC.GpioRead.net_name', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='VC.GpioRead.value', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=16,
-  serialized_end=91,
-)
-
-
-_GPIOWRITE = _descriptor.Descriptor(
-  name='GpioWrite',
-  full_name='VC.GpioWrite',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='net_name', full_name='VC.GpioWrite.net_name', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='VC.GpioWrite.value', index=1,
-      number=2, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=93,
-  serialized_end=169,
-)
-
-
-_ADC = _descriptor.Descriptor(
-  name='Adc',
-  full_name='VC.Adc',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='net_name', full_name='VC.Adc.net_name', index=0,
-      number=1, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='VC.Adc.value', index=1,
-      number=2, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=171,
-  serialized_end=225,
-)
-
-
-_DEBUGMESSAGE = _descriptor.Descriptor(
-  name='DebugMessage',
-  full_name='VC.DebugMessage',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='gpio_read', full_name='VC.DebugMessage.gpio_read', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='gpio_write', full_name='VC.DebugMessage.gpio_write', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='adc', full_name='VC.DebugMessage.adc', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-    _descriptor.OneofDescriptor(
-      name='payload', full_name='VC.DebugMessage.payload',
-      index=0, containing_type=None,
-      create_key=_descriptor._internal_create_key,
-    fields=[]),
-  ],
-  serialized_start=227,
-  serialized_end=348,
-)
-
-_GPIOREAD.fields_by_name['net_name'].enum_type = _GPIONETNAME
-_GPIOREAD.fields_by_name['value'].enum_type = _GPIOVALUE
-_GPIOWRITE.fields_by_name['net_name'].enum_type = _GPIONETNAME
-_GPIOWRITE.fields_by_name['value'].enum_type = _GPIOVALUE
-_ADC.fields_by_name['net_name'].enum_type = _ADCNETNAME
-_DEBUGMESSAGE.fields_by_name['gpio_read'].message_type = _GPIOREAD
-_DEBUGMESSAGE.fields_by_name['gpio_write'].message_type = _GPIOWRITE
-_DEBUGMESSAGE.fields_by_name['adc'].message_type = _ADC
-_DEBUGMESSAGE.oneofs_by_name['payload'].fields.append(
-  _DEBUGMESSAGE.fields_by_name['gpio_read'])
-_DEBUGMESSAGE.fields_by_name['gpio_read'].containing_oneof = _DEBUGMESSAGE.oneofs_by_name['payload']
-_DEBUGMESSAGE.oneofs_by_name['payload'].fields.append(
-  _DEBUGMESSAGE.fields_by_name['gpio_write'])
-_DEBUGMESSAGE.fields_by_name['gpio_write'].containing_oneof = _DEBUGMESSAGE.oneofs_by_name['payload']
-_DEBUGMESSAGE.oneofs_by_name['payload'].fields.append(
-  _DEBUGMESSAGE.fields_by_name['adc'])
-_DEBUGMESSAGE.fields_by_name['adc'].containing_oneof = _DEBUGMESSAGE.oneofs_by_name['payload']
-DESCRIPTOR.message_types_by_name['GpioRead'] = _GPIOREAD
-DESCRIPTOR.message_types_by_name['GpioWrite'] = _GPIOWRITE
-DESCRIPTOR.message_types_by_name['Adc'] = _ADC
-DESCRIPTOR.message_types_by_name['DebugMessage'] = _DEBUGMESSAGE
-DESCRIPTOR.enum_types_by_name['GpioNetName'] = _GPIONETNAME
-DESCRIPTOR.enum_types_by_name['GpioValue'] = _GPIOVALUE
-DESCRIPTOR.enum_types_by_name['AdcNetName'] = _ADCNETNAME
+DESCRIPTOR.enum_types_by_name['VcGpioNetName'] = _VCGPIONETNAME
+DESCRIPTOR.enum_types_by_name['VcAdcNetName'] = _VCADCNETNAME
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-GpioRead = _reflection.GeneratedProtocolMessageType('GpioRead', (_message.Message,), {
-  'DESCRIPTOR' : _GPIOREAD,
-  '__module__' : 'VC_pb2'
-  # @@protoc_insertion_point(class_scope:VC.GpioRead)
-  })
-_sym_db.RegisterMessage(GpioRead)
-
-GpioWrite = _reflection.GeneratedProtocolMessageType('GpioWrite', (_message.Message,), {
-  'DESCRIPTOR' : _GPIOWRITE,
-  '__module__' : 'VC_pb2'
-  # @@protoc_insertion_point(class_scope:VC.GpioWrite)
-  })
-_sym_db.RegisterMessage(GpioWrite)
-
-Adc = _reflection.GeneratedProtocolMessageType('Adc', (_message.Message,), {
-  'DESCRIPTOR' : _ADC,
-  '__module__' : 'VC_pb2'
-  # @@protoc_insertion_point(class_scope:VC.Adc)
-  })
-_sym_db.RegisterMessage(Adc)
-
-DebugMessage = _reflection.GeneratedProtocolMessageType('DebugMessage', (_message.Message,), {
-  'DESCRIPTOR' : _DEBUGMESSAGE,
-  '__module__' : 'VC_pb2'
-  # @@protoc_insertion_point(class_scope:VC.DebugMessage)
-  })
-_sym_db.RegisterMessage(DebugMessage)
 
 
 # @@protoc_insertion_point(module_scope)

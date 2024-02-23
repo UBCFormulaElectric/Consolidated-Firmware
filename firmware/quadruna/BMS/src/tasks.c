@@ -40,6 +40,13 @@
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
+#include "hw_adc.h"
+#include "hw_gpio.h"
+// #include "hw_uart.h"
+
+// #include "BMS.pb.h"
+// #include <pb_decode.h>
+// #include <pb_encode.h>
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
 

@@ -5,43 +5,12 @@ For enums, the default value is the first defined enum value, which must be 0.
 For numeric types, the default value is zero.
 */
 
-package FSM;
-
-enum GpioNetName {
-  GPIO_NET_NAME_UNSPECIFIED  = 0;
-  LED_GPIO = 1;
+enum FsmGpioNetName {
+  FSM_GPIO_NET_NAME_UNSPECIFIED  = 0;
+  FSM_LED_GPIO = 1;
 }
 
-enum GpioValue {
-  GPIO_VALUE_UNSPECIFIED = 0;
-  LOW = 1;
-  HIGH = 2;
-}
-
-message GpioRead {
-  GpioNetName net_name = 1;
-  GpioValue value = 2;
-}
-
-message GpioWrite {
-  GpioNetName net_name = 1;
-  GpioValue value = 2;
-}
-
-enum AdcNetName {
-  ADC_NET_NAME_UNSPECIFIED  = 0;
-  INV_R_PWR_I_SNS = 1;
-}
-
-message Adc {
-  AdcNetName net_name = 1;
-  float value = 2;
-}
-
-message DebugMessage {
-  oneof payload {
-    GpioRead gpio_read = 1;
-    GpioWrite gpio_write = 2;
-    Adc adc = 3;
-  }
+enum FsmAdcNetName {
+  FSM_ADC_NET_NAME_UNSPECIFIED  = 0;
+  FSM_INV_R_PWR_I_SNS = 1;
 }

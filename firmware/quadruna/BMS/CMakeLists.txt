@@ -39,7 +39,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    # "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c" # TODO: add back when uart finalized
+    # "${SHARED_EMBEDDED_DIR}/hw/hw_uart.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -122,7 +122,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_BMS_can" "quadruna_BMS_stm32cube")
-    target_link_libraries("quadruna_BMS.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "BMS_debug_modules")
+    target_link_libraries("quadruna_BMS.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info")
 
     # embedded_image(
     #     "quadruna_BMS"

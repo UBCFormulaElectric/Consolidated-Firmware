@@ -6,24 +6,26 @@ import subprocess
 import serial
 from importlib import reload
 
-import board_libs.VC_pb2 as VC_lib
-import board_libs.BMS_pb2 as BMS_lib
-import board_libs.CRIT_pb2 as CRIT_lib
-import board_libs.FSM_pb2 as FSM_lib
-import board_libs.RSM_pb2 as RSM_lib
+import board_libs.shared_pb2 as shared_lib
+# import board_libs.VC_pb2 as VC_lib
+# import board_libs.BMS_pb2 as BMS_lib
+# import board_libs.CRIT_pb2 as CRIT_lib
+# import board_libs.FSM_pb2 as FSM_lib
+# import board_libs.RSM_pb2 as RSM_lib
 
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
-BOARD_LIBS = [VC_lib, BMS_lib, CRIT_lib, FSM_lib, RSM_lib]
+# BOARD_LIBS = [VC_lib, BMS_lib, CRIT_lib, FSM_lib, RSM_lib]
 
 class Board():
     def __init__(self, com_port: str) -> None:
         subprocess.call("./generate_board_libs.sh")
-        for lib in BOARD_LIBS:
-            reload(lib)
+        # for lib in BOARD_LIBS:
+        #     reload(lib)
+        reload(shared_lib)
         # NOTE: If you send more or less data in a UART transaction, seems like the
         # peripheral can get confused...
-        self.ser = serial.Serial(com_port, baudrate=115200)
+        # self.ser = serial.Serial(com_port, baudrate=115200)
 
     def __exit__(self) -> None:
         self.ser.close()
@@ -78,8 +80,10 @@ class Board():
 class VC(Board):
     def __init__(self, com_port: str) -> None:
         super().__init__(com_port)
-        self.debug_msg = VC_lib.DebugMessage()
-        self.board_lib = VC_lib
+        # self.debug_msg = VC_lib.DebugMessage()
+        # self.board_lib = VC_lib
+        self.board_lib = shared_lib
+        self.debug_msg = shared_lib.DebugMessage()
 
 class BMS(Board):
     def __init__(self, com_port: str) -> None:
