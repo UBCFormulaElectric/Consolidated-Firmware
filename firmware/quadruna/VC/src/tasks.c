@@ -56,17 +56,17 @@ static const CanConfig can_config = {
 };
 
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
-static const Gpio      bat_i_sns_nflt   = { .port = BAT_I_SNS_NFLT_GPIO_Port, .pin = BAT_I_SNS_NFLT_Pin };
+static const Gpio      bat_i_sns_nflt   = { .port = BAT_I_SNS_nFLT_GPIO_Port, .pin = BAT_I_SNS_nFLT_Pin };
 static const BinaryLed led              = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 static const Gpio      telem_pwr_en     = { .port = TELEM_PWR_EN_GPIO_Port, .pin = TELEM_PWR_EN_Pin };
-static const Gpio      npcm_en          = { .port = NPCM_EN_GPIO_Port, .pin = NPCM_EN_Pin };
-static const Gpio      acc_i_sense_nflt = { .port = ACC_I_SENSE_NFLT_GPIO_Port, .pin = ACC_I_SENSE_NFLT_Pin };
+static const Gpio      npcm_en          = { .port = nPCM_EN_GPIO_Port, .pin = nPCM_EN_Pin };
+static const Gpio      acc_i_sense_nflt = { .port = ACC_I_SENSE_nFLT_GPIO_Port, .pin = ACC_I_SENSE_nFLT_Pin };
 static const Gpio      pgood            = { .port = PGOOD_GPIO_Port, .pin = PGOOD_Pin };
 static const Gpio      lv_pwr_en        = { .port = LV_PWR_EN_GPIO_Port, .pin = LV_PWR_EN_Pin };
 static const Gpio      aux_pwr_en       = { .port = AUX_PWR_EN_GPIO_Port, .pin = AUX_PWR_EN_Pin };
 static const Gpio      pump_pwr_en      = { .port = PUMP_PWR_EN_GPIO_Port, .pin = PUMP_PWR_EN_Pin };
-static const Gpio      nchrg_fault      = { .port = NCHRG_FAULT_GPIO_Port, .pin = NCHRG_FAULT_Pin };
-static const Gpio      nchrg            = { .port = NCHRG_GPIO_Port, .pin = NCHRG_Pin };
+static const Gpio      nchrg_fault      = { .port = nCHRG_FAULT_GPIO_Port, .pin = nCHRG_FAULT_Pin };
+static const Gpio      nchrg            = { .port = nCHRG_GPIO_Port, .pin = nCHRG_Pin };
 static const Gpio      inv_l_pwr_en     = { .port = INV_L_PWR_EN_GPIO_Port, .pin = INV_L_PWR_EN_Pin };
 static const Gpio      inv_r_pwr_en     = { .port = INV_R_PWR_EN_GPIO_Port, .pin = INV_R_PWR_EN_Pin };
 static const Gpio      fr_stby1         = { .port = FR_STBY1_GPIO_Port, .pin = FR_STBY1_Pin };
@@ -81,33 +81,31 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static const Gpio *id_to_gpio[] = {
-    [GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
-    [GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
-    [GpioNetName_LED]              = &led.gpio,
-    [GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
-    [GpioNetName_NPCM_EN]          = &npcm_en,
-    [GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sense_nflt,
-    [GpioNetName_PGOOD]            = &pgood,
-    [GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
-    [GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
-    [GpioNetName_PUMP_PWR_EN]      = &pump_pwr_en,
-    [GpioNetName_NCHRG_FAULT]      = &nchrg_fault,
-    [GpioNetName_NCHRG]            = &nchrg,
-    [GpioNetName_INV_L_PWR_EN]     = &inv_l_pwr_en,
-    [GpioNetName_INV_R_PWR_EN]     = &inv_r_pwr_en,
-    [GpioNetName_FR_STBY1] = &fr_stby1,
-    [GpioNetName_FR_STBY2] = &fr_stby2,
-    [GpioNetName_FR_STBY3] = &fr_stby3,
-    [GpioNetName_INV_L_PROGRAM] = &inv_l_program,
-    [GpioNetName_INV_R_PROGRAM] = &inv_r_program,
-    [GpioNetName_L_SHDN_SNS] = &l_shdn_sns,
-    [GpioNetName_R_SHDN_SNS] = &r_shdn_sns,
-    [GpioNetName_NCHIMERA] = &nchimera, 
-    [GpioNetName_NPROGRAM_3V3] = &nprogram_3v3, 
-    [GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
-    [GpioNetName_TSMS_SHDN_SNS] = &tsms_shdn_sns
-};
+static const Gpio *id_to_gpio[] = { [GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
+                                    [GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
+                                    [GpioNetName_LED]              = &led.gpio,
+                                    [GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
+                                    [GpioNetName_NPCM_EN]          = &npcm_en,
+                                    [GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sense_nflt,
+                                    [GpioNetName_PGOOD]            = &pgood,
+                                    [GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
+                                    [GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
+                                    [GpioNetName_PUMP_PWR_EN]      = &pump_pwr_en,
+                                    [GpioNetName_NCHRG_FAULT]      = &nchrg_fault,
+                                    [GpioNetName_NCHRG]            = &nchrg,
+                                    [GpioNetName_INV_L_PWR_EN]     = &inv_l_pwr_en,
+                                    [GpioNetName_INV_R_PWR_EN]     = &inv_r_pwr_en,
+                                    [GpioNetName_FR_STBY1]         = &fr_stby1,
+                                    [GpioNetName_FR_STBY2]         = &fr_stby2,
+                                    [GpioNetName_FR_STBY3]         = &fr_stby3,
+                                    [GpioNetName_INV_L_PROGRAM]    = &inv_l_program,
+                                    [GpioNetName_INV_R_PROGRAM]    = &inv_r_program,
+                                    [GpioNetName_L_SHDN_SNS]       = &l_shdn_sns,
+                                    [GpioNetName_R_SHDN_SNS]       = &r_shdn_sns,
+                                    [GpioNetName_NCHIMERA]         = &nchimera,
+                                    [GpioNetName_NPROGRAM_3V3]     = &nprogram_3v3,
+                                    [GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
+                                    [GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
 static const AdcChannel inv_r_pwr_i_sns  = ADC1_CHANNEL_10;
 static const AdcChannel inv_l_pwr_i_sns  = ADC1_CHANNEL_11;
@@ -118,8 +116,8 @@ static const AdcChannel vbat_sense       = ADC1_CHANNEL_19;
 static const AdcChannel _24v_acc_sense   = ADC1_CHANNEL_3;
 static const AdcChannel _22v_boost_sense = ADC1_CHANNEL_7;
 static const AdcChannel lv_pwr_i_sns     = ADC1_CHANNEL_4;
-static const AdcChannel acc_i_sense = ADC1_CHANNEL_5;
-static const AdcChannel pump_pwr_i_sns = ADC3_CHANNEL_1;
+static const AdcChannel acc_i_sense      = ADC1_CHANNEL_5;
+static const AdcChannel pump_pwr_i_sns   = ADC3_CHANNEL_1;
 
 static const AdcChannel *id_to_adc[] = {
     [AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
@@ -130,8 +128,8 @@ static const AdcChannel *id_to_adc[] = {
     [AdcNetName__24V_ACC_SENSE]   = &_24v_acc_sense,
     [AdcNetName__22V_BOOST_SENSE] = &_22v_boost_sense,
     [AdcNetName_LV_PWR_I_SNS]     = &lv_pwr_i_sns,
-    [AdcNetName_ACC_I_SENSE] = &acc_i_sense,
-    [AdcNetName_PUMP_PWR_I_SNS] = &pump_pwr_i_sns,
+    [AdcNetName_ACC_I_SENSE]      = &acc_i_sense,
+    [AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
 };
 
 #define MAX_DEBUG_BUF_SIZE 100
