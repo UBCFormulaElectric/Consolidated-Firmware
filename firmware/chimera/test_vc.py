@@ -15,7 +15,7 @@ for port in ports:
     print(port.device)
 
 # Transmit data.
-vc = chimera.VC(ports[1].device)
+vc = chimera.VC(ports[0].device)
 
 # Note: All testable VC pin names are listed in Consolidated-Firmware/chimera/board_protos/VC.proto
 

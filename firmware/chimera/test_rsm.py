@@ -15,7 +15,7 @@ for port in ports:
     print(port.device)
 
 # Transmit data.
-rsm = chimera.RSM(ports[1].device)
+rsm = chimera.RSM(ports[0].device)
 
 # Note: All testable RSM pin names are listed in Consolidated-Firmware/chimera/board_protos/RSM.proto
 
