@@ -4,6 +4,7 @@
 
 #include "hw_can.h"
 #include "hw_adc.h"
+#include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
 // #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -12,10 +13,12 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
+#include "hw_uart.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
+#include "io_led.h"
 #include "io_time.h"
 #include "io_can.h"
 #include "io_airs.h"
@@ -26,6 +29,7 @@
 #include "io_thermistors.h"
 #include "io_tractiveSystem.h"
 #include "io_log.h"
+#include "io_chimera.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -40,6 +44,9 @@
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
+
+#include "shared.pb.h"
+#include "BMS.pb.h"
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
 
@@ -57,16 +64,30 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
-extern IWDG_HandleTypeDef  hiwdg;
-extern SPI_HandleTypeDef   hspi2;
-extern TIM_HandleTypeDef   htim1;
-extern TIM_HandleTypeDef   htim15;
+// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
+extern SPI_HandleTypeDef  hspi2;
+extern TIM_HandleTypeDef  htim1;
+extern TIM_HandleTypeDef  htim15;
+extern UART_HandleTypeDef huart1;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
+
+// clang-format off
+static const Gpio accel_brake_ok_pin      = { .port = ACCEL_BRAKE_OK_3V3_GPIO_Port, .pin = ACCEL_BRAKE_OK_3V3_Pin };
+static const Gpio bspd_test_en_pin        = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
+static const Gpio led_pin                 = { .port = LED_GPIO_Port, .pin = LED_Pin };
+static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin = nCHIMERA_Pin };
+static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
+static const Gpio n_program_pin               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
+static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
+static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_Port, .pin = TS_ISENSE_OCSC_OK_3V3_Pin };
+static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
+static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
+// clang-format on
 
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
@@ -111,7 +132,7 @@ static const ThermistorsConfig thermistors_config = {.mux_0_gpio = {
                                        .port = AUX_TSENSE_MUX3_GPIO_Port,
                                        .pin  = AUX_TSENSE_MUX3_Pin,
                                    },
-                                   .thermistor_adc_channel = ADC1_CHANNEL_4
+                                   .thermistor_adc_channel = ADC1_IN4_AUX_TSENSE
                                    };
 
 static const AirsConfig airs_config = { .air_p_gpio = {
@@ -123,22 +144,22 @@ static const AirsConfig airs_config = { .air_p_gpio = {
                                        .pin  = HVD_SHDN_OK_Pin,
                                    },
                                    .precharge_gpio = {
-                                       .port = PRECHARGE_EN_GPIO_Port,
-                                       .pin  = PRECHARGE_EN_Pin,
+                                       .port = PRE_CHARGE_EN_GPIO_Port,
+                                       .pin  = PRE_CHARGE_EN_Pin,
                                    }
 };
 
-static const TractiveSystemConfig ts_config = { .ts_vsense_p_channel        = ADC1_CHANNEL_10,
-                                                .ts_vsense_n_channel        = ADC1_CHANNEL_11,
-                                                .ts_isense_high_res_channel = ADC1_CHANNEL_5,
-                                                .ts_isense_low_res_channel  = ADC1_CHANNEL_9
+// TODO: Test differential ADC for voltage measurement
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC1_IN10_TS_VSENSE_DIFF,
+                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
+                                                .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
 };
 
 static const FaultLatch bms_ok_latch = {
     .current_status_gpio = {
-        .port = BMS_OK_GPIO_Port,
-        .pin = BMS_OK_Pin,
+        .port = BMS_OK_3V3_GPIO_Port,
+        .pin = BMS_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = BMS_LATCH_GPIO_Port,
@@ -149,8 +170,8 @@ static const FaultLatch bms_ok_latch = {
 
 static const FaultLatch imd_ok_latch = {
     .current_status_gpio = {
-        .port = IMD_OK_GPIO_Port,
-        .pin = IMD_OK_Pin,
+        .port = IMD_OK_3V3_GPIO_Port,
+        .pin = IMD_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = IMD_LATCH_GPIO_Port,
@@ -161,8 +182,8 @@ static const FaultLatch imd_ok_latch = {
 
 static const FaultLatch bspd_ok_latch = {
     .current_status_gpio = {
-        .port = BSPD_OK_GPIO_Port,
-        .pin = BSPD_OK_Pin,
+        .port = BSPD_OK_3V3_GPIO_Port,
+        .pin = BSPD_OK_3V3_Pin,
     },
     .latch_status_gpio = {
         .port = BSPD_LATCH_GPIO_Port,
@@ -216,6 +237,39 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [DIM_HEARTBEAT_BOARD] = NULL
 };
 
+const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
+                             [BMS_GpioNetName_AIR_P_EN]               = &airs_config.air_p_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX0]        = &thermistors_config.mux_0_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX1]        = &thermistors_config.mux_1_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX2]        = &thermistors_config.mux_2_gpio,
+                             [BMS_GpioNetName_AUX_TSENSE_MUX3]        = &thermistors_config.mux_3_gpio,
+                             [BMS_GpioNetName_BMS_LATCH]              = &bms_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_BMS_OK_3V3]             = &bms_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_BSPD_LATCH]             = &bspd_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_BSPD_OK_3V3]            = &bspd_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_en_pin,
+                             [BMS_GpioNetName_HVD_SHDN_OK]            = &airs_config.air_n_gpio,
+                             [BMS_GpioNetName_IMD_LATCH]              = &imd_ok_latch.latch_status_gpio,
+                             [BMS_GpioNetName_IMD_OK_3V3]             = &imd_ok_latch.current_status_gpio,
+                             [BMS_GpioNetName_LED]                    = &led_pin,
+                             [BMS_GpioNetName_NCHIMERA]               = &n_chimera_pin,
+                             [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &n_high_current_bspd_pin,
+                             [BMS_GpioNetName_NPROGRAM_3V3]           = &n_program_pin,
+                             [BMS_GpioNetName_PRE_CHARGE_EN]          = &airs_config.precharge_gpio,
+                             [BMS_GpioNetName_TS_ILCK_SHDN_OK]        = &ts_ilck_shdn_pin,
+                             [BMS_GpioNetName_TS_ISENSE_OCSC_OK_3V3]  = &ts_isense_ocsc_ok_pin,
+                             [BMS_GpioNetName_SD_CD]                  = &sd_cd_pin,
+                             [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
+
+const AdcChannel id_to_adc[] = {
+    [BMS_AdcNetName_AUX_TSENSE]     = ADC1_IN4_AUX_TSENSE,
+    [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
+    [BMS_AdcNetName_TS_ISENSE_50A]  = ADC1_IN5_TS_ISENSE_50A,
+    [BMS_AdcNetName_TS_VSENSE]      = ADC1_IN10_TS_VSENSE_DIFF,
+};
+
+static UART debug_uart = { .handle = &huart1 };
+
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -246,6 +300,7 @@ void tasks_init(void)
     io_ltc6813Shared_init(&ltc6813_spi);
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
+    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
     // io_charger_init(&charger_config);
 
     app_canTx_init();
@@ -269,6 +324,9 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
@@ -296,6 +354,9 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -319,6 +380,9 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -354,6 +418,9 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -362,6 +429,9 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    // TODO: Temporarily disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         CanMsg rx_msg;
@@ -370,5 +440,13 @@ void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == debug_uart.handle)
+    {
+        io_chimera_msgRxCallback();
     }
 }

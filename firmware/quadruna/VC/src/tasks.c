@@ -2,6 +2,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "string.h"
+#include "shared.pb.h"
 
 #include "app_globals.h"
 #include "app_heartbeatMonitor.h"
@@ -15,6 +16,7 @@
 #include "io_log.h"
 #include "io_canRx.h"
 #include "io_led.h"
+#include "io_chimera.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -27,14 +29,11 @@
 #include "hw_uart.h"
 #include "hw_adc.h"
 
-#include "VC.pb.h"
-#include <pb_decode.h>
-#include <pb_encode.h>
-
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
+extern TIM_HandleTypeDef   htim3;
 // extern IWDG_HandleTypeDef  hiwdg1;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
@@ -81,63 +80,46 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static const Gpio *id_to_gpio[] = { [GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
-                                    [GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
-                                    [GpioNetName_LED]              = &led.gpio,
-                                    [GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
-                                    [GpioNetName_NPCM_EN]          = &npcm_en,
-                                    [GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sense_nflt,
-                                    [GpioNetName_PGOOD]            = &pgood,
-                                    [GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
-                                    [GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
-                                    [GpioNetName_PUMP_PWR_EN]      = &pump_pwr_en,
-                                    [GpioNetName_NCHRG_FAULT]      = &nchrg_fault,
-                                    [GpioNetName_NCHRG]            = &nchrg,
-                                    [GpioNetName_INV_L_PWR_EN]     = &inv_l_pwr_en,
-                                    [GpioNetName_INV_R_PWR_EN]     = &inv_r_pwr_en,
-                                    [GpioNetName_FR_STBY1]         = &fr_stby1,
-                                    [GpioNetName_FR_STBY2]         = &fr_stby2,
-                                    [GpioNetName_FR_STBY3]         = &fr_stby3,
-                                    [GpioNetName_INV_L_PROGRAM]    = &inv_l_program,
-                                    [GpioNetName_INV_R_PROGRAM]    = &inv_r_program,
-                                    [GpioNetName_L_SHDN_SNS]       = &l_shdn_sns,
-                                    [GpioNetName_R_SHDN_SNS]       = &r_shdn_sns,
-                                    [GpioNetName_NCHIMERA]         = &nchimera,
-                                    [GpioNetName_NPROGRAM_3V3]     = &nprogram_3v3,
-                                    [GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
-                                    [GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
+const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
+                             [VC_GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
+                             [VC_GpioNetName_LED]              = &led.gpio,
+                             [VC_GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
+                             [VC_GpioNetName_NPCM_EN]          = &npcm_en,
+                             [VC_GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sense_nflt,
+                             [VC_GpioNetName_PGOOD]            = &pgood,
+                             [VC_GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
+                             [VC_GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
+                             [VC_GpioNetName_PUMP_PWR_EN]      = &pump_pwr_en,
+                             [VC_GpioNetName_NCHRG_FAULT]      = &nchrg_fault,
+                             [VC_GpioNetName_NCHRG]            = &nchrg,
+                             [VC_GpioNetName_INV_L_PWR_EN]     = &inv_l_pwr_en,
+                             [VC_GpioNetName_INV_R_PWR_EN]     = &inv_r_pwr_en,
+                             [VC_GpioNetName_FR_STBY1]         = &fr_stby1,
+                             [VC_GpioNetName_FR_STBY2]         = &fr_stby2,
+                             [VC_GpioNetName_FR_STBY3]         = &fr_stby3,
+                             [VC_GpioNetName_INV_L_PROGRAM]    = &inv_l_program,
+                             [VC_GpioNetName_INV_R_PROGRAM]    = &inv_r_program,
+                             [VC_GpioNetName_L_SHDN_SNS]       = &l_shdn_sns,
+                             [VC_GpioNetName_R_SHDN_SNS]       = &r_shdn_sns,
+                             [VC_GpioNetName_NCHIMERA]         = &nchimera,
+                             [VC_GpioNetName_NPROGRAM_3V3]     = &nprogram_3v3,
+                             [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
+                             [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-static const AdcChannel inv_r_pwr_i_sns  = ADC1_CHANNEL_10;
-static const AdcChannel inv_l_pwr_i_sns  = ADC1_CHANNEL_11;
-static const AdcChannel aux_pwr_i_sns    = ADC3_CHANNEL_0;
-static const AdcChannel bat_i_sns        = ADC1_CHANNEL_14;
-static const AdcChannel shdn_pwr_i_sns   = ADC1_CHANNEL_18;
-static const AdcChannel vbat_sense       = ADC1_CHANNEL_19;
-static const AdcChannel _24v_acc_sense   = ADC1_CHANNEL_3;
-static const AdcChannel _22v_boost_sense = ADC1_CHANNEL_7;
-static const AdcChannel lv_pwr_i_sns     = ADC1_CHANNEL_4;
-static const AdcChannel acc_i_sense      = ADC1_CHANNEL_5;
-static const AdcChannel pump_pwr_i_sns   = ADC3_CHANNEL_1;
-
-static const AdcChannel *id_to_adc[] = {
-    [AdcNetName_INV_R_PWR_I_SNS]  = &inv_r_pwr_i_sns,
-    [AdcNetName_INV_L_PWR_I_SNS]  = &inv_l_pwr_i_sns,
-    [AdcNetName_AUX_PWR_I_SNS]    = &aux_pwr_i_sns,
-    [AdcNetName_SHDN_PWR_I_SNS]   = &shdn_pwr_i_sns,
-    [AdcNetName_VBAT_SENSE]       = &vbat_sense,
-    [AdcNetName__24V_ACC_SENSE]   = &_24v_acc_sense,
-    [AdcNetName__22V_BOOST_SENSE] = &_22v_boost_sense,
-    [AdcNetName_LV_PWR_I_SNS]     = &lv_pwr_i_sns,
-    [AdcNetName_ACC_I_SENSE]      = &acc_i_sense,
-    [AdcNetName_PUMP_PWR_I_SNS]   = &pump_pwr_i_sns,
+const AdcChannel id_to_adc[] = {
+    [VC_AdcNetName_INV_R_PWR_I_SNS]  = ADC1_IN10_INV_R_PWR_I_SNS,
+    [VC_AdcNetName_INV_L_PWR_I_SNS]  = ADC1_IN11_INV_L_PWR_I_SNS,
+    [VC_AdcNetName_AUX_PWR_I_SNS]    = ADC3_IN0_AUX_PWR_I_SNS,
+    [VC_AdcNetName_SHDN_PWR_I_SNS]   = ADC1_IN18_SHDN_PWR_I_SNS,
+    [VC_AdcNetName_VBAT_SENSE]       = ADC1_IN19_VBAT_SENSE,
+    [VC_AdcNetName__24V_ACC_SENSE]   = ADC1_IN3_24V_ACC_SENSE,
+    [VC_AdcNetName__22V_BOOST_SENSE] = ADC1_IN7_22V_BOOST_SENSE,
+    [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
+    [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
+    [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
 };
 
-#define MAX_DEBUG_BUF_SIZE 100
-#define DEBUG_SIZE_MSG_BUF_SIZE 1
-static UART    debug_uart = { .handle = &huart7 };
-static uint8_t data[MAX_DEBUG_BUF_SIZE];
-static bool    is_mid_debug_msg = false;
-static uint8_t packet_size;
+static UART debug_uart = { .handle = &huart7 };
 
 void tasks_preInit(void) {}
 
@@ -157,12 +139,19 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
+    const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN3_24V_ACC_SENSE];
+    const uint16_t *adc3_buf_start = &hw_adc_getRawValuesBuffer()[ADC3_IN0_AUX_PWR_I_SNS];
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc3_buf_start, hadc3.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
+
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);
 
     app_canTx_init();
     app_canRx_init();
@@ -170,13 +159,13 @@ void tasks_init(void)
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
-
-    // Receive data over the debug UART line in interrupt mode.
-    hw_uart_receiveIt(&debug_uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
 }
 
 void tasks_run1Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
@@ -205,6 +194,9 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -230,6 +222,9 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -261,6 +256,9 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -269,6 +267,9 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     for (;;)
     {
         CanMsg rx_msg;
@@ -284,70 +285,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart == debug_uart.handle)
     {
-        // This interrupt is fired when DEBUG_BUF_SIZE bytes are received via UART.
-        // NOTE: If you send more or less data in a UART transaction, seems like the
-        // peripheral can get confused...
-
-        if (is_mid_debug_msg)
-        {
-            DebugMessage msg       = DebugMessage_init_zero;
-            pb_istream_t in_stream = pb_istream_from_buffer(data, packet_size);
-            bool         status    = pb_decode(&in_stream, DebugMessage_fields, &msg);
-
-            if (!status)
-            {
-                printf("Decoding failed: %s\n", PB_GET_ERROR(&in_stream));
-            }
-
-            switch (msg.which_payload)
-            {
-                case 1:
-                {
-                    const Gpio *gpio            = id_to_gpio[msg.payload.gpio_read.net_name];
-                    msg.payload.gpio_read.value = hw_gpio_readPin(gpio) + 1; // add one for enum scale offset
-                    break;
-                }
-                case 2:
-                {
-                    const Gpio *gpio = id_to_gpio[msg.payload.gpio_write.net_name];
-                    hw_gpio_writePin(gpio, msg.payload.gpio_write.value - 1); // add one for enum scale offset
-                    break;
-                }
-                case 3:
-                {
-                    const AdcChannel *adc = id_to_adc[msg.payload.adc.net_name];
-                    msg.payload.adc.value = hw_adc_getVoltage(*adc);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
-            status                  = pb_encode(&out_stream, DebugMessage_fields, &msg);
-            packet_size             = (u_int8_t)out_stream.bytes_written;
-
-            if (!status)
-            {
-                printf("Encoding failed: %s\n", PB_GET_ERROR(&out_stream));
-            }
-
-            uint8_t size_data[DEBUG_SIZE_MSG_BUF_SIZE];
-            size_data[0] = packet_size;
-            hw_uart_transmitPoll(&debug_uart, size_data, DEBUG_SIZE_MSG_BUF_SIZE, osWaitForever);
-
-            hw_uart_transmitPoll(&debug_uart, data, packet_size, osWaitForever);
-            is_mid_debug_msg = false;
-            packet_size      = DEBUG_SIZE_MSG_BUF_SIZE;
-        }
-        else
-        {
-            is_mid_debug_msg = true;
-            packet_size      = data[0];
-        }
-
-        // Start receiving data in interrupt mode again so this interrupt will get fired if
-        // more data is recieved.
-        hw_uart_receiveIt(&debug_uart, data, packet_size);
+        io_chimera_msgRxCallback();
     }
 }
