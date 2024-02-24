@@ -2,9 +2,10 @@
 API for the serial debugger library.
 """
 
-import subprocess
+# import subprocess
 import serial
-from importlib import reload
+
+# from importlib import reload
 import board_libs.shared_pb2 as shared_lib
 import board_libs.VC_pb2 as VC_lib
 import board_libs.BMS_pb2 as BMS_lib
@@ -14,14 +15,15 @@ import board_libs.CRIT_pb2 as CRIT_lib
 
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
-BOARD_LIBS = [VC_lib, BMS_lib, FSM_lib, RSM_lib, CRIT_lib]
+# BOARD_LIBS = [VC_lib, BMS_lib, FSM_lib, RSM_lib, CRIT_lib]
 
 
 class Board:
     def __init__(self, com_port: str) -> None:
-        subprocess.call("./generate_board_libs.sh")
-        for lib in BOARD_LIBS:
-            reload(lib)
+        # TODO: Fix for Windows.
+        # subprocess.call("./generate_board_libs.sh")
+        # for lib in BOARD_LIBS:
+        #     reload(lib)
         # NOTE: If you send more or less data in a UART transaction, seems like the
         # peripheral can get confused...
         self.ser = serial.Serial(com_port, baudrate=115200)
