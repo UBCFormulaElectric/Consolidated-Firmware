@@ -17,7 +17,7 @@ for port in ports:
 # Transmit data.
 fsm = chimera.FSM(ports[0].device)
 
-# Note: All testable FSM pin names are listed in Consolidated-Firmware/chimera/board_protos/FSM.proto
+# Note: All testable FSM pin names are listed in Consolidated-Firmware/chimera/proto/FSM.proto
 
 ####### WRITE YOUR SCRIPT HERE
 

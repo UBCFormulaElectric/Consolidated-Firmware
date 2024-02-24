@@ -1,1 +1,1 @@
-add_subdirectory(board_protos)
+add_subdirectory(proto)

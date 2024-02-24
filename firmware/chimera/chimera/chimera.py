@@ -6,23 +6,23 @@ API for the serial debugger library.
 import serial
 
 # from importlib import reload
-import board_libs.shared_pb2 as shared_lib
-import board_libs.VC_pb2 as VC_lib
-import board_libs.BMS_pb2 as BMS_lib
-import board_libs.FSM_pb2 as FSM_lib
-import board_libs.RSM_pb2 as RSM_lib
-import board_libs.CRIT_pb2 as CRIT_lib
+import chimera.proto_libs.shared_pb2 as shared_lib
+import chimera.proto_libs.VC_pb2 as VC_lib
+import chimera.proto_libs.BMS_pb2 as BMS_lib
+import chimera.proto_libs.FSM_pb2 as FSM_lib
+import chimera.proto_libs.RSM_pb2 as RSM_lib
+import chimera.proto_libs.CRIT_pb2 as CRIT_lib
 
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
-# BOARD_LIBS = [VC_lib, BMS_lib, FSM_lib, RSM_lib, CRIT_lib]
+# proto_libs = [VC_lib, BMS_lib, FSM_lib, RSM_lib, CRIT_lib]
 
 
 class Board:
     def __init__(self, com_port: str) -> None:
         # TODO: Fix for Windows.
-        # subprocess.call("./generate_board_libs.sh")
-        # for lib in BOARD_LIBS:
+        # subprocess.call("./generate_proto_libs.sh")
+        # for lib in proto_libs:
         #     reload(lib)
         # NOTE: If you send more or less data in a UART transaction, seems like the
         # peripheral can get confused...

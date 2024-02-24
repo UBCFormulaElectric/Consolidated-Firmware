@@ -15,22 +15,22 @@ for port in ports:
     print(port.device)
 
 # Transmit data.
-vc = chimera.VC(ports[0].device)
+crit = chimera.CRIT(ports[0].device)
 
-# Note: All testable VC pin names are listed in Consolidated-Firmware/chimera/board_protos/VC.proto
+# Note: All testable CRIT pin names are listed in Consolidated-Firmware/chimera/proto/CRIT.proto
 
 ####### WRITE YOUR SCRIPT HERE
 
 for i in range(4):
-    vc.gpio_write("LED", True)
-    print("write true", vc.gpio_read("LED"))
+    crit.gpio_write("LED", True)
+    print("write true", crit.gpio_read("LED"))
     time.sleep(0.1)
-    vc.gpio_write("LED", False)
-    print("write false", vc.gpio_read("LED"))
+    crit.gpio_write("LED", False)
+    print("write false", crit.gpio_read("LED"))
     time.sleep(0.1)
 
 
 # Read ADC value: VBAT_SENSE
-print("read adc", vc.adc_read("VBAT_SENSE"))
+print("read adc", crit.adc_read("REGEN_3V3"))
 
 #######
