@@ -5,7 +5,6 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
-    "${SHARED_APP_INCLUDE_DIR}/App_RingQueue.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_THRUNA_DIR}/app_heartbeatMonitor.c"
