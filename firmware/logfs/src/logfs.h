@@ -14,9 +14,6 @@ extern "C"
 #define LOGFS_COW_SIZE 2 // 2 copies for copy-on-write (COW)
 #define LOGFS_INVALID_BLOCK 0xFFFFFFFF
 
-#define LOGFS_VERSION_MAJOR 1
-#define LOGFS_VERSION_MINOR 0
-
     typedef enum
     {
         LOGFS_ERR_OK,            // No error
