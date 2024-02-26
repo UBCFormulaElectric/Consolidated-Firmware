@@ -5,6 +5,8 @@
 #include "app_stateMachine.h"
 #include "states/app_initState.h"
 #include "app_powerManager.h"
+#include "app_canRx.h"
+#include "app_canUtils.h"
 
 void apply_retry_protocol(RetryProtocol protocol, bool isOn)
 {
@@ -21,13 +23,15 @@ void apply_retry_protocol(RetryProtocol protocol, bool isOn)
             io_efuse_setChannel(EFUSE_CHANNEL_AUX, isOn);
             break;
         case RETRY_PROTOCOL_AIR:
-            if (!isOn) {
+            if (!isOn)
+            {
                 app_stateMachine_init(app_initState_get());
             }
             io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, isOn);
             break;
         case RETRY_PROTOCOL_AUX:
-            if (!isOn) {
+            if (!isOn)
+            {
                 app_stateMachine_init(app_initState_get());
             }
             break;

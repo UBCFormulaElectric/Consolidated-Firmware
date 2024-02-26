@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#pragma once
+
 typedef enum
 {
     RETRY_PROTOCOL_LV,
