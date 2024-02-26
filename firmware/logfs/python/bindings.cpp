@@ -107,6 +107,27 @@ class PyLogFs
         return py::make_tuple(err, num_written);
     }
 
+    py::tuple firstPath(void)
+    {
+        // Get the first file's path.
+        LogFsPath         path;
+        const LogFsErr    err = logfs_path_first(&_fs, &path);
+        const std::string path_str(path.path);
+
+        // Return a tuple of (error, path, path string).
+        return py::make_tuple(err, path, path_str);
+    }
+
+    py::tuple nextPath(LogFsPath path)
+    {
+        // Get the next file's path.
+        const LogFsErr    err = logfs_path_next(&_fs, &path);
+        const std::string path_str(path.path);
+
+        // Return a tuple of (error, path, path string).
+        return py::make_tuple(err, path, path_str);
+    }
+
   private:
     LogFsCfg   _cfg;
     LogFs      _fs;
@@ -136,6 +157,9 @@ PYBIND11_MODULE(logfs_src, m)
     py::class_<LogFsFile>(m, "LogFsFile")
         .def(py::init<>());
 
+    py::class_<LogFsPath>(m, "PyLogFsPath")
+        .def(py::init<>());
+
     py::class_<PyLogFs>(m, "PyLogFs")
         .def(py::init<uint32_t, uint32_t, py::object&>())
         .def("mount", &PyLogFs::mount)
@@ -143,6 +167,8 @@ PYBIND11_MODULE(logfs_src, m)
         .def("boot_count", &PyLogFs::bootCount)
         .def("open", &PyLogFs::open)
         .def("read", &PyLogFs::read)
-        .def("write", &PyLogFs::write);
+        .def("write", &PyLogFs::write)
+        .def("first_path", &PyLogFs::firstPath)
+        .def("next_path", &PyLogFs::nextPath);
     // clang-format on
 }

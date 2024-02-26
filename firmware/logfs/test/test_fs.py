@@ -140,3 +140,25 @@ def test_boot_count(fs):
     # Formatting should reset the boot count.
     fs.format()
     assert fs.boot_count() == 1
+
+
+def test_list_dir(fs):
+    files = [
+        "/test1.txt",
+        "/test2.txt",
+        "/dir1/test3.txt",
+        "/dir1/test4.txt",
+        "/dir2/dir3/test5.txt",
+        "/dir2/dir3/test6.txt",
+        "/dir4/dir5/dir6/test7.txt",
+        "/test8.txt",
+    ]
+    for file in files:
+        fs.open(file)
+
+    assert fs.list_dir() == files
+    assert fs.list_dir(file="/dir1") == ["/dir1/test3.txt", "/dir1/test4.txt"]
+    assert fs.list_dir(file="/dir2") == ["/dir2/dir3/test5.txt", "/dir2/dir3/test6.txt"]
+    assert fs.list_dir(file="/dir4/dir5/dir6") == ["/dir4/dir5/dir6/test7.txt"]
+    assert fs.list_dir(file="/test8.txt") == ["/test8.txt"]
+    assert fs.list_dir(file="mismatch") == []

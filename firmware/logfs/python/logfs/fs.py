@@ -111,6 +111,29 @@ class LogFs:
         self._check_err(err)
         assert num_written == len(data)
 
+    def list_dir(self, file: str = "/"):
+        """
+        List contents of the filesystem.
+
+        """
+        err, path, path_str = self.fs.first_path()
+        self._check_err(err)
+        paths = [path_str]
+
+        # Iterate to find all files.
+        while True:
+            err, path, path_str = self.fs.next_path(path)
+            if err == LogFsErr.INVALID_PATH:
+                # Error code of invalid path indictes no more files.
+                break
+
+            self._check_err(err)
+            paths.append(path_str)
+
+        # Filter by provided prefix.
+        filtered_paths = [path for path in paths if path.startswith(file)]
+        return filtered_paths
+
     def _check_err(self, err: LogFsErr) -> None:
         if err != LogFsErr.OK:
             raise LogFsError(err)

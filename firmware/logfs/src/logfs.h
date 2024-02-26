@@ -10,9 +10,10 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#define LOGFS_ORIGIN 0   // Filesystem starts at address zero
-#define LOGFS_COW_SIZE 2 // 2 copies for copy-on-write (COW)
-#define LOGFS_INVALID_BLOCK 0xFFFFFFFF
+#define LOGFS_ORIGIN 0                 // Filesystem starts at address zero
+#define LOGFS_COW_SIZE 2               // 2 copies for copy-on-write (COW)
+#define LOGFS_INVALID_BLOCK 0xFFFFFFFF // Indicates invalid block
+#define LOGFS_PATH_BYTES 128           // Max bytes to allocate for a path
 
     typedef enum
     {
@@ -65,6 +66,13 @@ extern "C"
         uint32_t read_cur_hdr;  // Current header for chunk being read from.
     } LogFsFile;
 
+    typedef struct
+    {
+        uint32_t info_block;
+        uint32_t next_file;
+        char     path[LOGFS_PATH_BYTES];
+    } LogFsPath;
+
     // Block types.
     typedef enum
     {
@@ -83,10 +91,10 @@ extern "C"
 
     typedef struct
     {
-        uint32_t crc;     // First word has to be 32-bit CRC.
-        uint8_t  type;    // Next byte needs to be block type.
-        uint32_t next;    // Next file info block.
-        char     path[1]; // Path to file (actual size is determined at mount time).
+        uint32_t crc;                    // First word has to be 32-bit CRC.
+        uint8_t  type;                   // Next byte needs to be block type.
+        uint32_t next;                   // Next file info block.
+        char     path[LOGFS_PATH_BYTES]; // Path to file (actual size is determined at mount time).
     } LogFsBlock_FileInfo;
 
     typedef struct
@@ -131,6 +139,8 @@ extern "C"
     LogFsErr logfs_file_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode, uint32_t *num_read);
     LogFsErr logfs_file_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_written);
 
+    LogFsErr logfs_path_first(LogFs *fs, LogFsPath *path);
+    LogFsErr logfs_path_next(LogFs *fs, LogFsPath *path);
 #ifdef __cplusplus
 }
 #endif

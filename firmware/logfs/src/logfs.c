@@ -53,7 +53,7 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->eff_block_size                      = cfg->block_size - data_block_metadata_size;
     fs->mounted                             = false;
     fs->out_of_memory                       = false;
-    fs->max_path_len                        = fs->cfg->block_size - sizeof(LogFsBlock_FileInfo);
+    fs->max_path_len                        = MIN(fs->cfg->block_size - sizeof(LogFsBlock_FileInfo), LOGFS_PATH_BYTES);
 
     // Setup cache pointers.
     fs->cache_fs_info   = fs->cfg->block_cache;
@@ -494,5 +494,43 @@ LogFsErr logfs_file_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, 
         }
     }
 
+    return LOGFS_ERR_OK;
+}
+
+LogFsErr logfs_path_first(LogFs *fs, LogFsPath *path)
+{
+    CHECK_ARG(fs);
+    CHECK_ARG(path);
+    CHECK_FS_VALID(fs);
+
+    if (fs->empty)
+    {
+        return LOGFS_ERR_INVALID_PATH;
+    }
+
+    const uint32_t first_file = LOGFS_ORIGIN + LOGFS_COW_SIZE;
+    RET_ERR(logfs_blocks_cowRead(fs, first_file));
+    path->info_block = first_file;
+    path->next_file  = fs->cache_file_info->next;
+    strcpy(path->path, fs->cache_file_info->path);
+    return LOGFS_ERR_OK;
+}
+
+LogFsErr logfs_path_next(LogFs *fs, LogFsPath *path)
+{
+    CHECK_ARG(fs);
+    CHECK_ARG(path);
+    CHECK_FS_VALID(fs);
+
+    if (fs->empty || path->next_file == LOGFS_INVALID_BLOCK)
+    {
+        return LOGFS_ERR_INVALID_PATH;
+    }
+
+    // Read the next file info block and retrieve the path.
+    RET_ERR(logfs_blocks_cowRead(fs, path->next_file));
+    path->info_block = path->next_file;
+    path->next_file  = fs->cache_file_info->next;
+    strcpy(path->path, fs->cache_file_info->path);
     return LOGFS_ERR_OK;
 }
