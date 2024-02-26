@@ -30,10 +30,8 @@ elseif("${TARGET}" STREQUAL "test")
     )
 
     # Invoke setuptools to install the Python library.
-    # TODO: Make this invocation portable.
     add_custom_target(install_python_logfs
-        COMMAND 
-        LOGFS_SRC="logfs_src.cpython-311-darwin.so" pip3 install .
+        COMMAND pip3 install .
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
         DEPENDS logfs_src)
 endif()

@@ -12,9 +12,3 @@
     {                   \
         return err;     \
     }
-
-#define RET_VAL_IF_ERR(err, val) \
-    if (CHECK_ERR(err))          \
-    {                            \
-        return val;              \
-    }

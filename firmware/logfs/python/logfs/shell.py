@@ -1,7 +1,7 @@
 import argparse
 from IPython.terminal.embed import InteractiveShellEmbed
-from logfs.fs import LogFs
-from logfs.context import LogFsUnixContext
+from .fs import LogFs
+from .context import LogFsUnixContext
 
 
 def main() -> None:

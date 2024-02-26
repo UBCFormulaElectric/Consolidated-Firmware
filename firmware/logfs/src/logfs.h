@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO: More error checking and testing power loss resilience!
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -8,9 +10,8 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#define LOGFS_ORIGIN 0        // Filesystem starts at address zero
-#define LOGFS_COW_SIZE 2      // 2 copies for copy-on-write (COW)
-#define LOGFS_MAX_PATH_LEN 24 // TODO: Pick a better value for this!
+#define LOGFS_ORIGIN 0   // Filesystem starts at address zero
+#define LOGFS_COW_SIZE 2 // 2 copies for copy-on-write (COW)
 #define LOGFS_INVALID_BLOCK 0xFFFFFFFF
 
 #define LOGFS_VERSION_MAJOR 1
@@ -21,6 +22,11 @@ extern "C"
         LOGFS_ERR_OK,            // No error
         LOGFS_ERR_IO,            // Error during I/O operation
         LOGFS_ERR_CORRUPT,       // File system was corrupted (bad CRC)
+        LOGFS_ERR_INVALID_ARG,   // Invalid argument
+        LOGFS_ERR_INVALID_PATH,  // Invalid path
+        LOGFS_ERR_INVALID_BLOCK, // Requested an operator on an invalid block
+        LOGFS_ERR_UNMOUNTED,     // Filesystem hasn't been successfully mounted
+        LOGFS_ERR_NOMEM,         // Filesystem is full (no more memory)
         LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
     } LogFsErr;
 
@@ -49,12 +55,6 @@ extern "C"
         LOGFS_READ_ITER,
     } LogFsRead;
 
-    typedef enum
-    {
-        LOGFS_WRITE_APPEND,
-        LOGFS_WRITE_EDIT,
-    } LogFsWrite;
-
     typedef struct
     {
         uint32_t info_block;
@@ -79,18 +79,17 @@ extern "C"
 
     typedef struct
     {
-        uint32_t crc;  // First word has to be 32-bit CRC.
-        uint8_t  type; // Next byte needs to be block type.
-        uint8_t  version_major;
-        uint8_t  version_minor;
+        uint32_t crc;        // First word has to be 32-bit CRC.
+        uint8_t  type;       // Next byte needs to be block type.
+        uint32_t boot_count; // Number of times the filesystem has been booted up.
     } LogFsBlock_FsInfo;
 
     typedef struct
     {
-        uint32_t crc;                      // First word has to be 32-bit CRC.
-        uint8_t  type;                     // Next byte needs to be block type.
-        uint32_t next;                     // Next file info block.
-        char     path[LOGFS_MAX_PATH_LEN]; // Path to file.
+        uint32_t crc;     // First word has to be 32-bit CRC.
+        uint8_t  type;    // Next byte needs to be block type.
+        uint32_t next;    // Next file info block.
+        char     path[1]; // Path to file (actual size is determined at mount time).
     } LogFsBlock_FileInfo;
 
     typedef struct
@@ -110,24 +109,30 @@ extern "C"
 
     typedef struct
     {
-        const LogFsCfg *cfg; // Config info.
+        const LogFsCfg *cfg;
         uint32_t        eff_block_size;
         uint32_t        head;
         bool            empty;
+        uint32_t        boot_count;
+        bool            mounted;
+        bool            out_of_memory;
+        uint32_t        max_path_len;
 
         // Block-specific pointers to the cache.
         LogFsBlock_FsInfo     *cache_fs_info;
         LogFsBlock_FileInfo   *cache_file_info;
         LogFsBlock_DataHeader *cache_data_hdr;
         LogFsBlock_Data       *cache_data;
-
     } LogFs;
 
-    LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
-    LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
-    LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path);
-    uint32_t logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode);
-    uint32_t logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsWrite mode);
+    LogFsErr logfs_fs_mount(LogFs *fs, const LogFsCfg *cfg);
+    LogFsErr logfs_fs_format(LogFs *fs, const LogFsCfg *cfg);
+    LogFsErr logfs_fs_mounted(LogFs *fs, bool *mounted);
+    LogFsErr logfs_fs_bootCount(LogFs *fs, uint32_t *boot_count);
+
+    LogFsErr logfs_file_open(LogFs *fs, LogFsFile *file, const char *path);
+    LogFsErr logfs_file_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode, uint32_t *num_read);
+    LogFsErr logfs_file_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_written);
 
 #ifdef __cplusplus
 }

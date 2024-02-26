@@ -53,7 +53,7 @@ logfs_time = end_time - start_time
 print(f"Execution time: {logfs_time} seconds")
 
 read_size, read_data = fs.read(file, len(data))
-assert(read_data == data)
+assert read_data == data
 print(f"Read size: {read_size / 1e6} Mb")
 
 # fs.write(file2, data, len(data))
@@ -81,4 +81,3 @@ print(f"Execution time: {lfs_time} seconds")
 print(ctx.reads, ctx.progs, ctx.erases, ctx.syncs)
 
 print(lfs_time / logfs_time)
-

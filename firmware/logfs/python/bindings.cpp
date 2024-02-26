@@ -6,7 +6,7 @@
 
 namespace py = pybind11;
 
-static LogFsErr _read_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
+static LogFsErr _readWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined read function.
     py::object *context = (py::object *)cfg->context;
@@ -20,7 +20,7 @@ static LogFsErr _read_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
     return err;
 }
 
-static LogFsErr _prog_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
+static LogFsErr _progWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined program function.
     py::object *context = (py::object *)cfg->context;
@@ -29,7 +29,7 @@ static LogFsErr _prog_wrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
     return result.cast<LogFsErr>();
 }
 
-static LogFsErr _erase_wrapper(const LogFsCfg *cfg, uint32_t block)
+static LogFsErr _eraseWrapper(const LogFsCfg *cfg, uint32_t block)
 {
     // Invoke user-defined erase function.
     py::object *context = (py::object *)cfg->context;
@@ -37,7 +37,7 @@ static LogFsErr _erase_wrapper(const LogFsCfg *cfg, uint32_t block)
     return result.cast<LogFsErr>();
 }
 
-static LogFsErr _mass_erase_wrapper(const LogFsCfg *cfg)
+static LogFsErr _massEraseWrapper(const LogFsCfg *cfg)
 {
     // Invoke user-defined erase function.
     py::object *context = (py::object *)cfg->context;
@@ -54,10 +54,10 @@ class PyLogFs
         _cfg.block_size  = block_size;
         _cfg.block_count = block_count;
         _cfg.context     = &_context;
-        _cfg.read        = _read_wrapper;
-        _cfg.prog        = _prog_wrapper;
-        _cfg.erase       = _erase_wrapper;
-        _cfg.mass_erase  = _mass_erase_wrapper;
+        _cfg.read        = _readWrapper;
+        _cfg.prog        = _progWrapper;
+        _cfg.erase       = _eraseWrapper;
+        _cfg.mass_erase  = _massEraseWrapper;
 
         // Allocate block cache on heap.
         _cfg.block_cache = malloc(block_size);
@@ -69,25 +69,42 @@ class PyLogFs
         free(_cfg.block_cache);
     }
 
-    LogFsErr mount(void) { return logfs_mount(&_fs, &_cfg); }
-    LogFsErr format(void) { return logfs_format(&_fs, &_cfg); }
-    LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&_fs, &file, path); }
+    LogFsErr mount(void) { return logfs_fs_mount(&_fs, &_cfg); }
+
+    LogFsErr format(void) { return logfs_fs_format(&_fs, &_cfg); }
+
+    py::tuple bootCount(void)
+    {
+        uint32_t       count;
+        const LogFsErr err = logfs_fs_bootCount(&_fs, &count);
+
+        // Return a tuple of (error, boot count).
+        return py::make_tuple(err, count);
+    }
+
+    LogFsErr open(LogFsFile &file, char *path) { return logfs_file_open(&_fs, &file, path); }
 
     py::tuple read(LogFsFile &file, uint32_t size, LogFsRead mode)
     {
         // Create an empty string to hold the read data.
-        std::string buf(size, '\0');
-        uint32_t    num_read = logfs_read(&_fs, &file, (void *)buf.data(), size, mode);
+        std::string    buf(size, '\0');
+        uint32_t       num_read;
+        const LogFsErr err = logfs_file_read(&_fs, &file, (void *)buf.data(), size, mode, &num_read);
 
-        // Return a tuple of (read size, read bytes).
+        // Return a tuple of (error, read size, read bytes).
         py::bytes bytes = py::bytes(buf);
-        return py::make_tuple(num_read, bytes);
+        return py::make_tuple(err, num_read, bytes);
     }
 
-    uint32_t write(LogFsFile &file, const py::bytes bytes, uint32_t size, LogFsWrite mode)
+    py::tuple write(LogFsFile &file, const py::bytes bytes, uint32_t size)
     {
+        // Write to disk.
         const std::string buf = bytes.cast<std::string>();
-        return logfs_write(&_fs, &file, (void *)buf.data(), size, mode);
+        uint32_t          num_written;
+        const LogFsErr    err = logfs_file_write(&_fs, &file, (void *)buf.data(), size, &num_written);
+
+        // Return a tuple of (error, write size).
+        return py::make_tuple(err, num_written);
     }
 
   private:
@@ -103,17 +120,17 @@ PYBIND11_MODULE(logfs_src, m)
         .value("OK", LOGFS_ERR_OK)
         .value("IO", LOGFS_ERR_IO)
         .value("CORRUPT", LOGFS_ERR_CORRUPT)
+        .value("INVALID_ARG", LOGFS_ERR_INVALID_ARG)
+        .value("INVALID_PATH", LOGFS_ERR_INVALID_PATH)
+        .value("INVALID_BLOCK", LOGFS_ERR_INVALID_BLOCK)
+        .value("UNMOUNTED", LOGFS_ERR_UNMOUNTED)
+        .value("NOMEM", LOGFS_ERR_NOMEM)
         .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
         .export_values();
 
     py::enum_<LogFsRead>(m, "PyLogFsRead")
         .value("START", LOGFS_READ_START)
         .value("ITER", LOGFS_READ_ITER)
-        .export_values();
-
-    py::enum_<LogFsWrite>(m, "PyLogFsWrite")
-        .value("APPEND", LOGFS_WRITE_APPEND)
-        .value("EDIT", LOGFS_WRITE_EDIT)
         .export_values();
 
     py::class_<LogFsFile>(m, "LogFsFile")
@@ -123,6 +140,7 @@ PYBIND11_MODULE(logfs_src, m)
         .def(py::init<uint32_t, uint32_t, py::object&>())
         .def("mount", &PyLogFs::mount)
         .def("format", &PyLogFs::format)
+        .def("boot_count", &PyLogFs::bootCount)
         .def("open", &PyLogFs::open)
         .def("read", &PyLogFs::read)
         .def("write", &PyLogFs::write);

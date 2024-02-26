@@ -55,6 +55,6 @@ assert data == read_data
 fs.write(file, data, len(data))
 read_len, read_data = fs.read(file, len(data) * 2)
 assert read_len == len(data) * 2
-assert data * 2== read_data
+assert data * 2 == read_data
 
 print(fs.mount())

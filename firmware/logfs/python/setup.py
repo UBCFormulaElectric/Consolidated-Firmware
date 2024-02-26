@@ -1,9 +1,15 @@
 import os
-from pathlib import Path
 from setuptools import setup, find_packages
+import glob
 
-logfs_src = os.getenv("LOGFS_SRC")
-logfs_src = os.fspath(Path(logfs_src).resolve())
+setup_dir = os.path.dirname(os.path.abspath(__file__))
+glob_pattern = os.path.join(setup_dir, "logfs_src*.so")
+files = glob.glob(glob_pattern)
+
+if len(files) == 0:
+    raise Exception("logfs shared library not found")
+else:
+    logfs_src = files[0]
 
 setup(
     name="logfs-python",

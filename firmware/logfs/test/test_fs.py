@@ -1,9 +1,8 @@
 import pytest
-from logfs.fs import LogFs
-from logfs.context import LogFsDummyContext
+from logfs import LogFs, LogFsDummyContext
 
 
-BLOCK_COUNT = 10000
+BLOCK_COUNT = 100000
 BLOCK_SIZE = 512
 
 
@@ -25,7 +24,7 @@ def test_rw_big_file(fs):
     data = " ".join(["hello world!" for _ in range(data_len)]).encode()
 
     # Write data.
-    file = fs.open("test.txt")
+    file = fs.open("/test.txt")
     fs.write(file, data)
 
     # Read data back.
@@ -34,7 +33,12 @@ def test_rw_big_file(fs):
 
 
 def test_rw_multiple_files(fs):
-    file_names = [b"test1.txt", b"test2.txt", b"test3.txt", b"test_with_long_name.txt"]
+    file_names = [
+        b"/test1.txt",
+        b"/test2.txt",
+        b"/test3.txt",
+        b"/test_with_very_very_long_name.txt",
+    ]
     files = [(name, fs.open(name)) for name in file_names]
 
     # Write multiple files.
@@ -57,7 +61,7 @@ def test_rw_multiple_files(fs):
 
 def test_open_existing(fs):
     # Create dummy data.
-    file_name = "test.txt"
+    file_name = "/test.txt"
     data1 = "hello world!".encode()
     data2 = "test!".encode()
 
@@ -95,7 +99,7 @@ def test_mount(fs, fs_unformatted):
     data = "hello world!".encode()
 
     # Write data.
-    file = fs.open("test.txt")
+    file = fs.open("/test.txt")
     fs.write(file, data)
 
     # Read data back.
@@ -117,9 +121,22 @@ def test_read_entire_file_iter(fs):
     data = " ".join(["hello world!" for _ in range(data_len)]).encode()
 
     # Write data.
-    file = fs.open("test.txt")
+    file = fs.open("/test.txt")
     fs.write(file, data)
 
     # Read data back.
     read_data = fs.read(file)
     assert data == read_data
+
+
+def test_boot_count(fs):
+    assert fs.boot_count() == 1
+
+    # Mounting increases the boot count.
+    for i in range(2, 100):
+        fs.mount()
+        assert fs.boot_count() == i
+
+    # Formatting should reset the boot count.
+    fs.format()
+    assert fs.boot_count() == 1
