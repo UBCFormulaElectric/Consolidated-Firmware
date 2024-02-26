@@ -44,7 +44,7 @@ void hw_uart_transmitPoll(UART *uart, uint8_t *pData, uint8_t size, uint32_t tim
  * @param Size Amount of data elements (u8 or u16) to be received.
  * @param timeout Timeout duration
  */
-void hw_uart_receivePoll(UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
+bool hw_uart_receivePoll(UART *uart, uint8_t *pData, uint8_t size, uint32_t timeout);
 
 /**
  * Receives an amount of data in interrupt mode (non-blocking).

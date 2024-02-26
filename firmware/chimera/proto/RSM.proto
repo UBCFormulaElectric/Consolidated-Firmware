@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package RSM;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  NCHIMERA = 1;
+  LED = 2;
+  RAD_FAN_EN = 3;
+  FR_STBY = 4;
+  BRAKE_LIGHT_EN_3V3 = 5;
+  ACC_FAN_EN = 6;
+  NProgram_3V3 = 7;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+  ACC_FAN_I_SNS = 1;
+  RAD_FAN_I_SNS = 2;
+  CoolantPressure1_3V3 = 3;
+  CoolantPressure2_3V3 = 4;
+  LC3_OUT = 5;
+  SUSP_TRAVEL_RR_3V3 = 6;
+  SUSP_TRAVEL_RL_3V3 = 7;
+  CoolantTemp2_3V3 = 8;
+  CoolantTemp1_3V3 = 9;
+  LC4_OUT = 10;
+}
