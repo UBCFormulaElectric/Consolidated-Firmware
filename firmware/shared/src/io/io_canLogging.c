@@ -92,15 +92,15 @@ void io_canLogging_init(const CanConfig *can_config)
 
     // create new folder for this boot
     init_logging_file_system();
-    // CanMsg   tx_msg = { 0 };
-    // uint64_t start  = HAL_GetTick();
-    // for (int i = 0; i < 20000; i++)
-    // {
-    //     lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    // }
-    // lfs_file_close(&lfs, &file);
-    // uint64_t end = HAL_GetTick();
-    // uint64_t a   = end - start;
+    CanMsg   tx_msg = { 0 };
+    uint64_t start  = HAL_GetTick();
+    for (int i = 0; i < 20000; i++)
+    {
+        lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+    }
+    lfs_file_close(&lfs, &file);
+    uint64_t end = HAL_GetTick();
+    uint64_t a   = end - start;
 }
 
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
@@ -148,5 +148,9 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 
 void io_canLogging_sync()
 {
-    assert(lfs_file_sync(&lfs, &file) == LFS_ERR_OK);
+    // SAVe the seek before close
+    uint64_t seek = lfs_file_seek(&lfs, &file, 0, LFS_SEEK_CUR);
+    lfs_file_close(&lfs, &file);
+    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
+    lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
 }
