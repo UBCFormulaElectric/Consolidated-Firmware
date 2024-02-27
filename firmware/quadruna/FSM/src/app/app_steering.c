@@ -1,6 +1,6 @@
+#include "app_steering.h"
 #include <stdlib.h>
 #include <assert.h>
-#include "app_steering.h"
 #include "app_canTx.h"
 #include "app_rangeCheck.h"
 #include "app_canAlerts.h"

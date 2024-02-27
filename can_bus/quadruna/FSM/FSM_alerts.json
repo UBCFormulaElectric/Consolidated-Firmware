@@ -13,7 +13,9 @@
         "StackWaterMarkHighTaskCanRx",
         "StackWaterMarkHighTaskCanTx",
         "SteeringAngleOCSC",
-        "SteeringAngleOutOfRange"
+        "SteeringAngleOutOfRange",
+        "LeftWheelSpeedOutOfRange",
+        "RightWheelSpeedOutOfRange"
     ],
     "faults": [
         "DummyFault",

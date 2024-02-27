@@ -133,7 +133,7 @@ elseif("${TARGET}" STREQUAL "test")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
- 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
     )
     create_fake_library(
         "quadruna_FSM_fakes"

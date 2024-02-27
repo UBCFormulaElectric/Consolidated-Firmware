@@ -17,6 +17,7 @@
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
+#include "io_wheels.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"

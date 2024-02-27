@@ -55,5 +55,23 @@
 				"unit": "deg"
 			}
 		}
+	},
+	"Wheels": {
+		"msg_id": 304,
+		"cycle_time": 100,
+		"signals": {
+			"LeftWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			},
+			"RightWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			}
+		}
 	}
 }
