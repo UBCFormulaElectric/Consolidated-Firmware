@@ -9,12 +9,14 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_steering.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_led.h"
 #include "io_chimera.h"
+#include "io_steering.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"

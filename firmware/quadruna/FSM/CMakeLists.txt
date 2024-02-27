@@ -9,7 +9,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -131,7 +131,14 @@ elseif("${TARGET}" STREQUAL "test")
     add_library(quadruna_FSM_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
-    # TODO: fake libraries
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
+ 
+    )
+    create_fake_library(
+        "quadruna_FSM_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
     
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
@@ -140,5 +147,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "shared_fakes") # TODO: add fakes here
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes") # TODO: add fakes here
 endif()

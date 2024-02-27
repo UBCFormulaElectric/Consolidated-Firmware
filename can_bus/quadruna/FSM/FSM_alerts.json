@@ -13,16 +13,7 @@
         "StackWaterMarkHighTaskCanRx",
         "StackWaterMarkHighTaskCanTx",
         "SteeringAngleOCSC",
-        "SteeringAngleOutOfRange",
-        "LeftWheelSpeedOutOfRange",
-        "RightWheelSpeedOutOfRange",
-        "AppsDisagreement",
-        "FrontBrakePressureOutOfRange",
-        "RearBrakePressureOutOfRange",
-        "BrakePressureSensorOCSC",
-        "LeftSuspensionOCSC",
-        "RightSuspensionOCSC",
-        "BrakeAppsDisagreement"
+        "SteeringAngleOutOfRange"
     ],
     "faults": [
         "DummyFault",

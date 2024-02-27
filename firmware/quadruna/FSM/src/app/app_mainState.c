@@ -4,6 +4,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "app_steering.h"
 
 #include "app_heartbeatMonitor.h"
 
@@ -12,7 +13,7 @@ void mainStateRunOnTick100Hz(void)
     // app_apps_broadcast();
     // app_brake_broadcast();
     // app_coolant_broadcast();
-    // app_steering_broadcast();
+    app_steering_broadcast();
     // app_wheels_broadcast();
 
     app_heartbeatMonitor_checkIn();
