@@ -389,7 +389,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 4;
+    hsd1.Init.ClockDiv            = 3;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -505,7 +505,7 @@ void runCanTxTask(void *argument)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
         io_canLogging_pushTxMsgToQueue(&msg);
-        io_canLogging_pushTxMsgToQueue(&msg);
+        // io_canLogging_pushTxMsgToQueue(&msg);
         osDelay(1);
     }
 
@@ -532,7 +532,7 @@ void runCanRxTask(void *argument)
         io_canLogging_recordMsgFromQueue();
         count++;
 
-        if (count >= 1000)
+        if (count >= 512)
         {
             io_canLogging_sync();
             count = 0;
