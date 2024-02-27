@@ -2,7 +2,6 @@
 #include "ui/DimSwitches/DimSwitchEmitter.h"
 
 #include <QThread>
-#include <QtLogging>
 
 // Functions handlers here correspond to the names given to the lines in altium.
 void ROT_A(const gpio_edge edge)
@@ -10,13 +9,14 @@ void ROT_A(const gpio_edge edge)
     const Result<gpio_level, line_read_error> b_reading_res = read_gpio(gpio_input::GPIO8);
     if (b_reading_res.index() == 1)
     {
-        qWarning("GPIO READ ERROR: %d", get<line_read_error>(b_reading_res));
+        qWarning("Got a GPIO Read Error when handling Quadrature: %d", get<line_read_error>(b_reading_res));
         return;
     }
 
-    const gpio_level b_reading      = get<gpio_level>(b_reading_res);
-    const bool       right_rotating = b_reading == gpio_level::LOW && edge == gpio_edge::RISING_EDGE ||
-                                b_reading == gpio_level::HIGH && edge == gpio_edge::FALLING_EDGE;
+    const gpio_level b_reading = get<gpio_level>(b_reading_res);
+    // ReSharper disable once CppTooWideScope
+    const bool right_rotating = ((b_reading == gpio_level::LOW) && edge == gpio_edge::RISING_EDGE) ||
+                                ((b_reading == gpio_level::HIGH) && edge == gpio_edge::FALLING_EDGE);
     if (right_rotating)
         emit DimSwitchEmitter::getInstance()->rightRot();
     else
@@ -27,13 +27,14 @@ void ROT_B(const gpio_edge edge)
     const Result<gpio_level, line_read_error> a_reading_res = read_gpio(gpio_input::GPIO2);
     if (a_reading_res.index() == 1)
     {
-        qWarning("GPIO READ ERROR: %d", get<line_read_error>(a_reading_res));
+        qWarning("Got a GPIO Read Error when handling Quadrature: %d", get<line_read_error>(a_reading_res));
         return;
     }
 
-    const gpio_level a_reading      = get<gpio_level>(a_reading_res);
-    const bool       right_rotating = a_reading == gpio_level::HIGH && edge == gpio_edge::RISING_EDGE ||
-                                a_reading == gpio_level::LOW && edge == gpio_edge::FALLING_EDGE;
+    const gpio_level a_reading = get<gpio_level>(a_reading_res);
+    // ReSharper disable once CppTooWideScope
+    const bool right_rotating = ((a_reading == gpio_level::HIGH) && edge == gpio_edge::RISING_EDGE) ||
+                                ((a_reading == gpio_level::LOW) && edge == gpio_edge::FALLING_EDGE);
     if (right_rotating)
         emit DimSwitchEmitter::getInstance()->rightRot();
     else

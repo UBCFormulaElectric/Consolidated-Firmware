@@ -95,7 +95,7 @@ Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
     try
     {
         const auto l_event = l.event_read(); // todo make this react to QThread::requestInterruption
-        return l_event.event_type == gpiod::line_event::RISING_EDGE ? RISING_EDGE : FALLING_EDGE;
+        return l_event.event_type == gpiod::line_event::RISING_EDGE ? gpio_edge::RISING_EDGE : gpio_edge::FALLING_EDGE;
     }
     catch (std::system_error &e)
     {
@@ -103,7 +103,7 @@ Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
         s += e.what();
         qErrnoWarning(s.c_str());
         // e.code().value() returns 1
-        return LINE_READ_SYSTEM_ERROR;
+        return line_read_error::LINE_READ_SYSTEM_ERROR;
     }
 }
 
@@ -112,13 +112,13 @@ Result<gpio_level, line_read_error> read_gpio(gpio_input i)
     const gpiod::line &l = gpio_lines[i];
     try
     {
-        return l.get_value() == 0 ? LOW : HIGH; // TODO validate this is correct
+        return l.get_value() == 0 ? gpio_level::LOW : gpio_level::HIGH; // TODO validate this is correct
     }
     catch (std::system_error &e)
     {
         std::string s = "Line Read Error ";
         s += e.what();
         qErrnoWarning(s.c_str());
-        return LINE_READ_SYSTEM_ERROR;
+        return line_read_error::LINE_READ_SYSTEM_ERROR;
     }
 }

@@ -1,8 +1,6 @@
 #pragma once
 #include <QQmlEngine>
-#include <qqmlintegration.h>
 #include <QTimer>
-#include <QtLogging>
 
 // ReSharper disable once CppClassCanBeFinal
 class DimSwitchEmitter : public QObject
@@ -43,7 +41,7 @@ private:
         // TEMPORARY!!! TODO remove this
         test_emission.setInterval(1000);
         test_emission.setSingleShot(false);
-        connect(&test_emission, QTimer::timeout, this, settingsButtonPressed);
+        connect(&test_emission, &QTimer::timeout, this, &DimSwitchEmitter::settingsButtonPressed);
         test_emission.start();
     }
 };

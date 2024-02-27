@@ -30,7 +30,7 @@ target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
-    URI "Dimos"
+    URI "DimosMain"
     VERSION 1.0
     QML_FILES ui/MainWindow.qml
 )
