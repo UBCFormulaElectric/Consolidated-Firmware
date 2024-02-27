@@ -15,7 +15,8 @@
         "SteeringAngleOCSC",
         "SteeringAngleOutOfRange",
         "LeftWheelSpeedOutOfRange",
-        "RightWheelSpeedOutOfRange"
+        "RightWheelSpeedOutOfRange",
+        "AppsDisagreement"
     ],
     "faults": [
         "DummyFault",

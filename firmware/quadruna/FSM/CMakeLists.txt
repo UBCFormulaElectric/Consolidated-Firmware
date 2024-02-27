@@ -134,6 +134,7 @@ elseif("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"
     )
     create_fake_library(
         "quadruna_FSM_fakes"
@@ -147,5 +148,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes") # TODO: add fakes here
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes" "m") # TODO: add fakes here
 endif()

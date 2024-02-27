@@ -73,5 +73,35 @@
 				"unit": "km/h"
 			}
 		}
+	},
+    "Apps": {
+		"msg_id": 305,
+		"cycle_time": 100,
+		"signals": {
+			"PappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"PappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			}
+		}
 	}
 }
