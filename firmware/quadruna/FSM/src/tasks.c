@@ -2,9 +2,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_globals.h"
 #include "app_heartbeatMonitor.h"
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -112,8 +111,7 @@ void tasks_init(void)
     app_canRx_init();
 
     // TODO: add heartbeat monitor
-    app_stateMachine_init(app_driveState_get());
-    // TODO: add globals
+    app_stateMachine_init(app_mainState_get());
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
