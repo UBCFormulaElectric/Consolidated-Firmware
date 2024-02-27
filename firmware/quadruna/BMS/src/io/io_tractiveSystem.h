@@ -7,8 +7,7 @@
 
 typedef struct
 {
-    const AdcChannel ts_vsense_p_channel;
-    const AdcChannel ts_vsense_n_channel;
+    const AdcChannel ts_vsense_channel;
     const AdcChannel ts_isense_high_res_channel;
     const AdcChannel ts_isense_low_res_channel;
 } TractiveSystemConfig;

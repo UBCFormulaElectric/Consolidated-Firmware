@@ -20,6 +20,8 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
+elseif("${TARGET}" STREQUAL "test")
+    add_subdirectory(pybind11)
 endif()
 
 

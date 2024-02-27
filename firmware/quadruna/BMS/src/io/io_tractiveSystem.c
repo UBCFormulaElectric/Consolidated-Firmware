@@ -61,9 +61,8 @@ float io_tractiveSystem_getVoltage()
     // TS_Voltage = ---------------------------------- * Measurement Error %
     //                Voltage Ratio x Amplifier Gain
 
-    const float ts_vsense_p = hw_adc_getVoltage(config->ts_vsense_p_channel);
-    const float ts_vsense_n = hw_adc_getVoltage(config->ts_vsense_n_channel);
-    const float ts_vsense   = ts_vsense_p - ts_vsense_n;
+    // TODO: Test differential ADC for voltage measurement
+    const float ts_vsense = hw_adc_getVoltage(config->ts_vsense_channel);
 
     if (ts_vsense < 0.0f)
     {

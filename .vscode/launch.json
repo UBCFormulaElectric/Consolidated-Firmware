@@ -291,6 +291,56 @@
       }
     },
     {
+      "name": "Debug Embedded: RSM",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build Embedded: RSM",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: RSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
+      "name": "Debug Embedded: CRIT",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build Embedded: CRIT",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
       "name": "Debug Tests: BMS (Thruna)",
       "type": "cppdbg",
       "request": "launch",
