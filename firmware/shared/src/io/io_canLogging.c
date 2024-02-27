@@ -45,6 +45,7 @@ const struct lfs_file_config fcfg = {
 // assume the lfs is already mounted
 static void init_logging_file_system()
 {
+    int err;
     // early return
     if (!sd_inited || hw_gpio_readPin(&sd_present))
     {
@@ -52,33 +53,33 @@ static void init_logging_file_system()
     }
 
     // config the file system
-    io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
+    // io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
 
     uint32_t bootcount = 0;
     // lfs_format(&lfs, &cfg); // test for now
-    lfs_format(&lfs, &cfg);
-    int err = lfs_mount(&lfs, &cfg);
+    // lfs_format(&lfs, &cfg);
+    // err = lfs_mount(&lfs, &cfg);
     if (err)
     {
-        err = lfs_mount(&lfs, &cfg);
+        // err = lfs_mount(&lfs, &cfg);
     }
 
     // get bootcount value from the file; use this to create new file for logging
-    err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    // err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
     if (err)
         return;
-    lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
+    // lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
     // update bootcount for next boot
     bootcount += 1;
-    lfs_file_rewind(&lfs, &file);
-    lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
+    // lfs_file_rewind(&lfs, &file);
+    // lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
     current_bootcount = bootcount;
-    lfs_file_close(&lfs, &file);
+    // lfs_file_close(&lfs, &file);
 
     // create new file on root based on the bootcount
     sprintf((char *)current_path, "%lu", bootcount);
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
+    // lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg);
 }
 
 void io_canLogging_init(const CanConfig *can_config)
@@ -96,9 +97,9 @@ void io_canLogging_init(const CanConfig *can_config)
     uint64_t start  = HAL_GetTick();
     for (int i = 0; i < 20000; i++)
     {
-        lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+        // lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
     }
-    lfs_file_close(&lfs, &file);
+    // lfs_file_close(&lfs, &file);
     uint64_t end = HAL_GetTick();
     uint64_t a   = end - start;
 }
@@ -149,8 +150,8 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 void io_canLogging_sync()
 {
     // SAVe the seek before close
-    uint64_t seek = lfs_file_seek(&lfs, &file, 0, LFS_SEEK_CUR);
-    lfs_file_close(&lfs, &file);
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
-    lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
+    // uint64_t seek = lfs_file_seek(&lfs, &file, 0, LFS_SEEK_CUR);
+    // lfs_file_close(&lfs, &file);
+    // lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
+    // lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
 }
