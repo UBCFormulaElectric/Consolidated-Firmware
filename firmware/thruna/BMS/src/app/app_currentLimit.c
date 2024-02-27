@@ -38,7 +38,7 @@
 void app_currentLimit_broadcast(void)
 {
     const float dischargingCurrentLimit = app_currentLimit_getDischargeLimit();
-    const float chargingCurrentLimit    = MAX_CONTINUOUS_CURRENT; // app_currentLimit_getChargeLimit();
+    const float chargingCurrentLimit    = app_currentLimit_getChargeLimit();
 
     const bool currentLimitActive =
         ((dischargingCurrentLimit < MAX_CONTINUOUS_CURRENT) || (chargingCurrentLimit < MAX_CONTINUOUS_CURRENT)) ? true
