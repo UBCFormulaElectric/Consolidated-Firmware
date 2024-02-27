@@ -10,7 +10,8 @@ void __assert_func(const char *file, int line, const char *func, const char *fai
     // debugger even without SEGGER RTT set up
     snprintf(buffer, sizeof(buffer), "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file), line, func, failedexpr);
 
-    printf(buffer);
+    // This doesn't work right now!
+    // printf(buffer);
 
     BREAK_IF_DEBUGGER_CONNECTED();
 

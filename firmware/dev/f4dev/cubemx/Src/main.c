@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "hw_sd.h"
 #include "hw_bootup.h"
+#include "hw_uart.h"
 #include "lfs.h"
 #define LFS_NO_MALLOC
 #define LFS_CACHE_SIZE 16
@@ -57,6 +58,8 @@ CAN_HandleTypeDef hcan2;
 
 SD_HandleTypeDef hsd;
 
+UART_HandleTypeDef huart2;
+
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -74,6 +77,7 @@ static void MX_SDIO_SD_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN2_Init(void);
+static void MX_USART2_UART_Init(void);
 void        StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -82,58 +86,58 @@ void        StartDefaultTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
-int lfs_erase(const struct lfs_config *c, lfs_block_t block);
-int lfs_sync(const struct lfs_config *c);
+// int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
+// int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
+// int lfs_erase(const struct lfs_config *c, lfs_block_t block);
+// int lfs_sync(const struct lfs_config *c);
 
-int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
-{
-    SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+// int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
+// {
+//     SdCardStatus status = hw_sd_readOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
 
-    return (status != SD_CARD_OK) ? 0 : 1;
-}
+//     return (status != SD_CARD_OK) ? 0 : 1;
+// }
 
-int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
-{
-    SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
-    return (status != SD_CARD_OK) ? 0 : 1;
-}
+// int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
+// {
+//     SdCardStatus status = hw_sd_writeOffset(sd, (uint8_t *)buffer, (uint32_t)block, (uint32_t)off, (uint32_t)size);
+//     return (status != SD_CARD_OK) ? 0 : 1;
+// }
 
-int lfs_erase(const struct lfs_config *c, lfs_block_t block)
-{
-    SdCardStatus status = hw_sd_erase(sd, (uint32_t)block, (uint32_t)block);
-    return (status != SD_CARD_OK) ? 0 : 1;
-}
+// int lfs_erase(const struct lfs_config *c, lfs_block_t block)
+// {
+//     SdCardStatus status = hw_sd_erase(sd, (uint32_t)block, (uint32_t)block);
+//     return (status != SD_CARD_OK) ? 0 : 1;
+// }
 
-int lfs_sync(const struct lfs_config *c)
-{
-    return 0;
-}
+// int lfs_sync(const struct lfs_config *c)
+// {
+//     return 0;
+// }
 
-struct lfs_config cfg = {
-    // block device operations
-    .read  = lfs_read,
-    .prog  = lfs_prog,
-    .erase = lfs_erase,
-    .sync  = lfs_sync,
+// struct lfs_config cfg = {
+//     // block device operations
+//     .read  = lfs_read,
+//     .prog  = lfs_prog,
+//     .erase = lfs_erase,
+//     .sync  = lfs_sync,
 
-    // block device configuration
-    .read_size        = 16,
-    .prog_size        = 16,
-    .block_size       = 4096,
-    .block_count      = 128,
-    .cache_size       = LFS_CACHE_SIZE,
-    .lookahead_size   = LFS_LOOKAHEAD_SIZE,
-    .block_cycles     = 500,
-    .read_buffer      = (void *)read_buffer,
-    .prog_buffer      = (void *)prog_buffer,
-    .lookahead_buffer = (void *)lookahead_buffer,
+//     // block device configuration
+//     .read_size        = 16,
+//     .prog_size        = 16,
+//     .block_size       = 4096,
+//     .block_count      = 128,
+//     .cache_size       = LFS_CACHE_SIZE,
+//     .lookahead_size   = LFS_LOOKAHEAD_SIZE,
+//     .block_cycles     = 500,
+//     .read_buffer      = (void *)read_buffer,
+//     .prog_buffer      = (void *)prog_buffer,
+//     .lookahead_buffer = (void *)lookahead_buffer,
 
-};
+// };
 
-lfs_t      lfs;
-lfs_file_t file;
+// lfs_t      lfs;
+// lfs_file_t file;
 /* USER CODE END 0 */
 
 /**
@@ -167,43 +171,44 @@ int main(void)
     MX_CAN1_Init();
     MX_ADC1_Init();
     MX_CAN2_Init();
+    MX_USART2_UART_Init();
     /* USER CODE BEGIN 2 */
-    sd->hsd     = &hsd;
-    sd->timeout = 1000;
+    // sd->hsd     = &hsd;
+    // sd->timeout = 1000;
 
-    // config littlefs
-    cfg.block_size  = sd->hsd->SdCard.BlockSize;
-    cfg.block_count = sd->hsd->SdCard.BlockNbr;
+    // // config littlefs
+    // cfg.block_size  = sd->hsd->SdCard.BlockSize;
+    // cfg.block_count = sd->hsd->SdCard.BlockNbr;
 
-    // mount the filesystem
-    int err = lfs_mount(&lfs, &cfg);
-    // write the hello world
-    if (err)
-    {
-        // reformat if we can't mount the filesystem
-        // this should only happen on the first boot
-        err = lfs_format(&lfs, &cfg);
-        err = lfs_mount(&lfs, &cfg);
-    }
+    // // mount the filesystem
+    // int err = lfs_mount(&lfs, &cfg);
+    // // write the hello world
+    // if (err)
+    // {
+    //     // reformat if we can't mount the filesystem
+    //     // this should only happen on the first boot
+    //     err = lfs_format(&lfs, &cfg);
+    //     err = lfs_mount(&lfs, &cfg);
+    // }
 
-    // read current count
-    uint32_t boot_count = 0;
-    // mkdir
-    err = lfs_mkdir(&lfs, "helloworld_dir");
+    // // read current count
+    // uint32_t boot_count = 0;
+    // // mkdir
+    // err = lfs_mkdir(&lfs, "helloworld_dir");
 
-    err = lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-    if (!err)
-    {
-        err = lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
-    }
+    // err = lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    // if (!err)
+    // {
+    //     err = lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+    // }
 
-    // update boot count
-    boot_count += 1;
-    err = lfs_file_rewind(&lfs, &file);
-    if (!err)
-    {
-        err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
-    }
+    // // update boot count
+    // boot_count += 1;
+    // err = lfs_file_rewind(&lfs, &file);
+    // if (!err)
+    // {
+    //     err = lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
+    // }
 
     /* USER CODE END 2 */
 
@@ -440,6 +445,37 @@ static void MX_SDIO_SD_Init(void)
 }
 
 /**
+ * @brief USART2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USART2_UART_Init(void)
+{
+    /* USER CODE BEGIN USART2_Init 0 */
+
+    /* USER CODE END USART2_Init 0 */
+
+    /* USER CODE BEGIN USART2_Init 1 */
+
+    /* USER CODE END USART2_Init 1 */
+    huart2.Instance          = USART2;
+    huart2.Init.BaudRate     = 57600;
+    huart2.Init.WordLength   = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits     = UART_STOPBITS_1;
+    huart2.Init.Parity       = UART_PARITY_NONE;
+    huart2.Init.Mode         = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+    if (HAL_UART_Init(&huart2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USART2_Init 2 */
+
+    /* USER CODE END USART2_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -456,14 +492,6 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-
-    /*Configure GPIO pins : PA2 PA3 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PA5 PA6 PA7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
@@ -515,10 +543,24 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
+    UART modem_uart = { .handle = &huart2 };
     /* Infinite loop */
+    // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+    uint8_t num; // use this if just want numbers
+    uint8_t predicData[3];
+    predicData[1] = 13;
+    predicData[2] = 10;
+    //  uint8_t = message [8]; //use this if you want fun string
     for (;;)
     {
-        osDelay(1);
+        // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
+        for (num = 48; num < 57; num++)
+        {
+            predicData[0] = num;
+            hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
+            // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
+            osDelay(1);
+        }
     }
     /* USER CODE END 5 */
 }

@@ -3,7 +3,9 @@ set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
-list (APPEND EMBEDDED_SRCS "${SHARED_HW_INCLUDE_DIR}/hw_sd.c")
+list (APPEND EMBEDDED_SRCS 
+    "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
@@ -26,6 +28,7 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_rcc.c"
         "stm32f4xx_hal_tim_ex.c"
         "stm32f4xx_hal_tim.c"
+        "stm32f4xx_hal_uart.c"
         "stm32f4xx_hal.c"
         "stm32f4xx_hal_sd.c"
         "stm32f4xx_ll_sdmmc.c"

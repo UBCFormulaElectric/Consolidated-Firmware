@@ -26,10 +26,10 @@ ELSE ()
     set(NO_VENV ON)
 ENDIF ()
 file(
-        DOWNLOAD
-        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-        EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
@@ -49,56 +49,60 @@ ELSE ()
 ENDIF ()
 
 # ======== Python Checks ========
-IF (WIN32)
-    set(PIP_RAW_COMMAND pip)
-    set(PYTHON_RAW_COMMAND python)
-ELSE ()
-    set(PIP_RAW_COMMAND pip3)
-    set(PYTHON_RAW_COMMAND python3)
-ENDIF ()
-IF (NO_VENV)
-    set(PIP_COMMAND ${PIP_RAW_COMMAND})
-    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
-ELSE ()
-    IF (WIN32)
-        set(PYTHON_COMMAND pipenv run python)
-    ELSE ()
-        set(PYTHON_COMMAND pipenv run python3)
-    ENDIF ()
-    execute_process(COMMAND pipenv --venv
-            RESULT_VARIABLE PIPENV_RESULT
-            OUTPUT_VARIABLE PIPENV_OUTPUT
-            ERROR_VARIABLE PIPENV_ERROR
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_STRIP_TRAILING_WHITESPACE)
-    if(${PIPENV_RESULT})
-        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}")
-    else ()
-        message("Pipenv path: ${PIPENV_OUTPUT}")
-    endif ()
-ENDIF ()
-
+#checks if python is present
 find_package(Python3 COMPONENTS Interpreter)
-find_program(PYTHON_HAS_COMMAND ${PYTHON_COMMAND})
 IF (Python3_VERSION VERSION_LESS 3.8)
     message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
     message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
 ENDIF ()
-message("🐍 Found Python ${Python3_VERSION}, ${PYTHON_COMMAND}")
+message("🐍 Found Python ${Python3_VERSION}")
+# checks venv is using venv
+IF(NOT NO_VENV) # USE_VENV in effect
+    find_program(HAS_PIPENV_COMMAND pipenv)
+    IF (NOT HAS_PIPENV_COMMAND)
+        message(FATAL_ERROR "❌ pipenv not found. Please install it with \"pip install pipenv\"")
+    ENDIF ()
+    execute_process(COMMAND pipenv --venv
+            OUTPUT_VARIABLE PIPENV_OUTPUT
+            RESULT_VARIABLE PIPENV_RESULT
+            ERROR_VARIABLE PIPENV_ERROR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE)
+    if(${PIPENV_RESULT})
+        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}
+        Make sure that you have ran \"pipenv install\" in the root directory")
+    else ()
+        message("Pipenv path: ${PIPENV_OUTPUT}")
+    endif ()
+ENDIF()
 
-# ======== Python Checks ========
+# generates the usable python command
+IF (WIN32)
+    set(PYTHON_RAW_COMMAND python)
+ELSE ()
+    set(PYTHON_RAW_COMMAND python3)
+ENDIF ()
+IF (NO_VENV)
+    set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
+ELSE ()
+    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
+ENDIF ()
+message("🐍 Using Python Command: \"${PYTHON_COMMAND}\"")
+
+# ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" ON)
 IF (FIX_FORMATTING)
     message("⚙️ Run Clang-Formatting for all boards")
     execute_process(
-            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 ENDIF ()
 
-message("⚙️ Configuring for ${PLATFORM}-${TARGET} build target")
+# ======== Code Time ========
+message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Dependency Handling ========
     IF (HANDLE_DEPS)
@@ -127,17 +131,14 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ELSE()
         message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
     ENDIF()
-ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-ELSE ()
-    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
-ENDIF()
 
-IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
+    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
     add_subdirectory(software/dimos)
-ENDIF ()
+ELSE ()
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+ENDIF()
