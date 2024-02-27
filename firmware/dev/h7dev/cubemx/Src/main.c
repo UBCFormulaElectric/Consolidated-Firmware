@@ -505,7 +505,7 @@ void runCanTxTask(void *argument)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
         io_canLogging_pushTxMsgToQueue(&msg);
-        // io_canLogging_pushTxMsgToQueue(&msg);
+        io_canLogging_pushTxMsgToQueue(&msg);
         osDelay(1);
     }
 
