@@ -10,7 +10,6 @@ class DimSwitchEmitter : public QObject
     Q_OBJECT
     QML_ELEMENT
     QML_SINGLETON
-    // QML_NAMED_ELEMENT(DimSwitchEmitter)
 
     QTimer test_emission;
 

@@ -51,19 +51,9 @@ Window {
         Switcher { }
     }
 
-    // DimSwitches {
-    //     onButtonPressed: {
-    //         console.log("happy time")
-    //     }
-    // }
-
-    function handleOnButtonPressed() {
-        console.log("happy time")
-    }
-    Connections {
-        target: DimSwitchEmitter
-        function onStgButtonPressed() {
-            handleOnButtonPressed()
+    DimSwitches {
+        onSettingButtonPressed: {
+            console.log("happy time")
         }
     }
 }
