@@ -37,14 +37,6 @@ static LogFsErr _eraseWrapper(const LogFsCfg *cfg, uint32_t block)
     return result.cast<LogFsErr>();
 }
 
-static LogFsErr _massEraseWrapper(const LogFsCfg *cfg)
-{
-    // Invoke user-defined erase function.
-    py::object *context = (py::object *)cfg->context;
-    py::object  result  = context->attr("mass_erase")();
-    return result.cast<LogFsErr>();
-}
-
 class PyLogFs
 {
   public:
@@ -57,7 +49,6 @@ class PyLogFs
         _cfg.read        = _readWrapper;
         _cfg.prog        = _progWrapper;
         _cfg.erase       = _eraseWrapper;
-        _cfg.mass_erase  = _massEraseWrapper;
 
         // Allocate block cache on heap.
         _cfg.block_cache = malloc(block_size);
@@ -69,27 +60,27 @@ class PyLogFs
         free(_cfg.block_cache);
     }
 
-    LogFsErr mount(void) { return logfs_fs_mount(&_fs, &_cfg); }
+    LogFsErr mount(void) { return logfs_mount(&_fs, &_cfg); }
 
-    LogFsErr format(void) { return logfs_fs_format(&_fs, &_cfg); }
+    LogFsErr format(void) { return logfs_format(&_fs, &_cfg); }
 
     py::tuple bootCount(void)
     {
         uint32_t       count;
-        const LogFsErr err = logfs_fs_bootCount(&_fs, &count);
+        const LogFsErr err = logfs_bootCount(&_fs, &count);
 
         // Return a tuple of (error, boot count).
         return py::make_tuple(err, count);
     }
 
-    LogFsErr open(LogFsFile &file, char *path) { return logfs_file_open(&_fs, &file, path); }
+    LogFsErr open(LogFsFile &file, char *path) { return logfs_open(&_fs, &file, path); }
 
     py::tuple read(LogFsFile &file, uint32_t size, LogFsRead mode)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');
         uint32_t       num_read;
-        const LogFsErr err = logfs_file_read(&_fs, &file, (void *)buf.data(), size, mode, &num_read);
+        const LogFsErr err = logfs_read(&_fs, &file, (void *)buf.data(), size, mode, &num_read);
 
         // Return a tuple of (error, read size, read bytes).
         py::bytes bytes = py::bytes(buf);
@@ -101,7 +92,7 @@ class PyLogFs
         // Write to disk.
         const std::string buf = bytes.cast<std::string>();
         uint32_t          num_written;
-        const LogFsErr    err = logfs_file_write(&_fs, &file, (void *)buf.data(), size, &num_written);
+        const LogFsErr    err = logfs_write(&_fs, &file, (void *)buf.data(), size, &num_written);
 
         // Return a tuple of (error, write size).
         return py::make_tuple(err, num_written);
@@ -111,7 +102,7 @@ class PyLogFs
     {
         // Get the first file's path.
         LogFsPath         path;
-        const LogFsErr    err = logfs_path_first(&_fs, &path);
+        const LogFsErr    err = logfs_firstPath(&_fs, &path);
         const std::string path_str(path.path);
 
         // Return a tuple of (error, path, path string).
@@ -121,7 +112,7 @@ class PyLogFs
     py::tuple nextPath(LogFsPath path)
     {
         // Get the next file's path.
-        const LogFsErr    err = logfs_path_next(&_fs, &path);
+        const LogFsErr    err = logfs_nextPath(&_fs, &path);
         const std::string path_str(path.path);
 
         // Return a tuple of (error, path, path string).
@@ -146,6 +137,7 @@ PYBIND11_MODULE(logfs_src, m)
         .value("INVALID_BLOCK", LOGFS_ERR_INVALID_BLOCK)
         .value("UNMOUNTED", LOGFS_ERR_UNMOUNTED)
         .value("NOMEM", LOGFS_ERR_NOMEM)
+        .value("EMPTY", LOGFS_ERR_EMPTY)
         .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
         .export_values();
 

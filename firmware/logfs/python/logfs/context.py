@@ -12,9 +12,6 @@ class LogFsContext:
     def erase(self, block: int) -> LogFsErr:
         return LogFsErr.IO
 
-    def mass_erase(self) -> LogFsErr:
-        return LogFsErr.IO
-
 
 class LogFsDummyContext(LogFsContext):
     def __init__(self, block_size: int, block_count: int) -> None:
@@ -26,20 +23,17 @@ class LogFsDummyContext(LogFsContext):
             self.disk.append(bytes(block_size))
 
     def read(self, block: int) -> Tuple[LogFsErr, bytes]:
+        print(f"read @ {block}: {self.disk[block]}")
         return LogFsErr.OK, self.disk[block]
 
     def prog(self, block: int, data: bytes) -> LogFsErr:
+        print(f"prog @ {block}: {data}")
         self.disk[block] = data
         return LogFsErr.OK
 
     def erase(self, block: int) -> LogFsErr:
+        print(f"erase @ {block}")
         self.disk[block] = bytes(self.block_size)
-        return LogFsErr.OK
-
-    def mass_erase(self) -> LogFsErr:
-        for i in range(0, self.block_count):
-            self.erase(i)
-
         return LogFsErr.OK
 
 
@@ -61,12 +55,6 @@ class LogFsUnixContext(LogFsContext):
     def erase(self, block: int) -> LogFsErr:
         self.disk.seek(self.block_size * block)
         self.disk.write(bytes([0x00] * self.block_size))
-        return LogFsErr.OK
-
-    def mass_erase(self) -> LogFsErr:
-        for i in range(0, self.block_count):
-            self.erase(i)
-
         return LogFsErr.OK
 
     def __del__(self):

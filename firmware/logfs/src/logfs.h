@@ -25,6 +25,7 @@ extern "C"
         LOGFS_ERR_INVALID_BLOCK, // Requested an operator on an invalid block
         LOGFS_ERR_UNMOUNTED,     // Filesystem hasn't been successfully mounted
         LOGFS_ERR_NOMEM,         // Filesystem is full (no more memory)
+        LOGFS_ERR_EMPTY,         // Filesystem is empty
         LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
     } LogFsErr;
 
@@ -41,8 +42,6 @@ extern "C"
         LogFsErr (*prog)(const struct _LogFsCfg *cfg, uint32_t block, void *buf);
         // Erase a block at a given address.
         LogFsErr (*erase)(const struct _LogFsCfg *cfg, uint32_t block);
-        // Erase the entire filesystem image.
-        LogFsErr (*mass_erase)(const struct _LogFsCfg *cfg);
         // Cache for reading blocks (must be block_size bytes in length).
         void *block_cache;
     } LogFsCfg;
@@ -55,59 +54,39 @@ extern "C"
 
     typedef struct
     {
-        uint32_t info_block;
-        uint32_t last_hdr;
-        uint32_t head;
+        uint32_t file_block; // Block holding file info
+        uint32_t head_block; // Head (greatest block with data)
 
         // State for iterating reads.
         uint32_t read_uninit;
         uint32_t read_cur_byte; // Current byte to read from
         uint32_t read_cur_data; // Current data block being read from.
-        uint32_t read_cur_hdr;  // Current header for chunk being read from.
     } LogFsFile;
 
     typedef struct
     {
-        uint32_t info_block;
-        uint32_t next_file;
-        char     path[LOGFS_PATH_BYTES];
+        uint32_t file_block;             // Block for this file's info
+        uint32_t next_file_block;        // Block for next file's info
+        char     path[LOGFS_PATH_BYTES]; // Path string
     } LogFsPath;
-
-    // Block types.
-    typedef enum
-    {
-        LOGFS_BLOCK_FS_INFO,
-        LOGFS_BLOCK_FILE_INFO,
-        LOGFS_BLOCK_DATA_HDR,
-        LOGFS_BLOCK_DATA,
-    } LogFsBlockType;
 
     typedef struct
     {
         uint32_t crc;        // First word has to be 32-bit CRC.
-        uint8_t  type;       // Next byte needs to be block type.
         uint32_t boot_count; // Number of times the filesystem has been booted up.
-    } LogFsBlock_FsInfo;
+    } LogFsBlock_Fs;
 
     typedef struct
     {
         uint32_t crc;                    // First word has to be 32-bit CRC.
-        uint8_t  type;                   // Next byte needs to be block type.
-        uint32_t next;                   // Next file info block.
-        char     path[LOGFS_PATH_BYTES]; // Path to file (actual size is determined at mount time).
-    } LogFsBlock_FileInfo;
+        uint32_t next_file_block;        // Next file info block.
+        char     path[LOGFS_PATH_BYTES]; // Path string (actual size is determined at mount time).
+    } LogFsBlock_File;
 
     typedef struct
     {
-        uint32_t crc;  // First word has to be 32-bit CRC.
-        uint8_t  type; // Next byte needs to be block type.
-        uint32_t next; // Address of next data header for this file.
-    } LogFsBlock_DataHeader;
-
-    typedef struct
-    {
-        uint32_t crc;   // First word has to be 32-bit CRC.
-        uint8_t  type;  // Next byte needs to be block type.
+        uint32_t crc; // First word has to be 32-bit CRC.
+        uint32_t next_block;
         uint32_t bytes; // Number of bytes in this file.
         uint8_t  data;  // Used to get address of first data element.
     } LogFsBlock_Data;
@@ -116,31 +95,29 @@ extern "C"
     {
         const LogFsCfg *cfg;
         uint32_t        eff_block_size;
-        uint32_t        head;
-        bool            empty;
-        uint32_t        boot_count;
+        uint32_t        max_path_len;
         bool            mounted;
         bool            out_of_memory;
-        uint32_t        max_path_len;
+        uint32_t        head_file_block;
+        uint32_t        head_data_block;
+        uint32_t        boot_count;
 
         // Block-specific pointers to the cache.
-        LogFsBlock_FsInfo     *cache_fs_info;
-        LogFsBlock_FileInfo   *cache_file_info;
-        LogFsBlock_DataHeader *cache_data_hdr;
-        LogFsBlock_Data       *cache_data;
+        LogFsBlock_Fs   *cache_fs;
+        LogFsBlock_File *cache_file;
+        LogFsBlock_Data *cache_data;
     } LogFs;
 
-    LogFsErr logfs_fs_mount(LogFs *fs, const LogFsCfg *cfg);
-    LogFsErr logfs_fs_format(LogFs *fs, const LogFsCfg *cfg);
-    LogFsErr logfs_fs_mounted(LogFs *fs, bool *mounted);
-    LogFsErr logfs_fs_bootCount(LogFs *fs, uint32_t *boot_count);
+    LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
+    LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
+    LogFsErr logfs_bootCount(LogFs *fs, uint32_t *boot_count);
 
-    LogFsErr logfs_file_open(LogFs *fs, LogFsFile *file, const char *path);
-    LogFsErr logfs_file_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode, uint32_t *num_read);
-    LogFsErr logfs_file_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_written);
+    LogFsErr logfs_open(LogFs *fs, LogFsFile *file, const char *path);
+    LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode, uint32_t *num_read);
+    LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_written);
 
-    LogFsErr logfs_path_first(LogFs *fs, LogFsPath *path);
-    LogFsErr logfs_path_next(LogFs *fs, LogFsPath *path);
+    LogFsErr logfs_firstPath(LogFs *fs, LogFsPath *path);
+    LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path);
 #ifdef __cplusplus
 }
 #endif
