@@ -180,7 +180,6 @@ int main(void)
     {
         sd.hsd     = &hsd1;
         sd.timeout = osWaitForever;
-        io_canLogging_init(&can_config);
     }
 
     // Configure and initialize SEGGER SystemView.
@@ -474,6 +473,7 @@ void runDefaultTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
+        io_canLogging_init(&can_config);
         osDelay(osWaitForever);
 
         // Just blinky for now
@@ -500,14 +500,15 @@ void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
+    io_canLogging_init(&can_config);
 
-    for (unsigned int i = 0; i < 100000; i++)
-    {
-        CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        io_canLogging_pushTxMsgToQueue(&msg);
-        io_canLogging_pushTxMsgToQueue(&msg);
-        osDelay(1);
-    }
+    // for (unsigned int i = 0; i < 100000; i++)
+    // {
+    //     CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
+    //     io_canLogging_pushTxMsgToQueue(&msg);
+    //     io_canLogging_pushTxMsgToQueue(&msg);
+    //     osDelay(1);
+    // }
 
     osDelay(osWaitForever);
     /* USER CODE END runCanTxTask */

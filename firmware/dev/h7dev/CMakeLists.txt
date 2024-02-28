@@ -12,6 +12,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfs_config.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_logfs.c"
 )
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
 
@@ -61,7 +62,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4")
+    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4" "logfs_cm7")
 
     # embedded_image(
     #     "h7dev"

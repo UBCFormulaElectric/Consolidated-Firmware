@@ -414,7 +414,17 @@ LogFsErr logfs_file_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, 
     bool new_hdr   = false; // If we need to make a new header for the next block.
 
     // Read file header data block into cache.
-    RET_ERR(logfs_blocks_read(fs, file->head));
+    // This is bad!
+    const LogFsErr err = logfs_blocks_read(fs, file->head);
+    if(err == LOGFS_ERR_CORRUPT)
+    {
+        // Block is corrupt, set number of bytes to zero.
+        fs->cache_data->bytes = 0U;
+    }
+    else if(err != LOGFS_ERR_OK)
+    {
+        return err;
+    }
 
     *num_written = 0;
     while (*num_written < size)

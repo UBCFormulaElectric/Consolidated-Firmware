@@ -6,6 +6,9 @@
 #include "cmsis_os.h"
 #include "queue.h"
 #include "hw_gpio.h"
+#include "logfs.h"
+#include "io_logfs.h"
+#include "hw_utils.h"
 
 // Private globals.
 static const CanConfig *config;
@@ -18,15 +21,28 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 
 static uint32_t current_bootcount;
 
-static lfs_t             lfs;
-static lfs_file_t        file;
-static struct lfs_config cfg;
+static lfs_t lfs;
+// static lfs_file_t file;
+// static struct lfs_config cfg;
 
 extern SdCard sd;
 extern Gpio   sd_present;
 extern bool   sd_inited;
 
 static char current_path[10];
+
+static LogFs          fs;
+static uint8_t        block_cache[512];
+static const LogFsCfg cfg = {
+    .block_size  = 512,
+    .block_count = 1024 * 1024 * 10,
+    .context     = NULL,
+    .read        = io_logfs_read,
+    .prog        = io_logfs_prog,
+    .erase       = io_logfs_erase,
+    .mass_erase  = io_logfs_massErase,
+    .block_cache = block_cache,
+};
 
 static const osMessageQueueAttr_t queue_attr = {
     .name      = "CAN Logging Queue",
@@ -45,7 +61,6 @@ const struct lfs_file_config fcfg = {
 // assume the lfs is already mounted
 static void init_logging_file_system()
 {
-    int err;
     // early return
     if (!sd_inited || hw_gpio_readPin(&sd_present))
     {
@@ -58,11 +73,12 @@ static void init_logging_file_system()
     uint32_t bootcount = 0;
     // lfs_format(&lfs, &cfg); // test for now
     // lfs_format(&lfs, &cfg);
-    // err = lfs_mount(&lfs, &cfg);
-    if (err)
-    {
-        // err = lfs_mount(&lfs, &cfg);
-    }
+
+    // LogFsErr err = logfs_fs_mount(&fs, &cfg);
+    // if (err != LOGFS_ERR_OK)
+    // {
+    LogFsErr err = logfs_fs_format(&fs, &cfg);
+    // }
 
     // get bootcount value from the file; use this to create new file for logging
     // err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
@@ -93,12 +109,27 @@ void io_canLogging_init(const CanConfig *can_config)
 
     // create new folder for this boot
     init_logging_file_system();
-    CanMsg   tx_msg = { 0 };
     uint64_t start  = HAL_GetTick();
-    for (int i = 0; i < 20000; i++)
+
+    CanMsg   tx_msg;
+
+    LogFsFile file;
+    LogFsErr  err = logfs_file_open(&fs, &file, "/test.txt");
+
+    uint32_t num_written;
+    for (uint32_t i = 0; i < 36; i++)
     {
         // lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+        tx_msg.std_id = i;
+        err           = logfs_file_write(&fs, &file, &tx_msg, sizeof(CanMsg), &num_written);
+
+        if (err != LOGFS_ERR_OK)
+        {
+            BREAK_IF_DEBUGGER_CONNECTED();
+        }
     }
+
+    (void)err;
     // lfs_file_close(&lfs, &file);
     uint64_t end = HAL_GetTick();
     uint64_t a   = end - start;
@@ -124,8 +155,8 @@ void io_canLogging_recordMsgFromQueue(void)
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
-    lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    assert(size = sizeof(tx_msg));
+    // lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+    // assert(size = sizeof(tx_msg));
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)

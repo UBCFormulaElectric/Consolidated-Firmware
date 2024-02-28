@@ -15,6 +15,13 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
+    embedded_library(
+        "logfs_cm7"
+        "${LOGFS_SRCS}"
+        "${LOGFS_INCLUDE_DIRS}"
+        "cm7"
+        TRUE
+    )
 elseif("${TARGET}" STREQUAL "test")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
