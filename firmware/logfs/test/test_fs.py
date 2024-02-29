@@ -113,6 +113,11 @@ def test_mount(fs, fs_unformatted):
     # Read data back.
     read_data = fs_unformatted.read(file, len(data))
     assert read_data == data
+    
+    # # Try writing data again.
+    # fs_unformatted.write(file, data)
+    # read_data = fs_unformatted.read(file, len(data))
+    # assert read_data == data + data
 
 
 def test_read_entire_file_iter(fs):

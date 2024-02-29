@@ -51,13 +51,13 @@ class PyLogFs
         _cfg.erase       = _eraseWrapper;
 
         // Allocate block cache on heap.
-        _cfg.block_cache = malloc(block_size);
+        _cfg.safe_cache = malloc(block_size);
     };
 
     ~PyLogFs()
     {
         // Deallocate block cache.
-        free(_cfg.block_cache);
+        free(_cfg.safe_cache);
     }
 
     LogFsErr mount(void) { return logfs_mount(&_fs, &_cfg); }

@@ -11,7 +11,7 @@ extern "C"
 #include <stdbool.h>
 
 #define LOGFS_ORIGIN 0                 // Filesystem starts at address zero
-#define LOGFS_COW_SIZE 2               // 2 copies for copy-on-write (COW)
+#define LOGFS_NUM_COPIES 2             // 2 copies for copy-on-write (COW)
 #define LOGFS_INVALID_BLOCK 0xFFFFFFFF // Indicates invalid block
 #define LOGFS_PATH_BYTES 128           // Max bytes to allocate for a path
 
@@ -42,8 +42,15 @@ extern "C"
         LogFsErr (*prog)(const struct _LogFsCfg *cfg, uint32_t block, void *buf);
         // Erase a block at a given address.
         LogFsErr (*erase)(const struct _LogFsCfg *cfg, uint32_t block);
-        // Cache for reading blocks (must be block_size bytes in length).
-        void *block_cache;
+        // "Safe" cache for reading copy-on-write blocks or other uncacheable
+        // operations. (must be block_size bytes in length).
+        void *safe_cache;
+        // Size of data cache, in blocks.
+        uint8_t data_cache_size;
+        // Cache for logging data (must be data cache_size * block_size bytes in length).
+        void* data_cache_info;
+        // Cache for logging data (must be data cache_size * block_size bytes in length).
+        void *data_cache;
     } LogFsCfg;
 
     typedef enum
@@ -51,6 +58,12 @@ extern "C"
         LOGFS_READ_START,
         LOGFS_READ_ITER,
     } LogFsRead;
+
+    typedef struct
+    {
+        uint32_t data_block;
+        uint32_t file_block;
+    } LogFsCache;
 
     typedef struct
     {
@@ -101,11 +114,6 @@ extern "C"
         uint32_t        head_file_block;
         uint32_t        head_data_block;
         uint32_t        boot_count;
-
-        // Block-specific pointers to the cache.
-        LogFsBlock_Fs   *cache_fs;
-        LogFsBlock_File *cache_file;
-        LogFsBlock_Data *cache_data;
     } LogFs;
 
     LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);

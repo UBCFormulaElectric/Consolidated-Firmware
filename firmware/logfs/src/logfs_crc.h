@@ -9,9 +9,9 @@ extern "C"
 #include <stddef.h>
 #include "logfs.h"
 
-    uint32_t logfs_crc_getFromBlock(const LogFs *fs);
-    void     logfs_crc_stampBlock(const LogFs *fs);
-    bool     logfs_crc_checkBlock(const LogFs *fs);
+    uint32_t logfs_crc_getFromBlock(void *buf);
+    void     logfs_crc_stampBlock(const LogFs *fs, void *buf);
+    bool     logfs_crc_checkBlock(const LogFs *fs, void *buf);
 
 #ifdef __cplusplus
 }
