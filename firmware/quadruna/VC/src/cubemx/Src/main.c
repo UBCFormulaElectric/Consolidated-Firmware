@@ -52,6 +52,8 @@ ADC_HandleTypeDef hadc3;
 
 FDCAN_HandleTypeDef hfdcan1;
 
+UART_HandleTypeDef huart7;
+
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
 uint32_t             Task100HzBuffer[512];
@@ -64,24 +66,24 @@ const osThreadAttr_t Task100Hz_attributes = {
     .stack_size = sizeof(Task100HzBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
-/* Definitions for CanTxTask */
-osThreadId_t         CanTxTaskHandle;
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
 uint32_t             canTxTaskBuffer[512];
 osStaticThreadDef_t  canTxTaskControlBlock;
-const osThreadAttr_t CanTxTask_attributes = {
-    .name       = "CanTxTask",
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
     .cb_mem     = &canTxTaskControlBlock,
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
-/* Definitions for CanRxTask */
-osThreadId_t         CanRxTaskHandle;
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
 uint32_t             canRxTaskBuffer[512];
 osStaticThreadDef_t  canRxTaskControlBlock;
-const osThreadAttr_t CanRxTask_attributes = {
-    .name       = "CanRxTask",
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
     .cb_mem     = &canRxTaskControlBlock,
     .cb_size    = sizeof(canRxTaskControlBlock),
     .stack_mem  = &canRxTaskBuffer[0],
@@ -123,6 +125,7 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_ADC3_Init(void);
+static void MX_UART7_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -172,6 +175,7 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_ADC3_Init();
+    MX_UART7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -199,11 +203,11 @@ int main(void)
     /* creation of Task100Hz */
     Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
 
-    /* creation of CanTxTask */
-    CanTxTaskHandle = osThreadNew(RunCanTxTask, NULL, &CanTxTask_attributes);
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
 
-    /* creation of CanRxTask */
-    CanRxTaskHandle = osThreadNew(RunCanRxTask, NULL, &CanRxTask_attributes);
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunCanRxTask, NULL, &TaskCanRx_attributes);
 
     /* creation of Task1kHz */
     Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
@@ -497,6 +501,52 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
+ * @brief UART7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_UART7_Init(void)
+{
+    /* USER CODE BEGIN UART7_Init 0 */
+
+    /* USER CODE END UART7_Init 0 */
+
+    /* USER CODE BEGIN UART7_Init 1 */
+
+    /* USER CODE END UART7_Init 1 */
+    huart7.Instance                    = UART7;
+    huart7.Init.BaudRate               = 115200;
+    huart7.Init.WordLength             = UART_WORDLENGTH_8B;
+    huart7.Init.StopBits               = UART_STOPBITS_1;
+    huart7.Init.Parity                 = UART_PARITY_NONE;
+    huart7.Init.Mode                   = UART_MODE_TX_RX;
+    huart7.Init.HwFlowCtl              = UART_HWCONTROL_NONE;
+    huart7.Init.OverSampling           = UART_OVERSAMPLING_16;
+    huart7.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart7.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
+    huart7.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart7, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart7, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_DisableFifoMode(&huart7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN UART7_Init 2 */
+
+    /* USER CODE END UART7_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -523,7 +573,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0 | GPIO_PIN_3 | GPIO_PIN_15, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0 | LED_Pin | GPIO_PIN_15, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13 | GPIO_PIN_1, GPIO_PIN_RESET);
@@ -555,8 +605,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA0 PA3 PA15 */
-    GPIO_InitStruct.Pin   = GPIO_PIN_0 | GPIO_PIN_3 | GPIO_PIN_15;
+    /*Configure GPIO pins : PA0 LED_Pin PA15 */
+    GPIO_InitStruct.Pin   = GPIO_PIN_0 | LED_Pin | GPIO_PIN_15;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -574,14 +624,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PE7 PE8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_7 | GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF7_UART7;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB10 PB11 */
     GPIO_InitStruct.Pin       = GPIO_PIN_10 | GPIO_PIN_11;

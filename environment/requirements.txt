@@ -9,3 +9,4 @@ gitpython
 intelhex
 protobuf
 grpcio-tools
+pyserial

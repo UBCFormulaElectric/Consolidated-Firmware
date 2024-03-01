@@ -61,6 +61,8 @@ extern "C"
 #define IWDG_RESET_FREQUENCY 5
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
+#define LED_Pin GPIO_PIN_3
+#define LED_GPIO_Port GPIOA
 
     /* USER CODE BEGIN Private defines */
 
