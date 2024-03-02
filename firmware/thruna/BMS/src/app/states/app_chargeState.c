@@ -3,13 +3,18 @@
 #include "io_charger.h"
 
 // 0.05C is standard for a boundary to consider full charge
-#define CURRENT_AT_MAX_CHARGE (0.05f * C_RATE_TO_AMPS)
+#define C_RATE_FOR_MAX_CHARGE (0.05f)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
+#define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
 
 static void chargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     app_canTx_BMS_ChargerEnable_set(true);
+    // Setting these for run on entry right now, change later maybe.
+    app_canTx_BMS_MaxChargingCurrent_set(CURRENT_AT_MAX_CHARGE);
+    app_canTx_BMS_ChargingVoltage_set(CHARGING_VOLTAGE);
+    app_canTx_BMS_ChargingCurrent_set(CHARGING_CURRENT);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
