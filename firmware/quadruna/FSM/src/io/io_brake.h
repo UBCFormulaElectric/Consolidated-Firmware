@@ -29,14 +29,3 @@ float io_brake_getRearPressurePsi(void);
  * @return whether or not the rear pressure sensor is open or short circuit
  */
 bool io_brake_rearPressureSensorOCSC(void);
-
-// /**
-//  * @return the percent travel of the brake pedal
-//  */
-// float io_brake_getPedalPercentTravel(void);
-
-// /**
-//  *
-//  * @return whether or not the brake pedal travel sensor is open or short circuit
-//  */
-// bool io_brake_pedalSensorOCSC(void);

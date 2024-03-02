@@ -19,7 +19,10 @@
         "AppsDisagreement",
         "FrontBrakePressureOutOfRange",
         "RearBrakePressureOutOfRange",
-        "BrakePressureSensorOCSC"
+        "BrakePressureSensorOCSC",
+        "LeftSuspensionOCSC",
+        "RightSuspensionOCSC",
+        "BrakeAppsDisagreement"
     ],
     "faults": [
         "DummyFault",

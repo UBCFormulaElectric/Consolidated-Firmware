@@ -6,7 +6,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_apps.h"
-// #include "io_brake.h"
+#include "io_brake.h"
 
 Signal app_agreement_signal;
 Signal papp_alarm_signal;
@@ -62,17 +62,17 @@ void app_apps_broadcast()
         app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
     }
 
-    // TODO: add back when brake implemented
     // Accelerator Brake Plausibility (bad user input safety issues)
-    // SignalState app_brake_disagreement = app_signal_getState(
-    //     &app_brake_signal, io_brake_isActuated() && (papps_pedal_percentage > 25 || papps_pedal_percentage > 25),
-    //     papps_pedal_percentage < 5);
-    // const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
-    // app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(brake_acc_disagreement);
+    SignalState app_brake_disagreement = app_signal_getState(
+        &app_brake_signal, io_brake_isActuated() && (papps_pedal_percentage > 25 || papps_pedal_percentage > 25),
+        papps_pedal_percentage < 5);
 
-    // if (brake_acc_disagreement)
-    // {
-    //     app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
-    //     app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
-    // }
+    const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
+    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(brake_acc_disagreement);
+
+    if (brake_acc_disagreement)
+    {
+        app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
+        app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
+    }
 }
