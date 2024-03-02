@@ -96,7 +96,7 @@ const osThreadAttr_t canRxTask_attributes = {
 int         ii = 0;
 static void callback(uint32_t i)
 {
-    i++;
+    ii++;
     // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
@@ -286,7 +286,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLM       = 1;
     RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 8;
+    RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
@@ -389,7 +389,7 @@ static void MX_SDMMC1_SD_Init(void)
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv            = 3;
+    hsd1.Init.ClockDiv            = 2;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -501,11 +501,12 @@ void runCanTxTask(void *argument)
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
 
-    for (unsigned int i = 0; i < 100000; i++)
+    for (unsigned int i = 0; i < 10000; i++)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        io_canLogging_pushTxMsgToQueue(&msg);
-        io_canLogging_pushTxMsgToQueue(&msg);
+
+        // io_canLogging_pushTxMsgToQueue(&msg);
+        // io_canLogging_pushTxMsgToQueue(&msg);
         osDelay(1);
     }
 
@@ -532,7 +533,7 @@ void runCanRxTask(void *argument)
         io_canLogging_recordMsgFromQueue();
         count++;
 
-        if (count >= 512)
+        if (count >= 256)
         {
             io_canLogging_sync();
             count = 0;
