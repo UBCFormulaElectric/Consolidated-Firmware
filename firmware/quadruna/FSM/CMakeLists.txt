@@ -148,5 +148,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes" "m") # TODO: add fakes here
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes" "m")
 endif()
