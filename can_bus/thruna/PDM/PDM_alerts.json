@@ -1,0 +1,20 @@
+{
+    "warnings_id": 400,
+    "faults_id": 401,
+    "warnings_counts_id": 450,
+    "faults_counts_id": 451,
+    "warnings": [
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx",
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow"
+    ],
+    "faults": [
+        "DummyFault",
+        "MissingBMSHeartbeat"
+    ]
+}

@@ -23,39 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
-
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
-#include "states/app_driveState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "app_globals.h"
-#include "app_sevenSegDisplays.h"
-#include "app_avgPower.h"
-
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedErrorHandlerOverride.h"
-#include "hw_hardFaultHandler.h"
-#include "Io_SharedHeartbeatMonitor.h"
-
-#include "io_time.h"
-#include "io_led.h"
-#include "io_switch.h"
-#include "io_rgbLed.h"
-#include "io_watchdogConfig.h"
-#include "io_stackWaterMark.h"
-#include "io_sevenSegDisplays.h"
-#include "io_can.h"
-#include "io_jsoncan.h"
-#include "io_canConfig.h"
-
-#include "hw_bootup.h"
-#include "hw_gpio.h"
-#include "hw_can.h"
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,9 +43,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-DMA_HandleTypeDef hdma_adc1;
-
 CAN_HandleTypeDef hcan1;
 
 IWDG_HandleTypeDef hiwdg;
@@ -143,158 +108,11 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = io_canConfig_txOverflowCallback,
-    .rx_overflow_callback = io_canConfig_rxOverflowCallback,
-};
-
-struct StateMachine *    state_machine;
-struct HeartbeatMonitor *heartbeat_monitor;
-
-static const BinaryLed imd_led   = { .gpio = {
-                                       .port = IMD_LED_GPIO_Port,
-                                       .pin  = IMD_LED_Pin,
-                                   } };
-static const BinaryLed bspd_led  = { .gpio = {
-                                        .port = BSPD_LED_GPIO_Port,
-                                        .pin  = BSPD_LED_Pin,
-                                    } };
-static const BinaryLed shdn_led  = { .gpio = {
-                                        .port = SHDN_LED_GPIO_Port,
-                                        .pin  = SHDN_LED_Pin,
-                                    } };
-static const BinaryLed drive_led = { .gpio = {
-                                         .port = IGNTN_LED_GPIO_Port,
-                                         .pin  = IGNTN_LED_Pin,
-                                     } };
-
-static const Switch start_switch = {
-    .gpio = {
-        .port = IGNTN_IN_GPIO_Port,
-        .pin = IGNTN_IN_Pin,
-    },
-    .closed_state = true,
-};
-static const Switch aux_switch = {
-    .gpio = {
-        .port = AUX_IN_GPIO_Port,
-        .pin = AUX_IN_Pin,
-    },
-    .closed_state = true,
-};
-
-static const RgbLed bms_status_led = {
-    .red_gpio = {
-        .port = BMS_RED_GPIO_Port,
-        .pin = BMS_RED_Pin,
-    },
-    .green_gpio = {
-        .port = BMS_GREEN_GPIO_Port,
-        .pin = BMS_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = BMS_BLUE_GPIO_Port,
-        .pin = BMS_BLUE_Pin,
-    },
-};
-static const RgbLed dcm_status_led = {
-    .red_gpio = {
-        .port = DCM_RED_GPIO_Port,
-        .pin = DCM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = DCM_GREEN_GPIO_Port,
-        .pin = DCM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = DCM_BLUE_GPIO_Port,
-        .pin = DCM_BLUE_Pin,
-    },
-};
-static const RgbLed fsm_status_led = {
-    .red_gpio = {
-        .port = FSM_RED_GPIO_Port,
-        .pin = FSM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = FSM_GREEN_GPIO_Port,
-        .pin = FSM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = FSM_BLUE_GPIO_Port,
-        .pin = FSM_BLUE_Pin,
-    },
-};
-static const RgbLed pdm_status_led = {
-    .red_gpio = {
-        .port = PDM_RED_GPIO_Port,
-        .pin = PDM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = PDM_GREEN_GPIO_Port,
-        .pin = PDM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = PDM_BLUE_GPIO_Port,
-        .pin = PDM_BLUE_Pin,
-    },
-};
-static const RgbLed dim_status_led = {
-    .red_gpio = {
-        .port = DIM_RED_GPIO_Port,
-        .pin = DIM_RED_Pin,
-    },
-    .green_gpio = {
-        .port = DIM_GREEN_GPIO_Port,
-        .pin = DIM_GREEN_Pin,
-    },
-    .blue_gpio = {
-        .port = DIM_BLUE_GPIO_Port,
-        .pin = DIM_BLUE_Pin,
-    },
-};
-
-static const SevenSegsConfig seven_segs_config = {
-    .srck_gpio = {
-        .port = SEVENSEGS_SRCK_GPIO_Port,
-        .pin = SEVENSEGS_SRCK_Pin,
-    },
-    .rck_gpio = {
-        .port = SEVENSEGS_RCK_GPIO_Port,
-        .pin = SEVENSEGS_RCK_Pin,
-    },
-    .ser_out_gpio = {
-        .port = SEVENSEGS_SEROUT_GPIO_Port,
-        .pin = SEVENSEGS_SEROUT_Pin,
-    },
-    .dimming_gpio = {
-        .port = SEVENSEGS_DIMMING_GPIO_Port,
-        .pin = SEVENSEGS_DIMMING_Pin,
-    },
-};
-
-static const GlobalsConfig globals_config = {
-    .imd_led        = &imd_led,
-    .bspd_led       = &bspd_led,
-    .shdn_led       = &shdn_led,
-    .drive_led      = &drive_led,
-    .start_switch   = &start_switch,
-    .aux_switch     = &aux_switch,
-    .bms_status_led = &bms_status_led,
-    .dcm_status_led = &dcm_status_led,
-    .fsm_status_led = &fsm_status_led,
-    .pdm_status_led = &pdm_status_led,
-    .dim_status_led = &dim_status_led,
-};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 void        RunTask100Hz(void *argument);
@@ -318,8 +136,7 @@ void        RunTask1Hz(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -339,36 +156,10 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_DMA_Init();
-    MX_ADC1_Init();
     MX_CAN1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    SEGGER_SYSVIEW_Conf();
-
-    hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
-
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_sevenSegDisplays_init(&seven_segs_config);
-    io_can_init(&can_config);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        io_time_getCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    state_machine = App_SharedStateMachine_Create(NULL, app_driveState_get());
-
-    app_sevenSegDisplays_init();
-    app_avgPower_init();
-    app_globals_init(&globals_config);
-    globals->heartbeat_monitor = heartbeat_monitor;
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -475,56 +266,6 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief ADC1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_ADC1_Init(void)
-{
-    /* USER CODE BEGIN ADC1_Init 0 */
-
-    /* USER CODE END ADC1_Init 0 */
-
-    ADC_ChannelConfTypeDef sConfig = { 0 };
-
-    /* USER CODE BEGIN ADC1_Init 1 */
-
-    /* USER CODE END ADC1_Init 1 */
-
-    /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-     */
-    hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
-    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = DISABLE;
-    hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    if (HAL_ADC_Init(&hadc1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-     */
-    sConfig.Channel      = ADC_CHANNEL_5;
-    sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN ADC1_Init 2 */
-
-    /* USER CODE END ADC1_Init 2 */
-}
-
-/**
  * @brief CAN1 Initialization Function
  * @param None
  * @retval None
@@ -581,20 +322,6 @@ static void MX_IWDG_Init(void)
     }
     /* USER CODE BEGIN IWDG_Init 2 */
     /* USER CODE END IWDG_Init 2 */
-}
-
-/**
- * Enable DMA controller clock
- */
-static void MX_DMA_Init(void)
-{
-    /* DMA controller clock enable */
-    __HAL_RCC_DMA2_CLK_ENABLE();
-
-    /* DMA interrupt init */
-    /* DMA2_Stream0_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }
 
 /**
@@ -661,6 +388,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : REGEN_Pin */
+    GPIO_InitStruct.Pin  = REGEN_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(REGEN_GPIO_Port, &GPIO_InitStruct);
+
     /*Configure GPIO pins : BSPD_LED_Pin IMD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
                              IGNTN_LED_Pin */
     GPIO_InitStruct.Pin   = BSPD_LED_Pin | IMD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
@@ -700,26 +433,7 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    static const TickType_t  period_ms = 10;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        App_SharedStateMachine_Tick100Hz(state_machine);
-        Io_CanTx_Enqueue100HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -734,17 +448,7 @@ void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -759,12 +463,7 @@ void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_can_transmitMsgFromQueue();
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -779,33 +478,7 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        // Check in for timeouts for all RTOS tasks
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -820,30 +493,7 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1000U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_stackWaterMark_check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
-
-        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 

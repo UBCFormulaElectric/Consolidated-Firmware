@@ -119,15 +119,24 @@ def generate_output(
         fake_declarations_arr.append(fake_declarations)
         fake_definitions_arr.append(fake_definitions)
 
+    containing_folder = os.path.split(os.path.split(header_path)[0])[1]
+    expected_folders = ['io','hw','app','test']
+
+
     file_name = os.path.basename(header_path)
-    file_name_without_extension = os.path.splitext(file_name)[0]
+    fake_file_name_without_extension = os.path.splitext(file_name)[0]
+
+    io_file_name_without_extension = fake_file_name_without_extension
+    if(containing_folder not in expected_folders):
+        io_file_name_without_extension = containing_folder + '/' + fake_file_name_without_extension
+        
 
     # Write faked header output.
     with open(output_header, "w") as file:
         file.write(
             header_template.render(
                 {
-                    "module": file_name_without_extension,
+                    "module": io_file_name_without_extension,
                     "declarations": fake_declarations_arr,
                 }
             )
@@ -138,7 +147,8 @@ def generate_output(
         file.write(
             source_template.render(
                 {
-                    "module": file_name_without_extension,
+                    "io_module": io_file_name_without_extension,
+                    "fake_module": fake_file_name_without_extension,
                     "definitions": fake_definitions_arr,
                 }
             )

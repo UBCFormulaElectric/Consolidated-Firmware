@@ -38,52 +38,70 @@
             },
         },
         {
-            "label": "Build: BMS",
+            "label": "Build Embedded: BMS (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` BMS.hex",
+            "command": "make -j`nproc` thruna_BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DCM",
+            "label": "Build Embedded: BMS (Quadruna)",
             "type": "shell",
-            "command": "make -j`nproc` DCM.hex",
+            "command": "make -j`nproc` quadruna_BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: FSM",
+            "label": "Build Embedded: DCM",
             "type": "shell",
-            "command": "make -j`nproc` FSM.hex",
+            "command": "make -j`nproc` thruna_DCM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: PDM",
+            "label": "Build Embedded: FSM (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` PDM.hex",
+            "command": "make -j`nproc` thruna_FSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: DIM",
+            "label": "Build Embedded: FSM (Quadruna)",
             "type": "shell",
-            "command": "make -j`nproc` DIM.hex",
+            "command": "make -j`nproc` quadruna_FSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: f4dev",
+            "label": "Build Embedded: PDM",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_PDM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: DIM",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_DIM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: f4dev",
             "type": "shell",
             "command": "make -j`nproc` f4dev.elf",
             "group": "build",
@@ -92,61 +110,115 @@
             }
         },
         {
-            "label": "Build: h7dev",
+            "label": "Build Embedded: h7dev",
             "type": "shell",
-            "command": "make -j`nproc` h7dev.elf",
+            "command": "make -j`nproc` h7dev.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build: BMS_test",
+            "label": "Build Embedded: VC",
             "type": "shell",
-            "command": "make -j`nproc` BMS_test",
+            "command": "make -j`nproc` quadruna_VC.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: RSM",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_RSM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: CRIT",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_CRIT.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Tests: BMS (Thruna)",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_BMS_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: DCM_test",
+            "label": "Build Tests: BMS (Quadruna)",
             "type": "shell",
-            "command": "make -j`nproc` DCM_test",
+            "command": "make -j`nproc` quadruna_BMS_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: FSM_test",
+            "label": "Build Tests: DCM",
             "type": "shell",
-            "command": "make -j`nproc` FSM_test",
+            "command": "make -j`nproc` thruna_DCM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: PDM_test",
+            "label": "Build Tests: FSM (Thruna)",
             "type": "shell",
-            "command": "make -j`nproc` PDM_test",
+            "command": "make -j`nproc` thruna_FSM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: DIM_test",
+            "label": "Build Tests: PDM",
             "type": "shell",
-            "command": "make -j`nproc` DIM_test",
+            "command": "make -j`nproc` thruna_PDM_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
-            "label": "Build: shared_test",
+            "label": "Build Tests: DIM",
+            "type": "shell",
+            "command": "make -j`nproc` thruna_DIM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: VC",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_VC_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: FSM (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_FSM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: Shared",
             "type": "shell",
             "command": "make -j`nproc` shared_test",
             "group": "build",
@@ -155,7 +227,7 @@
             }
         },
         {
-            "label": "Build: All Embedded Binaries",
+            "label": "Build Embedded: All",
             "type": "shell",
             "command": "make -j`nproc`",
             "group": "build",
@@ -164,13 +236,23 @@
             }
         },
         {
-            "label": "Build: All Tests",
+            "label": "Build Tests: All",
             "type": "shell",
             "command": "make -j`nproc`",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
             }
+        },
+        {
+            "label": "Load Dimos",
+            "type": "shell",
+            "command": "cmake -S . -B build_dimos_dev -DPLATFORM=dimos"
+        },
+        {
+            "label": "Build: Dimos Development Binaries",
+            "type": "shell",
+            "command": "cmake --build build_dimos_dev --target dimos_dev"
         },
         {
             "label": "Launch: STM32CubeMX",

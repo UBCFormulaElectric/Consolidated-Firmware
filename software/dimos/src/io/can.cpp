@@ -1,61 +1,76 @@
 #include "can.h"
 #include <cstring>
-#include <unistd.h>
-#include <net/if.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <linux/can.h>
+#include <net/if.h>
+#include <optional>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 static std::optional<int> CanInterface;
 
-Result<std::monostate, CanConnectionError> Can_Init() {
-	// Create a socket
-	CanInterface = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-	if (CanInterface < 0) {
-		CanInterface = std::nullopt;
-		return CanConnectionError::SocketError;
-	}
+Result<std::monostate, CanConnectionError> Can_Init()
+{
+    // Create a socket
+    CanInterface = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    if (CanInterface < 0)
+    {
+        CanInterface = std::nullopt;
+        return SocketError;
+    }
 
-	struct sockaddr_can addr{};
-	struct ifreq ifr{};
+    sockaddr_can addr;
+    ifreq        ifr;
 
-	// Get interface index
-	strcpy(ifr.ifr_name, "can0");
-	ioctl(CanInterface.value(), SIOCGIFINDEX, &ifr);
+    // Get interface index
+    strcpy(ifr.ifr_name, "can0");
+    ioctl(CanInterface.value(), SIOCGIFINDEX, &ifr);
 
-	// Bind the socket to the CAN interface
-	addr.can_family = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
-	if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
-		return CanConnectionError::BindError;
+    // Bind the socket to the CAN interface
+    addr.can_family  = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+    if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
+        return BindError;
 
-	return std::monostate{};
+    return std::monostate{};
 }
 
+Result<JsonCanMsg, CanReadError> Can_Read()
+{
+    if (!CanInterface.has_value())
+        return ReadInterfaceNotCreated;
 
-Result<JsonCanMsg, CanReadError> Can_Read() {
-	if (!CanInterface.has_value())
-		return CanReadError::ReadInterfaceNotCreated;
+    can_frame     frame{};
+    const ssize_t readLengthBytes =
+        read(CanInterface.value(), &frame, sizeof(can_frame)); // todo make this react to QThread::requestInterruption
 
-	struct can_frame frame{};
-	ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(struct can_frame));
+    if (readLengthBytes < 0)
+        return SocketReadError;
+    if (readLengthBytes < sizeof(can_frame))
+        return IncompleteCanFrame;
 
-	if (readLengthBytes < 0)
-		return CanReadError::SocketReadError;
-	if (readLengthBytes < sizeof(struct can_frame))
-		return CanReadError::IncompleteCanFrame;
-	//	return frame;
-	return JsonCanMsg{};
+    auto out = JsonCanMsg{
+        .std_id = frame.can_id,
+        .dlc    = frame.len8_dlc,
+    };
+    memcpy(out.data, frame.data, sizeof(frame.data));
+    return out;
 }
 
-Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg) {
-	if (!CanInterface.has_value())
-		return CanWriteError::WriteInterfaceNotCreated;
+Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
+{
+    if (!CanInterface.has_value())
+        return WriteInterfaceNotCreated;
 
-	try {
-		ssize_t nbytes = write(CanInterface.value(), msg, sizeof(struct can_frame));
-	} catch (...) {
-		return CanWriteError::SocketWriteError;
-	}
-	return std::monostate{};
+    try
+    {
+        if (write(CanInterface.value(), msg, sizeof(can_frame)) <
+            0) // todo make this react to QThread::requestInterruption
+            return SocketWriteError;
+    }
+    catch (...)
+    {
+        return SocketWriteError;
+    }
+    return std::monostate{};
 }

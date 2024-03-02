@@ -18,7 +18,7 @@ const NavBar = (props: NavBarProps) => {
         mode="horizontal"
         defaultSelectedKeys={['visualize']}
         onClick={(e) => props.updateFunction(e.key)}
-        style={{ flexGrow: 1 }} // To occupy available space
+        style={{ flexGrow: 1 }} 
       >
         <Menu.Item key="visualize">Visualize</Menu.Item>
         <Menu.Item key="dashboards">Dashboards</Menu.Item>

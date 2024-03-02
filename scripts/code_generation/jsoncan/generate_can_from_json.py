@@ -81,32 +81,32 @@ if __name__ == "__main__":
     if args.only_dbc:
         exit()
 
-    # Generate App_CanUtils.h/c
+    # Generate app_canUtils.h/c
     app_can_utils_mod = AppCanUtilsModule(can_db, args.board)
     write_text(app_can_utils_mod.header(), args.app_can_utils_header_output)
     write_text(app_can_utils_mod.source(), args.app_can_utils_source_output)
 
-    # Generate App_CanTx.h/c
+    # Generate app_canTx.h/c
     app_can_tx_mod = AppCanTxModule(can_db, args.board)
     write_text(app_can_tx_mod.header(), args.app_can_tx_header_output)
     write_text(app_can_tx_mod.source(), args.app_can_tx_source_output)
 
-    # Generate App_CanRx.h/c
+    # Generate app_canRx.h/c
     app_can_rx_mod = AppCanRxModule(can_db, args.board)
     write_text(app_can_rx_mod.header(), args.app_can_rx_header_output)
     write_text(app_can_rx_mod.source(), args.app_can_rx_source_output)
 
-    # Generate Io_CanTx.h/c
+    # Generate io_canTx.h/c
     io_can_tx_mod = IoCanTxModule(can_db, args.board)
     write_text(io_can_tx_mod.header(), args.io_can_tx_header_output)
     write_text(io_can_tx_mod.source(), args.io_can_tx_source_output)
 
-    # Generate Io_CanRx.h/c
+    # Generate io_canRx.h/c
     io_can_rx_mod = IoCanRxModule(can_db, args.board)
     write_text(io_can_rx_mod.header(), args.io_can_rx_header_output)
     write_text(io_can_rx_mod.source(), args.io_can_rx_source_output)
 
-    # Generate App_CanAlerts.h/c
+    # Generate app_canAlerts.h/c
     app_can_alerts_mod = AppCanAlertsModule(can_db, args.board)
     write_text(app_can_alerts_mod.header(), args.app_can_alerts_header_output)
     write_text(app_can_alerts_mod.source(), args.app_can_alerts_source_output)

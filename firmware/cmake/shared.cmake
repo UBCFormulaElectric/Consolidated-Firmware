@@ -17,29 +17,17 @@ file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/*.c")
 
 # Generate library with header file for commit message
 function(commit_info_library
+    BIND_TARGET
     LIB_NAME
-    HEADER_OUTPUT_PATH
-    SRC_OUTPUT_PATH
+    OUTPUT_PATH
     ARM_CORE
 )
-    set(GENERATE_COMMIT_INFO_SCRIPT_PY
-        ${SCRIPTS_DIR}/code_generation/commit_info_gen/src/generate_commit_info.py)
-    add_custom_command(
-        OUTPUT ${HEADER_OUTPUT_PATH} ${SRC_OUTPUT_PATH}
-        COMMAND ${PYTHON_COMMAND}
-        ${GENERATE_COMMIT_INFO_SCRIPT_PY}
-        --output-header
-        ${HEADER_OUTPUT_PATH}
-        --output-source
-        ${SRC_OUTPUT_PATH}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
-    )
-
+    commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     if("${TARGET}" STREQUAL "deploy")
         embedded_library(
             "${LIB_NAME}"
-            "${SRC_OUTPUT_PATH}"
-            "${HEADER_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
+            "${COMMIT_INFO_INCLUDE_DIR}"
             "${ARM_CORE}"
             FALSE
         )
@@ -47,7 +35,7 @@ function(commit_info_library
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(
             "${LIB_NAME}" STATIC
-            "${SRC_OUTPUT_PATH}"
+            "${COMMIT_INFO_SRC}"
         )
         target_include_directories("${LIB_NAME}" PUBLIC "${HEADER_DIR}")
     endif()

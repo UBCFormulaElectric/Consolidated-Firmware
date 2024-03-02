@@ -23,33 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
-
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
-#include "Io_SharedSoftwareWatchdog.h"
-#include "io_stackWaterMark.h"
-#include "io_watchdogConfig.h"
-#include "Io_SharedHeartbeatMonitor.h"
-#include "io_lowVoltageBattery.h"
-#include "io_efuse.h"
-#include "hw_adc.h"
-#include "hw_hardFaultHandler.h"
-#include "io_can.h"
-#include "io_jsoncan.h"
-#include "hw_bootup.h"
-#include "hw_can.h"
-
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_CanAlerts.h"
-#include "App_SharedMacros.h"
-#include "App_SharedConstants.h"
-#include "App_SharedStateMachine.h"
-#include "states/app_initState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_CommitInfo.h"
-#include "app_globals.h"
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,8 +49,6 @@ DMA_HandleTypeDef hdma_adc1;
 CAN_HandleTypeDef hcan1;
 
 IWDG_HandleTypeDef hiwdg;
-
-SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim3;
 
@@ -141,114 +113,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-struct StateMachine *    state_machine;
-struct HeartbeatMonitor *heartbeat_monitor;
-
-static const LvBatteryConfig lv_battery_config = {
-    .lt3650_charger_fault_gpio = {
-        .port = N_CHRG_FAULT_GPIO_Port,
-        .pin = N_CHRG_FAULT_Pin
-    },
-    .ltc3786_boost_fault_gpio = {
-        .port = PGOOD_GPIO_Port,
-        .pin = PGOOD_Pin,
-    },
-    .vbat_vsense_adc_channel = ADC_1_CHANNEL_10,
-    .boost_vsense_adc_channel = ADC_1_CHANNEL_12,
-    .acc_vsense_adc_channel = ADC_1_CHANNEL_11
-};
-
-static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
-    [EFUSE_CHANNEL_AIR] = {
-        .enable_gpio = {
-            .port = EN_AIR_GPIO_Port,
-            .pin = EN_AIR_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_AIR_LVPWR_GPIO_Port,
-            .pin = FR_STBY_AIR_LVPWR_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_9,
-    },
-    [EFUSE_CHANNEL_LVPWR] = {
-        .enable_gpio = {
-            .port = EN_LVPWR_GPIO_Port,
-            .pin = EN_LVPWR_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_AIR_LVPWR_GPIO_Port,
-            .pin = FR_STBY_AIR_LVPWR_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_8,
-    },
-    [EFUSE_CHANNEL_EMETER] = {
-        .enable_gpio = {
-            .port = EN_EMETER_GPIO_Port,
-            .pin = EN_EMETER_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_EMETER_AUX_GPIO_Port,
-            .pin = FR_STBY_EMETER_AUX_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_15,
-    },
-    [EFUSE_CHANNEL_AUX] = {
-        .enable_gpio = {
-            .port = EN_AUX_GPIO_Port,
-            .pin = EN_AUX_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_EMETER_AUX_GPIO_Port,
-            .pin = FR_STBY_EMETER_AUX_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_14,
-    },
-    [EFUSE_CHANNEL_DRS] = {
-        .enable_gpio = {
-            .port = EN_DRS_GPIO_Port,
-            .pin = EN_DRS_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_DRS_FAN_GPIO_Port,
-            .pin = FR_STBY_DRS_FAN_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_7,
-    },
-    [EFUSE_CHANNEL_FAN] = {
-        .enable_gpio = {
-            .port = EN_FAN_GPIO_Port,
-            .pin = EN_FAN_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_DRS_FAN_GPIO_Port,
-            .pin = FR_STBY_DRS_FAN_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_6,
-    },
-    [EFUSE_CHANNEL_DI_LHS] = {
-        .enable_gpio = {
-            .port = EN_DI_LHS_GPIO_Port,
-            .pin = EN_DI_LHS_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_DIS_GPIO_Port,
-            .pin = FR_STBY_DIS_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_5,
-    },
-    [EFUSE_CHANNEL_DI_RHS] = {
-        .enable_gpio = {
-            .port = EN_DI_RHS_GPIO_Port,
-            .pin = EN_DI_RHS_Pin
-        },
-        .stby_reset_gpio = {
-            .port = FR_STBY_DIS_GPIO_Port,
-            .pin = FR_STBY_DIS_Pin,
-        },
-        .cur_sns_adc_channel = ADC_1_CHANNEL_4,
-    }
-};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -258,7 +122,6 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
-static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -267,33 +130,10 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 
 /* USER CODE BEGIN PFP */
-
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count);
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-static void CanRxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_PDM_RxOverflowCount_Set(overflow_count);
-    App_CanAlerts_PDM_Warning_RxOverflow_Set(true);
-}
-
-static void CanTxQueueOverflowCallBack(uint32_t overflow_count)
-{
-    App_CanTx_PDM_TxOverflowCount_Set(overflow_count);
-    App_CanAlerts_PDM_Warning_TxOverflow_Set(true);
-}
-
-static const CanConfig can_config = {
-    .rx_msg_filter        = Io_CanRx_FilterMessageId,
-    .tx_overflow_callback = CanTxQueueOverflowCallBack,
-    .rx_overflow_callback = CanRxQueueOverflowCallBack,
-};
-
 /* USER CODE END 0 */
 
 /**
@@ -303,8 +143,7 @@ static const CanConfig can_config = {
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    hw_bootup_enableInterruptsForApp();
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -328,50 +167,9 @@ int main(void)
     MX_ADC1_Init();
     MX_CAN1_Init();
     MX_IWDG_Init();
-    MX_SPI2_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
-
-    hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
-
-    Io_SharedSoftwareWatchdog_Init(io_watchdogConfig_refresh, io_watchdogConfig_timeoutCallback);
-    Io_CanTx_Init(io_jsoncan_pushTxMsgToQueue);
-    Io_CanTx_EnableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
-
-    io_lowVoltageBattery_init(&lv_battery_config);
-    io_efuse_init(efuse_configs);
-
-    App_CanTx_Init();
-    App_CanRx_Init();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    state_machine              = App_SharedStateMachine_Create(NULL, app_initState_get());
-    globals->heartbeat_monitor = heartbeat_monitor;
-
-    io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-    io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
-
-    // broadcast commit info
-    App_CanTx_PDM_Hash_Set(GIT_COMMIT_HASH);
-    App_CanTx_PDM_Clean_Set(GIT_COMMIT_CLEAN);
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -677,42 +475,6 @@ static void MX_IWDG_Init(void)
 }
 
 /**
- * @brief SPI2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI2_Init(void)
-{
-    /* USER CODE BEGIN SPI2_Init 0 */
-
-    /* USER CODE END SPI2_Init 0 */
-
-    /* USER CODE BEGIN SPI2_Init 1 */
-
-    /* USER CODE END SPI2_Init 1 */
-    /* SPI2 parameter configuration*/
-    hspi2.Instance               = SPI2;
-    hspi2.Init.Mode              = SPI_MODE_MASTER;
-    hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
-    hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
-    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS               = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
-    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-    hspi2.Init.CRCPolynomial     = 10;
-    if (HAL_SPI_Init(&hspi2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SPI2_Init 2 */
-
-    /* USER CODE END SPI2_Init 2 */
-}
-
-/**
  * @brief TIM3 Initialization Function
  * @param None
  * @retval None
@@ -849,28 +611,7 @@ void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    static const TickType_t  period_ms = 10U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        App_SharedStateMachine_Tick100Hz(state_machine);
-        Io_CanTx_Enqueue100HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -885,16 +626,7 @@ void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
-
-    for (;;)
-    {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        Io_CanRx_UpdateRxTableWithMessage(&jsoncan_rx_msg);
-    }
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -909,11 +641,7 @@ void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
-
-    for (;;)
-    {
-        io_can_transmitMsgFromQueue();
-    }
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -928,33 +656,7 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    for (;;)
-    {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-
-        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -969,30 +671,7 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     UNUSED(argument);
-    static const TickType_t  period_ms = 1000U;
-    SoftwareWatchdogHandle_t watchdog  = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
-
-    /* Infinite loop */
-    for (;;)
-    {
-        io_stackWaterMark_check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
-
-        const bool debug_mode_enabled = App_CanRx_Debug_EnableDebugMode_Get();
-        Io_CanTx_EnableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        Io_CanTx_Enqueue1HzMsgs();
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 

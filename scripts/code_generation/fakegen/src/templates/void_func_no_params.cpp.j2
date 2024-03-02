@@ -4,7 +4,11 @@
 // Fakes for: {{ name }}
 //
 
+// State variables.
 static uint32_t {{ func_call_count }};
+
+//Callback Function Pointer
+static void (*{{ name }}_callback)(void) = NULL;
 
 extern "C" 
 {
@@ -12,15 +16,26 @@ extern "C"
     {
         // Increment call count.
         {{ func_call_count }}++;
+        
+        // call callback function if defined
+        if({{ name }}_callback != NULL){
+            return {{ name }}_callback();
+        }
     }
 }
 
 void fake_{{ name }}_reset() 
 {
     {{ func_call_count }} = 0;
+    {{ name }}_callback = NULL;
 }
 
 uint32_t fake_{{ name }}_callCount(void)
 {
     return {{ func_call_count }};
+}
+
+void fake_{{ name }}_setCallBack(void (*func_ptr)(void))
+{
+   {{ name }}_callback = func_ptr;
 }

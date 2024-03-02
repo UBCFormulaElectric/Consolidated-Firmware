@@ -38,22 +38,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: BMS
+            ioc_dir: firmware/thruna/BMS/src/cubemx
+          - board: DCM
+            ioc_dir: firmware/thruna/DCM/src/cubemx
           - board: FSM
             ioc_dir: firmware/thruna/FSM/src/cubemx
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
-          - board: DCM
-            ioc_dir: firmware/thruna/DCM
+          - board: DIM
+            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: VC
+            ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
-            ioc_dir: firmware/thruna/BMS
+            ioc_dir: firmware/quadruna/BMS/src/cubemx
+          - board: FSM
+            ioc_dir: firmware/quadruna/FSM/src/cubemx
+          - board: RSM
+            ioc_dir: firmware/quadruna/RSM/src/cubemx
+          - board: DIM
+            ioc_dir: firmware/quadruna/DIM/src/cubemx
           - board: f4boot
             ioc_dir: firmware/boot/f4boot/cubemx
           - board: f4dev
-            ioc_dir: firmware/dev/f4dev/src/cubemx
+            ioc_dir: firmware/dev/f4dev/cubemx
           - board: h7dev
-            ioc_dir: firmware/dev/h7dev/src/cubemx
+            ioc_dir: firmware/dev/h7dev/cubemx
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -83,7 +93,7 @@ jobs:
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
 
-  build-firmware-thruna:
+  build-firmware:
     needs: [ clang-format ]
     name: Build Firmware Binaries
     runs-on: ubuntu-latest
@@ -91,13 +101,19 @@ jobs:
       fail-fast: false
       matrix:
         board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
+          - thruna_BMS
+          - thruna_DCM
+          - thruna_FSM
+          - thruna_PDM
+          - thruna_DIM
+          - quadruna_VC
+          - quadruna_BMS
+          - quadruna_FSM
+          - quadruna_RSM
+          - quadruna_CRIT
           - f4dev
           - h7dev
+
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -112,19 +128,34 @@ jobs:
         with:
           board: ${{ matrix.board }}
 
-  test-thruna:
+  test:
     needs: [ clang-format ]
-    name: Test Thruna
+    name: Test Firmware
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        board:
-          - FSM
-          - PDM
-          - BMS
-          - DCM
-          - DIM
+        include:
+          - board: FSM
+            car: thruna
+          - board: PDM
+            car: thruna
+          - board: BMS
+            car: thruna
+          - board: DCM
+            car: thruna
+          - board: DIM
+            car: thruna
+          - board: VC
+            car: quadruna
+          - board: BMS
+            car: quadruna
+          - board: FSM
+            car: quadruna
+          - board: RSM
+            car: quadruna
+          - board: CRIT
+            car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -136,7 +167,6 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-
       # Fix to ensure that commands like git status work in child directories 
       # for gitpython in git_commit_info
       - name: Setup git
@@ -149,13 +179,13 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.board }}_test
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.car }}_${{ matrix.board }}_test
 
-      - name: Run tests
+      - name: Run Tests
         run: |
-          cd $BUILD_DIR/firmware/thruna/${{ matrix.board }}
-          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.board }}_test
+          cd $BUILD_DIR/firmware/${{ matrix.car }}/${{ matrix.board }}
+          valgrind --tool=memcheck --leak-check=yes ./${{ matrix.car }}_${{ matrix.board }}_test
 
   test-shared:
     name: Test Shared
@@ -183,7 +213,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` shared_test
 
       - name: Run tests
@@ -217,7 +247,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` fakegen_test
 
       - name: Run tests

@@ -1,6 +1,7 @@
 if("${TARGET}" STREQUAL "test")
     list(APPEND HDRS_TO_FAKE 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_buzzer.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_rgbLed.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switch.h"
@@ -15,6 +16,7 @@ if("${TARGET}" STREQUAL "test")
         "shared"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
+        "thruna"
     )
 
     set(CAN_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/app)
