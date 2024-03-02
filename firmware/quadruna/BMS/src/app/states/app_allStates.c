@@ -13,6 +13,16 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
+uint32_t owcCounter = 0;
+
+typedef enum
+{
+    RUN_CELL_MEASUREMENTS,
+    RUN_CELL_OWC
+} isoSpiTasks;
+
+isoSpiTasks isoSpiTasksState = RUN_CELL_MEASUREMENTS;
+
 void app_allStates_runOnTick1Hz(void)
 {
     bool charger_is_connected = io_charger_isConnected();
@@ -37,8 +47,6 @@ void app_allStates_runOnTick1Hz(void)
     // }
 }
 
-uint32_t owcCounter = 0;
-
 bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
@@ -47,17 +55,31 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    owcCounter++;
-    if (owcCounter >= 500) // run Open Wire Check every 5 seconds
+    switch (isoSpiTasksState)
     {
-        if (app_accumulator_openWireCheck())
+        case RUN_CELL_MEASUREMENTS:
         {
-            owcCounter = 0;
+            app_accumulator_runCellMeasurements();
+            owcCounter++;
+            if (owcCounter >= 500)
+            {
+                isoSpiTasksState = RUN_CELL_OWC;
+            }
+            break;
         }
-    }
-    else
-    {
-        app_accumulator_runOnTick100Hz();
+        case RUN_CELL_OWC:
+        {
+            if (app_accumulator_runOpenWireCheck())
+            {
+                owcCounter       = 0;
+                isoSpiTasksState = RUN_CELL_MEASUREMENTS;
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
 
     app_thermistors_updateAuxThermistorTemps();

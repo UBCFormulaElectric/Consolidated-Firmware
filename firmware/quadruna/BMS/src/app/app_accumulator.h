@@ -34,14 +34,14 @@ void app_accumulator_init(void);
 void app_accumulator_writeDefaultConfig(void);
 
 /**
- * Tick function to be called at 100Hz.
+ * Cell Voltage and Temp Measurement function to be called at 100Hz.
  */
-void app_accumulator_runOnTick100Hz(void);
+void app_accumulator_runCellMeasurements(void);
 
 /**
  * Open Wire Check state machine
  */
-bool app_accumulator_openWireCheck(void);
+bool app_accumulator_runOpenWireCheck(void);
 
 /**
  * Broadcast state of the accumulator over CAN.

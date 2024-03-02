@@ -242,7 +242,7 @@ void app_accumulator_writeDefaultConfig()
     io_ltc6813Shared_setCfgRegsToDefaultSettings();
 }
 
-void app_accumulator_runOnTick100Hz(void)
+void app_accumulator_runCellMeasurements(void)
 {
     switch (data.state)
     {
@@ -310,7 +310,7 @@ static void app_accumulator_owcCalculateFaults(void)
     data.owc_faults = owcFaults;
 }
 
-bool app_accumulator_openWireCheck(void)
+bool app_accumulator_runOpenWireCheck(void)
 {
     bool is_finished = false;
 
