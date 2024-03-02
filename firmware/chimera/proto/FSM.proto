@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package FSM;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  BRAKE_OCSC_OK_3V3 = 1;
+  NCHIMERA = 2;
+  LED = 3;
+  NBSPD_BRAKE_PRESSED_3V3 = 4;
+  NPROGRAM_3V3 = 5;
+  FSM_SHDN = 6;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED = 0;
+  SUSP_TRAVEL_FR_3V3 = 1;
+  SUSP_TRAVEL_FL_3V3 = 2;
+  LOAD_CELL_2_3V3 = 3;
+  APPS2_3V3 = 4;
+  BPS_F_3V3 = 5;
+  BPS_B_3V3 = 6;
+  LOAD_CELL_1_3V3 = 7;
+  APPS1_3V3 = 8;
+  SteeringAngle_3V3 = 9;
+}

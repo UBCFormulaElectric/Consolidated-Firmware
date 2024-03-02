@@ -46,9 +46,10 @@ ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan1;
 
-IWDG_HandleTypeDef hiwdg;
-
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim12;
+
+UART_HandleTypeDef huart1;
 
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
@@ -120,7 +121,8 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM12_Init(void);
-static void MX_IWDG_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_TIM3_Init(void);
 void        StartTask1kHz(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
@@ -167,7 +169,8 @@ int main(void)
     MX_ADC1_Init();
     MX_CAN1_Init();
     MX_TIM12_Init();
-    MX_IWDG_Init();
+    MX_USART1_UART_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
     tasks_init();
@@ -249,9 +252,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 8;
@@ -415,17 +417,17 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 16;
+    hcan1.Init.Prescaler            = 12;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan1.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan1.Init.TimeSeg1             = CAN_BS1_1TQ;
+    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
+    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
     hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
     hcan1.Init.TimeTriggeredMode    = DISABLE;
-    hcan1.Init.AutoBusOff           = DISABLE;
+    hcan1.Init.AutoBusOff           = ENABLE;
     hcan1.Init.AutoWakeUp           = DISABLE;
-    hcan1.Init.AutoRetransmission   = DISABLE;
-    hcan1.Init.ReceiveFifoLocked    = DISABLE;
-    hcan1.Init.TransmitFifoPriority = DISABLE;
+    hcan1.Init.AutoRetransmission   = ENABLE;
+    hcan1.Init.ReceiveFifoLocked    = ENABLE;
+    hcan1.Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(&hcan1) != HAL_OK)
     {
         Error_Handler();
@@ -436,29 +438,46 @@ static void MX_CAN1_Init(void)
 }
 
 /**
- * @brief IWDG Initialization Function
+ * @brief TIM3 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_IWDG_Init(void)
+static void MX_TIM3_Init(void)
 {
-    /* USER CODE BEGIN IWDG_Init 0 */
+    /* USER CODE BEGIN TIM3_Init 0 */
 
-    /* USER CODE END IWDG_Init 0 */
+    /* USER CODE END TIM3_Init 0 */
 
-    /* USER CODE BEGIN IWDG_Init 1 */
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
 
-    /* USER CODE END IWDG_Init 1 */
-    hiwdg.Instance       = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IDWG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN IWDG_Init 2 */
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
 
-    /* USER CODE END IWDG_Init 2 */
+    /* USER CODE END TIM3_Init 2 */
 }
 
 /**
@@ -505,6 +524,37 @@ static void MX_TIM12_Init(void)
 }
 
 /**
+ * @brief USART1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USART1_UART_Init(void)
+{
+    /* USER CODE BEGIN USART1_Init 0 */
+
+    /* USER CODE END USART1_Init 0 */
+
+    /* USER CODE BEGIN USART1_Init 1 */
+
+    /* USER CODE END USART1_Init 1 */
+    huart1.Instance          = USART1;
+    huart1.Init.BaudRate     = 115200;
+    huart1.Init.WordLength   = UART_WORDLENGTH_8B;
+    huart1.Init.StopBits     = UART_STOPBITS_1;
+    huart1.Init.Parity       = UART_PARITY_NONE;
+    huart1.Init.Mode         = UART_MODE_TX_RX;
+    huart1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+    if (HAL_UART_Init(&huart1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USART1_Init 2 */
+
+    /* USER CODE END USART1_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -531,31 +581,29 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BRAKE_OCSC_OK_3V3_Pin nPROGRAM_3V3_Pin */
-    GPIO_InitStruct.Pin  = BRAKE_OCSC_OK_3V3_Pin | nPROGRAM_3V3_Pin;
+    /*Configure GPIO pin : BRAKE_OCSC_OK_3V3_Pin */
+    GPIO_InitStruct.Pin  = BRAKE_OCSC_OK_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(BRAKE_OCSC_OK_3V3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nBSPD_BRAKE_PRESSED_3V3_Pin FSM_SHDN_Pin */
-    GPIO_InitStruct.Pin  = nBSPD_BRAKE_PRESSED_3V3_Pin | FSM_SHDN_Pin;
+    /*Configure GPIO pins : NBSPD_BRAKE_PRESSED_3V3_Pin FSM_SHDN_Pin */
+    GPIO_InitStruct.Pin  = NBSPD_BRAKE_PRESSED_3V3_Pin | FSM_SHDN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : UART4_RX_Pin UART4_TX_Pin */
-    GPIO_InitStruct.Pin       = UART4_RX_Pin | UART4_TX_Pin;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : nCHIMERA_Pin */
-    GPIO_InitStruct.Pin  = nCHIMERA_Pin;
+    /*Configure GPIO pin : NPROGRAM_3V3_Pin */
+    GPIO_InitStruct.Pin  = NPROGRAM_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(NPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : NCHIMERA_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(NCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
