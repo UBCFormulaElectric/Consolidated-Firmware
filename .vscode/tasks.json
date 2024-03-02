@@ -74,6 +74,15 @@
             }
         },
         {
+            "label": "Build Embedded: FSM (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_FSM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
             "label": "Build Embedded: PDM",
             "type": "shell",
             "command": "make -j`nproc` thruna_PDM.hex",
@@ -113,6 +122,24 @@
             "label": "Build Embedded: VC",
             "type": "shell",
             "command": "make -j`nproc` quadruna_VC.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: RSM",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_RSM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: CRIT",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_CRIT.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"

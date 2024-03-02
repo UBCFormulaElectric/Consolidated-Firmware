@@ -71,6 +71,8 @@ extern "C"
 #define IWDG_PRESCALER 4
 #define IWDG_WINDOW_DISABLE_VALUE 4095
 #define LSI_FREQUENCY 32000
+#define TIM3_PRESCALER 8
+#define ADC_FREQUENCY 1000
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 #define SteeingAngle_3V3_Pin GPIO_PIN_1
@@ -87,8 +89,8 @@ extern "C"
 #define APPS2_3V3_GPIO_Port GPIOA
 #define BPS_F_3V3_Pin GPIO_PIN_7
 #define BPS_F_3V3_GPIO_Port GPIOA
-#define nBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_4
-#define nBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOC
+#define NBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_4
+#define NBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOC
 #define BPS_B_3V3_Pin GPIO_PIN_5
 #define BPS_B_3V3_GPIO_Port GPIOC
 #define SUSP_TRAVEL_FL_3V3_Pin GPIO_PIN_0
@@ -105,10 +107,10 @@ extern "C"
 #define UART4_RX_GPIO_Port GPIOA
 #define UART4_TX_Pin GPIO_PIN_10
 #define UART4_TX_GPIO_Port GPIOA
-#define nPROGRAM_3V3_Pin GPIO_PIN_15
-#define nPROGRAM_3V3_GPIO_Port GPIOA
-#define nCHIMERA_Pin GPIO_PIN_6
-#define nCHIMERA_GPIO_Port GPIOB
+#define NPROGRAM_3V3_Pin GPIO_PIN_15
+#define NPROGRAM_3V3_GPIO_Port GPIOA
+#define NCHIMERA_Pin GPIO_PIN_6
+#define NCHIMERA_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
