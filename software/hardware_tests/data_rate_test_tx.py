@@ -1,5 +1,6 @@
 import serial
 import time
+import msgpack
 
 def generate_data_rate(target_data_rate_kbps):
     ser = serial.Serial('/dev/ttyUSB0', baudrate=57600, stopbits=1, timeout=100) 
@@ -10,8 +11,10 @@ def generate_data_rate(target_data_rate_kbps):
 
     try:
         while True:
-            msg = str(int(tick_count)) +'\n'
-            ser.write(msg) #10 characters at 8 bits each
+            msg = {'name': 'meow', 'age': 25}
+            packed_msg = msgpack.packb(msg)
+
+            ser.write(packed_msg) #10 characters at 8 bits each
             # 80 bits
 
             time.sleep(delay)
