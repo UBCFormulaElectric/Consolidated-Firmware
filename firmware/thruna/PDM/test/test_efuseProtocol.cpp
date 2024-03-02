@@ -25,7 +25,6 @@ extern "C"
 class PdmEfuseProtocolTest : public BaseStateMachineTest
 {
   protected:
-
     void SetUp() override
     {
         BaseStateMachineTest::SetUp();
@@ -107,8 +106,8 @@ class PdmEfuseProtocolTest : public BaseStateMachineTest
 
 TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_successful)
 {
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LVPWR, 0.3);
-    // fake_io_time_getCurrentMs_returns(200);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LVPWR, 0.7);
+    // fake_io_time_getCurrentMs_returns(100);
     // SetInitialState(app_initState_get());
     // LetTimePass(200);
     app_powerManager_setState(POWER_MANAGER_DRIVE);

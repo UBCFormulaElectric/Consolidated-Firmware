@@ -49,15 +49,16 @@ void app_powerManager_setState(PowerManagerState state)
     current_power_state = state;
     bool success        = false;
 
-    static int efuse   = 0;
-    static int attempt = 0;
+    int         efuse        = 0;
+    int         attempt      = 0;
+    EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
+    app_timer_restart(&timer);
 
     while (efuse < NUM_EFUSE_CHANNELS)
     {
-        EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
         io_efuse_setChannel(efuse, efuse_config.efuse_state);
-        success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
         app_timer_restart(&timer);
+        success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
 
         if (app_timer_updateAndGetState(&timer) == TIMER_STATE_EXPIRED)
         {
@@ -70,13 +71,50 @@ void app_powerManager_setState(PowerManagerState state)
             else if (attempt == efuse_config.retry_limit)
             {
                 app_canTx_PDM_EfuseFault_set(true);
-            } else 
+            }
+            else
             {
                 attempt++;
             }
         }
     }
 }
+
+// void app_powerManager_setState(PowerManagerState state)
+// {
+//     TimerChannel timer;
+//     TimerState timer_state;
+//     app_timer_init(&timer, CHECK_TIME);
+//     current_power_state = state;
+//     bool success        = false;
+
+//     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
+//     {
+//         EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
+//         io_efuse_setChannel(efuse, efuse_config.efuse_state);
+
+//         for (int attempt = 0; (attempt <= efuse_config.retry_limit) && !success; attempt++)
+//         {
+//             app_timer_restart(&timer);
+//             io_efuse_setChannel(efuse, efuse_config.efuse_state);
+//             timer_state = app_timer_updateAndGetState(&timer);
+
+//             while (timer_state != TIMER_STATE_EXPIRED)
+//             {
+//                 timer_state = app_timer_updateAndGetState(&timer);
+//             }
+
+//             success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
+//             apply_retry_protocol(efuse_config.retry_protocol, success);
+//             timer_state = app_timer_updateAndGetState(&timer);
+//         }
+//     }
+
+//     if (!success)
+//     {
+//         app_canTx_PDM_EfuseFault_set(true);
+//     }
+// }
 
 PowerManagerState app_powerManager_getState()
 {
