@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 4096
+#define QUEUE_SIZE 4096 * 2
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -116,10 +116,10 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 
 void io_canLogging_recordMsgFromQueue(void)
 {
-    if (!sd_inited && hw_gpio_readPin(&sd_present))
-    {
-        return;
-    }
+    // if (!sd_inited && hw_gpio_readPin(&sd_present))
+    // {
+    //     return;
+    // }
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
