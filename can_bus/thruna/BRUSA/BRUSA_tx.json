@@ -12,7 +12,7 @@
                 "start_bit": 1,
                 "bits": 1
             },
-            "PowerLimmitedWarning": {
+            "PowerLimitedWarning": {
                 "start_bit": 2,
                 "bits": 1
             }

@@ -9,7 +9,7 @@
 static void chargeStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
-    io_charger_enable(true);
+    app_canTx_BMS_ChargerEnable_set(true);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
@@ -26,12 +26,12 @@ static void chargeStateRunOnTick100Hz(void)
     {
         const bool external_shutdown_occurred = !io_airs_isNegativeClosed();
         const bool charging_enabled           = app_canRx_Debug_StartCharging_get();
-        const bool is_charger_connected       = io_charger_isConnected();
+        const bool is_charger_connected       = app_canRx_BRUSA_OnStatus_get();
 
         bool has_charger_faulted = false;
         if (globals->ignore_charger_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
         {
-            has_charger_faulted = io_charger_hasFaulted();
+            has_charger_faulted = app_canRx_BRUSA_Error_get();
         }
         else
         {
@@ -56,7 +56,7 @@ static void chargeStateRunOnTick100Hz(void)
         if (!charging_enabled)
         {
             // Charger must be diabled and given time to shut down before air positive is opened
-            io_charger_enable(false);
+            app_canTx_BMS_ChargerEnable_set(false);
             globals->charger_exit_counter++;
 
             if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
@@ -69,7 +69,7 @@ static void chargeStateRunOnTick100Hz(void)
 
 static void chargeStateRunOnExit(void)
 {
-    io_charger_enable(false);
+    app_canTx_BMS_ChargerEnable_set(false);
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);
 }

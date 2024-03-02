@@ -49,14 +49,12 @@ static void initStateRunOnTick100Hz(void)
 
         if (air_negative_closed && ts_discharged)
         {
-            const bool charger_connected         = io_charger_isConnected();
+            const bool charger_connected         = app_canRx_BRUSA_OnStatus_get();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
             const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
             const bool precharge_for_charging = charger_connected && external_charging_request;
-            // TODO: Check heartbeat from another board before continuing to precharge? will prevent unintended entry to
-            // precharge when preparing to charge
-            const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
+            const bool precharge_for_driving  = !charger_connected && !cell_balancing_enabled && !missing_hb;
 
             if (precharge_for_charging)
             {

@@ -90,7 +90,7 @@
         }
     },
 
-    "BrusaControl": {
+    "BrusaControls": {
         "msg_id": 1560,
         "cycle_time": 100,
         "description": "Flags and parameters for controlling the BRUSA charger",

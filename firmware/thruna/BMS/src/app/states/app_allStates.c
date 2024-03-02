@@ -15,9 +15,6 @@
 
 void app_allStates_runOnTick1Hz(void)
 {
-    bool charger_is_connected = io_charger_isConnected();
-    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
-
     const float    min_soc  = app_soc_getMinSocCoulombs();
     const uint16_t soc_addr = app_soc_getSocAddress();
 
