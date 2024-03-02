@@ -15,6 +15,7 @@
 
 // Number of open wire check commands (ADOW) to send before open wire check
 #define OPEN_WIRE_CHECK_NUM_ADOW_CMDS (2)
+#define OPEN_WIRE_CHCEK_EMPTY_CYCLES (4)
 
 // Open Wire Check Modes
 #define PULL_UP (1U)
@@ -62,6 +63,7 @@ typedef enum
     GET_PU_CELL_VOLTAGE_STATE,
     GET_PD_CELL_VOLTAGE_STATE,
     CHECK_OPEN_WIRE_FAULT_STATE,
+    EMPTY_STATE,
 } AccumulatorOpenWireCheckState;
 
 typedef struct
@@ -106,6 +108,7 @@ typedef struct
 static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
+static uint8_t     owcEmptyStates;
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -233,6 +236,7 @@ void app_accumulator_init(void)
 
     open_wire_pu_readings = 0;
     open_wire_pd_readings = 0;
+    owcEmptyStates        = 0;
     data.owc_state        = START_OPEN_WIRE_CHECK;
 }
 
@@ -321,7 +325,7 @@ bool app_accumulator_runOpenWireCheck(void)
             // update the number of commands that've been run already before starting Open Wire Check
             open_wire_pu_readings = 0;
             open_wire_pd_readings = 0;
-
+            owcEmptyStates        = 0;
             // Set up or acquire the Mutex for iso-SPI
             bool Mutex_Acquired = true; // this line is just a reminder to fix it with proper code
 
@@ -368,13 +372,25 @@ bool app_accumulator_runOpenWireCheck(void)
         case CHECK_OPEN_WIRE_FAULT_STATE:
         {
             io_ltc6813CellVoltages_checkOpenWireStatus();
-            data.owc_state = START_OPEN_WIRE_CHECK;
+            data.owc_state = EMPTY_STATE;
 
             app_accumulator_owcCalculateFaults();
 
-            is_finished = true;
+            break;
+        }
+        case EMPTY_STATE:
+        {
+            owcEmptyStates++;
 
-            // give away mutex for iso-SPI
+            if (owcEmptyStates >= OPEN_WIRE_CHCEK_EMPTY_CYCLES)
+            {
+                data.owc_state = START_OPEN_WIRE_CHECK;
+                is_finished    = true;
+            }
+            else
+            {
+                data.owc_state = EMPTY_STATE;
+            }
 
             break;
         }
