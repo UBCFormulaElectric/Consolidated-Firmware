@@ -19,7 +19,6 @@
 #define STATUS_10HZ_ID 1109
 #define BOOT_GPIO_PORT GPIOA
 #define BOOT_GPIO_PIN GPIO_PIN_2
-#define BOOT_AUTO
 
 #elif defined(DCM)
 
@@ -27,8 +26,7 @@
 #define UPDATE_ACK_ID 1111
 #define STATUS_10HZ_ID 1119
 #define BOOT_GPIO_PORT GPIOB
-#define BOOT_GPIO_PIN GPIO_PIN_12
-#define BOOT_AUTO
+#define BOOT_GPIO_PIN GPIO_PIN_13
 
 #elif defined(FSM)
 
@@ -36,8 +34,7 @@
 #define UPDATE_ACK_ID 1121
 #define STATUS_10HZ_ID 1129
 #define BOOT_GPIO_PORT GPIOB
-#define BOOT_GPIO_PIN GPIO_PIN_12
-#define BOOT_AUTO
+#define BOOT_GPIO_PIN GPIO_PIN_2
 
 #elif defined(PDM)
 
@@ -46,7 +43,6 @@
 #define STATUS_10HZ_ID 1139
 #define BOOT_GPIO_PORT GPIOA
 #define BOOT_GPIO_PIN GPIO_PIN_9
-#define BOOT_AUTO
 
 #elif defined(DIM)
 
@@ -55,7 +51,6 @@
 #define STATUS_10HZ_ID 1149
 #define BOOT_GPIO_PORT GPIOB
 #define BOOT_GPIO_PIN GPIO_PIN_4
-#define BOOT_AUTO
 
 #elif defined(VC)
 
