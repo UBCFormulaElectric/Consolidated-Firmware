@@ -141,7 +141,7 @@ void tasks_preInit(void) {}
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
-    can.can                   = hcan1;
+    can.can                   = &hcan1;
     can.canMsgRecievecallback = NULL;
 
     // Configure and initialize SEGGER SystemView.
