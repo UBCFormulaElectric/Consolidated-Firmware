@@ -67,6 +67,7 @@ extern FDCAN_HandleTypeDef hfdcan1;
 // extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
 extern SPI_HandleTypeDef  hspi2;
 extern TIM_HandleTypeDef  htim1;
+extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim15;
 extern UART_HandleTypeDef huart1;
 
@@ -285,6 +286,7 @@ void tasks_init(void)
     LOG_INFO("BMS reset!");
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
 
     hw_hardFaultHandler_init();
@@ -392,11 +394,6 @@ void tasks_run1kHz(void)
 
     for (;;)
     {
-        // ADC wasn't reading any voltages when triggered by TIM3 like on other boards
-        // But worked fine when starting the conversion via software as below
-        // TODO: Figure out why
-        HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
 
