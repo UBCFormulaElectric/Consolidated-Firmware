@@ -4,6 +4,7 @@
 
 #include "hw_can.h"
 #include "hw_adc.h"
+#include "hw_adcConversions.h"
 #include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
 // #include "hw_bootup.h"
@@ -63,6 +64,7 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 }
 
 extern ADC_HandleTypeDef   hadc1;
+extern ADC_HandleTypeDef   hadc2;
 extern FDCAN_HandleTypeDef hfdcan1;
 // extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
 extern SPI_HandleTypeDef  hspi2;
@@ -151,7 +153,7 @@ static const AirsConfig airs_config = { .air_p_gpio = {
 };
 
 // TODO: Test differential ADC for voltage measurement
-static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC1_IN10_TS_VSENSE_DIFF,
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC2_IN10_TS_VSENSE_DIFF,
                                                 .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
                                                 .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
@@ -266,7 +268,7 @@ const AdcChannel id_to_adc[] = {
     [BMS_AdcNetName_AUX_TSENSE]     = ADC1_IN4_AUX_TSENSE,
     [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
     [BMS_AdcNetName_TS_ISENSE_50A]  = ADC1_IN5_TS_ISENSE_50A,
-    [BMS_AdcNetName_TS_VSENSE]      = ADC1_IN10_TS_VSENSE_DIFF,
+    [BMS_AdcNetName_TS_VSENSE]      = ADC2_IN10_TS_VSENSE_DIFF,
 };
 
 static UART debug_uart = { .handle = &huart1 };
@@ -285,7 +287,13 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS reset!");
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    hw_adcConversions_calibrate(&hadc1, false);
+    hw_adcConversions_calibrate(&hadc2, true);
+
+    const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN4_AUX_TSENSE];
+    const uint16_t *adc2_buf_start = &hw_adc_getRawValuesBuffer()[ADC2_IN10_TS_VSENSE_DIFF];
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc2_buf_start, hadc2.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
 

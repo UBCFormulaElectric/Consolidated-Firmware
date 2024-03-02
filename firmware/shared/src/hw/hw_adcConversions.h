@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include "hw_hal.h"
 
+#ifdef STM32H733xx
+bool hw_adcConversions_calibrate(ADC_HandleTypeDef *hadc, bool is_differential);
+#endif
+
 /**
  * Convert the given raw ADC value measured by the given ADC handle into voltage
  * @param hadc ADC handle

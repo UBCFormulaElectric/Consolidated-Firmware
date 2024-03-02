@@ -4,6 +4,13 @@
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
+#ifdef STM32H733xx
+bool hw_adcConversions_calibrate(ADC_HandleTypeDef *hadc, bool is_differential)
+{
+    return HAL_ADCEx_Calibration_Start(hadc, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED) == HAL_OK;
+}
+#endif
+
 float hw_adcConversions_rawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value)
 {
     uint16_t full_scale = MAX_12_BITS_VALUE;
@@ -26,9 +33,19 @@ float hw_adcConversions_rawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_di
             full_scale = MAX_12_BITS_VALUE;
             break;
 
+#ifdef STM32H733xx
+        case ADC_RESOLUTION_14B:
+            full_scale = MAX_14_BITS_VALUE;
+            break;
+
+        case ADC_RESOLUTION_16B:
+            full_scale = MAX_16_BITS_VALUE;
+            break;
+
         default:
             full_scale = MAX_12_BITS_VALUE;
             break;
+#endif
     }
 
     // Taken from the STM32 manual, the formula to convert the raw ADC

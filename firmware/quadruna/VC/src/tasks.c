@@ -28,6 +28,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_adcConversions.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -135,11 +136,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
-    // efuses:
-    // HAL_ADC_Start_DMA(
-    //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
-    //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-
+    assert(hw_adcConversions_calibrate(&hadc1, false));
+    assert(hw_adcConversions_calibrate(&hadc3, false));
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
