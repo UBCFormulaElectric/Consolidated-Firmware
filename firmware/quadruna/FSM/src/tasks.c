@@ -10,6 +10,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_steering.h"
+#include "app_brake.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -18,6 +19,7 @@
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
+#include "io_brake.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -58,7 +60,6 @@ const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-// TODO: Generate proper port/pin with cube
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
 static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };

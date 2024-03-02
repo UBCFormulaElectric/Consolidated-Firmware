@@ -103,5 +103,32 @@
 				"unit": "%"
 			}
 		}
+	},
+	"Brake": {
+		"msg_id": 314,
+		"cycle_time": 100,
+		"signals": {
+			"FrontBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"RearBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"BrakePedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"BrakeActuated": {
+				"bits": 1
+			}
+		}
 	}
 }

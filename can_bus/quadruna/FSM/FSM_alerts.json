@@ -16,7 +16,10 @@
         "SteeringAngleOutOfRange",
         "LeftWheelSpeedOutOfRange",
         "RightWheelSpeedOutOfRange",
-        "AppsDisagreement"
+        "AppsDisagreement",
+        "FrontBrakePressureOutOfRange",
+        "RearBrakePressureOutOfRange",
+        "BrakePressureSensorOCSC"
     ],
     "faults": [
         "DummyFault",

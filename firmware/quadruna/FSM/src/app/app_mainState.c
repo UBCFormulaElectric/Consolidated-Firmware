@@ -7,13 +7,14 @@
 #include "app_steering.h"
 #include "app_wheels.h"
 #include "app_apps.h"
+#include "app_brake.h"
 
 #include "app_heartbeatMonitor.h"
 
 void mainStateRunOnTick100Hz(void)
 {
     app_apps_broadcast();
-    // app_brake_broadcast();
+    app_brake_broadcast();
     app_steering_broadcast();
     app_wheels_broadcast();
 
