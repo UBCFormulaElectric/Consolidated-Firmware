@@ -59,17 +59,3 @@ bool io_brake_rearPressureSensorOCSC(void)
     float rear_pressure_voltage = hw_adc_getVoltage(ADC1_IN15_BPS_B);
     return pressureSensorOCSC(rear_pressure_voltage);
 }
-
-// float io_brake_getPedalPercentTravel(void)
-// {
-//     float       pedal_voltage    = hw_adc_getVoltage(ADC_CHANNEL_9);
-//     const float percent_per_volt = 100 / (BRAKE_PEDAL_MAX_VOLTAGE - BRAKE_PEDAL_MIN_VOLTAGE);
-//     return 100.0f - (pedal_voltage - BRAKE_PEDAL_MIN_VOLTAGE) * percent_per_volt;
-// }
-
-// bool io_brake_pedalSensorOCSC(void)
-// {
-//     return !(
-//         BRAKE_PEDAL_MIN_VOLTAGE <= hw_adc_getVoltage(ADC_CHANNEL_9) &&
-//         hw_adc_getVoltage(ADC_CHANNEL_9) <= BRAKE_PEDAL_MAX_VOLTAGE);
-// }

@@ -15,9 +15,6 @@ static const RangeCheck rear_pressure_in_range_check  = { .get_value = io_brake_
 
 void app_brake_broadcast()
 {
-    // const float brake_pedal_percentage = io_brake_getPedalPercentTravel();
-    // app_canTx_FSM_BrakePedalPercentage_set(brake_pedal_percentage);
-
     const bool brake_pressed = io_brake_isActuated();
     app_canTx_FSM_BrakeActuated_set(brake_pressed);
 
@@ -33,10 +30,4 @@ void app_brake_broadcast()
 
     const bool brake_pressure_ocsc = io_brake_frontPressureSensorOCSC() || io_brake_rearPressureSensorOCSC();
     app_canAlerts_FSM_Warning_BrakePressureSensorOCSC_set(brake_pressure_ocsc);
-    // app_canAlerts_FSM_Warning_BrakePedalSensorOCSC_set(io_brake_pedalSensorOCSC());
-
-    // if (io_brake_pedalSensorOCSC())
-    // {
-    //     app_canTx_FSM_BrakePedalPercentage_set(0);
-    // }
 }
