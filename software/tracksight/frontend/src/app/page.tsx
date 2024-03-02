@@ -82,7 +82,11 @@ const Home = () => {
                             messageApi={messageApi}
                         />
                     ) : (
-                        <Dashboard />
+                        <Dashboard
+                        socket={socketInstance!}
+                        deleteGraph={deleteGraph}
+                        
+                         />
                     )
                 )}
             </Content>

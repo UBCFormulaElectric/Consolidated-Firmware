@@ -42,7 +42,8 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
     }
 
     // config to forward can functions to shared heartbeat
-    // FSM rellies on BMS
+    // TODO: fixed shared heartbeat monitor library for Quadruna
+    // TODO: fill out these configs
     bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = false,
                                                               [DCM_HEARTBEAT_BOARD] = false,
                                                               [PDM_HEARTBEAT_BOARD] = false,

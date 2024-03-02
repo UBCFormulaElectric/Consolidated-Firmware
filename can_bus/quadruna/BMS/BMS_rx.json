@@ -1,0 +1,10 @@
+{
+    "messages": [
+        "FSM_Vitals",
+        "VC_Vitals",
+        "Debug_Charging",
+        "Debug_CanMode",
+        "Debug_CellBalancing",
+        "Debug_ResetSoc"
+    ]
+}

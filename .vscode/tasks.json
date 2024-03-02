@@ -38,9 +38,18 @@
             },
         },
         {
-            "label": "Build Embedded: BMS",
+            "label": "Build Embedded: BMS (Thruna)",
             "type": "shell",
             "command": "make -j`nproc` thruna_BMS.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: BMS (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_BMS.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
@@ -59,6 +68,15 @@
             "label": "Build Embedded: FSM (Thruna)",
             "type": "shell",
             "command": "make -j`nproc` thruna_FSM.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: FSM (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_FSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
@@ -110,18 +128,36 @@
             }
         },
         {
-            "label": "Build Embedded: FSM (Quadruna)",
+            "label": "Build Embedded: RSM",
             "type": "shell",
-            "command": "make -j`nproc` quadruna_FSM.hex",
+            "command": "make -j`nproc` quadruna_RSM.hex",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build Tests: BMS",
+            "label": "Build Embedded: CRIT",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_CRIT.hex",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Tests: BMS (Thruna)",
             "type": "shell",
             "command": "make -j`nproc` thruna_BMS_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: BMS (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_BMS_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"

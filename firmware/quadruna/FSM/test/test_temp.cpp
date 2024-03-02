@@ -6,7 +6,7 @@ class FsmFaultsTest : public FsmBaseStateMachineTest
 {
 };
 
-TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
+TEST_F(FsmFaultsTest, temporary)
 {
     ASSERT_TRUE(true);
 }
