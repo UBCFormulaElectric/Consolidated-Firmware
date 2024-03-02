@@ -174,49 +174,7 @@ static void app_accumulator_balanceCells(void)
         return;
     }
 
-    // Write to configuration register to configure cell discharging
-    app_accumulator_calculateCellsToBalance();
-    io_ltc6813Shared_writeConfigurationRegisters(true);
-
-    // Balance PWM settings
-    float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
-                                    ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()
-                                    : BALANCE_DEFAULT_FREQ;
-    uint32_t balance_pwm_duty = app_canRx_Debug_CellBalancingOverridePWM_get()
-                                    ? app_canRx_Debug_CellBalancingOverridePWMDuty_get()
-                                    : BALANCE_DEFAULT_DUTY;
-
-    // duty_on = 100_ticks_per_sec * 1/freq_Hz * duty_percent / 100
-    // TODO: verify frequency calculation. Period seems to be about double what it should be.
-    uint32_t balance_ticks_on  = (uint32_t)(1.0f / balance_pwm_freq * (float)balance_pwm_duty);
-    uint32_t balance_ticks_off = (uint32_t)(1.0f / balance_pwm_freq * (float)(100 - balance_pwm_duty));
-
-    if (data.balance_pwm_high)
-    {
-        // Enable cell discharging
-        io_ltc6813Shared_enableBalance();
-        data.balance_pwm_ticks += 1;
-
-        if (data.balance_pwm_ticks >= balance_ticks_on)
-        {
-            // Cell discharging enabled duty cycle portion is finished
-            data.balance_pwm_high  = false;
-            data.balance_pwm_ticks = 0;
-        }
-    }
-    else
-    {
-        // Disable cell discharging
-        io_ltc6813Shared_disableBalance();
-        data.balance_pwm_ticks += 1;
-
-        if (data.balance_pwm_ticks >= balance_ticks_off)
-        {
-            // Cell discharging disabled duty cycle portion is finished
-            data.balance_pwm_high  = true;
-            data.balance_pwm_ticks = 0;
-        }
-    }
+    io_ltc6813Shared_enableBalance(); // this
 }
 
 void app_accumulator_init(void)
