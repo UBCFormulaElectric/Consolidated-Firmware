@@ -5,7 +5,7 @@
 #pragma once
 
 #define FAULT_CURRENT_THRESHOLD 0.5f
-#define CHECK_TIME 200
+#define CHECK_TIME 100
 
 typedef enum
 {
