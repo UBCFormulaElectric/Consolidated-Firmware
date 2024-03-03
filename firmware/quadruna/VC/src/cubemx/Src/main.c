@@ -713,7 +713,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(nPCM_EN_GPIO_Port, nPCM_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, _900K_GPIO_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, PUMP_PWR_EN_Pin | _900K_GPIO_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : INV_R_PWR_EN_Pin INV_R_PROGRAM_Pin INV_L_PROGRAM_Pin SHDN_PWR_EN_Pin
                              INV_L_PWR_EN_Pin FR_STBY3_Pin */
@@ -793,17 +793,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PUMP_PWR_EN_Pin NCHIMERA_Pin nCHRG_FAULT_Pin nCHRG_Pin */
-    GPIO_InitStruct.Pin  = PUMP_PWR_EN_Pin | NCHIMERA_Pin | nCHRG_FAULT_Pin | nCHRG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : _900K_GPIO_Pin AUX_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = _900K_GPIO_Pin | AUX_PWR_EN_Pin;
+    /*Configure GPIO pins : PUMP_PWR_EN_Pin _900K_GPIO_Pin AUX_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = PUMP_PWR_EN_Pin | _900K_GPIO_Pin | AUX_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : NCHIMERA_Pin nCHRG_FAULT_Pin nCHRG_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin | nCHRG_FAULT_Pin | nCHRG_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PC8 PC9 PC10 PC11
