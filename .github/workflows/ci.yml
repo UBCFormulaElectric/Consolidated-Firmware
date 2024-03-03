@@ -78,9 +78,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we 
+      - name: Generate Log4J file
+        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
+
+      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
       # we also generate a checksum from the .ioc file when code is generated during builds.
-      # During CI, we re-generate the checksum. If it matches, then the code is up to date, 
+      # During CI, we re-generate the checksum. If it matches, then the code is up to date,
       # otherwise, you need to re-generate STM32CubeMX code locally.
       - name: Generate checksum
         run: |
@@ -165,7 +168,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
@@ -199,7 +202,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
@@ -233,7 +236,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)

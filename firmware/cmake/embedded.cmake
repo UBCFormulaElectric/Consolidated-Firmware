@@ -234,6 +234,20 @@ function(embedded_image
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
+if("${PLATFORM}" STREQUAL "firmware")
+    IF(${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
+        set(LOG4J_PROPERTIES "$ENV{UserProfile}/.stm32cubemx/log4j.properties")
+    ELSE ()
+        set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
+    ENDIF ()
+    message("📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
+    execute_process(
+            COMMAND ${PYTHON_COMMAND}
+            ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
+            --log4j_properties_output ${LOG4J_PROPERTIES}
+    )
+endif()
+
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
 # the directory where this function is called from.
 function(generate_stm32cube_code
@@ -244,17 +258,14 @@ function(generate_stm32cube_code
         ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
     set(FIX_FORMATTING_SCRIPT_PY
         ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
-    set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
 
     add_custom_command(
         OUTPUT ${IOC_PATH}.md5
-        ${LOG4J_PROPERTIES}
         COMMENT "Generating drivers for ${TARGET_NAME}"
         COMMAND ${PYTHON_COMMAND}
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${TARGET_NAME}
-        --log4j_properties_output ${LOG4J_PROPERTIES}
         --ioc ${IOC_PATH}
         --codegen_output_dir ${IOC_DIR}
         --cube_bin ${STM32CUBEMX_BIN_PATH}

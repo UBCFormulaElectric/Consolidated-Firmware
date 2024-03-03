@@ -47,11 +47,11 @@ ENDIF ()
 # arm toolchain
 IF ("${TARGET}" STREQUAL "deploy")
     # arm binary
-    CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9)
+    CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9 DOWNLOAD_ONLY)
     set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
     IF (WIN32)
         # openocd
-        CPMAddPackage("https://github.com/openocd-org/openocd/releases/download/v0.12.0/openocd-v0.12.0-i686-w64-mingw32.tar.gz")
+        CPMAddPackage(URL "https://github.com/openocd-org/openocd/releases/download/v0.12.0/openocd-v0.12.0-i686-w64-mingw32.tar.gz" NAME openocd DOWNLOAD_ONLY)
         message("🔖 OpenOCD Installed At ${openocd_SOURCE_DIR}/bin/openocd.exe")
         # zadig
         IF (NOT EXISTS ${CMAKE_SOURCE_DIR}/zadig.exe)
