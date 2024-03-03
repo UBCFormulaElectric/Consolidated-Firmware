@@ -35,19 +35,19 @@ IF (NO_VENV)
     ENDIF ()
 ELSE ()
     execute_process(COMMAND ${PIP_COMMAND} install pipenv OUTPUT_QUIET)
-    message("📦 Update Pipenv Dependencies")
+    message("📥 Installed pipenv")
     execute_process(COMMAND pipenv install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)
     IF (NOT ${PIPENV_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Error setting up pipenv. Please install/fix pipenv and try again.")
-    ELSE ()
-        message("📥 Found pipenv")
-    ENDIF ()
+    ENDIF()
+    message("📦 Pipenv Dependencies Updated")
 ENDIF ()
 
 # arm toolchain
 IF ("${TARGET}" STREQUAL "deploy")
     # arm binary
     CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9 DOWNLOAD_ONLY)
+    message("🔖 ARM Compiler Installed At ${gcc-arm-none-eabi-9_SOURCE_DIR}")
     set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
     IF (WIN32)
         # openocd
