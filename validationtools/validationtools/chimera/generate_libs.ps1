@@ -1,4 +1,4 @@
-$rootDir = Resolve-Path ../../
+$rootDir = Resolve-Path "$PSScriptRoot/../../../"
 mkdir "$rootDir\validationtools\validationtools\chimera\proto_libs" -ErrorAction SilentlyContinue
 Get-ChildItem "$rootDir\firmware\chimera\proto" -Filter "*.proto" |
 Foreach-Object {

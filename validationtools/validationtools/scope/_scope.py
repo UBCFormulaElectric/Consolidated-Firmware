@@ -1,10 +1,8 @@
 import datetime
 import pyvisa as visa
 import time
-import os
 import numpy as np
 from tqdm import tqdm
-from math import ceil
 import pandas as pd
 
 
@@ -18,6 +16,7 @@ class Scope:
 
         resourceTag = ''
         for x in resources.list_resources():
+            print(x)
             if (x[23:24] == 'S'): resourceTag = x
 
         if (resourceTag == ''):

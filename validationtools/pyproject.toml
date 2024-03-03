@@ -1,4 +1,4 @@
 [project]
-name = "valiationtools"
+name = "validationtools"
 version = "0.1"
-dependencies = ["pyserial", "protobuf"]
+dependencies = ["pyserial", "protobuf", "pyvisa", "numpy", "tqdm", "pandas", "pyvisa-py", "zeroconf", "pyusb"]

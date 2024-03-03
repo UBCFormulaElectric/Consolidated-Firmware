@@ -1,2 +1,2 @@
-from chimera import *
-from scope import *
+from .chimera import *
+from .scope import *
