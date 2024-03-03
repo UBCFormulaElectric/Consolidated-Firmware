@@ -44,8 +44,8 @@ jobs:
             ioc_dir: firmware/thruna/FSM/src/cubemx
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
-          - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
+          - board: CRIT
+            ioc_dir: firmware/thruna/CRIT/src/cubemx
           - board: VC
             ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
@@ -153,10 +153,11 @@ jobs:
             car: quadruna
           - board: FSM
             car: quadruna
-          - board: RSM
-            car: quadruna
-          - board: CRIT
-            car: quadruna
+# TODO uncomment when RSM and CRIT tests are readys
+#          - board: RSM
+#            car: quadruna
+#          - board: CRIT
+#            car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest

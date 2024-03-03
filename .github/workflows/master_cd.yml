@@ -5,7 +5,7 @@ on:
       - master
 
 jobs:
-# ======= Build DBC and Binaries =======
+# ======= Build Binaries =======
   build:
     name: Build Firmware
     runs-on: ubuntu-latest
@@ -49,20 +49,36 @@ jobs:
           board: ${{ matrix.board }}
       # Uploads .hex binary to Github Actions workflow
       - name: Save built artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         env:
           BUILD_DIR: build_fw_deploy
         with:
           name: ${{ matrix.bin_name }}
-          path: ${{ env.BUILD_DIR }}/${{ matrix.build_dir }}
+          path: "${{ env.BUILD_DIR }}/${{ matrix.build_dir }}"
 # ======= Generate DBC =======
   generate-dbc:
-    name: Call DBC Generation
-    uses: ./.github/workflows/dbc-gen.yml
-    secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
-    with:
-      upload_artifact: true
+    name: Generate CAN DBC file
+    runs-on: ubuntu-22.04
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.docker_token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            scripts
+            can_bus
+      - name: Generate and Upload DBC
+        uses: ./.github/actions/build_dbc
+      - name: Upload DBC to Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CanMsgs.dbc
+          path: CanMsgs.dbc
 
 
 # ======= MAKE THE RELEASE =======
@@ -77,12 +93,30 @@ jobs:
           ref: ${{ github.head_ref }}
           sparse-checkout: .github
       - name: Download Binaries and DBC from Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+      - name: Debug Environment
+        run: ls -l -a
       - name: Create Release
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          files: "thruna_FSM_app_metadata.hex/thruna_FSM_app_metadata.hex thruna_BMS_app_metadata.hex/thruna_BMS_app_metadata.hex thruna_DCM_app_metadata.hex/thruna_DCM_app_metadata.hex thruna_DIM_app_metadata.hex/thruna_DIM_app_metadata.hex thruna_PDM_app_metadata.hex/thruna_PDM_app_metadata.hex f4dev.hex/f4dev.hex h7dev.hex/h7dev.hex CanMsgs.dbc/CanMsgs.dbc"
+          files: |
+            thruna_BMS_app_metadata.hex/thruna_BMS_app_metadata.hex
+            thruna_DCM_app_metadata.hex/thruna_DCM_app_metadata.hex
+            thruna_DIM_app_metadata.hex/thruna_DIM_app_metadata.hex
+            thruna_FSM_app_metadata.hex/thruna_FSM_app_metadata.hex
+            thruna_PDM_app_metadata.hex/thruna_PDM_app_metadata.hex
+            f4dev.hex/f4dev.hex
+            h7dev.hex/h7dev.hex
+            CanMsgs.dbc/CanMsgs.dbc
+#            TODO add quadruna binaries
+#            quadruna_BMS.hex/quadruna_BMS.hex
+#            quadruna_CRIT.hex/quadruna_CRIT.hex
+#            quadruna_FSM.hex/quadruna_FSM.hex
+#            quadruna_RSM.hex/quadruna_RSM.hex
+#            quadruna_VC.hex/quadruna_VC.hex
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."
