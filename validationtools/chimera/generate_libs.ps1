@@ -1,10 +1,13 @@
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Get-ChildItem $scriptDir"\proto" -Filter "*.proto" |
+$rootDir = Resolve-Path ../../
+mkdir "$rootDir\validationtools\chimera\proto_libs" -ErrorAction SilentlyContinue
+Get-ChildItem "$rootDir\firmware\chimera\proto" -Filter "*.proto" |
 Foreach-Object {
-    protoc -I proto --python_out ../../firmware/chimera/proto_libs $_.FullName
+    protoc `
+        -I "$rootDir\firmware\chimera\proto" `
+        --python_out "$rootDir\validationtools\chimera\proto_libs" $_.FullName
 
     protol `
     --in-place `
-    --python-out ../../firmware/chimera/proto_libs `
-    protoc --proto-path=proto $_.FullName
+    --python-out "$rootDir\validationtools\chimera\proto_libs" `
+    protoc --proto-path="$rootDir\firmware\chimera\proto" $_.FullName
 }
