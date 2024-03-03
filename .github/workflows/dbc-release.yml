@@ -9,6 +9,7 @@ on:
 
 jobs:
   determine-should-run:
+    name: Check for want-DBC label
     runs-on: ubuntu-22.04
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
