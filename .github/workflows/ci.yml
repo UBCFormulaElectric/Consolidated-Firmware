@@ -44,8 +44,8 @@ jobs:
             ioc_dir: firmware/thruna/FSM/src/cubemx
           - board: PDM
             ioc_dir: firmware/thruna/PDM/src/cubemx
-          - board: CRIT
-            ioc_dir: firmware/thruna/CRIT/src/cubemx
+          - board: DIM
+            ioc_dir: firmware/thruna/DIM/src/cubemx
           - board: VC
             ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
@@ -54,8 +54,8 @@ jobs:
             ioc_dir: firmware/quadruna/FSM/src/cubemx
           - board: RSM
             ioc_dir: firmware/quadruna/RSM/src/cubemx
-          - board: DIM
-            ioc_dir: firmware/quadruna/DIM/src/cubemx
+          - board: CRIT
+            ioc_dir: firmware/quadruna/CRIT/src/cubemx
           - board: f4boot
             ioc_dir: firmware/boot/f4boot/cubemx
           - board: f4dev
