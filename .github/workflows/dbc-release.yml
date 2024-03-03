@@ -16,7 +16,9 @@ jobs:
     steps:
       - name: Determine Should Run
         id: should_run
-        run: echo "should_run=${{ contains(github.event.pull_request.labels.*.name, 'want_DBC') }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "${{ github.event.pull_request.labels.*.name}}"
+          echo "should_run=${{ contains(github.event.pull_request.labels.*.name, 'want_DBC') }}" >> $GITHUB_OUTPUT
   #      - name: Get PR labels
   #        id: pr-labels
   #        uses: joerick/pr-labels-action@v1.0.8
