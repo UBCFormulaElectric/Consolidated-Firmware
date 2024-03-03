@@ -13,15 +13,15 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-uint32_t owcCounter = 0;
+uint32_t iso_spi_state_counter = 0;
 
 typedef enum
 {
     RUN_CELL_MEASUREMENTS,
-    RUN_CELL_OWC
+    RUN_OPEN_WIRE_CHECK
 } isoSpiTasks;
 
-isoSpiTasks isoSpiTasksState = RUN_CELL_MEASUREMENTS;
+isoSpiTasks iso_spi_task_state = RUN_CELL_MEASUREMENTS;
 
 void app_allStates_runOnTick1Hz(void)
 {
@@ -53,24 +53,24 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    switch (isoSpiTasksState)
+    switch (iso_spi_task_state)
     {
         case RUN_CELL_MEASUREMENTS:
         {
             app_accumulator_runCellMeasurements();
-            owcCounter++;
-            if (owcCounter >= 500)
+            iso_spi_state_counter++;
+            if (iso_spi_state_counter >= 500)
             {
-                isoSpiTasksState = RUN_CELL_OWC;
+                iso_spi_task_state = RUN_OPEN_WIRE_CHECK;
             }
             break;
         }
-        case RUN_CELL_OWC:
+        case RUN_OPEN_WIRE_CHECK:
         {
             if (app_accumulator_runOpenWireCheck())
             {
-                owcCounter       = 0;
-                isoSpiTasksState = RUN_CELL_MEASUREMENTS;
+                iso_spi_state_counter = 0;
+                iso_spi_task_state    = RUN_CELL_MEASUREMENTS;
             }
             break;
         }
