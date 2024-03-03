@@ -141,9 +141,6 @@ int main(void)
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
     /* USER CODE BEGIN 2 */
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-
 // Support using different FDCAN peripherals (FDCAN1 or FDCAN2) for
 // the bootloader on different boards. This just depends on the hardware
 // this will be flashed to. So we only need to make one STM32CubeMX project,
