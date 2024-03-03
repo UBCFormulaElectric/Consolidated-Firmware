@@ -107,7 +107,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "quadruna_BMS"
+        "quadruna_BMS_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -116,22 +116,22 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Autogenerate git commit info header/source.
     commit_info_library(
-        "quadruna_BMS.elf"
+        "quadruna_BMS_app.elf"
         "quadruna_BMS_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
     target_link_libraries("quadruna_BMS_can" "quadruna_BMS_stm32cube")
-    target_link_libraries("quadruna_BMS.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "debug_modules")
+    target_link_libraries("quadruna_BMS_app.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "debug_modules")
 
-    # embedded_image(
-    #     "quadruna_BMS"
-    #     "quadruna_BMS_app.hex"
-    #     "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_app.hex"
-    #     "quadruna_BMS_boot.hex"
-    #     "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_BMS_boot.hex"
-    # )
+     embedded_image(
+         "quadruna_BMS"
+         "quadruna_BMS_app.hex"
+         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_app.hex"
+         "quadruna_BMS_boot.hex"
+         "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_BMS_boot.hex"
+     )
 
 elseif("${TARGET}" STREQUAL "test")
 set(HEADERS_TO_FAKE
