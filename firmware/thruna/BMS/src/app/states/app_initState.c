@@ -8,6 +8,8 @@
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
+extern uint32_t iso_spi_state_counter;
+
 static void initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
@@ -18,6 +20,8 @@ static void initStateRunOnEntry(void)
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
     io_airs_openPositive();
+
+    iso_spi_state_counter = 0;
 }
 
 static void initStateRunOnTick1Hz(void)
