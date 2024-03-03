@@ -125,7 +125,10 @@ const AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart7 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
