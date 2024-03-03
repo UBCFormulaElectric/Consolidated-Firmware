@@ -19,12 +19,6 @@ jobs:
         run: |
           echo "${{ toJSON(github.event.pull_request.labels.*.name) }}"
           echo "should_run=${{ contains(github.event.pull_request.labels.*.name, 'want_DBC') }}" >> $GITHUB_OUTPUT
-  #      - name: Get PR labels
-  #        id: pr-labels
-  #        uses: joerick/pr-labels-action@v1.0.8
-  #      - name: Determine if we should run
-  #        id: should_run
-  #        run: echo "should_run=${{ contains(steps.pr-labels.outputs.labels, ' want-dbc ') }}" >> $GITHUB_OUTPUT
 
   upload-dbc:
     name: Generate and Upload DBC to Artifact
