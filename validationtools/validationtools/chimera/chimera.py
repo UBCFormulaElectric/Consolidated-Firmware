@@ -6,12 +6,12 @@ API for the serial debugger library.
 import serial
 
 # from importlib import reload
-import validationtools.chimera.proto_libs.shared_pb2 as shared_lib
-import validationtools.chimera.proto_libs.VC_pb2 as VC_lib
-import validationtools.chimera.proto_libs.BMS_pb2 as BMS_lib
-import validationtools.chimera.proto_libs.FSM_pb2 as FSM_lib
-import validationtools.chimera.proto_libs.RSM_pb2 as RSM_lib
-import validationtools.chimera.proto_libs.CRIT_pb2 as CRIT_lib
+import validationtools.validationtools.chimera.proto_libs.shared_pb2 as shared_lib
+import validationtools.validationtools.chimera.proto_libs.VC_pb2 as VC_lib
+import validationtools.validationtools.chimera.proto_libs.BMS_pb2 as BMS_lib
+import validationtools.validationtools.chimera.proto_libs.FSM_pb2 as FSM_lib
+import validationtools.validationtools.chimera.proto_libs.RSM_pb2 as RSM_lib
+import validationtools.validationtools.chimera.proto_libs.CRIT_pb2 as CRIT_lib
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
 

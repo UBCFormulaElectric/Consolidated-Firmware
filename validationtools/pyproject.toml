@@ -1,0 +1,4 @@
+[project]
+name = "valiationtools"
+version = "0.1"
+dependencies = ["pyserial", "protobuf"]
