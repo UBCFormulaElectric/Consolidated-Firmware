@@ -17,7 +17,7 @@ jobs:
       - name: Determine Should Run
         id: should_run
         run: |
-          echo "${{ fromJSON(github.event.pull_request.labels.*.name) }}"
+          echo "${{ toJSON(github.event.pull_request.labels.*.name) }}"
           echo "should_run=${{ contains(github.event.pull_request.labels.*.name, 'want_DBC') }}" >> $GITHUB_OUTPUT
   #      - name: Get PR labels
   #        id: pr-labels
