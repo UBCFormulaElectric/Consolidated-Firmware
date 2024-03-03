@@ -12,8 +12,15 @@ cantools = "*"
 pyclibrary = "*"
 jinja2 = "*"
 gitpython = "*"
+intelhex = "*"
+protobuf = "*"
+grpcio-tools = "*"
+pyserial = "*"
+protoletariat = "*"
 
 [dev-packages]
+setuptools = "*"
+build = "*"
 
 [requires]
 python_version = "3.11"

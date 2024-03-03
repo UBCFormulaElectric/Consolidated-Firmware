@@ -2,11 +2,11 @@
 
 for file in proto/*.proto
 do
-    protoc -I proto --python_out chimera/proto_libs $file
+    protoc -I proto --python_out ../../firmware/chimera/proto_libs $file
 
     protol \
     --in-place \
-    --python-out chimera/proto_libs \
+    --python-out ../../firmware/chimera/proto_libs \
     protoc --proto-path=proto $file
 done
 
