@@ -77,7 +77,7 @@ Item {
 
         ListView {
             anchors.fill: notifRectangle
-            anchors.horizontalCenter: notifRectangle
+            anchors.horizontalCenter: notifRectangle.horizontalCenter
             model: errorModel
             delegate: errorDelegate
             clip: true
