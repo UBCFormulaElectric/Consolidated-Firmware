@@ -23,13 +23,19 @@ public:
     }
 signals:
     void outButtonPressed();
+    void outButtonReleased();
     void errButtonPressed();
+    void errButtonReleased();
     void settingsButtonPressed();
+    void settingsButtonReleased();
     void f1ButtonPressed();
+    void f1ButtonReleased();
     void f2ButtonPressed();
+    void f2ButtonReleased();
     void leftRot();
     void rightRot();
     void pushRot();
+    void pushRotReleased();
 
 private:
     static DimSwitchEmitter * instance;

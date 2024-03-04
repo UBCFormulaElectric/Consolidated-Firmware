@@ -3,6 +3,7 @@
 
 #include <QThread>
 
+static DimSwitchEmitter *dse = DimSwitchEmitter::getInstance();
 // Functions handlers here correspond to the names given to the lines in altium.
 void ROT_A(const gpio_edge edge)
 {
@@ -18,9 +19,9 @@ void ROT_A(const gpio_edge edge)
     const bool right_rotating = ((b_reading == gpio_level::LOW) && edge == gpio_edge::RISING_EDGE) ||
                                 ((b_reading == gpio_level::HIGH) && edge == gpio_edge::FALLING_EDGE);
     if (right_rotating)
-        emit DimSwitchEmitter::getInstance()->rightRot();
+        emit dse->rightRot();
     else
-        emit DimSwitchEmitter::getInstance()->leftRot();
+        emit dse->leftRot();
 }
 void ROT_B(const gpio_edge edge)
 {
@@ -36,57 +37,52 @@ void ROT_B(const gpio_edge edge)
     const bool right_rotating = ((a_reading == gpio_level::HIGH) && edge == gpio_edge::RISING_EDGE) ||
                                 ((a_reading == gpio_level::LOW) && edge == gpio_edge::FALLING_EDGE);
     if (right_rotating)
-        emit DimSwitchEmitter::getInstance()->rightRot();
+        emit dse->rightRot();
     else
-        emit DimSwitchEmitter::getInstance()->leftRot();
+        emit dse->leftRot();
 }
 void ROT_S(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        qInfo("Rotary Push Button Pressed");
-        emit DimSwitchEmitter::getInstance()->pushRot();
-    }
+        emit dse->pushRot();
     else
-    {
-        qInfo("Rotary Push Button Released");
-    }
+        emit dse->pushRotReleased();
 }
 void OUT(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        emit DimSwitchEmitter::getInstance()->outButtonPressed();
-    }
+        emit dse->outButtonPressed();
+    else
+        emit dse->outButtonReleased();
 }
 void ERR(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        emit DimSwitchEmitter::getInstance()->errButtonPressed();
-    }
+        emit dse->errButtonPressed();
+    else
+        emit dse->errButtonReleased();
 }
 void STG(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        emit DimSwitchEmitter::getInstance()->settingsButtonPressed();
-    }
+        emit dse->settingsButtonPressed();
+    else
+        emit dse->settingsButtonReleased();
 }
 
 void F1(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        emit DimSwitchEmitter::getInstance()->f1ButtonPressed();
-    }
+        emit dse->f1ButtonPressed();
+    else
+        emit dse->f1ButtonReleased();
 }
 void F2(const gpio_edge edge)
 {
     if (edge == gpio_edge::RISING_EDGE)
-    {
-        emit DimSwitchEmitter::getInstance()->f2ButtonPressed();
-    }
+        emit dse->f2ButtonPressed();
+    else
+        emit dse->f2ButtonReleased();
 }
 
 // gpio handlers
