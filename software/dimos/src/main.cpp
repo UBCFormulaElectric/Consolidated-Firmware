@@ -1,5 +1,4 @@
 #include "io/KeyTranslator.h"
-#include "shared/types.h"
 #include "setup.h"
 // qt
 #include <QtGui>
