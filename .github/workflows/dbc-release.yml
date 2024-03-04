@@ -82,6 +82,8 @@ jobs:
     name: Remove DBC and Release
     if: needs.determine-should-run.outputs.should_run == 'true'
     runs-on: ubuntu-latest
+    needs:
+      - determine-should-run
     steps:
       - name: Delete Release
         uses: dev-drprasad/delete-tag-and-release@v1.0
