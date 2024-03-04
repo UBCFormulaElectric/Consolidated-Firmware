@@ -23,7 +23,7 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
-            property int currentIndex: 1
+            property int currentIndex: 0
             Landing {
                 id: landingPage
                 visible: mainStack.currentIndex === 0
@@ -60,5 +60,9 @@ Window {
             }
         }
         Switcher { }
+    }
+
+    DimSwitchNav {
+        out: mainStack
     }
 }

@@ -4,7 +4,7 @@
 #include "ui/dimswitches/DimSwitchEmitter.h"
 #include "can_tasks.h"
 #include "gpio_tasks.h"
-#include "dev_io/KeyTranslator.h"
+#include "io/KeyTranslator.h"
 extern "C"
 {
 #include "app_canTx.h"

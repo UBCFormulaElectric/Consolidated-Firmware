@@ -99,30 +99,29 @@ Item {
         clip: true
         pathItemCount: 5
 
-
-        function refocusMainStack() {
-            switch (mainStack.currentIndex) {
-                case 0:
-                    landingPage.focus()
-                    break
-                case 1:
-                    accelerationPage.focus()
-                    break
-                case 2:
-                    autocrossPage.focus()
-                    break
-                case 3:
-                    brakingPage.focus()
-                    break
-                case 4:
-                    endurancePage.focus()
-                    break
-                case 5:
-                    skidpadPage.focus()
-                    break
-            }
-        }
         DimSwitches {
+            function refocusMainStack() {
+                switch (mainStack.currentIndex) {
+                    case 0:
+                        landingPage.focus()
+                        break
+                    case 1:
+                        accelerationPage.focus()
+                        break
+                    case 2:
+                        autocrossPage.focus()
+                        break
+                    case 3:
+                        brakingPage.focus()
+                        break
+                    case 4:
+                        endurancePage.focus()
+                        break
+                    case 5:
+                        skidpadPage.focus()
+                        break
+                }
+            }
             onLeftRot: appIconPathView.decrementCurrentIndex()
             onRightRot: appIconPathView.incrementCurrentIndex()
             onPushRot: {

@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <qevent.h>
-#include "ui/dimswitches/DimSwitchEmitter.h"
+#include "../ui/dimswitches/DimSwitchEmitter.h"
 
 class KeyTranslator final : public QObject
 {
@@ -16,7 +16,7 @@ public:
         {
             const auto keyEvent = dynamic_cast<QKeyEvent *>(event);
             const auto dse = DimSwitchEmitter::getInstance();
-            // qDebug() << "text" << keyEvent->text() << "key" <<  << "modifiers" << keyEvent->modifiers();
+            qDebug() << "text" << keyEvent->text() << "key" << keyEvent->key() << "modifiers" << keyEvent->modifiers();
             switch(keyEvent->key())
             {
                 case Qt::Key_Escape:
@@ -40,7 +40,7 @@ public:
                 case Qt::Key_Right:
                     emit dse->rightRot();
                     break;
-                case Qt::Key_Enter:
+                case Qt::Key_Return:
                     emit dse->pushRot();
                     break;
                 default:
