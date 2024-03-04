@@ -2,30 +2,12 @@ import QtQuick
 
 import squircle
 import constants
+import dimswitches
 
 Item {
     id: switcher
     anchors.fill: parent
     readonly property int appIconSize: 225
-
-    // Keys.onSpacePressed: () => {
-    //     switcher.visible = !switcher.visible
-    // }
-    //
-    // Keys.onReturnPressed: () => {
-    //     if(switcher.visible) {
-    //         switcher.visible = false
-    //     }
-    // }
-
-    // DimSwitches.onKnobPressed: () => {}
-    // DimSwitches.onBackPressed: () => {}
-    // DimSwitches.onKnobLeft: () => {}
-    // DimSwitches.onKnobRight: () => {}
-
-    // DimSwitches.onButtonPressed: {
-    //     switcher.visible = !switcher.visible
-    // }
 
     // todo improved model
     ListModel {
@@ -81,6 +63,7 @@ Item {
         anchors.fill: parent
         model: appModel
         delegate: appIcon
+        id: appIconPathView
         path: Path {
             id: appIconTravelPath
             // IMPORTANT SETTINGS
@@ -115,9 +98,39 @@ Item {
         highlightRangeMode: PathView.StrictlyEnforceRange
         clip: true
         pathItemCount: 5
-        focus: true
-        // Keys.onLeftPressed: decrementCurrentIndex()
-        // Keys.onRightPressed: incrementCurrentIndex()
+
+
+        function refocusMainStack() {
+            switch (mainStack.currentIndex) {
+                case 0:
+                    landingPage.focus()
+                    break
+                case 1:
+                    accelerationPage.focus()
+                    break
+                case 2:
+                    autocrossPage.focus()
+                    break
+                case 3:
+                    brakingPage.focus()
+                    break
+                case 4:
+                    endurancePage.focus()
+                    break
+                case 5:
+                    skidpadPage.focus()
+                    break
+            }
+        }
+        DimSwitches {
+            onLeftRot: appIconPathView.decrementCurrentIndex()
+            onRightRot: appIconPathView.incrementCurrentIndex()
+            onPushRot: {
+                mainStack.currentIndex = appIconPathView.currentIndex
+                refocusMainStack()
+            }
+            onOutButtonPressed: refocusMainStack
+        }
     }
 
     Text {

@@ -4,6 +4,7 @@
 #include "ui/dimswitches/DimSwitchEmitter.h"
 #include "can_tasks.h"
 #include "gpio_tasks.h"
+#include "dev_io/KeyTranslator.h"
 extern "C"
 {
 #include "app_canTx.h"
@@ -138,6 +139,9 @@ int main(int argc, char *argv[])
     QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QGuiApplication::quit);
     if (engine.rootObjects().isEmpty())
         return EXIT_FAILURE;
+
+    KeyTranslator k;
+    engine.rootObjects().first()->installEventFilter(&k);
 
     // setup task threads
     if (const Result<std::monostate, CAN_setup_errors> r = setupCanThreads(&engine); r.index() == 1)

@@ -25,35 +25,40 @@ Window {
             id: mainStack
             property int currentIndex: 1
             Landing {
+                id: landingPage
                 visible: mainStack.currentIndex === 0
             }
             RacingBase {
                 visible: mainStack.currentIndex === 1
-                Acceleration {}
+                Acceleration {
+                    id: accelerationPage
+                }
             }
             RacingBase {
                 visible: mainStack.currentIndex === 2
-                Autocross {}
+                Autocross {
+                    id: autocrossPage
+                }
             }
             RacingBase {
                 visible: mainStack.currentIndex === 3
-                Braking {}
+                Braking {
+                    id: brakingPage
+                }
             }
             RacingBase {
                 visible: mainStack.currentIndex === 4
-                Endurance {}
+                Endurance {
+                    id: endurancePage
+                }
             }
             RacingBase {
                 visible: mainStack.currentIndex === 5
-                Skidpad {}
+                Skidpad {
+                    id: skidpadPage
+                }
             }
         }
         Switcher { }
-    }
-
-    DimSwitches {
-        onSettingButtonPressed: {
-            console.log("happy time")
-        }
     }
 }

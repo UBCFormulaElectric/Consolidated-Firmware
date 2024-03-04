@@ -8,20 +8,17 @@ class DimSwitchEmitter : public QObject
     Q_OBJECT
     QML_ELEMENT
     QML_SINGLETON
-
-    QTimer test_emission;
-
 public:
     static DimSwitchEmitter * getInstance()
     {
         if (instance == nullptr)
-        {
             instance = new DimSwitchEmitter();
-        }
         return instance;
     }
-    static DimSwitchEmitter *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+    static DimSwitchEmitter *create(const QQmlEngine *qmlEngine, const QJSEngine *jsEngine)
     {
+        Q_UNUSED(qmlEngine);
+        Q_UNUSED(jsEngine);
         return getInstance();
     }
 signals:
@@ -36,12 +33,5 @@ signals:
 
 private:
     static DimSwitchEmitter * instance;
-    explicit DimSwitchEmitter(QObject* parent = nullptr): QObject(parent)
-    {
-        // TEMPORARY!!! TODO remove this
-        test_emission.setInterval(1000);
-        test_emission.setSingleShot(false);
-        connect(&test_emission, &QTimer::timeout, this, &DimSwitchEmitter::settingsButtonPressed);
-        test_emission.start();
-    }
+    explicit DimSwitchEmitter(QObject* parent = nullptr): QObject(parent) {}
 };

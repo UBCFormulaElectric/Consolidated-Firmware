@@ -2,7 +2,7 @@ import QtQuick
 import dimswitches
 
 Item {
-    signal settingButtonPressed()
+    signal settingsButtonPressed()
     signal outButtonPressed()
     signal errButtonPressed()
     signal f1ButtonPressed()
@@ -13,7 +13,7 @@ Item {
 
     Connections {
         target: DimSwitchEmitter
-        function onSettingsButtonPressed() {settingButtonPressed()}
+        function onSettingsButtonPressed() {settingsButtonPressed()}
         function onOutButtonPressed() {outButtonPressed()}
         function onErrButtonPressed() {errButtonPressed()}
         function onF1ButtonPressed() {f1ButtonPressed()}
