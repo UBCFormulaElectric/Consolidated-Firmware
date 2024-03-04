@@ -30,10 +30,10 @@ class KeyTranslator final : public QObject
                     case Qt::Key_S:
                         emit dse->settingsButtonPressed();
                         break;
-                    case Qt::Key_F1:
+                    case Qt::Key_1:
                         emit dse->f1ButtonPressed();
                         break;
-                    case Qt::Key_F2:
+                    case Qt::Key_2:
                         emit dse->f2ButtonPressed();
                         break;
                     case Qt::Key_Left:
@@ -63,10 +63,10 @@ class KeyTranslator final : public QObject
                     case Qt::Key_S:
                         emit dse->settingsButtonReleased();
                         break;
-                    case Qt::Key_F1:
+                    case Qt::Key_1:
                         emit dse->f1ButtonReleased();
                         break;
-                    case Qt::Key_F2:
+                    case Qt::Key_2:
                         emit dse->f2ButtonReleased();
                         break;
                     case Qt::Key_Return:
