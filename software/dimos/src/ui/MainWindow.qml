@@ -13,6 +13,7 @@ Window {
     title: Constants.WINDOW_TITLE
     color: "#5BC236"
 
+    // True window
     Rectangle {
         width: Constants.SCREEN_WIDTH
         height: Constants.SCREEN_HEIGHT
@@ -60,9 +61,8 @@ Window {
             }
         }
         Switcher { }
-    }
-
-    DimSwitchNav {
-        out: mainStack
+        Shutdown {
+            visible: false
+        }
     }
 }
