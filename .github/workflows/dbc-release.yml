@@ -5,6 +5,7 @@ on:
       - master
     types:
       - labeled
+      - unlabeled
       - synchronize
 
 jobs:
