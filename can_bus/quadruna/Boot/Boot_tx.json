@@ -3,7 +3,7 @@
 		"msg_id": 1219,
 		"cycle_time": 100,
 		"signals": {
-			"BMS_Status": {
+			"VC_Status": {
 				"enum": "BootStatus"
 			}
 		}
