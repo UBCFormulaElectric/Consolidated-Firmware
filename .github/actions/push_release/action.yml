@@ -21,13 +21,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: debug env
+    - name: Log GitHub Actions Properties
       shell: bash
       run: |
         echo "BASE_REF: ${{ github.base_ref }} <- HEAD_REF: ${{github.head_ref}}"
         echo "SHA: ${{github.SHA}}"
         ls -l -a
-    - name: debug git
+    - name: Log GitHub Environment
       shell: bash
       run: |
         git status
