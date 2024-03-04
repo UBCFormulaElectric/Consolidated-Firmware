@@ -1,7 +1,6 @@
 #pragma once
 
 #include "shared/types.h"
-#include "jsoncanqml.h"
 #include <QtQml>
 
 void set_qt_environment();
@@ -12,7 +11,6 @@ enum class CAN_setup_errors
 {
 };
 static const std::map<CAN_setup_errors, std::string> CAN_setup_errors_str = {};
-static JSONCANQML                                    jsoncan_qml_interface;
 Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref);
 
 

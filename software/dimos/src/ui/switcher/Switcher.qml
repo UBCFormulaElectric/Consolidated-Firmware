@@ -4,10 +4,10 @@ import squircle
 import constants
 import dimswitches
 
-Item {
-    id: switcher
+FocusScope {
     anchors.fill: parent
     readonly property int appIconSize: 225
+    focus: true
 
     // todo improved model
     ListModel {
@@ -103,32 +103,51 @@ Item {
             function refocusMainStack() {
                 switch (mainStack.currentIndex) {
                     case 0:
-                        landingPage.focus()
+                        // noinspection JSUnresolvedReference
+                        landingPage.forceActiveFocus()
                         break
                     case 1:
-                        accelerationPage.focus()
+                        // noinspection JSUnresolvedReference
+                        accelerationPage.forceActiveFocus()
                         break
                     case 2:
-                        autocrossPage.focus()
+                        // noinspection JSUnresolvedReference
+                        autocrossPage.forceActiveFocus()
                         break
                     case 3:
-                        brakingPage.focus()
+                        // noinspection JSUnresolvedReference
+                        brakingPage.forceActiveFocus()
                         break
                     case 4:
-                        endurancePage.focus()
+                        // noinspection JSUnresolvedReference
+                        endurancePage.forceActiveFocus()
                         break
                     case 5:
-                        skidpadPage.focus()
+                        // noinspection JSUnresolvedReference
+                        skidpadPage.forceActiveFocus()
                         break
+                    default:
+                        break;
                 }
             }
-            onLeftRot: appIconPathView.decrementCurrentIndex()
-            onRightRot: appIconPathView.incrementCurrentIndex()
+            onLeftRot: {
+                if(!switcher.activeFocus) return;
+                appIconPathView.decrementCurrentIndex()
+            }
+            onRightRot: {
+                if(!switcher.activeFocus) return;
+                appIconPathView.incrementCurrentIndex()
+            }
             onPushRot: {
+                if(!switcher.activeFocus) return;
                 mainStack.currentIndex = appIconPathView.currentIndex
+                console.log(appIconPathView.currentIndex)
                 refocusMainStack()
             }
-            onOutButtonPressed: refocusMainStack
+            onOutButtonPressed: {
+                if(!switcher.activeFocus) return;
+                refocusMainStack()
+            }
         }
     }
 

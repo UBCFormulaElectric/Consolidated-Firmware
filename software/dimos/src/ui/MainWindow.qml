@@ -5,6 +5,7 @@ import constants
 import switcher
 import pages
 import dimswitches
+import canqml
 
 Window {
     minimumWidth: Constants.SCREEN_WIDTH
@@ -63,9 +64,16 @@ Window {
                 visible: mainStack.currentIndex === 6
             }
         }
-        Switcher { }
+        Switcher {
+            id: switcher
+        }
         Shutdown {
             visible: false
+        }
+        Text {
+            anchors.centerIn: parent
+            text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
+            color: "white"
         }
     }
 }

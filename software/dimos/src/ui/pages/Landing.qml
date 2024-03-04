@@ -1,15 +1,14 @@
 import QtQuick
-import JSONCANQML
+import dimswitches
 
-Item {
+FocusScope {
     anchors.fill: parent
     Image {
         anchors.centerIn: parent
         source: "qrc:/fe_logo.svg"
     }
 
-    Text {
-        text: JSONCANQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
-        color: "white"
+    DimSwitchNav{
+        out: switcher
     }
 }

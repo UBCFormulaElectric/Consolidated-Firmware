@@ -28,11 +28,11 @@ void CanRXTask()
                 case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
                     return;
-                case CanReadError::Timeout: // NOLINT(*-branch-clone)
+                case CanReadError::Timeout:
 #ifdef USING_dimos
                     qWarning("CANRX Timeout");
-#endif
                     break;
+#endif
                 case CanReadError::SocketReadError:
                 case CanReadError::IncompleteCanFrame:
                     break;

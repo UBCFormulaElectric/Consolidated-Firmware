@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "can_tasks.h"
 #include "gpio_tasks.h"
+#include "ui/canqml/canqml.h"
 extern "C"
 {
 #include "app_canTx.h"
@@ -61,7 +62,7 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     // ui update
     uiUpdate.setInterval(can_handlers::TASK_INTERVAL_UI_UPDATE);
     uiUpdate.setSingleShot(false);
-    QObject::connect(&uiUpdate, &QTimer::timeout, &jsoncan_qml_interface, &JSONCANQML::notify_all_signals);
+    QObject::connect(&uiUpdate, &QTimer::timeout, CanQML::getInstance(), &CanQML::notify_all_signals);
     QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &uiUpdate, &QTimer::stop);
     uiUpdate.start();
     // rx

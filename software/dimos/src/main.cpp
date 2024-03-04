@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
 {
     set_qt_environment();
     init_json_can();
-    qmlRegisterSingletonInstance("JSONCANQML", 1, 0, "JSONCANQML", &jsoncan_qml_interface);
 
     const QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;

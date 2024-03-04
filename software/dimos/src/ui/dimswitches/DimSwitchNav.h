@@ -33,43 +33,46 @@ class DimSwitchNav : public QObject
   private slots:
     void handleOutPressed() const
     {
+        qInfo() << "forcing active focus on" << out;
         if (out != nullptr)
-            out->setFocus(true);
+        {
+            out->forceActiveFocus();
+        }
     }
     void handleErrPressed() const
     {
         if (err != nullptr)
-            err->setFocus(true);
+            err->forceActiveFocus();
     }
     void handleSettingsPressed() const
     {
         if (settings != nullptr)
-            settings->setFocus(true);
+            settings->forceActiveFocus();
     }
     void handleF1Pressed() const
     {
         if (f1 != nullptr)
-            f1->setFocus(true);
+            f1->forceActiveFocus();
     }
     void handleF2Pressed() const
     {
         if (f2 != nullptr)
-            f2->setFocus(true);
+            f2->forceActiveFocus();
     }
     void handleLeftRot() const
     {
         if (leftRot != nullptr)
-            leftRot->setFocus(true);
+            leftRot->forceActiveFocus();
     }
     void handleRightRot() const
     {
         if (rightRot != nullptr)
-            rightRot->setFocus(true);
+            rightRot->forceActiveFocus();
     }
     void handlePushRot() const
     {
         if (pushRot != nullptr)
-            pushRot->setFocus(true);
+            pushRot->forceActiveFocus();
     }
 
     void logTest() const
@@ -89,6 +92,5 @@ class DimSwitchNav : public QObject
         connect(dse, &DimSwitchEmitter::leftRot, this, handleLeftRot);
         connect(dse, &DimSwitchEmitter::rightRot, this, handleRightRot);
         connect(dse, &DimSwitchEmitter::pushRot, this, handlePushRot);
-        connect(dse, &DimSwitchEmitter::outButtonPressed, this, logTest);
     }
 };

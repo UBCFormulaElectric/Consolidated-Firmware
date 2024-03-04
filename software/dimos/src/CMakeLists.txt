@@ -36,8 +36,16 @@ qt_add_qml_module(${EXECUTABLE_NAME}
 )
 # add qml modules
 add_subdirectory(ui)
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE DimosConstantsplugin Switcherplugin Pagesplugin Squircleplugin DimSwitchesplugin)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE
+    DimosConstantsplugin
+    Switcherplugin
+    Pagesplugin
+    Squircleplugin
+    DimSwitchesplugin
+    CanQMLplugin
+)
 target_compile_definitions(DimosConstants PUBLIC "USING_${EXECUTABLE_NAME}") # L QML compiler
+target_link_libraries(CanQML PUBLIC dimos_can)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
