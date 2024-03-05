@@ -315,7 +315,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLM       = 1;
     RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
-    RCC_OscInitStruct.PLL.PLLQ       = 4;
+    RCC_OscInitStruct.PLL.PLLQ       = 8;
     RCC_OscInitStruct.PLL.PLLR       = 2;
     RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
@@ -442,11 +442,11 @@ static void MX_SDMMC1_SD_Init(void)
 
     /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
-    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_FALLING;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
-    hsd1.Init.ClockDiv            = 7;
+    hsd1.Init.ClockDiv            = 4;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
@@ -613,7 +613,7 @@ void runCanTxTask(void *argument)
     for (unsigned int i = 0; i < 10000; i++)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < 10; j++)
         {
             read_num++;
             io_canLogging_pushTxMsgToQueue(&msg);
@@ -645,7 +645,7 @@ void runCanRxTask(void *argument)
         write_num++;
         count++;
 
-        if (count >= 256)
+        if (count > 256)
         {
             io_canLogging_sync();
             count = 0;
