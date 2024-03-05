@@ -1,8 +1,8 @@
 {
-    "warnings_id": 303,
-    "faults_id": 304,
-    "warnings_counts_id": 305,
-    "faults_counts_id": 306,
+    "warnings_id": 396,
+    "faults_id": 397,
+    "warnings_counts_id": 398,
+    "faults_counts_id": 399,
     "warnings": [
         "WatchdogTimeout",
         "TxOverflow",
@@ -11,9 +11,22 @@
         "StackWaterMarkHighTask100Hz",
         "StackWaterMarkHighTask1kHz",
         "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx"
+        "StackWaterMarkHighTaskCanTx",
+        "SteeringAngleOCSC",
+        "SteeringAngleOutOfRange",
+        "LeftWheelSpeedOutOfRange",
+        "RightWheelSpeedOutOfRange",
+        "AppsDisagreement",
+        "FrontBrakePressureOutOfRange",
+        "RearBrakePressureOutOfRange",
+        "BrakePressureSensorOCSC",
+        "LeftSuspensionOCSC",
+        "RightSuspensionOCSC",
+        "BrakeAppsDisagreement"
     ],
     "faults": [
-        "DummyFault"
+        "DummyFault",
+        "PappsOCSC",
+        "SappsOCSC"
     ]
 }
