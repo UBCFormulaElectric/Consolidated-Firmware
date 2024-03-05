@@ -32,16 +32,120 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 302,
-      "cycle_time": 100,
-      "description": "FSM Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
-    }
+        "msg_id": 302,
+        "cycle_time": 100,
+        "description": "FSM Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "Steering": {
+		"msg_id": 303,
+		"cycle_time": 100,
+		"description": "Steering angle.",
+		"signals": {
+			"SteeringAngle": {
+				"resolution": 0.1,
+				"min": -110,
+				"max": 110,
+				"unit": "deg"
+			}
+		}
+	},
+	"Wheels": {
+		"msg_id": 304,
+		"cycle_time": 100,
+		"description": "Front left and right wheel speeds.",
+		"signals": {
+			"LeftWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			},
+			"RightWheelSpeed": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 150,
+				"unit": "km/h"
+			}
+		}
+	},
+    "Apps": {
+		"msg_id": 305,
+		"cycle_time": 100,
+		"description": "Primary (P) and secondary (S) accelerator percentages.",
+		"signals": {
+			"PappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"PappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsRawPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			}
+		}
+	},
+	"Brake": {
+		"msg_id": 306,
+		"cycle_time": 100,
+		"description": "Front and rear brake pressures.",
+		"signals": {
+			"FrontBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"RearBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"BrakeActuated": {
+				"bits": 1
+			}
+		}
+	},
+	"Suspension": {
+		"msg_id": 307,
+		"cycle_time": 100,
+		"description": "Suspension travel.",
+		"signals": {
+			"LeftSuspensionTravel": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "cm"
+			},
+			"RightSuspensionTravel": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "cm"
+			}
+		}
+	}
 }
