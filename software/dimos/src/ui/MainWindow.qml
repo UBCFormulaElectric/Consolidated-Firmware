@@ -25,9 +25,14 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
-            property int currentIndex: 1
+            property int currentIndex: -1
             Landing {
                 id: landingPage
+                visible: mainStack.currentIndex === -1
+                focus: true
+            }
+            LowVoltage {
+                id: lowVoltagePage
                 visible: mainStack.currentIndex === 0
             }
             RacingBase {
@@ -62,6 +67,7 @@ Window {
             }
             DebugSoftware {
                 visible: mainStack.currentIndex === 6
+                id: softwareDebugPage
             }
         }
         Switcher {

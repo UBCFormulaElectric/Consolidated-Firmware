@@ -8,30 +8,38 @@ FocusScope {
     anchors.fill: parent
     readonly property int appIconSize: 225
     focus: true
+    visible: activeFocus
 
     // todo improved model
     ListModel {
         id: appModel
         ListElement {
-            icon: "qrc:/SwitcherEventIcons/Endurance.svg"
-        }
-        ListElement {
-            icon: "qrc:/SwitcherEventIcons/Endurance.svg"
+            icon: "qrc:/SwitcherEventIcons/LV.svg"
+            name: "LV"
         }
         ListElement {
             icon: "qrc:/SwitcherEventIcons/Acceleration.svg"
-        }
-        ListElement {
-            icon: "qrc:/SwitcherEventIcons/Skidpad.svg"
+            name: "Acceleration"
         }
         ListElement {
             icon: "qrc:/SwitcherEventIcons/Autocross.svg"
+            name: "Autocross"
         }
         ListElement {
             icon: "qrc:/SwitcherEventIcons/Brake.svg"
+            name: "Brake"
         }
         ListElement {
-            icon: "qrc:/SwitcherEventIcons/LV.svg"
+            icon: "qrc:/SwitcherEventIcons/Endurance.svg"
+            name: "Endurance"
+        }
+        ListElement {
+            icon: "qrc:/SwitcherEventIcons/Skidpad.svg"
+            name: "Skidpad"
+        }
+        ListElement {
+            icon: "qrc:/SwitcherEventIcons/SoftwareDebug.svg"
+            name: "Software Debug"
         }
     }
 
@@ -104,7 +112,7 @@ FocusScope {
                 switch (mainStack.currentIndex) {
                     case 0:
                         // noinspection JSUnresolvedReference
-                        landingPage.forceActiveFocus()
+                        lowVoltagePage.forceActiveFocus()
                         break
                     case 1:
                         // noinspection JSUnresolvedReference
@@ -126,16 +134,22 @@ FocusScope {
                         // noinspection JSUnresolvedReference
                         skidpadPage.forceActiveFocus()
                         break
+                    case 6:
+                        // noinspection JSUnresolvedReference
+                        softwareDebugPage.forceActiveFocus()
+                        break
                     default:
                         break;
                 }
             }
             onLeftRot: {
                 if(!switcher.activeFocus) return;
+                // noinspection JSUnresolvedReference
                 appIconPathView.decrementCurrentIndex()
             }
             onRightRot: {
                 if(!switcher.activeFocus) return;
+                // noinspection JSUnresolvedReference
                 appIconPathView.incrementCurrentIndex()
             }
             onPushRot: {
@@ -152,7 +166,7 @@ FocusScope {
     }
 
     Text {
-        text: qsTr("Selected Event")
+        text: appModel.get(appIconPathView.currentIndex).name
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 7
         anchors.horizontalCenter: parent.horizontalCenter
