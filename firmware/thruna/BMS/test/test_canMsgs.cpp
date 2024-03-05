@@ -66,7 +66,7 @@ TEST(CanMsgsTest, pack_voltage_message_frequency)
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_PACK_VOLTAGE_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, availible_power_message_frequency)
+TEST(CanMsgsTest, availible_current_limit_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_AVAILABLE_POWER_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_AVAILABLE_CURRENT_LIMIT_CYCLE_TIME_MS);
 }
