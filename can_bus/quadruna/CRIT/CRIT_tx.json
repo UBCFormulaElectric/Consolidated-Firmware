@@ -2,20 +2,20 @@
     "Vitals": {
         "msg_id": 502,
         "cycle_time": 100,
-        "description": "DIM vitals message.",
+        "description": "CRIT vitals message.",
         "signals": {
             "Heartbeat": {
                 "bits": 1
             },
             "State": {
-                "enum": "DimState"
+                "enum": "CritState"
             }
         }
     },
     "Switches": {
         "msg_id": 503,
         "cycle_time": 100,
-        "description": "States of the switches on the DIM.",
+        "description": "States of the switches on the CRIT.",
         "signals": {
             "StartSwitch": {
                 "enum": "SwitchState"
@@ -28,7 +28,7 @@
     "AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,
-        "description": "Context info for DIM alerts",
+        "description": "Context info for CRIT alerts",
         "signals": {
             "TxOverflowCount": {
                 "bits": 8
@@ -44,7 +44,7 @@
     "CommitInfo": {
         "msg_id": 506,
         "cycle_time": 100,
-        "description": "DIM Current Running Git Commit Info",
+        "description": "CRIT Current Running Git Commit Info",
         "signals": {
             "Hash": {
                 "bits": 32
