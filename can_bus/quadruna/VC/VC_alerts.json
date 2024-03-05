@@ -4,16 +4,22 @@
     "warnings_counts_id": 207,
     "faults_counts_id": 208,
     "warnings": [
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow",
         "StackWaterMarkHighTask1Hz",
         "StackWaterMarkHighTask100Hz",
         "StackWaterMarkHighTask1kHz",
         "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx"
+        "StackWaterMarkHighTaskCanTx",
+        "WatchdogTimeout",
+        "TxOverflow",
+        "RxOverflow",
+        "RegenNotAvailable",
+        "SbgRxOverflow"
     ],
     "faults": [
-        "DummyFault"
+        "MissingBMSHeartbeat",
+        "MissingFSMHeartbeat",
+        "MissingDIMHeartbeat",
+        "LeftInverterFault",
+        "RightInverterFault"
     ]
 }
