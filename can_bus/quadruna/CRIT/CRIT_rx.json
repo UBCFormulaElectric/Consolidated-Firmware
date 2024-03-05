@@ -1,19 +1,4 @@
 {
 	"messages": [
-		"BMS_OkStatuses",
-		"BMS_Vitals",
-		"BMS_Warnings",
-		"VC_Vitals",
-		"VC_Warnings",
-		"FSM_Apps",
-		"FSM_Vitals",
-		"FSM_Warnings",
-		"BMS_Contactors",
-		"INVR_MotorPositionInfo",
-		"INVL_MotorPositionInfo",
-		"BMS_CellVoltages",
-		"INVR_Temperatures1",
-		"BMS_TractiveSystem",
-		"Debug_CanMode"
 	]
 }

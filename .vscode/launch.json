@@ -207,13 +207,13 @@
       },
     },
     {
-      "name": "Debug Embedded: DIM (Quadruna)",
+      "name": "Debug Embedded: CRIT (Quadruna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_deploy/firmware/quadruna/DIM/DIM.hex",
+      "executable": "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/DIM_boot.elf",
-        "build_fw_deploy/firmware/quadruna/DIM/DIM_app.elf",
+        // "build_fw_deploy/firmware/boot/f4boot/quadruna_CRIT_boot.elf",
+        "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -222,14 +222,14 @@
         "tools/openocd/stm32f4x.cfg"
       ],
       "showDevDebugOutput": "none",
-      "preLaunchTask": "Build: DIM",
+      "preLaunchTask": "Build Embedded: CRIT",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
         "clearSearch": false, // Required for OpenOCD
         "decoders": [
           {
-            "label": "Debug logs: DIM",
+            "label": "Debug logs: CRIT",
             "port": 0,
             "type": "console"
           }
