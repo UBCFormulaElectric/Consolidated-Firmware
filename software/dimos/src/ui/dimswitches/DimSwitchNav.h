@@ -84,13 +84,13 @@ class DimSwitchNav : public QObject
     explicit DimSwitchNav(QObject *parent = nullptr) : QObject(parent)
     {
         const auto dse = DimSwitchEmitter::getInstance();
-        connect(dse, &DimSwitchEmitter::outButtonPressed, this, handleOutPressed);
-        connect(dse, &DimSwitchEmitter::errButtonPressed, this, handleErrPressed);
-        connect(dse, &DimSwitchEmitter::settingsButtonPressed, this, handleSettingsPressed);
-        connect(dse, &DimSwitchEmitter::f1ButtonPressed, this, handleF1Pressed);
-        connect(dse, &DimSwitchEmitter::f2ButtonPressed, this, handleF2Pressed);
-        connect(dse, &DimSwitchEmitter::leftRot, this, handleLeftRot);
-        connect(dse, &DimSwitchEmitter::rightRot, this, handleRightRot);
-        connect(dse, &DimSwitchEmitter::pushRot, this, handlePushRot);
+        connect(dse, &DimSwitchEmitter::outButtonPressed, this, &DimSwitchNav::handleOutPressed);
+        connect(dse, &DimSwitchEmitter::errButtonPressed, this, &DimSwitchNav::handleErrPressed);
+        connect(dse, &DimSwitchEmitter::settingsButtonPressed, this, &DimSwitchNav::handleSettingsPressed);
+        connect(dse, &DimSwitchEmitter::f1ButtonPressed, this, &DimSwitchNav::handleF1Pressed);
+        connect(dse, &DimSwitchEmitter::f2ButtonPressed, this, &DimSwitchNav::handleF2Pressed);
+        connect(dse, &DimSwitchEmitter::leftRot, this, &DimSwitchNav::handleLeftRot);
+        connect(dse, &DimSwitchEmitter::rightRot, this, &DimSwitchNav::handleRightRot);
+        connect(dse, &DimSwitchEmitter::pushRot, this, &DimSwitchNav::handlePushRot);
     }
 };
