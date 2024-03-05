@@ -49,7 +49,7 @@ static void initStateRunOnTick100Hz(void)
 
         if (air_negative_closed && ts_discharged)
         {
-            const bool charger_connected         = app_canRx_BRUSA_OnStatus_get();
+            const bool charger_connected         = io_charger_isConnected();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
             const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
