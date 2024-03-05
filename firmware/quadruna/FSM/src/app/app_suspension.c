@@ -11,7 +11,7 @@ void app_suspension_broadcast(void)
     float right_travel = io_suspension_getRightTravel();
 
     app_canTx_FSM_LeftSuspensionTravel_set(left_travel);
-    app_canTx_FSM_LeftSuspensionTravel_set(right_travel);
+    app_canTx_FSM_RightSuspensionTravel_set(right_travel);
 
     app_canAlerts_FSM_Warning_LeftSuspensionOCSC_set(io_suspension_leftSensorOCSC());
     app_canAlerts_FSM_Warning_RightSuspensionOCSC_set(io_suspension_rightSensorOCSC());

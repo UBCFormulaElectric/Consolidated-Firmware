@@ -98,14 +98,22 @@ TEST_F(FsmAppTest, check_right_wheel_speed_can_signals)
         app_canTx_FSM_RightWheelSpeed_get, app_canAlerts_FSM_Warning_RightWheelSpeedOutOfRange_get);
 }
 
-TEST_F(FsmAppTest, check_left_suspension_can_signals) {
+TEST_F(FsmAppTest, check_left_suspension_can_signals)
+{
     fake_io_suspension_getLeftTravel_returns(50.0);
     LetTimePass(10);
     ASSERT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 50.0);
+
+    CheckBinaryStatusCanSignal(
+        fake_io_suspension_leftSensorOCSC_returns, app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get); 
 }
 
-// TEST_F(FsmAppTest, check_right_suspension_can_signals) {
-//     fake_io_suspension_getRightTravel_returns(50.0);
-//     LetTimePass(100);
-//     ASSERT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 50.0);
-// }
+TEST_F(FsmAppTest, check_right_suspension_can_signals)
+{
+    fake_io_suspension_getRightTravel_returns(50.0);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 50.0);
+
+    CheckBinaryStatusCanSignal(
+        fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_FSM_Warning_RightSuspensionOCSC_get); 
+}
