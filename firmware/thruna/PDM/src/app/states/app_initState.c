@@ -29,6 +29,8 @@ static void initStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_driveState_get());
     }
+
+    app_powerManager_check_efuses(POWER_MANAGER_SHUTDOWN);
 }
 
 const State *app_initState_get(void)
