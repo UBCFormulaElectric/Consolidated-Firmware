@@ -17,6 +17,8 @@ protobuf = "*"
 grpcio-tools = "*"
 pyserial = "*"
 protoletariat = "*"
+python-can = "*"
+rich = "*"
 
 [dev-packages]
 setuptools = "*"
