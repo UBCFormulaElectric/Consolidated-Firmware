@@ -36,12 +36,12 @@ void mainStateRunOnTick100Hz(void)
 
 const State *app_mainState_get(void)
 {
-    static State drive_state = {
-        .name              = "DRIVE STATE",
+    static State main_state = {
+        .name              = "MAIN STATE",
         .run_on_entry      = NULL,
         .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = mainStateRunOnTick100Hz,
         .run_on_exit       = NULL,
     };
-    return &drive_state;
+    return &main_state;
 }
