@@ -47,7 +47,8 @@ Item {
         Component {
             id: errorDelegate
             Item {
-                width: parent.width*0.9
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width*0.95
                 height: 100
                 Rectangle {
                     anchors.fill: parent
@@ -57,16 +58,18 @@ Item {
                     radius: 10
                     color: colorType
                     Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: parent.top
-                        font.family: "Sans Serif"
+                        anchors.topMargin: 10
+                        font.family: "Roboto"
                         font.bold: true
-                        font.pointSize: 30
+                        font.pointSize: 24
                         text: name
                         color: "#000000"
                     }
                     Text {
                         anchors.centerIn: parent
-                        font.family: "Sans Serif"
+                        font.family: "Roboto"
                         font.pointSize: 16
                         text: description
                         color: "#000000"
@@ -75,9 +78,19 @@ Item {
             }
         }
 
+        Text{
+            text: "COME HOME THE KIDS MISS YOU"
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.family: "Roboto"
+            font.bold: true
+            font.pointSize: 24
+            color: "#ffffff"
+        }
+
         ListView {
+            anchors.top: notifRectangle.top
+            anchors.topMargin: 15
             anchors.fill: notifRectangle
-            anchors.horizontalCenter: notifRectangle.horizontalCenter
             model: errorModel
             delegate: errorDelegate
             clip: true
