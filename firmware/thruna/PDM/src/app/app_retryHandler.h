@@ -1,5 +1,4 @@
 #include <stdbool.h>
-
 #pragma once
 
 typedef enum
@@ -14,4 +13,10 @@ typedef enum
     NUM_RETRY_PROTOCOL
 } RetryProtocol;
 
-void apply_retry_protocol(RetryProtocol protocol, bool isOn);
+typedef struct {
+    bool          state;
+    RetryProtocol protocol;
+    int           limit;
+} RetryConfig;
+
+void apply_retry_protocol(RetryProtocol protocol, const RetryConfig retry_config[], bool success);

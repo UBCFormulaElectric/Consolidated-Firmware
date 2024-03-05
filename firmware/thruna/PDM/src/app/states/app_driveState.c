@@ -17,6 +17,7 @@ static void driveStateRunOnEntry(void)
 static void driveStateRunOnTick100Hz(void)
 {
     app_allStates_runOnTick100Hz();
+    app_powerManager_check_efuses(POWER_MANAGER_DRIVE);
 }
 
 const State *app_driveState_get(void)

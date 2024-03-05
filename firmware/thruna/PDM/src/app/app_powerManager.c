@@ -2,22 +2,16 @@
 #include "app_canRx.h"
 #include "app_retryHandler.h"
 #include "app_canTx.h"
+#include <stdio.h>
 
 typedef struct
 {
-    bool          efuse_state;
-    RetryProtocol retry_protocol;
-    int           retry_limit;
-} EFuseConfig;
-
-typedef struct
-{
-    EFuseConfig efuse_configs[NUM_EFUSE_CHANNELS];
+    RetryConfig retry_configs[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     [POWER_MANAGER_SHUTDOWN] = {
-        .efuse_configs = {
+        .retry_configs = {
             [EFUSE_CHANNEL_AIR] = {true, RETRY_PROTOCOL_AIR, 1},
             [EFUSE_CHANNEL_LVPWR] = {true, RETRY_PROTOCOL_LV, 1},
             [EFUSE_CHANNEL_EMETER] = {false, RETRY_PROTOCOL_EMETER, 3},
@@ -29,7 +23,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
         }
     },
     [POWER_MANAGER_DRIVE] = {
-        .efuse_configs = {
+        .retry_configs = {
             [EFUSE_CHANNEL_AIR] = {true, RETRY_PROTOCOL_AIR, 1},
             [EFUSE_CHANNEL_LVPWR] = {true, RETRY_PROTOCOL_LV, 1},
             [EFUSE_CHANNEL_EMETER] = {false, RETRY_PROTOCOL_EMETER, 3},
@@ -44,77 +38,52 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
 
 void app_powerManager_setState(PowerManagerState state)
 {
-    TimerChannel timer;
-    app_timer_init(&timer, CHECK_TIME);
     current_power_state = state;
-    bool success        = false;
 
-    int         efuse        = 0;
-    int         attempt      = 0;
-    EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
-    app_timer_restart(&timer);
-
-    while (efuse < NUM_EFUSE_CHANNELS)
+    for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        io_efuse_setChannel(efuse, efuse_config.efuse_state);
-        app_timer_restart(&timer);
-        success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
-
-        if (app_timer_updateAndGetState(&timer) == TIMER_STATE_EXPIRED)
-        {
-            apply_retry_protocol(efuse_config.retry_protocol, success);
-            if (success)
-            {
-                efuse++;
-                attempt = 0;
-            }
-            else if (attempt == efuse_config.retry_limit)
-            {
-                app_canTx_PDM_EfuseFault_set(true);
-            }
-            else
-            {
-                attempt++;
-            }
-        }
+        io_efuse_setChannel(efuse, power_states_config[state].retry_configs[efuse].state);
     }
 }
 
-// void app_powerManager_setState(PowerManagerState state)
-// {
-//     TimerChannel timer;
-//     TimerState timer_state;
-//     app_timer_init(&timer, CHECK_TIME);
-//     current_power_state = state;
-//     bool success        = false;
+void app_powerManager_check_efuses(PowerManagerState state) {
+    TimerChannel timer;
+    TimerState timer_state;
+    app_timer_init(&timer, CHECK_TIME);
 
-//     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
-//     {
-//         EFuseConfig efuse_config = power_states_config[state].efuse_configs[efuse];
-//         io_efuse_setChannel(efuse, efuse_config.efuse_state);
+    bool success = false;
+    int  efuse   = 0;
+    int  attempt = 0;
 
-//         for (int attempt = 0; (attempt <= efuse_config.retry_limit) && !success; attempt++)
-//         {
-//             app_timer_restart(&timer);
-//             io_efuse_setChannel(efuse, efuse_config.efuse_state);
-//             timer_state = app_timer_updateAndGetState(&timer);
+    while (efuse < NUM_EFUSE_CHANNELS) {
+        RetryConfig retry_config = power_states_config[state].retry_configs[efuse];
 
-//             while (timer_state != TIMER_STATE_EXPIRED)
-//             {
-//                 timer_state = app_timer_updateAndGetState(&timer);
-//             }
+        while (timer_state != TIMER_STATE_EXPIRED)
+        {
+            timer_state = app_timer_updateAndGetState(&timer);
+        }
+        success = retry_config.state ? io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD : true;
 
-//             success = io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD;
-//             apply_retry_protocol(efuse_config.retry_protocol, success);
-//             timer_state = app_timer_updateAndGetState(&timer);
-//         }
-//     }
-
-//     if (!success)
-//     {
-//         app_canTx_PDM_EfuseFault_set(true);
-//     }
-// }
+        if (success)
+        {
+            efuse++;
+            attempt = 0;
+        }
+        else if (attempt == retry_config.limit)
+        {
+            app_canTx_PDM_EfuseFault_set(true);
+            success = true;
+            break;
+        }
+        else if (!success) {
+            apply_retry_protocol(retry_config.protocol, power_states_config[state].retry_configs, success);
+        }
+        else
+        {
+            attempt++;
+        }
+    }
+}
 
 PowerManagerState app_powerManager_getState()
 {
