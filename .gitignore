@@ -87,9 +87,14 @@ __lib__/
 Testing/
 
 # CLion Files
-!**/.idea
-!**/.idea/runConfigurations/*.xml
-**/.idea
+!.idea
+.idea/*
+!.idea/.name
+# run configs, only xml
+!.idea/runConfigurations
+.idea/runConfigurations/*
+!.idea/runConfigurations/*.xml
+# jsonschema mapping
 !.idea/jsonSchemas.xmls
 cmake-build-*
 

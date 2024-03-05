@@ -1,0 +1,10 @@
+name: Build DBC Action
+description: Builds the DBC file from the JSON files to ./CanMsgs.dbc
+runs:
+  using: "composite"
+  steps:
+    - name: Generate DBC
+      shell: bash
+      run: |
+        python3 scripts/code_generation/jsoncan/generate_can_from_json.py \
+          --only_dbc --can_data_dir "can_bus/thruna" --dbc_output "CanMsgs.dbc"

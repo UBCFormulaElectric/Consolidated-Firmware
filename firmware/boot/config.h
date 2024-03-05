@@ -61,6 +61,15 @@
 #define BOOT_GPIO_PIN GPIO_PIN_5
 #define BOOT_FDCAN1
 
+#elif defined(quadruna_BMS)
+
+#define START_UPDATE_ID 1200
+#define UPDATE_ACK_ID 1201
+#define STATUS_10HZ_ID 1209
+#define BOOT_GPIO_PORT GPIOC
+#define BOOT_GPIO_PIN GPIO_PIN_13
+#define BOOT_FDCAN1
+
 #elif defined(h7dev)
 
 #define START_UPDATE_ID 1300
