@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 1024
+#define QUEUE_SIZE 512
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -124,7 +124,7 @@ void io_canLogging_recordMsgFromQueue(void)
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    assert(size = sizeof(tx_msg));
+    // assert(size = sizeof(tx_msg));
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
