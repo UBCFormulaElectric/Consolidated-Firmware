@@ -89,6 +89,7 @@ Testing/
 # CLion Files
 !.idea
 .idea/*
+!.idea/.name
 # run configs, only xml
 !.idea/runConfigurations
 .idea/runConfigurations/*
