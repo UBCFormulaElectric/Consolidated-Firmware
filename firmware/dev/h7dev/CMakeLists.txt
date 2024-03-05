@@ -61,7 +61,6 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-<<<<<<< HEAD
 
     embedded_library(
         "protobuf_library"
@@ -71,9 +70,6 @@ if("${TARGET}" STREQUAL "deploy")
         TRUE
     )
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm4")
-=======
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4")
->>>>>>> 672ea0c3 (rm bootload for now)
 
     # embedded_image(
     #     "h7dev"
