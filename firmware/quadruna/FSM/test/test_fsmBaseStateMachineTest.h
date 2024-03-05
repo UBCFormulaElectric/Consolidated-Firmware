@@ -55,7 +55,7 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_apps_isPrimaryOCSC_reset();
         fake_io_apps_getSecondary_reset();
         fake_io_apps_isSecondaryOCSC_reset();
-        
+
         fake_io_brake_isActuated_reset();
         fake_io_brake_getFrontPressurePsi_reset();
         fake_io_brake_frontPressureSensorOCSC_reset();
