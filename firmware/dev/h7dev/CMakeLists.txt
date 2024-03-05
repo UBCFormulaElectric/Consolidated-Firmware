@@ -61,7 +61,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm4")
+    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm7")
 
     # embedded_image(
     #     "h7dev"
