@@ -37,8 +37,8 @@
       "executable": "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        // "build_fw_deploy/firmware/boot/h7boot/BMS_quadruna_boot.elf",
-        "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS.elf",
+        "build_fw_deploy/firmware/boot/h7boot/quadruna_BMS_boot.elf",
+        "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -290,6 +290,56 @@
           }
         ]
       }
+    },
+    {
+      "name": "Debug Embedded: RSM",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build Embedded: RSM",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: RSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
+      "name": "Debug Embedded: CRIT",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "configFiles": [
+        "tools/openocd/stm32f4x.cfg"
+      ],
+      "showDevDebugOutput": "none",
+      "preLaunchTask": "Build Embedded: CRIT",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "clearSearch": false, // Required for OpenOCD
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
     },
     {
       "name": "Debug Tests: BMS (Thruna)",

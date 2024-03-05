@@ -15,6 +15,8 @@
 
 // Number of open wire check commands (ADOW) to send before open wire check
 #define OPEN_WIRE_CHECK_NUM_ADOW_CMDS (2)
+// Number of cool down states after running OWC to let voltage settle down
+#define OPEN_WIRE_CHECK_IDLE_CYCLES (4)
 
 // Open Wire Check Modes
 #define PULL_UP (1U)
@@ -62,6 +64,7 @@ typedef enum
     GET_PU_CELL_VOLTAGE_STATE,
     GET_PD_CELL_VOLTAGE_STATE,
     CHECK_OPEN_WIRE_FAULT_STATE,
+    IDLE_STATE,
 } AccumulatorOpenWireCheckState;
 
 typedef struct
@@ -106,6 +109,7 @@ typedef struct
 static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
+static uint8_t     owc_idle_cycles;
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -233,6 +237,7 @@ void app_accumulator_init(void)
 
     open_wire_pu_readings = 0;
     open_wire_pd_readings = 0;
+    owc_idle_cycles       = 0;
     data.owc_state        = START_OPEN_WIRE_CHECK;
 }
 
@@ -242,7 +247,7 @@ void app_accumulator_writeDefaultConfig()
     io_ltc6813Shared_setCfgRegsToDefaultSettings();
 }
 
-void app_accumulator_runOnTick100Hz(void)
+void app_accumulator_runCellMeasurements(void)
 {
     switch (data.state)
     {
@@ -310,7 +315,7 @@ static void app_accumulator_owcCalculateFaults(void)
     data.owc_faults = owcFaults;
 }
 
-bool app_accumulator_openWireCheck(void)
+bool app_accumulator_runOpenWireCheck(void)
 {
     bool is_finished = false;
 
@@ -321,6 +326,7 @@ bool app_accumulator_openWireCheck(void)
             // update the number of commands that've been run already before starting Open Wire Check
             open_wire_pu_readings = 0;
             open_wire_pd_readings = 0;
+            owc_idle_cycles       = 0;
 
             // Set up or acquire the Mutex for iso-SPI
             bool Mutex_Acquired = true; // this line is just a reminder to fix it with proper code
@@ -368,13 +374,25 @@ bool app_accumulator_openWireCheck(void)
         case CHECK_OPEN_WIRE_FAULT_STATE:
         {
             io_ltc6813CellVoltages_checkOpenWireStatus();
-            data.owc_state = START_OPEN_WIRE_CHECK;
+            data.owc_state = IDLE_STATE;
 
             app_accumulator_owcCalculateFaults();
 
-            is_finished = true;
+            break;
+        }
+        case IDLE_STATE:
+        {
+            owc_idle_cycles++;
 
-            // give away mutex for iso-SPI
+            if (owc_idle_cycles >= OPEN_WIRE_CHECK_IDLE_CYCLES)
+            {
+                data.owc_state = START_OPEN_WIRE_CHECK;
+                is_finished    = true;
+            }
+            else
+            {
+                data.owc_state = IDLE_STATE;
+            }
 
             break;
         }

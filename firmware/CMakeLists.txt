@@ -60,15 +60,17 @@ elseif("${TARGET}" STREQUAL "test")
     message("✅ GTest Included")
 endif()
 
+
+
 add_subdirectory(third_party)
 add_subdirectory(shared)
+
+if("${TARGET}" STREQUAL "deploy")
+    add_subdirectory(chimera)
+endif()
 
 add_subdirectory(thruna)
 add_subdirectory(quadruna)
 
 add_subdirectory(dev)
 add_subdirectory(boot)
-
-if("${PLATFORM}" STREQUAL "quadruna_firmware")
-add_subdirectory(serial_debugger)
-endif()

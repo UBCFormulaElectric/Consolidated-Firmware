@@ -12,7 +12,8 @@
         "WatchdogTimeout",
         "TxOverflow",
         "RxOverflow",
-        "RegenNotAvailable"
+        "RegenNotAvailable",
+        "SbgRxOverflow"
     ],
     "faults": [
         "MissingBMSHeartbeat",
