@@ -15,5 +15,5 @@ bool io_faultLatch_getCurrentStatus(const FaultLatch *latch)
 
 bool io_faultLatch_getLatchedStatus(const FaultLatch *latch)
 {
-    return hw_gpio_readPin(&latch->latch_status_gpio);
+    return !hw_gpio_readPin(&latch->latch_status_gpio);
 }
