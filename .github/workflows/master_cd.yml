@@ -5,7 +5,7 @@ on:
       - master
 
 jobs:
-  # Build DBC and Binaries
+  # ======= Build Binaries =======
   build:
     name: Build Firmware
     runs-on: ubuntu-latest
@@ -15,25 +15,42 @@ jobs:
         include:
           - board: thruna_DIM
             bin_name: thruna_DIM_app_metadata.hex
-            build_dir: firmware/thruna/DIM/thruna_DIM_app_metadata.hex
+            build_dir: firmware/thruna/DIM
           - board: thruna_FSM
             bin_name: thruna_FSM_app_metadata.hex
-            build_dir: firmware/thruna/FSM/thruna_FSM_app_metadata.hex
+            build_dir: firmware/thruna/FSM
           - board: thruna_PDM
             bin_name: thruna_PDM_app_metadata.hex
-            build_dir: firmware/thruna/PDM/thruna_PDM_app_metadata.hex
+            build_dir: firmware/thruna/PDM
           - board: thruna_DCM
             bin_name: thruna_DCM_app_metadata.hex
-            build_dir: firmware/thruna/DCM/thruna_DCM_app_metadata.hex
+            build_dir: firmware/thruna/DCM
           - board: thruna_BMS
             bin_name: thruna_BMS_app_metadata.hex
-            build_dir: firmware/thruna/BMS/thruna_BMS_app_metadata.hex
+            build_dir: firmware/thruna/BMS
+
+          - board: quadruna_BMS
+            bin_name: quadruna_BMS_app_metadata.hex
+            build_dir: firmware/quadruna/BMS
+          #          - board: quadruna_CRIT
+          #            bin_name: quadruna_CRIT_app_metadata.hex
+          #            build_dir: firmware/quadruna/CRIT
+          #          - board: quadruna_FSM
+          #            bin_name: quadruna_FSM_app_metadata.hex
+          #            build_dir: firmware/quadruna/FSM
+          #          - board: quadruna_RSM
+          #            bin_name: quadruna_RSM_app_metadata.hex
+          #            build_dir: firmware/quadruna/RSM
+          - board: quadruna_VC
+            bin_name: quadruna_VC_app_metadata.hex
+            build_dir: firmware/quadruna/VC
+
           - board: f4dev
             bin_name: f4dev.hex
-            build_dir: firmware/dev/f4dev/f4dev.hex
+            build_dir: firmware/dev/f4dev
           - board: h7dev
             bin_name: h7dev.hex
-            build_dir: firmware/dev/h7dev/h7dev.hex
+            build_dir: firmware/dev/h7dev
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
@@ -49,20 +66,39 @@ jobs:
           board: ${{ matrix.board }}
       # Uploads .hex binary to Github Actions workflow
       - name: Save built artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         env:
           BUILD_DIR: build_fw_deploy
         with:
           name: ${{ matrix.bin_name }}
-          path: ${{ env.BUILD_DIR }}/${{ matrix.build_dir }}
-
+          path: "${{ env.BUILD_DIR }}/${{ matrix.build_dir }}/${{ matrix.bin_name }}"
+  # ======= Generate DBC =======
   generate-dbc:
-    name: Call DBC Generation
-    uses: ./.github/workflows/dbc-gen.yml
-    secrets:
-      docker_token: ${{secrets.DOCKER_TOKEN}}
-    with:
-      upload_artifact: true
+    name: Generate CAN DBC file
+    runs-on: ubuntu-22.04
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.docker_token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            scripts
+            can_bus
+      - name: Generate and Upload DBC
+        uses: ./.github/actions/build_dbc
+      - name: Upload DBC to Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CanMsgs.dbc
+          path: CanMsgs.dbc
+
+
+  # ======= MAKE THE RELEASE =======
   make-release:
     name: Add Binaries and DBC to Release Tab
     runs-on: ubuntu-22.04
@@ -74,12 +110,29 @@ jobs:
           ref: ${{ github.head_ref }}
           sparse-checkout: .github
       - name: Download Binaries and DBC from Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+      - name: Debug Environment
+        run: ls -l -a
       - name: Create Release
         uses: ./.github/actions/push_release
         with:
           # https://github.com/actions/download-artifact#download-all-artifacts
-          files: "FSM_app_metadata.hex/FSM_app_metadata.hex BMS_app_metadata.hex/BMS_app_metadata.hex DCM_app_metadata.hex/DCM_app_metadata.hex DIM_app_metadata.hex/DIM_app_metadata.hex PDM_app_metadata.hex/PDM_app_metadata.hex f4dev.hex/f4dev.hex h7dev.hex/h7dev.hex CanMsgs.dbc/CanMsgs.dbc"
+          #            quadruna_CRIT_app_metadata.hex/quadruna_CRIT_app_metadata.hex
+          #            quadruna_FSM_app_metadata.hex/quadruna_FSM_app_metadata.hex
+          #            quadruna_RSM_app_metadata.hex/quadruna_RSM_app_metadata.hex
+          files: |
+            thruna_BMS_app_metadata.hex/thruna_BMS_app_metadata.hex
+            thruna_DCM_app_metadata.hex/thruna_DCM_app_metadata.hex
+            thruna_DIM_app_metadata.hex/thruna_DIM_app_metadata.hex
+            thruna_FSM_app_metadata.hex/thruna_FSM_app_metadata.hex
+            thruna_PDM_app_metadata.hex/thruna_PDM_app_metadata.hex
+            quadruna_BMS_app_metadata.hex/quadruna_BMS_app_metadata.hex
+            quadruna_VC_app_metadata.hex/quadruna_VC_app_metadata.hex
+            f4dev.hex/f4dev.hex
+            h7dev.hex/h7dev.hex
+            CanMsgs.dbc/CanMsgs.dbc
           latest: true
           title: "Stable Binaries and DBCs"
           body: "This release contains the latest stable binaries and DBCs."

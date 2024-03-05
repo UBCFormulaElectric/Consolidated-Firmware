@@ -26,21 +26,8 @@ generate code {codegen_dir}
 exit
 """
 
-LOG4J_PROPERTIES = """\
-###############################################################################
-# This file is auto-generated. DO NOT MODIFY!
-###############################################################################
-# This sets the global logging level and specifies the appenders
-log4j.rootLogger=ERROR, theConsoleAppender
 
-# settings for the console appender
-log4j.appender.theConsoleAppender=org.apache.log4j.ConsoleAppender
-log4j.appender.theConsoleAppender.layout=org.apache.log4j.PatternLayout
-log4j.appender.theConsoleAppender.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n
-"""
-
-
-def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
+def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
     """
     Generate STM32CubeMX code
 
@@ -53,20 +40,12 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
     cube_script_dir = os.path.join(codegen_dir, "auto_generated")
     if not os.path.exists(cube_script_dir):
         os.makedirs(cube_script_dir)
-    log4j_properties_dir = os.path.dirname(log4j_properties)
-    if not os.path.exists(log4j_properties_dir):
-        os.makedirs(log4j_properties_dir)
 
     # Generate a temporary STM32CubeMX configuration file
     cube_script = os.path.join(cube_script_dir, board + ".stm32cubemx.script")
     cube_script_f = open(cube_script, "w+")
     cube_script_f.write(CUBE_SCRIPT.format(ioc=ioc, codegen_dir=codegen_dir))
     cube_script_f.close()
-
-    # Generate a config file to make STM32CubeMX logging output less verbose
-    log4j_properties_f = open(log4j_properties, "w+")
-    log4j_properties_f.write(LOG4J_PROPERTIES)
-    log4j_properties_f.close()
 
     # Generate STM32CubeMX code
     cubemx_dir = os.path.dirname(cubemx)
@@ -93,9 +72,6 @@ if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--board", help="The board to generate STM32CubeMX code for")
-    parser.add_argument(
-        "--log4j_properties_output", help="Path to output file storing log4j properties"
-    )
     parser.add_argument("--ioc", help="STM32CubeMX .ioc file")
     parser.add_argument("--codegen_output_dir", help="Code generation output folder")
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
@@ -106,5 +82,4 @@ if __name__ == "__main__":
         args.ioc,
         args.codegen_output_dir,
         args.cube_bin,
-        args.log4j_properties_output,
     )

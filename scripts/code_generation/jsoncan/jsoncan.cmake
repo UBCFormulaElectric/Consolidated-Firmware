@@ -15,7 +15,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
     set(APP_CAN_ALERTS_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canAlerts.h")
 
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
-    set(DBC_OUTPUT ${CAN_DIR}/dbcs/CanMsgs.dbc)
+    set(DBC_OUTPUT ${CAN_DIR}/dbcs/${CAR}.dbc)
     set(CAN_JSON_DIR ${CAN_DIR}/${CAR})
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)   
     file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py)
