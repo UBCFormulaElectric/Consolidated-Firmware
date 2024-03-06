@@ -34,10 +34,10 @@ float app_powerLimiting_computeMaxPower(struct PowerLimiting_Inputs *inputs)
 
     // Calculate max power when fully throttled - for debugging purposes, to measure dips in available power
     float P_max_full_throttle = fminf(P_max_motor_temps, P_max_battery);
-    app_canTx_DCM_PowerLimitValueAtFullThrottle_set((float)P_max_full_throttle);
+    app_canTx_VC_PowerLimitValueAtFullThrottle_set((float)P_max_full_throttle);
 
     float P_max = fminf(P_max_full_throttle, P_max_accelerator);
 
-    app_canTx_DCM_PowerLimitValue_set((float)P_max);
+    app_canTx_VC_PowerLimitValue_set((float)P_max);
     return P_max;
 }
