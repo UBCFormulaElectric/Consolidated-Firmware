@@ -95,8 +95,8 @@ void app_torqueVectoring_handleAcceleration(void)
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
     active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
     app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
-    app_canTx_DCM_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
-    app_canTx_DCM_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
+    app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
+    app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
 
     /**
      *  TRACTION CONTROL NOT TESTED ON CAR YET
@@ -126,8 +126,8 @@ void app_torqueVectoring_handleAcceleration(void)
     // CLAMPS for safety only - should never exceed torque limit
     torque_left_final_Nm  = CLAMP(torque_left_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
     torque_right_final_Nm = CLAMP(torque_right_final_Nm, 0, MAX_TORQUE_REQUEST_NM);
-    app_canTx_DCM_LeftInverterTorqueCommand_set(torque_left_final_Nm);
-    app_canTx_DCM_RightInverterTorqueCommand_set(torque_right_final_Nm);
+    app_canTx_VC_LeftInverterTorqueCommand_set(torque_left_final_Nm);
+    app_canTx_VC_RightInverterTorqueCommand_set(torque_right_final_Nm);
 
     // Calculate power correction PID
     float power_consumed_measured = battery_voltage * current_consumption;
@@ -144,10 +144,10 @@ void app_torqueVectoring_handleAcceleration(void)
     pid_power_correction_factor -=
         app_pid_compute(&pid_power_correction, power_consumed_measured, power_consumed_estimate);
     pid_power_correction_factor = CLAMP(pid_power_correction_factor, PID_POWER_FACTOR_MIN, PID_POWER_FACTOR_MAX);
-    app_canTx_DCM_PowerEstimateMeasuredValue_set(power_consumed_measured);
-    app_canTx_DCM_PowerEstimateValue_set(power_consumed_estimate);
-    app_canTx_DCM_PIDPowerEstimateOutput_set(pid_power_correction_factor);
-    app_canTx_DCM_PIDPowerEstimateError_set(pid_power_correction.error);
-    app_canTx_DCM_PIDPowerEstimateDerivative_set(pid_power_correction.derivative);
-    app_canTx_DCM_PIDPowerEstimateIntegral_set(pid_power_correction.integral);
+    app_canTx_VC_PowerEstimateMeasuredValue_set(power_consumed_measured);
+    app_canTx_VC_PowerEstimateValue_set(power_consumed_estimate);
+    app_canTx_VC_PIDPowerEstimateOutput_set(pid_power_correction_factor);
+    app_canTx_VC_PIDPowerEstimateError_set(pid_power_correction.error);
+    app_canTx_VC_PIDPowerEstimateDerivative_set(pid_power_correction.derivative);
+    app_canTx_VC_PIDPowerEstimateIntegral_set(pid_power_correction.integral);
 }

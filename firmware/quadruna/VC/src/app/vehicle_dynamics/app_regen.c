@@ -50,14 +50,14 @@ void app_regen_run(float accelerator_pedal_percentage)
         activeDifferentialInputs.wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
 
         computeRegenTorqueRequest(&activeDifferentialInputs, &regenAttributes, &powerLimitingInputs);
-        app_canTx_DCM_Warning_RegenNotAvailable_set(false);
+        app_canTx_VC_Warning_RegenNotAvailable_set(false);
     }
     else
     {
         regenAttributes.left_inverter_torque_Nm  = 0.0;
         regenAttributes.right_inverter_torque_Nm = 0.0;
 
-        app_canTx_DCM_Warning_RegenNotAvailable_set(true);
+        app_canTx_VC_Warning_RegenNotAvailable_set(true);
     }
 
     app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
@@ -71,8 +71,8 @@ bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_In
 
 void app_regen_sendTorqueRequest(float left, float right)
 {
-    app_canTx_DCM_LeftInverterTorqueCommand_set(left);
-    app_canTx_DCM_RightInverterTorqueCommand_set(right);
+    app_canTx_VC_LeftInverterTorqueCommand_set(left);
+    app_canTx_VC_RightInverterTorqueCommand_set(right);
 }
 
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr)

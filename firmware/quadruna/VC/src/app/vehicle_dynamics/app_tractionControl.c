@@ -21,12 +21,12 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
-    app_canTx_DCM_SlipRatioLeft_set(slip_ratio_left);
-    app_canTx_DCM_SlipRatioRight_set(slip_ratio_right);
-    app_canTx_DCM_PIDSlipRatioOutput_set(k);
-    app_canTx_DCM_PIDSlipRatioError_set(pid->error);
-    app_canTx_DCM_PIDSlipRatioDerivative_set(pid->derivative);
-    app_canTx_DCM_PIDSlipRatioIntegral_set(pid->integral);
+    app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);
+    app_canTx_VC_SlipRatioRight_set(slip_ratio_right);
+    app_canTx_VC_PIDSlipRatioOutput_set(k);
+    app_canTx_VC_PIDSlipRatioError_set(pid->error);
+    app_canTx_VC_PIDSlipRatioDerivative_set(pid->derivative);
+    app_canTx_VC_PIDSlipRatioIntegral_set(pid->integral);
 
     // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
     outputs->torque_left_final_Nm  = (1.0f + k) * inputs->torque_left_Nm;

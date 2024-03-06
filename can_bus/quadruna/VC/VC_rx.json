@@ -7,8 +7,6 @@
         "FSM_Steering",
         "FSM_Wheels",
         "FSM_Brake",
-        "DIM_Vitals",
-        "DIM_Switches",
         "INVL_InternalStates",
         "INVR_InternalStates",
         "INVL_MotorPositionInfo",
