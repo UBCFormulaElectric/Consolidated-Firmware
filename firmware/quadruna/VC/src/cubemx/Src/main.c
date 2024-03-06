@@ -143,6 +143,7 @@ static void MX_SDMMC1_SD_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SDMMC1_SD_Init(void);
+static void MX_USART2_UART_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -196,6 +197,7 @@ int main(void)
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
     MX_SDMMC1_SD_Init();
+    MX_USART2_UART_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -749,7 +751,7 @@ static void MX_USART2_UART_Init(void)
 
     /* USER CODE END USART2_Init 1 */
     huart2.Instance                    = USART2;
-    huart2.Init.BaudRate               = 115200;
+    huart2.Init.BaudRate               = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart2.Init.WordLength             = UART_WORDLENGTH_8B;
     huart2.Init.StopBits               = UART_STOPBITS_1;
     huart2.Init.Parity                 = UART_PARITY_NONE;
@@ -972,6 +974,14 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PD2 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_2;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB6 PB7 */
