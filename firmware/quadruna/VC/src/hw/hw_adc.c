@@ -23,6 +23,20 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
     else if (hadc == &hadc3)
     {
+        /* On the STM32H733xx MCU, the ADC3 peripheral uses the BDMA peripheral to handle DMA transfers (not the regular
+        DMA peripheral). Unfortunately, the BDMA can only transfer data to/from specific sections of memory (not regular
+        RAM, where `raw_adc_values` will be placed. This means we can't use DMA for the 2 ADC3 channels, without editing
+        the linker script. However, STM32 does not support multi-channel conversions per ADC peripheral without using
+        DMA.
+
+        So the only way I could figure out to get ADC3 conversions working reliably for both IN0 and IN1 was to:
+        1. Configure ADC3 to read from a single channel, in interrupt mode.
+        2. Start ADC conversions at 1kHz via TIM3 (same as ADC1).
+        3. After a conversion finishes, read the value and then reconfigure ADC3 to read from the other channel (done in
+        this interrupt).
+
+        Highly suspicious, but works. :)
+         */
         raw_adc_values[adc3_channel] = (uint16_t)HAL_ADC_GetValue(&hadc3);
         adc_voltages[adc3_channel] = hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[adc3_channel]);
 

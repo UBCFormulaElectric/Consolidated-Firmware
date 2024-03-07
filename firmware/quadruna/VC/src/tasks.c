@@ -145,6 +145,10 @@ void tasks_init(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
+    // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
+    // in-depth comment).
+    HAL_ADC_Start_IT(&hadc3);
+
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
@@ -223,6 +227,8 @@ void tasks_run100Hz(void)
 void tasks_run1kHz(void)
 {
     // TODO: TemporarilQy disabled for hardware testing (chimera).
+    osDelay(osWaitForever);
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -234,12 +240,10 @@ void tasks_run1kHz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        HAL_ADC_Start_IT(&hadc3);
-
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-        // io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
