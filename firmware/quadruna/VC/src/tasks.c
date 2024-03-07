@@ -141,8 +141,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
-    const uint16_t *adc1_buf_start = hw_adc_getRawValuesBuffer();
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
