@@ -38,8 +38,6 @@ extern "C"
 #include "app_globals.h"
 }
 
-extern uint32_t owcCounter;
-
 class BmsBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -82,9 +80,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
-
-        // Reset Open-Wire-Check counter
-        owcCounter = 0;
     }
 
     void TearDown() override

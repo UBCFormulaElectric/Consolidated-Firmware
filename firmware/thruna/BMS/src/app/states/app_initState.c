@@ -8,7 +8,7 @@
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
-extern uint32_t owcCounter;
+extern uint32_t iso_spi_state_counter;
 
 static void initStateRunOnEntry(void)
 {
@@ -21,7 +21,7 @@ static void initStateRunOnEntry(void)
     // AIR+ closed in init
     io_airs_openPositive();
 
-    owcCounter = 0;
+    iso_spi_state_counter = 0;
 }
 
 static void initStateRunOnTick1Hz(void)
