@@ -92,7 +92,7 @@ message("🐍 Using Python Command: \"${PYTHON_COMMAND}\"")
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
-option(FIX_FORMATTING "Run clang-format on all boards" ON)
+option(FIX_FORMATTING "Run clang-format on all boards" OFF)
 IF (FIX_FORMATTING)
     message("⚙️ Run Clang-Formatting for all boards")
     execute_process(
