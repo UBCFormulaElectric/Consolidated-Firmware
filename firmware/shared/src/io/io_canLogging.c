@@ -9,7 +9,7 @@
 
 // Private globals.
 static const CanConfig *config;
-#define QUEUE_SIZE 512
+#define QUEUE_SIZE 2048
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
@@ -153,4 +153,5 @@ void io_canLogging_sync()
     lfs_file_close(&lfs, &file);
     lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
     lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
+    // lfs_file_sync(&lfs, &file);
 }
