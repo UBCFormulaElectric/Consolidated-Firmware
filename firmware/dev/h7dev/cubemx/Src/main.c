@@ -25,12 +25,12 @@
 #include "hw_can.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
+#include "hw_gpio.h"
+#include "hw_utils.h"
 #include "io_can.h"
 #include "io_canLogging.h"
 #include "io_lfs_config.h"
-#include "hw_gpio.h"
 #include "io_log.h"
-#include "hw_utils.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

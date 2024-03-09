@@ -25,6 +25,13 @@
 #include "string.h"
 #include "tasks.h"
 
+#include "hw_can.h"
+#include "hw_sd.h"
+#include "hw_gpio.h"
+#include "hw_utils.h"
+#include "io_can.h"
+#include "io_canLogging.h"
+#include "io_lfs_config.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -53,6 +60,8 @@ DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc3;
 
 FDCAN_HandleTypeDef hfdcan1;
+
+SD_HandleTypeDef hsd1;
 
 TIM_HandleTypeDef htim3;
 
@@ -132,6 +141,7 @@ static void MX_UART7_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -144,7 +154,36 @@ void        RunTask1Hz(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int         write_num    = 0;
+int         read_num     = 0;
+int         overflow_num = 0;
+static void canMsgRecievecallback(CanMsg *rx_msg)
+{
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
+    io_can_msgReceivedCallback(rx_msg);
+    io_canLogging_msgReceivedCallback(rx_msg);
+}
 
+static void callback(uint32_t i)
+{
+    overflow_num++;
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+CanHandle can = { .can = &hfdcan1, .canMsgRecievecallback = canMsgRecievecallback };
+SdCard    sd;
+Gpio      sd_present = {
+         .pin  = GPIO_PIN_8,
+         .port = GPIOA,
+};
+bool             sd_inited;
+static CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .tx_overflow_callback = callback,
+    .rx_overflow_callback = callback,
+};
 /* USER CODE END 0 */
 
 /**
@@ -182,7 +221,13 @@ int main(void)
     MX_FDCAN1_Init();
     MX_TIM3_Init();
     MX_ADC1_Init();
+    MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
+    io_can_init(&can_config);
+    hw_can_init(&can);
+    sd.hsd     = &hsd1;
+    sd.timeout = osWaitForever;
+    io_canLogging_init(&can_config);
     tasks_init();
     /* USER CODE END 2 */
 
@@ -562,6 +607,35 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
+ * @brief SDMMC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SDMMC1_SD_Init(void)
+{
+    /* USER CODE BEGIN SDMMC1_Init 0 */
+
+    /* USER CODE END SDMMC1_Init 0 */
+
+    /* USER CODE BEGIN SDMMC1_Init 1 */
+
+    /* USER CODE END SDMMC1_Init 1 */
+    hsd1.Instance                 = SDMMC1;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd1.Init.ClockDiv            = 0;
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SDMMC1_Init 2 */
+
+    /* USER CODE END SDMMC1_Init 2 */
+}
+
+/**
  * @brief TIM3 Initialization Function
  * @param None
  * @retval None
@@ -806,15 +880,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PC8 PC9 PC10 PC11
-                             PC12 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
     /*Configure GPIO pins : PA9 PA10 PA11 PA12 */
     GPIO_InitStruct.Pin       = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
@@ -822,14 +887,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PD2 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_2;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PD5 PD6 */
     GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6;
