@@ -2,19 +2,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_heartbeatBoardsEnum.h"
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-
-typedef enum
-{
-    BMS_HEARTBEAT_BOARD,
-    VC_HEARTBEAT_BOARD,
-    RSM_HEARTBEAT_BOARD,
-    FSM_HEARTBEAT_BOARD,
-    DIM_HEARTBEAT_BOARD,
-    CRIT_HEARTBEAT_BOARD,
-    HEARTBEAT_BOARD_COUNT
-} HeartbeatBoards;
 
 typedef struct
 {

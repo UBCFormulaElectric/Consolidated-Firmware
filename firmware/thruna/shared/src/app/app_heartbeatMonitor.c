@@ -1,4 +1,5 @@
 #include "app_heartbeatMonitor.h"
+#include "app_heartbeatBoardsEnum.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
