@@ -68,15 +68,13 @@ int io_lfs_sync(const struct lfs_config *c)
     return 0;
 }
 
-int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config *cfg)
+int io_lfs_config(struct lfs_config *cfg)
 {
     // the function
     cfg->read  = io_lfs_read;
     cfg->prog  = io_lfs_prog;
     cfg->erase = io_lfs_erase;
     cfg->sync  = io_lfs_sync;
-
-    assert(IO_LFS_BLOCK_SIZE % block_size == 0);
 
     cfg->read_size      = IO_LFS_READ_SIZE;
     cfg->prog_size      = IO_LFS_PROG_SIZE;

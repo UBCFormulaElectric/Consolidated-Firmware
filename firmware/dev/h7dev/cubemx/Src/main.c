@@ -678,7 +678,7 @@ void runCanTxTask(void *argument)
     for (unsigned int i = 0; i < 10000; i++)
     {
         CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 6; j++)
         {
             read_num++;
             io_canLogging_pushTxMsgToQueue(&msg);
