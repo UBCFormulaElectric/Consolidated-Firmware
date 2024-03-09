@@ -127,6 +127,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskCanLogging */
+osThreadId_t         TaskCanLoggingHandle;
+uint32_t             TaskCanLoggingBuffer[1024];
+osStaticThreadDef_t  TaskCanLoggingControlBlock;
+const osThreadAttr_t TaskCanLogging_attributes = {
+    .name       = "TaskCanLogging",
+    .cb_mem     = &TaskCanLoggingControlBlock,
+    .cb_size    = sizeof(TaskCanLoggingControlBlock),
+    .stack_mem  = &TaskCanLoggingBuffer[0],
+    .stack_size = sizeof(TaskCanLoggingBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -147,6 +159,7 @@ void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunCanLogging(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -265,6 +278,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskCanLogging */
+    TaskCanLoggingHandle = osThreadNew(RunCanLogging, NULL, &TaskCanLogging_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -981,6 +997,24 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_StartTask06 */
+/**
+ * @brief Function implementing the TaskCanLogging thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTask06 */
+void RunCanLogging(void *argument)
+{
+    /* USER CODE BEGIN RunCanLogging */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunCanLogging */
 }
 
 /**
