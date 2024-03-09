@@ -9,12 +9,55 @@
 #include "hw_adc.h"
 #include "hw_uart.h"
 
+#include "io_jsoncan.h"
+#include "app_heartbeatMonitor.h"
+#include "app_stateMachine.h"
+
 #include "shared.pb.h"
 #include "CRIT.pb.h"
+
+#include "io_can.h"
+#include "io_canRx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
+#include "app_commitInfo.h"
+
+#include "hw_utils.h"
+#include "hw_bootup.h"
+#include "hw_watchdog.h"
+#include "hw_watchdogConfig.h"
+#include "hw_stackWaterMark.h"
+#include "hw_stackWaterMarkConfig.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_adc.h"
+#include "hw_gpio.h"
+#include "hw_uart.h"
+
+void canTxQueueOverflowCallback(uint32_t overflow_count)
+{
+    app_canTx_CRIT_TxOverflowCount_set(overflow_count);
+    app_canAlerts_CRIT_Warning_TxOverflow_set(true);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+void canRxQueueOverflowCallback(uint32_t overflow_count)
+{
+    app_canTx_CRIT_RxOverflowCount_set(overflow_count);
+    app_canAlerts_CRIT_Warning_RxOverflow_set(true);
+    BREAK_IF_DEBUGGER_CONNECTED();
+}
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
 extern UART_HandleTypeDef huart2;
+extern CAN_HandleTypeDef  hcan1;
+
+static const CanConfig can_config = {
+    .rx_msg_filter        = io_canRx_filterMessageId,
+    .tx_overflow_callback = canTxQueueOverflowCallback,
+    .rx_overflow_callback = canRxQueueOverflowCallback,
+};
 
 // clang-format off
 static const Gpio ams_r_pin  = { .port = AMS_R_GPIO_Port, .pin = AMS_R_Pin };
@@ -116,7 +159,8 @@ static UART debug_uart = { .handle = &huart2 };
 
 void tasks_preInit(void)
 {
-    // TODO: Setup bootloader.
+    // Setup bootloader.
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
@@ -127,37 +171,136 @@ void tasks_init(void)
 
     io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag);
 
-    // TODO: Re-enable watchdog.
+    // Re-enable watchdog.
+    __HAL_DBGMCU_FREEZE_IWDG();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("CRIT reset!");
+
+    hw_hardFaultHandler_init();
+    hw_can_init(&hcan1);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+
+    app_canTx_init();
+    app_canRx_init();
+
+    // app_stateMachine_init(app_mainState_get());
+
+    // broadcast commit info
+    app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
 void tasks_run100Hz(void)
 {
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    // Setup tasks.
+    static const TickType_t period_ms = 10;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        app_stateMachine_tick100Hz();
+        io_canTx_enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void tasks_runCanTx(void)
 {
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    // Setup tasks.
+    for (;;)
+    {
+        io_can_transmitMsgFromQueue();
+    }
 }
 
 void tasks_runCanRx(void)
 {
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    // Setup tasks.
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
 }
 
 void tasks_run1kHz(void)
 {
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    // Setup tasks.
+    static const TickType_t period_ms = 1;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    /* Infinite loop */
+    for (;;)
+    {
+        // Check in for timeouts for all RTOS tasks
+        hw_watchdog_checkForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
+        {
+            hw_watchdog_checkIn(watchdog);
+        }
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void tasks_run1Hz(void)
 {
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    // Setup tasks.
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        hw_stackWaterMarkConfig_check();
+        app_stateMachine_tick1Hz();
+
+        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
