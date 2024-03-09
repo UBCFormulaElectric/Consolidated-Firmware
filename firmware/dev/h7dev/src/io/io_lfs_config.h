@@ -2,6 +2,8 @@
 #include "hw_sd.h"
 #include <stdint.h>
 
+#define LFS_NO_MALLOC // no malloc option
+
 // those factor will be multiple with the block size
 #define IO_LFS_BLOCK_SIZE_FACTOR 8
 #define IO_LFS_READ_SIZE_FACTOR 8
