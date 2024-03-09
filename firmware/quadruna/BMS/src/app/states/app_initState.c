@@ -8,6 +8,8 @@
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
+extern uint32_t iso_spi_state_counter;
+
 static void initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
@@ -20,6 +22,8 @@ static void initStateRunOnEntry(void)
     io_airs_openPositive();
 
     app_soc_resetSocFromVoltage();
+
+    iso_spi_state_counter = 0;
 }
 
 static void initStateRunOnTick1Hz(void)
