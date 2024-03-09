@@ -105,7 +105,7 @@ TEST_F(FsmAppTest, check_left_suspension_can_signals)
     ASSERT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 50.0);
 
     CheckBinaryStatusCanSignal(
-        fake_io_suspension_leftSensorOCSC_returns, app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get); 
+        fake_io_suspension_leftSensorOCSC_returns, app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get);
 }
 
 TEST_F(FsmAppTest, check_right_suspension_can_signals)
@@ -115,5 +115,5 @@ TEST_F(FsmAppTest, check_right_suspension_can_signals)
     ASSERT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 50.0);
 
     CheckBinaryStatusCanSignal(
-        fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_FSM_Warning_RightSuspensionOCSC_get); 
+        fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_FSM_Warning_RightSuspensionOCSC_get);
 }

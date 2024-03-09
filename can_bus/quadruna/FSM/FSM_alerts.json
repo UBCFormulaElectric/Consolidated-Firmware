@@ -27,6 +27,7 @@
     "faults": [
         "DummyFault",
         "PappsOCSC",
-        "SappsOCSC"
+        "SappsOCSC",
+        "MissingBMSHeartbeat"
     ]
 }
