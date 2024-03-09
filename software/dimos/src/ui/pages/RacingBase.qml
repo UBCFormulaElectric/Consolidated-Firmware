@@ -60,7 +60,7 @@ Item {
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: parent.top
-                        anchors.topMargin: 10
+                        anchors.topMargin: 15
                         font.family: "Roboto"
                         font.bold: true
                         font.pointSize: 24
@@ -68,12 +68,15 @@ Item {
                         color: "#000000"
                     }
                     Text {
-                        anchors.centerIn: parent
+                        anchors.top: parent.top
+                        anchors.topMargin: 45
+                        anchors.horizontalCenter: parent.horizontalCenter
                         font.family: "Roboto"
                         font.pointSize: 16
                         text: description
                         color: "#000000"
                     }
+                    // Todo: add icons
                 }
             }
         }
