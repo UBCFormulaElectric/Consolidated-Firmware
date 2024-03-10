@@ -15,7 +15,10 @@ Item {
 
         Rectangle {
             id: notifRectangle
-            anchors.centerIn: parent
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 15
             height: parent.height * 0.9
             width: parent.width;
             color: "#94979a"
@@ -47,6 +50,7 @@ Item {
         Component {
             id: errorDelegate
             Item {
+                property int iconSize: 80
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width*0.95
                 height: 100
@@ -57,26 +61,40 @@ Item {
                     height: parent.height
                     radius: 10
                     color: colorType
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                    Rectangle { // Todo: add icons
+                        id: icon
                         anchors.top: parent.top
-                        anchors.topMargin: 15
-                        font.family: "Roboto"
+                        anchors.topMargin: 10
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
+                        width: iconSize
+                        height: iconSize
+                        radius: 15
+                        color: "#FFFFFF"
+                        opacity: 50
+                    }
+                    Text {
+                        anchors.left: icon.right
+                        anchors.leftMargin: 10
+                        anchors.top: parent.top
+                        anchors.topMargin: 20
+                        font.family: "SF Pro"
                         font.bold: true
                         font.pointSize: 24
                         text: name
                         color: "#000000"
                     }
                     Text {
+                        anchors.left: icon.right
+                        anchors.leftMargin: 10
                         anchors.top: parent.top
-                        anchors.topMargin: 45
+                        anchors.topMargin: 50
                         anchors.horizontalCenter: parent.horizontalCenter
-                        font.family: "Roboto"
+                        font.family: "SF Pro"
                         font.pointSize: 16
                         text: description
                         color: "#000000"
                     }
-                    // Todo: add icons
                 }
             }
         }
@@ -84,7 +102,7 @@ Item {
         Text{
             text: "COME HOME THE KIDS MISS YOU"
             anchors.horizontalCenter: parent.horizontalCenter
-            font.family: "Roboto"
+            font.family: "SF Pro"
             font.bold: true
             font.pointSize: 24
             color: "#ffffff"

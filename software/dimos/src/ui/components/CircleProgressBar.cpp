@@ -9,8 +9,13 @@ CircleProgressBar::CircleProgressBar(QQuickItem *parent) // NOLINT(*-pro-type-me
 
 void CircleProgressBar::paint(QPainter *p)
 {
-    const QPen bg_pen(m_bg_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    const QPen bar_pen(m_bar_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen bg_pen(m_bg_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen bar_pen(m_bar_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    if (!m_round_tip) {
+        bg_pen.setCapStyle(Qt::FlatCap);
+        bar_pen.setCapStyle(Qt::FlatCap);
+    }
+
     p->setRenderHint(QPainter::Antialiasing);
 
     const int delta_theta = m_end_angle - m_start_angle;

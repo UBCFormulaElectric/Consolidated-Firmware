@@ -59,6 +59,7 @@ Item {
                         stroke_width: 20
                         start_angle: 90
                         end_angle: -270
+                        round_tip: true
                         bar_color: "#36FB61"
                         bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
                         anchors.horizontalCenter: parent.horizontalCenter

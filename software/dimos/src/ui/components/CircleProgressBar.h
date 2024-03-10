@@ -10,11 +10,12 @@ class CircleProgressBar : public QQuickPaintedItem
     Q_PROPERTY(int stroke_width MEMBER m_stroke_width FINAL REQUIRED)
     Q_PROPERTY(int start_angle MEMBER m_start_angle FINAL REQUIRED)
     Q_PROPERTY(int end_angle MEMBER m_end_angle FINAL REQUIRED)
+    Q_PROPERTY(bool round_tip MEMBER m_round_tip FINAL REQUIRED)
     Q_PROPERTY(QColor bar_color MEMBER m_bar_color FINAL REQUIRED)
     Q_PROPERTY(QColor bg_color MEMBER m_bg_color FINAL REQUIRED)
   public:
     explicit CircleProgressBar(QQuickItem *parent = nullptr);
-    void     paint(QPainter *p) override;
+    void paint(QPainter *p) override;
 
   private:
     /**
@@ -34,6 +35,11 @@ class CircleProgressBar : public QQuickPaintedItem
      */
     int m_start_angle;
     int m_end_angle;
+
+    /**
+     * @brief Whether or not the stroke is round
+     */
+    bool m_round_tip;
 
     QColor m_bar_color;
     QColor m_bg_color;
