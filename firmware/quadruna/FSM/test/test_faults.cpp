@@ -1,4 +1,5 @@
 #include "test_fsmBaseStateMachineTest.h"
+#include "app_apps.h"
 #include <cmath>
 
 class FsmFaultsTest : public FsmBaseStateMachineTest
@@ -172,7 +173,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
         float papps_percentage;
         float sapps_percentage;
         bool  expect_fault;
-    } test_params[7] = {
+    } test_params[] = {
         {
             // Papps not greater than sapps
             .papps_percentage = 10,
@@ -217,7 +218,9 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
         },
     };
 
-    for (int i = 0; i < 5; i++)
+    int test_params_len = sizeof(test_params) / sizeof(test_params[0]);
+
+    for (int i = 0; i < test_params_len; i++)
     {
         TearDown();
         SetUp();

@@ -37,10 +37,11 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         app_canTx_init();
         app_canRx_init();
 
-        app_stateMachine_init(app_mainState_get());
+        app_apps_init();
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
+        app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
