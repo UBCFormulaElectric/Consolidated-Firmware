@@ -454,40 +454,12 @@
       }
     },
     {
-      "name": "Debug Tests: Shared (All Boards)",
+      "name": "Debug Tests: Shared",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: Shared (All Boards)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: Shared (Quadruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/shared/quadruna_shared_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: Shared (Quadruna)",
-      "linux": {
-        "MIMode": "gdb"
-      },
-      "osx": {
-        "MIMode": "lldb"
-      }
-    },
-    {
-      "name": "Debug Tests: Shared (Thruna)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/thruna/shared/thruna_shared_test",
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: Shared (Thruna)",
+      "preLaunchTask": "Build Tests: Shared",
       "linux": {
         "MIMode": "gdb"
       },

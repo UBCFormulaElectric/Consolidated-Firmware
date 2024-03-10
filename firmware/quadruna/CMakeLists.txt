@@ -6,7 +6,6 @@ set(SHARED_APP_INCLUDE_QUADRUNA_DIR "${SHARED_EMBEDDED_QUADRUNA_DIR}/app")
 set(SHARED_IO_INCLUDE_QUADRUNA_DIR "${SHARED_EMBEDDED_QUADRUNA_DIR}/io")
 set(SHARED_HW_INCLUDE_QUADRUNA_DIR "${SHARED_EMBEDDED_QUADRUNA_DIR}/hw")
 
-add_subdirectory(shared)
 add_subdirectory(VC)
 add_subdirectory(BMS)
 add_subdirectory(FSM)

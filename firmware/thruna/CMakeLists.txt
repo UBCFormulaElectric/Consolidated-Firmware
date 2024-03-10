@@ -6,7 +6,6 @@ set(SHARED_APP_INCLUDE_THRUNA_DIR "${SHARED_EMBEDDED_THRUNA_DIR}/app")
 set(SHARED_IO_INCLUDE_THRUNA_DIR "${SHARED_EMBEDDED_THRUNA_DIR}/io")
 set(SHARED_HW_INCLUDE_THRUNA_DIR "${SHARED_EMBEDDED_THRUNA_DIR}/hw")
 
-add_subdirectory(shared)
 add_subdirectory(BMS)
 add_subdirectory(DCM)
 add_subdirectory(FSM)
