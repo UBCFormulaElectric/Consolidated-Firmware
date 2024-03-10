@@ -13,7 +13,7 @@ class CanQML final : public QObject
     QML_SINGLETON
 
     static CanQML *instance;
-    explicit       CanQML(QObject *parent = nullptr) : QObject(parent) {}
+    explicit CanQML(QObject *parent = nullptr) : QObject(parent) {}
 
   public:
     static CanQML *getInstance()

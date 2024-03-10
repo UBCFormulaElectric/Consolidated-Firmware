@@ -76,7 +76,9 @@ class KeyTranslator final : public QObject
                         handled = false;
                         break;
                 }
-            } else handled = false;
+            }
+            else
+                handled = false;
             if (handled)
                 qDebug() << "text" << keyEvent->text() << "key" << keyEvent->key() << "modifiers"
                          << keyEvent->modifiers();

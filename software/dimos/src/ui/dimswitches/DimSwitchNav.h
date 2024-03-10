@@ -75,10 +75,7 @@ class DimSwitchNav : public QObject
             pushRot->forceActiveFocus();
     }
 
-    void logTest() const
-    {
-        qInfo() << out << err << settings << f1 << f2 << leftRot << rightRot << pushRot;
-    }
+    void logTest() const { qInfo() << out << err << settings << f1 << f2 << leftRot << rightRot << pushRot; }
 
   public:
     explicit DimSwitchNav(QObject *parent = nullptr) : QObject(parent)

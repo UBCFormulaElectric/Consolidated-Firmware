@@ -8,8 +8,8 @@ class DimSwitchEmitter : public QObject
     Q_OBJECT
     QML_ELEMENT
     QML_SINGLETON
-public:
-    static DimSwitchEmitter * getInstance()
+  public:
+    static DimSwitchEmitter *getInstance()
     {
         if (instance == nullptr)
             instance = new DimSwitchEmitter();
@@ -21,7 +21,7 @@ public:
         Q_UNUSED(jsEngine);
         return getInstance();
     }
-signals:
+  signals:
     void outButtonPressed();
     void outButtonReleased();
     void errButtonPressed();
@@ -37,7 +37,7 @@ signals:
     void pushRot();
     void pushRotReleased();
 
-private:
-    static DimSwitchEmitter * instance;
-    explicit DimSwitchEmitter(QObject* parent = nullptr): QObject(parent) {}
+  private:
+    static DimSwitchEmitter *instance;
+    explicit DimSwitchEmitter(QObject *parent = nullptr) : QObject(parent) {}
 };

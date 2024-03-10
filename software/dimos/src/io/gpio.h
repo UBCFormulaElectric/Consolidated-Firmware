@@ -30,7 +30,7 @@ typedef struct
     std::string name, enum_name;
 } gpio_info;
 
-const std::map<gpio_input, gpio_info> GPIO_inputs_info {
+const std::map<gpio_input, gpio_info> GPIO_inputs_info{
     { gpio_input::GPIO1, { .name = "F1", .enum_name = "GPIO1" } },
     { gpio_input::GPIO2, { .name = "ROT_A", .enum_name = "GPIO2" } },
     { gpio_input::GPIO3, { .name = "OUT", .enum_name = "GPIO3" } },
@@ -60,7 +60,8 @@ enum class line_read_error
 };
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i);
 
-enum class gpio_level {
+enum class gpio_level
+{
     LOW,
     HIGH
 };
