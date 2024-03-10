@@ -43,6 +43,7 @@ void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim)
     }
 }
 
+// TODO: on thruna, speeds were halved from the real amounts, to be fixed after physical constants added
 float io_wheels_getLeftSpeedKph(void)
 {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
