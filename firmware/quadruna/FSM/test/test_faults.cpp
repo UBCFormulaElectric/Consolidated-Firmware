@@ -360,3 +360,43 @@ TEST_F(FsmFaultsTest, steering_sensor_ocsc_sets_warning)
     LetTimePass(10);
     ASSERT_FALSE(app_canAlerts_FSM_Warning_SteeringAngleOCSC_get());
 }
+
+TEST_F(FsmFaultsTest, left_suspension_ocsc_sets_warning)
+{
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get());
+
+    // Set left suspension OCSC
+    fake_io_suspension_leftSensorOCSC_returns(true);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get());
+
+    // Confirm set indefinitely
+    LetTimePass(1000);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get());
+
+    // Clear condition, confirm warning resets
+    fake_io_suspension_leftSensorOCSC_returns(false);
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_LeftSuspensionOCSC_get());
+}
+
+TEST_F(FsmFaultsTest, right_suspension_ocsc_sets_warning)
+{
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_RightSuspensionOCSC_get());
+
+    // Set right suspension OCSC
+    fake_io_suspension_rightSensorOCSC_returns(true);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_RightSuspensionOCSC_get());
+
+    // Confirm set indefinitely
+    LetTimePass(1000);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_RightSuspensionOCSC_get());
+
+    // Clear condition, confirm warning resets
+    fake_io_suspension_rightSensorOCSC_returns(false);
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_RightSuspensionOCSC_get());
+}
