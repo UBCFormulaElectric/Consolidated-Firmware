@@ -50,8 +50,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_init();
 
         app_heartbeatMonitor_init(
-            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-            &app_canTx_BMS_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
+            heartbeatFaultSetters, heartbeatFaultGetters);
 
         app_inverterOnState_init();
         app_accumulator_init();

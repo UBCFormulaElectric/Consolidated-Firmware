@@ -474,7 +474,8 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOA, SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | LED_Pin, GPIO_PIN_RESET);
+        GPIOA, SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin,
+        GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
@@ -509,10 +510,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : SHDN_R_Pin BMS_B_Pin BMS_G_Pin BSPD_R_Pin
-                             BMS_R_Pin FSM_R_Pin LED_Pin */
-    GPIO_InitStruct.Pin   = SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | LED_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+                             BMS_R_Pin FSM_R_Pin VC_B_Pin LED_Pin */
+    GPIO_InitStruct.Pin  = SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BSPD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -531,12 +532,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(NPROGRAM_3V3_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : VC_B_Pin */
-    GPIO_InitStruct.Pin  = VC_B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(VC_B_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : AMS_R_Pin */
     GPIO_InitStruct.Pin   = AMS_R_Pin;
