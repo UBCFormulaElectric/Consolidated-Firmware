@@ -230,8 +230,8 @@ void tasks_init(void)
     app_canRx_init();
 
     app_heartbeatMonitor_init(
-        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &app_canTx_PDM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_PDM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
 
     io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
