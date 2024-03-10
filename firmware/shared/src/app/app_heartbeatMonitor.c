@@ -1,4 +1,5 @@
 #include "app_heartbeatMonitor.h"
+#include "app_heartbeatBoardsEnum.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,8 +8,7 @@
 static HeartbeatMonitor hb_monitor;
 
 void app_heartbeatMonitor_init(
-    uint32_t timeout_period_ms,
-    bool     boards_to_check[HEARTBEAT_BOARD_COUNT],
+    bool boards_to_check[HEARTBEAT_BOARD_COUNT],
     bool (*getters[HEARTBEAT_BOARD_COUNT])(),
     void (*updaters[HEARTBEAT_BOARD_COUNT])(bool),
     void (*setter)(bool),
@@ -16,7 +16,6 @@ void app_heartbeatMonitor_init(
     bool (*fault_getters[HEARTBEAT_BOARD_COUNT])())
 {
     hb_monitor.setter              = setter;
-    hb_monitor.timeout_period_ms   = timeout_period_ms;
     hb_monitor.previous_timeout_ms = 0U;
     hb_monitor.block_faults        = false;
 
@@ -36,7 +35,7 @@ void app_heartbeatMonitor_tick(void)
 {
     const uint32_t current_ms = io_time_getCurrentMs();
 
-    if ((current_ms - hb_monitor.previous_timeout_ms) >= hb_monitor.timeout_period_ms)
+    if ((current_ms - hb_monitor.previous_timeout_ms) >= HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS)
     {
         hb_monitor.previous_timeout_ms = current_ms;
 
