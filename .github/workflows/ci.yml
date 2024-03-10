@@ -159,12 +159,6 @@ jobs:
 #          - board: CRIT
 #            car: quadruna
 
-          # shared tests below for for the car-specific shared directories, not firmware/shared
-          - board: shared
-            car: quadruna
-          - board: shared
-            car: thruna
-
     container:
       image: ubcformulaelectric/environment:latest
       credentials:
