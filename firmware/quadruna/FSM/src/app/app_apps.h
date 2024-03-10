@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 
-// TODO relook at these values
 #define AGREEMENT_TIME_TO_FAULT (100U)
 #define AGREEMENT_TIME_TO_CLEAR (1000U)
 #define PAPPS_OCSC_TIME_TO_FAULT (10U)

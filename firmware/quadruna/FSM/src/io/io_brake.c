@@ -2,7 +2,6 @@
 #include "io_brake.h"
 #include "hw_adc.h"
 
-// TODO set these values
 #define BRAKE_PEDAL_MIN_VOLTAGE (2.08f)
 #define BRAKE_PEDAL_MAX_VOLTAGE (2.310f)
 

@@ -1,7 +1,6 @@
 #include "io_steering.h"
 #include "hw_adc.h"
 
-// TODO: actual hardware values
 #define MIN_STEERING_VOLTAGE (0.2f)
 #define MAX_STEERING_VOLTAGE (3.5f)
 

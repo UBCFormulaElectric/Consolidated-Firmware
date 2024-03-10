@@ -5,7 +5,6 @@
 #include "app_units.h"
 #include "hw_pwmInputFreqOnly.h"
 
-// TODO: replace with new physical values
 // Note: Unit for length is measured in metres unless specified
 static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6f;
 static const size_t RELUCTOR_RING_TOOTH_COUNT    = 48;

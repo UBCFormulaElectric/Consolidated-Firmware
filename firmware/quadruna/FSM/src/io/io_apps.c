@@ -3,7 +3,6 @@
 #include "hw_adc.h"
 #include "app_utils.h"
 
-// TODO: add new physical data
 // Constant used to compute gamma (cosine law)
 #define PAPPS_LEN_A (175.0f) // pedal length to PAPPS
 #define SAPPS_LEN_A (165.0f) // pedal length to SAPPS
