@@ -6,7 +6,6 @@
 #include "app_utils.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "app_canAlerts.h"
-#include "app_canAlerts.h"
 
 extern TaskHandle_t Task1HzHandle;
 extern TaskHandle_t Task100HzHandle;
