@@ -1,6 +1,6 @@
 import QtQuick
 
-import squircle
+import components
 import constants
 import dimswitches
 

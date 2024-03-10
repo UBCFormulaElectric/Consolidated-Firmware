@@ -6,7 +6,7 @@ constexpr static double rad_deg_factor = 180 / M_PI;
 #define RAD_TO_DEG(x) ((x) * rad_deg_factor)
 
 // ReSharper disable once CppPossiblyUninitializedMember
-Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {}
+Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {} // NOLINT(*-pro-type-member-init)
 
 /**
  * \brief Draws a squircle with the given painter.
@@ -80,7 +80,6 @@ void Squircle::paint(QPainter *p)
                 (arcAngle - 45) * -2);
             path.cubicTo(p3_1, p2_1, p1_1);
         }
-
 #ifdef QT_DEBUG
         p->setPen(QPen(QColorConstants::Red, 3));
         p->drawPoint(p1_1);
@@ -100,6 +99,8 @@ void Squircle::paint(QPainter *p)
         p->drawPoint(p2_2);
 #endif
     }
+
+    path.closeSubpath();
 
     p->setPen(Qt::NoPen);
     p->setBrush(QBrush(m_color));

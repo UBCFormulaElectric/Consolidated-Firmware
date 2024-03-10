@@ -40,7 +40,7 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE
     DimosConstantsplugin
     Switcherplugin
     Pagesplugin
-    Squircleplugin
+    Componentsplugin
     DimSwitchesplugin
     CanQMLplugin
 )

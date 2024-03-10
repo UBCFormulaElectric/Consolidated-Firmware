@@ -1,6 +1,6 @@
 add_subdirectory(constants)
 add_subdirectory(switcher)
 add_subdirectory(pages)
-add_subdirectory(squircle)
 add_subdirectory(dimswitches)
 add_subdirectory(canqml)
+add_subdirectory(components)

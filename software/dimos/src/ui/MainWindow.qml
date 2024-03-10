@@ -76,10 +76,10 @@ Window {
         Shutdown {
             visible: false
         }
-        Text {
-            anchors.centerIn: parent
-            text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
-            color: "white"
-        }
+        // Text {
+        //     anchors.centerIn: parent
+        //     text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
+        //     color: "white"
+        // }
     }
 }
