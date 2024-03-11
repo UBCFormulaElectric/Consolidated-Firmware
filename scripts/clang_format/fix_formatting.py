@@ -1,6 +1,8 @@
 import os
 import sys
 import multiprocessing
+import argparse
+import functools
 
 
 def _get_platform() -> str:
@@ -23,8 +25,7 @@ CLANG_PLATFORM_SUFFIX = {"windows": ".exe", "mac": "-mac", "linux": ""}[platform
 CLANG_FORMAT_BINARY = (
     f'{os.path.join(".", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
 )
-CLANG_FORMAT_OPTIONS = "-i --style=file"
-CLANG_FORMAT_CMD = f"{CLANG_FORMAT_BINARY} {CLANG_FORMAT_OPTIONS}"
+CLANG_FORMAT_OPTIONS = " -i --style=file"
 
 # TODO make this (configs and function) work with multiple directories/make it compatible with multiple directories
 
@@ -63,16 +64,18 @@ def find_all_files(
     return source_files
 
 
-def run_clang_format(source_file: str) -> bool:
+def run_clang_format(source_file: str, cmd: str) -> bool:
     """
     Run clang format against a C/C++ source file, returning True if successful.
+
+    Note: `source_file` needs to be first because pool.map passes the iterable
     """
     # Append the requisite .exe file ending for Windows
     # Construct and invoke clang-format
     if platform == "windows":
-        command = f'"{CLANG_FORMAT_CMD} {source_file}"'
+        command = f'"{cmd} {source_file}"'
     else:
-        command = f'{CLANG_FORMAT_CMD} "{source_file}"'
+        command = f'{cmd} "{source_file}"'
 
     try:
         return os.system(command) == 0
@@ -80,7 +83,15 @@ def run_clang_format(source_file: str) -> bool:
         return False
 
 
+def build_cmd(bin: str) -> str:
+    return bin + CLANG_FORMAT_OPTIONS
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--local", "-l", type=str, required=False, default=None)
+    args = parser.parse_args()
+
     # Change into the DIRECTORY OF THIS PYTHON FILE is in so we can use relative paths
     PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
@@ -106,9 +117,15 @@ if __name__ == "__main__":
     )
     source_files += find_all_files("software/dimos", [], [])
 
+    # Build clang-format command.
+    if args.local != None:
+        cmd = build_cmd(args.local)
+    else:
+        cmd = build_cmd(CLANG_FORMAT_BINARY)
+
     pool = multiprocessing.Pool()  # Start a multiprocessing pool to speed up formatting
     try:
-        results = pool.map(run_clang_format, source_files)
+        results = pool.map(functools.partial(run_clang_format, cmd=cmd), source_files)
         pool.close()
         success = all(results)
         for i, result in enumerate([result for result in results if not result]):

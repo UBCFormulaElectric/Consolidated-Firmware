@@ -16,6 +16,33 @@ if(NOT STM32CUBEMX_BIN_PATH)
     endif()
 endif()
 
+if("${PLATFORM}" STREQUAL "firmware")
+    IF(${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
+        set(LOG4J_PROPERTIES "$ENV{UserProfile}/.stm32cubemx/log4j.properties")
+    ELSE ()
+        set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
+    ENDIF ()
+    message("📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
+    execute_process(
+        COMMAND ${PYTHON_COMMAND}
+        ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
+        --log4j_properties_output ${LOG4J_PROPERTIES}
+    )
+endif()
+
+find_program(HAS_PROTOBUF_COMPILER protoc)
+IF(NOT HAS_PROTOBUF_COMPILER)
+    IF(${CMAKE_HOST_WIN32})
+        message(FATAL_ERROR "Could not find protoc. Please install it from https://github.com/protocolbuffers/protobuf/releases")
+    ELSEIF(${CMAKE_HOST_LINUX})
+        set(PROTOBUF_COMPILER "\"apt install -y protobuf-compiler\"")
+    ELSEIF(${CMAKE_HOST_APPLE})
+        set(PROTOBUF_COMPILER "\"brew install protobuf\"")
+    ENDIF()
+    message(FATAL_ERROR "Could not find protoc. Please run ${PROTOBUF_COMPILER} to install it.")
+ENDIF()
+message("✅ Found protoc at ${HAS_PROTOBUF_COMPILER}")
+
 set(SHARED_COMPILER_DEFINES
     -D__weak=__attribute__\(\(weak\)\)
     -D__packed=__attribute__\(\(__packed__\)\)
@@ -244,17 +271,14 @@ function(generate_stm32cube_code
         ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
     set(FIX_FORMATTING_SCRIPT_PY
         ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
-    set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
 
     add_custom_command(
         OUTPUT ${IOC_PATH}.md5
-        ${LOG4J_PROPERTIES}
         COMMENT "Generating drivers for ${TARGET_NAME}"
         COMMAND ${PYTHON_COMMAND}
         ${GENERATE_CUBE_CODE_SCRIPT_PY}
         --board ${TARGET_NAME}
-        --log4j_properties_output ${LOG4J_PROPERTIES}
         --ioc ${IOC_PATH}
         --codegen_output_dir ${IOC_DIR}
         --cube_bin ${STM32CUBEMX_BIN_PATH}

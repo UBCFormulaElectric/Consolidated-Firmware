@@ -8,6 +8,8 @@
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
+extern uint32_t iso_spi_state_counter;
+
 static void initStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INIT_STATE);
@@ -20,6 +22,8 @@ static void initStateRunOnEntry(void)
     io_airs_openPositive();
 
     app_soc_resetSocFromVoltage();
+
+    iso_spi_state_counter = 0;
 }
 
 static void initStateRunOnTick1Hz(void)
@@ -55,12 +59,6 @@ static void initStateRunOnTick100Hz(void)
             // precharge when preparing to charge
             const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled;
 
-// TODO: Re-implement precharge after remaining testing completed
-#ifdef TARGET_EMBEDDED
-            (void)precharge_for_charging;
-            (void)precharge_for_driving;
-            (void)cell_balancing_enabled;
-#else
             if (precharge_for_charging)
             {
                 app_stateMachine_setNextState(app_prechargeState_get());
@@ -73,7 +71,6 @@ static void initStateRunOnTick100Hz(void)
             {
                 app_stateMachine_setNextState(app_balancingState_get());
             }
-#endif
         }
     }
 }

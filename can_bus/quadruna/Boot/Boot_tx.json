@@ -1,20 +1,29 @@
 {
-    "VC": {
-        "msg_id": 1219,
-        "cycle_time": 100,
-        "signals": {
-            "BMS_Status": {
-                "enum": "BootStatus"
-            }
-        }
-    },
-    "H7Dev": {
-        "msg_id": 1309,
-        "cycle_time": 100,
-        "signals": {
-            "H7Dev_Status": {
-                "enum": "BootStatus"
-            }
-        }
-    }
+	"VC": {
+		"msg_id": 1219,
+		"cycle_time": 100,
+		"signals": {
+			"VC_Status": {
+				"enum": "BootStatus"
+			}
+		}
+	},
+	"BMS": {
+		"msg_id": 1209,
+		"cycle_time": 100,
+		"signals": {
+			"BMS_Status": {
+				"enum": "BootStatus"
+			}
+		}
+	},
+	"H7Dev": {
+		"msg_id": 1309,
+		"cycle_time": 100,
+		"signals": {
+			"H7Dev_Status": {
+				"enum": "BootStatus"
+			}
+		}
+	}
 }

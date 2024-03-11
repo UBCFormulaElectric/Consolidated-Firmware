@@ -64,10 +64,12 @@ static const Gpio      pgood            = { .port = PGOOD_GPIO_Port, .pin = PGOO
 static const Gpio      lv_pwr_en        = { .port = LV_PWR_EN_GPIO_Port, .pin = LV_PWR_EN_Pin };
 static const Gpio      aux_pwr_en       = { .port = AUX_PWR_EN_GPIO_Port, .pin = AUX_PWR_EN_Pin };
 static const Gpio      pump_pwr_en      = { .port = PUMP_PWR_EN_GPIO_Port, .pin = PUMP_PWR_EN_Pin };
+static const Gpio      _900k_gpio       = { .port = _900K_GPIO_GPIO_Port, .pin = _900K_GPIO_Pin };
 static const Gpio      nchrg_fault      = { .port = nCHRG_FAULT_GPIO_Port, .pin = nCHRG_FAULT_Pin };
 static const Gpio      nchrg            = { .port = nCHRG_GPIO_Port, .pin = nCHRG_Pin };
 static const Gpio      inv_l_pwr_en     = { .port = INV_L_PWR_EN_GPIO_Port, .pin = INV_L_PWR_EN_Pin };
 static const Gpio      inv_r_pwr_en     = { .port = INV_R_PWR_EN_GPIO_Port, .pin = INV_R_PWR_EN_Pin };
+static const Gpio      shdn_pwr_en      = { .port = SHDN_PWR_EN_GPIO_Port, .pin = SHDN_PWR_EN_Pin };
 static const Gpio      fr_stby1         = { .port = FR_STBY1_GPIO_Port, .pin = FR_STBY1_Pin };
 static const Gpio      fr_stby2         = { .port = FR_STBY2_GPIO_Port, .pin = FR_STBY2_Pin };
 static const Gpio      fr_stby3         = { .port = FR_STBY3_GPIO_Port, .pin = FR_STBY3_Pin };
@@ -90,10 +92,12 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
                              [VC_GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
                              [VC_GpioNetName_PUMP_PWR_EN]      = &pump_pwr_en,
+                             [VC_GpioNetName__900K_GPIO]       = &_900k_gpio,
                              [VC_GpioNetName_NCHRG_FAULT]      = &nchrg_fault,
                              [VC_GpioNetName_NCHRG]            = &nchrg,
                              [VC_GpioNetName_INV_L_PWR_EN]     = &inv_l_pwr_en,
                              [VC_GpioNetName_INV_R_PWR_EN]     = &inv_r_pwr_en,
+                             [VC_GpioNetName_SHDN_PWR_EN]      = &shdn_pwr_en,
                              [VC_GpioNetName_FR_STBY1]         = &fr_stby1,
                              [VC_GpioNetName_FR_STBY2]         = &fr_stby2,
                              [VC_GpioNetName_FR_STBY3]         = &fr_stby3,
@@ -121,7 +125,10 @@ const AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart7 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init(void)
 {
@@ -131,19 +138,15 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
-    // efuses:
-    // HAL_ADC_Start_DMA(
-    //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
-    //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
-    const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN3_24V_ACC_SENSE];
-    const uint16_t *adc3_buf_start = &hw_adc_getRawValuesBuffer()[ADC3_IN0_AUX_PWR_I_SNS];
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc3_buf_start, hadc3.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
+
+    // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
+    // in-depth comment).
+    HAL_ADC_Start_IT(&hadc3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);

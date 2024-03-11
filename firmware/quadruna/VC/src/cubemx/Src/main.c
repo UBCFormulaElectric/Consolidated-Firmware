@@ -50,7 +50,6 @@ typedef StaticTask_t osStaticThreadDef_t;
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
-DMA_HandleTypeDef hdma_adc3;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -126,7 +125,6 @@ const osThreadAttr_t Task1Hz_attributes = {
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_BDMA_Init(void);
 static void MX_ADC3_Init(void);
 static void MX_UART7_Init(void);
 static void MX_FDCAN1_Init(void);
@@ -176,7 +174,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_DMA_Init();
-    MX_BDMA_Init();
     MX_ADC3_Init();
     MX_UART7_Init();
     MX_FDCAN1_Init();
@@ -464,17 +461,18 @@ static void MX_ADC3_Init(void)
     hadc3.Init.ClockPrescaler           = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc3.Init.Resolution               = ADC_RESOLUTION_12B;
     hadc3.Init.DataAlign                = ADC3_DATAALIGN_RIGHT;
-    hadc3.Init.ScanConvMode             = ADC_SCAN_ENABLE;
+    hadc3.Init.ScanConvMode             = ADC_SCAN_DISABLE;
     hadc3.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc3.Init.LowPowerAutoWait         = DISABLE;
     hadc3.Init.ContinuousConvMode       = DISABLE;
-    hadc3.Init.NbrOfConversion          = 2;
+    hadc3.Init.NbrOfConversion          = 1;
     hadc3.Init.DiscontinuousConvMode    = DISABLE;
+    hadc3.Init.NbrOfDiscConversion      = 1;
     hadc3.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc3.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    hadc3.Init.DMAContinuousRequests    = ENABLE;
+    hadc3.Init.DMAContinuousRequests    = DISABLE;
     hadc3.Init.SamplingMode             = ADC_SAMPLING_MODE_NORMAL;
-    hadc3.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DMA_CIRCULAR;
+    hadc3.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
     hadc3.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc3.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
     hadc3.Init.OversamplingMode         = DISABLE;
@@ -492,15 +490,6 @@ static void MX_ADC3_Init(void)
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
     sConfig.OffsetSign   = ADC3_OFFSET_SIGN_NEGATIVE;
-    if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure Regular Channel
-     */
-    sConfig.Channel = ADC_CHANNEL_1;
-    sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -653,20 +642,6 @@ static void MX_UART7_Init(void)
 /**
  * Enable DMA controller clock
  */
-static void MX_BDMA_Init(void)
-{
-    /* DMA controller clock enable */
-    __HAL_RCC_BDMA_CLK_ENABLE();
-
-    /* DMA interrupt init */
-    /* BDMA_Channel0_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(BDMA_Channel0_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(BDMA_Channel0_IRQn);
-}
-
-/**
- * Enable DMA controller clock
- */
 static void MX_DMA_Init(void)
 {
     /* DMA controller clock enable */
@@ -713,7 +688,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(nPCM_EN_GPIO_Port, nPCM_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, _900K_GPIO_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOD, PUMP_PWR_EN_Pin | _900K_GPIO_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : INV_R_PWR_EN_Pin INV_R_PROGRAM_Pin INV_L_PROGRAM_Pin SHDN_PWR_EN_Pin
                              INV_L_PWR_EN_Pin FR_STBY3_Pin */
@@ -793,17 +768,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PUMP_PWR_EN_Pin NCHIMERA_Pin nCHRG_FAULT_Pin nCHRG_Pin */
-    GPIO_InitStruct.Pin  = PUMP_PWR_EN_Pin | NCHIMERA_Pin | nCHRG_FAULT_Pin | nCHRG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : _900K_GPIO_Pin AUX_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = _900K_GPIO_Pin | AUX_PWR_EN_Pin;
+    /*Configure GPIO pins : PUMP_PWR_EN_Pin _900K_GPIO_Pin AUX_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = PUMP_PWR_EN_Pin | _900K_GPIO_Pin | AUX_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : NCHIMERA_Pin nCHRG_FAULT_Pin nCHRG_Pin */
+    GPIO_InitStruct.Pin  = NCHIMERA_Pin | nCHRG_FAULT_Pin | nCHRG_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PC8 PC9 PC10 PC11

@@ -1,8 +1,6 @@
 name: UBC Formula Electric CI
 on:
   pull_request:
-    paths-ignore:
-      #- 'software/**'
 
 jobs:
   clang-format:
@@ -56,8 +54,8 @@ jobs:
             ioc_dir: firmware/quadruna/FSM/src/cubemx
           - board: RSM
             ioc_dir: firmware/quadruna/RSM/src/cubemx
-          - board: DIM
-            ioc_dir: firmware/quadruna/DIM/src/cubemx
+          - board: CRIT
+            ioc_dir: firmware/quadruna/CRIT/src/cubemx
           - board: f4boot
             ioc_dir: firmware/boot/f4boot/cubemx
           - board: f4dev
@@ -80,9 +78,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we 
+      - name: Generate Log4J file
+        run: python3 scripts/utilities/generate_log4j_properties.py --log4j_properties_output /root/.stm32cubemx/log4j.properties
+
+      # To ensure that the generated STM32CubeMX code is up to date with the .ioc file, we
       # we also generate a checksum from the .ioc file when code is generated during builds.
-      # During CI, we re-generate the checksum. If it matches, then the code is up to date, 
+      # During CI, we re-generate the checksum. If it matches, then the code is up to date,
       # otherwise, you need to re-generate STM32CubeMX code locally.
       - name: Generate checksum
         run: |
@@ -152,10 +153,11 @@ jobs:
             car: quadruna
           - board: FSM
             car: quadruna
-          - board: RSM
-            car: quadruna
-          - board: CRIT
-            car: quadruna
+# TODO uncomment when RSM and CRIT tests are readys
+#          - board: RSM
+#            car: quadruna
+#          - board: CRIT
+#            car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest
@@ -167,7 +169,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
@@ -201,7 +203,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)
@@ -235,7 +237,7 @@ jobs:
       BUILD_DIR: build_fw_test
 
     steps:
-      # Fix to ensure that commands like git status work in child directories 
+      # Fix to ensure that commands like git status work in child directories
       # for gitpython in git_commit_info
       - name: Setup git
         run: git config --global --add safe.directory $(realpath .)

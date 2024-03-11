@@ -1,5 +1,3 @@
-include(../cmake/embedded.cmake)
-
 if("${TARGET}" STREQUAL "deploy")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
