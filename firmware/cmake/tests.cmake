@@ -66,3 +66,13 @@ function(create_fake_library
         ${SHARED_IO_INCLUDE_DIR}
     )
 endfunction()
+
+function(sim_library
+    LIB_NAME
+    LIB_SRCS
+    LIB_INCLUDE_DIRS
+)
+    add_library(${LIB_NAME} SHARED ${LIB_SRCS})
+    target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../sim)
+    target_compile_options(${LIB_NAME} PRIVATE -fvisibility=hidden)
+endfunction()

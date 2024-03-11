@@ -67,6 +67,8 @@ add_subdirectory(shared)
 
 if("${TARGET}" STREQUAL "deploy")
     add_subdirectory(chimera)
+else()
+    add_subdirectory(test)
 endif()
 
 add_subdirectory(thruna)
