@@ -138,19 +138,15 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
-    // efuses:
-    // HAL_ADC_Start_DMA(
-    //     hw_tasks_config->hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(),
-    //     hw_tasks_config->hadc1->Init.NbrOfConversion);
-
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
 
-    const uint16_t *adc1_buf_start = &hw_adc_getRawValuesBuffer()[ADC1_IN3_24V_ACC_SENSE];
-    const uint16_t *adc3_buf_start = &hw_adc_getRawValuesBuffer()[ADC3_IN0_AUX_PWR_I_SNS];
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_buf_start, hadc1.Init.NbrOfConversion);
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc3_buf_start, hadc3.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
+
+    // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
+    // in-depth comment).
+    HAL_ADC_Start_IT(&hadc3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);

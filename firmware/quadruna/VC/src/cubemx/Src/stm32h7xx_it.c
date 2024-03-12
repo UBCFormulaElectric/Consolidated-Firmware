@@ -57,7 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef   hdma_adc1;
-extern DMA_HandleTypeDef   hdma_adc3;
+extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart7;
@@ -250,17 +250,17 @@ void UART7_IRQHandler(void)
 }
 
 /**
- * @brief This function handles BDMA channel0 global interrupt.
+ * @brief This function handles ADC3 global interrupt.
  */
-void BDMA_Channel0_IRQHandler(void)
+void ADC3_IRQHandler(void)
 {
-    /* USER CODE BEGIN BDMA_Channel0_IRQn 0 */
+    /* USER CODE BEGIN ADC3_IRQn 0 */
 
-    /* USER CODE END BDMA_Channel0_IRQn 0 */
-    HAL_DMA_IRQHandler(&hdma_adc3);
-    /* USER CODE BEGIN BDMA_Channel0_IRQn 1 */
+    /* USER CODE END ADC3_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc3);
+    /* USER CODE BEGIN ADC3_IRQn 1 */
 
-    /* USER CODE END BDMA_Channel0_IRQn 1 */
+    /* USER CODE END ADC3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
