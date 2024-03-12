@@ -83,7 +83,8 @@ typedef enum
 } CmdFormat;
 
 #define CMD_SIZE_BYTES (2U)
-#define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
+#define PEC15_SIZE_BYTES (2U)
+#define TOTAL_NUM_CMD_BYTES (CMD_SIZE_BYTES + PEC15_SIZE_BYTES)
 
 // Number of readings (cell voltages or temperatures) per each register group
 // Each register group consists of 48 bytes, 3x 16 bytes for each reading
