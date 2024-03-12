@@ -50,7 +50,7 @@ static void preChargeStateRunOnTick100Hz(void)
         float ts_voltage        = app_tractiveSystem_getVoltage();
         float threshold_voltage = app_accumulator_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 
-        const bool is_charger_connected = app_canRx_BRUSA_OnStatus_get();
+        const bool is_charger_connected = io_charger_isConnected();
         const bool is_air_negative_open = !io_airs_isNegativeClosed();
         const bool is_ts_rising_slowly =
             (ts_voltage < threshold_voltage) &&

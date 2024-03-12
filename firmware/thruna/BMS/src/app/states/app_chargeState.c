@@ -9,10 +9,10 @@
 
 static void chargeStateRunOnEntry(void)
 {
+    app_canTx_BMS_ChargerEnable_set(1);
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
-    app_canTx_BMS_ChargerEnable_set(true);
     // Setting these for run on entry right now, change later maybe.
-    app_canTx_BMS_MaxChargingCurrent_set(CURRENT_AT_MAX_CHARGE);
+    app_canTx_BMS_MaxChargingCurrent_set(MAX_CHARGING_CURRENT);
     app_canTx_BMS_ChargingVoltage_set(CHARGING_VOLTAGE);
     app_canTx_BMS_ChargingCurrent_set(CHARGING_CURRENT);
 
@@ -31,7 +31,7 @@ static void chargeStateRunOnTick100Hz(void)
     {
         const bool external_shutdown_occurred = !io_airs_isNegativeClosed();
         const bool charging_enabled           = app_canRx_Debug_StartCharging_get();
-        const bool is_charger_connected       = app_canRx_BRUSA_OnStatus_get();
+        const bool is_charger_connected       = io_charger_isConnected();
 
         bool has_charger_faulted = false;
         if (globals->ignore_charger_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)

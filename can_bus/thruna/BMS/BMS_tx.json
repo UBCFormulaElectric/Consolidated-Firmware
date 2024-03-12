@@ -96,9 +96,19 @@
         "description": "Flags and parameters for controlling the BRUSA charger",
         "signals": {
             "ChargerEnable": {
+                "start_bit": 0,
                 "bits": 1
             },
             "ClearLatch": {
+                "start_bit": 1,
+                "bits": 1
+            },
+            "VentilationControlFiller":{
+                "start_bit": 2,
+                "bits": 1
+            },
+            "CPStateVoltageRequest":{
+                "start_bit": 3,
                 "bits": 1
             },
             "MaxChargingCurrent": {
