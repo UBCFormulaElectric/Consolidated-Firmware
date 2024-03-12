@@ -443,8 +443,8 @@
                 },
                 "Longtitude":{
                     "resolution": 0.00005,
-                    "min": 122,
-                    "max": 125,
+                    "min": -125,
+                    "max": -122,
                     "unit": "deg" 
                 },
                 "LongtitudeAccuracy":{

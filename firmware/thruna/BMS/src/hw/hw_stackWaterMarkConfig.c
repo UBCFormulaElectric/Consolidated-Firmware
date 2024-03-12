@@ -19,7 +19,7 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
@@ -29,7 +29,7 @@ static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1Hz_set(true);
+    app_canAlerts_BMS_Warning_StackWaterMarkHighTask1kHz_set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
