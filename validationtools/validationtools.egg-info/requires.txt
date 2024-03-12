@@ -1,0 +1,9 @@
+pyserial
+protobuf
+pyvisa
+numpy
+tqdm
+pandas
+pyvisa-py
+zeroconf
+pyusb
