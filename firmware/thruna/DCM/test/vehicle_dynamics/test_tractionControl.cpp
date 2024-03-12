@@ -29,31 +29,31 @@ TEST(TractionControlTest, TractionControl_init)
 
 TEST(TractionControlTest, TractionControl_slip)
 {
-    float test_slip = app_tractionControl_computeSlip(100.0 / PLANETARY_GEAR_RATIO, 100.0);
+    float test_slip = app_tractionControl_computeSlip(100.0 / GEAR_RATIO, 100.0);
     ASSERT_NEAR(test_slip, 0.0, 0.000001);
 }
 
 TEST(TractionControlTest, backwards_slip)
 {
-    float test_slip = app_tractionControl_computeSlip(90.0 / PLANETARY_GEAR_RATIO, 100.0);
+    float test_slip = app_tractionControl_computeSlip(90.0 / GEAR_RATIO, 100.0);
     ASSERT_NEAR(test_slip, -0.1, 0.000001);
 }
 
 TEST(TractionControlTest, forwards_slip)
 {
-    float test_slip = app_tractionControl_computeSlip(110.0 / PLANETARY_GEAR_RATIO, 100.0);
+    float test_slip = app_tractionControl_computeSlip(110.0 / GEAR_RATIO, 100.0);
     ASSERT_NEAR(test_slip, 0.1, 0.000001);
 }
 
 TEST(TractionControlTest, big_forwards_slip)
 {
-    float test_slip = app_tractionControl_computeSlip(100.0 / 2.0 / PLANETARY_GEAR_RATIO, 100.0);
+    float test_slip = app_tractionControl_computeSlip(100.0 / 2.0 / GEAR_RATIO, 100.0);
     ASSERT_NEAR(test_slip, -0.5, 0.000001);
 }
 
 TEST(TractionControlTest, big_backwards_slip)
 {
-    float test_slip = app_tractionControl_computeSlip(150 / PLANETARY_GEAR_RATIO, 100.0);
+    float test_slip = app_tractionControl_computeSlip(150 / GEAR_RATIO, 100.0);
     ASSERT_NEAR(test_slip, 0.5, 0.000001);
 }
 
