@@ -13,10 +13,30 @@ typedef enum
     NUM_RETRY_PROTOCOL
 } RetryProtocol;
 
-typedef struct {
-    bool          state;
-    RetryProtocol protocol;
-    int           limit;
+typedef enum
+{
+    RETRY_STATE_OFF,
+    RETRY_STATE_RUNNING,
+    RETRY_STATE_EXPIRED,
+    RETRY_STATE_WAITING
+} RetryState;
+
+typedef struct
+{
+    bool          efuse_state;
+    RetryProtocol retry_protocol;
+    int           retry_limit;
 } RetryConfig;
 
-void apply_retry_protocol(RetryProtocol protocol, const RetryConfig retry_config[], bool success);
+typedef struct
+{
+    RetryState retry_state;
+    int        retry_attempts;
+    int        timer_attempts;
+    int        timer_limit;
+    float      current_sum;
+} RetryData;
+
+void init_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
+
+void recover_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
