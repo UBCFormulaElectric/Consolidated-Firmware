@@ -12,10 +12,14 @@
 #include "io_jsoncan.h"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
+#include "app_globals.h"
 
 #include "shared.pb.h"
 #include "CRIT.pb.h"
 
+#include "io_led.h"
+#include "io_switch.h"
+#include "io_rgbLed.h"
 #include "io_can.h"
 #include "io_canRx.h"
 #include "app_canTx.h"
@@ -57,6 +61,54 @@ static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallback,
     .rx_overflow_callback = canRxQueueOverflowCallback,
+};
+
+static const BinaryLed imd_led       = { .gpio = {
+                                             .port = IMD_R_GPIO_Port,
+                                             .pin  = IMD_R_Pin,
+                                   } };
+static const BinaryLed bspd_led      = { .gpio = {
+                                             .port = BSPD_R_GPIO_Port,
+                                             .pin  = BSPD_R_Pin,
+                                    } };
+static const BinaryLed ams_led       = { .gpio = {
+                                             .port = AMS_R_GPIO_Port,
+                                             .pin  = AMS_R_Pin,
+                                   } };
+static const BinaryLed start_led     = { .gpio = {
+                                             .port = START_LED_GPIO_Port,
+                                             .pin  = START_LED_Pin,
+                                     } };
+static const BinaryLed regen_led     = { .gpio = {
+                                             .port = REGEN_LED_GPIO_Port,
+                                             .pin  = REGEN_LED_Pin,
+                                     } };
+static const BinaryLed torquevec_led = { .gpio = {
+                                             .port = TORQUE_VECTORING_LED_GPIO_Port,
+                                             .pin  = TORQUE_VECTORING_LED_Pin,
+                                         } };
+
+static const Switch start_switch = {
+    .gpio = {
+        .port = START_SIG_GPIO_Port,
+        .pin = START_SIG_Pin,
+    },
+    .closed_state = true,
+};
+static const Switch regen_switch = {
+    .gpio = {
+        .port = REGEN_SIG_GPIO_Port,
+        .pin = REGEN_SIG_Pin,
+    },
+    .closed_state = true,
+};
+
+static const Switch torquevec_switch = {
+    .gpio = {
+        .port = TORQUE_VECTORING_SIG_GPIO_Port,
+        .pin = TORQUE_VECTORING_SIG_Pin,
+    },
+    .closed_state = true,
 };
 
 // clang-format off
@@ -156,6 +208,16 @@ AdcChannel id_to_adc[] = {
 };
 
 static UART debug_uart = { .handle = &huart2 };
+
+static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
+                                              .bspd_led         = &bspd_led,
+                                              .ams_led          = &ams_led,
+                                              .start_led        = &start_led,
+                                              .start_switch     = &start_switch,
+                                              .regen_led        = &regen_led,
+                                              .regen_switch     = &regen_switch,
+                                              .torquevec_led    = &torquevec_led,
+                                              .torquevec_switch = &torquevec_switch };
 
 void tasks_preInit(void)
 {

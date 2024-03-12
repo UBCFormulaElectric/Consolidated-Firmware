@@ -22,6 +22,12 @@
             },
             "AuxSwitch": {
                 "enum": "SwitchState"
+            },
+            "RegenSwitch": {
+                "enum": "SwitchState"
+            },
+            "TorqueVecSwitch": {
+                "enum": "SwitchState"
             }
         }
     },
