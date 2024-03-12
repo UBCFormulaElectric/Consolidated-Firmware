@@ -203,7 +203,7 @@ TEST_F(TestRegen, taper_torque_request)
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(30.0f);
-    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW; 
+    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -254,8 +254,8 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
     float steering_angle        = 0.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(9.0f);
-    float power_max_kW = -pedal_percentage * 50.0f;
-    float derating_value = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
+    float power_max_kW          = -pedal_percentage * 50.0f;
+    float derating_value        = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -305,8 +305,8 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
     float steering_angle        = -15.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(5.5f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(5.5f);
-    float derating_value = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
-    float power_max_kW = -pedal_percentage * POWER_LIMIT_REGEN_kW;
+    float derating_value        = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
+    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -337,7 +337,7 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
 
     float expected_left_torque_request  = torque_lim_Nm * cl;
     float expected_right_torque_request = torque_lim_Nm * cr;
-    float torque_negative_max = fminf(expected_left_torque_request, expected_right_torque_request);
+    float torque_negative_max           = fminf(expected_left_torque_request, expected_right_torque_request);
 
     expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max;
     expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max;
