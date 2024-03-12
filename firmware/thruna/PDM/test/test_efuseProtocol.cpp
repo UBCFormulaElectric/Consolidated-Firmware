@@ -28,28 +28,27 @@ class PdmEfuseProtocolTest : public PdmBaseStateMachineTest
 
 TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_successful)
 {
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_AIR, 0.7);
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LVPWR, 0.7);
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_FAN, 0.7);
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_DI_LHS, 0.7);
-    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_DI_RHS, 0.7);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_AIR, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_LVPWR, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_FAN, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_DI_LHS, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_DI_RHS, true);
 
-    // fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_AIR, true);
-    // fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_LVPWR, true);
-    // fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_FAN, true);
-    // fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_DI_LHS, true);
-    // fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_DI_RHS, true);
-    
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_AIR, 1);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LVPWR, 1);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_FAN, 1);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_DI_LHS, 1);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_DI_RHS, 1);
+
     SetInitialState(app_driveState_get());
+    LetTimePass(150);
 
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_AIR), true);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_LVPWR), true);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_EMETER), false);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_AUX), false);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_DRS), false);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_FAN), true);
-    EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_DI_LHS), true);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, true), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, true), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_EMETER, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AUX, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DRS, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_FAN, true), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, true), 2);
     EXPECT_EQ(io_efuse_isChannelEnabled(EFUSE_CHANNEL_DI_RHS), true);
 }
-
-TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_unseccessful) {}

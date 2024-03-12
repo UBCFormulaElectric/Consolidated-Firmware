@@ -36,52 +36,77 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     }
 };
 
+static RetryData retry_data[NUM_EFUSE_CHANNELS] = {
+    [EFUSE_CHANNEL_AIR] = { RETRY_STATE_OFF, 0, 0, 3, 0 },    [EFUSE_CHANNEL_LVPWR] = { RETRY_STATE_OFF, 0, 0, 3, 0 },
+    [EFUSE_CHANNEL_EMETER] = { RETRY_STATE_OFF, 0, 0, 3, 0 }, [EFUSE_CHANNEL_AUX] = { RETRY_STATE_OFF, 0, 0, 3, 0 },
+    [EFUSE_CHANNEL_DRS] = { RETRY_STATE_OFF, 0, 0, 3, 0 },    [EFUSE_CHANNEL_FAN] = { RETRY_STATE_OFF, 0, 0, 3, 0 },
+    [EFUSE_CHANNEL_DI_LHS] = { RETRY_STATE_OFF, 0, 0, 3, 0 }, [EFUSE_CHANNEL_DI_RHS] = { RETRY_STATE_OFF, 0, 0, 3, 0 },
+};
+
 void app_powerManager_setState(PowerManagerState state)
 {
     current_power_state = state;
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        io_efuse_setChannel(efuse, power_states_config[state].retry_configs[efuse].state);
+        io_efuse_setChannel(efuse, power_states_config[state].retry_configs[efuse].efuse_state);
     }
 }
 
-void app_powerManager_check_efuses(PowerManagerState state) {
-    TimerChannel timer;
-    TimerState timer_state;
-    app_timer_init(&timer, CHECK_TIME);
+void app_powerManager_check_efuses(PowerManagerState state)
+{
+    int efuse = 0;
 
-    bool success = false;
-    int  efuse   = 0;
-    int  attempt = 0;
+    while (efuse < NUM_EFUSE_CHANNELS)
+    {
+        RetryData         *efuse_retry_data   = &retry_data[efuse];
+        const RetryConfig *efuse_retry_config = power_states_config[state].retry_configs;
+        float              avg                = efuse_retry_data->current_sum / (float)efuse_retry_data->timer_limit;
 
-    while (efuse < NUM_EFUSE_CHANNELS) {
-        RetryConfig retry_config = power_states_config[state].retry_configs[efuse];
-
-        while (timer_state != TIMER_STATE_EXPIRED)
+        if (efuse_retry_data->timer_attempts == efuse_retry_data->timer_limit)
         {
-            timer_state = app_timer_updateAndGetState(&timer);
+            efuse_retry_data->retry_state = RETRY_STATE_EXPIRED;
         }
-        success = retry_config.state ? io_efuse_getChannelCurrent(efuse) > FAULT_CURRENT_THRESHOLD : true;
 
-        if (success)
+        if (efuse_retry_data->retry_state == RETRY_STATE_WAITING)
         {
             efuse++;
-            attempt = 0;
+            continue;
         }
-        else if (attempt == retry_config.limit)
+        else if (efuse_retry_data->retry_state == RETRY_STATE_RUNNING)
         {
-            app_canTx_PDM_EfuseFault_set(true);
-            success = true;
-            break;
+            float current = io_efuse_getChannelCurrent(efuse);
+            efuse_retry_data->current_sum += current;
+            efuse_retry_data->timer_attempts++;
         }
-        else if (!success) {
-            apply_retry_protocol(retry_config.protocol, power_states_config[state].retry_configs, success);
-        }
-        else
+        else if (efuse_retry_data->retry_state == RETRY_STATE_EXPIRED)
         {
-            attempt++;
+            if (avg <= FAULT_CURRENT_THRESHOLD)
+            {
+                if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_limit)
+                {
+                    app_canTx_PDM_EfuseFault_set(true);
+                    return;
+                }
+                init_retry_protocol(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                efuse_retry_data->timer_attempts = 0;
+            }
+            else
+            {
+                recover_retry_protocol(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                efuse_retry_data->retry_attempts++;
+            }
         }
+        else if (
+            efuse_retry_data->retry_state == RETRY_STATE_OFF &&
+            io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD)
+        {
+            efuse_retry_data->retry_state = RETRY_STATE_RUNNING;
+            efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
+            efuse_retry_data->timer_attempts++;
+        }
+
+        efuse++;
     }
 }
 

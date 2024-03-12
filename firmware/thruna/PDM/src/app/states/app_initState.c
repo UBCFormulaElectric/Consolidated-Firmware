@@ -12,7 +12,6 @@
 
 static void initStateRunOnEntry(void)
 {
-    app_allStates_runOnTick100Hz();
     app_canTx_PDM_State_set(PDM_INIT_STATE);
     app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
 }
