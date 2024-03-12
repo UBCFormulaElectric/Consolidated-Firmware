@@ -10,7 +10,7 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN3(x, y, z) (MIN(MIN((x), (y)), (z)))
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
-#define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x)))
+#define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 
 #define MAX_4_BITS_VALUE (uint32_t)(15)
 #define MAX_6_BITS_VALUE (uint32_t)(63)

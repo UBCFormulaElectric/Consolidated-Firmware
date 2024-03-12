@@ -61,8 +61,13 @@ TEST_F(TestRegen, active_differential_exceeds_max)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
+    float expected_left_torque_request  = torque_lim_Nm * cl;
+    float expected_right_torque_request = torque_lim_Nm * cr;
+
+    float torque_negative_max = fminf(expected_left_torque_request, expected_right_torque_request);
+
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max;
 
     app_regen_computeActiveDifferentialTorque(&inputs, &regenAttributes);
 
@@ -233,8 +238,8 @@ TEST_F(TestRegen, taper_torque_request)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl;
-    float expected_right_torque_request = torque_lim_Nm * cr;
+    float expected_left_torque_request  = torque_lim_Nm * cl * 0.85;
+    float expected_right_torque_request = torque_lim_Nm * cr * 0.85;
 
     app_regen_run(pedal_percentage);
 
@@ -243,8 +248,8 @@ TEST_F(TestRegen, taper_torque_request)
     float actual_torque_right_nM = app_canTx_DCM_RightInverterTorqueCommand_get();
 
     ASSERT_TRUE(alert == false);
-    ASSERT_FLOAT_EQ(expected_left_torque_request * 0.85, actual_torque_left_nM);
-    ASSERT_FLOAT_EQ(expected_right_torque_request * 0.85, actual_torque_right_nM);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
+    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
 }
 
 // tapers torque request due in 5-10kph range, exceed max regen
@@ -284,8 +289,12 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
+    float expected_left_torque_request  = torque_lim_Nm * cl;
+    float expected_right_torque_request = torque_lim_Nm * cr;
+    float torque_negative_max           = fminf(expected_left_torque_request, expected_right_torque_request);
+
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
 
     app_regen_run(pedal_percentage);
 
@@ -294,8 +303,8 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
     float actual_torque_right_nM = app_canTx_DCM_RightInverterTorqueCommand_get();
 
     ASSERT_TRUE(alert == false);
-    ASSERT_FLOAT_EQ(expected_left_torque_request * derating_value, actual_torque_left_nM);
-    ASSERT_FLOAT_EQ(expected_right_torque_request * derating_value, actual_torque_right_nM);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
+    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
 }
 
 // tapers torque request due in 5-10kph, in max regen range
@@ -339,8 +348,8 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
     float expected_right_torque_request = torque_lim_Nm * cr;
     float torque_negative_max           = fminf(expected_left_torque_request, expected_right_torque_request);
 
-    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max;
-    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max;
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
 
     app_regen_run(pedal_percentage);
 
@@ -349,6 +358,6 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
     float actual_torque_right_nM = app_canTx_DCM_RightInverterTorqueCommand_get();
 
     ASSERT_TRUE(alert == false);
-    ASSERT_FLOAT_EQ(expected_left_torque_request * derating_value, actual_torque_left_nM);
-    ASSERT_FLOAT_EQ(expected_right_torque_request * derating_value, actual_torque_right_nM);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
+    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
 }

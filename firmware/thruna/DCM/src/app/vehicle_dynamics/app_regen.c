@@ -105,7 +105,7 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
     float scale = CLAMP_TO_ONE(regenAttr->derating_value);
     if (torque_negative_max_Nm < MAX_REGEN_Nm)
     {
-        scale = scale * MAX_REGEN_Nm / torque_negative_max_Nm;
+        scale *= MAX_REGEN_Nm / torque_negative_max_Nm;
     }
 
     regenAttr->left_inverter_torque_Nm  = torque_left_Nm * scale;
