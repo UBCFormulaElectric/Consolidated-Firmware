@@ -4,7 +4,6 @@
 // Constants
 
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
-#define PLANETARY_GEAR_RATIO 4.241f
 #define SLIP_RATIO_IDEAL 0.05f
 #define WHEELBASE_mm 1550
 #define TRACK_WIDTH_mm 1100

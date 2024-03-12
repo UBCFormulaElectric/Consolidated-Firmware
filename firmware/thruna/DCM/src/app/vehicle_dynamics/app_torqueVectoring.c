@@ -67,7 +67,9 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     if (accelerator_pedal_percent > 0.0f)
     {
         app_torqueVectoring_handleAcceleration();
-    } else { 
+    }
+    else
+    {
         app_canTx_DCM_LeftInverterTorqueCommand_set(0.0f);
         app_canTx_DCM_RightInverterTorqueCommand_set(0.0f);
     }
