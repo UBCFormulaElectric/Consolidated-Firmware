@@ -22,12 +22,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "../../nanopb/pb_encode.h"
+#include "../../nanopb/pb_decode.h"
+#include "simple.pb.h"
 #include "string.h"
 #include "hw_hardFaultHandler.h"
-// #include "hw_can.h"
 #include "hw_bootup.h"
-// #include "io_can.h"
-// #include "io_log.h"
 #include "hw_uart.h"
 /* USER CODE END Includes */
 
@@ -357,20 +358,41 @@ void runDefaultTask(void *argument)
     UART modem_uart = { .handle = &huart9 };
     /* Infinite loop */
     // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-    uint8_t num; // use this if just want numbers
-    uint8_t predicData[3];
-    predicData[1] = 13;
-    predicData[2] = 10;
+    // uint8_t num; // use this if just want numbers
+    // uint8_t predicData[3];
+    // predicData[1] = 13;
+    // predicData[2] = 10;
+    uint8_t buffer[128];
+    uint8_t message_length;
+    bool    status;
+
+    // SimpleMessage message = SimpleMessage_init_zero;
+
     for (;;)
     {
-        // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
-        for (num = 48; num < 57; num++)
-        {
-            predicData[0] = num;
-            hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
-            // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
-            osDelay(1);
+        /* Create a stream that will write to our buffer. */
+        SimpleMessage message = SimpleMessage_init_zero;
+        pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+
+        /* Fill in the lucky number */
+        message.lucky_number = 53;
+
+        /* Now we are ready to encode the message! */
+        status         = pb_encode(&stream, SimpleMessage_fields, &message);
+        message_length = (uint8_t)stream.bytes_written;
+        // message_length = stream.bytes_written;
+        if (status){
+            hw_uart_receivePoll(&modem_uart, &message_length, 1,100);
+            hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
         }
+
+        // for (num = 48; num < 57; num++)
+        // {
+        //     predicData[0] = num;
+        //     hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
+        //     // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
+        //     osDelay(1);
+        // }
     }
     /* USER CODE END 5 */
 }
