@@ -9,8 +9,9 @@ Item {
     Text {
         id: speedString
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 200
+        anchors.verticalCenter: parent.verticalCenter
+        // anchors.top: parent.top
+        // anchors.topMargin: 200
         font.family: "Roboto"
         font.bold: true
         font.pointSize: 82
@@ -30,8 +31,9 @@ Item {
 
     CircleProgressBar {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 135
+        anchors.verticalCenter: parent.verticalCenter
+        // anchors.top: parent.top
+        // anchors.topMargin: 135
         width: 250
         height: 250
         percentage: 0.80
@@ -45,14 +47,15 @@ Item {
 
     CircleProgressBar {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 135
-        width: 320
-        height: 280
+        anchors.verticalCenter: parent.verticalCenter
+        // anchors.top: parent.top
+        // anchors.topMargin: 135
+        width: 325
+        height: 325
         percentage: 0.50
         stroke_width: 15
-        start_angle: 235
-        end_angle: 170
+        start_angle: 240
+        end_angle: 160
         round_tip: true
         bar_color: "#FBDC36"
         bg_color: "#696969"
@@ -60,20 +63,17 @@ Item {
 
     CircleProgressBar {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 135
-        width: 320
-        height: 280
+        anchors.verticalCenter: parent.verticalCenter
+        // anchors.top: parent.top
+        // anchors.topMargin: 135
+        width: 325
+        height: 325
         percentage: 0.50
         stroke_width: 15
-        start_angle: -55
-        end_angle: 10
+        start_angle: -60
+        end_angle: 20
         round_tip: true
         bar_color: "#FBDC36"
         bg_color: "#696969"
     }
-
-
-    // Try to get the accerlation bit to show, try to display everything
-    // Then add animations to racing base and accel
 }
