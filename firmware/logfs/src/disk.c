@@ -1,61 +1,176 @@
 #include "disk.h"
 #include "crc.h"
 #include "utils.h"
+#include <stdio.h>
 
-static inline LogFsErr disk_writeCache(const LogFs *fs, uint32_t block)
+#define NUM_SEQ_NUMS 4
+
+#define INC_SEQ_NUM(pair) \
+    pair->seq_num++;      \
+    pair->seq_num %= NUM_SEQ_NUMS;
+#define PAIR_ACTIVE_BLOCK(pair) (pair->blocks[pair->seq_num % 2])
+
+static inline bool compareSeqNums(int s1, int s2)
 {
-    crc_stampBlock(fs);
-    RET_ERR(fs->cfg->write(fs->cfg, block, fs->cfg->cache));
+    return (s1 >= s2) || (s1 == 0 && s2 > 1);
 }
 
-static inline LogFsErr disk_readCache(const LogFs *fs, uint32_t block)
+static inline uint8_t getSeqNumFromCache(const LogFs *fs)
 {
-    RET_ERR(fs->cfg->read(fs->cfg, block, fs->cfg->cache));
+    // First word (4 bytes) is reserved for CRC.
+    // Next byte is for sequence number in pairs.
+    uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
+    return *cache_seq_num;
+}
+
+static inline void setSeqNumInCache(const LogFs *fs, uint8_t seq_num)
+{
+    // First word (4 bytes) is reserved for CRC.
+    // Next byte is for sequence number in pairs.
+    uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
+    *cache_seq_num         = seq_num;
+}
+
+LogFsErr disk_write(const LogFs *fs, uint32_t block, void *buf)
+{
+    crc_stampBlock(fs);
+    return fs->cfg->write(fs->cfg, block, buf);
+}
+
+LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf)
+{
+    RET_ERR(fs->cfg->read(fs->cfg, block, buf));
     return crc_checkBlock(fs) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
 }
 
-static inline LogFsErr disk_readPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
+LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch)
 {
-    LogFsErr err;
-
-    if (pair->init)
+    if (cache->block != LOGFS_INVALID_BLOCK && cache->block != block)
     {
-        // Read active block.
-        if (CHECK_ERR(disk_readCache(fs, pair->blocks[pair->active])))
+        // A different block is currently in the cache, sync it to disk.
+        if (write_back)
         {
-            // Active block isn't valid, try the other one.
-            pair->active++;
-            pair->active %= 2;
-
-            if (disk_readCache(fs, pair->blocks[pair->active]))
-            {
-                // Both blocks invalid, filesystem is corrupt.
-                return LOGFS_ERR_CORRUPT;
-            }
+            RET_ERR(disk_syncCache(fs, cache));
         }
+
+        // If sync is requested, fetch block from disk.
+        if (fetch)
+        {
+            RET_ERR(disk_read(fs, block, cache->buf));
+        }
+    }
+
+    cache->block = block;
+    return LOGFS_ERR_OK;
+}
+
+LogFsErr disk_syncCache(const LogFs *fs, const LogFsCache *cache)
+{
+    return disk_write(fs, cache->block, cache->buf);
+}
+
+void disk_newPair(LogFsPair *pair, uint32_t block)
+{
+    pair->blocks[0] = block;
+    pair->blocks[1] = block + 1;
+    pair->valid     = false;
+
+    // Set to the highest numeric value, so the next write will increment it and wrap it to zero.
+    pair->seq_num = 3;
+}
+
+LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
+{
+    // We need to figure out the active block.
+    const LogFsErr block0_err     = disk_read(fs, block, fs->cfg->cache);
+    const uint8_t  block0_seq_num = getSeqNumFromCache(fs);
+    const LogFsErr block1_err     = disk_read(fs, block + 1, fs->cfg->cache);
+    const uint8_t  block1_seq_num = getSeqNumFromCache(fs);
+
+    if (!IS_ERR(block0_err) && !IS_ERR(block1_err))
+    {
+        // Both blocks are valid.
+        if (compareSeqNums(block0_seq_num, block1_seq_num))
+        {
+            // Block 0 is the most recent write.
+            pair->seq_num = block0_seq_num;
+        }
+        else
+        {
+            // Block 1 is the most recent write.
+            pair->seq_num = block1_seq_num;
+        }
+    }
+    else if (!IS_ERR(block0_err))
+    {
+        // Block 0 is the only valid block.
+        pair->seq_num = block0_seq_num;
+    }
+    else if (!IS_ERR(block1_err))
+    {
+        // Block 1 is the only valid block.
+        pair->seq_num = block1_seq_num;
     }
     else
     {
-        // disk_readCache(fs, pair->blocks[pair->active])
-
-        pair->init = true;
+        // Neither blocks are OK, propogate error code to caller.
+        return block0_err;
     }
-    /*
-    if init:
-        read active
-        if fail:
-            change active
-            read active
-            if fail:
-                return corrupt
-    else:
-        read first
-        read second
-        if one valid:
-            set it as active
-        if none valid:
-            return corrupt
-        if both valid:
-            pick most significant ID
-    */
+
+    pair->blocks[0] = block;
+    pair->blocks[1] = block + 1;
+    pair->valid     = true;
+    return LOGFS_ERR_OK;
+}
+
+LogFsErr disk_writePair(const LogFs *fs, LogFsPair *pair)
+{
+    const uint8_t prev_seq_num = pair->seq_num;
+
+    // Increment the version, and write it to the cache.
+    INC_SEQ_NUM(pair);
+    setSeqNumInCache(fs, pair->seq_num);
+
+    const LogFsErr err = disk_write(fs, PAIR_ACTIVE_BLOCK(pair), fs->cfg->cache);
+    if (IS_ERR(err))
+    {
+        // If write fails, restore pair state variables.
+        pair->seq_num = prev_seq_num;
+    }
+    else
+    {
+        pair->valid = true;
+    }
+
+    return err;
+}
+
+LogFsErr disk_readPair(const LogFs *fs, LogFsPair *pair)
+{
+    if (!pair->valid)
+    {
+        return LOGFS_ERR_INVALID_ARG;
+    }
+
+    // Read active block.
+    LogFsErr err = disk_read(fs, PAIR_ACTIVE_BLOCK(pair), fs->cfg->cache);
+    if (IS_ERR(err))
+    {
+        // Active block isn't valid, try the other one.
+        INC_SEQ_NUM(pair);
+        err = disk_read(fs, PAIR_ACTIVE_BLOCK(pair), fs->cfg->cache);
+
+        if (IS_ERR(err))
+        {
+            // Both blocks invalid, something's gone wrong.
+            return err;
+        }
+        else
+        {
+            // Success, update sequence number from cache.
+            pair->seq_num = getSeqNumFromCache(fs);
+        }
+    }
+
+    return LOGFS_ERR_OK;
 }

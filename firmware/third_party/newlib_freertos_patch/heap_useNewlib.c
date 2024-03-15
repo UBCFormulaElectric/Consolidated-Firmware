@@ -135,7 +135,7 @@ register char * stack_ptr asm("sp");
 
 #ifdef MALLOCS_INSIDE_ISRs // STM code to avoid malloc within ISR (USB CDC stack)
     // We can't use vTaskSuspendAll() within an ISR.
-    // STM's stunningly bad coding malpractice calls malloc within ISRs (for example, on USB connect function USBD_CDC_Init)
+    // STM's stunningly bad coding malpractice calls malloc within ISRs (for example, on USB connect function USdisk_CDC_Init)
     // So, we must just suspend/resume interrupts, lengthening max interrupt response time, aarrggg...
     #define DRN_ENTER_CRITICAL_SECTION(_usis) { _usis = taskENTER_CRITICAL_FROM_ISR(); } // Disables interrupts (after saving prior state)
     #define DRN_EXIT_CRITICAL_SECTION(_usis)  { taskEXIT_CRITICAL_FROM_ISR(_usis);     } // Re-enables interrupts (unless already disabled prior taskENTER_CRITICAL)

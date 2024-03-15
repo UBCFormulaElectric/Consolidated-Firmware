@@ -5,16 +5,43 @@
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
-#define CHECK_ERR(err) (err != LOGFS_ERR_OK)
+#define IS_ERR(err) (err != LOGFS_ERR_OK)
 
-#define RET_ERR(err)    \
-    if (CHECK_ERR(err)) \
-    {                   \
-        return err;     \
+#define RET_ERR(err) \
+    if (IS_ERR(err)) \
+    {                \
+        return err;  \
     }
 
 #define CHECK_ARG(arg)                \
     if (arg == NULL)                  \
     {                                 \
         return LOGFS_ERR_INVALID_ARG; \
+    }
+
+#define CHECK_PATH(path)                                   \
+    CHECK_ARG(path);                                       \
+    if (path[0] != '/' || strlen(path) > fs->max_path_len) \
+    {                                                      \
+        return LOGFS_ERR_INVALID_PATH;                     \
+    }
+
+#define CHECK_FS_VALID(fs)          \
+    if (!fs->mounted)               \
+    {                               \
+        return LOGFS_ERR_UNMOUNTED; \
+    }                               \
+    if (fs->out_of_memory)          \
+    {                               \
+        return LOGFS_ERR_NOMEM;     \
+    }
+
+#define INC_HEAD(fs, num)                           \
+    {                                               \
+        if (fs->head + num >= fs->cfg->block_count) \
+        {                                           \
+            fs->out_of_memory = true;               \
+            return LOGFS_ERR_NOMEM;                 \
+        }                                           \
+        fs->head += num;                            \
     }

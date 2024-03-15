@@ -31,7 +31,7 @@ elseif("${TARGET}" STREQUAL "test")
 
     # Invoke setuptools to install the Python library.
     add_custom_target(install_python_logfs
-        COMMAND pip3 install .
+        COMMAND ${PYTHON_COMMAND} -m pip install .
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
         DEPENDS logfs_src)
 endif()
