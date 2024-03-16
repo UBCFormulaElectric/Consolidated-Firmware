@@ -133,9 +133,48 @@ static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = 
                                                        id_to_adc[VC_AdcNetName__22V_BOOST_SENSE],
                                                    .acc_vsense_adc_channel = id_to_adc[VC_AdcNetName__24V_ACC_SENSE] };
 
-// TODO: efuse configs
-static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = { { inv_l_pwr_en, inv_l_pwr_en,
-                                                                 ADC1_IN10_INV_R_PWR_I_SNS } };
+static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
+    [EFUSE_CHANNEL_SHDN] = {
+        .enable_gpio = &shdn_pwr_en,
+        .stby_reset_gpio = &fr_stby1,
+        .cur_sns_adc_channel = ADC1_IN18_SHDN_PWR_I_SNS,
+    },
+    [EFUSE_CHANNEL_LV] = {
+        .enable_gpio = &lv_pwr_en,
+        .stby_reset_gpio = &fr_stby1,
+        .cur_sns_adc_channel = ADC1_IN4_LV_PWR_I_SNS,
+    },
+    [EFUSE_CHANNEL_PUMP] = {
+        .enable_gpio = &pump_pwr_en,
+        .stby_reset_gpio = &fr_stby2,
+        .cur_sns_adc_channel = ADC3_IN1_PUMP_PWR_I_SNS
+    },
+    [EFUSE_CHANNEL_AUX] = {
+        .enable_gpio = &aux_pwr_en,
+        .stby_reset_gpio = &fr_stby2,
+        .cur_sns_adc_channel = ADC3_IN0_AUX_PWR_I_SNS
+    },
+    [EFUSE_CHANNEL_INV_R] = {
+        .enable_gpio = &inv_r_pwr_en,
+        .stby_reset_gpio = &fr_stby3,
+        .cur_sns_adc_channel = ADC1_IN10_INV_R_PWR_I_SNS
+    },
+    [EFUSE_CHANNEL_INV_L] = {
+        .enable_gpio = &inv_l_pwr_en,
+        .stby_reset_gpio = &fr_stby3,
+        .cur_sns_adc_channel = ADC1_IN11_INV_L_PWR_I_SNS
+    },
+    [EFUSE_CHANNEL_TELEM] = {
+        .enable_gpio = &telem_pwr_en,
+        .stby_reset_gpio = NULL,
+        .cur_sns_adc_channel = NO_ADC
+    },
+    [EFUSE_CHANNEL_BUZZER] = {
+        .enable_gpio = &buzzer_pwr_en,
+        .stby_reset_gpio = NULL,
+        .cur_sns_adc_channel = NO_ADC
+    }
+};
 
 static UART debug_uart = { .handle = &huart7 };
 

@@ -7,10 +7,32 @@ typedef struct
     bool efuses[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 
-// TODO: efuse configs
+// TODO: make sure this config is correct
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
-    [POWER_MANAGER_SHUTDOWN] = { .efuses = { [BLANK_EFUSE] = true } },
-    [POWER_MANAGER_DRIVE]    = { .efuses = { [BLANK_EFUSE] = true } }
+    [POWER_MANAGER_SHUTDOWN] = {
+        .efuses = {
+            [EFUSE_CHANNEL_SHDN] = true,
+            [EFUSE_CHANNEL_LV] = true,
+            [EFUSE_CHANNEL_PUMP] = false,
+            [EFUSE_CHANNEL_AUX] = false,
+            [EFUSE_CHANNEL_INV_R] = false,
+            [EFUSE_CHANNEL_INV_L] = false,
+            [EFUSE_CHANNEL_TELEM] = true,
+            [EFUSE_CHANNEL_BUZZER] = true,
+        }
+    },
+    [POWER_MANAGER_DRIVE] = {
+        .efuses = {
+            [EFUSE_CHANNEL_SHDN] = false,
+            [EFUSE_CHANNEL_LV] = true,
+            [EFUSE_CHANNEL_PUMP] = true,
+            [EFUSE_CHANNEL_AUX] = true,
+            [EFUSE_CHANNEL_INV_R] = true,
+            [EFUSE_CHANNEL_INV_L] = true,
+            [EFUSE_CHANNEL_TELEM] = true,
+            [EFUSE_CHANNEL_BUZZER] = true,
+        }
+    }
 };
 
 void app_powerManager_setState(PowerManagerState state)

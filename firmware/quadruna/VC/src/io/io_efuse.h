@@ -9,18 +9,32 @@
 
 typedef struct
 {
-    const Gpio       enable_gpio;
-    const Gpio       stby_reset_gpio;
+    const Gpio      *enable_gpio;
+    const Gpio      *stby_reset_gpio;
     const AdcChannel cur_sns_adc_channel;
 } EfuseConfig;
 #else
 EMPTY_STRUCT(EfuseConfig);
 #endif
 
-// TODO: efuse configs
 typedef enum
 {
-    BLANK_EFUSE,
+    // FR_STBY1
+    EFUSE_CHANNEL_SHDN,
+    EFUSE_CHANNEL_LV,
+
+    // FR_STBY2
+    EFUSE_CHANNEL_PUMP,
+    EFUSE_CHANNEL_AUX,
+
+    // FR_STBY3
+    EFUSE_CHANNEL_INV_R,
+    EFUSE_CHANNEL_INV_L,
+
+    // no STBY, no SNS
+    EFUSE_CHANNEL_TELEM,
+    EFUSE_CHANNEL_BUZZER,
+
     NUM_EFUSE_CHANNELS
 } EfuseChannel;
 

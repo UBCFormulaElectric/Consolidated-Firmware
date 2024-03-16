@@ -18,7 +18,11 @@ void io_efuse_setChannel(EfuseChannel channel, bool enabled)
     assert(channel < NUM_EFUSE_CHANNELS);
 
     enabled_channels[channel] = enabled;
-    hw_gpio_writePin(&configs[channel].enable_gpio, enabled);
+
+    if (configs[channel].enable_gpio != NULL)
+    {
+        hw_gpio_writePin(configs[channel].enable_gpio, enabled);
+    }
 }
 
 bool io_efuse_isChannelEnabled(EfuseChannel channel)
@@ -40,7 +44,7 @@ void io_efuse_standbyReset(EfuseChannel channel)
     assert(channel < NUM_EFUSE_CHANNELS);
 
     // Low pulse on standby reset line delatches faults
-    hw_gpio_writePin(&configs[channel].stby_reset_gpio, true);
-    hw_gpio_writePin(&configs[channel].stby_reset_gpio, false);
-    hw_gpio_writePin(&configs[channel].stby_reset_gpio, true);
+    hw_gpio_writePin(configs[channel].stby_reset_gpio, true);
+    hw_gpio_writePin(configs[channel].stby_reset_gpio, false);
+    hw_gpio_writePin(configs[channel].stby_reset_gpio, true);
 }
