@@ -8,5 +8,10 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"*.c": "c",
+		"*.html": "html",
+		"hw_hal.h": "c"
+	}
 }

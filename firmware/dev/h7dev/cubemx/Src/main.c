@@ -25,12 +25,12 @@
 #include "hw_can.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
+#include "hw_utils.h"
+#include "hw_gpio.h"
 #include "io_can.h"
 #include "io_canLogging.h"
 #include "io_lfs.h"
-#include "hw_gpio.h"
 #include "io_log.h"
-#include "hw_utils.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -145,7 +145,7 @@ bool sd_inited;
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* Enable I-Cache---------------------------------------------------------*/

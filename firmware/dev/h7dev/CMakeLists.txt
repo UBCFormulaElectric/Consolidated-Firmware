@@ -8,7 +8,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-    # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfs.c"
@@ -54,21 +54,21 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}.md5"
     )
 
-    embedded_binary(
-        "h7dev"
+     embedded_binary(
+        "h7dev_app"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
         "${ARM_CORE}"
     )
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "littlefs_cm7")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "littlefs_cm7")
 
-    # embedded_image(
-    #     "h7dev"
-    #     "h7dev_app.hex"
-    #     "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
-    #     "h7dev_boot.hex"
-    #     "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
-    # )
+    embedded_image(
+        "h7dev"
+        "h7dev_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
+        "h7dev_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+    )
 
 endif()
