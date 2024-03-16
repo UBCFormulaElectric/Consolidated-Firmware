@@ -1,3 +1,38 @@
 {
-
+    "Coolant": {
+		"msg_id": 307,
+		"cycle_time": 1000,
+		"signals": {
+			"CoolantFlowRate": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "L/min"
+			},
+			"CoolantTemperatureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"CoolantTemperatureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"CoolantPressureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			},
+			"CoolantPressureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			}
+		}
+	}
 }
