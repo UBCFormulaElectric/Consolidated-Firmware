@@ -22,11 +22,11 @@ if __name__ == "__main__":
                 # if 0 < length:
                 #     # Next the actual data
                     packet_size = int.from_bytes(ser.read(1), byteorder="little")
-                    bytes = ser.read()
-
                     # # Check if we have received all bytes.
+                    print(packet_size)
+                    
                     # if length == len(bytes):
                     reply = simple_pb2.SimpleMessage()
-                    reply.ParseFromString(bytes)
+                    reply.ParseFromString(ser.read(packet_size))
 
                     print(reply.lucky_number)

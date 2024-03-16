@@ -372,7 +372,7 @@ void runDefaultTask(void *argument)
     {
         /* Create a stream that will write to our buffer. */
         SimpleMessage message = SimpleMessage_init_zero;
-        pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        pb_ostream_t  stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
 
         /* Fill in the lucky number */
         message.lucky_number = 53;
@@ -381,8 +381,9 @@ void runDefaultTask(void *argument)
         status         = pb_encode(&stream, SimpleMessage_fields, &message);
         message_length = (uint8_t)stream.bytes_written;
         // message_length = stream.bytes_written;
-        if (status){
-            hw_uart_receivePoll(&modem_uart, &message_length, 1,100);
+        if (status)
+        {
+            hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
             hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
         }
 
