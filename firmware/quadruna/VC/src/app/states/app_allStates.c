@@ -14,7 +14,8 @@ void app_allStates_runOnTick100Hz(void)
     app_canTx_VC_AccVoltage_set(io_lowVoltageBattery_getAccVoltage());
     app_canTx_VC_BoostVoltage_set(io_lowVoltageBattery_getBoostVoltage());
 
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
-    app_heartbeatMonitor_broadcastFaults();
+    // TODO: add heartbeat monitor
+    // app_heartbeatMonitor_checkIn();
+    // app_heartbeatMonitor_tick();
+    // app_heartbeatMonitor_broadcastFaults();
 }
