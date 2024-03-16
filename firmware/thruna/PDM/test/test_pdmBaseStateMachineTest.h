@@ -38,12 +38,11 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
 
         fake_io_time_getCurrentMs_returns(250);
 
-        app_stateMachine_init(app_initState_get());
-        LetTimePass(100);
-
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+
+        app_powerManager_init();
     }
 
     void TearDown() override
