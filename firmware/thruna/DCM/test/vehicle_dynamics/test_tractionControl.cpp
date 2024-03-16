@@ -61,5 +61,5 @@ TEST(TractionControlTest, big_backwards_slip)
 TEST(TractionControlTest, wheel_speed_to_rpm)
 {
     float test_rpm = WHEEL_KMH_TO_RPM(100.0);
-    ASSERT_NEAR(test_rpm, 100.0 * 1000.0 / (60.0 * ((float)M_PI * TIRE_DIAMETER_in * IN_TO_M)), 0.00001);
+    ASSERT_NEAR(test_rpm, (int)(100.0 * 1000.0 / (60.0 * ((float)M_PI * WHEEL_DIAMETER_IN * IN_TO_M))), 0.00001);
 }
