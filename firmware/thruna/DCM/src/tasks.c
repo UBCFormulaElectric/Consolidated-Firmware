@@ -57,8 +57,8 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 static CanHandle can = {
-    .can                   = &hcan1,
-    .canMsgRecievecallback = NULL,
+    .can                      = &hcan1,
+    .can_msg_recieve_callback = NULL,
 };
 
 UART imu_uart = { .handle = &huart1 };

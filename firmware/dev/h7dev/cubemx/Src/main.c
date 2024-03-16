@@ -27,7 +27,7 @@
 #include "hw_bootup.h"
 #include "io_can.h"
 #include "io_canLogging.h"
-#include "io_lfs_config.h"
+#include "io_lfs.h"
 #include "hw_gpio.h"
 #include "io_log.h"
 #include "hw_utils.h"
@@ -122,13 +122,13 @@ void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-static void canMsgRecievecallback(CanMsg *rx_msg);
+static void can_msg_recieve_callback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan2, .canMsgRecievecallback = canMsgRecievecallback };
+CanHandle can = { .can = &hfdcan2, .can_msg_recieve_callback = can_msg_recieve_callback };
 SdCard    sd;
 Gpio      sd_present = {
          .pin  = GPIO_PIN_8,
@@ -191,15 +191,15 @@ int main(void)
     // Configure and initialize SEGGER SystemView.
     // static int   e = 0;
     // uint8_t      buff[4096];
-    // SdCardStatus d = hw_sd_write_dma(&sd, buff, 0, 1);
+    // SdCardStatus d = hw_sd_writeDma(&sd, buff, 0, 1);
     // while (1)
     //     ;
-    // d              = hw_sd_write_dma(&sd, buff, 1, 1);
+    // d              = hw_sd_writeDma(&sd, buff, 1, 1);
     // (void)d;
     // for (size_t i = 0; i < 1000; i++)
     // {
     //     uint32_t start = i * 4096 / 512;
-    //     if (hw_sd_write_dma(&sd, buff, start, 1) != SD_CARD_OK)
+    //     if (hw_sd_writeDma(&sd, buff, start, 1) != SD_CARD_OK)
     //     {
     //         e++;
     //     }
@@ -497,7 +497,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-static void canMsgRecievecallback(CanMsg *rx_msg)
+static void can_msg_recieve_callback(CanMsg *rx_msg)
 {
     // TODO: check gpio present
     static uint32_t id = 0;

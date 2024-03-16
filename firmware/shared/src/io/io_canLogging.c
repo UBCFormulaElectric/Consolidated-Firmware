@@ -1,5 +1,5 @@
 #include "io_canLogging.h"
-#include "io_lfs_config.h"
+#include "io_lfs.h"
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -41,6 +41,7 @@ static char                  file_buffer[IO_LFS_CACHE_SIZE];
 const struct lfs_file_config fcfg = {
     .buffer = file_buffer,
 };
+
 
 // assume the lfs is already mounted
 static void init_logging_file_system()
@@ -87,20 +88,10 @@ void io_canLogging_init(const CanConfig *can_config)
     config = can_config;
 
     // Initialize CAN queues.
-
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
 
     // create new folder for this boot
     init_logging_file_system();
-    // CanMsg   tx_msg = { 0 };
-    // uint64_t start  = HAL_GetTick();
-    // for (int i = 0; i < 20000; i++)
-    // {
-    //     lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    // }
-    // lfs_file_close(&lfs, &file);
-    // uint64_t end = HAL_GetTick();
-    // uint64_t a   = end - start;
 }
 
 void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
@@ -110,21 +101,17 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
     if (osMessageQueuePut(message_queue_id, msg, 0, 0) != osOK && config->tx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        config->tx_overflow_callback(++tx_overflow_count);
+        if (config->tx_overflow_callback != NULL)
+            config->tx_overflow_callback(++tx_overflow_count);
     }
 }
 
 void io_canLogging_recordMsgFromQueue(void)
 {
-    // if (!sd_inited && hw_gpio_readPin(&sd_present))
-    // {
-    //     return;
-    // }
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
-    // assert(size = sizeof(tx_msg));
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
@@ -142,7 +129,8 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
     if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        // config->rx_overflow_callback(++rx_overflow_count);
+        if (config->rx_overflow_callback != NULL)
+            config->rx_overflow_callback(++rx_overflow_count);
     }
 }
 

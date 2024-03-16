@@ -1,4 +1,4 @@
-#include "io_lfs_config.h"
+#include "io_lfs.h"
 #include "hw_sd.h"
 #include "hw_gpio.h"
 
@@ -9,6 +9,7 @@ extern SdCard sd;
 extern Gpio   sd_present;
 extern bool   sd_inited;
 
+// configuration of the littlefs file system and some internal variables and buffers
 static bool sd_card_ready()
 {
     return sd_inited && !hw_gpio_readPin(&sd_present);
@@ -82,7 +83,6 @@ int io_lfs_config(uint32_t block_size, uint32_t block_number, struct lfs_config 
     cfg->prog_size      = IO_LFS_PROG_SIZE;
     cfg->block_size     = IO_LFS_BLOCK_SIZE;
     cfg->lookahead_size = IO_LFS_LOOKAHEAD_SIZE;
-    // cfg->block_count    = block_number / IO_LFS_BLOCK_SIZE_FACTOR;
     cfg->block_count  = 1000000;
     cfg->block_cycles = IO_LFS_BLOCK_CYCLES;
     cfg->cache_size   = IO_LFS_CACHE_SIZE;

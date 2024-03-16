@@ -59,8 +59,8 @@ void hw_can_init(CanHandle *can_handle)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    if (!handle->canMsgRecievecallback)
-        handle->canMsgRecievecallback = io_can_msgReceivedCallback;
+    if (!handle->can_msg_recieve_callback)
+        handle->can_msg_recieve_callback = io_can_msgReceivedCallback;
 }
 
 void hw_can_deinit()
@@ -125,7 +125,7 @@ void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
         return;
     }
 
-    handle->canMsgRecievecallback(&rx_msg);
+    handle->can_msg_recieve_callback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
@@ -137,5 +137,5 @@ void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
         return;
     }
 
-    handle->canMsgRecievecallback(&rx_msg);
+    handle->can_msg_recieve_callback(&rx_msg);
 }

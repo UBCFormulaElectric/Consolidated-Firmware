@@ -2,6 +2,8 @@
 #include "hw_sd.h"
 #include <stdint.h>
 
+// configuration of the littlefs file system
+
 #define LFS_NO_MALLOC 1
 // those factor will be multiple with the block size
 #define IO_LFS_BLOCK_SIZE_FACTOR 2

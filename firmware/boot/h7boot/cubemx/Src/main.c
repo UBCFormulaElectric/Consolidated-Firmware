@@ -106,7 +106,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .canMsgRecievecallback = NULL };
+CanHandle can = { .can_msg_recieve_callback = NULL };
 /* USER CODE END 0 */
 
 /**

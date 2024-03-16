@@ -20,14 +20,14 @@ typedef void (*MsgReceivedCallback)(CanMsg *rx_msg);
 typedef struct
 {
     FDCAN_HandleTypeDef *can;
-    MsgReceivedCallback  canMsgRecievecallback;
+    MsgReceivedCallback  can_msg_recieve_callback;
 } CanHandle;
 #else
 // STM32 HAL CAN handle.
 typedef struct
 {
     CAN_HandleTypeDef  *can;
-    MsgReceivedCallback canMsgRecievecallback;
+    MsgReceivedCallback can_msg_recieve_callback;
 } CanHandle;
 #endif
 

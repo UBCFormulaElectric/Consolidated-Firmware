@@ -85,8 +85,8 @@ const osThreadAttr_t tickTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 CanHandle can = {
-    .can                   = &hcan1,
-    .canMsgRecievecallback = NULL,
+    .can                      = &hcan1,
+    .can_msg_recieve_callback = NULL,
 };
 /* USER CODE END PV */
 

@@ -48,7 +48,7 @@ SdCardStatus hw_sd_read_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uin
  *
  */
 SdCardStatus hw_sd_write(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-SdCardStatus hw_sd_write_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+SdCardStatus hw_sd_writeDma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
  * @brief   Read within the 1 block from sd card, provided offset and size
