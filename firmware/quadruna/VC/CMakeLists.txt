@@ -4,6 +4,7 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
@@ -134,6 +135,10 @@ elseif("${TARGET}" STREQUAL "test")
         "quadruna_VC_fakes"
         "${HEADERS_TO_FAKE}"
     )
+
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
