@@ -9,6 +9,7 @@ if("${TARGET}" STREQUAL "test")
     create_fake_library(
         "shared_fakes"
         "${HDRS_TO_FAKE}"
+        "BMS"
     )
 
     jsoncan_library(

@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "VC.h"
+#include "fake_io_airs.hpp"
 
-TEST(test, test_basic)
+TEST(test, test_basic) 
 {
-    VC::init();
-    VC::tick100Hz();
-    ASSERT_TRUE(1 + 1 == 2);
+    BMS::fake_io_airs_init_reset();
 }

@@ -37,11 +37,15 @@ class {{ params_cls }}
     }
 };
 
+{% if namespace %}
+} // {{ namespace }}
+{% endif %}
+
 // Create a custom hashing function so we can use unordered_map (a hash table under the hood).
 template <>
-struct std::hash<{{ params_cls }}>
+struct std::hash<{{ namespace }}::{{ params_cls }}>
 {
-    std::size_t operator()(const {{ params_cls }} &params) const
+    std::size_t operator()(const {{ namespace }}::{{ params_cls }} &params) const
     {
         return 
         {%- for param in params  %}
@@ -52,6 +56,11 @@ struct std::hash<{{ params_cls }}>
         {%- endfor %}
     }
 };
+
+{% if namespace %}
+namespace {{ namespace }}
+{
+{% endif %}
 
 // State variables.
 static uint32_t {{ func_call_count }};

@@ -10,6 +10,8 @@ extern "C"
 #include "app_timer.h"
 }
 
+using namespace BMS;
+
 class BaseStateMachineTest : public testing::Test
 {
   protected:

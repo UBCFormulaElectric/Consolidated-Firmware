@@ -148,6 +148,7 @@ set(HEADERS_TO_FAKE
     create_fake_library(
         "quadruna_BMS_fakes"
         "${HEADERS_TO_FAKE}"
+        "BMS"
     )
     jsoncan_library(
         "quadruna_BMS_can"
@@ -167,4 +168,9 @@ set(HEADERS_TO_FAKE
         "${INCLUDE_DIRS}"
     )
     target_link_libraries("quadruna_BMS_test" "quadruna_BMS_can" "quadruna_BMS_fakes" "shared_fakes")
+
+    set(SIM_SRCS ${APP_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/sim/BMS.cpp)
+    set(SIM_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/sim)
+    sim_library("quadruna_BMS_sim" "${SIM_SRCS}" "${SIM_INCLUDE_DIRS}")
+    target_link_libraries("quadruna_BMS_sim" "quadruna_BMS_can" "quadruna_BMS_fakes" "shared_fakes")
 endif()

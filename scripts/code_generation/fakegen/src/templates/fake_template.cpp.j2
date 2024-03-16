@@ -7,6 +7,11 @@ extern "C"
 #include "{{ io_module }}.h"
 }
 
+{% if namespace %}
+namespace {{ namespace }}
+{
+{% endif %}
+
 using namespace std;
 
 {% for definition in definitions -%}
@@ -14,3 +19,7 @@ using namespace std;
 {{ definition }}
 
 {% endfor %}
+
+{% if namespace %}
+} // {{ namespace }}
+{% endif %}

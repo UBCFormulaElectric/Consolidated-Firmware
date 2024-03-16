@@ -7,8 +7,17 @@ extern "C"
 #include "{{ module }}.h"
 }
 
+{% if namespace %}
+namespace {{ namespace }}
+{
+{% endif %}
+
 {% for declaration in declarations -%}
 
 {{ declaration }}
 
 {% endfor %}
+
+{% if namespace %}
+} // {{ namespace }}
+{% endif %}

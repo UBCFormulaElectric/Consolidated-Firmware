@@ -137,6 +137,7 @@ set(HEADERS_TO_FAKE
     create_fake_library(
         "thruna_BMS_fakes"
         "${HEADERS_TO_FAKE}"
+        ""
     )
     jsoncan_library(
         "thruna_BMS_can"
