@@ -17,17 +17,10 @@ typedef struct
 EMPTY_STRUCT(EfuseConfig);
 #endif
 
+// TODO: efuse configs
 typedef enum
 {
-    EFUSE_CHANNEL_AIR,
-    EFUSE_CHANNEL_LVPWR,
-    EFUSE_CHANNEL_EMETER,
-    EFUSE_CHANNEL_AUX,
-    EFUSE_CHANNEL_DRS,
-    EFUSE_CHANNEL_FAN,
-    EFUSE_CHANNEL_DI_LHS,
-    EFUSE_CHANNEL_DI_RHS,
-    NUM_EFUSE_CHANNELS,
+    NUM_EFUSE_CHANNELS
 } EfuseChannel;
 
 #ifdef TARGET_EMBEDDED

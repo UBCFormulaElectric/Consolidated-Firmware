@@ -17,6 +17,8 @@
 #include "io_canRx.h"
 #include "io_led.h"
 #include "io_chimera.h"
+#include "io_efuse.h"
+#include "io_lowVoltageBattery.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -121,6 +123,19 @@ const AdcChannel id_to_adc[] = {
     [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
     [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
+};
+
+static const LvBatteryConfig lv_battery_config = {
+    .lt3650_charger_fault_gpio = nchrg_fault,
+    .ltc3786_boost_fault_gpio = pgood,
+    .vbat_vsense_adc_channel = id_to_adc[VC_AdcNetName_VBAT_SENSE],
+    .boost_vsense_adc_channel = id_to_adc[VC_AdcNetName__22V_BOOST_SENSE],
+    .acc_vsense_adc_channel = id_to_adc[VC_AdcNetName__24V_ACC_SENSE]
+};
+
+// TODO: efuse configs
+static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
+    
 };
 
 static UART debug_uart = { .handle = &huart7 };
