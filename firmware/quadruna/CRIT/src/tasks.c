@@ -12,6 +12,7 @@
 #include "io_jsoncan.h"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
+#include "app_mainState.h"
 #include "app_globals.h"
 
 #include "shared.pb.h"
@@ -256,7 +257,8 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    // app_stateMachine_init(app_mainState_get());
+    app_stateMachine_init(app_mainState_get());
+    app_globals_init(&globals_config);
 
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
