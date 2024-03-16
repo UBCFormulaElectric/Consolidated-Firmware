@@ -69,6 +69,12 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
+    void SetInitialState(const State *const initial_state)
+    {
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
+    }
+
     // configs for efuse messages over can
     void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
         [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
