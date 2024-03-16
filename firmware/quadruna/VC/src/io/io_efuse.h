@@ -17,7 +17,6 @@ typedef struct
 EMPTY_STRUCT(EfuseConfig);
 #endif
 
-// TODO: efuse configs
 typedef enum
 {
     // FR_STBY1
