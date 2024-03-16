@@ -12,8 +12,126 @@
             }
         }
     },
-    "AlertsContext": {
+    "LeftInverterCommand": {
+        "msg_id": 201,
+        "cycle_time": 10,
+        "signals": {
+            "LeftInverterTorqueCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            },
+            "LeftInverterSpeedCommand": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm",
+                "start_value": 0
+            },
+            "LeftInverterDirectionCommand": {
+                "start_bit": 32,
+                "enum": "InverterDirection",
+                "start_value": 0
+            },
+            "LeftInverterEnable": {
+                "start_bit": 40,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterEnableDischarge": {
+                "start_bit": 41,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterEnableSpeedMode": {
+                "start_bit": 42,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterTorqueLimit": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "RightInverterCommand": {
         "msg_id": 202,
+        "cycle_time": 10,
+        "signals": {
+            "RightInverterTorqueCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            },
+            "RightInverterSpeedCommand": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm",
+                "start_value": 0
+            },
+            "RightInverterDirectionCommand": {
+                "start_bit": 32,
+                "enum": "InverterDirection",
+                "start_value": 0
+            },
+            "RightInverterEnable": {
+                "start_bit": 40,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableDischarge": {
+                "start_bit": 41,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableSpeedMode": {
+                "start_bit": 42,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterTorqueLimit": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "AlertsContext": {
+        "msg_id": 203,
         "cycle_time": 1000,
         "description": "Context info for VC alerts",
         "signals": {
@@ -32,7 +150,7 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 204,
+      "msg_id": 209,
       "cycle_time": 100,
       "description": "VC Current Running Git Commit Info",
       "signals": {
