@@ -26,7 +26,7 @@ typedef struct
 {
     bool          efuse_state;
     RetryProtocol retry_protocol;
-    int           retry_limit;
+    int           retry_attempts_limit;
 } RetryConfig;
 
 typedef struct
@@ -34,10 +34,10 @@ typedef struct
     RetryState retry_state;
     int        retry_attempts;
     int        timer_attempts;
-    int        timer_limit;
+    int        timer_attempts_limit;
     float      current_sum;
 } RetryData;
 
-void init_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
+void retry_handler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
 
-void recover_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
+void retry_handler_recover(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
