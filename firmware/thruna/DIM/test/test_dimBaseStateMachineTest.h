@@ -34,8 +34,8 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_init();
 
         app_heartbeatMonitor_init(
-            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-            &app_canTx_DIM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_DIM_Heartbeat_set,
+            heartbeatFaultSetters, heartbeatFaultGetters);
         app_avgPower_init();
         app_sevenSegDisplays_init();
         app_globals_init(&globals_config);
