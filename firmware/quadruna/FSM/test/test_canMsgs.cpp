@@ -28,7 +28,7 @@ TEST(CanMsgsTest, wheels_message_frequency)
 
 TEST(CanMsgsTest, apps_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_FSM_APPS_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(100), CAN_MSG_FSM_APPS_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, brake_message_frequency)
