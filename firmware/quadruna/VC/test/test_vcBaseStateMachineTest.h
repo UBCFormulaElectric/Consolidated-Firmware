@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include "test_baseStateMachineTest.h"
 
-// TODO: include fakes
+#include "fake_io_time.hpp"
+#include "fake_io_lowVoltageBattery.hpp"
+#include "fake_io_efuse.hpp"
 
 extern "C"
 {
@@ -12,6 +14,9 @@ extern "C"
 #include "app_stateMachine.h"
 #include "app_canUtils.h"
 #include "app_utils.h"
+#include "states/app_initState.h"
+#include "states/app_driveState.h"
+#include "app_powerManager.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -31,6 +36,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
 
+        app_stateMachine_init(app_initState_get());
+
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
@@ -38,7 +45,25 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
     void TearDown() override
     {
-        // TODO: reset fakes
+        // Reset fakes.
+        fake_io_time_getCurrentMs_reset();
+        fake_io_lowVoltageBattery_hasChargeFault_reset();
+        fake_io_lowVoltageBattery_hasChargeFault_reset();
+        fake_io_lowVoltageBattery_hasChargeFault_reset();
+        fake_io_lowVoltageBattery_hasBoostControllerFault_reset();
+        fake_io_lowVoltageBattery_getBatVoltage_reset();
+        fake_io_lowVoltageBattery_getBoostVoltage_reset();
+        fake_io_lowVoltageBattery_getAccVoltage_reset();
+        fake_io_efuse_setChannel_reset();
+        fake_io_efuse_isChannelEnabled_reset();
+        fake_io_efuse_getChannelCurrent_reset();
+        fake_io_efuse_standbyReset_reset();
+    }
+
+    void SetInitialState(const State *const initial_state)
+    {
+        app_stateMachine_init(initial_state);
+        ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
     // config for heartbeat monitor (can funcs and flags)
