@@ -13,5 +13,9 @@
 }
 =======
 	"cmake.configureOnOpen": false
+<<<<<<< HEAD
 }
 >>>>>>> 5fdcb35f (created retry protocol)
+=======
+}
+>>>>>>> 10433204 (cleaned up code)

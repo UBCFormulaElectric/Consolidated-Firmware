@@ -84,8 +84,7 @@ void app_powerManager_check_efuses(PowerManagerState state)
         // Process running retries
         else if (efuse_retry_data->retry_state == RETRY_STATE_RUNNING)
         {
-            float current = io_efuse_getChannelCurrent(efuse);
-            efuse_retry_data->current_sum += current;
+            efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
             efuse_retry_data->timer_attempts++;
         }
         // Process expired retries
@@ -111,7 +110,6 @@ void app_powerManager_check_efuses(PowerManagerState state)
             efuse_retry_data->current_sum    = 0;
             efuse_retry_data->timer_attempts = 0;
         }
-
         else if (
             efuse_retry_data->retry_state == RETRY_STATE_OFF && efuse_retry_config->efuse_state &&
             io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD)
