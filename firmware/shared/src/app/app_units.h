@@ -20,3 +20,4 @@
 #define GEAR_RATIO (4.124f)
 #define MOTOR_RPM_TO_KMH(rpm) ((rpm) * (float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO)
 #define MOTOR_KMH_TO_RPM(kmh) ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO)))
+#define WHEEL_KMH_TO_RPM(kmh) ((int)((kmh) / ((float)WHEEL_DIAMETER_IN * PI * INCH_TO_KM * MIN_TO_HOUR )))
