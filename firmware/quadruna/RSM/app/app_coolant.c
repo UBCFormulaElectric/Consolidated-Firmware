@@ -1,3 +1,4 @@
+
 #include "app_coolant.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -22,20 +23,20 @@ void app_coolant_init(void)
 
 void app_coolant_broadcast(void)
 {
-    app_canTx_FSM_CoolantTemperatureA_set(io_coolant_getTemperatureA());
-    app_canTx_FSM_CoolantTemperatureB_set(io_coolant_getTemperatureB());
-    app_canTx_FSM_CoolantPressureA_set(io_coolant_getPressureA());
-    app_canTx_FSM_CoolantPressureB_set(io_coolant_getPressureB());
+    app_canTx_RSM_CoolantTemperatureA_set(io_coolant_getTemperatureA());
+    app_canTx_RSM_CoolantTemperatureB_set(io_coolant_getTemperatureB());
+    app_canTx_RSM_CoolantPressureA_set(io_coolant_getPressureA());
+    app_canTx_RSM_CoolantPressureB_set(io_coolant_getPressureB());
 
     float            coolant_flow;
     RangeCheckStatus coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, &coolant_flow);
-    app_canTx_FSM_CoolantFlowRate_set(coolant_flow);
-    app_canAlerts_FSM_Warning_FlowRateOutOfRange_set(coolant_status != VALUE_IN_RANGE);
+    app_canTx_RSM_CoolantFlowRate_set(coolant_flow);
+    app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
     const bool  in_drive_state             = app_canRx_DCM_State_get() == DCM_DRIVE_STATE;
     SignalState flow_in_range_signal_state = app_signal_getState(
         &flow_in_range_signal, coolant_status == VALUE_UNDERFLOW && in_drive_state,
         coolant_status == VALUE_IN_RANGE || !in_drive_state);
-    app_canAlerts_FSM_Fault_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+    app_canAlerts_RSM_Fault_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
