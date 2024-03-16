@@ -8,9 +8,8 @@
 // Note: Unit for length is measured in metres unless specified
 static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6f;
 static const size_t RELUCTOR_RING_TOOTH_COUNT    = 48;
-static const float  TIRE_DIAMETER                = 0.4572f;
 static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
-    (float)(((float)M_PI * TIRE_DIAMETER) / (float)RELUCTOR_RING_TOOTH_COUNT);
+    (float)(((float)M_PI * WHEEL_DIAMETER_IN * IN_TO_M) / (float)RELUCTOR_RING_TOOTH_COUNT);
 
 static PwmInputFreqOnly left_wheel_speed_sensor, right_wheel_speed_sensor;
 
@@ -44,6 +43,7 @@ void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim)
     }
 }
 
+// TODO: on thruna, speeds were halved from the real amounts, to be fixed after physical constants added
 float io_wheels_getLeftSpeedKph(void)
 {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *

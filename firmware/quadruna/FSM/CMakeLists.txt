@@ -116,7 +116,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_FSM_can" "quadruna_FSM_stm32cube")
-    target_link_libraries("quadruna_FSM.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules")
+    target_link_libraries("quadruna_FSM.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules" "m")
 
     # TODO: embedded_image for boot
     
@@ -131,7 +131,17 @@ elseif("${TARGET}" STREQUAL "test")
     add_library(quadruna_FSM_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
-    # TODO: fake libraries
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_apps.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
+    )
+    create_fake_library(
+        "quadruna_FSM_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
     
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
@@ -140,5 +150,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "shared_fakes") # TODO: add fakes here
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes" "m")
 endif()

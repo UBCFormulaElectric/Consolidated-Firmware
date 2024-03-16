@@ -2,20 +2,26 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_globals.h"
 #include "app_heartbeatMonitor.h"
-#include "states/app_driveState.h"
+#include "app_mainState.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_steering.h"
+#include "app_brake.h"
+#include "app_suspension.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_led.h"
 #include "io_chimera.h"
+#include "io_steering.h"
+#include "io_wheels.h"
+#include "io_brake.h"
+#include "io_suspension.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -56,7 +62,6 @@ const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
-// TODO: Generate proper port/pin with cube
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
 static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
@@ -86,6 +91,49 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
+// config for heartbeat monitor (can funcs and flags)
+// FSM rellies on BMS
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+    [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
+    [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+};
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                      [VC_HEARTBEAT_BOARD]   = NULL,
+                                                      [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+                                                           [VC_HEARTBEAT_BOARD]   = NULL,
+                                                           [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_set,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
 void tasks_preInit(void) {}
 
 void tasks_init(void)
@@ -111,9 +159,11 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    // TODO: add heartbeat monitor
-    app_stateMachine_init(app_driveState_get());
-    // TODO: add globals
+    app_heartbeatMonitor_init(
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
+
+    app_stateMachine_init(app_mainState_get());
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
@@ -133,9 +183,8 @@ void tasks_run1Hz(void)
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
-        // TODO: setup can debug
-        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
