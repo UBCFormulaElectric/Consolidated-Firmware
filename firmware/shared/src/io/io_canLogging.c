@@ -42,7 +42,6 @@ const struct lfs_file_config fcfg = {
     .buffer = file_buffer,
 };
 
-
 // assume the lfs is already mounted
 static void init_logging_file_system()
 {
