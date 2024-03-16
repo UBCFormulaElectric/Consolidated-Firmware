@@ -133,9 +133,8 @@ static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = 
                                                    .acc_vsense_adc_channel = id_to_adc[VC_AdcNetName__24V_ACC_SENSE] };
 
 // TODO: efuse configs
-static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
-    { inv_l_pwr_en, inv_l_pwr_en, ADC1_IN10_INV_R_PWR_I_SNS}
-};
+static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = { { inv_l_pwr_en, inv_l_pwr_en,
+                                                                 ADC1_IN10_INV_R_PWR_I_SNS } };
 
 static UART debug_uart = { .handle = &huart7 };
 
