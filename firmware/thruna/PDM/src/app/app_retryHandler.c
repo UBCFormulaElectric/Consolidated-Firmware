@@ -9,7 +9,7 @@
 #include "app_retryHandler.h"
 #include "app_powerManager.h"
 
-void init_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
+void retry_handler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
 {
     switch (protocol)
     {
@@ -78,7 +78,7 @@ void init_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs
     }
 }
 
-void recover_retry_protocol(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
+void retry_handler_recover(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
 {
     switch (protocol)
     {

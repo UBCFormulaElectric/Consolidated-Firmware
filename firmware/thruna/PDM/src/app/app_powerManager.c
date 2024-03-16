@@ -42,11 +42,11 @@ void app_powerManager_init()
 {
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        retry_data[efuse].retry_state    = RETRY_STATE_OFF;
-        retry_data[efuse].retry_attempts = 0;
-        retry_data[efuse].timer_attempts = 0;
-        retry_data[efuse].timer_limit    = 3;
-        retry_data[efuse].current_sum    = 0.0;
+        retry_data[efuse].retry_state          = RETRY_STATE_OFF;
+        retry_data[efuse].retry_attempts       = 0;
+        retry_data[efuse].timer_attempts       = 0;
+        retry_data[efuse].timer_attempts_limit = 3;
+        retry_data[efuse].current_sum          = 0.0;
     }
 }
 
@@ -70,7 +70,7 @@ void app_powerManager_check_efuses(PowerManagerState state)
         const RetryConfig *efuse_retry_config = &power_states_config[state].retry_configs[efuse];
 
         // Check if timer attempts reached the limit
-        if (efuse_retry_data->timer_attempts == efuse_retry_data->timer_limit)
+        if (efuse_retry_data->timer_attempts == efuse_retry_data->timer_attempts_limit)
         {
             efuse_retry_data->retry_state = RETRY_STATE_EXPIRED;
         }
@@ -90,22 +90,22 @@ void app_powerManager_check_efuses(PowerManagerState state)
         // Process expired retries
         else if (efuse_retry_data->retry_state == RETRY_STATE_EXPIRED)
         {
-            float avg = efuse_retry_data->current_sum / (float)efuse_retry_data->timer_limit;
+            float avg = efuse_retry_data->current_sum / (float)efuse_retry_data->timer_attempts_limit;
             if (avg <= FAULT_CURRENT_THRESHOLD)
             {
-                if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_limit)
+                if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_attempts_limit)
                 {
                     app_canTx_PDM_EfuseFault_set(true);
                     return;
                 }
                 // Initialize retry protocol
-                init_retry_protocol(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                retry_handler_start(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
                 efuse_retry_data->retry_attempts++;
             }
             else
             {
                 // Recover retry protocol
-                recover_retry_protocol(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                retry_handler_recover(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
             }
             efuse_retry_data->current_sum    = 0;
             efuse_retry_data->timer_attempts = 0;
