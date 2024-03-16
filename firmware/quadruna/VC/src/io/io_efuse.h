@@ -20,6 +20,7 @@ EMPTY_STRUCT(EfuseConfig);
 // TODO: efuse configs
 typedef enum
 {
+    BLANK_EFUSE,
     NUM_EFUSE_CHANNELS
 } EfuseChannel;
 

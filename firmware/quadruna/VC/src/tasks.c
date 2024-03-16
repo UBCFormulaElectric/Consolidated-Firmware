@@ -125,17 +125,16 @@ const AdcChannel id_to_adc[] = {
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
 };
 
-static const LvBatteryConfig lv_battery_config = {
-    .lt3650_charger_fault_gpio = nchrg_fault,
-    .ltc3786_boost_fault_gpio = pgood,
-    .vbat_vsense_adc_channel = id_to_adc[VC_AdcNetName_VBAT_SENSE],
-    .boost_vsense_adc_channel = id_to_adc[VC_AdcNetName__22V_BOOST_SENSE],
-    .acc_vsense_adc_channel = id_to_adc[VC_AdcNetName__24V_ACC_SENSE]
-};
+static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
+                                                   .ltc3786_boost_fault_gpio  = pgood,
+                                                   .vbat_vsense_adc_channel   = id_to_adc[VC_AdcNetName_VBAT_SENSE],
+                                                   .boost_vsense_adc_channel =
+                                                       id_to_adc[VC_AdcNetName__22V_BOOST_SENSE],
+                                                   .acc_vsense_adc_channel = id_to_adc[VC_AdcNetName__24V_ACC_SENSE] };
 
 // TODO: efuse configs
 static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
-    
+    { inv_l_pwr_en, inv_l_pwr_en, ADC1_IN10_INV_R_PWR_I_SNS}
 };
 
 static UART debug_uart = { .handle = &huart7 };
