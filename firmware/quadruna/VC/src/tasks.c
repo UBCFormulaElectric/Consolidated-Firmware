@@ -11,6 +11,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_powerManager.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
