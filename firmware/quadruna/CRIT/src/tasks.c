@@ -116,6 +116,96 @@ static const Switch torquevec_switch = {
     .closed_state = true,
 };
 
+static const RgbLed vc_status_led = {
+    .red_gpio = {
+        .port = VC_R_GPIO_Port,
+        .pin = VC_R_Pin,
+    },
+    .green_gpio = {
+        .port = VC_G_GPIO_Port,
+        .pin = VC_G_Pin,
+    },
+    .blue_gpio = {
+        .port = VC_B_GPIO_Port,
+        .pin = VC_B_Pin,
+    },
+};
+
+static const RgbLed bms_status_led = {
+    .red_gpio = {
+        .port = BMS_R_GPIO_Port,
+        .pin = BMS_R_Pin,
+    },
+    .green_gpio = {
+        .port = BMS_G_GPIO_Port,
+        .pin = BMS_G_Pin,
+    },
+    .blue_gpio = {
+        .port = BMS_B_GPIO_Port,
+        .pin = BMS_B_Pin,
+    },
+};
+
+static const RgbLed fsm_status_led = {
+    .red_gpio = {
+        .port = FSM_R_GPIO_Port,
+        .pin = FSM_R_Pin,
+    },
+    .green_gpio = {
+        .port = FSM_G_GPIO_Port,
+        .pin = FSM_G_Pin,
+    },
+    .blue_gpio = {
+        .port = FSM_B_GPIO_Port,
+        .pin = FSM_B_Pin,
+    },
+};
+
+static const RgbLed aux_status_led = {
+    .red_gpio = {
+        .port = AUX_DB_R_GPIO_Port,
+        .pin = AUX_DB_R_Pin,
+    },
+    .green_gpio = {
+        .port = AUX_DB_G_GPIO_Port,
+        .pin = AUX_DB_G_Pin,
+    },
+    .blue_gpio = {
+        .port = AUX_DB_B_GPIO_Port,
+        .pin = AUX_DB_B_Pin,
+    },
+};
+
+static const RgbLed rsm_status_led = {
+    .red_gpio = {
+        .port = RSM_R_GPIO_Port,
+        .pin = RSM_R_Pin,
+    },
+    .green_gpio = {
+        .port = RSM_G_GPIO_Port,
+        .pin = RSM_G_Pin,
+    },
+    .blue_gpio = {
+        .port = RSM_B_GPIO_Port,
+        .pin = RSM_B_Pin,
+    },
+};
+
+static const RgbLed crit_status_led = {
+    .red_gpio = {
+        .port = CRIT_DB_R_GPIO_Port,
+        .pin = CRIT_DB_R_Pin,
+    },
+    .green_gpio = {
+        .port = CRIT_DB_G_GPIO_Port,
+        .pin = CRIT_DB_G_Pin,
+    },
+    .blue_gpio = {
+        .port = CRIT_DB_B_GPIO_Port,
+        .pin = CRIT_DB_B_Pin,
+    },
+};
+
 // clang-format off
 static const Gpio ams_r_pin  = { .port = AMS_R_GPIO_Port, .pin = AMS_R_Pin };
 static const Gpio imd_r_pin  = { .port = IMD_R_GPIO_Port, .pin = IMD_R_Pin };
@@ -223,7 +313,13 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .regen_led        = &regen_led,
                                               .regen_switch     = &regen_switch,
                                               .torquevec_led    = &torquevec_led,
-                                              .torquevec_switch = &torquevec_switch };
+                                              .torquevec_switch = &torquevec_switch,
+                                              .aux_status_led   = &aux_status_led,
+                                              .bms_status_led   = &bms_status_led,
+                                              .crit_status_led  = &crit_status_led,
+                                              .fsm_status_led   = &fsm_status_led,
+                                              .rsm_status_led   = &rsm_status_led,
+                                              .vc_status_led    = &vc_status_led };
 
 void tasks_preInit(void)
 {
