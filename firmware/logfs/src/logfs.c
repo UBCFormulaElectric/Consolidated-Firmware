@@ -19,8 +19,9 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->head                                = 0;
 }
 
-static void inline logfs_initFile(LogFs *fs, LogFsFile *file, const LogFsFileCfg *cfg)
+static void inline logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg)
 {
+    // This is a bit sus, maybe memcpy the path directly to the file (that's the only thing you need this for!)
     file->cfg         = cfg;
     file->cache.block = LOGFS_INVALID_BLOCK;
     file->cache.buf   = cfg->cache;
@@ -46,7 +47,8 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file)
     // Write empty data block to disk.
     file->cache_data->bytes = 0;
     file->cache_data->prev  = LOGFS_INVALID_BLOCK;
-    RET_ERR(disk_write(fs, new_data_block, fs->cfg->cache));
+    file->cache.block       = new_data_block;
+    RET_ERR(disk_syncCache(fs, &file->cache));
 
     if (fs->head_file != LOGFS_INVALID_BLOCK)
     {
@@ -80,7 +82,7 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
 
     // Initialize file cache.
     LogFsFileCfg root_cfg = { .cache = cfg->cache, .path = "/.root" };
-    logfs_initFile(fs, &fs->root, &root_cfg);
+    logfs_initFile(&fs->root, &root_cfg);
     RET_ERR(logfs_createNewFile(fs, &fs->root));
 
     // Format was successful.
@@ -136,12 +138,13 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
 LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg)
 {
     CHECK_ARG(fs);
-    CHECK_ARG(cfg);
     CHECK_ARG(file);
+    CHECK_ARG(cfg);
+    CHECK_PATH(cfg->path);
     CHECK_FS_VALID(fs);
 
     // Initialize file.
-    logfs_initFile(fs, file, cfg);
+    logfs_initFile(file, cfg);
 
     // Traverse the file blocks as a linked-list. The first file is placed at
     // the origin.
@@ -189,7 +192,7 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg)
 LogFsErr logfs_close(LogFs *fs, LogFsFile *file)
 {
     RET_ERR(logfs_sync(fs, file));
-    file->cache.block = LOGFS_INVALID_BLOCK;
+    file->cache.block = LOGFS_INVALID_BLOCK; // Mark cache as invalid
     return LOGFS_ERR_OK;
 }
 
@@ -210,9 +213,7 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint3
 
     // Read file head block into cache.
     uint32_t cur_data = file->head;
-
     RET_ERR(disk_changeCache(fs, &file->cache, cur_data, true, true));
-    // RET_ERR(disk_read(fs, file->read_cur_data, file->cache_data));
 
     *num_written = 0;
     while (*num_written < size)
@@ -231,7 +232,6 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint3
         memcpy(&file->cache_data->data + file->cache_data->bytes, ((uint8_t *)buf) + *num_written, num_available);
         file->cache_data->bytes += num_available;
         *num_written += num_available;
-        // RET_ERR(disk_write(fs, file->read_cur_data, file->cache_data));
 
         // After a new block, update state. Update here, because if a previous
         // read/write failed, changing filesystem state
@@ -246,7 +246,6 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint3
             RET_ERR(disk_writePair(fs, &file->pair));
 
             // After a successful write, now we can update filesystem state.
-            printf("update cur data: %d\n", cur_data);
             file->head = cur_data;
             INC_HEAD(fs, 1);
         }
@@ -259,7 +258,7 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint3
     return LOGFS_ERR_OK;
 }
 
-LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsRead mode, uint32_t *num_read)
+LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadMode mode, uint32_t *num_read)
 {
     CHECK_ARG(fs);
     CHECK_ARG(file);
@@ -267,39 +266,27 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
     CHECK_ARG(num_read);
     CHECK_FS_VALID(fs);
 
-    printf("test1: start: %d\n", file->read_cur_data);
-
     if (mode == LOGFS_READ_START || !file->read_init)
     {
         // Set read iterator state variables to start of file.
-        printf("reset!\n");
         file->read_cur_data = file->head;
         file->read_cur_num  = 0;
         file->read_init     = true;
     }
 
-    RET_ERR(disk_changeCache(fs, &file->cache, file->read_cur_data, true, true));
-    // RET_ERR(disk_read(fs, file->read_cur_data, file->cache_data));
+    bool first_block = true;
+    *num_read        = 0;
 
-    printf("test2: start: %d\n", file->read_cur_data);
-
-    *num_read = 0;
     while (*num_read < size && file->read_cur_data != LOGFS_INVALID_BLOCK)
     {
-        printf("test3: %d\n", file->read_cur_data);
-
-        // Read current block.
-        RET_ERR(disk_changeCache(fs, &file->cache, file->read_cur_data, false, true));
-        // RET_ERR(disk_read(fs, file->read_cur_data, file->cache_data));
-
-        printf("test4\n");
+        // Read current block. Note that we only want to write data in the cache back to disk before the first read.
+        RET_ERR(disk_changeCache(fs, &file->cache, file->read_cur_data, first_block, true));
+        first_block = false;
 
         // Calculate number of available bytes.
         const uint32_t num_in_block     = file->cache_data->bytes - file->read_cur_num;
         const uint32_t num_left_to_read = size - *num_read;
         uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
-
-        printf("test5\n");
 
         if (num_available == 0)
         {
@@ -319,7 +306,6 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
         {
             file->read_cur_num  = 0;
             file->read_cur_data = file->cache_data->prev;
-            printf("test3: start: %d\n", file->cache_data->prev);
         }
     }
 

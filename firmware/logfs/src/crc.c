@@ -49,7 +49,7 @@ static const uint32_t crc32_lut[] = {
 // clang-format on
 
 // Shamelessly stolen from https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
-static uint32_t crc32(const void *buf, size_t size)
+static inline uint32_t crc32(const void *buf, size_t size)
 {
     const uint8_t *p   = buf;
     uint32_t       crc = ~0U;
@@ -63,25 +63,19 @@ static uint32_t crc32(const void *buf, size_t size)
     return crc ^ ~0U;
 }
 
-uint32_t crc_getFromBlock(const LogFs *fs)
-{
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->cache;
-    return *block_crc;
-}
-
-void crc_stampBlock(const LogFs *fs)
+void crc_stampBlock(const LogFs *fs, void *buf)
 {
     // Set first word to 0, then stamp first word with CRC.
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->cache;
+    uint32_t *const block_crc = (uint32_t *)buf;
     *block_crc                = 0;
-    *block_crc                = crc32(fs->cfg->cache, fs->cfg->block_size);
+    *block_crc                = crc32(buf, fs->cfg->block_size);
 }
 
-bool crc_checkBlock(const LogFs *fs)
+bool crc_checkBlock(const LogFs *fs, void *buf)
 {
     // Check block with CRC (first word) set to zero.
-    uint32_t *const block_crc = (uint32_t *)fs->cfg->cache;
+    uint32_t *const block_crc = (uint32_t *)buf;
     uint32_t        crc       = *block_crc;
     *block_crc                = 0;
-    return crc == crc32(fs->cfg->cache, fs->cfg->block_size);
+    return crc == crc32(buf, fs->cfg->block_size);
 }

@@ -44,6 +44,7 @@
 *.obj
 *.o
 *.sbr
+*.so
 
 # Build files
 *.bat

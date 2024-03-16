@@ -1,6 +1,6 @@
 from typing import Union, Optional
 from .context import LogFsContext
-from logfs_src import LogFsErr, PyLogFs, LogFsFile, PyLogFsRead
+from logfs_src import LogFsErr, PyLogFs, LogFsFile, PyLogFsReadMode
 
 
 class LogFsError(Exception):
@@ -91,11 +91,11 @@ class LogFs:
             file_num_read = 0
 
             # Read 0 bytes from the start of the file to reset the file read iterator.
-            self.fs.read(file, 0, PyLogFsRead.START)
+            self.fs.read(file, 0, PyLogFsReadMode.START)
 
             while True:
                 err, num_read, data = self.fs.read(
-                    file, self.READ_ITER_CHUNK_SIZE, PyLogFsRead.ITER
+                    file, self.READ_ITER_CHUNK_SIZE, PyLogFsReadMode.ITER
                 )
                 self._check_err(err)
 
@@ -109,7 +109,7 @@ class LogFs:
             return file_data[:file_num_read]
         else:
             # Read the first size bytes.
-            err, num_read, data = self.fs.read(file, size, PyLogFsRead.START)
+            err, num_read, data = self.fs.read(file, size, PyLogFsReadMode.START)
             self._check_err(err)
             return data[:num_read]
 

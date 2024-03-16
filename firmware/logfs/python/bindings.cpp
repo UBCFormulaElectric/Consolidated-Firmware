@@ -66,8 +66,14 @@ class PyLogFs
     LogFsErr close(LogFsFile &file)
     {
         // Deallocate file cache.
-        free(file.cache.buf);
-        return LOGFS_ERR_OK; // logfs_close(&fs, &file);
+        const LogFsErr err = logfs_close(&fs, &file);
+        if (err == LOGFS_ERR_OK)
+        {
+            // Only free file cache if close is successful.
+            free(file.cache_data);
+        }
+
+        return err;
     }
 
     LogFsErr sync(LogFsFile &file) { return logfs_sync(&fs, &file); }
@@ -83,7 +89,7 @@ class PyLogFs
         return py::make_tuple(err, num_written);
     }
 
-    py::tuple read(LogFsFile &file, uint32_t size, LogFsRead mode)
+    py::tuple read(LogFsFile &file, uint32_t size, LogFsReadMode mode)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');
@@ -137,7 +143,7 @@ PYBIND11_MODULE(logfs_src, m)
         .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
         .export_values();
 
-    py::enum_<LogFsRead>(m, "PyLogFsRead")
+    py::enum_<LogFsReadMode>(m, "PyLogFsReadMode")
         .value("START", LOGFS_READ_START)
         .value("ITER", LOGFS_READ_ITER)
         .export_values();
