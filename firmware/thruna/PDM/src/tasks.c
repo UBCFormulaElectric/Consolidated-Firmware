@@ -11,6 +11,7 @@
 #include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
 #include "app_commitInfo.h"
+#include "app_powerManager.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -246,6 +247,8 @@ void tasks_init(void)
     io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
     io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
     io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
+
+    app_powerManager_init();
 
     // broadcast commit info
     app_canTx_PDM_Hash_set(GIT_COMMIT_HASH);
