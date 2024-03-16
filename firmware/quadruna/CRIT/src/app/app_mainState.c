@@ -22,6 +22,10 @@ static void mainStateRunOnTick100Hz(void)
     // const bool ams_fault_latched =
     // io_led_enable(globals->config->ams_led, ams_fault_latched);
 
+    const bool contactors_open = app_canRx_BMS_AirNegative_get() == CONTACTOR_STATE_OPEN &&
+                                 app_canRx_BMS_AirPositive_get() == CONTACTOR_STATE_OPEN;
+    io_led_enable(globals->config->shdn_led, contactors_open);
+
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
     app_canTx_CRIT_StartSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->start_led, start_switch_on);

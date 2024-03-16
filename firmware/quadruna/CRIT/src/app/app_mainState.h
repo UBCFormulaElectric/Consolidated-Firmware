@@ -9,7 +9,6 @@ typedef enum
     VC_LED,
     AUX_LED,
     CRIT_LED,
-    SHDN_LED,
     RSM_LED,
     NUM_BOARD_LEDS,
 } BoardLeds;

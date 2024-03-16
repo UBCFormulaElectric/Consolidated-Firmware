@@ -87,6 +87,10 @@ static const BinaryLed torquevec_led = { .gpio = {
                                              .port = TORQUE_VECTORING_LED_GPIO_Port,
                                              .pin  = TORQUE_VECTORING_LED_Pin,
                                          } };
+static const BinaryLed shdn_led      = { .gpio = {
+                                             .port = SHDN_R_GPIO_Port,
+                                             .pin  = SHDN_R_Pin,
+                                    } };
 
 static const Switch start_switch = {
     .gpio = {
@@ -212,6 +216,7 @@ static UART debug_uart = { .handle = &huart2 };
 static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .bspd_led         = &bspd_led,
                                               .ams_led          = &ams_led,
+                                              .shdn_led         = &shdn_led,
                                               .start_led        = &start_led,
                                               .start_switch     = &start_switch,
                                               .regen_led        = &regen_led,

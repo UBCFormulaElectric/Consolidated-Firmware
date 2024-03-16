@@ -12,6 +12,7 @@ typedef struct
     const BinaryLed *const start_led;
     const BinaryLed *const regen_led;
     const BinaryLed *const torquevec_led;
+    const BinaryLed *const shdn_led;
     const Switch *const    start_switch;
     const Switch *const    regen_switch;
     const Switch *const    torquevec_switch;
@@ -21,7 +22,6 @@ typedef struct
     const RgbLed *const    aux_status_led;
     const RgbLed *const    crit_status_led;
     const RgbLed *const    rsm_status_led;
-    const RgbLed *const    shdn_status_led;
 } GlobalsConfig;
 
 typedef struct
