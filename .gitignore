@@ -59,6 +59,7 @@
 *.pyc
 __pycache__
 Pipfile.lock
+*.egg-info
 
 # Other files
 *.build_log.htm
