@@ -17,12 +17,12 @@ Result<JsonCanMsg, CanReadError> Can_Read()
 {
     if (const WaitDelegateResult res = wait_delegate_thread(); res == WaitDelegateResult::INTERRUPTED)
         return CanReadError::Timeout;
-    qInfo("Can Read Requested");
+    // qInfo("Can Read Requested");
     return JsonCanMsg{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 {
-    qInfo("Can with id %d Written", msg->std_id);
+    // qInfo("Can with id %d Written", msg->std_id);
     return std::monostate{};
 }

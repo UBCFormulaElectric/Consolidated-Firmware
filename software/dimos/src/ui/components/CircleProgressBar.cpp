@@ -11,7 +11,8 @@ void CircleProgressBar::paint(QPainter *p)
 {
     QPen bg_pen(m_bg_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen bar_pen(m_bar_color, m_stroke_width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    if (!m_round_tip) {
+    if (!m_round_tip)
+    {
         bg_pen.setCapStyle(Qt::FlatCap);
         bar_pen.setCapStyle(Qt::FlatCap);
     }
@@ -28,6 +29,4 @@ void CircleProgressBar::paint(QPainter *p)
 
     p->setPen(bar_pen);
     p->drawArc(boundRect, m_start_angle * 16, static_cast<int>(round(delta_theta * 16.0 * m_percentage)));
-
-    p->end();
 }

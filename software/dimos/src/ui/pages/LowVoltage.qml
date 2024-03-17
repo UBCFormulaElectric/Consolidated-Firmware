@@ -3,12 +3,6 @@ import QtQuick.Layouts
 import components
 
 Item {
-    // Rectangle {
-    //     readonly property int widthMargin: 90
-    //     readonly property int heightMargin: 80
-    //     width: parent.width - 90*2; height: parent.height - 80*2
-    //     x: 90; y: 80
-    // }
     GridLayout {
         anchors.fill: parent
         columns: 4
@@ -30,49 +24,85 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
         }
-        Rectangle {
-            color: "red"
+        Item {
             Layout.rowSpan: 2
             Layout.columnSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
+
+            ShutdownLoop {
+                id: shutdownLoop
+                anchors.fill: parent
+                visible: true
+            }
         }
-        Rectangle {
-            color: "red"
+
+        Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
+            Squircle {
+                height: 190; width: 190
+                radius: 25
+                bg_color: "#fff"
+                smoothness: 0.6
+                Image {
+                    source: "qrc:/fe_logo.svg"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width * 0.8
+                    fillMode: Image.PreserveAspectFit
+                }
+            }
+            Text {
+                text: "UBC Formula Electric"
+                color: "white"
+                font.pixelSize: 15
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+            }
         }
         Item {
             Layout.preferredWidth: 190
             Layout.preferredHeight: 210
 
-            ColumnLayout {
-                Squircle {
-                    Layout.preferredWidth: 190
-                    Layout.preferredHeight: 190
-                    radius: 25
-                    color: "#002D67"
-                    CircleProgressBar {
-                        width: 120
-                        height: 120
-                        percentage: 0.79
-                        stroke_width: 20
-                        start_angle: 90
-                        end_angle: -270
-                        round_tip: true
-                        bar_color: "#36FB61"
-                        bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
+            Squircle {
+                height: 190; width: 190
+                radius: 25
+                bg_color: "#002D67"
+                smoothness: 0.6
+                CircleProgressBar {
+                    width: 120
+                    height: 120
+                    percentage: 0.79
+                    stroke_width: 20
+                    start_angle: 90
+                    end_angle: -270
+                    bar_color: "#36FB61"
+                    bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
+                    round_tip: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Image {
+                        source: "qrc:/battery.svg"
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
                     }
+                    Image {
+                        source: "qrc:/charge.svg"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
                 }
-                Text {
-                    text: "LV SOC"
-                    color: "white"
-                    font.pixelSize: 15
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
-                }
+            }
+
+            Text {
+                text: "LV SOC"
+                color: "white"
+                font.pixelSize: 15
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
             }
         }
     }

@@ -16,13 +16,18 @@ Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {} // NOLINT(
  */
 void Squircle::paint(QPainter *p)
 {
+    p->setPen(Qt::NoPen);
+    p->setBrush(QBrush(m_color));
     // clamp radius
     const QRectF bounds = boundingRect();
     const double radius =
         std::clamp(static_cast<double>(this->m_radius), 0.0, std::min(bounds.width(), bounds.height()) / 2.0);
     const double smoothness = std::clamp(this->m_smoothness, 0.0, 1.0); // todo find a better clamp (depending on R)
     if (radius == 0 || smoothness == 0)
+    {
+        qWarning() << "Squircle used without corner radius or smoothness, falling back to rounded rect.";
         return p->drawRoundedRect(bounds, radius, radius);
+    }
 
     const double w = bounds.width(), h = bounds.height();
     const double corner_dim = radius * (1 + smoothness), straightWidthLength = w - 2 * corner_dim,
@@ -101,8 +106,5 @@ void Squircle::paint(QPainter *p)
     }
 
     path.closeSubpath();
-
-    p->setPen(Qt::NoPen);
-    p->setBrush(QBrush(m_color));
     p->drawPath(path);
 }

@@ -25,7 +25,7 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
-            property int currentIndex: 1
+            property int currentIndex: 0
             Landing {
                 id: landingPage
                 visible: mainStack.currentIndex === -1
@@ -70,9 +70,12 @@ Window {
                 id: softwareDebugPage
             }
         }
-        Switcher {
+        Item {
             id: switcher
         }
+        // Switcher {
+        //     id: switcher
+        // }
         Shutdown {
             visible: false
         }
