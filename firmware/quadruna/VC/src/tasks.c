@@ -214,6 +214,9 @@ void tasks_init(void)
     app_canRx_init();
     app_stateMachine_init(app_initState_get());
 
+    io_lowVoltageBattery_init(&lv_battery_config);
+    io_efuse_init(efuse_configs);
+
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
 }
