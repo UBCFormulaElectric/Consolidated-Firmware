@@ -20,6 +20,7 @@
 #include "io_chimera.h"
 #include "io_efuse.h"
 #include "io_lowVoltageBattery.h"
+#include "io_shutdown.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
