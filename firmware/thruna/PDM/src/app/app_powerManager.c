@@ -75,50 +75,50 @@ void app_powerManager_check_efuses(PowerManagerState state)
             efuse_retry_data->retry_state = RETRY_STATE_EXPIRED;
         }
 
-        // Skip processing if the retry state is waiting
-        if (efuse_retry_data->retry_state == RETRY_STATE_WAITING)
+        switch (efuse_retry_data->retry_state)
         {
-            efuse++;
-            continue;
-        }
-        // Process running retries
-        else if (efuse_retry_data->retry_state == RETRY_STATE_RUNNING)
-        {
-            efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-            efuse_retry_data->timer_attempts++;
-        }
-        // Process expired retries
-        else if (efuse_retry_data->retry_state == RETRY_STATE_EXPIRED)
-        {
-            float avg = efuse_retry_data->current_sum / (float)efuse_retry_data->timer_attempts_limit;
-            if (avg <= FAULT_CURRENT_THRESHOLD)
+            case RETRY_STATE_WAITING:
+                break;
+            case RETRY_STATE_RUNNING:
             {
-                if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_attempts_limit)
+                efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
+                efuse_retry_data->timer_attempts++;
+                break;
+            }
+            case RETRY_STATE_EXPIRED:
+            {
+                float avg = efuse_retry_data->current_sum / (float)efuse_retry_data->timer_attempts_limit;
+                if (avg <= FAULT_CURRENT_THRESHOLD)
                 {
-                    app_canTx_PDM_EfuseFault_set(true);
-                    return;
+                    if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_attempts_limit)
+                    {
+                        app_canTx_PDM_EfuseFault_set(true);
+                        return;
+                    }
+                    retry_handler_start(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                    efuse_retry_data->retry_attempts++;
                 }
-                // Initialize retry protocol
-                retry_handler_start(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
-                efuse_retry_data->retry_attempts++;
+                else
+                {
+                    retry_handler_recover(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                }
+                efuse_retry_data->current_sum    = 0;
+                efuse_retry_data->timer_attempts = 0;
+                break;
             }
-            else
+            case RETRY_STATE_OFF:
             {
-                // Recover retry protocol
-                retry_handler_recover(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
+                bool is_efuse_faulting = efuse_retry_config->efuse_state && io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD;
+                if (is_efuse_faulting) {
+                    efuse_retry_data->retry_state = RETRY_STATE_RUNNING;
+                    efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
+                    efuse_retry_data->timer_attempts++;
+                }
+                break;
             }
-            efuse_retry_data->current_sum    = 0;
-            efuse_retry_data->timer_attempts = 0;
+            default:
+                break;
         }
-        else if (
-            efuse_retry_data->retry_state == RETRY_STATE_OFF && efuse_retry_config->efuse_state &&
-            io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD)
-        {
-            efuse_retry_data->retry_state = RETRY_STATE_RUNNING;
-            efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-            efuse_retry_data->timer_attempts++;
-        }
-        // Move to the next efuse
         efuse++;
     }
 }
