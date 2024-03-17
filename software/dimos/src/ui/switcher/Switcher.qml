@@ -53,7 +53,7 @@ FocusScope {
             width: switcher.appIconSize
             height: switcher.appIconSize
             scale: PathView.iconScale
-            color: "#013372"
+            bg_color: "#013372"
             Image {
                 source: squircleAppIcon.icon
                 anchors.centerIn: parent
@@ -82,23 +82,29 @@ FocusScope {
             readonly property real end_scale: 0.85
 
             readonly property int center_x: Constants.SCREEN_WIDTH / 2
-            readonly property int center_y: Constants.SCREEN_HEIGHT + y_rad - vertial_offset - switcher.appIconSize/2
+            readonly property int center_y: Constants.SCREEN_HEIGHT + y_rad - vertial_offset - switcher.appIconSize / 2
             startX: 0; startY: Constants.SCREEN_HEIGHT + appIconTravelPath.vertial_offset
-            PathAttribute { name: "iconScale"; value: appIconTravelPath.end_scale }
+            PathAttribute {
+                name: "iconScale"; value: appIconTravelPath.end_scale
+            }
 
             PathAngleArc {
                 centerX: appIconTravelPath.center_x; centerY: appIconTravelPath.center_y
                 radiusX: appIconTravelPath.x_rad; radiusY: appIconTravelPath.y_rad
                 startAngle: 270 - appIconTravelPath.end_angles; sweepAngle: appIconTravelPath.end_angles
             }
-            PathAttribute { name: "iconScale"; value: 1 }
+            PathAttribute {
+                name: "iconScale"; value: 1
+            }
 
             PathAngleArc {
                 centerX: appIconTravelPath.center_x; centerY: appIconTravelPath.center_y
                 radiusX: appIconTravelPath.x_rad; radiusY: appIconTravelPath.y_rad
                 startAngle: 270; sweepAngle: appIconTravelPath.end_angles
             }
-            PathAttribute { name: "iconScale"; value: appIconTravelPath.end_scale }
+            PathAttribute {
+                name: "iconScale"; value: appIconTravelPath.end_scale
+            }
         }
 
         preferredHighlightBegin: 0.5
@@ -142,24 +148,25 @@ FocusScope {
                         break;
                 }
             }
+
             onLeftRot: {
-                if(!switcher.activeFocus) return;
+                if (!switcher.activeFocus) return;
                 // noinspection JSUnresolvedReference
                 appIconPathView.decrementCurrentIndex()
             }
             onRightRot: {
-                if(!switcher.activeFocus) return;
+                if (!switcher.activeFocus) return;
                 // noinspection JSUnresolvedReference
                 appIconPathView.incrementCurrentIndex()
             }
             onPushRot: {
-                if(!switcher.activeFocus) return;
+                if (!switcher.activeFocus) return;
                 mainStack.currentIndex = appIconPathView.currentIndex
                 console.log(appIconPathView.currentIndex)
                 refocusMainStack()
             }
             onOutButtonPressed: {
-                if(!switcher.activeFocus) return;
+                if (!switcher.activeFocus) return;
                 refocusMainStack()
             }
         }
