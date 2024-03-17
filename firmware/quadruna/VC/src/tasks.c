@@ -127,6 +127,13 @@ const AdcChannel id_to_adc[] = {
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
 };
 
+static const ShutdownConfig shutdown_config = {
+    .tsms_gpio = tsms_shdn_sns,
+    .pcm_gpio = npcm_en,
+    .LE_stop_gpio = l_shdn_sns,
+    .RE_stop_gpio = r_shdn_sns,
+};
+
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
                                                    .vbat_vsense_adc_channel   = id_to_adc[VC_AdcNetName_VBAT_SENSE],
@@ -215,7 +222,9 @@ void tasks_init(void)
     app_stateMachine_init(app_initState_get());
 
     io_lowVoltageBattery_init(&lv_battery_config);
+    io_shutdown_init(&shutdown_config);
     io_efuse_init(efuse_configs);
+    
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);

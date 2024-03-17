@@ -9,6 +9,6 @@
 void app_shutdown_broadcast(void) {
     app_canAlerts_VC_Fault_LEStopFault_set(io_shutdown_hasLEStopFault());
     app_canAlerts_VC_Fault_REStopFault_set(io_shutdown_hasREStopFault());
-    app_canAlerts_VC_Fault_PCMCInterlockFault_set(io_shutdown_hasPcmcFault());
+    app_canAlerts_VC_Fault_PCMInterlockFault_set(io_shutdown_hasPcmFault());
     app_canAlerts_VC_Fault_TSMSFault_set(io_shutdown_hasTsmsFault());
 }
