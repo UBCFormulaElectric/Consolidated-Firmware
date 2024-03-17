@@ -13,7 +13,7 @@ Item {
         height: parent.height
         width: parent.width * (1-child_ratio)
 
-        Rectangle {
+        Squircle {
             id: notifRectangle
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
@@ -21,9 +21,15 @@ Item {
             anchors.leftMargin: 15
             height: parent.height * 0.9
             width: parent.width;
-            color: "#94979a"
+            bg_color: "#94979a"
             opacity: 0.3
             radius: 15
+            smoothness: 0.6
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                source: "qrc:/fe_logo.svg"
+            }
         }
 
         ListModel {
@@ -50,10 +56,10 @@ Item {
         Component {
             id: errorDelegate
             Item {
-                property int iconSize: 80
+                property int iconSize: notifRectangle.height*0.15 * 0.8
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width*0.95
-                height: 100
+                height: notifRectangle.height*0.15
                 Rectangle {
                     anchors.fill: parent
                     id: errorContainer
@@ -64,7 +70,7 @@ Item {
                     Rectangle { // Todo: add icons
                         id: icon
                         anchors.top: parent.top
-                        anchors.topMargin: 10
+                        anchors.topMargin: parent.height*0.1
                         anchors.left: parent.left
                         anchors.leftMargin: 10
                         width: iconSize
@@ -77,10 +83,10 @@ Item {
                         anchors.left: icon.right
                         anchors.leftMargin: 10
                         anchors.top: parent.top
-                        anchors.topMargin: 20
+                        anchors.topMargin: parent.height*0.2
                         font.family: "SF Pro"
                         font.bold: true
-                        font.pointSize: 24
+                        font.pointSize: 20
                         text: name
                         color: "#000000"
                     }
@@ -88,24 +94,15 @@ Item {
                         anchors.left: icon.right
                         anchors.leftMargin: 10
                         anchors.top: parent.top
-                        anchors.topMargin: 50
+                        anchors.topMargin: parent.height*0.5
                         anchors.horizontalCenter: parent.horizontalCenter
                         font.family: "SF Pro"
-                        font.pointSize: 16
+                        font.pointSize: 14
                         text: description
                         color: "#000000"
                     }
                 }
             }
-        }
-
-        Text{
-            text: "COME HOME THE KIDS MISS YOU"
-            anchors.horizontalCenter: parent.horizontalCenter
-            font.family: "SF Pro"
-            font.bold: true
-            font.pointSize: 24
-            color: "#ffffff"
         }
 
         ListView {
