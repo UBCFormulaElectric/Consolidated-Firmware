@@ -24,6 +24,6 @@
         "LEStopFault", 
         "REStopFault",
         "TSMSFault",
-        "PCMCInterlockFault"
+        "PCMInterlockFault"
     ]
 }

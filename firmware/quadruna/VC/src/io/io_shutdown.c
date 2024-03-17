@@ -12,8 +12,8 @@ bool io_shutdown_hasTsmsFault() {
     return hw_gpio_readPin(&config->tsms_gpio);
 }
 
-bool io_shutdown_hasPcmcFault() {
-    return hw_gpio_readPin(&config->pcmc_gpio);
+bool io_shutdown_hasPcmFault() {
+    return hw_gpio_readPin(&config->pcm_gpio);
 }
 
 bool io_shutdown_hasLEStopFault() {

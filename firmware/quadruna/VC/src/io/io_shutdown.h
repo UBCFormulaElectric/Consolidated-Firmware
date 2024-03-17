@@ -8,7 +8,7 @@
 typedef struct
 {
     const Gpio tsms_gpio;
-    const Gpio pcmc_gpio;
+    const Gpio pcm_gpio;
     const Gpio LE_stop_gpio;
     const Gpio RE_stop_gpio;
 } ShutdownConfig;
@@ -23,10 +23,10 @@ EMPTY_STRUCT(ShutdownConfig);
 bool io_shutdown_hasTsmsFault(void);
 
 /*
- * Get the status of the pcmc shutdown pin
- * @return the status of the pcmc pin set in the shutdown config
+ * Get the status of the pcm shutdown pin
+ * @return the status of the pcm pin set in the shutdown config
  */
-bool io_shutdown_hasPcmcFault(void);
+bool io_shutdown_hasPcmFault(void);
 
 /*
  * Get the status of the LEStop shutdown pin
