@@ -108,8 +108,10 @@ void app_powerManager_check_efuses(PowerManagerState state)
             }
             case RETRY_STATE_OFF:
             {
-                bool is_efuse_faulting = efuse_retry_config->efuse_state && io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD;
-                if (is_efuse_faulting) {
+                bool is_efuse_faulting =
+                    efuse_retry_config->efuse_state && io_efuse_getChannelCurrent(efuse) < FAULT_CURRENT_THRESHOLD;
+                if (is_efuse_faulting)
+                {
                     efuse_retry_data->retry_state = RETRY_STATE_RUNNING;
                     efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
                     efuse_retry_data->timer_attempts++;
