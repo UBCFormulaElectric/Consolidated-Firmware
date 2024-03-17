@@ -90,7 +90,8 @@ TEST_F(PdmEfuseProtocolTest, air_protocol_unsuccessful)
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, false), 1);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 0);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 1);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, true), 2);
 }
 
 TEST_F(PdmEfuseProtocolTest, air_protocol_successful)
@@ -114,8 +115,10 @@ TEST_F(PdmEfuseProtocolTest, air_protocol_successful)
 
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, false), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 1);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 0);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 1);
+    // AIR protocol goes into init state where LVPWR is turn on again
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, true), 3);
 }
 
 TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_unsuccessful)
@@ -138,9 +141,11 @@ TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_unsuccessful)
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_LVPWR, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, false), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 1);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 0);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 0);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, true), 1);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, true), 1);
 }
 
 TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_successful)
@@ -166,8 +171,10 @@ TEST_F(PdmEfuseProtocolTest, lvpwr_protocol_successful)
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, false), 1);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_LVPWR), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 1);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 0);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, true), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, true), 2);
 }
 
 TEST_F(PdmEfuseProtocolTest, fans_protocol_unsuccessful)
@@ -188,7 +195,7 @@ TEST_F(PdmEfuseProtocolTest, fans_protocol_unsuccessful)
     LetTimePass(1000);
 
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_FAN, false), 3);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_FAN), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_FAN), 3);
 }
 
 TEST_F(PdmEfuseProtocolTest, fans_protocol_successful)
@@ -234,9 +241,11 @@ TEST_F(PdmEfuseProtocolTest, inverters_protocol_unsuccessful)
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_LHS, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, false), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 1);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 0);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 0);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, true), 1);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, true), 1);
 }
 
 TEST_F(PdmEfuseProtocolTest, inverters_protocol_successful)
@@ -262,6 +271,8 @@ TEST_F(PdmEfuseProtocolTest, inverters_protocol_successful)
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, false), 1);
     EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, false), 1);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_LHS), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 1);
-    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 1);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_DI_RHS), 0);
+    EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_AIR), 0);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_DI_RHS, true), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_AIR, true), 2);
 }
