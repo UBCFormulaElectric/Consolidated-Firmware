@@ -20,6 +20,10 @@
         "MissingFSMHeartbeat",
         "MissingDIMHeartbeat",
         "LeftInverterFault",
-        "RightInverterFault"
+        "RightInverterFault",
+        "LEStopFault", 
+        "REStopFault",
+        "TSMSFault",
+        "PCMCInterlockFault"
     ]
 }
