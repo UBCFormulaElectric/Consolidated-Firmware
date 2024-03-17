@@ -16,6 +16,8 @@ Squircle::Squircle(QQuickItem *parent) : QQuickPaintedItem(parent) {} // NOLINT(
  */
 void Squircle::paint(QPainter *p)
 {
+    p->setPen(Qt::NoPen);
+    p->setBrush(QBrush(m_color));
     // clamp radius
     const QRectF bounds = boundingRect();
     const double radius =
@@ -101,8 +103,5 @@ void Squircle::paint(QPainter *p)
     }
 
     path.closeSubpath();
-
-    p->setPen(Qt::NoPen);
-    p->setBrush(QBrush(m_color));
     p->drawPath(path);
 }

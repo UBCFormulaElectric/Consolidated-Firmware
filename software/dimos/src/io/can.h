@@ -23,7 +23,7 @@ enum class CanReadError
 enum class CanWriteError
 {
     WriteInterfaceNotCreated,
-    SocketWriteError,
+    SocketWriteError
 };
 
 Result<std::monostate, CanConnectionError> Can_Init();

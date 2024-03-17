@@ -44,6 +44,7 @@ Item {
                 height: 190; width: 190
                 radius: 25
                 bg_color: "#fff"
+                smoothness: 0.6
                 Image {
                     source: "qrc:/fe_logo.svg"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -69,6 +70,7 @@ Item {
                 height: 190; width: 190
                 radius: 25
                 bg_color: "#002D67"
+                smoothness: 0.6
                 CircleProgressBar {
                     width: 120
                     height: 120

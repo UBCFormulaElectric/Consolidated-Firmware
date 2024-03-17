@@ -70,9 +70,12 @@ Window {
                 id: softwareDebugPage
             }
         }
-        Switcher {
+        Item {
             id: switcher
         }
+        // Switcher {
+        //     id: switcher
+        // }
         Shutdown {
             visible: false
         }
