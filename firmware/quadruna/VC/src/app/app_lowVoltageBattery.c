@@ -1,3 +1,4 @@
+#include "app_lowVoltageBattery.h"
 #include "io_lowVoltageBattery.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
