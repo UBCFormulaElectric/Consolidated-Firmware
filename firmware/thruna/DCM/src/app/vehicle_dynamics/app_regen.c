@@ -23,7 +23,7 @@ static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs);
  * @return true battery cells meet this condition,
  * false otherwise
  */
-static bool powerLimitCheck(RegenBraking_Inputs *regenAttr);
+static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr);
 
 /**
  * Algorithm to send negative torque request dependent
@@ -76,10 +76,10 @@ static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
            MOTOR_RPM_TO_KMH(inputs->motor_speed_left_rpm) > SPEED_MIN_kph;
 }
 
-static bool powerLimitCheck(RegenBraking_Inputs *regenAttr)
+static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr)
 {
-    regenAttr->current_battery_level = app_canRx_BMS_MaxCellVoltage_get();
-    return regenAttr->current_battery_level < 4.1f;
+    regenAttr->battery_level = app_canRx_BMS_MaxCellVoltage_get();
+    return regenAttr->battery_level < 4.1f;
 }
 
 void app_regen_sendTorqueRequest(float left, float right)
@@ -127,7 +127,7 @@ static void computeRegenTorqueRequest(
 
     regenAttr->derating_value = 1.0f;
 
-    if (regenAttr->current_battery_level > 3.9f)
+    if (regenAttr->battery_level > 3.9f)
     {
         regenAttr->derating_value = 0.85f;
     }

@@ -5,7 +5,7 @@
 typedef struct RegenBraking_Inputs
 {
     bool  enable_active_differential;
-    float current_battery_level;
+    float battery_level;
     float left_inverter_torque_Nm;
     float right_inverter_torque_Nm;
     float derating_value;
