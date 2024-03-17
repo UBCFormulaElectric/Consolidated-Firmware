@@ -3,24 +3,27 @@
 
 static const ShutdownConfig *config;
 
-void io_shutdown_init(const ShutdownConfig *shutdown_config) 
+void io_shutdown_init(const ShutdownConfig *shutdown_config)
 {
     config = shutdown_config;
 }
 
-bool io_shutdown_hasTsmsFault() {
+bool io_shutdown_hasTsmsFault()
+{
     return hw_gpio_readPin(&config->tsms_gpio);
 }
 
-bool io_shutdown_hasPcmFault() {
+bool io_shutdown_hasPcmFault()
+{
     return hw_gpio_readPin(&config->pcm_gpio);
 }
 
-bool io_shutdown_hasLEStopFault() {
+bool io_shutdown_hasLEStopFault()
+{
     return hw_gpio_readPin(&config->RE_stop_gpio);
 }
 
-bool io_shutdown_hasREStopFault() {
+bool io_shutdown_hasREStopFault()
+{
     return hw_gpio_readPin(&config->LE_stop_gpio);
 }
-

@@ -128,8 +128,8 @@ const AdcChannel id_to_adc[] = {
 };
 
 static const ShutdownConfig shutdown_config = {
-    .tsms_gpio = tsms_shdn_sns,
-    .pcm_gpio = npcm_en,
+    .tsms_gpio    = tsms_shdn_sns,
+    .pcm_gpio     = npcm_en,
     .LE_stop_gpio = l_shdn_sns,
     .RE_stop_gpio = r_shdn_sns,
 };
@@ -224,7 +224,6 @@ void tasks_init(void)
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
     io_efuse_init(efuse_configs);
-    
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
