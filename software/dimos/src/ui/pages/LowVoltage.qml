@@ -71,11 +71,16 @@ Item {
                 radius: 25
                 bg_color: "#002D67"
                 smoothness: 0.6
+
+                id: batteryChargeComponent
+                readonly property int chargeHeight: 43
+                readonly property int progressBarWidth: 17
+
                 CircleProgressBar {
                     width: 120
                     height: 120
                     percentage: 0.79
-                    stroke_width: 20
+                    stroke_width: batteryChargeComponent.progressBarWidth
                     start_angle: 90
                     end_angle: -270
                     bar_color: "#36FB61"
@@ -88,10 +93,17 @@ Item {
                         source: "qrc:/battery.svg"
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
+                        height: 40
+                        fillMode: Image.PreserveAspectFit
                     }
                     Image {
                         source: "qrc:/charge.svg"
                         anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+
+                        height: batteryChargeComponent.chargeHeight
+                        fillMode: Image.PreserveAspectFit
+                        anchors.topMargin: batteryChargeComponent.progressBarWidth / 2 - batteryChargeComponent.chargeHeight / 2 - 2
                     }
                 }
             }
