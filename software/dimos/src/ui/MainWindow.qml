@@ -26,7 +26,7 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
-            property int currentIndex: 3
+            property int currentIndex: 0
             Landing {
                 id: landingPage
                 visible: mainStack.currentIndex === -1
@@ -37,33 +37,26 @@ Window {
                 visible: mainStack.currentIndex === 0
             }
             RacingBase {
-                visible: mainStack.currentIndex === 1
+                visible: [1, 2, 3, 4, 5].includes(mainStack.currentIndex)
                 Acceleration {
                     id: accelerationPage
+                    visible: mainStack.currentIndex === 1
                 }
-            }
-            RacingBase {
-                visible: mainStack.currentIndex === 2
                 Autocross {
                     id: autocrossPage
+                    visible: mainStack.currentIndex === 2
                 }
-            }
-            RacingBase {
-                visible: mainStack.currentIndex === 3
                 Braking {
                     id: brakingPage
+                    visible: mainStack.currentIndex === 3
                 }
-            }
-            RacingBase {
-                visible: mainStack.currentIndex === 4
                 Endurance {
                     id: endurancePage
+                    visible: mainStack.currentIndex === 4
                 }
-            }
-            RacingBase {
-                visible: mainStack.currentIndex === 5
                 Skidpad {
                     id: skidpadPage
+                    visible: mainStack.currentIndex === 5
                 }
             }
             DebugSoftware {
