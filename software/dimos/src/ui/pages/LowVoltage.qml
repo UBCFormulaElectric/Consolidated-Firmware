@@ -7,8 +7,6 @@ Item {
         anchors.fill: parent
         columns: 4
         rows: 3
-        uniformCellHeights: true
-        uniformCellWidths: true
         id: grid
 
         columnSpacing: 30
@@ -18,17 +16,24 @@ Item {
         anchors.topMargin: 80
         anchors.bottomMargin: 80
 
-        Rectangle {
-            color: "red"
-            Layout.columnSpan: 2
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-        }
         Item {
+            Layout.preferredWidth: 190 * 2 + 30
+            Layout.preferredHeight: 210
+            Layout.columnSpan: 2
+
+            id: driverProfileComponent
+            Rectangle {
+                anchors.fill: parent
+                color: "red"
+            }
+        }
+
+        Item {
+            id: shutdownLoopComponent
+            Layout.preferredWidth: 190 * 2 + 30
+            Layout.preferredHeight: 210 * 2 + 10
             Layout.rowSpan: 2
             Layout.columnSpan: 2
-            Layout.fillHeight: true
-            Layout.fillWidth: true
 
             ShutdownLoop {
                 id: shutdownLoop
@@ -38,8 +43,10 @@ Item {
         }
 
         Item {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+            Layout.preferredWidth: 190
+            Layout.preferredHeight: 210
+            id: logoComponent
+
             Squircle {
                 height: 190; width: 190
                 radius: 25
@@ -62,9 +69,13 @@ Item {
                 anchors.bottom: parent.bottom
             }
         }
+
         Item {
             Layout.preferredWidth: 190
             Layout.preferredHeight: 210
+            id: lvSOCComponent
+            readonly property int chargeHeight: 43
+            readonly property int progressBarWidth: 17
 
             Squircle {
                 height: 190; width: 190
@@ -72,15 +83,11 @@ Item {
                 bg_color: "#002D67"
                 smoothness: 0.6
 
-                id: batteryChargeComponent
-                readonly property int chargeHeight: 43
-                readonly property int progressBarWidth: 17
-
                 CircleProgressBar {
                     width: 120
                     height: 120
                     percentage: 0.79
-                    stroke_width: batteryChargeComponent.progressBarWidth
+                    stroke_width: lvSOCComponent.progressBarWidth
                     start_angle: 90
                     end_angle: -270
                     bar_color: "#36FB61"
@@ -101,9 +108,9 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: parent.top
 
-                        height: batteryChargeComponent.chargeHeight
+                        height: lvSOCComponent.chargeHeight
                         fillMode: Image.PreserveAspectFit
-                        anchors.topMargin: batteryChargeComponent.progressBarWidth / 2 - batteryChargeComponent.chargeHeight / 2 - 2
+                        anchors.topMargin: lvSOCComponent.progressBarWidth / 2 - lvSOCComponent.chargeHeight / 2 - 2
                     }
                 }
             }
