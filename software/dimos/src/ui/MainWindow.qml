@@ -45,7 +45,7 @@ Window {
                             case 2:
                                 return "qrc:/SwitcherEventIcons/Autocross.svg"
                             case 3:
-                                return "qrc:/SwitcherEventIcons/Braking.svg"
+                                return "qrc:/SwitcherEventIcons/Brake.svg"
                             case 4:
                                 return "qrc:/SwitcherEventIcons/Endurance.svg"
                             case 5:

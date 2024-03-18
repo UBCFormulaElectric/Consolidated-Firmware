@@ -60,8 +60,8 @@ FocusScope {
                 anchors.centerIn: parent
                 sourceSize.width: parent.width
                 sourceSize.height: parent.height
-                width: parent.width * 0.7
-                height: parent.height * 0.7
+                width: parent.width * 0.6
+                height: parent.height * 0.6
                 fillMode: Image.PreserveAspectFit
             }
         }
