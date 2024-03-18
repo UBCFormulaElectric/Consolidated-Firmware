@@ -1,4 +1,5 @@
 import QtQuick
+import Qt5Compat.GraphicalEffects
 
 import components
 import constants
@@ -64,6 +65,14 @@ FocusScope {
                 fillMode: Image.PreserveAspectFit
             }
         }
+    }
+
+    GaussianBlur {
+        anchors.fill: parent
+        source: mainStack
+        radius: 32
+        samples: 32
+        visible: switcher.activeFocus
     }
 
     // todo custom animations

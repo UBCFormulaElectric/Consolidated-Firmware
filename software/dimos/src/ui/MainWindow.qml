@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 
 import constants
 import switcher
@@ -65,13 +64,6 @@ Window {
             }
         }
 
-        GaussianBlur {
-            anchors.fill: mainStack
-            source: mainStack
-            radius: 32
-            samples: 32
-            visible: switcher.activeFocus
-        }
         Switcher {
             id: switcher
         }
