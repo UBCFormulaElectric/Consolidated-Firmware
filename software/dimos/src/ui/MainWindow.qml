@@ -37,6 +37,31 @@ Window {
             }
             RacingBase {
                 visible: [1, 2, 3, 4, 5].includes(mainStack.currentIndex)
+                Image {
+                    function getPageIconURL(index: int): string {
+                        switch (index) {
+                            case 1:
+                                return "qrc:/SwitcherEventIcons/Acceleration.svg"
+                            case 2:
+                                return "qrc:/SwitcherEventIcons/Autocross.svg"
+                            case 3:
+                                return "qrc:/SwitcherEventIcons/Braking.svg"
+                            case 4:
+                                return "qrc:/SwitcherEventIcons/Endurance.svg"
+                            case 5:
+                                return "qrc:/SwitcherEventIcons/Skidpad.svg"
+                            default:
+                                return ""
+                        }
+                    }
+
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 10
+                    width: 50
+                    height: 50
+                    source: getPageIconURL(mainStack.currentIndex)
+                }
                 Acceleration {
                     id: accelerationPage
                     visible: mainStack.currentIndex === 1
