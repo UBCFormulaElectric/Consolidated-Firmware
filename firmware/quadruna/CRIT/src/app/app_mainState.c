@@ -12,13 +12,13 @@
 
 static void mainStateRunOnTick100Hz(void)
 {
-    // TODO: reading faults from the latches: need to wait for BMS
-    // const bool imd_fault_latched =
-    // io_led_enable(globals->config->imd_led, imd_fault_latched);
+    const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
+    io_led_enable(globals->config->imd_led, imd_fault_latched);
 
-    // const bool bspd_fault_latched =
-    // io_led_enable(globals->config->bspd_led, bspd_fault_latched);
+    const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();
+    io_led_enable(globals->config->bspd_led, bspd_fault_latched);
 
+    // TODO: AMS fault
     // const bool ams_fault_latched =
     // io_led_enable(globals->config->ams_led, ams_fault_latched);
 
