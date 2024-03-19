@@ -13,7 +13,7 @@
         }
     },
     "LeftInverterCommand": {
-        "msg_id": 201,
+        "msg_id": 32,
         "cycle_time": 10,
         "signals": {
             "LeftInverterTorqueCommand": {
@@ -72,7 +72,7 @@
         }
     },
     "RightInverterCommand": {
-        "msg_id": 202,
+        "msg_id": 82,
         "cycle_time": 10,
         "signals": {
             "RightInverterTorqueCommand": {
@@ -131,7 +131,7 @@
         }
     },
     "AlertsContext": {
-        "msg_id": 203,
+        "msg_id": 202,
         "cycle_time": 1000,
         "description": "Context info for VC alerts",
         "signals": {
@@ -150,7 +150,7 @@
         }
     },
     "EllipseStatus": {
-        "msg_id": 204,
+        "msg_id": 208,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
@@ -163,7 +163,7 @@
         }
     },
     "EllipseTime": {
-        "msg_id": 205,
+        "msg_id": 209,
         "cycle_time": 100,
         "description": "Timestamp from the SBG Ellipse N sensor.",
         "signals": {
@@ -174,7 +174,7 @@
         }
     },
     "EllipseAcceleration": {
-        "msg_id": 206,
+        "msg_id": 201,
         "cycle_time": 10,
         "description": "Acceleration from the SBG Ellipse N sensor.",
         "signals": {
@@ -199,7 +199,7 @@
         }
     },
     "EllipseAngularVelocity": {
-        "msg_id": 207,
+        "msg_id": 203,
         "cycle_time": 10,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
         "signals": {
@@ -224,7 +224,7 @@
         }
     },
     "EllipseEulerAngles": {
-        "msg_id": 208,
+        "msg_id": 207,
         "cycle_time": 10,
         "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {
@@ -249,7 +249,7 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 209,
+      "msg_id": 204,
       "cycle_time": 100,
       "description": "VC Current Running Git Commit Info",
       "signals": {
@@ -262,7 +262,7 @@
       }
     },
     "PowerEstimate": {
-        "msg_id": 210,
+        "msg_id": 211,
         "cycle_time": 10,
         "description": "Debug Power Messages",
         "signals": {
@@ -279,7 +279,7 @@
         }
     },
     "PowerEstimatePID": {
-        "msg_id": 211,
+        "msg_id": 212,
         "cycle_time": 10,
         "description": "Debug messages for the PID power estimate controller",
         "signals": {
@@ -322,7 +322,7 @@
         }
     },
     "PIDSlipRatio": {
-        "msg_id": 212,
+        "msg_id": 213,
         "cycle_time": 10,
         "description": "Debug messages for the PID slip ratio controller",
         "signals": {
@@ -365,7 +365,7 @@
         }
     },
     "SlipRatios": {
-        "msg_id": 213,
+        "msg_id": 214,
         "cycle_time": 10,
         "description": "Debug Messages for the Traction Control component of Torque Vectoring",
         "signals": {
@@ -388,7 +388,7 @@
         }
     },
     "ActiveDiffOutputs": {
-        "msg_id": 214,
+        "msg_id": 215,
         "cycle_time": 10,
         "description": "Debug Messages for the Active Differential component of Torque Vectoring",
         "signals": {
@@ -405,7 +405,7 @@
         }
     },
     "PowerLimit": {
-        "msg_id": 215,
+        "msg_id": 216,
         "cycle_time": 10,
         "description": "Debug Power Messages for Power Limit ",
         "signals": {
@@ -422,7 +422,7 @@
         }
     },
     "GpsPosInfo":{
-        "msg_id": 216,
+        "msg_id": 217,
         "cycle_time": 100,
         "description": "Car position info", 
             "signals":{
