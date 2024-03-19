@@ -71,7 +71,7 @@ uint16_t *hw_adc_getRawValuesBuffer(void)
 
 float hw_adc_getVoltage(AdcChannel channel)
 {
-    if (channel == NO_ADC)
+    if (channel == NO_ADC_CHANNEL)
     {
         return 0;
     }
