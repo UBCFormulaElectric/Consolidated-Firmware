@@ -17,6 +17,12 @@ EMPTY_STRUCT(ShutdownConfig);
 #endif
 
 /*
+ * Initialize config for shutdown gpio pins
+ * @param config with shutdown gpio pins
+ */
+void io_shutdown_init(const ShutdownConfig *shutdown_config);
+
+/*
  * Get the status of the tsms shutdown pin
  * @return the status of the tsms pin set in the shutdown config
  */
@@ -39,9 +45,3 @@ bool io_shutdown_hasLEStopFault(void);
  * @return the status of the REStop pin set in the shutdown config
  */
 bool io_shutdown_hasREStopFault(void);
-
-/*
- * Initialize config for shutdown gpio pins
- * @param config with shutdown gpio pins
- */
-void io_shutdown_init(const ShutdownConfig *shutdown_config);
