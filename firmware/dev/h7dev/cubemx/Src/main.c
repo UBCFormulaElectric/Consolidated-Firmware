@@ -26,6 +26,7 @@
 #include "../../nanopb/pb_encode.h"
 #include "../../nanopb/pb_decode.h"
 #include "simple.pb.h"
+#include "sample.pb.h"
 #include "string.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_bootup.h"
@@ -371,14 +372,16 @@ void runDefaultTask(void *argument)
     for (;;)
     {
         /* Create a stream that will write to our buffer. */
-        SimpleMessage message = SimpleMessage_init_zero;
-        pb_ostream_t  stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        TelemMessage message = TelemMessage_init_zero;
+        pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
 
         /* Fill in the lucky number */
-        message.lucky_number = 53;
+        message.can_id     = 53;
+        message.data       = 23;
+        message.time_stamp = 9;
 
         /* Now we are ready to encode the message! */
-        status         = pb_encode(&stream, SimpleMessage_fields, &message);
+        status         = pb_encode(&stream, TelemMessage_fields, &message);
         message_length = (uint8_t)stream.bytes_written;
         // message_length = stream.bytes_written;
         if (status)
@@ -386,14 +389,7 @@ void runDefaultTask(void *argument)
             hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
             hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
         }
-
-        // for (num = 48; num < 57; num++)
-        // {
-        //     predicData[0] = num;
-        //     hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
-        //     // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
-        //     osDelay(1);
-        // }
+        osDelay(10);
     }
     /* USER CODE END 5 */
 }

@@ -1,32 +1,31 @@
 import serial
-import argparse
-import simple_pb2
+import sample_pb2
 
-
+DEBUG_SIZE_MSG_BUF_SIZE = 1
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--com', default="/dev/ttyUSB0", help='The desired comport to open')
-    args = parser.parse_args()
 
     # Try to open the serial port with the default baud rate.
-    with serial.Serial(args.com, 57600, timeout=1) as ser:
+    ser = serial.Serial("/dev/ttyUSB0",baudrate = 57600, timeout=1)
+    ser.reset_input_buffer()
+    ser.reset_output_buffer()
+    s = set()
+    s.add(255)
+    s.add(165)
+    s.add(0)
+    s.add(253)
+    # try:
+    while True:
 
-        running = True
+                packet_size = int.from_bytes(ser.read(DEBUG_SIZE_MSG_BUF_SIZE), byteorder="little")
+                if packet_size in s:
+                        continue
+                reply = sample_pb2.TelemMessage()
+                bytes = ser.read(packet_size)
+                reply.ParseFromString(bytes)
 
-        while running:
+                print(reply.can_id, reply.data, reply.time_stamp)
 
-                # Await a reply.
-                # First the length of the message.
-                # length_bytes = ser.read(1)
-                # length = int.from_bytes(length_bytes, byteorder="little")
-                # if 0 < length:
-                #     # Next the actual data
-                    packet_size = int.from_bytes(ser.read(1), byteorder="little")
-                    # # Check if we have received all bytes.
-                    print(packet_size)
-                    
-                    # if length == len(bytes):
-                    reply = simple_pb2.SimpleMessage()
-                    reply.ParseFromString(ser.read(packet_size))
+                # print(ser.read(1))
 
-                    print(reply.lucky_number)
+    # except KeyboardInterrupt:
+    #        ser.close()
