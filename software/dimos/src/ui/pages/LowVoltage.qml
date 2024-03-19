@@ -90,9 +90,10 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
 
                     round_tip: true
-                    
+
                     bar_color: "#36FB61"
                     stroke_width: lvSOCComponent.progressBarWidth
+                    background: true
                     bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
 
                     percentage: 0.79

@@ -27,7 +27,6 @@ void CircleProgressBar::paint(QPainter *p)
     {
         if (m_bg_start_angle == -1 || m_bg_end_angle == -1)
         {
-            qInfo() << "CRINGE";
             m_bg_start_angle = m_start_angle;
             m_bg_end_angle   = m_end_angle;
         }
