@@ -86,16 +86,18 @@ Item {
                 CircleProgressBar {
                     width: 120
                     height: 120
-                    percentage: 0.79
-                    stroke_width: lvSOCComponent.progressBarWidth
-                    start_angle: 90
-                    end_angle: -270
-                    bar_color: "#36FB61"
-                    bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
-                    round_tip: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
 
+                    round_tip: true
+                    
+                    bar_color: "#36FB61"
+                    stroke_width: lvSOCComponent.progressBarWidth
+                    bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
+
+                    percentage: 0.79
+                    start_angle: 90
+                    end_angle: -270
                     Image {
                         source: "qrc:/battery.svg"
                         anchors.horizontalCenter: parent.horizontalCenter

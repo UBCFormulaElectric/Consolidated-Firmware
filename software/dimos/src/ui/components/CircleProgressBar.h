@@ -6,14 +6,19 @@ class CircleProgressBar : public QQuickPaintedItem
 {
     Q_OBJECT
     QML_ELEMENT
-    Q_PROPERTY(float percentage MEMBER m_percentage REQUIRED)
+
+    Q_PROPERTY(bool round_tip MEMBER m_round_tip REQUIRED)
+    // bar properties
+    Q_PROPERTY(QColor bar_color MEMBER m_bar_color REQUIRED)
     Q_PROPERTY(int stroke_width MEMBER m_stroke_width REQUIRED)
-    Q_PROPERTY(int bar_stroke_width MEMBER m_bar_stroke_width)
+    // background properties
+    Q_PROPERTY(bool background MEMBER m_background)
+    Q_PROPERTY(int bg_stroke_width MEMBER m_bg_stroke_width) // only for override
+    Q_PROPERTY(QColor bg_color MEMBER m_bg_color)
+    // angles
+    Q_PROPERTY(float percentage MEMBER m_percentage REQUIRED)
     Q_PROPERTY(int start_angle MEMBER m_start_angle REQUIRED)
     Q_PROPERTY(int end_angle MEMBER m_end_angle REQUIRED)
-    Q_PROPERTY(bool round_tip MEMBER m_round_tip REQUIRED)
-    Q_PROPERTY(QColor bar_color MEMBER m_bar_color REQUIRED)
-    Q_PROPERTY(QColor bg_color MEMBER m_bg_color REQUIRED)
     Q_PROPERTY(bool turn_right MEMBER m_turn_right)
   public:
     explicit CircleProgressBar(QQuickItem *parent = nullptr);
@@ -29,7 +34,7 @@ class CircleProgressBar : public QQuickPaintedItem
      * @brief The stroke_width` of the circle stroke
      */
     int m_stroke_width;
-    int m_bar_stroke_width = -1;
+    int m_bg_stroke_width = -1;
 
     /**
      * @brief ON ANGLES
@@ -48,4 +53,5 @@ class CircleProgressBar : public QQuickPaintedItem
     QColor m_bg_color;
 
     bool m_turn_right = false;
+    bool m_background = true;
 };

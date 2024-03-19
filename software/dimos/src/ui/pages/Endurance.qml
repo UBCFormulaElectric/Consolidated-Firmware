@@ -4,20 +4,43 @@ import components
 
 Item {
     anchors.fill: parent
-    CircleProgressBar {
-        id: circleProgressBar
+
+    Item {
+        id: enduranceSpeedometer
         width: 250
         height: 250
 
-        percentage: -0.5
-        stroke_width: 3
-        bar_stroke_width: 6
-        start_angle: -90
-        end_angle: -270
-        round_tip: true
-        bar_color: "white"
-        bg_color: "grey"
+        readonly property int mainStroke: 6
+        readonly property int bgStroke: 3
 
+        CircleProgressBar {
+            anchors.fill: parent
+            anchors.bottomMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
+            anchors.topMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
+            anchors.leftMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
+            anchors.rightMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
+
+            round_tip: true
+            percentage: 0.5 + 0.5 * (1) // TODO bind this to DCMPowerLimitAtFullThrottle, AvailablePower?
+            start_angle: 90
+            end_angle: -270
+
+            stroke_width: enduranceSpeedometer.bgStroke
+            bar_color: "grey"
+            background: false
+        }
+        CircleProgressBar {
+            anchors.fill: parent
+
+            round_tip: true
+            percentage: -0.5 // TODO bind this to TractiveSystemPower
+            start_angle: -90
+            end_angle: -270
+
+            stroke_width: enduranceSpeedometer.mainStroke
+            bar_color: "white"
+            background: false
+        }
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
