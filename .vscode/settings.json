@@ -8,9 +8,5 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"app_cantx.h": "c",
-		"app_canrx.h": "c"
-	}
+	"cmake.configureOnOpen": false
 }
