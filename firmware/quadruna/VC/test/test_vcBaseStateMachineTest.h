@@ -70,12 +70,12 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // VC relies on FSM, RSM, BMS, CRIT
     // TODO: add RSM/CRIT to config when boards are ready, also add vitals to canRx json
     bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-        [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
+        [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
         [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = false
     };
 
     // heartbeatGetters - get heartbeat signals from other boards
-    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { 
+    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
         [VC_HEARTBEAT_BOARD]   = NULL,
         [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
