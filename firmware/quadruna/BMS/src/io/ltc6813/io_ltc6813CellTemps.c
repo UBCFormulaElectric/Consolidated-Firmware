@@ -268,25 +268,24 @@ bool io_ltc6813CellTemps_readTemperatures(void)
         // Read thermistor voltages stored in the AUX register groups
         for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
         {
-            uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+            uint16_t tx_cmd[NUM_CMD_WORDS] = {
                 [CMD_WORD]  = aux_reg_group_cmds[curr_reg_group],
                 [CMD_PEC15] = 0U,
             };
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-            if (hw_spi_transmitAndReceive(
+            if (hw_spi_transmitThenReceive(
                     ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
             {
-                if (!parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
+                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
                 {
-                    status = false;
+                    // Update min/max cell segment, index and voltages and update pack
+                    // voltage and segment voltages
+                    updateCellTemperatureStatistics();
+                    status = true;
                 }
             }
         }
-
-        // Update min/max cell segment, index and voltages and update pack
-        // voltage and segment voltages
-        updateCellTemperatureStatistics();
     }
 
     return status;

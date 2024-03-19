@@ -79,7 +79,7 @@ typedef enum
 {
     CMD_WORD = 0U,
     CMD_PEC15,
-    NUM_OF_CMD_WORDS,
+    NUM_CMD_WORDS,
 } CmdFormat;
 
 #define CMD_SIZE_BYTES (2U)
