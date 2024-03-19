@@ -5,6 +5,11 @@
 CircleProgressBar::CircleProgressBar(QQuickItem *parent) // NOLINT(*-pro-type-member-init)
   : QQuickPaintedItem(parent)
 {
+    m_bg_percentage   = 1;
+    m_bg_stroke_width = -1;
+    m_bg_start_angle  = -1;
+    m_bg_end_angle    = -1;
+    m_bg_color        = -1;
 }
 
 void CircleProgressBar::paint(QPainter *p)
@@ -22,6 +27,7 @@ void CircleProgressBar::paint(QPainter *p)
     {
         if (m_bg_start_angle == -1 || m_bg_end_angle == -1)
         {
+            qInfo() << "CRINGE";
             m_bg_start_angle = m_start_angle;
             m_bg_end_angle   = m_end_angle;
         }
@@ -36,8 +42,8 @@ void CircleProgressBar::paint(QPainter *p)
         const int delta_theta = m_bg_end_angle - m_bg_start_angle;
         p->setPen(QPen(m_bg_color, m_bg_stroke_width, Qt::SolidLine, tipShape, Qt::RoundJoin));
         p->drawArc(
-            boundRect, m_start_angle * 16,
-            static_cast<int>(round(delta_theta * 16.0 * m_percentage)) * direction_multiplier);
+            boundRect, m_bg_start_angle * 16,
+            static_cast<int>(round(delta_theta * 16.0 * m_bg_percentage)) * direction_multiplier);
     }
 
     const int delta_theta = m_end_angle - m_start_angle;

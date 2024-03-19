@@ -15,31 +15,21 @@ Item {
 
         CircleProgressBar {
             anchors.fill: parent
-            anchors.bottomMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
-            anchors.topMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
-            anchors.leftMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
-            anchors.rightMargin: (enduranceSpeedometer.mainStroke - enduranceSpeedometer.bgStroke) / 2
-
             round_tip: true
-            percentage: 0.5 + 0.5 * (1) // TODO bind this to DCMPowerLimitAtFullThrottle, AvailablePower?
-            start_angle: 90
-            end_angle: -270
-
-            stroke_width: enduranceSpeedometer.bgStroke
-            bar_color: "grey"
-            background: false
-        }
-        CircleProgressBar {
-            anchors.fill: parent
-
-            round_tip: true
-            percentage: -0.5 // TODO bind this to TractiveSystemPower
             start_angle: -90
             end_angle: -270
+            bg_start_angle: 90
+            bg_end_angle: -270
+
+            percentage: -0.5 // TODO bind this to TractiveSystemPower
+            bg_percentage: 0.5 + 0.5 * (0.5) // TODO bind this to DCMPowerLimitAtFullThrottle, AvailablePower?
 
             stroke_width: enduranceSpeedometer.mainStroke
             bar_color: "white"
-            background: false
+
+            background: true
+            bg_stroke_width: enduranceSpeedometer.bgStroke
+            bg_color: "grey"
         }
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -57,6 +47,27 @@ Item {
                 color: "grey"
                 Layout.alignment: Qt.AlignHCenter
             }
+        }
+    }
+
+    Row {
+        Rectangle {
+            Image {
+                source: "qrc:/battery.svg"
+                width: 50
+                fillMode: Image.PreserveAspectFit
+                transform: Rotation {
+                    angle: 90
+                }
+            }
+        }
+        Text {
+            text: "100%"
+            color: "white"
+        }
+        Text {
+            text: "99km"
+            color: "white"
         }
     }
 }
