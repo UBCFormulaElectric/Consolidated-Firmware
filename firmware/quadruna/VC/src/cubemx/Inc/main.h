@@ -59,12 +59,11 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define IWDG_RESET_FREQUENCY 5
-#define TIM3_PRESCALER 8
-#define ADC_FREQUENCY 1000
 #define IWDG_PRESCALER 4
 #define LSI_FREQUENCY 32000
+#define TIM3_PRESCALER 8
+#define ADC_FREQUENCY 1000
 #define TIMx_FREQUENCY 512000000
-#define SBG_ELLIPSE_GPS_BAUD_RATE 460800
 #define INV_R_PWR_EN_Pin GPIO_PIN_2
 #define INV_R_PWR_EN_GPIO_Port GPIOE
 #define INV_R_PROGRAM_Pin GPIO_PIN_3

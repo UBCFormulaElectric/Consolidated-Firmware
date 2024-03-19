@@ -9,6 +9,9 @@
             },
             "State": {
                 "enum": "VcState"
+            },
+            "BuzzerOn": {
+                "bits": 1
             }
         }
     },

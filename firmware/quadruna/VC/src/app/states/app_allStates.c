@@ -51,12 +51,12 @@ bool app_allStates_runOnTick100Hz(void)
     app_canAlerts_VC_Fault_LeftInverterFault_set(left_inverter_fault);
     app_canAlerts_VC_Fault_RightInverterFault_set(right_inverter_fault);
 
-    const bool bms_fault           = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
-    const bool vc_fault            = app_canAlerts_BoardHasFault(VC_ALERT_BOARD);
-    const bool fsm_fault           = app_canAlerts_BoardHasFault(FSM_ALERT_BOARD);
+    const bool bms_fault = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
+    const bool vc_fault  = app_canAlerts_BoardHasFault(VC_ALERT_BOARD);
+    const bool fsm_fault = app_canAlerts_BoardHasFault(FSM_ALERT_BOARD);
     // const bool dim_fault           = app_canAlerts_BoardHasFault(DIM_ALERT_BOARD);
 
-    //once crit dim is done add dim_fault
+    // once crit dim is done add dim_fault
     const bool any_board_has_fault = bms_fault || vc_fault || fsm_fault;
 
     io_sbgEllipse_handleLogs();
