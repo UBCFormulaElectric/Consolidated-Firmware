@@ -321,6 +321,45 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .rsm_status_led   = &rsm_status_led,
                                               .vc_status_led    = &vc_status_led };
 
+// CRIT rellies on all boards but AUX & CRIT
+// TODO: add heartbeat for VC and RSM
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
+    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+};
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_get, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_update, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_update, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
 void tasks_preInit(void)
 {
     // Setup bootloader.
@@ -352,6 +391,10 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    app_heartbeatMonitor_init(
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
 
     app_stateMachine_init(app_mainState_get());
     app_globals_init(&globals_config);
