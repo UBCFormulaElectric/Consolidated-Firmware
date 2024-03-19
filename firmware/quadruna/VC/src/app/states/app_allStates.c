@@ -18,8 +18,7 @@ void app_allStates_runOnTick100Hz(void)
     app_currentSensing_broadcast();
     app_efuse_broadcast();
 
-    // TODO: add heartbeat monitor
-    // app_heartbeatMonitor_checkIn();
-    // app_heartbeatMonitor_tick();
-    // app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 }
