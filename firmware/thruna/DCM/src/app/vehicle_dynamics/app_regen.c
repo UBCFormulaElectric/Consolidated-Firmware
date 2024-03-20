@@ -64,7 +64,7 @@ void app_regen_run(float accelerator_pedal_percentage)
 bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_Inputs *inputs)
 {
     bool battery_temp_in_range = app_canRx_BMS_MaxCellTemperature_get() < MAX_BATTERY_TEMP;
-    return battery_temp_in_range && wheelSpeedInRange(inputs) && powerLimitCheck(regenAttr);
+    return battery_temp_in_range && wheelSpeedInRange(inputs) && batteryLevelInRange(regenAttr);
 }
 
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
