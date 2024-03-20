@@ -14,6 +14,7 @@
 #include "app_currentSensing.h"
 #include "app_efuse.h"
 #include "app_utils.h"
+#include "io_time.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
