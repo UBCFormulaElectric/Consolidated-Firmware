@@ -9,12 +9,13 @@
 
 static void chargeStateRunOnEntry(void)
 {
-    app_canTx_BMS_ChargerEnable_set(1);
+    app_canTx_BMS_ChargerEnable_set(true);
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     // Setting these for run on entry right now, change later maybe.
     app_canTx_BMS_MaxChargingCurrent_set(MAX_CHARGING_CURRENT);
     app_canTx_BMS_ChargingVoltage_set(CHARGING_VOLTAGE);
     app_canTx_BMS_ChargingCurrent_set(CHARGING_CURRENT);
+    io_charger_enable(true);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
@@ -61,7 +62,7 @@ static void chargeStateRunOnTick100Hz(void)
         if (!charging_enabled)
         {
             // Charger must be diabled and given time to shut down before air positive is opened
-            app_canTx_BMS_ChargerEnable_set(false);
+            // app_canTx_BMS_ChargerEnable_set(false);
             globals->charger_exit_counter++;
 
             if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
@@ -77,6 +78,7 @@ static void chargeStateRunOnExit(void)
     app_canTx_BMS_ChargerEnable_set(false);
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);
+    io_charger_enable(false);
 }
 
 const State *app_chargeState_get(void)
