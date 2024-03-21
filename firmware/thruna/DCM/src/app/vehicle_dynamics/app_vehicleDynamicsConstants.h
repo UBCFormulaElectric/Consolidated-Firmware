@@ -4,11 +4,9 @@
 // Constants
 
 #define SMALL_EPSILON .000001f // to avoid divide by zero error
-#define PLANETARY_GEAR_RATIO 4.241f
 #define SLIP_RATIO_IDEAL 0.05f
 #define WHEELBASE_mm 1550
 #define TRACK_WIDTH_mm 1100
-#define TIRE_DIAMETER_in 18.0f
 #define POWER_TO_TORQUE_CONVERSION_FACTOR 9550 // as specified in the manual for the emrax 188 motors
 #define POWER_LIMIT_CAR_kW 40.0f               // Actual Value: 80.0f   // max power we can use by FSAE rules
 #define MOTOR_TEMP_CUTOFF_c 90.0f
