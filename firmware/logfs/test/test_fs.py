@@ -163,3 +163,29 @@ def test_list_dir(fs):
     assert fs.list_dir(file="/dir4/dir5/dir6") == ["/dir4/dir5/dir6/test7.txt"]
     assert fs.list_dir(file="/test8.txt") == ["/test8.txt"]
     assert fs.list_dir(file="mismatch") == []
+
+
+def test_metadata(fs):
+    file = fs.open("/test.txt")
+
+    # Metadata should start empty.
+    assert fs.read_metadata(file) == b""
+
+    # R/W metadata.
+    data = b"Grootings!"
+    fs.write_metadata(file, data)
+    assert fs.read_metadata(file) == data
+
+    # Metadata is independent of data on file.
+    file_data = b"Hello world!"
+    fs.write(file, file_data)
+    assert fs.read(file) == file_data
+    assert fs.read_metadata(file) == data
+
+    # Data should persist after reopening the file.
+    fs.close(file)
+    del file
+
+    file = fs.open("/test.txt")
+    assert fs.read(file) == file_data
+    assert fs.read_metadata(file) == data

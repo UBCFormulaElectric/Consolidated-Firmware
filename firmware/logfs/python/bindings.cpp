@@ -27,6 +27,16 @@ static LogFsErr writeWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
     return result.cast<LogFsErr>();
 }
 
+class PyLogFsFile
+{
+  public:
+    PyLogFsFile(void) { file.is_open = false; }
+
+    std::string path(void) { return file.path; }
+
+    LogFsFile file;
+};
+
 class PyLogFs
 {
   public:
@@ -53,48 +63,63 @@ class PyLogFs
 
     LogFsErr format(void) { return logfs_format(&fs, &cfg); }
 
-    LogFsErr open(LogFsFile &file, char *path)
+    LogFsErr open(PyLogFsFile &file, char *path)
     {
         // Allocate file cache on the heap.
         LogFsFileCfg file_cfg = {
             .cache = malloc(cfg.block_size),
             .path  = path,
         };
-        return logfs_open(&fs, &file, &file_cfg);
+        return logfs_open(&fs, &file.file, &file_cfg);
     }
 
-    LogFsErr close(LogFsFile &file)
+    LogFsErr close(PyLogFsFile &file)
     {
         // Deallocate file cache.
-        const LogFsErr err = logfs_close(&fs, &file);
+        const LogFsErr err = logfs_close(&fs, &file.file);
         if (err == LOGFS_ERR_OK)
         {
             // Only free file cache if close is successful.
-            free(file.cache_data);
+            free(file.file.cache_data);
         }
 
         return err;
     }
 
-    LogFsErr sync(LogFsFile &file) { return logfs_sync(&fs, &file); }
+    LogFsErr sync(PyLogFsFile &file) { return logfs_sync(&fs, &file.file); }
 
-    py::tuple write(LogFsFile &file, const py::bytes bytes, uint32_t size)
+    LogFsErr write(PyLogFsFile &file, const py::bytes bytes)
     {
         // Write to disk.
         const std::string buf = bytes.cast<std::string>();
-        uint32_t          num_written;
-        const LogFsErr    err = logfs_write(&fs, &file, (void *)buf.data(), size, &num_written);
-
-        // Return a tuple of (error, write size).
-        return py::make_tuple(err, num_written);
+        return logfs_write(&fs, &file.file, (void *)buf.data(), buf.size());
     }
 
-    py::tuple read(LogFsFile &file, uint32_t size, LogFsReadMode mode)
+    py::tuple read(PyLogFsFile &file, uint32_t size, LogFsReadMode mode)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');
         uint32_t       num_read;
-        const LogFsErr err = logfs_read(&fs, &file, (void *)buf.data(), size, mode, &num_read);
+        const LogFsErr err = logfs_read(&fs, &file.file, (void *)buf.data(), size, mode, &num_read);
+
+        // Return a tuple of (error, read size, read bytes).
+        py::bytes bytes = py::bytes(buf);
+        return py::make_tuple(err, num_read, bytes);
+    }
+
+    LogFsErr writeMetadata(PyLogFsFile &file, const py::bytes bytes)
+    {
+        // Write to metadata.
+        const std::string buf = bytes.cast<std::string>();
+        return logfs_writeMetadata(&fs, &file.file, (void *)buf.data(), buf.size());
+    }
+
+    py::tuple readMetadata(PyLogFsFile &file, uint32_t size)
+    {
+        // Create an empty string to hold the read data.
+        std::string    buf(size, '\0');
+        uint32_t       num_read;
+        const LogFsErr err = logfs_readMetadata(&fs, &file.file, (void *)buf.data(), size, &num_read);
 
         // Return a tuple of (error, read size, read bytes).
         py::bytes bytes = py::bytes(buf);
@@ -137,19 +162,19 @@ PYBIND11_MODULE(logfs_src, m)
         .value("CORRUPT", LOGFS_ERR_CORRUPT)
         .value("INVALID_ARG", LOGFS_ERR_INVALID_ARG)
         .value("INVALID_PATH", LOGFS_ERR_INVALID_PATH)
-        .value("INVALID_BLOCK", LOGFS_ERR_INVALID_BLOCK)
         .value("UNMOUNTED", LOGFS_ERR_UNMOUNTED)
         .value("NOMEM", LOGFS_ERR_NOMEM)
         .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
         .export_values();
 
     py::enum_<LogFsReadMode>(m, "PyLogFsReadMode")
-        .value("START", LOGFS_READ_START)
-        .value("ITER", LOGFS_READ_ITER)
+        .value("END", LOGFS_READ_MODE_END)
+        .value("ITER", LOGFS_READ_MODE_ITER)
         .export_values();
 
-    py::class_<LogFsFile>(m, "LogFsFile")
-        .def(py::init<>());
+    py::class_<PyLogFsFile>(m, "PyLogFsFile")
+        .def(py::init<>())
+        .def("path", &PyLogFsFile::path);
 
     py::class_<LogFsPath>(m, "PyLogFsPath")
         .def(py::init<>());
@@ -163,6 +188,8 @@ PYBIND11_MODULE(logfs_src, m)
         .def("sync", &PyLogFs::sync)
         .def("write", &PyLogFs::write)
         .def("read", &PyLogFs::read)
+        .def("write_metadata", &PyLogFs::writeMetadata)
+        .def("read_metadata", &PyLogFs::readMetadata)
         .def("first_path", &PyLogFs::firstPath)
         .def("next_path", &PyLogFs::nextPath);
     // clang-format on

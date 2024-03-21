@@ -19,14 +19,20 @@
         return LOGFS_ERR_INVALID_ARG; \
     }
 
-#define CHECK_PATH(path)                                   \
-    CHECK_ARG(path);                                       \
-    if (path[0] != '/' || strlen(path) > fs->max_path_len) \
-    {                                                      \
-        return LOGFS_ERR_INVALID_PATH;                     \
+#define CHECK_PATH(path)                                         \
+    CHECK_ARG(path);                                             \
+    if (path[0] != '/' || strlen(path) > fs->max_path_len_bytes) \
+    {                                                            \
+        return LOGFS_ERR_INVALID_PATH;                           \
     }
 
-#define CHECK_FS_VALID(fs)          \
+#define CHECK_FILE(file)           \
+    if (!file->is_open)            \
+    {                              \
+        return LOGFS_ERR_NOT_OPEN; \
+    }
+
+#define CHECK_FS(fs)                \
     if (!fs->mounted)               \
     {                               \
         return LOGFS_ERR_UNMOUNTED; \
@@ -36,12 +42,12 @@
         return LOGFS_ERR_NOMEM;     \
     }
 
-#define INC_HEAD(fs, num)                           \
-    {                                               \
-        if (fs->head + num >= fs->cfg->block_count) \
-        {                                           \
-            fs->out_of_memory = true;               \
-            return LOGFS_ERR_NOMEM;                 \
-        }                                           \
-        fs->head += num;                            \
+#define INC_HEAD(fs, num)                                \
+    {                                                    \
+        if (fs->head_addr + num >= fs->cfg->block_count) \
+        {                                                \
+            fs->out_of_memory = true;                    \
+            return LOGFS_ERR_NOMEM;                      \
+        }                                                \
+        fs->head_addr += num;                            \
     }

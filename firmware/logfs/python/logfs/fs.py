@@ -1,6 +1,6 @@
 from typing import Union, Optional
 from .context import LogFsContext
-from logfs_src import LogFsErr, PyLogFs, LogFsFile, PyLogFsReadMode
+from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadMode
 
 
 class LogFsError(Exception):
@@ -20,6 +20,14 @@ class LogFsError(Exception):
         return f"LogFsErr: {self.err}"
 
 
+class LogFsFile:
+    def __init__(self) -> None:
+        self.file = PyLogFsFile()
+
+    def path(self) -> str:
+        return self.file.path()
+
+
 class LogFs:
     """
     Thin wrapper around a logfs filesystem, to make the interface more
@@ -32,6 +40,8 @@ class LogFs:
     def __init__(
         self, block_size: int, block_count: int, context: LogFsContext
     ) -> None:
+        self.block_size = block_size
+        self.block_count = block_count
         self.fs = PyLogFs(block_size, block_count, context)
 
     def format(self) -> None:
@@ -63,7 +73,7 @@ class LogFs:
 
         """
         file = LogFsFile()
-        self._check_err(self.fs.open(file, path))
+        self._check_err(self.fs.open(file.file, path))
         return file
 
     def close(self, file: LogFsFile) -> None:
@@ -71,14 +81,26 @@ class LogFs:
         Close a file.
 
         """
-        self._check_err(self.fs.close(file))
+        self._check_err(self.fs.close(file.file))
+        del file
 
     def sync(self, file: LogFsFile) -> None:
         """
         Sync a file with the disk.
 
         """
-        self._check_err(self.fs.sync(file))
+        self._check_err(self.fs.sync(file.file))
+
+    def write(self, file: LogFsFile, data: Union[bytes, str]) -> None:
+        """
+        Write data to a file.
+
+        """
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+
+        err = self.fs.write(file.file, data)
+        self._check_err(err)
 
     def read(self, file: LogFsFile, size: Optional[int] = None) -> int:
         """
@@ -90,12 +112,12 @@ class LogFs:
             file_data = b""
             file_num_read = 0
 
-            # Read 0 bytes from the start of the file to reset the file read iterator.
-            self.fs.read(file, 0, PyLogFsReadMode.START)
+            # Read 0 bytes from the end of the file to reset the file read iterator.
+            self.fs.read(file.file, 0, PyLogFsReadMode.END)
 
             while True:
                 err, num_read, data = self.fs.read(
-                    file, self.READ_ITER_CHUNK_SIZE, PyLogFsReadMode.ITER
+                    file.file, self.READ_ITER_CHUNK_SIZE, PyLogFsReadMode.ITER
                 )
                 self._check_err(err)
 
@@ -108,22 +130,36 @@ class LogFs:
 
             return file_data[:file_num_read]
         else:
-            # Read the first size bytes.
-            err, num_read, data = self.fs.read(file, size, PyLogFsReadMode.START)
+            # Read the last size bytes.
+            err, num_read, data = self.fs.read(file.file, size, PyLogFsReadMode.END)
             self._check_err(err)
             return data[:num_read]
 
-    def write(self, file: LogFsFile, data: Union[bytes, str]) -> None:
+    def write_metadata(self, file: LogFsFile, data: Union[bytes, str]) -> None:
         """
-        Write data to a file.
+        Write metadata to a file.
 
         """
         if isinstance(data, str):
             data = data.encode("utf-8")
 
-        err, num_written = self.fs.write(file, data, len(data))
+        err = self.fs.write_metadata(file.file, data)
         self._check_err(err)
-        assert num_written == len(data)
+
+    def read_metadata(self, file: LogFsFile, size: Optional[int] = None) -> int:
+        """
+        Read metadata from a file.
+
+        """
+        if size is None:
+            size = self.block_size
+
+        err, num_read, data = self.fs.read_metadata(file.file, size)
+        self._check_err(err)
+
+        print(data)
+        print(num_read)
+        return data[:num_read]
 
     def list_dir(self, file: str = "/"):
         """

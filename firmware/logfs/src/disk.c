@@ -7,7 +7,7 @@
 #define INC_SEQ_NUM(pair) \
     pair->seq_num++;      \
     pair->seq_num %= NUM_SEQ_NUMS;
-#define PAIR_ACTIVE_BLOCK(pair) (pair->blocks[pair->seq_num % LOGFS_PAIR_SIZE])
+#define PAIR_ACTIVE_BLOCK(pair) (pair->addrs[pair->seq_num % LOGFS_PAIR_SIZE])
 
 static inline bool compareSeqNums(int s1, int s2)
 {
@@ -42,10 +42,10 @@ inline LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf)
 
 LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch)
 {
-    if (cache->block != block)
+    if (cache->cached_addr != block)
     {
         // A different block is currently in the cache, sync it to disk.
-        if (write_back && cache->block != LOGFS_INVALID_BLOCK)
+        if (write_back && cache->cached_addr != LOGFS_INVALID_BLOCK)
         {
             RET_ERR(disk_syncCache(fs, cache));
         }
@@ -56,7 +56,7 @@ LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bo
             RET_ERR(disk_read(fs, block, cache->buf));
         }
 
-        cache->block = block;
+        cache->cached_addr = block;
     }
 
     return LOGFS_ERR_OK;
@@ -64,14 +64,14 @@ LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bo
 
 LogFsErr disk_syncCache(const LogFs *fs, const LogFsCache *cache)
 {
-    return disk_write(fs, cache->block, cache->buf);
+    return disk_write(fs, cache->cached_addr, cache->buf);
 }
 
 void disk_newPair(LogFsPair *pair, uint32_t block)
 {
-    pair->blocks[0] = block;
-    pair->blocks[1] = block + 1;
-    pair->valid     = false;
+    pair->addrs[0]        = block;
+    pair->addrs[1]        = block + 1;
+    pair->seq_num_on_disk = false;
 
     // Set to the highest numeric value, so the next write will increment it and wrap it to zero.
     pair->seq_num = NUM_SEQ_NUMS - 1;
@@ -115,9 +115,9 @@ LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
         return block0_err;
     }
 
-    pair->blocks[0] = block;
-    pair->blocks[1] = block + 1;
-    pair->valid     = true;
+    pair->addrs[0]        = block;
+    pair->addrs[1]        = block + 1;
+    pair->seq_num_on_disk = true;
     return LOGFS_ERR_OK;
 }
 
@@ -145,13 +145,13 @@ LogFsErr disk_writePair(const LogFs *fs, LogFsPair *pair)
         }
     }
 
-    pair->valid = true;
+    pair->seq_num_on_disk = true;
     return LOGFS_ERR_OK;
 }
 
 LogFsErr disk_readPair(const LogFs *fs, LogFsPair *pair)
 {
-    if (!pair->valid)
+    if (!pair->seq_num_on_disk)
     {
         return LOGFS_ERR_INVALID_ARG;
     }
