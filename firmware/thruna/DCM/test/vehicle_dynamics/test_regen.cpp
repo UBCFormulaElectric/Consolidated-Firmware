@@ -238,8 +238,8 @@ TEST_F(TestRegen, taper_torque_request)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * 0.85;
-    float expected_right_torque_request = torque_lim_Nm * cr * 0.85;
+    float expected_left_torque_request  = torque_lim_Nm * cl * SOC_LIMIT_DERATING_VALUE;
+    float expected_right_torque_request = torque_lim_Nm * cr * SOC_LIMIT_DERATING_VALUE;
 
     app_regen_run(pedal_percentage);
 

@@ -129,7 +129,7 @@ static void computeRegenTorqueRequest(
 
     if (regenAttr->battery_level > 3.9f)
     {
-        regenAttr->derating_value = 0.85f;
+        regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
     if (min_motor_speed <= 10.0f)
