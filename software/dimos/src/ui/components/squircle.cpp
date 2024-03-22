@@ -1,6 +1,5 @@
 #include "squircle.h"
 #include <QPainter>
-#include <QPainterPath>
 
 constexpr static double rad_deg_factor = 180 / M_PI;
 #define RAD_TO_DEG(x) ((x) * rad_deg_factor)
@@ -29,7 +28,41 @@ void Squircle::paint(QPainter *p)
         return p->drawRoundedRect(bounds, radius, radius);
     }
 
-    const double w = bounds.width(), h = bounds.height();
+    // #ifdef QT_DEBUG
+    //     p->setPen(QPen(QColorConstants::Red, 3));
+    //     p->drawPoint(p1_1);
+    //     p->setPen(QPen(QColorConstants::Magenta, 3));
+    //     p->drawPoint(p4_1);
+    //     p->setPen(QPen(QColorConstants::Cyan, 3));
+    //     p->drawPoint(p3_1);
+    //     p->setPen(QPen(QColorConstants::Green, 3));
+    //     p->drawPoint(p2_1);
+    //     p->setPen(QPen(QColorConstants::Red, 3));
+    //     p->drawPoint(p1_2);
+    //     p->setPen(QPen(QColorConstants::Magenta, 3));
+    //     p->drawPoint(p4_2);
+    //     p->setPen(QPen(QColorConstants::Cyan, 3));
+    //     p->drawPoint(p3_2);
+    //     p->setPen(QPen(QColorConstants::Green, 3));
+    //     p->drawPoint(p2_2);
+    // #endif
+
+    if (const settings newSettings = { bounds.width(), bounds.height(), radius, smoothness };
+        !cachedSquirclePath.has_value() || !cachedSettings.has_value() || cachedSettings.value() != newSettings)
+    {
+        qInfo() << "Rerendering Squircle";
+        cachedSettings = newSettings;
+        updateCachedPathFromCachedSettings();
+    }
+
+    assert(cachedSquirclePath.has_value());
+    p->drawPath(cachedSquirclePath.value());
+}
+
+void Squircle::updateCachedPathFromCachedSettings()
+{
+    assert(cachedSettings.has_value());
+    const auto [w, h, radius, smoothness] = cachedSettings.value();
     const double corner_dim = radius * (1 + smoothness), straightWidthLength = w - 2 * corner_dim,
                  straightHeightLength = h - 2 * corner_dim, s = sin(M_PI_4 * smoothness), c = cos(M_PI_4 * smoothness),
                  f_1 = radius * (1 - s),
@@ -85,26 +118,9 @@ void Squircle::paint(QPainter *p)
                 (arcAngle - 45) * -2);
             path.cubicTo(p3_1, p2_1, p1_1);
         }
-#ifdef QT_DEBUG
-        p->setPen(QPen(QColorConstants::Red, 3));
-        p->drawPoint(p1_1);
-        p->setPen(QPen(QColorConstants::Magenta, 3));
-        p->drawPoint(p4_1);
-        p->setPen(QPen(QColorConstants::Cyan, 3));
-        p->drawPoint(p3_1);
-        p->setPen(QPen(QColorConstants::Green, 3));
-        p->drawPoint(p2_1);
-        p->setPen(QPen(QColorConstants::Red, 3));
-        p->drawPoint(p1_2);
-        p->setPen(QPen(QColorConstants::Magenta, 3));
-        p->drawPoint(p4_2);
-        p->setPen(QPen(QColorConstants::Cyan, 3));
-        p->drawPoint(p3_2);
-        p->setPen(QPen(QColorConstants::Green, 3));
-        p->drawPoint(p2_2);
-#endif
     }
 
     path.closeSubpath();
-    p->drawPath(path);
+
+    cachedSquirclePath = path;
 }

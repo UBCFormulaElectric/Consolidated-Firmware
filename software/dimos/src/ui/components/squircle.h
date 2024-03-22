@@ -1,7 +1,14 @@
 #pragma once
+#include <QPainterPath>
 
 #include <QtQuick/QQuickPaintedItem>
 #include <QColor>
+
+struct settings
+{
+    double w, h, radius, smoothness;
+    auto   operator<=>(const settings &) const = default;
+};
 
 // ReSharper disable once CppClassCanBeFinal because of QML
 class Squircle : public QQuickPaintedItem
@@ -14,9 +21,13 @@ class Squircle : public QQuickPaintedItem
 
   public:
     explicit Squircle(QQuickItem *parent = nullptr);
-    void paint(QPainter *p) override;
+    void     paint(QPainter *p) override;
 
   private:
+    std::optional<QPainterPath> cachedSquirclePath;
+    std::optional<settings>     cachedSettings;
+    void                        updateCachedPathFromCachedSettings();
+
     int    m_radius;
     double m_smoothness;
     QColor m_color;
