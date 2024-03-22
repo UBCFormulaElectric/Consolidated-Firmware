@@ -47,7 +47,7 @@ void Squircle::paint(QPainter *p)
     //     p->drawPoint(p2_2);
     // #endif
 
-    if (const settings newSettings = { bounds.width(), bounds.height(), radius, smoothness };
+    if (const SquircleSettings newSettings = { bounds.width(), bounds.height(), radius, smoothness };
         !cachedSquirclePath.has_value() || !cachedSettings.has_value() || cachedSettings.value() != newSettings)
     {
         qInfo() << "Rerendering Squircle";
