@@ -35,7 +35,7 @@ Window {
                 id: lowVoltagePage
                 visible: mainStack.currentIndex === 0
             }
-            RacingBase {
+            DrivingBase {
                 visible: [1, 2, 3, 4, 5].includes(mainStack.currentIndex)
                 Image {
                     function getPageIconURL(index: int): string {
