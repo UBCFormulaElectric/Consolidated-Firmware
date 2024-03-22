@@ -14,7 +14,7 @@ Item {
         // anchors.topMargin: 200
         font.family: "Roboto"
         font.bold: true
-        font.pointSize: 82
+        font.pointSize: 72
         text: speed
         color: "#ffffff"
     }
@@ -24,7 +24,7 @@ Item {
         anchors.top: speedString.bottom
         anchors.topMargin: -5
         font.family: "Roboto"
-        font.pointSize: 16
+        font.pointSize: 14
         text: "km/h"
         color: "#868686"
     }

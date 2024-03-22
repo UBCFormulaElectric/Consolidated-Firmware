@@ -6,6 +6,8 @@ Item {
     anchors.fill: parent
 
     Item {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
         id: enduranceSpeedometer
         width: 250
         height: 250
@@ -51,6 +53,8 @@ Item {
     }
 
     Row {
+        anchors.left: enduranceSpeedometer.left
+        anchors.top: enduranceSpeedometer.top
         Rectangle {
             Image {
                 source: "qrc:/battery.svg"
