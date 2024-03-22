@@ -15,7 +15,7 @@ extern "C"
 
     void     disk_newPair(LogFsPair *pair, uint32_t block);
     LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block);
-    LogFsErr disk_writePair(const LogFs *fs, LogFsPair *pair);
+    LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace);
     LogFsErr disk_readPair(const LogFs *fs, LogFsPair *pair);
 
 #ifdef __cplusplus

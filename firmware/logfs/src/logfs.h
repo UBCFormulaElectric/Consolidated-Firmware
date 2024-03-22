@@ -71,15 +71,14 @@ extern "C"
 
     typedef enum
     {
-        LOGFS_ERR_OK,            // No error
-        LOGFS_ERR_IO,            // Error during I/O operation
-        LOGFS_ERR_CORRUPT,       // File system was corrupted (bad CRC)
-        LOGFS_ERR_INVALID_ARG,   // Invalid argument
-        LOGFS_ERR_INVALID_PATH,  // Invalid path
-        LOGFS_ERR_UNMOUNTED,     // Filesystem hasn't been successfully mounted
-        LOGFS_ERR_NOMEM,         // Filesystem is full (no more memory)
-        LOGFS_ERR_NOT_OPEN,      // File hasn't been opened
-        LOGFS_ERR_UNIMPLEMENTED, // Feature not implemented
+        LOGFS_ERR_OK,           // No error
+        LOGFS_ERR_IO,           // Error during I/O operation
+        LOGFS_ERR_CORRUPT,      // File system was corrupted (bad CRC)
+        LOGFS_ERR_INVALID_ARG,  // Invalid argument
+        LOGFS_ERR_INVALID_PATH, // Invalid path
+        LOGFS_ERR_UNMOUNTED,    // Filesystem hasn't been successfully mounted
+        LOGFS_ERR_NOMEM,        // Filesystem is full (no more memory)
+        LOGFS_ERR_NOT_OPEN,     // File hasn't been opened
     } LogFsErr;
 
     typedef enum
@@ -116,18 +115,23 @@ extern "C"
 
     typedef struct
     {
-        uint32_t crc;                    // Checksum must be first word in block
-        uint8_t  seq_num;                // Sequence number (used to calculate most recent version of the pair)
+        uint32_t crc;     // Checksum must be first word in block
+        uint8_t  seq_num; // Sequence number (used to calculate most recent version of the pair)
+        uint32_t write_cycles;
+        uint32_t replacement_addr;
         uint32_t next_file_addr;         // Address of the next file block
         uint32_t metadata_addr;          // Address of the file's metadata block
         uint32_t head_data_addr;         // Address of file's newest data block
+        uint32_t prev_head_addr;         // Address of file's previous head (for redundnacy, if head is corrupted)
         char     path[LOGFS_PATH_BYTES]; // File path string
     } LogFsBlock_File;
 
     typedef struct
     {
-        uint32_t crc;       // Checksum must be first word in block
-        uint8_t  seq_num;   // Sequence number (used to calculate most recent version of the pair)
+        uint32_t crc;     // Checksum must be first word in block
+        uint8_t  seq_num; // Sequence number (used to calculate most recent version of the pair)
+        uint32_t write_cycles;
+        uint32_t replacement_addr;
         uint32_t num_bytes; // Number of data bytes in this block
         uint8_t  data;      // First data byte, used to get pointer to the actual data bytes
     } LogFsBlock_Metadata;

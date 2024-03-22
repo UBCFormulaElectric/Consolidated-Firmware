@@ -2,6 +2,7 @@
 #include "crc.h"
 #include "utils.h"
 #include <stdio.h>
+#include <string.h>
 
 #define NUM_SEQ_NUMS 4
 #define INC_SEQ_NUM(pair) \
@@ -26,6 +27,23 @@ static inline void setSeqNumInCache(const LogFs *fs, uint8_t seq_num)
     // First word (4 bytes) is reserved for CRC, next byte is for sequence number of pairs.
     uint8_t *cache_seq_num = (uint8_t *)fs->cfg->cache + sizeof(uint32_t);
     *cache_seq_num         = seq_num;
+}
+
+static LogFsErr disk_replacePair(LogFs *fs, LogFsPair *pair)
+{
+    LogFsPair replacement_pair;
+    disk_newPair(&replacement_pair, fs->head_addr);
+    RET_ERR(disk_writePair(fs, &replacement_pair, false));
+
+    RET_ERR(disk_readPair(fs, pair));
+    fs->cache_file->replacement_addr = fs->head_addr;
+    RET_ERR(disk_writePair(fs, pair, false));
+
+    memcpy(pair, &replacement_pair, sizeof(LogFsPair));
+    RET_ERR(disk_readPair(fs, pair));
+
+    fs->head_addr += LOGFS_PAIR_SIZE;
+    return LOGFS_ERR_OK;
 }
 
 inline LogFsErr disk_write(const LogFs *fs, uint32_t block, void *buf)
@@ -56,6 +74,7 @@ LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bo
             RET_ERR(disk_read(fs, block, cache->buf));
         }
 
+        // If we get here, we've successfully changed the block in the cache.
         cache->cached_addr = block;
     }
 
@@ -79,53 +98,81 @@ void disk_newPair(LogFsPair *pair, uint32_t block)
 
 LogFsErr disk_fetchPair(const LogFs *fs, LogFsPair *pair, uint32_t block)
 {
-    // We need to figure out the active block.
-    const LogFsErr block0_err     = disk_read(fs, block, fs->cfg->cache);
-    const uint8_t  block0_seq_num = getSeqNumFromCache(fs);
-    const LogFsErr block1_err     = disk_read(fs, block + 1, fs->cfg->cache);
-    const uint8_t  block1_seq_num = getSeqNumFromCache(fs);
-
-    if (!IS_ERR(block0_err) && !IS_ERR(block1_err))
+    while (true)
     {
-        // Both blocks are valid.
-        if (compareSeqNums(block0_seq_num, block1_seq_num))
+        // We need to figure out the active block.
+        const LogFsErr block0_err     = disk_read(fs, block, fs->cfg->cache);
+        const uint8_t  block0_seq_num = getSeqNumFromCache(fs);
+        const LogFsErr block1_err     = disk_read(fs, block + 1, fs->cfg->cache);
+        const uint8_t  block1_seq_num = getSeqNumFromCache(fs);
+
+        if (!IS_ERR(block0_err) && !IS_ERR(block1_err))
         {
-            // Block 0 is the most recent write.
+            // Both blocks are valid.
+            if (compareSeqNums(block0_seq_num, block1_seq_num))
+            {
+                // Block 0 is the most recent write.
+                pair->seq_num = block0_seq_num;
+            }
+            else
+            {
+                // Block 1 is the most recent write.
+                pair->seq_num = block1_seq_num;
+            }
+        }
+        else if (!IS_ERR(block0_err))
+        {
+            // Block 0 is the only valid block.
             pair->seq_num = block0_seq_num;
+        }
+        else if (!IS_ERR(block1_err))
+        {
+            // Block 1 is the only valid block.
+            pair->seq_num = block1_seq_num;
         }
         else
         {
-            // Block 1 is the most recent write.
-            pair->seq_num = block1_seq_num;
+            // Neither blocks are OK, propogate error code to caller.
+            return block0_err;
+        }
+
+        pair->addrs[0] = block;
+        pair->addrs[1] = block + 1;
+        RET_ERR(disk_read(fs, PAIR_ACTIVE_BLOCK(pair), fs->cfg->cache));
+        if (fs->cache_file->replacement_addr == LOGFS_INVALID_BLOCK)
+        {
+            // No replacement.
+            break;
+        }
+        else
+        {
+            // Block has a replacement, follow the linked-list.
+            block = fs->cache_file->replacement_addr;
         }
     }
-    else if (!IS_ERR(block0_err))
-    {
-        // Block 0 is the only valid block.
-        pair->seq_num = block0_seq_num;
-    }
-    else if (!IS_ERR(block1_err))
-    {
-        // Block 1 is the only valid block.
-        pair->seq_num = block1_seq_num;
-    }
-    else
-    {
-        // Neither blocks are OK, propogate error code to caller.
-        return block0_err;
-    }
 
-    pair->addrs[0]        = block;
-    pair->addrs[1]        = block + 1;
+    // Successfully fetched pair from disk.
     pair->seq_num_on_disk = true;
     return LOGFS_ERR_OK;
 }
 
-LogFsErr disk_writePair(const LogFs *fs, LogFsPair *pair)
+LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace)
 {
-    const uint8_t prev_seq_num = pair->seq_num;
+    if (!pair->seq_num_on_disk)
+    {
+        fs->cache_file->write_cycles = 0;
+    }
+    else if (check_replace && fs->cache_file->write_cycles >= 100 * 2)
+    {
+        return disk_replacePair(fs, pair);
+    }
+    else
+    {
+        fs->cache_file->write_cycles++;
+    }
 
     // Increment the version, and write it to the cache.
+    const uint8_t prev_seq_num = pair->seq_num;
     INC_SEQ_NUM(pair);
     setSeqNumInCache(fs, pair->seq_num);
 

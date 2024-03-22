@@ -29,10 +29,6 @@ def test_rw_big_file(fs):
 
     # Read data back.
     read_data = fs.read(file)
-
-    print("lets go!\n")
-    print(read_data)
-    print(data)
     assert data == read_data
 
 
@@ -45,15 +41,12 @@ def test_rw_multiple_files(fs):
     ]
     files = [(name, fs.open(name)) for name in file_names]
 
-    print("whattt?")
-
     # Write multiple files.
     for file_name, file in files:
         fs.write(file, file_name)
 
     # Read multiple files.
     for file_name, file in files:
-        print("what?")
         read_data = fs.read(file)
         assert read_data == file_name
 

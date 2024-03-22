@@ -22,7 +22,6 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
 
 static void inline logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg)
 {
-    // This is a bit sus, maybe memcpy the path directly to the file (that's the only thing you need this for!)
     file->cache.cached_addr = LOGFS_INVALID_BLOCK;
     file->cache.buf         = cfg->cache;
     file->cache_data        = (LogFsBlock_Data *)cfg->cache;
@@ -40,17 +39,20 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cf
     const uint32_t new_data_block     = new_metadata_block + LOGFS_PAIR_SIZE;
 
     // Write file pair to disk.
-    fs->cache_file->head_data_addr = new_data_block;
-    fs->cache_file->metadata_addr  = new_metadata_block;
-    fs->cache_file->next_file_addr = LOGFS_INVALID_BLOCK;
+    fs->cache_file->head_data_addr   = new_data_block;
+    fs->cache_file->prev_head_addr   = LOGFS_INVALID_BLOCK;
+    fs->cache_file->metadata_addr    = new_metadata_block;
+    fs->cache_file->next_file_addr   = LOGFS_INVALID_BLOCK;
+    fs->cache_file->replacement_addr = LOGFS_INVALID_BLOCK;
     strcpy(fs->cache_file->path, cfg->path);
     disk_newPair(&file->file_pair, new_file_block);
-    RET_ERR(disk_writePair(fs, &file->file_pair));
+    RET_ERR(disk_writePair(fs, &file->file_pair, false));
 
     // Write metadata pair to disk.
-    fs->cache_metadata->num_bytes = 0;
+    fs->cache_metadata->num_bytes        = 0;
+    fs->cache_metadata->replacement_addr = LOGFS_INVALID_BLOCK;
     disk_newPair(&file->metadata_pair, new_metadata_block);
-    RET_ERR(disk_writePair(fs, &file->metadata_pair));
+    RET_ERR(disk_writePair(fs, &file->metadata_pair, false));
 
     // Write empty data block to disk.
     file->cache_data->num_bytes      = 0;
@@ -65,7 +67,7 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cf
         RET_ERR(disk_fetchPair(fs, &prev_file_pair, fs->head_file_addr));
         RET_ERR(disk_readPair(fs, &prev_file_pair));
         fs->cache_file->next_file_addr = new_file_block;
-        RET_ERR(disk_writePair(fs, &prev_file_pair));
+        RET_ERR(disk_writePair(fs, &prev_file_pair, false));
     }
 
     // Update filesystem state variables (do this last so if previous writes
@@ -135,7 +137,8 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
         }
 
         cur_file = fs->cache_file->next_file_addr;
-        cur_head = MAX(cur_head, fs->cache_file->head_data_addr);
+        cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
+        cur_head = MAX(cur_head, cur_file_pair.addrs[1] + 1);
     }
 
     // Successfully found the the head file, update state variables.
@@ -179,15 +182,26 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg)
         RET_ERR(disk_readPair(fs, &cur_file_pair));
         if (strcmp(fs->cache_file->path, cfg->path) == 0)
         {
+            // File name matches, find data head address.
             file->head_data_addr = fs->cache_file->head_data_addr;
+            if (IS_ERR(disk_changeCache(fs, &file->cache, fs->cache_file->head_data_addr, false, true)))
+            {
+                file->head_data_addr = fs->cache_file->prev_head_addr;
+                if (fs->cache_file->prev_head_addr == LOGFS_INVALID_BLOCK ||
+                    (disk_changeCache(fs, &file->cache, fs->cache_file->prev_head_addr, false, true)))
+                {
+                    // If both the head and backup are corrupt, file can't be opened.
+                    return LOGFS_ERR_CORRUPT;
+                }
+            }
 
-            // Attempt to fetch metadata pair.
+            // Attempt to fetch metadata pair (just checking that its valid).
             RET_ERR(disk_fetchPair(fs, &file->metadata_pair, fs->cache_file->metadata_addr));
 
-            // File has been found, return.
-            memcpy(&file->file_pair, &cur_file_pair, sizeof(LogFsPair));
+            // File has found and opened successfully.
             file->read_iter_init = false;
-            file->is_open        = true;
+            memcpy(&file->file_pair, &cur_file_pair, sizeof(LogFsPair));
+            file->is_open = true;
             return LOGFS_ERR_OK;
         }
 
@@ -218,6 +232,7 @@ LogFsErr logfs_close(LogFs *fs, LogFsFile *file)
 
     RET_ERR(logfs_sync(fs, file));
     file->cache.cached_addr = LOGFS_INVALID_BLOCK; // Mark cache as invalid
+    file->is_open           = false;
     return LOGFS_ERR_OK;
 }
 
@@ -255,6 +270,8 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             RET_ERR(disk_changeCache(fs, &file->cache, cur_data, true, false));
             file->cache_data->prev_data_addr = file->head_data_addr;
             file->cache_data->num_bytes      = 0U;
+            file->head_data_addr             = cur_data;
+            INC_HEAD(fs, 1);
         }
 
         // Write new data to disk.
@@ -272,12 +289,9 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             // new one. The file's "head block" will still point to the last
             // block.
             RET_ERR(disk_readPair(fs, &file->file_pair));
+            fs->cache_file->prev_head_addr = fs->cache_file->head_data_addr;
             fs->cache_file->head_data_addr = file->head_data_addr;
-            RET_ERR(disk_writePair(fs, &file->file_pair));
-
-            // After a successful write, now we can update filesystem state.
-            file->head_data_addr = cur_data;
-            INC_HEAD(fs, 1);
+            RET_ERR(disk_writePair(fs, &file->file_pair, true));
         }
 
         // We'll always need a new block if there is any remaining data to be
@@ -365,7 +379,7 @@ LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t siz
     RET_ERR(disk_readPair(fs, &file->metadata_pair));
     memcpy(&fs->cache_metadata->data, buf, size);
     fs->cache_metadata->num_bytes = size;
-    RET_ERR(disk_writePair(fs, &file->metadata_pair));
+    RET_ERR(disk_writePair(fs, &file->metadata_pair, true));
     return LOGFS_ERR_OK;
 }
 

@@ -42,6 +42,7 @@ class LogFs:
     ) -> None:
         self.block_size = block_size
         self.block_count = block_count
+        self.context = context
         self.fs = PyLogFs(block_size, block_count, context)
 
     def format(self) -> None:

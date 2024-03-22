@@ -164,7 +164,7 @@ PYBIND11_MODULE(logfs_src, m)
         .value("INVALID_PATH", LOGFS_ERR_INVALID_PATH)
         .value("UNMOUNTED", LOGFS_ERR_UNMOUNTED)
         .value("NOMEM", LOGFS_ERR_NOMEM)
-        .value("UNIMPLEMENTED", LOGFS_ERR_UNIMPLEMENTED)
+        .value("NOT_OPEN", LOGFS_ERR_NOT_OPEN)
         .export_values();
 
     py::enum_<LogFsReadMode>(m, "PyLogFsReadMode")
