@@ -228,7 +228,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok =
-            hw_spi_transmitAndReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            hw_spi_transmitThenReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
