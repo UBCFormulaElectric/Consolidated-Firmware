@@ -1,12 +1,11 @@
-#include "io_canLogging.h"
-#include "io_lfs_config.h"
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "cmsis_os.h"
 #include "queue.h"
 #include "hw_gpio.h"
-
+#include "io_canLogging.h"
+#include "io_fileSystem.h"
 // Private globals.
 static const CanConfig *config;
 #define QUEUE_SIZE 2048
@@ -17,10 +16,7 @@ static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 
 static uint32_t current_bootcount;
-
-static lfs_t             lfs;
-static lfs_file_t        file;
-static struct lfs_config cfg;
+static int      log_fd; // fd for the log file
 
 extern SdCard sd;
 extern Gpio   sd_present;
@@ -37,11 +33,6 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-static char                  file_buffer[IO_LFS_CACHE_SIZE];
-const struct lfs_file_config fcfg = {
-    .buffer = file_buffer,
-};
-
 // assume the lfs is already mounted
 static void init_logging_file_system()
 {
@@ -51,34 +42,26 @@ static void init_logging_file_system()
         return;
     }
 
-    // config the file system
-    io_lfs_config(sd.hsd->SdCard.BlockSize, sd.hsd->SdCard.BlockNbr, &cfg);
-
     uint32_t bootcount = 0;
-    // lfs_format(&lfs, &cfg); // test for now
-    int err = lfs_mount(&lfs, &cfg);
-    if (err)
-    {
-        lfs_format(&lfs, &cfg);
-        err = lfs_mount(&lfs, &cfg);
-    }
+    current_bootcount  = io_fileSystem_getBootCount();
+
+    // create new folder for this boot
+    sprintf(current_path, "%lu", current_bootcount);
+    log_fd = io_fileSystem_open(current_path);
 
     // get bootcount value from the file; use this to create new file for logging
-    err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    if (err)
-        return;
-    lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
+    // err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
+    // if (err)
+    //     return;
 
-    // update bootcount for next boot
-    bootcount += 1;
-    lfs_file_rewind(&lfs, &file);
-    lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
-    current_bootcount = bootcount;
-    lfs_file_close(&lfs, &file);
+    // lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
 
-    // create new file on root based on the bootcount
-    sprintf((char *)current_path, "%lu", bootcount);
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
+    // // update bootcount for next boot
+    // bootcount += 1;
+    // lfs_file_rewind(&lfs, &file);
+    // lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
+    // current_bootcount = bootcount;
+    // lfs_file_close(&lfs, &file);
 }
 
 void io_canLogging_init(const CanConfig *can_config)
@@ -123,7 +106,7 @@ void io_canLogging_recordMsgFromQueue(void)
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
-    lfs_ssize_t size = lfs_file_write(&lfs, &file, &tx_msg, sizeof(tx_msg));
+    io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg));
     // assert(size = sizeof(tx_msg));
 }
 
@@ -149,8 +132,5 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 void io_canLogging_sync()
 {
     // SAVe the seek before close
-    lfs_soff_t seek = lfs_file_seek(&lfs, &file, 0, LFS_SEEK_CUR);
-    lfs_file_close(&lfs, &file);
-    lfs_file_opencfg(&lfs, &file, current_path, LFS_O_RDWR | LFS_O_CREAT, &fcfg); // this file opens forever
-    lfs_file_seek(&lfs, &file, seek, LFS_SEEK_SET);
+    io_fileSystem_sync(log_fd);
 }

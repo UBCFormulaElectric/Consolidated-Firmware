@@ -6,6 +6,7 @@ file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
     # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
@@ -13,10 +14,16 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfs_config.c"
 )
-set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
+set(EMBEDDED_INCLUDE_DIRS 
+    "${SHARED_APP_INCLUDE_DIR}" 
+    "${SHARED_IO_INCLUDE_DIR}" 
+    "${SHARED_HW_INCLUDE_DIR}" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+)
 
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
+        
         "h7dev"
         "${IOC_PATH}"
     )

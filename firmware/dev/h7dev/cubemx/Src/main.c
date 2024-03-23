@@ -28,24 +28,25 @@
 #include "hw_hardFaultHandler.h"
 <<<<<<< HEAD
 #include "hw_bootup.h"
-<<<<<<< HEAD
+    <<<<<<< HEAD
 #include "hw_uart.h"
-=======
+    =======
 =======
 #include "hw_can.h"
->>>>>>> 193708cf (main functin implementation)
+    >>>>>>> 193708cf (main functin implementation)
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "io_can.h"
 #include "io_canLogging.h"
 #include "io_lfs_config.h"
+#include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
 #include "hw_utils.h"
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
+    /* Private typedef -----------------------------------------------------------*/
+    typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -222,8 +223,13 @@ int main(void)
 
     // io_can_init(&can_config);
 
-    sd.hsd = &hsd1;
-    sd.timeout = osWaitForever;
+    if (sd_inited)
+    {
+        sd.hsd     = &hsd1;
+        sd.timeout = osWaitForever;
+        int err    = io_fileSystem_init();
+        io_canLogging_init(&can_config);
+    }
 
     // Configure and initialize SEGGER SystemView.
     // static int   e = 0;
@@ -652,8 +658,8 @@ void runDefaultTask(void *argument)
         osDelay(10);
 =======
         CanMsg msg = {
-            .std_id = 100,
-            .dlc    = 0,
+                   .std_id = 100,
+                   .dlc    = 0,
         };
         io_can_pushTxMsgToQueue(&msg);
 >>>>>>> 672ea0c3 (rm bootload for now)
