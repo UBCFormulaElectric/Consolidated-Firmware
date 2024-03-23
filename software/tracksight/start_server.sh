@@ -8,5 +8,3 @@ sleep 5
 echo "Starting frontend server..."
 cd frontend
 npm run dev
-
-
