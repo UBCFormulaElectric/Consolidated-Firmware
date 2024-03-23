@@ -149,8 +149,6 @@
             }
         }
     },
-<<<<<<< HEAD
-=======
     "EllipseStatus": {
         "msg_id": 208,
         "cycle_time": 100,
@@ -250,7 +248,6 @@
             }
         }
     },
->>>>>>> 925be6ce (Repaired VC can jsons.)
     "CommitInfo": {
       "msg_id": 204,
       "cycle_time": 100,
@@ -263,8 +260,6 @@
               "bits": 1
           }
       }
-<<<<<<< HEAD
-=======
     },
     "PowerEstimate": {
         "msg_id": 211,
@@ -542,6 +537,5 @@
                 "unit": "V"
             }
         }
->>>>>>> 925be6ce (Repaired VC can jsons.)
     }
 }
