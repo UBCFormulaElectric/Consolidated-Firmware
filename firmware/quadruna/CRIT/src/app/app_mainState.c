@@ -74,14 +74,19 @@ static void mainStateRunOnTick100Hz(void)
         }
     }
 }
+
+static void mainStateRunOnEntry(void) {}
+static void mainStateRunOnTick1Hz(void) {}
+static void mainStateRunOnExit(void) {}
+
 const State *app_mainState_get(void)
 {
     static const State main_state = {
         .name              = "MAIN",
-        .run_on_entry      = NULL,
-        .run_on_tick_1Hz   = NULL,
+        .run_on_entry      = mainStateRunOnEntry,
+        .run_on_tick_1Hz   = mainStateRunOnTick1Hz,
         .run_on_tick_100Hz = mainStateRunOnTick100Hz,
-        .run_on_exit       = NULL,
+        .run_on_exit       = mainStateRunOnExit,
     };
 
     return &main_state;
