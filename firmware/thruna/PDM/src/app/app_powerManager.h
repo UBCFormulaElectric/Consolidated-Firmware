@@ -5,8 +5,6 @@
 
 #pragma once
 
-#define FAULT_CURRENT_THRESHOLD 0.5f
-
 typedef enum
 {
     POWER_MANAGER_SHUTDOWN,
@@ -22,4 +20,4 @@ void app_powerManager_setState(PowerManagerState state);
 
 PowerManagerState app_powerManager_getState();
 
-void app_powerManager_check_efuses(PowerManagerState state);
+bool app_powerManager_check_efuses(PowerManagerState state);

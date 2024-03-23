@@ -23,13 +23,12 @@ static void initStateRunOnTick100Hz(void)
     bool is_inverter_on_or_drive_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                          app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                          app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    bool     stay_in_init_state        = app_powerManager_check_efuses(POWER_MANAGER_SHUTDOWN);
 
-    if (is_inverter_on_or_drive_state)
+    if (is_inverter_on_or_drive_state && !stay_in_init_state)
     {
         app_stateMachine_setNextState(app_driveState_get());
     }
-
-    app_powerManager_check_efuses(POWER_MANAGER_SHUTDOWN);
 }
 
 const State *app_initState_get(void)

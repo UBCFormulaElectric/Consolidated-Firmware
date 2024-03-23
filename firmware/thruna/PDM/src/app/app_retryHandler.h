@@ -16,28 +16,35 @@ typedef enum
 
 typedef enum
 {
-    RETRY_STATE_OFF,
-    RETRY_STATE_RUNNING,
-    RETRY_STATE_EXPIRED,
-    RETRY_STATE_WAITING
-} RetryState;
+    PROTOCOL_STATE_OFF,       // efuse is not in retry protocol
+    PROTOCOL_STATE_CALC_AVG,  // efuse is in process of calculating the avg current for this efuse
+    PROTOCOL_STATE_DONE_CALC, // efuse is done calculating the avg need to check on what to do next
+    PROTOCOL_STATE_WAITING    // this efuse is waiting for another efuse to finish its retry protocol
+} ProtocolState;
 
 typedef struct
 {
     bool          efuse_state;
     RetryProtocol retry_protocol;
     int           retry_attempts_limit;
+    float         min_needed_current;
+    int           timer_attempts_limit;
 } RetryConfig;
 
 typedef struct
 {
-    RetryState retry_state;
-    int        retry_attempts;
-    int        timer_attempts;
-    int        timer_attempts_limit;
-    float      current_sum;
+    ProtocolState protocol_state;
+    int           retry_attempts;
+    int           timer_attempts;
+    float         current_sum;
 } RetryData;
 
-void retry_handler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
+/**
+ * 
+*/
+bool app_retry_handler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
 
-void retry_handler_recover(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
+/**
+ * 
+*/
+void app_retry_handler_success(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[]);
