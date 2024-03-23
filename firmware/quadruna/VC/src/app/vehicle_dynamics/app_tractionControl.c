@@ -10,8 +10,10 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
 {
     PID *pid = inputs->pid;
 
-    float wheel_speed_front_left_rpm  = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
-    float wheel_speed_front_right_rpm = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
+    // float wheel_speed_front_left_rpm  = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_left_kph);
+    // float wheel_speed_front_right_rpm = app_tractionControl_wheelSpeedKPHToRPM(inputs->wheel_speed_front_right_kph);
+    float wheel_speed_front_left_rpm  = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_left_kph);
+    float wheel_speed_front_right_rpm = WHEEL_KMH_TO_RPM(inputs->wheel_speed_front_right_kph);
 
     float slip_ratio_left = app_tractionControl_computeSlip(inputs->motor_speed_left_rpm, wheel_speed_front_left_rpm);
     float slip_ratio_right =
@@ -35,16 +37,5 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
 
 float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)
 {
-    return (PLANETARY_GEAR_RATIO * motor_speed_rpm - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
-}
-
-float app_tractionControl_wheelSpeedKPHToRPM(float speed_kph)
-{
-    float tire_diameter_m, speed_mpm, speed_rpm;
-
-    tire_diameter_m = TIRE_DIAMETER_in * IN_TO_M;
-    speed_mpm       = speed_kph * 1000 / 60;
-    speed_rpm       = speed_mpm / ((float)M_PI * tire_diameter_m);
-
-    return speed_rpm;
+    return (motor_speed_rpm / GEAR_RATIO - front_wheel_speed_rpm) / (front_wheel_speed_rpm + SMALL_EPSILON);
 }

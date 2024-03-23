@@ -7,7 +7,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-
+)
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
@@ -129,6 +129,20 @@ elseif("${TARGET}" STREQUAL "test")
         FALSE
         "quadruna"
     )
+
+
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        )   
+    create_fake_library(
+        "quadruna_VC_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 

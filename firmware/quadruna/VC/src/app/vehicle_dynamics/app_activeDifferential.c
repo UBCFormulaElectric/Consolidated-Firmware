@@ -29,7 +29,7 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Act
 
 float app_activeDifferential_wheelAngleToSpeedDelta(float wheel_angle_deg)
 {
-    // angle > 0 = right
+    // angle > 0 = right5
     // angle < = left
 
     return TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_deg)) / (2 * WHEELBASE_mm);
