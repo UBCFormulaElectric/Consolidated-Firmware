@@ -8,9 +8,10 @@
         "StackWaterMarkHighTask100Hz",
         "StackWaterMarkHighTask1kHz",
         "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx"
+        "StackWaterMarkHighTaskCanTx",
+        "FlowRateOutOfRange"
     ],
     "faults": [
-        "DummyFault"
+        "FlowMeterUnderflow"
     ]
 }

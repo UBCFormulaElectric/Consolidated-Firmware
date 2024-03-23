@@ -1,6 +1,6 @@
 {
     "Coolant": {
-		"msg_id": 307,
+		"msg_id": 407,
 		"cycle_time": 1000,
 		"signals": {
 			"CoolantFlowRate": {
