@@ -4,7 +4,7 @@
 
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
-
+#define SOC_LIMIT_DERATING_VALUE 0.85f;
 /**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests

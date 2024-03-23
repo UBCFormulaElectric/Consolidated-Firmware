@@ -61,8 +61,13 @@ TEST_F(TestRegen, active_differential_exceeds_max)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
+    float expected_left_torque_request  = torque_lim_Nm * cl;
+    float expected_right_torque_request = torque_lim_Nm * cr;
+
+    float torque_negative_max = fminf(expected_left_torque_request, expected_right_torque_request);
+
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max;
 
     app_regen_computeActiveDifferentialTorque(&inputs, &regenAttributes);
 
@@ -203,7 +208,7 @@ TEST_F(TestRegen, taper_torque_request)
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(30.0f);
-    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW * 0.75; // taper
+    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -233,8 +238,8 @@ TEST_F(TestRegen, taper_torque_request)
     float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
                           (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
 
-    float expected_left_torque_request  = torque_lim_Nm * cl;
-    float expected_right_torque_request = torque_lim_Nm * cr;
+    float expected_left_torque_request  = torque_lim_Nm * cl * SOC_LIMIT_DERATING_VALUE;
+    float expected_right_torque_request = torque_lim_Nm * cr * SOC_LIMIT_DERATING_VALUE;
 
     app_regen_run(pedal_percentage);
 
@@ -254,59 +259,8 @@ TEST_F(TestRegen, taper_torque_request_max_regen_exceed)
     float steering_angle        = 0.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(9.0f);
     float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(9.0f);
-    float power_max_kW = -pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph *
-                         POWER_LIMIT_REGEN_kW;
-
-    static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
-                                                power_max_kW };
-
-    // set steering wheel angle
-    app_canRx_FSM_SteeringAngle_update(steering_angle);
-
-    // make motor speed in range
-    app_canRx_INVR_MotorSpeed_update(-right_motor_speed_rpm);
-    app_canRx_INVL_MotorSpeed_update(left_motor_speed_rpm);
-
-    // make battery in temp range
-    app_canRx_BMS_MaxCellTemperature_update(40);
-
-    // make battery in range
-    app_canRx_BMS_MaxCellVoltage_update(3.8f);
-
-    app_canRx_INVL_MotorTemperature_update(30.0f);
-    app_canRx_INVR_MotorTemperature_update(30.0f);
-
-    float delta =
-        TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm);
-    float cl = (1 + delta);
-    float cr = (1 - delta);
-
-    float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
-                          (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
-
-    float expected_left_torque_request  = torque_lim_Nm * cl * MAX_REGEN_Nm / (torque_lim_Nm * cl);
-    float expected_right_torque_request = torque_lim_Nm * cr * MAX_REGEN_Nm / (torque_lim_Nm * cl);
-
-    app_regen_run(pedal_percentage);
-
-    bool  alert                  = app_canAlerts_DCM_Warning_RegenNotAvailable_get();
-    float actual_torque_left_nM  = app_canTx_DCM_LeftInverterTorqueCommand_get();
-    float actual_torque_right_nM = app_canTx_DCM_RightInverterTorqueCommand_get();
-
-    ASSERT_TRUE(alert == false);
-    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
-    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
-}
-
-// tapers torque request due in 5-10kph, in max regen range
-TEST_F(TestRegen, taper_torque_request_transition_point)
-{
-    float pedal_percentage      = -1.0f;
-    float steering_angle        = -15.0f;
-    float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(5.5f);
-    float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(5.5f);
-    float power_max_kW = -pedal_percentage * (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph *
-                         POWER_LIMIT_REGEN_kW;
+    float power_max_kW          = -pedal_percentage * 50.0f;
+    float derating_value        = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
 
     static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
                                                 power_max_kW };
@@ -337,6 +291,65 @@ TEST_F(TestRegen, taper_torque_request_transition_point)
 
     float expected_left_torque_request  = torque_lim_Nm * cl;
     float expected_right_torque_request = torque_lim_Nm * cr;
+    float torque_negative_max           = fminf(expected_left_torque_request, expected_right_torque_request);
+
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
+
+    app_regen_run(pedal_percentage);
+
+    bool  alert                  = app_canAlerts_DCM_Warning_RegenNotAvailable_get();
+    float actual_torque_left_nM  = app_canTx_DCM_LeftInverterTorqueCommand_get();
+    float actual_torque_right_nM = app_canTx_DCM_RightInverterTorqueCommand_get();
+
+    ASSERT_TRUE(alert == false);
+    ASSERT_FLOAT_EQ(expected_left_torque_request, actual_torque_left_nM);
+    ASSERT_FLOAT_EQ(expected_right_torque_request, actual_torque_right_nM);
+}
+
+// tapers torque request due in 5-10kph, in max regen range
+TEST_F(TestRegen, taper_torque_request_transition_point)
+{
+    float pedal_percentage      = -1.0f;
+    float steering_angle        = -15.0f;
+    float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(5.5f);
+    float left_motor_speed_rpm  = MOTOR_KMH_TO_RPM(5.5f);
+    float derating_value        = (MOTOR_RPM_TO_KMH(right_motor_speed_rpm) - SPEED_MIN_kph) / SPEED_MIN_kph;
+    float power_max_kW          = -pedal_percentage * POWER_LIMIT_REGEN_kW;
+
+    static ActiveDifferential_Inputs inputs = { steering_angle, left_motor_speed_rpm, right_motor_speed_rpm,
+                                                power_max_kW };
+
+    // set steering wheel angle
+    app_canRx_FSM_SteeringAngle_update(steering_angle);
+
+    // make motor speed in range
+    app_canRx_INVR_MotorSpeed_update(-right_motor_speed_rpm);
+    app_canRx_INVL_MotorSpeed_update(left_motor_speed_rpm);
+
+    // make battery in temp range
+    app_canRx_BMS_MaxCellTemperature_update(40);
+
+    // make battery in range
+    app_canRx_BMS_MaxCellVoltage_update(3.8f);
+
+    app_canRx_INVL_MotorTemperature_update(30.0f);
+    app_canRx_INVR_MotorTemperature_update(30.0f);
+
+    float delta =
+        TRACK_WIDTH_mm * tanf(DEG_TO_RAD(steering_angle * APPROX_STEERING_TO_WHEEL_ANGLE)) / (2 * WHEELBASE_mm);
+    float cl = (1 + delta);
+    float cr = (1 - delta);
+
+    float torque_lim_Nm = -(POWER_TO_TORQUE_CONVERSION_FACTOR * inputs.power_max_kW) /
+                          (inputs.motor_speed_left_rpm * cl + inputs.motor_speed_right_rpm * cr + SMALL_EPSILON);
+
+    float expected_left_torque_request  = torque_lim_Nm * cl;
+    float expected_right_torque_request = torque_lim_Nm * cr;
+    float torque_negative_max           = fminf(expected_left_torque_request, expected_right_torque_request);
+
+    expected_left_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
+    expected_right_torque_request *= MAX_REGEN_Nm / torque_negative_max * derating_value;
 
     app_regen_run(pedal_percentage);
 
