@@ -1,11 +1,8 @@
 #include "ShutdownLoop.h"
 
 #include <QPainter>
-#include <QPainterPath>
 #include <QSvgRenderer>
 #include <qstatictext.h>
-
-ShutdownLoop::ShutdownLoop(QQuickItem *parent) : QQuickPaintedItem(parent) {}
 
 // nodes
 constexpr int nodeWidth = 15;
@@ -21,45 +18,59 @@ constexpr int      loopLabelPadDistance = 16;
 const QFont        loopLabelFont("Helvetica", loopLabelTextSize, 700, false);
 const QFontMetrics loopLabelsFontMetrics(loopLabelFont);
 
-void drawShutdownLoopNode(QPainter *p, const QPointF center)
+std::map<ShutdownLoop::ShutdownLoopNode, ShutdownLoop::LoopNodeMetadata> ShutdownLoop::node_thresholds = {
+    { ShutdownLoopNode::BSPD, { 0.048, "BSPD", TextCenterAnchor::Left } },
+    { ShutdownLoopNode::BMS, { 0.153, "BMS", TextCenterAnchor::Top } },
+    { ShutdownLoopNode::IMD, { 0.237, "IMD", TextCenterAnchor::Top } },
+    { ShutdownLoopNode::EStop, { 0.325, "EStop", TextCenterAnchor::Top } },
+    { ShutdownLoopNode::InertiaSwitch, { 0.417, "InertiaSwitch", TextCenterAnchor::Right } },
+    { ShutdownLoopNode::BOTS, { 0.472, "BOTS", TextCenterAnchor::Right } },
+    { ShutdownLoopNode::LEStop, { 0.527, "LEStop", TextCenterAnchor::Right } },
+    { ShutdownLoopNode::REStop, { 0.583, "REStop", TextCenterAnchor::Right } },
+    { ShutdownLoopNode::HVDInterlock, { 0.718, "HVDInterlock", TextCenterAnchor::Bottom } },
+    { ShutdownLoopNode::TSMS, { 0.803, "TSMS", TextCenterAnchor::Bottom } },
+    { ShutdownLoopNode::PCMInterlock, { 0.953, "PCMInterlock", TextCenterAnchor::Left } }
+};
+
+ShutdownLoop::ShutdownLoop(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
+    loopBackgroundPen = QPen(QBrush(0x434343), loopPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    loopForegroundPen = QPen(QColor(0x36FB61), loopPenWidth, Qt::CustomDashLine, Qt::RoundCap, Qt::RoundJoin);
+}
+
+void ShutdownLoop::drawShutdownLoopNode(
+    QPainter              *p,
+    const double           percentage,
+    const QString         &label,
+    const TextCenterAnchor center_anchor) const
+{
+    // draw the node
     p->setPen(Qt::NoPen);
     p->setBrush(QColor(0x36FB61));
-    p->drawEllipse(center, nodeWidth, nodeWidth);
-}
+    p->drawEllipse(loopPath.value().pointAtPercent(percentage), nodeWidth, nodeWidth);
 
-enum class TextAlignment
-{
-    Left,
-    Top,
-    Right,
-    Bottom
-};
-void drawShutdownLoopLabel(
-    QPainter           *p,
-    const double        anchor_x,
-    const double        anchor_y,
-    const QString      &label,
-    const TextAlignment alignment)
-{
+    // draw the text
     p->setFont(loopLabelFont);
     p->setPen(Qt::white);
-    const double leftShift = (alignment == TextAlignment::Top || alignment == TextAlignment::Bottom)
+    const double leftShift = (center_anchor == TextCenterAnchor::Top || center_anchor == TextCenterAnchor::Bottom)
                                  ? loopLabelsFontMetrics.horizontalAdvance(label) / 2
-                             : alignment == TextAlignment::Right ? loopLabelsFontMetrics.horizontalAdvance(label)
-                                                                 : 0;
-
-    const int topShift = (alignment == TextAlignment::Left || alignment == TextAlignment::Right)
-                             ? loopLabelsFontMetrics.height() / 2
-                         : alignment == TextAlignment::Bottom ? loopLabelsFontMetrics.height()
-                                                              : 0;
+                             : center_anchor == TextCenterAnchor::Right
+                                 ? loopLabelsFontMetrics.horizontalAdvance(label) + loopLabelPadDistance
+                                 : -loopLabelPadDistance;
+    const int    topShift  = (center_anchor == TextCenterAnchor::Left || center_anchor == TextCenterAnchor::Right)
+                                 ? loopLabelsFontMetrics.height() / 2
+                             : center_anchor == TextCenterAnchor::Bottom
+                                 ? loopLabelsFontMetrics.height() + loopLabelPadDistance
+                                 : -loopLabelPadDistance;
+    assert(loopPath.has_value());
+    const QPointF point = loopPath.value().pointAtPercent(percentage) - QPointF(leftShift, topShift);
     p->drawText(
-        static_cast<int>(std::round(anchor_x - leftShift)), static_cast<int>(std::round(anchor_y - topShift)),
-        loopLabelsFontMetrics.horizontalAdvance(label), loopLabelsFontMetrics.height(), 0, label);
+        point.x(), point.y(), loopLabelsFontMetrics.horizontalAdvance(label), loopLabelsFontMetrics.height(), 0, label);
 }
 
-void drawShutdownLoop(QPainter *p, const QRectF &loopBounds, const double percentage)
+QPainterPath ShutdownLoop::renderShutdownLoopPath(const QRectF &loopBounds)
 {
+    qInfo() << "Rerendering Shutdown Loop Path";
     QPainterPath  loop;
     const QPointF start(loopBounds.left(), loopBounds.center().y() - batteryHeight / 2.0 - 10);
     const QPointF end(loopBounds.left(), loopBounds.center().y() + batteryHeight / 2.0 + 10);
@@ -73,91 +84,63 @@ void drawShutdownLoop(QPainter *p, const QRectF &loopBounds, const double percen
     loop.arcTo(
         QRectF(loopBounds.left(), loopBounds.bottom() - 2 * loopRadius, 2 * loopRadius, 2 * loopRadius), -90, -90);
     loop.lineTo(end);
+    return loop;
+}
 
-    p->setPen(QPen(QBrush(0x434343), loopPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    p->drawPath(loop);
-    const double loopLength    = loop.length() / 8.0;
-    auto         filledPathPen = QPen(QColor(0x36FB61), loopPenWidth, Qt::CustomDashLine, Qt::RoundCap, Qt::RoundJoin);
-    filledPathPen.setDashPattern({ loopLength, loopLength });
-    filledPathPen.setDashOffset((1 - percentage) * loopLength);
-    p->setPen(filledPathPen);
-    p->drawPath(loop);
+void ShutdownLoop::drawShutdownLoopPath(QPainter *p)
+{
+    assert(loopPath.has_value());
+    p->setPen(loopBackgroundPen);
+    p->drawPath(loopPath.value());
+
+    const double loopLength = loopPath.value().length() / 8.0;
+    loopForegroundPen.setDashPattern({ loopLength, loopLength });
+    loopForegroundPen.setDashOffset((1 - m_percentage) * loopLength);
+    p->setPen(loopForegroundPen);
+    p->drawPath(loopPath.value());
 
 #ifdef QT_DEBUG
     p->drawText(100, 100, QString::fromStdString(std::to_string(percentage)));
-    const int  length = 160;
-    const auto point  = loop.pointAtPercent(loop.percentAtLength(length));
-    p->setPen(QPen(Qt::red, 10));
-    p->drawPoint(point);
 #endif
 }
 
 void ShutdownLoop::paint(QPainter *p)
 {
+    // set up painter
     p->setRenderHint(QPainter::Antialiasing, true);
     const QRectF bounds = boundingRect();
 
+    // draw battery
     QSvgRenderer batteryRenderer(QStringLiteral(":/sdloop_battery.svg"));
     const auto   center = bounds.center();
     batteryRenderer.render(p, QRectF(bounds.left(), center.y() - batteryHeight / 2.0, batteryWidth, batteryHeight));
 
+    // draw loop path
     const QRectF loopBounds = bounds.marginsRemoved(QMargins(
         std::max(loopPenWidth / 2, std::max(batteryWidth / 2, nodeWidth)), loopPenWidth / 2 + nodeWidth,
         loopPenWidth / 2 + nodeWidth, loopPenWidth / 2 + nodeWidth));
-    drawShutdownLoop(p, loopBounds, m_percentage);
+    if (!loopPath.has_value())
+        loopPath = renderShutdownLoopPath(loopBounds);
+    drawShutdownLoopPath(p);
 
-    drawShutdownLoopLabel(
-        p, static_cast<int>(loopBounds.left() + loopLabelPadDistance),
-        static_cast<int>(loopBounds.top() + 1 * loopBounds.height() / 4), "BSPD", TextAlignment::Left);
-    drawShutdownLoopNode(p, { loopBounds.left(), loopBounds.top() + 1 * loopBounds.height() / 4 });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + loopBounds.width() / 6, loopBounds.top() + loopLabelPadDistance, "BMS",
-        TextAlignment::Top);
-    drawShutdownLoopNode(p, { loopBounds.left() + loopBounds.width() / 6, loopBounds.top() });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + 3 * loopBounds.width() / 6, loopBounds.top() + loopLabelPadDistance, "IMD",
-        TextAlignment::Top);
-    drawShutdownLoopNode(p, { loopBounds.left() + 3 * loopBounds.width() / 6, loopBounds.top() });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + 5 * loopBounds.width() / 6, loopBounds.top() + loopLabelPadDistance, "EStop",
-        TextAlignment::Top);
-    drawShutdownLoopNode(p, { loopBounds.left() + 5 * loopBounds.width() / 6, loopBounds.top() });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.right() - loopLabelPadDistance, loopBounds.top() + loopBounds.height() / 5, "Inertia Switch",
-        TextAlignment::Right);
-    drawShutdownLoopNode(p, { loopBounds.right(), loopBounds.top() + loopBounds.height() / 5 });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.right() - loopLabelPadDistance, loopBounds.top() + 2 * loopBounds.height() / 5, "BOTS",
-        TextAlignment::Right);
-    drawShutdownLoopNode(p, { loopBounds.right(), loopBounds.top() + 2 * loopBounds.height() / 5 });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.right() - loopLabelPadDistance, loopBounds.top() + 3 * loopBounds.height() / 5, "LEStop",
-        TextAlignment::Right);
-    drawShutdownLoopNode(p, { loopBounds.right(), loopBounds.top() + 3 * loopBounds.height() / 5 });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.right() - loopLabelPadDistance, loopBounds.top() + 4 * loopBounds.height() / 5, "REStop",
-        TextAlignment::Right);
-    drawShutdownLoopNode(p, { loopBounds.right(), loopBounds.top() + 4 * loopBounds.height() / 5 });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + loopBounds.width() / 3, loopBounds.bottom() - loopLabelPadDistance, "TSMS",
-        TextAlignment::Bottom);
-    drawShutdownLoopNode(p, { loopBounds.left() + loopBounds.width() / 3, loopBounds.bottom() });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + 2 * loopBounds.width() / 3, loopBounds.bottom() - loopLabelPadDistance, "HVD Interlock",
-        TextAlignment::Bottom);
-    drawShutdownLoopNode(p, { loopBounds.left() + 2 * loopBounds.width() / 3, loopBounds.bottom() });
-
-    drawShutdownLoopLabel(
-        p, loopBounds.left() + loopLabelPadDistance, loopBounds.top() + 3 * loopBounds.height() / 4, "PCM Interlock",
-        TextAlignment::Left);
-    drawShutdownLoopNode(p, { loopBounds.left(), loopBounds.top() + 3 * loopBounds.height() / 4 });
+    for (const auto &[node, lnmd] : node_thresholds)
+    {
+        drawShutdownLoopNode(p, lnmd.percentage, QString::fromStdString(lnmd.name), lnmd.center_anchor);
+#ifdef QT_DEBUG
+        static std::map<ShutdownLoopNode, QColor> colorMap = { { ShutdownLoopNode::BSPD, Qt::red },
+                                                               { ShutdownLoopNode::BMS, Qt::cyan },
+                                                               { ShutdownLoopNode::IMD, Qt::green },
+                                                               { ShutdownLoopNode::EStop, Qt::gray },
+                                                               { ShutdownLoopNode::InertiaSwitch, Qt::yellow },
+                                                               { ShutdownLoopNode::BOTS, Qt::darkBlue },
+                                                               { ShutdownLoopNode::LEStop, Qt::magenta },
+                                                               { ShutdownLoopNode::REStop, Qt::darkGreen },
+                                                               { ShutdownLoopNode::TSMS, Qt::darkRed },
+                                                               { ShutdownLoopNode::HVDInterlock, Qt::blue },
+                                                               { ShutdownLoopNode::PCMInterlock, Qt::darkYellow } };
+        const auto                                point    = loopPath.value().pointAtPercent(lnmd.percentage);
+        p->setPen(QPen(colorMap.at(node), 10));
+        p->drawPoint(point);
+#endif
+    }
 }
