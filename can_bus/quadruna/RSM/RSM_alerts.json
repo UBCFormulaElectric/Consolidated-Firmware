@@ -11,7 +11,9 @@
         "StackWaterMarkHighTaskCanTx",
         "FlowRateOutOfRange",
         "LeftSuspensionOCSC",
-        "RightSuspensionOCSC"
+        "RightSuspensionOCSC",
+        "LoadCell3OCSC",
+        "LoadCell4OCSC"
     ],
     "faults": [
         "FlowMeterUnderflow"

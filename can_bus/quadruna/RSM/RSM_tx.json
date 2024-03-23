@@ -53,5 +53,21 @@
 				"unit": "cm"
 			}
 		}
+	},
+	"LoadCell":{
+		"msg_id" : 409,
+		"description" : "Mechanical load on load cell",
+		"signals" : {
+			"LoadCell3" : {
+				"resolution": 0.1,
+				"min" : 0,
+				"max" : 1000
+			},
+			"LoadCell4" : {
+				"resolution": 0.1,
+				"min" : 0,
+				"max" : 1000
+			}
+		}
 	}
 }
