@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include "../../nanopb/pb_encode.h"
 #include "../../nanopb/pb_decode.h"
-#include "simple.pb.h"
 #include "sample.pb.h"
 #include "string.h"
 #include "hw_hardFaultHandler.h"
