@@ -35,9 +35,6 @@
             "WatchdogTimeout": {
                 "bits": 1
             },
-            "EfuseFault": {
-                "bits": 1
-            },
             "TxOverflowCount": {
                 "bits": 8
             },
@@ -84,6 +81,20 @@
             },
             "Clean": {
                 "bits": 1
+            }
+        }
+    },
+    "Efuses": {
+        "msg_id": 407,
+        "cycle_time": 100,
+        "description": "PDM efuses",
+        "signals": {
+            "Efuse": {
+                "enum": "Efuse"
+            },
+            "Amount": {
+                "bits": 3,
+                "signed": false
             }
         }
     }
