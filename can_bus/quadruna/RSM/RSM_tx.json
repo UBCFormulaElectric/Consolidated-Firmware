@@ -34,5 +34,24 @@
 				"unit": "psi"
 			}
 		}
+	},
+	"Suspension": {
+		"msg_id": 408,
+		"cycle_time": 100,
+		"description": "Suspension travel.",
+		"signals": {
+			"RearLeftSuspensionTravel": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "cm"
+			},
+			"RearRightSuspensionTravel": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "cm"
+			}
+		}
 	}
 }

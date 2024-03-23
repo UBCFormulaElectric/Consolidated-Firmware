@@ -9,7 +9,9 @@
         "StackWaterMarkHighTask1kHz",
         "StackWaterMarkHighTaskCanRx",
         "StackWaterMarkHighTaskCanTx",
-        "FlowRateOutOfRange"
+        "FlowRateOutOfRange",
+        "LeftSuspensionOCSC",
+        "RightSuspensionOCSC"
     ],
     "faults": [
         "FlowMeterUnderflow"
