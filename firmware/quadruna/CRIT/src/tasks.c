@@ -8,7 +8,7 @@
 #include "hw_gpio.h"
 #include "hw_adc.h"
 #include "hw_uart.h"
-#include "hw_bootup.h"
+// #include "hw_bootup.h"
 
 #include "io_jsoncan.h"
 #include "app_heartbeatMonitor.h"
@@ -363,7 +363,7 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 
 void tasks_preInit(void)
 {
-    hw_bootup_enableInterruptsForApp();
+    // hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
