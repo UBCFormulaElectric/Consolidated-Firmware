@@ -13,7 +13,7 @@ class CanQML final : public QObject
     QML_SINGLETON
 
     static CanQML *instance;
-    explicit CanQML(QObject *parent = nullptr) : QObject(parent) {}
+    explicit       CanQML(QObject *parent = nullptr) : QObject(parent) {}
 
   public:
     static CanQML *getInstance()
@@ -29,7 +29,8 @@ class CanQML final : public QObject
         return getInstance();
     }
     static bool VC_Fault_DummyFault_get() { return app_canRx_VC_Fault_DummyFault_get(); }
-    Q_PROPERTY(bool VC_Fault_DummyFault READ VC_Fault_DummyFault_get NOTIFY notify_all_signals FINAL REQUIRED)
+    Q_PROPERTY(
+        bool VC_Fault_DummyFault READ VC_Fault_DummyFault_get NOTIFY notify_all_signals FINAL REQUIRED STORED false)
   signals:
     void notify_all_signals();
 };
