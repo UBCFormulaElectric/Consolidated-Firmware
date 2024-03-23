@@ -469,7 +469,7 @@ static void MX_SDMMC1_SD_Init(void)
 {
 
   /* USER CODE BEGIN SDMMC1_Init 0 */
-  if(HAL_GPIO_ReadPin(SD_CD_GPIO_Port, SD_CD_Pin))
+  if(HAL_GPIO_ReadPin(SD_CD_GPIO_Port, SD_CD_Pin) == GPIO_PIN_RESET)
   {
     sd_init = false;
     return;
@@ -490,7 +490,7 @@ static void MX_SDMMC1_SD_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SDMMC1_Init 2 */
-
+  sd_init = true;
   /* USER CODE END SDMMC1_Init 2 */
 
 }

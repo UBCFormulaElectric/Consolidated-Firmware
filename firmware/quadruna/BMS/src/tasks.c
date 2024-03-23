@@ -14,6 +14,7 @@
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
 #include "hw_uart.h"
+#include "hw_sd.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -68,6 +69,7 @@ extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim15;
 extern UART_HandleTypeDef huart1;
+extern SD_HandleTypeDef hsd1;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
@@ -87,6 +89,14 @@ static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_P
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
+
+
+static SdCard sd = {
+    .hsd = &hsd1,
+    .timeout = osWaitForever,
+    .sd_present = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
+    .sd_init_complete = false,
+};
 
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
@@ -281,6 +291,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
+    hw_sd_init(&sd);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

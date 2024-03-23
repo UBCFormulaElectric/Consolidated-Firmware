@@ -21,8 +21,6 @@ static void initStateRunOnEntry(void)
     // AIR+ closed in init
     io_airs_openPositive();
 
-    app_soc_resetSocFromVoltage();
-
     iso_spi_state_counter = 0;
 }
 

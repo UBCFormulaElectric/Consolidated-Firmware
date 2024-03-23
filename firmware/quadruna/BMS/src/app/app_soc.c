@@ -1,10 +1,15 @@
-#include <math.h>
 #include "app_soc.h"
+#include "app_math.h"
+#include "app_tractiveSystem.h"
+#include "lut/app_cellVoltageToSocLut.h"
+
+#ifdef TARGET_EMBEDDED
+#include "hw_sd.h"
+#endif
 #include <stdint.h>
 #include <float.h>
-#include "app_math.h"
-#include "lut/app_cellVoltageToSocLut.h"
-#include "app_tractiveSystem.h"
+#include <string.h>
+#include <math.h>
 
 #define MS_TO_S (0.001)
 #define SOC_TIMER_DURATION (110U)
@@ -34,12 +39,25 @@ static SocStats stats;
 
 #ifndef TARGET_EMBEDDED
 
+// ONLY FOR USE IN OFF-TARGET TESTING
 void app_soc_setPrevCurrent(float current)
 {
     stats.prev_current_A = current;
 }
 
 #endif
+
+static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
+{
+    memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
+}
+
+static float convert_bytes_to_float(uint8_t *byte_array)
+{
+    float converted_float;
+    memcpy(&converted_float, byte_array, sizeof(float));
+    return converted_float;
+}
 
 float app_soc_getSocFromOcv(float voltage)
 {
@@ -85,20 +103,26 @@ void app_soc_init(void)
     stats.is_corrupt = true;
     stats.charge_c   = -1;
 
+    uint8_t sd_read_data[64];
+
     // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
-    // float saved_soc_c = -1.0f;
+    float saved_soc_c = -1.0f;
+
+#ifdef TARGET_EMBEDDED
 
     // TODO: Update to SD Card logic
     // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
     // {
-    //     if (app_eeprom_readMinSoc(stats.soc_address, &saved_soc_c) == EXIT_CODE_OK)
-    //     {
-    //         if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
-    //         {
-    //             stats.charge_c   = (double)saved_soc_c;
-    //             stats.is_corrupt = false;
-    //         }
-    //     }
+    if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
+    {
+        saved_soc_c = convert_bytes_to_float(sd_read_data);
+
+        if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+        {
+            stats.charge_c   = (double)saved_soc_c;
+            stats.is_corrupt = false;
+        }
+    }
     // }
     // else
     // {
@@ -111,6 +135,8 @@ void app_soc_init(void)
     // {
     //     stats.soc_address = DEFAULT_SOC_ADDR;
     // }
+
+#endif
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
@@ -179,4 +205,15 @@ void app_soc_resetSocCustomValue(float soc_percent)
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+}
+
+void app_soc_writeValue(void)
+{
+    const float min_soc = app_soc_getMinSocCoulombs();
+    uint8_t     sd_write_data[4];
+
+    convert_float_to_bytes(sd_write_data, min_soc);
+#ifdef TARGET_EMBEDDED
+    hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
+#endif
 }
