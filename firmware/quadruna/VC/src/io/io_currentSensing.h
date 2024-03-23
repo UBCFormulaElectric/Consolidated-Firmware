@@ -27,7 +27,7 @@ void io_currentSensing_init(const CurrentSensingConfig *current_sensing_config);
  * Gets current from battery (BAT_I_SNS pin)
  * @return current from battery
  */
-float io_currentSensing_batteryCurrent();
+float io_currentSensing_getBatteryCurrent();
 
 /**
  * Check if there is a fault at the battery (BAT_I_SNS_!FLT pin)
@@ -39,7 +39,7 @@ bool io_currentSensing_hasBatteryFault();
  * Gets current from battery (ACC_I_SNS pin)
  * @return current from accumulator
  */
-float io_currentSensing_accumulatorCurrent();
+float io_currentSensing_getAccumulatorCurrent();
 
 /**
  * Check if there is a fault at the accumulator (ACC_I_SNS_!FLT pin)

@@ -12,6 +12,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
+#include "app_currentSensing.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -21,6 +22,7 @@
 #include "io_efuse.h"
 #include "io_lowVoltageBattery.h"
 #include "io_shutdown.h"
+#include "io_currentSensing.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -63,7 +65,7 @@ static const Gpio      bat_i_sns_nflt   = { .port = BAT_I_SNS_nFLT_GPIO_Port, .p
 static const BinaryLed led              = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 static const Gpio      telem_pwr_en     = { .port = TELEM_PWR_EN_GPIO_Port, .pin = TELEM_PWR_EN_Pin };
 static const Gpio      npcm_en          = { .port = nPCM_EN_GPIO_Port, .pin = nPCM_EN_Pin };
-static const Gpio      acc_i_sense_nflt = { .port = ACC_I_SENSE_nFLT_GPIO_Port, .pin = ACC_I_SENSE_nFLT_Pin };
+static const Gpio      acc_i_sns_nflt   = { .port = ACC_I_SENSE_nFLT_GPIO_Port, .pin = ACC_I_SENSE_nFLT_Pin };
 static const Gpio      pgood            = { .port = PGOOD_GPIO_Port, .pin = PGOOD_Pin };
 static const Gpio      lv_pwr_en        = { .port = LV_PWR_EN_GPIO_Port, .pin = LV_PWR_EN_Pin };
 static const Gpio      aux_pwr_en       = { .port = AUX_PWR_EN_GPIO_Port, .pin = AUX_PWR_EN_Pin };
@@ -91,7 +93,7 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_LED]              = &led.gpio,
                              [VC_GpioNetName_TELEM_PWR_EN]     = &telem_pwr_en,
                              [VC_GpioNetName_NPCM_EN]          = &npcm_en,
-                             [VC_GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sense_nflt,
+                             [VC_GpioNetName_ACC_I_SENSE_NFLT] = &acc_i_sns_nflt,
                              [VC_GpioNetName_PGOOD]            = &pgood,
                              [VC_GpioNetName_LV_PWR_EN]        = &lv_pwr_en,
                              [VC_GpioNetName_AUX_PWR_EN]       = &aux_pwr_en,
@@ -125,6 +127,13 @@ const AdcChannel id_to_adc[] = {
     [VC_AdcNetName_LV_PWR_I_SNS]     = ADC1_IN4_LV_PWR_I_SNS,
     [VC_AdcNetName_ACC_I_SENSE]      = ADC1_IN5_ACC_I_SENSE,
     [VC_AdcNetName_PUMP_PWR_I_SNS]   = ADC3_IN1_PUMP_PWR_I_SNS,
+};
+
+static const CurrentSensingConfig current_sensing_config = {
+    .bat_fault_gpio  = bat_i_sns_nflt,
+    .acc_fault_gpio  = acc_i_sns_nflt,
+    .bat_current_adc = ADC1_IN14_BAT_I_SNS,
+    .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
 };
 
 static const ShutdownConfig shutdown_config = {
@@ -276,6 +285,7 @@ void tasks_init(void)
 
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
+    io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);

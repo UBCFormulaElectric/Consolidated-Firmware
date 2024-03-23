@@ -20,13 +20,13 @@ bool io_currentSensing_hasBatteryFault()
     return hw_gpio_readPin(&config->bat_fault_gpio);
 }
 
-bool io_currentSensing_getAccumulatorCurrent()
+float io_currentSensing_getAccumulatorCurrent()
 {
     // TODO: implement voltage to current logic
     return hw_adc_getVoltage(config->acc_current_adc);
 }
 
-bool io_currentSensing_getBatteryCurrent()
+float io_currentSensing_getBatteryCurrent()
 {
     // TODO: implement voltage to current logic
     return hw_adc_getVoltage(config->bat_current_adc);
