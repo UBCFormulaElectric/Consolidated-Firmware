@@ -24,12 +24,12 @@ class LogFsDummyContext(LogFsContext):
             self.write_cycles.append(0)
 
     def read(self, block: int) -> Tuple[LogFsErr, bytes]:
-        print(f"read @ {block}: {self.disk[block]}")
+        # print(f"read @ {block}: {self.disk[block]}")
         self.reads += 1
         return LogFsErr.OK, self.disk[block]
 
     def write(self, block: int, data: bytes) -> LogFsErr:
-        print(f"write @ {block}: {data}")
+        # print(f"write @ {block}: {data}")
         self.disk[block] = data
         self.writes += 1
         self.write_cycles[block] += 1

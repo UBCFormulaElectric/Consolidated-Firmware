@@ -38,12 +38,17 @@ class LogFs:
     READ_ITER_CHUNK_SIZE = 32
 
     def __init__(
-        self, block_size: int, block_count: int, context: LogFsContext
+        self,
+        block_size: int,
+        block_count: int,
+        context: LogFsContext,
+        write_cycles: int = 0,
     ) -> None:
         self.block_size = block_size
         self.block_count = block_count
+        self.write_cycles = write_cycles
         self.context = context
-        self.fs = PyLogFs(block_size, block_count, context)
+        self.fs = PyLogFs(block_size, block_count, write_cycles, context)
 
     def format(self) -> None:
         """

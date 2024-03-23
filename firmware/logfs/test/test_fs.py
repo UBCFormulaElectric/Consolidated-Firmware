@@ -8,7 +8,7 @@ BLOCK_SIZE = 512
 
 @pytest.fixture
 def fs_unformatted() -> LogFs:
-    fs = LogFs(BLOCK_SIZE, BLOCK_COUNT, LogFsDummyContext(BLOCK_SIZE, BLOCK_COUNT))
+    fs = LogFs(BLOCK_SIZE, BLOCK_COUNT, LogFsDummyContext(BLOCK_SIZE, BLOCK_COUNT), 100)
     return fs
 
 

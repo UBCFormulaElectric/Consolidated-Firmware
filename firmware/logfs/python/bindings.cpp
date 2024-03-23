@@ -40,14 +40,15 @@ class PyLogFsFile
 class PyLogFs
 {
   public:
-    PyLogFs(uint32_t block_size, uint32_t block_count, py::object context) : context(context)
+    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, py::object context) : context(context)
     {
         // Init config struct.
-        cfg.block_size  = block_size;
-        cfg.block_count = block_count;
-        cfg.context     = &this->context;
-        cfg.read        = readWrapper;
-        cfg.write       = writeWrapper;
+        cfg.block_size   = block_size;
+        cfg.block_count  = block_count;
+        cfg.write_cycles = write_cycles;
+        cfg.context      = &this->context;
+        cfg.read         = readWrapper;
+        cfg.write        = writeWrapper;
 
         // Allocate block cache on heap.
         cfg.cache = malloc(block_size);
@@ -180,7 +181,7 @@ PYBIND11_MODULE(logfs_src, m)
         .def(py::init<>());
 
     py::class_<PyLogFs>(m, "PyLogFs")
-        .def(py::init<uint32_t, uint32_t, py::object&>())
+        .def(py::init<uint32_t, uint32_t, uint32_t, py::object&>())
         .def("mount", &PyLogFs::mount)
         .def("format", &PyLogFs::format)
         .def("open", &PyLogFs::open)

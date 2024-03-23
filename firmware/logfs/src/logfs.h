@@ -5,60 +5,6 @@ extern "C"
 {
 #endif
 
-    /*
-    Power loss resilience for critical data is guaranteed with "pairs." Pairs consist of 2 blocks: Block 0 and Block 1.
-    Writes to pairs are done in an alternating order, so for ex. block 0, then block 1, then block 0, etc. This means
-    that if a write fails due to power loss, we can roll back to the other pair block.
-
-    How do we know which element in the pair is the most recent? If either element is invalid, we just have to
-    pick the valid one. If both are valid, we use the "sequence number" stored in each block.
-
-    Sequence numbers have 4 possible values, and are initialized to zero. Sequence number comparsions are made like:
-    - 4 > 3
-    - 3 > 2
-    - 2 > 1
-    - 0 > 4
-
-    Each element of the pair has its own sequence number that is written to disk. Upon reading a pair with an unknown
-    state, the two sequence numbers can be compared as above, and the element with the most significant number will be
-    taken to be the most recent. So, when alternating between element writes, we need to always increment the sequence
-    number by 1. This way, our most recent write will always have the greatest sequence number, which we want!
-
-    A few optimizations:
-    1. We can say that even sequence numbers correspond to Block 0 being the most recent, and odd correspond to Block 1
-    being the most recent. Then we only need to keep track of the sequence number.
-    2. We can cache sequence number for blocks we're going to want to use again. Then, we don't need to figure out which
-    is the most recent for later reads/writes. Be careful! If cacheing is not done properly, you could easily use
-    invalid/old data.
-    */
-
-    // TODO: If you write a piece of data that crosses a block boundary, the
-    // second write could fail after the first succeeds. This could be bad,
-    // because if you rely on the last N bytes (ex. boot count), it could
-    // grab a partially-written byte sequence, and so carry invalid data.
-
-    // TODO 2: Consider splitting logfs_open into a 2 functions, 1 that only
-    // searches the disk for existing files, and another that just creates a
-    // new file.
-
-    // TODO 3: Figure out a better way of handling file cfg struct. Very easy for pointers to become dangling right now.
-
-    // TODO 4: If a file has been closed, notify the user in some way rather than just saying "corrupt!".
-
-    // TODO 5: Looks like after cacheing, the reads/writes are a lot lower, but the runtime is still slow! Maybe just
-
-    // need to make some runtime optimizations... (fixed by increasing optimization level)
-
-    /* TODO 6: How does a write operation fail? Let's say a block already has some data on it so the file block says its
-     * the head. What happens if you then write some more data to the block, but while writing, power is lost? Then
-     * theoretically the data block could be corrupted, but the file block still points to it, leading to a lost file?
-     * Cacheing should help here, but should still be fixed. This could still happen after a sync... */
-    // Soln: Just have a "previous block" address and update if the head is invalid.
-
-    // TODO 7: Give each file a "metadata block" where the user can attach metadata for writes that can't fail. These
-    // blocks will be a pair so they are resilient to power loss. Could also look into making them get evicted after N
-    // writes.
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -83,8 +29,8 @@ extern "C"
 
     typedef enum
     {
-        LOGFS_READ_MODE_END,  // Read from start of file
-        LOGFS_READ_MODE_ITER, //
+        LOGFS_READ_MODE_END,  // Read from end of file
+        LOGFS_READ_MODE_ITER, // Read next N bytes of file
     } LogFsReadMode;
 
     /* Config structs */
@@ -103,6 +49,8 @@ extern "C"
         LogFsErr (*write)(const struct _LogFsCfg *cfg, uint32_t block, void *buf);
         // Pointer to cache buffer (must be 1 block in size).
         void *cache;
+        // Number of write cycles before blocks are evicted and replaced.
+        uint32_t write_cycles;
     } LogFsCfg;
 
     typedef struct
@@ -115,25 +63,27 @@ extern "C"
 
     typedef struct
     {
-        uint32_t crc;     // Checksum must be first word in block
-        uint8_t  seq_num; // Sequence number (used to calculate most recent version of the pair)
-        uint32_t write_cycles;
-        uint32_t replacement_addr;
-        uint32_t next_file_addr;         // Address of the next file block
-        uint32_t metadata_addr;          // Address of the file's metadata block
-        uint32_t head_data_addr;         // Address of file's newest data block
-        uint32_t prev_head_addr;         // Address of file's previous head (for redundnacy, if head is corrupted)
-        char     path[LOGFS_PATH_BYTES]; // File path string
+        uint32_t crc;              // Checksum must be first word in block
+        uint8_t  seq_num;          // Sequence number (used to calculate most recent version of the pair)
+        uint32_t write_cycles;     // Number of times this pair has been written to
+        uint32_t replacement_addr; // Replacement address if evicted (invalid address if this block is still valid)
+    } LogFsPairHeader;
+
+    typedef struct
+    {
+        LogFsPairHeader pair_hdr;       // Pair data (pairs guarantee power loss resilience, must be first)
+        uint32_t        next_file_addr; // Address of the next file block
+        uint32_t        metadata_addr;  // Address of the file's metadata block
+        uint32_t        head_data_addr; // Address of file's newest data block
+        uint32_t        prev_head_addr; // Address of file's previous head (for redundnacy, if head is corrupted)
+        char            path[LOGFS_PATH_BYTES]; // File path string
     } LogFsBlock_File;
 
     typedef struct
     {
-        uint32_t crc;     // Checksum must be first word in block
-        uint8_t  seq_num; // Sequence number (used to calculate most recent version of the pair)
-        uint32_t write_cycles;
-        uint32_t replacement_addr;
-        uint32_t num_bytes; // Number of data bytes in this block
-        uint8_t  data;      // First data byte, used to get pointer to the actual data bytes
+        LogFsPairHeader pair_hdr;  // Pair data (pairs guarantee power loss resilience, must be first)
+        uint32_t        num_bytes; // Number of data bytes in this block
+        uint8_t         data;      // First data byte, used to get pointer to the actual data bytes
     } LogFsBlock_Metadata;
 
     typedef struct
@@ -202,6 +152,7 @@ extern "C"
         bool     out_of_memory;        // If the filesystem has run out of memory
 
         // Utility pointers to filesystem cache.
+        LogFsPairHeader     *cache_pair_hdr; // Pair header in filesystem cache (used for pair read/write ops)
         LogFsBlock_File     *cache_file;     // File block pointer to the filesystem cache (for convenience)
         LogFsBlock_Metadata *cache_metadata; // Metadata block pointer to the filesystem cache (for convenience)
         LogFsBlock_Data     *cache_data;     // Data block pointer to the filesystem cache (for convenience)

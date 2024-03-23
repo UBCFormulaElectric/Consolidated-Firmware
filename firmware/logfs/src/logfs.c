@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "disk.h"
 #include "utils.h"
-#include "crc.h"
 
 static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
 {
@@ -15,9 +14,11 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->max_path_len_bytes                  = MIN(fs->cfg->block_size - sizeof(LogFsBlock_File), LOGFS_PATH_BYTES);
     fs->head_file_addr                      = LOGFS_INVALID_BLOCK;
     fs->head_addr                           = 0;
-    fs->cache_file                          = fs->cfg->cache;
-    fs->cache_metadata                      = fs->cfg->cache;
-    fs->cache_data                          = fs->cfg->cache;
+
+    fs->cache_pair_hdr = fs->cfg->cache;
+    fs->cache_file     = fs->cfg->cache;
+    fs->cache_metadata = fs->cfg->cache;
+    fs->cache_data     = fs->cfg->cache;
 }
 
 static void inline logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg)
@@ -39,18 +40,16 @@ static LogFsErr logfs_createNewFile(LogFs *fs, LogFsFile *file, LogFsFileCfg *cf
     const uint32_t new_data_block     = new_metadata_block + LOGFS_PAIR_SIZE;
 
     // Write file pair to disk.
-    fs->cache_file->head_data_addr   = new_data_block;
-    fs->cache_file->prev_head_addr   = LOGFS_INVALID_BLOCK;
-    fs->cache_file->metadata_addr    = new_metadata_block;
-    fs->cache_file->next_file_addr   = LOGFS_INVALID_BLOCK;
-    fs->cache_file->replacement_addr = LOGFS_INVALID_BLOCK;
+    fs->cache_file->head_data_addr = new_data_block;
+    fs->cache_file->prev_head_addr = LOGFS_INVALID_BLOCK;
+    fs->cache_file->metadata_addr  = new_metadata_block;
+    fs->cache_file->next_file_addr = LOGFS_INVALID_BLOCK;
     strcpy(fs->cache_file->path, cfg->path);
     disk_newPair(&file->file_pair, new_file_block);
     RET_ERR(disk_writePair(fs, &file->file_pair, false));
 
     // Write metadata pair to disk.
-    fs->cache_metadata->num_bytes        = 0;
-    fs->cache_metadata->replacement_addr = LOGFS_INVALID_BLOCK;
+    fs->cache_metadata->num_bytes = 0;
     disk_newPair(&file->metadata_pair, new_metadata_block);
     RET_ERR(disk_writePair(fs, &file->metadata_pair, false));
 
