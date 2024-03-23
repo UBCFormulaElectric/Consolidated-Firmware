@@ -1,7 +1,8 @@
 {
   "VcState": {
     "VC_INIT_STATE": 0,
-    "VC_DRIVE_STATE": 1
+    "VC_INVERTER_ON_STATE": 1,
+    "VC_DRIVE_STATE": 2
   },
 
   "DcmSbgStatus": {

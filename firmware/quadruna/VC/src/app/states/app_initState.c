@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stddef.h>
 #include "states/app_initState.h"
+#include "states/app_inverterOnState.h"
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
 #include "app_canTx.h"
@@ -29,7 +30,7 @@ static void initStateRunOnTick100Hz(void)
 
     if (is_inverter_on_or_drive_state)
     {
-        app_stateMachine_setNextState(app_driveState_get());
+        app_stateMachine_setNextState(app_inverterOnState_get());
     }
 }
 
