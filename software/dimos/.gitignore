@@ -60,3 +60,6 @@ compile_commands.json
 
 **/*.txt
 !**/*/CMakeLists.txt
+
+flash.ps1
+flash.sh
