@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include "app_utils.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -7,8 +8,8 @@
 
 typedef struct
 {
-    const Gpio bat_fault_gpio;
-    const Gpio acc_fault_gpio;
+    const Gpio       bat_fault_gpio;
+    const Gpio       acc_fault_gpio;
     const AdcChannel bat_current_adc;
     const AdcChannel acc_current_adc;
 } CurrentSensingConfig;

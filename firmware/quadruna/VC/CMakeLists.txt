@@ -131,6 +131,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
     )
     create_fake_library(
         "quadruna_VC_fakes"

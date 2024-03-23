@@ -516,7 +516,7 @@
     "Voltages": {
         "msg_id": 219,
         "cycle_time": 100,
-        "description": "PDM voltages.",
+        "description": "VC voltages.",
         "signals": {
             "BatVoltage": {
                 "resolution": 0.01,
@@ -535,6 +535,25 @@
                 "min": 0,
                 "max": 30,
                 "unit": "V"
+            }
+        }
+    },
+    "CurrentSensing": {
+        "msg_id": 220,
+        "cycle_time": 100,
+        "description": "Battery and accumulator currents.",
+        "signals": {
+            "AccCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "BatCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
             }
         }
     }

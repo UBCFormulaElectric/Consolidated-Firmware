@@ -14,16 +14,18 @@
         "RxOverflow",
         "RegenNotAvailable",
         "SbgRxOverflow",
-        "LEStopFault", 
-        "REStopFault",
-        "TSMSFault",
-        "PCMInterlockFault"
+        "LEStop", 
+        "REStop",
+        "TSMS",
+        "PCMInterlock"
     ],
     "faults": [
         "MissingBMSHeartbeat",
         "MissingFSMHeartbeat",
         "MissingDIMHeartbeat",
         "LeftInverterFault",
-        "RightInverterFault"
+        "RightInverterFault",
+        "BatteryFault",
+        "AccumulatorFault"
     ]
   }
