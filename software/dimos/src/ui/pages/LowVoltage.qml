@@ -9,6 +9,9 @@ Item {
             first_visit_complete = true;
         }
     }
+    Keys.onSpacePressed: {
+        first_visit_complete = false;
+    }
     GridLayout {
         anchors.fill: parent
         columns: 4
@@ -45,11 +48,12 @@ Item {
                 id: shutdownLoop
                 anchors.fill: parent
                 visible: true
-                percentage: first_visit_complete ? 1 : 0 // todo set to correct percentage
+                percentage: first_visit_complete ? 0.803 : 0 // todo set to correct percentage
 
                 Behavior on percentage {
                     NumberAnimation {
-                        duration: 1000
+                        duration: 2500
+                        easing.type: Easing.InOutSine
                     }
                 }
             }
