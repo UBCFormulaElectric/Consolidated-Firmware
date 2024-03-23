@@ -20,14 +20,14 @@ typedef void (*MsgReceivedCallback)(CanMsg *rx_msg);
 typedef struct
 {
     FDCAN_HandleTypeDef *can;
-    MsgReceivedCallback  canMsgRecievecallback;
+    MsgReceivedCallback  can_msg_received_callback;
 } CanHandle;
 #else
 // STM32 HAL CAN handle.
 typedef struct
 {
     CAN_HandleTypeDef  *can;
-    MsgReceivedCallback canMsgRecievecallback;
+    MsgReceivedCallback can_msg_received_callback;
 } CanHandle;
 #endif
 
@@ -35,7 +35,7 @@ typedef struct
  * Initialize CAN driver.
  * @param can_handle STM32 HAL CAN handle.
  */
-void hw_can_init(CanHandle *can_handle);
+void hw_can_init(const CanHandle *can_handle);
 
 /**
  * Stop and deinitialize the CAN peripheral.

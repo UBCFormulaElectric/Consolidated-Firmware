@@ -2,9 +2,13 @@
 
 typedef enum
 {
-    FILE_OK    = 0,
-    FILE_ERROR = -1, // general error
-} FileSystemStatus;
+    FILE_OK        = 0,
+    FILE_ERROR     = -1, // general error
+    FILE_CORRUPTED = -2, // file system corrupted
+    FILE_NOT_FOUND = -3, // file not found
+    FILE_NO_SPACE  = -4, // no space left
+    FILE_ERROR_IO  = -5, // io error
+} FileSystemError;
 
 // init the file system
 // config the file system

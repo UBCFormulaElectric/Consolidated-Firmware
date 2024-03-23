@@ -4,7 +4,7 @@
  * @file           : main.c
  * @brief          : Main program body
  ******************************************************************************
- * @attenti * Copyright (c) 2023 STMicroelectronics.
+ * Copyright (c) 2023 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -38,7 +38,6 @@
 #include "hw_bootup.h"
 #include "io_can.h"
 #include "io_canLogging.h"
-#include "io_lfs_config.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
@@ -156,13 +155,13 @@ void runCanRxTask(void *argument);
 >>>>>>> 672ea0c3 (rm bootload for now)
 
 /* USER CODE BEGIN PFP */
-static void canMsgRecievecallback(CanMsg *rx_msg);
+static void can_msg_received_callback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan2, .canMsgRecievecallback = canMsgRecievecallback };
+CanHandle can = { .can = &hfdcan2, .can_msg_received_callback = can_msg_received_callback };
 SdCard    sd;
 Gpio      sd_present = {
          .pin  = GPIO_PIN_8,
@@ -231,22 +230,6 @@ int main(void)
         io_canLogging_init(&can_config);
     }
 
-    // Configure and initialize SEGGER SystemView.
-    // static int   e = 0;
-    // uint8_t      buff[4096];
-    // SdCardStatus d = hw_sd_write_dma(&sd, buff, 0, 1);
-    // while (1)
-    //     ;
-    // d              = hw_sd_write_dma(&sd, buff, 1, 1);
-    // (void)d;
-    // for (size_t i = 0; i < 1000; i++)
-    // {
-    //     uint32_t start = i * 4096 / 512;
-    //     if (hw_sd_write_dma(&sd, buff, start, 1) != SD_CARD_OK)
-    //     {
-    //         e++;
-    //     }
-    // }
     SEGGER_SYSVIEW_Conf();
     // LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
@@ -599,7 +582,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-static void canMsgRecievecallback(CanMsg *rx_msg)
+static void can_msg_received_callback(CanMsg *rx_msg)
 {
     // TODO: check gpio present
     static uint32_t id = 0;

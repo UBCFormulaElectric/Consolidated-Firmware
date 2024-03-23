@@ -1,6 +1,6 @@
 #include "lfs.h"
 #include "io_fileSystem.h"
-#include "io_lfs_config.h"
+#include "io_lfsConfig.h"
 
 #define LFS_NO_MALLOC 1
 #define MAX_FILE_NUMBER 5
@@ -13,9 +13,28 @@ static bool       file_opened[MAX_FILE_NUMBER]; // true if the file is opened
 static struct lfs_file_config fcfg[MAX_FILE_NUMBER];
 static struct lfs_config      cfg;
 
+static int lfsErrorToFsError(int err)
+{
+    switch (err)
+    {
+        case LFS_ERR_OK:
+            return FILE_OK;
+        case LFS_ERR_IO:
+            return FILE_ERROR_IO;
+        case LFS_ERR_CORRUPT:
+            return FILE_CORRUPTED;
+        case LFS_ERR_NOENT:
+            return FILE_NOT_FOUND;
+        case LFS_ERR_NOSPC:
+            return FILE_NO_SPACE;
+        default:
+            return FILE_ERROR;
+    }
+}
+
 int io_fileSystem_init(void)
 {
-    int err = io_lfs_config(&cfg);
+    int err = io_lfsConfig(&cfg);
     err     = lfs_mount(&lfs, &cfg);
     if (err)
     {
@@ -25,7 +44,7 @@ int io_fileSystem_init(void)
 
     if (err)
     {
-        return err;
+        return lfsErrorToFsError(err);
     }
 
     memset(file_opened, 0, sizeof(file_opened));
@@ -34,7 +53,7 @@ int io_fileSystem_init(void)
         fcfg[i].buffer = file_buffer[i];
     }
 
-    return 0;
+    return FILE_OK;
 }
 
 static int allocate_file_number(void)
@@ -47,7 +66,7 @@ static int allocate_file_number(void)
             return i;
         }
     }
-    return -1;
+    return FILE_NOT_FOUND;
 }
 
 static bool is_valid_fd(int fd)
@@ -61,7 +80,7 @@ int io_fileSystem_open(const char *path)
     int fd = allocate_file_number();
     if (fd < 0)
     {
-        return -1;
+        return FILE_NOT_FOUND;
     }
     fcfg->attrs->buffer = (void *)path;
 
@@ -81,12 +100,12 @@ int io_fileSystem_read(int fd, void *buffer, size_t size)
 {
     if (!is_valid_fd(fd))
     {
-        return FILE_ERROR;
+        return FILE_NOT_FOUND;
     }
     int err = lfs_file_read(&lfs, &files[fd], buffer, size);
     if (err < 0)
     {
-        return FILE_ERROR;
+        return lfsErrorToFsError(err);
     }
     return FILE_OK;
 }
@@ -100,7 +119,7 @@ int io_fileSystem_write(int fd, void *buffer, size_t size)
     int err = lfs_file_write(&lfs, &files[fd], buffer, size);
     if (err < 0)
     {
-        return FILE_ERROR;
+        return lfsErrorToFsError(err);
     }
     return FILE_OK;
 }
@@ -127,7 +146,7 @@ int io_fileSystem_close(int fd)
     int err = lfs_file_close(&lfs, &files[fd]);
     if (err < 0)
     {
-        return FILE_ERROR;
+        return lfsErrorToFsError(err);
     }
     file_opened[fd] = false;
     return FILE_OK;
@@ -139,13 +158,21 @@ int io_fileSystem_sync(int fd)
     {
         return FILE_ERROR;
     }
-
+    int         err  = FILE_OK;
     const char *path = fcfg[fd].attrs->buffer;
 
-    lfs_soff_t seek = lfs_file_seek(&lfs, &files[fd], 0, LFS_SEEK_CUR);
+    lfs_soff_t seek = lfs_file_seek(&lfs, &files[fd], 0, LFS_SEEK_CUR); // old position
 
-    lfs_file_close(&lfs, &files[fd]);
-    lfs_file_opencfg(&lfs, &files[fd], path, LFS_O_RDWR | LFS_O_CREAT, &fcfg[fd]);
+    err = lfs_file_close(&lfs, &files[fd]);
+    if (err < 0)
+    {
+        return lfsErrorToFsError(err);
+    }
+    err = lfs_file_opencfg(&lfs, &files[fd], path, LFS_O_RDWR | LFS_O_CREAT, &fcfg[fd]);
+    if (err < 0)
+    {
+        return lfsErrorToFsError(err);
+    }
     lfs_file_seek(&lfs, &files[fd], seek, LFS_SEEK_SET);
     return FILE_OK;
 }

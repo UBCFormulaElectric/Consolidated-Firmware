@@ -1,4 +1,4 @@
-#include "io_lfs_config.h"
+#include "io_lfsConfig.h"
 #include "hw_sd.h"
 #include "hw_gpio.h"
 
@@ -9,14 +9,14 @@ extern SdCard sd;
 extern Gpio   sd_present;
 extern bool   sd_inited;
 
-static bool sd_card_ready()
+static bool sdCardReady()
 {
     return sd_inited && !hw_gpio_readPin(&sd_present);
 }
 
-int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
+int io_lfsConfig_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
-    if (!sd_card_ready())
+    if (!sdCardReady())
     {
         return LFS_ERR_IO;
     }
@@ -30,9 +30,9 @@ int io_lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, vo
     return LFS_ERR_OK;
 }
 
-int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
+int io_lfsConfig_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    if (!sd_card_ready())
+    if (!sdCardReady())
     {
         return LFS_ERR_IO;
     }
@@ -45,9 +45,9 @@ int io_lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, co
     return LFS_ERR_OK;
 }
 
-int io_lfs_erase(const struct lfs_config *c, lfs_block_t block)
+int io_lfsConfig_erase(const struct lfs_config *c, lfs_block_t block)
 {
-    if (!sd_card_ready())
+    if (!sdCardReady())
     {
         return LFS_ERR_IO;
     }
@@ -59,22 +59,22 @@ int io_lfs_erase(const struct lfs_config *c, lfs_block_t block)
     return LFS_ERR_OK;
 }
 
-int io_lfs_sync(const struct lfs_config *c)
+int io_lfsConfig_sync(const struct lfs_config *c)
 {
-    if (!sd_card_ready())
+    if (!sdCardReady())
     {
         return LFS_ERR_IO;
     }
     return 0;
 }
 
-int io_lfs_config(struct lfs_config *cfg)
+int io_lfsConfig(struct lfs_config *cfg)
 {
     // the function
-    cfg->read  = io_lfs_read;
-    cfg->prog  = io_lfs_prog;
-    cfg->erase = io_lfs_erase;
-    cfg->sync  = io_lfs_sync;
+    cfg->read  = io_lfsConfig_read;
+    cfg->prog  = io_lfsConfig_prog;
+    cfg->erase = io_lfsConfig_erase;
+    cfg->sync  = io_lfsConfig_sync;
 
     cfg->read_size      = IO_LFS_READ_SIZE;
     cfg->prog_size      = IO_LFS_PROG_SIZE;

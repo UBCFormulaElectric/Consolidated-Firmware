@@ -72,7 +72,7 @@ SdCardStatus hw_sd_erase(SdCard *sd, uint32_t start_addr, uint32_t end_addr)
     return (SdCardStatus)status;
 }
 
-SdCardStatus hw_sd_write_dma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
+SdCardStatus hw_sd_writeDma(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (!dma_tx_completed)
         ;

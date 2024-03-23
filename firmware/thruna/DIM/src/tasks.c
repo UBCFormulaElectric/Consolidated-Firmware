@@ -57,8 +57,8 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallback,
 };
 static CanHandle can = {
-    .can                   = &hcan1,
-    .canMsgRecievecallback = NULL,
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
 };
 
 static const BinaryLed imd_led   = { .gpio = {

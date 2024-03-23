@@ -29,9 +29,9 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static CanHandle *handle;
+static const CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle)
+void hw_can_init(const CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -59,8 +59,8 @@ void hw_can_init(CanHandle *can_handle)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    if (!handle->canMsgRecievecallback)
-        handle->canMsgRecievecallback = io_can_msgReceivedCallback;
+    // if (!handle->can_msg_received_callback)
+    //     handle->can_msg_received_callback = io_can_msgReceivedCallback;
 }
 
 void hw_can_deinit()
@@ -119,23 +119,23 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
     CanMsg rx_msg;
-    if (!hw_can_receive(RxFifo0ITs, &rx_msg))
+    if (!hw_can_receive(RxFifo0ITs, &rx_msg) && handle->can_msg_received_callback != NULL)
     {
         // Early return if RX msg is unavailable.
         return;
     }
 
-    handle->canMsgRecievecallback(&rx_msg);
+    handle->can_msg_received_callback(&rx_msg);
 }
 
 void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
     CanMsg rx_msg;
-    if (!hw_can_receive(RxFifo1ITs, &rx_msg))
+    if (!hw_can_receive(RxFifo1ITs, &rx_msg) && handle->can_msg_received_callback != NULL)
     {
         // Early return if RX msg is unavailable.
         return;
     }
 
-    handle->canMsgRecievecallback(&rx_msg);
+    handle->can_msg_received_callback(&rx_msg);
 }

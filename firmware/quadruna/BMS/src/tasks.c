@@ -276,8 +276,8 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS reset!");
-    can.can                   = &hfdcan1;
-    can.canMsgRecievecallback = NULL;
+    can.can                       = &hfdcan1;
+    can.can_msg_received_callback = io_can_msgReceivedCallback;
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);

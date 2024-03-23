@@ -277,8 +277,8 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 
-    can.can                   = &hfdcan1;
-    can.canMsgRecievecallback = NULL;
+    can.can                       = &hfdcan1;
+    can.can_msg_received_callback = NULL;
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);

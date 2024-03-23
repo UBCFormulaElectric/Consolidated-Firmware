@@ -48,20 +48,6 @@ static void init_logging_file_system()
     // create new folder for this boot
     sprintf(current_path, "%lu", current_bootcount);
     log_fd = io_fileSystem_open(current_path);
-
-    // get bootcount value from the file; use this to create new file for logging
-    // err = lfs_file_opencfg(&lfs, &file, "bootcount", LFS_O_RDWR | LFS_O_CREAT, &fcfg);
-    // if (err)
-    //     return;
-
-    // lfs_file_read(&lfs, &file, &bootcount, sizeof(bootcount));
-
-    // // update bootcount for next boot
-    // bootcount += 1;
-    // lfs_file_rewind(&lfs, &file);
-    // lfs_file_write(&lfs, &file, &bootcount, sizeof(bootcount));
-    // current_bootcount = bootcount;
-    // lfs_file_close(&lfs, &file);
 }
 
 void io_canLogging_init(const CanConfig *can_config)
@@ -122,7 +108,8 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config != NULL &&
+        config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         // config->rx_overflow_callback(++rx_overflow_count);

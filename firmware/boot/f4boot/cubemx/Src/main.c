@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
+#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,8 +86,8 @@ const osThreadAttr_t tickTask_attributes = {
 };
 /* USER CODE BEGIN PV */
 CanHandle can = {
-    .can                   = &hcan1,
-    .canMsgRecievecallback = NULL,
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
 };
 /* USER CODE END PV */
 

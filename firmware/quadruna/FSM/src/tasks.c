@@ -16,6 +16,7 @@
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
+#include "io_can.h"
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
@@ -42,7 +43,7 @@ extern TIM_HandleTypeDef htim3;
 extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim12;
 
-CanHandle                 can;
+const CanHandle           can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -141,8 +142,6 @@ void tasks_preInit(void) {}
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
-    can.can                   = &hcan1;
-    can.canMsgRecievecallback = NULL;
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
