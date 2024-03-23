@@ -8,5 +8,10 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"stdbool.h": "c",
+		"hw_i2c.h": "c",
+		"hw_hal.h": "c"
+	}
 }
