@@ -22,6 +22,7 @@ typedef struct
     const RgbLed *const    aux_status_led;
     const RgbLed *const    crit_status_led;
     const RgbLed *const    rsm_status_led;
+    const Gpio *const      shdn_sen_pin;
 } GlobalsConfig;
 
 typedef struct

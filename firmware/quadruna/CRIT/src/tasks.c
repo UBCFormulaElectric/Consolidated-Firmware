@@ -320,7 +320,8 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .crit_status_led  = &crit_status_led,
                                               .fsm_status_led   = &fsm_status_led,
                                               .rsm_status_led   = &rsm_status_led,
-                                              .vc_status_led    = &vc_status_led };
+                                              .vc_status_led    = &vc_status_led,
+                                              .shdn_sen_pin     = &shdn_sen_pin };
 
 // CRIT rellies on all boards but AUX & CRIT
 // TODO: add heartbeat for VC and RSM

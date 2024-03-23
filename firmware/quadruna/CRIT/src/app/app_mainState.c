@@ -9,6 +9,7 @@
 #include "app_globals.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "tasks.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
@@ -21,9 +22,8 @@ static void mainStateRunOnTick100Hz(void)
     const bool ams_fault_latched = app_canRx_BMS_BmsLatchedFault_get();
     io_led_enable(globals->config->ams_led, ams_fault_latched);
 
-    const bool contactors_open = app_canRx_BMS_AirNegative_get() == CONTACTOR_STATE_OPEN &&
-                                 app_canRx_BMS_AirPositive_get() == CONTACTOR_STATE_OPEN;
-    io_led_enable(globals->config->shdn_led, contactors_open);
+    const bool shutdown_sensor = hw_gpio_readPin(globals->config->shdn_sen_pin);
+    io_led_enable(globals->config->shdn_led, shutdown_sensor);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
     app_canTx_CRIT_StartSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
