@@ -151,7 +151,7 @@ bool io_ltc6813CellVoltages_readVoltages(void)
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = hw_spi_transmitAndReceive(
+        bool voltage_read_success = hw_spi_transmitThenReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments(curr_reg_group, rx_buffer);
 
@@ -297,7 +297,7 @@ bool io_ltc6813CellVoltages_owcReadVoltages(bool pull_up)
         io_ltc6813Shared_packCmdPec15(tx_cmd);
 
         // Transmit the command and receive data stored in register group.
-        bool voltage_read_success = hw_spi_transmitAndReceive(
+        bool voltage_read_success = hw_spi_transmitThenReceive(
             ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES);
         voltage_read_success &= parseCellVoltageFromAllSegments_owc(curr_reg_group, rx_buffer, pull_up);
 

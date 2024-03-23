@@ -13,15 +13,14 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 
-uint32_t iso_spi_state_counter = 0;
-
 typedef enum
 {
     RUN_CELL_MEASUREMENTS,
     RUN_OPEN_WIRE_CHECK
 } isoSpiTasks;
 
-isoSpiTasks iso_spi_task_state = RUN_CELL_MEASUREMENTS;
+isoSpiTasks iso_spi_task_state    = RUN_CELL_MEASUREMENTS;
+uint32_t    iso_spi_state_counter = 0;
 
 void app_allStates_runOnTick1Hz(void)
 {
@@ -63,7 +62,7 @@ bool app_allStates_runOnTick100Hz(void)
             iso_spi_state_counter++;
             if (iso_spi_state_counter >= 500)
             {
-                iso_spi_state_counter = RUN_OPEN_WIRE_CHECK;
+                iso_spi_task_state = RUN_OPEN_WIRE_CHECK;
             }
             break;
         }

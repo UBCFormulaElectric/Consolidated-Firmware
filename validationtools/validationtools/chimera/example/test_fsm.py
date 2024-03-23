@@ -5,7 +5,7 @@ Example of how to use the serial debugger.
 import serial
 import serial.tools.list_ports
 import time
-import chimera
+import validationtools.chimera as chimera
 
 
 # List available COM ports.

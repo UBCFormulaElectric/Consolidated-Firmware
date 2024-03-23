@@ -274,19 +274,18 @@ bool io_ltc6813CellTemps_readTemperatures(void)
             };
             io_ltc6813Shared_packCmdPec15(tx_cmd);
 
-            if (hw_spi_transmitAndReceive(
+            if (hw_spi_transmitThenReceive(
                     ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES))
             {
-                if (!parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
+                if (parseCellTempFromAllSegments(curr_reg_group, rx_buffer))
                 {
-                    status = false;
+                    // Update min/max cell segment, index and voltages and update pack
+                    // voltage and segment voltages
+                    updateCellTemperatureStatistics();
+                    status = true;
                 }
             }
         }
-
-        // Update min/max cell segment, index and voltages and update pack
-        // voltage and segment voltages
-        updateCellTemperatureStatistics();
     }
 
     return status;
