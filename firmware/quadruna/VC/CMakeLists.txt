@@ -133,7 +133,6 @@ elseif("${TARGET}" STREQUAL "test")
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
     )
     create_fake_library(
