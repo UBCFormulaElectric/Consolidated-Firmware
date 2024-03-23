@@ -1,4 +1,6 @@
 {
     "messages": [
+        "BMS_Vitals",
+        "Debug_CanMode"
     ]
 }

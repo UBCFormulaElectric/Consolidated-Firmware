@@ -78,7 +78,7 @@
 	},
     "Apps": {
 		"msg_id": 305,
-		"cycle_time": 100,
+		"cycle_time": 10,
 		"description": "Primary (P) and secondary (S) accelerator percentages.",
 		"signals": {
 			"PappsMappedPedalPercentage": {
