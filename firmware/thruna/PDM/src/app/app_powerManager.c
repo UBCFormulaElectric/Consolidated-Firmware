@@ -131,7 +131,7 @@ bool app_powerManager_check_efuses(PowerManagerState state)
         // Check if timer attempts reached the limit
         if (efuse_retry_data->timer_attempts == efuse_retry_config->timer_attempts_limit)
         {
-            efuse_retry_data->protocol_state = PROTOCOL_STATE_DONE_CALC;
+            efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_DONE;
         }
 
         switch (efuse_retry_data->protocol_state)
@@ -147,7 +147,7 @@ bool app_powerManager_check_efuses(PowerManagerState state)
                 break;
             }
             // Finished calculating current avg
-            case PROTOCOL_STATE_DONE_CALC:
+            case PROTOCOL_STATE_CALC_DONE:
             {
                 float avg = efuse_retry_data->current_sum / (float)efuse_retry_config->timer_attempts_limit;
                 if (avg <= efuse_retry_config->min_needed_current)
