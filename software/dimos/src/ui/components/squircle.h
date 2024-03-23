@@ -6,8 +6,12 @@
 
 struct SquircleSettings
 {
-    double w, h, radius, smoothness;
-    auto   operator<=>(const SquircleSettings &) const = default;
+    double         w, h, radius, smoothness;
+    auto           operator<=>(const SquircleSettings &) const = default;
+    friend QDebug &operator<<(QDebug dbg, const SquircleSettings &settings)
+    {
+        return dbg << "Settigs: " << settings.w << settings.h << settings.radius << settings.smoothness;
+    }
 };
 
 // ReSharper disable once CppClassCanBeFinal because of QML
