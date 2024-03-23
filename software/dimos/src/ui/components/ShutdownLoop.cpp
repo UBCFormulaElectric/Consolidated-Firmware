@@ -164,3 +164,12 @@ void ShutdownLoop::paint(QPainter *p)
 #endif
     }
 }
+
+double ShutdownLoop::getShutdownLoopNodePercentage(int n)
+{
+    if (n == -1)
+    {
+        return 1;
+    }
+    return node_thresholds.at(static_cast<ShutdownLoopNode>(n)).percentage;
+}

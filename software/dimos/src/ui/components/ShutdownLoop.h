@@ -13,7 +13,7 @@ class ShutdownLoop : public QQuickPaintedItem
 
   public:
     explicit ShutdownLoop(QQuickItem *parent = nullptr);
-    void paint(QPainter *p) override;
+    void     paint(QPainter *p) override;
 
     enum class ShutdownLoopNode
     {
@@ -29,6 +29,11 @@ class ShutdownLoop : public QQuickPaintedItem
         HVDInterlock,
         PCMInterlock,
     };
+    Q_ENUM(ShutdownLoopNode)
+    /**
+     *VERY VERY UNSAFE FUNCTION (only for QML)
+     */
+    Q_INVOKABLE static double getShutdownLoopNodePercentage(int n);
 
   private:
     enum class TextCenterAnchor

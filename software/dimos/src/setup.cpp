@@ -43,7 +43,7 @@ void init_json_can()
     app_canTx_dimos_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-static QTimer                            tx100Hz{}, tx1Hz{}, uiUpdate{};
+static QTimer                            tx100Hz{}, tx1Hz{};
 static std::unique_ptr<QThread>          CanRxTaskThread, CanTxPeriodicTaskThread;
 Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref)
 {
@@ -59,12 +59,6 @@ Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEn
     QObject::connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx1Hz);
     QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &tx1Hz, &QTimer::stop);
     tx1Hz.start();
-    // ui update
-    uiUpdate.setInterval(can_handlers::TASK_INTERVAL_UI_UPDATE);
-    uiUpdate.setSingleShot(false);
-    QObject::connect(&uiUpdate, &QTimer::timeout, CanQML::getInstance(), &CanQML::notify_all_signals);
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &uiUpdate, &QTimer::stop);
-    uiUpdate.start();
     // rx
     CanRxTaskThread = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));
     CanRxTaskThread->start();
