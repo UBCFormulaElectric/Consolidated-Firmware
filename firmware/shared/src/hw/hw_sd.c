@@ -4,6 +4,9 @@
 #include "hw_sd.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+extern bool sd_init;
 
 SdCardStatus hw_sd_read(SdCard *sd, uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
