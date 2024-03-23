@@ -83,11 +83,13 @@ void drawShutdownLoop(QPainter *p, const QRectF &loopBounds, const double percen
     p->setPen(filledPathPen);
     p->drawPath(loop);
 
+#ifdef QT_DEBUG
     p->drawText(100, 100, QString::fromStdString(std::to_string(percentage)));
-
-    // const auto point = loop.pointAtPercent(loop.percentAtLength(160));
-    // p->setPen(QPen(Qt::red, 10));
-    // p->drawPoint(point);
+    const int  length = 160;
+    const auto point  = loop.pointAtPercent(loop.percentAtLength(length));
+    p->setPen(QPen(Qt::red, 10));
+    p->drawPoint(point);
+#endif
 }
 
 void ShutdownLoop::paint(QPainter *p)

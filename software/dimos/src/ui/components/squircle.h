@@ -30,7 +30,10 @@ class Squircle : public QQuickPaintedItem
   private:
     std::optional<QPainterPath>     cachedSquirclePath;
     std::optional<SquircleSettings> cachedSettings;
-    void                            updateCachedPathFromCachedSettings();
+    /**
+     * @param p Pass in a QPen for debug purposes
+     */
+    void updateCachedPathFromCachedSettings(QPen *p);
 
     int    m_radius;
     double m_smoothness;

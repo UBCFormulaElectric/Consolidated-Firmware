@@ -28,25 +28,6 @@ void Squircle::paint(QPainter *p)
         return p->drawRoundedRect(bounds, radius, radius);
     }
 
-    // #ifdef QT_DEBUG
-    //     p->setPen(QPen(QColorConstants::Red, 3));
-    //     p->drawPoint(p1_1);
-    //     p->setPen(QPen(QColorConstants::Magenta, 3));
-    //     p->drawPoint(p4_1);
-    //     p->setPen(QPen(QColorConstants::Cyan, 3));
-    //     p->drawPoint(p3_1);
-    //     p->setPen(QPen(QColorConstants::Green, 3));
-    //     p->drawPoint(p2_1);
-    //     p->setPen(QPen(QColorConstants::Red, 3));
-    //     p->drawPoint(p1_2);
-    //     p->setPen(QPen(QColorConstants::Magenta, 3));
-    //     p->drawPoint(p4_2);
-    //     p->setPen(QPen(QColorConstants::Cyan, 3));
-    //     p->drawPoint(p3_2);
-    //     p->setPen(QPen(QColorConstants::Green, 3));
-    //     p->drawPoint(p2_2);
-    // #endif
-
     if (const SquircleSettings newSettings = { bounds.width(), bounds.height(), radius, smoothness };
         !cachedSquirclePath.has_value() || !cachedSettings.has_value() || cachedSettings.value() != newSettings)
     {
@@ -55,14 +36,14 @@ void Squircle::paint(QPainter *p)
             qInfo() << "Rerendering Squircle With new " << cachedSettings.value() << " to the new " << newSettings;
         }
         cachedSettings = newSettings;
-        updateCachedPathFromCachedSettings();
+        updateCachedPathFromCachedSettings(p);
     }
 
     assert(cachedSquirclePath.has_value());
     p->drawPath(cachedSquirclePath.value());
 }
 
-void Squircle::updateCachedPathFromCachedSettings()
+void Squircle::updateCachedPathFromCachedSettings(QPen *p)
 {
     assert(cachedSettings.has_value());
     const auto [w, h, radius, smoothness] = cachedSettings.value();
@@ -121,6 +102,25 @@ void Squircle::updateCachedPathFromCachedSettings()
                 (arcAngle - 45) * -2);
             path.cubicTo(p3_1, p2_1, p1_1);
         }
+
+#ifdef QT_DEBUG
+        p->setPen(QPen(QColorConstants::Red, 3));
+        p->drawPoint(p1_1);
+        p->setPen(QPen(QColorConstants::Magenta, 3));
+        p->drawPoint(p4_1);
+        p->setPen(QPen(QColorConstants::Cyan, 3));
+        p->drawPoint(p3_1);
+        p->setPen(QPen(QColorConstants::Green, 3));
+        p->drawPoint(p2_1);
+        p->setPen(QPen(QColorConstants::Red, 3));
+        p->drawPoint(p1_2);
+        p->setPen(QPen(QColorConstants::Magenta, 3));
+        p->drawPoint(p4_2);
+        p->setPen(QPen(QColorConstants::Cyan, 3));
+        p->drawPoint(p3_2);
+        p->setPen(QPen(QColorConstants::Green, 3));
+        p->drawPoint(p2_2);
+#endif
     }
 
     path.closeSubpath();
