@@ -18,6 +18,7 @@ extern "C"
 #include "states/app_driveState.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
+#include "app_sbgEllipse.c"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related

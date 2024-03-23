@@ -22,7 +22,6 @@ static uint16_t num_cycles = 0;
 
 bool app_allStates_runOnTick100Hz(void)
 {
-
     app_lowVoltageBattery_broadcast();
     app_shutdown_broadcast();
     app_currentSensing_broadcast();
@@ -66,3 +65,5 @@ bool app_allStates_runOnTick100Hz(void)
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
     return !(left_inverter_fault || right_inverter_fault || any_board_has_fault);
 }
+
+void app_allStates_runOnTick1Hz() {}
