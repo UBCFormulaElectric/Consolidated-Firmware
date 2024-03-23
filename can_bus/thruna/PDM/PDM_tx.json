@@ -92,7 +92,7 @@
             "Efuse": {
                 "enum": "Efuse"
             },
-            "Amount": {
+            "Fault_Count": {
                 "bits": 3,
                 "signed": false
             }
