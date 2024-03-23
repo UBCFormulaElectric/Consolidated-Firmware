@@ -26,7 +26,7 @@ class CircleProgressBar : public QQuickPaintedItem
     Q_PROPERTY(bool turn_right MEMBER m_turn_right)
   public:
     explicit CircleProgressBar(QQuickItem *parent = nullptr);
-    void     paint(QPainter *p) override;
+    void paint(QPainter *p) override;
 
   private:
     /**

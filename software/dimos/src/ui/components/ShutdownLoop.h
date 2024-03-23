@@ -13,7 +13,7 @@ class ShutdownLoop : public QQuickPaintedItem
 
   public:
     explicit ShutdownLoop(QQuickItem *parent = nullptr);
-    void     paint(QPainter *p) override;
+    void paint(QPainter *p) override;
 
     enum class ShutdownLoopNode
     {

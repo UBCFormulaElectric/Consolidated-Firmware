@@ -25,7 +25,7 @@ class Squircle : public QQuickPaintedItem
 
   public:
     explicit Squircle(QQuickItem *parent = nullptr);
-    void     paint(QPainter *p) override;
+    void paint(QPainter *p) override;
 
   private:
     std::optional<QPainterPath>     cachedSquirclePath;
