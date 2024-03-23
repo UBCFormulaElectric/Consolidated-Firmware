@@ -8,11 +8,16 @@
 
 typedef struct
 {
-    const Gpio n_drive_mode_0_pin;
-    const Gpio n_drive_mode_1_pin;
-    const Gpio n_drive_mode_2_pin;
-    const Gpio n_drive_mode_3_pin;
+    const Gpio *const n_drive_mode_0_pin;
+    const Gpio *const n_drive_mode_1_pin;
+    const Gpio *const n_drive_mode_2_pin;
+    const Gpio *const n_drive_mode_3_pin;
 } DriveMode;
 #else
 EMPTY_STRUCT(DriveMode);
 #endif
+
+/**
+ * Readings drive modes from the pins.
+ */
+uint16_t io_driveMode_readPins(void);
