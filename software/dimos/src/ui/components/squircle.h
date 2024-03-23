@@ -1,6 +1,6 @@
 #pragma once
-#include <QPainterPath>
 
+#include <QPainterPath>
 #include <QtQuick/QQuickPaintedItem>
 #include <QColor>
 
@@ -33,7 +33,7 @@ class Squircle : public QQuickPaintedItem
     /**
      * @param p Pass in a QPen for debug purposes
      */
-    void updateCachedPathFromCachedSettings(QPen *p);
+    void updateCachedPathFromCachedSettings(QPainter *p);
 
     int    m_radius;
     double m_smoothness;

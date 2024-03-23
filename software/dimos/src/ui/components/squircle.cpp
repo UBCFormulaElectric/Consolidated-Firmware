@@ -43,7 +43,7 @@ void Squircle::paint(QPainter *p)
     p->drawPath(cachedSquirclePath.value());
 }
 
-void Squircle::updateCachedPathFromCachedSettings(QPen *p)
+void Squircle::updateCachedPathFromCachedSettings(QPainter *p)
 {
     assert(cachedSettings.has_value());
     const auto [w, h, radius, smoothness] = cachedSettings.value();
