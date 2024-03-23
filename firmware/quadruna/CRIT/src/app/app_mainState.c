@@ -18,9 +18,8 @@ static void mainStateRunOnTick100Hz(void)
     const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();
     io_led_enable(globals->config->bspd_led, bspd_fault_latched);
 
-    // TODO: AMS fault
-    // const bool ams_fault_latched =
-    // io_led_enable(globals->config->ams_led, ams_fault_latched);
+    const bool ams_fault_latched = app_canRx_BMS_BmsLatchedFault_get();
+    io_led_enable(globals->config->ams_led, ams_fault_latched);
 
     const bool contactors_open = app_canRx_BMS_AirNegative_get() == CONTACTOR_STATE_OPEN &&
                                  app_canRx_BMS_AirPositive_get() == CONTACTOR_STATE_OPEN;
