@@ -27,6 +27,7 @@ endfunction()
 function(create_fake_library
     LIB_NAME
     HDRS_TO_FAKE
+    NAMESPACE 
 )
     file(GLOB_RECURSE FAKEGEN_SRCS
         ${SCRIPTS_DIR}/code_generation/fakegen/src/*.py
@@ -47,6 +48,7 @@ function(create_fake_library
             --header ${HDR_TO_FAKE}
             --output-header ${FAKE_HDR}
             --output-source ${FAKE_SRC}
+            --namespace ${NAMESPACE}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${FAKEGEN_SRCS} ${HDR_TO_FAKE}
         )
@@ -65,4 +67,14 @@ function(create_fake_library
         ${SHARED_APP_INCLUDE_DIR}
         ${SHARED_IO_INCLUDE_DIR}
     )
+endfunction()
+
+function(sim_library
+    LIB_NAME
+    LIB_SRCS
+    LIB_INCLUDE_DIRS
+)
+    add_library(${LIB_NAME} SHARED ${LIB_SRCS})
+    target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../sim)
+    # target_compile_options(${LIB_NAME} PRIVATE -fvisibility=hidden)
 endfunction()

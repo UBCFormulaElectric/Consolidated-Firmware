@@ -8,5 +8,12 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"*.llc_repl": "cpp",
+		"*.ld": "mapfile",
+		"app_statemachine.c": "cpp",
+		"__hash_table": "cpp",
+		"unordered_map": "cpp"
+	}
 }

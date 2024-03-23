@@ -15,7 +15,7 @@ class CFunction:
 
 def parse_header_file(file: str) -> List[CFunction]:
     """
-    Use `pyclibrary` to extract functions from a header file. 
+    Use `pyclibrary` to extract functions from a header file.
     Return them as a list of CFunctions.
 
     """
@@ -63,18 +63,22 @@ def parse_type(type: pyclibrary.c_parser.Type) -> str:
             types += "*"
         else:
             types += part
-            
+
     return f"{qualifiers} {types}" if qualifiers != "" else types
 
 
 def generate_output(
-    header_path: str, output_header: str, output_source: str, functions: List[CFunction]
+    header_path: str,
+    output_header: str,
+    output_source: str,
+    functions: List[CFunction],
+    namespace: str,
 ) -> None:
     """
     Use jinja2 templates to generate a file which fakes a list of functions. Creates:
-    - Faked header file: Functions declarations to interact with the fake (set return value, 
+    - Faked header file: Functions declarations to interact with the fake (set return value,
         set call count, reset the fake).
-    - Faked source file: Definitions for functions to interact with the fake, as well as 
+    - Faked source file: Definitions for functions to interact with the fake, as well as
         a faked implementation of the function being faked.
 
     """
@@ -112,6 +116,7 @@ def generate_output(
                 }
                 for i, param_type in enumerate(function.param_types)
             ],
+            "namespace": namespace,
         }
         fake_declarations = declarations_template.render(data)
         fake_definitions = definition_template.render(data)
@@ -120,16 +125,16 @@ def generate_output(
         fake_definitions_arr.append(fake_definitions)
 
     containing_folder = os.path.split(os.path.split(header_path)[0])[1]
-    expected_folders = ['io','hw','app','test']
-
+    expected_folders = ["io", "hw", "app", "test"]
 
     file_name = os.path.basename(header_path)
     fake_file_name_without_extension = os.path.splitext(file_name)[0]
 
     io_file_name_without_extension = fake_file_name_without_extension
-    if(containing_folder not in expected_folders):
-        io_file_name_without_extension = containing_folder + '/' + fake_file_name_without_extension
-        
+    if containing_folder not in expected_folders:
+        io_file_name_without_extension = (
+            containing_folder + "/" + fake_file_name_without_extension
+        )
 
     # Write faked header output.
     with open(output_header, "w") as file:
@@ -138,6 +143,7 @@ def generate_output(
                 {
                     "module": io_file_name_without_extension,
                     "declarations": fake_declarations_arr,
+                    "namespace": namespace,
                 }
             )
         )
@@ -150,6 +156,7 @@ def generate_output(
                     "io_module": io_file_name_without_extension,
                     "fake_module": fake_file_name_without_extension,
                     "definitions": fake_definitions_arr,
+                    "namespace": namespace,
                 }
             )
         )
@@ -160,6 +167,7 @@ if __name__ == "__main__":
     parser.add_argument("--header", type=str, required=False)
     parser.add_argument("--output-header", type=str, required=False)
     parser.add_argument("--output-source", type=str, required=False)
+    parser.add_argument("--namespace", type=str, required=False, default="")
     args = parser.parse_args()
 
     if args.header:
@@ -178,6 +186,7 @@ if __name__ == "__main__":
                 output_header=args.output_header,
                 output_source=args.output_source,
                 functions=functions,
+                namespace=args.namespace,
             )
         else:
             raise OSError(f"Cannot find header: {args.header}")

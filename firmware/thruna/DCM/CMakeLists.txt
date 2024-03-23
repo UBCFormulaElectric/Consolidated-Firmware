@@ -124,6 +124,7 @@ elseif("${TARGET}" STREQUAL "test")
     create_fake_library(
         "thruna_DCM_fakes"
         "${HEADERS_TO_FAKE}"
+        ""
     )
     jsoncan_library(
         "thruna_DCM_can"

@@ -132,4 +132,9 @@ elseif("${TARGET}" STREQUAL "test")
         "${INCLUDE_DIRS}"
     )
     target_link_libraries("quadruna_VC_test" "quadruna_VC_can")
+    
+    set(SIM_SRCS ${APP_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/sim/VC.cpp)
+    set(SIM_INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/sim)
+    sim_library("quadruna_VC_sim" "${SIM_SRCS}" "${SIM_INCLUDE_DIRS}")
+    target_link_libraries("quadruna_VC_sim" "quadruna_VC_can")
 endif()

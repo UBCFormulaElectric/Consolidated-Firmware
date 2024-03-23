@@ -139,6 +139,7 @@ elseif("${TARGET}" STREQUAL "test")
     create_fake_library(
         "thruna_FSM_fakes"
         "${HEADERS_TO_FAKE}"
+        ""
     )
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})

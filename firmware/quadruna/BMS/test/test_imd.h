@@ -9,6 +9,8 @@ extern "C"
 #include "app_imd.h"
 }
 
+using namespace BMS;
+
 class ImdTest : public testing::Test
 {
   public:
