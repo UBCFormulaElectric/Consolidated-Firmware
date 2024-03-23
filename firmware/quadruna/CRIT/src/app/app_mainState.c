@@ -37,31 +37,32 @@ static void mainStateRunOnTick100Hz(void)
     app_canTx_CRIT_TorqueVecSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->torquevec_led, torquevec_switch_on);
 
-    const RgbLed *board_status_leds[NUM_BOARD_LEDS] = {
-        [BMS_LED] = globals->config->bms_status_led,   [FSM_LED] = globals->config->fsm_status_led,
-        [VC_LED] = globals->config->vc_status_led,     [AUX_LED] = globals->config->aux_status_led,
-        [CRIT_LED] = globals->config->crit_status_led, [RSM_LED] = globals->config->rsm_status_led
-    };
+    typedef struct
+    {
+        const RgbLed *led;
+        CanAlertBoard jsoncan_board_enum;
+    } LedCAN;
 
-    CanAlertBoard alert_board_ids[NUM_BOARD_LEDS] = {
-        [BMS_LED] = BMS_ALERT_BOARD,
-        [FSM_LED] = FSM_ALERT_BOARD,
-        [VC_LED]  = VC_ALERT_BOARD,
-        //[AUX_LED] = AUX_ALERT_BOARD
-        [CRIT_LED] = CRIT_ALERT_BOARD,
-        //[RSM_LED] = PDM_ALERT_BOARD
+    const LedCAN boards[NUM_BOARD_LEDS] = {
+        { .led = globals->config->bms_status_led, .jsoncan_board_enum = BMS_ALERT_BOARD },
+        { .led = globals->config->fsm_status_led, .jsoncan_board_enum = FSM_ALERT_BOARD },
+        { .led = globals->config->vc_status_led, .jsoncan_board_enum = VC_ALERT_BOARD },
+        { .led = globals->config->aux_status_led },
+        { .led = globals->config->crit_status_led, .jsoncan_board_enum = CRIT_ALERT_BOARD },
+        { .led = globals->config->rsm_status_led },
     };
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
-        const RgbLed *board_status_led = board_status_leds[i];
+        const RgbLed *board_status_led = boards[i].led;
+        CanAlertBoard alert_board_ids  = boards[i].jsoncan_board_enum;
 
-        if (app_canAlerts_BoardHasFault(alert_board_ids[i]))
+        if (app_canAlerts_BoardHasFault(alert_board_ids))
         {
             // Turn red.
             io_rgbLed_enable(board_status_led, true, false, false);
         }
-        else if (app_canAlerts_BoardHasWarning(alert_board_ids[i]))
+        else if (app_canAlerts_BoardHasWarning(alert_board_ids))
         {
             // Turn blue.
             io_rgbLed_enable(board_status_led, false, false, true);
