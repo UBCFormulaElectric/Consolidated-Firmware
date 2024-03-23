@@ -15,7 +15,7 @@ def main() -> None:
         "--format",
         "-f",
         action="store_true",
-        help="Format device if mounting fails",
+        help="Format device (will wipe an existing filesystem)",
     )
     args = parser.parse_args()
 
@@ -30,13 +30,12 @@ def main() -> None:
         block_size=args.block_size, block_count=args.block_count, disk_path=args.device
     )
     fs = LogFs(
-        block_size=args.block_size, block_count=args.block_count, context=context
+        block_size=args.block_size,
+        block_count=args.block_count,
+        context=context,
+        mount=True,
+        format=args.format,
     )
-
-    if args.format:
-        fs.format()
-    else:
-        fs.mount()
 
     # Launch the IPython shell.
     global_ns = globals()  # Get the global namespace

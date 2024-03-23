@@ -40,12 +40,14 @@ class PyLogFsFile
 class PyLogFs
 {
   public:
-    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, py::object context) : context(context)
+    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, bool rd_only, py::object context)
+      : context(context)
     {
         // Init config struct.
         cfg.block_size   = block_size;
         cfg.block_count  = block_count;
         cfg.write_cycles = write_cycles;
+        cfg.rd_only      = rd_only;
         cfg.context      = &this->context;
         cfg.read         = readWrapper;
         cfg.write        = writeWrapper;
@@ -64,14 +66,14 @@ class PyLogFs
 
     LogFsErr format(void) { return logfs_format(&fs, &cfg); }
 
-    LogFsErr open(PyLogFsFile &file, char *path)
+    LogFsErr open(PyLogFsFile &file, char *path, uint32_t flags)
     {
         // Allocate file cache on the heap.
         LogFsFileCfg file_cfg = {
             .cache = malloc(cfg.block_size),
             .path  = path,
         };
-        return logfs_open(&fs, &file.file, &file_cfg);
+        return logfs_open(&fs, &file.file, &file_cfg, flags);
     }
 
     LogFsErr close(PyLogFsFile &file)
@@ -96,12 +98,12 @@ class PyLogFs
         return logfs_write(&fs, &file.file, (void *)buf.data(), buf.size());
     }
 
-    py::tuple read(PyLogFsFile &file, uint32_t size, LogFsReadMode mode)
+    py::tuple read(PyLogFsFile &file, uint32_t size, LogFsReadFlags flags)
     {
         // Create an empty string to hold the read data.
         std::string    buf(size, '\0');
         uint32_t       num_read;
-        const LogFsErr err = logfs_read(&fs, &file.file, (void *)buf.data(), size, mode, &num_read);
+        const LogFsErr err = logfs_read(&fs, &file.file, (void *)buf.data(), size, flags, &num_read);
 
         // Return a tuple of (error, read size, read bytes).
         py::bytes bytes = py::bytes(buf);
@@ -166,11 +168,22 @@ PYBIND11_MODULE(logfs_src, m)
         .value("UNMOUNTED", LOGFS_ERR_UNMOUNTED)
         .value("NOMEM", LOGFS_ERR_NOMEM)
         .value("NOT_OPEN", LOGFS_ERR_NOT_OPEN)
+        .value("RD_ONLY", LOGFS_ERR_RD_ONLY)
+        .value("WR_ONLY", LOGFS_ERR_WR_ONLY)
+        .value("DNE", LOGFS_ERR_DNE)
         .export_values();
 
-    py::enum_<LogFsReadMode>(m, "PyLogFsReadMode")
-        .value("END", LOGFS_READ_MODE_END)
-        .value("ITER", LOGFS_READ_MODE_ITER)
+
+    py::enum_<LogFsOpenFlags>(m, "PyLogFsOpenFlags")
+        .value("RD_ONLY", LOGFS_OPEN_RD_ONLY)
+        .value("WR_ONLY", LOGFS_OPEN_WR_ONLY)
+        .value("RD_WR", LOGFS_OPEN_RD_WR)
+        .value("CREATE", LOGFS_OPEN_CREATE)
+        .export_values();
+
+    py::enum_<LogFsReadFlags>(m, "PyLogFsReadFlags")
+        .value("END", LOGFS_READ_END)
+        .value("ITER", LOGFS_READ_ITER)
         .export_values();
 
     py::class_<PyLogFsFile>(m, "PyLogFsFile")
@@ -181,7 +194,7 @@ PYBIND11_MODULE(logfs_src, m)
         .def(py::init<>());
 
     py::class_<PyLogFs>(m, "PyLogFs")
-        .def(py::init<uint32_t, uint32_t, uint32_t, py::object&>())
+        .def(py::init<uint32_t, uint32_t, uint32_t, bool, py::object&>())
         .def("mount", &PyLogFs::mount)
         .def("format", &PyLogFs::format)
         .def("open", &PyLogFs::open)

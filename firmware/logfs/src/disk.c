@@ -12,6 +12,11 @@
 
 static inline bool disk_compareSeqNums(int s1, int s2)
 {
+    // Sequence numbers are compared as follows:
+    // - 4 > 3
+    // - 3 > 2
+    // - 2 > 1
+    // - 0 > 4
     return (s1 >= s2) || (s1 == 0 && s2 > 1);
 }
 
@@ -31,18 +36,24 @@ static inline void disk_setSeqNumInCache(const LogFs *fs, uint8_t seq_num)
 
 static inline LogFsErr disk_replacePair(LogFs *fs, LogFsPair *pair)
 {
+    // Write replacement pair to head.
     LogFsPair replacement_pair;
     disk_newPair(&replacement_pair, fs->head_addr);
     RET_ERR(disk_writePair(fs, &replacement_pair, false));
 
+    // Update old pair to point to the new one.
     RET_ERR(disk_readPair(fs, pair));
     fs->cache_pair_hdr->replacement_addr = fs->head_addr;
     RET_ERR(disk_writePair(fs, pair, false));
 
+    // Update pair state, so pair replacements are abstracted away from the programmer.
     memcpy(pair, &replacement_pair, sizeof(LogFsPair));
+    fs->head_addr += LOGFS_PAIR_SIZE;
+
+    // Restore new pair to the cache, since it was in the cache at the start of this function and changing the cache is
+    // not an obvious side-effect.
     RET_ERR(disk_readPair(fs, pair));
 
-    fs->head_addr += LOGFS_PAIR_SIZE;
     return LOGFS_ERR_OK;
 }
 
@@ -58,7 +69,7 @@ inline LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf)
     return crc_checkBlock(fs, buf) ? LOGFS_ERR_OK : LOGFS_ERR_CORRUPT;
 }
 
-LogFsErr disk_changeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch)
+LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch)
 {
     if (cache->cached_addr != block)
     {
@@ -161,16 +172,19 @@ LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace)
 {
     if (!pair->seq_num_on_disk)
     {
+        // Pair is new and hasn't yet been written to disk, initialize state.
         fs->cache_pair_hdr->write_cycles     = 0;
         fs->cache_pair_hdr->replacement_addr = LOGFS_INVALID_BLOCK;
     }
-    else if (
-        fs->cfg->write_cycles != 0 && check_replace && fs->cache_pair_hdr->write_cycles >= fs->cfg->write_cycles * 2)
+    else if (fs->cfg->write_cycles != 0 && check_replace && fs->cache_pair_hdr->write_cycles >= fs->cfg->write_cycles)
     {
+        // Pair has exhausted its write cycles, evict and replace it!
         return disk_replacePair(fs, pair);
     }
-    else
+    else if (pair->seq_num %= 2)
     {
+        // Only increment on even writes, since write cycles should correspond to the number of writes per block (and
+        // writes are evenly distributed over the 2 blocks per pair).
         fs->cache_pair_hdr->write_cycles++;
     }
 

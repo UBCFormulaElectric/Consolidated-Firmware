@@ -1,14 +1,22 @@
 import pytest
-from logfs import LogFs, LogFsDummyContext
+from logfs import LogFs, LogFsRamContext
 
 
 BLOCK_COUNT = 100000
 BLOCK_SIZE = 512
+WRITE_CYCLES = 100
 
 
 @pytest.fixture
 def fs_unformatted() -> LogFs:
-    fs = LogFs(BLOCK_SIZE, BLOCK_COUNT, LogFsDummyContext(BLOCK_SIZE, BLOCK_COUNT), 100)
+    fs = LogFs(
+        block_size=BLOCK_SIZE,
+        block_count=BLOCK_COUNT,
+        write_cycles=WRITE_CYCLES,
+        rd_only=False,
+        context=LogFsRamContext(BLOCK_SIZE, BLOCK_COUNT),
+        mount=False,
+    )
     return fs
 
 
@@ -24,7 +32,7 @@ def test_rw_big_file(fs):
     data = " ".join(["hello world!" for _ in range(data_len)]).encode()
 
     # Write data.
-    file = fs.open("/test.txt")
+    file = fs.open("/test.txt", "rwx")
     fs.write(file, data)
 
     # Read data back.
@@ -39,7 +47,7 @@ def test_rw_multiple_files(fs):
         b"/test3.txt",
         b"/test_with_very_very_long_name.txt",
     ]
-    files = [(name, fs.open(name)) for name in file_names]
+    files = [(name, fs.open(name, "rwx")) for name in file_names]
 
     # Write multiple files.
     for file_name, file in files:
@@ -66,7 +74,7 @@ def test_open_existing(fs):
     data2 = "test!".encode()
 
     # Write data and read data back.
-    handle = fs.open(file_name)
+    handle = fs.open(file_name, "rwx")
     fs.write(handle, data1)
     read_data = fs.read(handle)
     assert read_data == data1
@@ -74,7 +82,7 @@ def test_open_existing(fs):
 
     # Try opening the file again, and read data back.
     del handle
-    new_handle = fs.open(file_name)
+    new_handle = fs.open(file_name, "rw")
     read_data = fs.read(new_handle)
     assert read_data == data1
 
@@ -86,7 +94,7 @@ def test_open_existing(fs):
 
     # Try opening/reading one more time.
     del new_handle
-    newest_handle = fs.open(file_name)
+    newest_handle = fs.open(file_name, "r")
     read_data = fs.read(newest_handle)
     assert read_data == data1 + data2
 
@@ -101,18 +109,21 @@ def test_mount(fs, fs_unformatted):
     data = "hello world!".encode()
 
     # Write data.
-    file = fs.open("/test.txt")
+    file = fs.open("/test.txt", "rwx")
     fs.write(file, data)
 
     # Read data back.
     read_data = fs.read(file, len(data))
     assert read_data == data
+    fs.close(file)
 
     # Re-mount filesystem.
     del fs
+    del file
     fs_unformatted.mount()
 
     # Read data back.
+    file = fs_unformatted.open("/test.txt", "rw")
     read_data = fs_unformatted.read(file, len(data))
     assert read_data == data
 
@@ -128,7 +139,7 @@ def test_read_entire_file_iter(fs):
     data = " ".join(["hello world!" for _ in range(data_len)]).encode()
 
     # Write data.
-    file = fs.open("/test.txt")
+    file = fs.open("/test.txt", "rwx")
     fs.write(file, data)
 
     # Read data back.
@@ -148,7 +159,7 @@ def test_list_dir(fs):
         "/test8.txt",
     ]
     for file in files:
-        fs.open(file)
+        fs.open(file, "wx")
 
     assert fs.list_dir() == files
     assert fs.list_dir(file="/dir1") == ["/dir1/test3.txt", "/dir1/test4.txt"]
@@ -159,7 +170,7 @@ def test_list_dir(fs):
 
 
 def test_metadata(fs):
-    file = fs.open("/test.txt")
+    file = fs.open("/test.txt", "rwx")
 
     # Metadata should start empty.
     assert fs.read_metadata(file) == b""
@@ -179,6 +190,6 @@ def test_metadata(fs):
     fs.close(file)
     del file
 
-    file = fs.open("/test.txt")
+    file = fs.open("/test.txt", "r")
     assert fs.read(file) == file_data
     assert fs.read_metadata(file) == data

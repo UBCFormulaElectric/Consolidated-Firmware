@@ -25,13 +25,24 @@ extern "C"
         LOGFS_ERR_UNMOUNTED,    // Filesystem hasn't been successfully mounted
         LOGFS_ERR_NOMEM,        // Filesystem is full (no more memory)
         LOGFS_ERR_NOT_OPEN,     // File hasn't been opened
+        LOGFS_ERR_RD_ONLY,      // File is read only, and a write was attempted
+        LOGFS_ERR_WR_ONLY,      // File is write only, and a read was attempted
+        LOGFS_ERR_DNE,          // File does not exist
     } LogFsErr;
 
     typedef enum
     {
-        LOGFS_READ_MODE_END,  // Read from end of file
-        LOGFS_READ_MODE_ITER, // Read next N bytes of file
-    } LogFsReadMode;
+        LOGFS_OPEN_RD_ONLY = 0x01,
+        LOGFS_OPEN_WR_ONLY = 0x02,
+        LOGFS_OPEN_RD_WR   = 0x03,
+        LOGFS_OPEN_CREATE  = 0x10,
+    } LogFsOpenFlags;
+
+    typedef enum
+    {
+        LOGFS_READ_END,  // Read from end of file
+        LOGFS_READ_ITER, // Read next N bytes of file
+    } LogFsReadFlags;
 
     /* Config structs */
 
@@ -51,6 +62,8 @@ extern "C"
         void *cache;
         // Number of write cycles before blocks are evicted and replaced.
         uint32_t write_cycles;
+        // If the entire filesystem should be marked as read-only.
+        bool rd_only;
     } LogFsCfg;
 
     typedef struct
@@ -115,6 +128,7 @@ extern "C"
         LogFsCache       cache;                  // Each file has its own cache
         LogFsBlock_Data *cache_data;             // Convenience pointer to cache, as a data block
         char             path[LOGFS_PATH_BYTES]; // File path string
+        uint32_t         flags;
 
         // File state variables.
         bool      is_open;        // If the file is open
@@ -161,12 +175,12 @@ extern "C"
     LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
     LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
 
-    LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg);
+    LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, uint32_t flags);
     LogFsErr logfs_close(LogFs *fs, LogFsFile *file);
     LogFsErr logfs_sync(LogFs *fs, LogFsFile *file);
 
     LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
-    LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadMode mode, uint32_t *num_read);
+    LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadFlags flags, uint32_t *num_read);
     LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
     LogFsErr logfs_readMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_read);
 
