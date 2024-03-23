@@ -155,7 +155,7 @@ bool app_powerManager_check_efuses(PowerManagerState state)
                     if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_attempts_limit)
                     {
                         app_canTx_PDM_Efuse_set(efuse_retry_config->efuse_state);
-                        app_canTx_PDM_Amount_set((long unsigned int)efuse_retry_data->retry_attempts);
+                        app_canTx_PDM_Fault_Count_set((long unsigned int)efuse_retry_data->retry_attempts);
                         return go_to_init_state;
                     }
                     go_to_init_state =
