@@ -105,10 +105,10 @@ void io_chimera_init(UART *serial_uart, uint32_t name_gpio, uint32_t name_adc, c
 
     n_chimera_gpio = bootup_gpio;
 
-    if(chimera_button_pressed())
+    if (chimera_button_pressed())
     {
         hw_uart_receiveIt(uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
-    }  
+    }
 }
 
 void io_chimera_sleepTaskIfEnabled(void)

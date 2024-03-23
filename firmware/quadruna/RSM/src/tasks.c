@@ -58,37 +58,47 @@ void tasks_init(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
-    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
 
     // TODO: Re-enable watchdog.
 }
 
 void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     // TODO: Setup tasks.
     osDelay(osWaitForever);
 }
 
 void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     // TODO: Setup tasks.
     osDelay(osWaitForever);
 }
 
 void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     // TODO: Setup tasks.
     osDelay(osWaitForever);
 }
 
 void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     // TODO: Setup tasks.
     osDelay(osWaitForever);
 }
 
 void tasks_run1Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     // TODO: Setup tasks.
     osDelay(osWaitForever);
 }

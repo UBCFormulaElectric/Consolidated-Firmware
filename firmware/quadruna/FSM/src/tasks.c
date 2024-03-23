@@ -154,7 +154,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -198,6 +198,8 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -223,6 +225,8 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -254,6 +258,8 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -262,6 +268,8 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         CanMsg rx_msg;

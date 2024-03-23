@@ -154,7 +154,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -166,8 +166,7 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -197,8 +196,7 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -225,8 +223,7 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -259,8 +256,7 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {
@@ -270,8 +266,7 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {
