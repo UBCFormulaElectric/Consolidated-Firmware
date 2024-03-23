@@ -4,7 +4,14 @@ import components
 
 Item {
     anchors.fill: parent
-    property var speed: 100 // Change to canQML
+    id: innerAcceleration
+    property int speed: 0 // Change to canQML
+
+    onActiveFocusChanged: {
+        if (activeFocus) {
+            startupAnimation.running = true
+        }
+    }
 
     Text {
         id: speedString
@@ -30,19 +37,40 @@ Item {
     }
 
     CircleProgressBar {
+        id: acclerationSpeedometer
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         // anchors.top: parent.top
         // anchors.topMargin: 135
         width: 250
         height: 250
-        percentage: 0.80
-        stroke_width: 25
+        property real speed_percentage: speed / 150;
+        percentage: speed_percentage;
+        stroke_width: 18
         start_angle: 225
         end_angle: -45
         round_tip: true
         bar_color: "#36FB61"
+
+        background: true
+        bg_percentage: 1
         bg_color: "#696969"
+
+        SequentialAnimation {
+            id: startupAnimation
+            running: false
+            NumberAnimation {
+                target: acclerationSpeedometer; property: "percentage";
+                from: 0;
+                to: 1; duration: 1000;
+                easing.type: Easing.InOutQuad;
+            }
+            NumberAnimation {
+                target: acclerationSpeedometer; property: "percentage";
+                to: acclerationSpeedometer.speed_percentage; duration: 1000;
+                easing.type: Easing.InOutQuad;
+            }
+        }
     }
 
     CircleProgressBar {
@@ -58,7 +86,10 @@ Item {
         end_angle: 160
         round_tip: true
         bar_color: "#FBDC36"
+
+        background: true
         bg_color: "#696969"
+        bg_percentage: 1
     }
 
     CircleProgressBar {
@@ -74,6 +105,9 @@ Item {
         end_angle: 20
         round_tip: true
         bar_color: "#FBDC36"
+
+        background: true
         bg_color: "#696969"
+        bg_percentage: 1
     }
 }

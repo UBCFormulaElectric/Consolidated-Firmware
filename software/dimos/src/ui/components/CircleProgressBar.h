@@ -13,7 +13,7 @@ class CircleProgressBar : public QQuickPaintedItem
     Q_PROPERTY(QColor bar_color MEMBER m_bar_color REQUIRED)
     Q_PROPERTY(int start_angle MEMBER m_start_angle REQUIRED)
     Q_PROPERTY(int end_angle MEMBER m_end_angle REQUIRED)
-    Q_PROPERTY(float percentage MEMBER m_percentage REQUIRED)
+    Q_PROPERTY(float percentage READ get_m_percentage WRITE set_m_percentage REQUIRED)
     // background on
     Q_PROPERTY(bool background MEMBER m_background)
     // background properties
@@ -26,12 +26,18 @@ class CircleProgressBar : public QQuickPaintedItem
     Q_PROPERTY(bool turn_right MEMBER m_turn_right)
   public:
     explicit CircleProgressBar(QQuickItem *parent = nullptr);
-    void paint(QPainter *p) override;
+    void     paint(QPainter *p) override;
 
   private:
     /**
      * @brief -1 -> 1 value
      */
+    [[nodiscard]] float get_m_percentage() const { return m_percentage; }
+    void                set_m_percentage(const float v)
+    {
+        m_percentage = v;
+        update();
+    }
     float                m_percentage;
     std::optional<float> m_bg_percentage = std::nullopt;
     [[nodiscard]] float  get_bg_percentage() const
