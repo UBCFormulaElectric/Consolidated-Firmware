@@ -171,7 +171,7 @@ FocusScope {
             onPushRot: {
                 if (!switcher.activeFocus) return;
                 mainStack.currentIndex = appIconPathView.currentIndex
-                console.log(appIconPathView.currentIndex)
+                console.log("Navigating to page with index: ", appIconPathView.currentIndex)
                 refocusMainStack()
             }
             onOutButtonPressed: {

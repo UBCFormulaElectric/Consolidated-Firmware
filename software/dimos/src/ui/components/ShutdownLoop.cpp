@@ -37,28 +37,28 @@ enum class TextAlignment
 };
 void drawShutdownLoopLabel(
     QPainter           *p,
-    const int           anchor_x,
-    const int           anchor_y,
+    const double        anchor_x,
+    const double        anchor_y,
     const QString      &label,
     const TextAlignment alignment)
 {
     p->setFont(loopLabelFont);
     p->setPen(Qt::white);
-    const int leftShift = (alignment == TextAlignment::Top || alignment == TextAlignment::Bottom)
-                              ? loopLabelsFontMetrics.horizontalAdvance(label) / 2
-                          : alignment == TextAlignment::Right ? loopLabelsFontMetrics.horizontalAdvance(label)
-                                                              : 0;
+    const double leftShift = (alignment == TextAlignment::Top || alignment == TextAlignment::Bottom)
+                                 ? loopLabelsFontMetrics.horizontalAdvance(label) / 2
+                             : alignment == TextAlignment::Right ? loopLabelsFontMetrics.horizontalAdvance(label)
+                                                                 : 0;
 
     const int topShift = (alignment == TextAlignment::Left || alignment == TextAlignment::Right)
                              ? loopLabelsFontMetrics.height() / 2
                          : alignment == TextAlignment::Bottom ? loopLabelsFontMetrics.height()
                                                               : 0;
     p->drawText(
-        anchor_x - leftShift, anchor_y - topShift, loopLabelsFontMetrics.horizontalAdvance(label),
-        loopLabelsFontMetrics.height(), 0, label);
+        static_cast<int>(std::round(anchor_x - leftShift)), static_cast<int>(std::round(anchor_y - topShift)),
+        loopLabelsFontMetrics.horizontalAdvance(label), loopLabelsFontMetrics.height(), 0, label);
 }
 
-void drawShutdownLoop(QPainter *p, const QRectF &loopBounds)
+void drawShutdownLoop(QPainter *p, const QRectF &loopBounds, const double percentage)
 {
     QPainterPath  loop;
     const QPointF start(loopBounds.left(), loopBounds.center().y() - batteryHeight / 2.0 - 10);
@@ -74,8 +74,20 @@ void drawShutdownLoop(QPainter *p, const QRectF &loopBounds)
         QRectF(loopBounds.left(), loopBounds.bottom() - 2 * loopRadius, 2 * loopRadius, 2 * loopRadius), -90, -90);
     loop.lineTo(end);
 
-    p->setPen(QPen(QColor(0x36FB61), loopPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p->setPen(QPen(QBrush(0x434343), loopPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     p->drawPath(loop);
+    const double loopLength    = loop.length() / 8.0;
+    auto         filledPathPen = QPen(QColor(0x36FB61), loopPenWidth, Qt::CustomDashLine, Qt::RoundCap, Qt::RoundJoin);
+    filledPathPen.setDashPattern({ loopLength, loopLength });
+    filledPathPen.setDashOffset((1 - percentage) * loopLength);
+    p->setPen(filledPathPen);
+    p->drawPath(loop);
+
+    p->drawText(100, 100, QString::fromStdString(std::to_string(percentage)));
+
+    // const auto point = loop.pointAtPercent(loop.percentAtLength(160));
+    // p->setPen(QPen(Qt::red, 10));
+    // p->drawPoint(point);
 }
 
 void ShutdownLoop::paint(QPainter *p)
@@ -90,7 +102,7 @@ void ShutdownLoop::paint(QPainter *p)
     const QRectF loopBounds = bounds.marginsRemoved(QMargins(
         std::max(loopPenWidth / 2, std::max(batteryWidth / 2, nodeWidth)), loopPenWidth / 2 + nodeWidth,
         loopPenWidth / 2 + nodeWidth, loopPenWidth / 2 + nodeWidth));
-    drawShutdownLoop(p, loopBounds);
+    drawShutdownLoop(p, loopBounds, m_percentage);
 
     drawShutdownLoopLabel(
         p, static_cast<int>(loopBounds.left() + loopLabelPadDistance),

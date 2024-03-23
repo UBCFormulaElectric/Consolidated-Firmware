@@ -3,6 +3,12 @@ import QtQuick.Layouts
 import components
 
 Item {
+    property bool first_visit_complete: false
+    onFocusChanged: {
+        if (focus) {
+            first_visit_complete = true;
+        }
+    }
     GridLayout {
         anchors.fill: parent
         columns: 4
@@ -39,6 +45,13 @@ Item {
                 id: shutdownLoop
                 anchors.fill: parent
                 visible: true
+                percentage: first_visit_complete ? 1 : 0 // todo set to correct percentage
+
+                Behavior on percentage {
+                    NumberAnimation {
+                        duration: 1000
+                    }
+                }
             }
         }
 
