@@ -28,6 +28,8 @@
         "LeftInverterFault",
         "RightInverterFault",
         "BatteryFault",
-        "AccumulatorFault"
+        "AccumulatorFault",
+        "LvChargeFault",
+        "BoostControllerFault"
     ]
   }

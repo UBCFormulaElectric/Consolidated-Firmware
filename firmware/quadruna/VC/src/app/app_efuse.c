@@ -26,6 +26,6 @@ void app_efuse_broadcast(void)
         float current = io_efuse_getChannelCurrent(efuse);
 
         (*(efuse_enabled_can_setters[efuse]))(enabled);
-        // (*efuse_current_can_setters[efuse])(current);
+        (*(efuse_current_can_setters[efuse]))(current);
     }
 }
