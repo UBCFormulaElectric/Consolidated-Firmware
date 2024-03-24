@@ -77,7 +77,7 @@ static const Gpio      inv_l_program    = { .port = INV_L_PROGRAM_GPIO_Port, .pi
 static const Gpio      inv_r_program    = { .port = INV_R_PROGRAM_GPIO_Port, .pin = INV_R_PROGRAM_Pin };
 static const Gpio      l_shdn_sns       = { .port = L_SHDN_SNS_GPIO_Port, .pin = L_SHDN_SNS_Pin };
 static const Gpio      r_shdn_sns       = { .port = R_SHDN_SNS_GPIO_Port, .pin = R_SHDN_SNS_Pin };
-static const Gpio      nchimera         = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
+static const Gpio      n_chimera_pin    = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
@@ -105,7 +105,7 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_INV_R_PROGRAM]    = &inv_r_program,
                              [VC_GpioNetName_L_SHDN_SNS]       = &l_shdn_sns,
                              [VC_GpioNetName_R_SHDN_SNS]       = &r_shdn_sns,
-                             [VC_GpioNetName_NCHIMERA]         = &nchimera,
+                             [VC_GpioNetName_NCHIMERA]         = &n_chimera_pin,
                              [VC_GpioNetName_NPROGRAM_3V3]     = &nprogram_3v3,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
@@ -154,7 +154,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, n_chimera_pin);
+    io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();

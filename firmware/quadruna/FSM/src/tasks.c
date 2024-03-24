@@ -63,7 +63,7 @@ const CanConfig can_config = {
 };
 
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
-static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
+static const Gpio      n_chimera_pin           = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3V3_GPIO_Port,
                                                    .pin  = NBSPD_BRAKE_PRESSED_3V3_Pin };
@@ -71,7 +71,7 @@ static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Por
 static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
 
 const Gpio *id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                             [FSM_GpioNetName_NCHIMERA]                = &nchimera,
+                             [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
                              [FSM_GpioNetName_LED]                     = &led.gpio,
                              [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
                              [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
@@ -154,7 +154,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, n_chimera_pin);
+    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
