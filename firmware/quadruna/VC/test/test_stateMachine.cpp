@@ -28,30 +28,30 @@ class VCStateMachineTest : public VcBaseStateMachineTest
 
         app_canRx_FSM_BrakeActuated_update(true);
         app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-        LetTimePass(10);
+        //had to increase time from 10 to 20 to allow transition from inverterOnState to drivestate 
+        LetTimePass(20);
         app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        LetTimePass(10);
+        LetTimePass(20);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     }
 };
 
 TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
-    // Pull start switch down and back up, expect no transition
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    LetTimePass(10);
+    // Pull start switch down and back up, expect no transition as inverters are not on/BMS is not in drive state
     EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 
-    // Transition BMS to drive state, expect no transition
+    // Transition BMS to drive state, expect transition to inverter_state as power manage is in drive state 
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     LetTimePass(10);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
 
     // Actuate brake pedal
     app_canRx_FSM_BrakeActuated_update(true);
     LetTimePass(10);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
 
     // Pull start switch down and back up, expect init->drive transition
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
@@ -89,8 +89,10 @@ TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
     SetInitialState(app_initState_get());
     app_canRx_BMS_State_update(BMS_INVERTER_ON_STATE);
     LetTimePass(1000);
-    EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
+    //Transitioning from init state to inverter on state as inverters have been turned on 
+    EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
     EXPECT_EQ(app_powerManager_getState(), POWER_MANAGER_DRIVE);
+    LetTimePass(1000);
     // Start in drive with a non-zero torque request to prevent false positive.
     SetInitialState(app_driveState_get());
     app_canTx_VC_LeftInverterTorqueCommand_set(1.0f);
