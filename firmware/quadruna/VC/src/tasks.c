@@ -137,13 +137,11 @@ static const CurrentSensingConfig current_sensing_config = {
     .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
 };
 
-static const ShutdownConfig shutdown_config = {
-    .tsms_gpio    = tsms_shdn_sns,
-    .pcm_gpio     = npcm_en,
-    .LE_stop_gpio = l_shdn_sns,
-    .RE_stop_gpio = r_shdn_sns,
-    .splitter_box_interlock_gpio = sb_ilck_shdn_sns
-};
+static const ShutdownConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
+                                                .pcm_gpio                    = npcm_en,
+                                                .LE_stop_gpio                = l_shdn_sns,
+                                                .RE_stop_gpio                = r_shdn_sns,
+                                                .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
 
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
@@ -220,14 +218,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get
-};
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                      [VC_HEARTBEAT_BOARD]   = NULL,
+                                                      [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
+                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                      [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {

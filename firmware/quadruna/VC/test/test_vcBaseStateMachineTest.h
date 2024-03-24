@@ -93,14 +93,12 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     };
 
     // heartbeatGetters - get heartbeat signals from other boards
-    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
-        [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-        [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
-        [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get
-    };
+    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = NULL,
+                                                          [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
+                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
     void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {

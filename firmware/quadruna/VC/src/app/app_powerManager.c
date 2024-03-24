@@ -34,6 +34,8 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     }
 };
 
+static PowerManagerState current_power_state = POWER_MANAGER_SHUTDOWN;
+
 void app_powerManager_setState(PowerManagerState state)
 {
     current_power_state = state;
