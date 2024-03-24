@@ -379,7 +379,6 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-//still working here
 static const CritShdnConfig crit_shdn_pin_config = {
     2,
     inertia_sen_pin,
