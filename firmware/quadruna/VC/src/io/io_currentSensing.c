@@ -3,6 +3,10 @@
 #include "hw_gpio.h"
 #include "hw_adc.h"
 
+// all constants in SI units
+#define AMPERAGE_PER_VOLTAGE (1.0f / (5.5e-2f))
+#define MIN_VOLTAGE (3.3f / 2.0f)
+
 static const CurrentSensingConfig *config;
 
 void io_currentSensing_init(const CurrentSensingConfig *current_sensing_config)
@@ -22,12 +26,10 @@ bool io_currentSensing_hasBatteryFault()
 
 float io_currentSensing_getAccumulatorCurrent()
 {
-    // TODO: implement voltage to current logic
-    return hw_adc_getVoltage(config->acc_current_adc);
+    return (hw_adc_getVoltage(config->acc_current_adc) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
 }
 
 float io_currentSensing_getBatteryCurrent()
 {
-    // TODO: implement voltage to current logic
-    return hw_adc_getVoltage(config->bat_current_adc);
+    return (hw_adc_getVoltage(config->bat_current_adc) - MIN_VOLTAGE) * AMPERAGE_PER_VOLTAGE;
 }
