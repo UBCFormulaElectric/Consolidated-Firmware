@@ -83,10 +83,10 @@ static void driveStateRunOnTick100Hz(void)
     const bool all_states_ok = app_allStates_runOnTick100Hz();
 
     const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool exit_drive = !all_states_ok || bms_not_in_drive;
+    const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive            = !all_states_ok || bms_not_in_drive;
     bool       regen_switch_enabled  = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
-    float apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float      apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
@@ -97,13 +97,13 @@ static void driveStateRunOnTick100Hz(void)
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
 
-     if (regen_switch_enabled)
-     {
-         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-         apps_pedal_percentage = apps_pedal_percentage < 0.0f
-                                     ? apps_pedal_percentage / PEDAL_SCALE
-                                     : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
-     }
+    if (regen_switch_enabled)
+    {
+        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+        apps_pedal_percentage = apps_pedal_percentage < 0.0f
+                                    ? apps_pedal_percentage / PEDAL_SCALE
+                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+    }
 
     if (exit_drive)
     {
