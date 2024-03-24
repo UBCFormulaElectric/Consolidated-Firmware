@@ -28,7 +28,7 @@ class VCStateMachineTest : public VcBaseStateMachineTest
 
         app_canRx_FSM_BrakeActuated_update(true);
         app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-        //had to increase time from 10 to 20 to allow transition from inverterOnState to drivestate 
+        //had to increase time from 10 to 20 to allow transition from init to inverterOnState to drivestate 
         LetTimePass(20);
         app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
         LetTimePass(20);
