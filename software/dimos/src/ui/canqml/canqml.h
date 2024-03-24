@@ -30,7 +30,7 @@ class CanQML final : public QObject
         // ui update
         uiUpdate.setInterval(ui_update_interval_msec);
         uiUpdate.setSingleShot(false);
-        connect(&uiUpdate, &QTimer::timeout, this, &notify_all_signals);
+        connect(&uiUpdate, &QTimer::timeout, this, &CanQML::notify_all_signals);
         uiUpdate.start();
     }
     ~CanQML() override { uiUpdate.stop(); };
