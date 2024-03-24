@@ -156,7 +156,26 @@ static void io_sbgEllipse_processMsg_gpsPos(const SbgBinaryLogData *log_data);
 /*
  * Callback called when a UART packet is received.
  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    // NOTE: I previously tried handling logs within the interrupt itself, but this was throwing errors.
+    // Not sure why but the error msg was related to mallocing within an ISR, although I couldn't figure out where in
+    // SBG's library anything was actually being malloced. This is why I push to a queue here and handle the logs later
+    // in the 100Hz task.
 
+    assert(huart == &huart1);
+
+    // Push newly received data to queue
+    for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
+    {
+        sbg_queue_overflow_count = 0;
+
+        if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
+        {
+            sbg_queue_overflow_count++;
+        }
+    }
+}
 /*
  * Create a serial interface that will be used by SBG's library. Requires passing pointers to functions for all I/O
  * operations, such as reading, writing, flushing, etc. These I/O operations will use STM32's HAL drivers to communicate
