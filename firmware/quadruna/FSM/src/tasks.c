@@ -12,6 +12,7 @@
 #include "app_steering.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_loadCell.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -22,6 +23,7 @@
 #include "io_wheels.h"
 #include "io_brake.h"
 #include "io_suspension.h"
+#include "io_loadCell.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
