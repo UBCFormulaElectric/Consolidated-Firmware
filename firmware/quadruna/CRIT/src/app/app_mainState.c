@@ -7,6 +7,7 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "app_globals.h"
+#include "app_shdnLoop.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "tasks.h"
@@ -73,6 +74,8 @@ static void mainStateRunOnTick100Hz(void)
             io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
+
+    app_shdn_loop_broadcast();
 }
 
 static void mainStateRunOnEntry(void) {}

@@ -89,7 +89,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_thermistors_broadcast();
-    app_shdn_loop_broadcast(); // Sumrath
+    app_shdn_loop_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {
