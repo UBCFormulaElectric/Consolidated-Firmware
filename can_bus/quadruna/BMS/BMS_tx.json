@@ -388,5 +388,18 @@
                 "bits": 16
             }
         }
+    },
+    "BMS_Shdn_Node_Status": {
+        "msg_id": 143,
+        "cycle_time": 100,
+        "description": "BMS Shutdown Node Status",
+        "signals": {
+            "HVD_SHDN_OK_Status": {
+                "bits": 1
+            },
+            "TS_ILCK_OK_Status": {
+                "bits": 1
+            }
+        }
     }
 }
