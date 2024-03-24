@@ -23,6 +23,7 @@
         "MissingBMSHeartbeat",
         "MissingFSMHeartbeat",
         "MissingDIMHeartbeat",
+        "MissingCRITHeartbeat",
         "LeftInverterFault",
         "RightInverterFault",
         "BatteryFault",
