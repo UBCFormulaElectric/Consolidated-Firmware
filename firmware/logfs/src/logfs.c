@@ -97,6 +97,7 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     fs->head_addr = LOGFS_ORIGIN;
 
     // Initialize file cache.
+    // TODO: Remove this, should be redundant now.
     memset(fs->cfg->cache, 0U, fs->cfg->block_size);
     disk_write(fs, 1, fs->cfg->cache);
 
