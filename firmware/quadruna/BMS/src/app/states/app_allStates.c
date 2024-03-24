@@ -10,7 +10,6 @@
 #include "app_shdnLoop.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
-// #include "io_bmsShdn.h"
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
