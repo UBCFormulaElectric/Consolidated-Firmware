@@ -11,6 +11,7 @@ typedef struct
     const Gpio pcm_gpio;
     const Gpio LE_stop_gpio;
     const Gpio RE_stop_gpio;
+    const Gpio splitter_box_interlock_gpio;
 } ShutdownConfig;
 #else
 EMPTY_STRUCT(ShutdownConfig);
@@ -45,3 +46,9 @@ bool io_shutdown_hasLEStopFault(void);
  * @return the status of the REStop pin set in the shutdown config
  */
 bool io_shutdown_hasREStopFault(void);
+
+/*
+ * Get the status of the splitter box interlock shutdown pin
+ * @return the status of the splitter box interlock shutdown pin set in the shutdown config
+ */
+bool io_shutdown_hasSplitterBoxInterlockFault(void);

@@ -142,6 +142,7 @@ static const ShutdownConfig shutdown_config = {
     .pcm_gpio     = npcm_en,
     .LE_stop_gpio = l_shdn_sns,
     .RE_stop_gpio = r_shdn_sns,
+    .splitter_box_interlock_gpio = sb_ilck_shdn_sns
 };
 
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,

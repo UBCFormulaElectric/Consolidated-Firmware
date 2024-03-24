@@ -11,4 +11,5 @@ void app_shutdown_broadcast(void)
     app_canAlerts_VC_Warning_REStop_set(io_shutdown_hasREStopFault());
     app_canAlerts_VC_Warning_PCMInterlock_set(io_shutdown_hasPcmFault());
     app_canAlerts_VC_Warning_TSMS_set(io_shutdown_hasTsmsFault());
+    app_canAlerts_VC_Warning_SplitterBoxInterlock_set(io_shutdown_hasSplitterBoxInterlockFault());
 }

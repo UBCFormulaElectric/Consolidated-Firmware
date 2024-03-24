@@ -27,3 +27,9 @@ bool io_shutdown_hasREStopFault()
 {
     return hw_gpio_readPin(&config->LE_stop_gpio);
 }
+
+
+bool io_shutdown_hasSplitterBoxInterlockFault()
+{
+    return hw_gpio_readPin(&config->splitter_box_interlock_gpio);
+}
