@@ -22,7 +22,6 @@ extern "C"
 #include "states/app_allStates.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
-#include "app_sbgEllipse.c"
 #include "app_globals.h"
 }
 
