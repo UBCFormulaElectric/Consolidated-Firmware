@@ -41,6 +41,11 @@ TEST(CanMsgsTest, suspension_message_frequency)
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_FSM_SUSPENSION_CYCLE_TIME_MS);
 }
 
+TEST(CanMsgsTest, load_cell_message_frequency)
+{
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_FSM_LOAD_CELL_CYCLE_TIME_MS);
+}
+
 TEST(CanMsgsTest, warnings_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(1), CAN_MSG_FSM_WARNINGS_CYCLE_TIME_MS);

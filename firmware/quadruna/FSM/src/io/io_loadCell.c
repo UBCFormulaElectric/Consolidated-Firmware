@@ -5,8 +5,8 @@
 #include "io_loadCell.h"
 
 // TODO: define these constants
-#define LOADCELL_MINVOLT (0.0f)
-#define LOADCELL_MAXVOLT (0.0f)
+#define LOADCELL_MIN_VOLTAGE (0.0f)
+#define LOADCELL_MAX_VOLTAGE (1000.0f)
 
 float voltageToMechanicalLoad(float voltage)
 {
@@ -17,7 +17,7 @@ float voltageToMechanicalLoad(float voltage)
 
 bool loadCellOCSC(float voltage)
 {
-    return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
+    return !(LOADCELL_MIN_VOLTAGE <= voltage && voltage <= LOADCELL_MAX_VOLTAGE);
 }
 
 float io_loadCell_getMechanicalLoad1(void)
