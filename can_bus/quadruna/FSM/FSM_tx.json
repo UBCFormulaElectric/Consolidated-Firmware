@@ -147,5 +147,15 @@
 				"unit": "cm"
 			}
 		}
-	}
+	},
+	"FSM_Shdn_Node_Status": {
+        "msg_id": 308,
+        "cycle_time": 100,
+        "description": "FSM Shutdown Node Status",
+        "signals": {
+            "FSM_SHDN_OK_Status": {
+                "bits": 1
+            }
+        }
+    }
 }
