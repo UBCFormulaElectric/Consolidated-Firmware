@@ -13,6 +13,7 @@
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
 #include "app_currentSensing.h"
+#include "app_efuse.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -193,6 +194,20 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     }
 };
 
+static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
+    [EFUSE_CHANNEL_SHDN] = app_canTx_VC_ShdnStatus_set,   [EFUSE_CHANNEL_LV] = app_canTx_VC_LvStatus_set,
+    [EFUSE_CHANNEL_PUMP] = app_canTx_VC_PumpStatus_set,   [EFUSE_CHANNEL_AUX] = app_canTx_VC_AuxStatus_set,
+    [EFUSE_CHANNEL_INV_R] = app_canTx_VC_InvRStatus_set,  [EFUSE_CHANNEL_INV_L] = app_canTx_VC_InvLStatus_set,
+    [EFUSE_CHANNEL_TELEM] = app_canTx_VC_TelemStatus_set, [EFUSE_CHANNEL_BUZZER] = app_canTx_VC_BuzzerStatus_set,
+};
+
+static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
+    [EFUSE_CHANNEL_SHDN] = app_canTx_VC_ShdnCurrent_set,   [EFUSE_CHANNEL_LV] = app_canTx_VC_LvCurrent_set,
+    [EFUSE_CHANNEL_PUMP] = app_canTx_VC_PumpCurrent_set,   [EFUSE_CHANNEL_AUX] = app_canTx_VC_AuxCurrent_set,
+    [EFUSE_CHANNEL_INV_R] = app_canTx_VC_InvRCurrent_set,  [EFUSE_CHANNEL_INV_L] = app_canTx_VC_InvLCurrent_set,
+    [EFUSE_CHANNEL_TELEM] = app_canTx_VC_TelemCurrent_set, [EFUSE_CHANNEL_BUZZER] = app_canTx_VC_BuzzerCurrent_set,
+};
+
 static UART debug_uart = { .handle = &huart7 };
 
 // config for heartbeat monitor (can funcs and flags)
@@ -287,6 +302,7 @@ void tasks_init(void)
     io_shutdown_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
