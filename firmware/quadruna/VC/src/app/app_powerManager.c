@@ -7,7 +7,6 @@ typedef struct
     bool efuses[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 
-// TODO: make sure this config is correct
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     [POWER_MANAGER_SHUTDOWN] = {
         .efuses = {
@@ -18,7 +17,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
             [EFUSE_CHANNEL_INV_R] = false,
             [EFUSE_CHANNEL_INV_L] = false,
             [EFUSE_CHANNEL_TELEM] = true,
-            [EFUSE_CHANNEL_BUZZER] = true,
+            [EFUSE_CHANNEL_BUZZER] = false,
         }
     },
     [POWER_MANAGER_DRIVE] = {
