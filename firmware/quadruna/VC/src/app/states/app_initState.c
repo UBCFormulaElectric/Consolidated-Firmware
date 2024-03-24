@@ -40,7 +40,7 @@ static void initStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
-
+    
 }
 
 const State *app_initState_get(void)

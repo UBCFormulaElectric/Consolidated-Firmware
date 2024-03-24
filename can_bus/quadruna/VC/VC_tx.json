@@ -486,56 +486,56 @@
     "GpsPosInfo": {
         "msg_id": 217,
         "cycle_time": 100,
-        "description": "Car position info",
-        "signals": {
-            "PositionStatus": {
-                "enum": "DcmSbgStatus"
-            },
-            "Latitude": {
-                "resolution": 0.00005,
-                "min": 47,
-                "max": 50,
-                "unit": "deg"
-            },
-            "LatitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 2,
-                "unit": "m"
-            },
-            "Longtitude": {
-                "resolution": 0.00005,
-                "min": 122,
-                "max": 125,
-                "unit": "deg"
-            },
-            "LongtitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 2,
-                "unit": "m"
-            },
-            "Altitude": {
-                "resolution": 0.5,
-                "min": 0,
-                "max": 400,
-                "unit": "m"
-            },
-            "AltitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 20,
-                "unit": "m"
-            }
+        "description": "Car position info", 
+            "signals":{
+                "PositionStatus":{
+                    "enum": "VcSbgStatus"
+                },
+                "Latitude":{
+                    "resolution": 0.00005,
+                    "min": 47,
+                    "max": 50,
+                    "unit": "deg"  
+                },
+                "LatitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Longtitude":{
+                    "resolution": 0.00005,
+                    "min": 122,
+                    "max": 125,
+                    "unit": "deg" 
+                },
+                "LongtitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Altitude":{
+                    "resolution": 0.5,
+                    "min": 0,
+                    "max": 400,
+                    "unit": "m"
+                },
+                "AltitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 20,
+                    "unit": "m"
+                }
         }
     },
     "GpsVelInfo": {
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",
-        "signals": {
-            "VelocityStatus": {
-                "enum": "DcmSbgStatus"
+        "signals":{
+            "VelocityStatus":{
+                "enum":"VcSbgStatus"
             },
             "VelocityNorth": {
                 "resolution": 0.1,

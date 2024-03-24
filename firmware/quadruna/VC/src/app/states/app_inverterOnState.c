@@ -4,6 +4,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_utils.h"
+#include <stddef.h>
 
 static void inverterOnStateRunOnEntry(void)
 {
