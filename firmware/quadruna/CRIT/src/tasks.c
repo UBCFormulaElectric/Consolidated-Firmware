@@ -23,10 +23,12 @@
 #include "io_rgbLed.h"
 #include "io_can.h"
 #include "io_canRx.h"
+#include "io_critShdn.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_shdnLoop.h"
 
 #include "hw_utils.h"
 #include "hw_bootup.h"
@@ -377,6 +379,16 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
+//still working here
+static const CritShdnConfig crit_shdn_pin_config = {
+    2,
+    inertia_sen_pin,
+    shdn_sen_pin,
+};
+
+static BoardShdnNode critBshdnNodes[2] = { { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_INERTIA_SEN_OK_Status_set },
+                                       { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_SHDN_SEN_OK_Status_set } };
+
 void tasks_preInit(void)
 {
     // hw_bootup_enableInterruptsForApp();
@@ -404,9 +416,12 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_critShdn_init(&crit_shdn_pin_config);
 
     app_canTx_init();
     app_canRx_init();
+
+    app_shdn_loop_init(critBshdnNodes, io_crit_num_shdn_nodes());
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,

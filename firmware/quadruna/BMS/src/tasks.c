@@ -295,7 +295,7 @@ static const BmsShdnConfig bms_shdn_pin_config = {
     { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
 };
 
-static BoardShdnNode bshdnNodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TS_ILCK_OK_Status_set },
+static BoardShdnNode bmsBshdnNodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TS_ILCK_OK_Status_set },
                                        { &io_get_HVD_OK, &app_canTx_BMS_HVD_SHDN_OK_Status_set } };
 
 void tasks_preInit(void)
@@ -342,7 +342,7 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
-    app_shdn_loop_init(bshdnNodes, io_bms_num_shdn_nodes());
+    app_shdn_loop_init(bmsBshdnNodes, io_bms_num_shdn_nodes());
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,

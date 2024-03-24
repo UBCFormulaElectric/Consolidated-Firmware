@@ -59,5 +59,18 @@
                 "bits": 1
             }
         }
+    },
+    "CRIT_Shdn_Node_Status": {
+        "msg_id": 507,
+        "cycle_time": 100,
+        "description": "CRIT Shutdown Node Status",
+        "signals": {
+            "SHDN_SEN_OK_Status": {
+                "bits": 1
+            },
+            "INERTIA_SEN_OK_Status": {
+                "bits": 1
+            }
+        }
     }
 }

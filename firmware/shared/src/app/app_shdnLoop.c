@@ -1,15 +1,13 @@
 #include "app_shdnLoop.h"
 #include "app_canTx.h"
 
-static BoardShdnNode *board_nodes; // length of this?
+static BoardShdnNode *board_nodes; 
 static int            length;
 
 void app_shdn_loop_init(BoardShdnNode *nodes, int num_nodes)
 {
-    for (int i = 0; i < length; i++)
-    {
-        board_nodes[i] = nodes[i];
-    }
+    length = num_nodes;
+    board_nodes = nodes;
 }
 
 void app_shdn_loop_broadcast()
