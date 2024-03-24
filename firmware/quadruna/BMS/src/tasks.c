@@ -30,6 +30,7 @@
 #include "io_tractiveSystem.h"
 #include "io_log.h"
 #include "io_chimera.h"
+#include "io_bmsShdn.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -44,6 +45,7 @@
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
+#include "app_shdnLoop.h"
 
 #include "shared.pb.h"
 #include "BMS.pb.h"
@@ -287,6 +289,20 @@ const AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
+static const BmsShdnConfig bms_shdn_pin_config = {
+    2,
+    ts_ilck_shdn_pin,
+    {
+        .port = HVD_SHDN_OK_GPIO_Port,
+        .pin = HVD_SHDN_OK_Pin
+    },
+};
+
+static BoardShdnNode bshdnNodes[2] = {
+    {&io_get_TS_ILCK_OK, &app_canTx_BMS_TS_ILCK_OK_Status_set}, 
+    {&io_get_HVD_OK, &app_canTx_BMS_HVD_SHDN_OK_Status_set}
+};
+
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -312,7 +328,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-
+    io_bmsShdn_init(&bms_shdn_pin_config);
     io_tractiveSystem_init(&ts_config);
     io_thermistors_init(&thermistors_config);
     io_ltc6813Shared_init(&ltc6813_spi);
@@ -330,6 +346,8 @@ void tasks_init(void)
     app_soc_init();
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
+
+    app_shdn_loop_init(bshdnNodes, io_bms_num_shdn_nodes() );
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
