@@ -1,11 +1,11 @@
-#include "ic_loadCell.h"
+#include "io_loadCell.h"
 #include <stdlib.h>
 #include <assert.h>
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "app_loadCell.h"
 
-void loadcell_broadcast()
+void app_loadcell_broadcast()
 {
     app_canTx_RSM_LoadCell3_set();
     app_canTx_RSM_LoadCell4_set();

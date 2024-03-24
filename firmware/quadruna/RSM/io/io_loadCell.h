@@ -2,24 +2,14 @@
 #include <stdbool.h>
 
 /**
- * @returns mechanical load on load cell based on the following data sheet:
+ * @returns mechanical loadd based off adc pin voltage (after op-amp gain)
  */
-float io_loadCell_voltageToMechancialLoad();
+float io_loadCell_getMechanicalLoad3();
 
 /**
- * @returns helper function to check OCSC for both load cells
+ * @returns mechanical loadd based off adc pin voltage (after op-amp gain)
  */
-bool io_loadCell_OCSC(int);
-
-/**
- * @returns voltage from load cell 3 (after op-amp gain)
- */
-float io_loadCell_getVoltage3();
-
-/**
- * @returns voltage from load cell 4 (after op-amp gain)
- */
-float io_loadCell_getVoltage4();
+float io_loadCell_getMechanicalLoad4();
 
 /**
  * @returns checks open and short circuit for load cell 3
