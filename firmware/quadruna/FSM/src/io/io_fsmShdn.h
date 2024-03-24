@@ -8,8 +8,8 @@
 
 typedef struct
 {
-    const int        fsm_num_nodes;
-    const Gpio       fsm_shdn_ok_gpio;
+    const int  fsm_num_nodes;
+    const Gpio fsm_shdn_ok_gpio;
 } FsmShdnConfig;
 #else
 EMPTY_STRUCT(FsmShdnConfig);

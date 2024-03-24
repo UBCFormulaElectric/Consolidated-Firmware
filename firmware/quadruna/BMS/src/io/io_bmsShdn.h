@@ -8,9 +8,9 @@
 
 typedef struct
 {
-    const int        bms_num_nodes;
-    const Gpio       ts_ilck_ok_gpio;
-    const Gpio       hvd_ok_gpio;
+    const int  bms_num_nodes;
+    const Gpio ts_ilck_ok_gpio;
+    const Gpio hvd_ok_gpio;
 } BmsShdnConfig;
 #else
 EMPTY_STRUCT(BmsShdnConfig);

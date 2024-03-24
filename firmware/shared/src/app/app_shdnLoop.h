@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 
-
 typedef struct
 {
     bool (*get_shutdown_state)(void);
@@ -11,5 +10,5 @@ typedef struct
 
 void app_shdn_loop_init(BoardShdnNode nodes[], int num_nodes);
 
-//Broadcast shutdown node statuses over CAN.
+// Broadcast shutdown node statuses over CAN.
 void app_shdn_loop_broadcast();
