@@ -3,6 +3,7 @@ import logging
 from logfs_src import LogFsErr
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class LogFsContext:
@@ -51,7 +52,7 @@ class LogFsContext:
             return LogFsErr.IO
 
         if err == LogFsErr.OK:
-            logger.debug(f"Read @ {block}: {self.disk[block]}")
+            logger.debug(f"Read @ {block}: {data}")
         else:
             logger.debug(f"Read @ {block}: {err}")
 

@@ -97,6 +97,9 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     fs->head_addr = LOGFS_ORIGIN;
 
     // Initialize file cache.
+    memset(fs->cfg->cache, 0U, fs->cfg->block_size);
+    disk_write(fs, 1, fs->cfg->cache);
+
     LogFsFileCfg root_cfg = { .cache = cfg->cache, .path = "/.root" };
     logfs_initFile(&fs->root_file, &root_cfg, LOGFS_OPEN_RD_ONLY | LOGFS_OPEN_CREATE);
     RET_ERR(logfs_createNewFile(fs, &fs->root_file, &root_cfg));

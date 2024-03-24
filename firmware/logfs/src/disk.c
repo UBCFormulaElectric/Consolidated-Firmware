@@ -175,6 +175,12 @@ LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace)
         // Pair is new and hasn't yet been written to disk, initialize state.
         fs->cache_pair_hdr->write_cycles     = 0;
         fs->cache_pair_hdr->replacement_addr = LOGFS_INVALID_BLOCK;
+
+        // Wipe both blocks to guarantee state is corrupted by data already on the card.
+        uint8_t empty_buf[fs->cfg->block_size];
+        memset(empty_buf, 0U, sizeof(empty_buf));
+        RET_ERR(disk_write(fs, pair->addrs[0], empty_buf));
+        RET_ERR(disk_write(fs, pair->addrs[1], empty_buf));
     }
     else if (fs->cfg->write_cycles != 0 && check_replace && fs->cache_pair_hdr->write_cycles >= fs->cfg->write_cycles)
     {

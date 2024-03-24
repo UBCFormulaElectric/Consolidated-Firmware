@@ -7,8 +7,8 @@ extern "C"
 {
 #endif
 
-    inline LogFsErr disk_write(const LogFs *fs, uint32_t block, void *buf);
-    inline LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf);
+    LogFsErr disk_write(const LogFs *fs, uint32_t block, void *buf);
+    LogFsErr disk_read(const LogFs *fs, uint32_t block, void *buf);
 
     LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch);
     LogFsErr disk_syncCache(const LogFs *fs, const LogFsCache *cache);
