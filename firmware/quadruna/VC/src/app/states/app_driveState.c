@@ -62,14 +62,14 @@ static void driveStateRunOnEntry(void)
 
     // Read torque vectoring switch only when entering drive state, not during driving
 
-    // TODO: Finish setting up DIM can set up once crit is done
+    // TODO: Finish setting up CRIT can set up once crit is done
 
-    // globals->torque_vectoring_switch_is_on = app_canRx_DIM_AuxSwitch_get() == SWITCH_ON;
+    globals->torque_vectoring_switch_is_on = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
 
-    // if (globals->torque_vectoring_switch_is_on)
-    // {
-    //     app_torqueVectoring_init();
-    // }
+    if (globals->torque_vectoring_switch_is_on)
+    {
+        app_torqueVectoring_init();
+    }
 }
 
 static void driveStateRunOnTick1Hz(void)
@@ -82,12 +82,10 @@ static void driveStateRunOnTick100Hz(void)
     // All states module checks for faults, and returns whether or not a fault was detected.
     const bool all_states_ok = app_allStates_runOnTick100Hz();
 
-    // TODO: implement the start switch functionality once crit dim CAN msg are done
-    //  const bool start_switch_off      = app_canRx_DIM_StartSwitch_get() == SWITCH_OFF;
+    const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    // TODO: Add back start_switch_off boolean check to see if we are exiting drive state
     bool exit_drive = !all_states_ok || bms_not_in_drive;
-    // bool       regen_switch_enabled  = app_canRx_DIM_AuxSwitch_get() == SWITCH_ON;
+    bool       regen_switch_enabled  = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
     float apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
@@ -99,14 +97,13 @@ static void driveStateRunOnTick100Hz(void)
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
 
-    // TODO: One crit can is done fix fucntiionality of the regen switch
-    //  if (regen_switch_enabled)
-    //  {
-    //      apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-    //      apps_pedal_percentage = apps_pedal_percentage < 0.0f
-    //                                  ? apps_pedal_percentage / PEDAL_SCALE
-    //                                  : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
-    //  }
+     if (regen_switch_enabled)
+     {
+         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+         apps_pedal_percentage = apps_pedal_percentage < 0.0f
+                                     ? apps_pedal_percentage / PEDAL_SCALE
+                                     : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+     }
 
     if (exit_drive)
     {

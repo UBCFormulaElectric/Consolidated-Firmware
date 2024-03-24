@@ -11,6 +11,7 @@
 	"cmake.configureOnOpen": false,
 	"files.associations": {
 		"app_utils.h": "c",
-		"app_allstates.h": "c"
+		"app_allstates.h": "c",
+		"app_sbgellipse.c": "cpp"
 	}
 }
