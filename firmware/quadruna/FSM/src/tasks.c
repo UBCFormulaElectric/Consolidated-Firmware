@@ -136,6 +136,11 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
+void tasks_timCaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
+}
+
 void tasks_preInit(void) {}
 
 void tasks_init(void)

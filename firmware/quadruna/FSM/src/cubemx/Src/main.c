@@ -137,6 +137,10 @@ void        RunTask1Hz(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    tasks_timCaptureCallback(htim);
+}
 
 /* USER CODE END 0 */
 

@@ -1,5 +1,7 @@
 #pragma once
+#include "main.h"
 
+void tasks_timCaptureCallback(TIM_HandleTypeDef *htim);
 void tasks_preInit();
 void tasks_init();
 void tasks_run100Hz(void);
