@@ -556,5 +556,133 @@
                 "unit": "A"
             }
         }
+    },
+    "EfuseShdn": {
+        "msg_id": 221,
+        "cycle_time": 100,
+        "description": "Efuse info for shdn.",
+        "signals": {
+            "ShdnCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "ShdnStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseLv": {
+        "msg_id": 222,
+        "cycle_time": 100,
+        "description": "Efuse info for lv.",
+        "signals": {
+            "LvCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "LvStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfusePump": {
+        "msg_id": 223,
+        "cycle_time": 100,
+        "description": "Efuse info for pump.",
+        "signals": {
+            "PumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "PumpStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseAux": {
+        "msg_id": 224,
+        "cycle_time": 100,
+        "description": "Efuse info for aux.",
+        "signals": {
+            "AuxCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "AuxStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseInvR": {
+        "msg_id": 225,
+        "cycle_time": 100,
+        "description": "Efuse info for right inverter.",
+        "signals": {
+            "InvRCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "InvRStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseInvL": {
+        "msg_id": 226,
+        "cycle_time": 100,
+        "description": "Efuse info for left inverter.",
+        "signals": {
+            "InvLCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "InvLStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseTelem": {
+        "msg_id": 227,
+        "cycle_time": 100,
+        "description": "Efuse info for telemetry.",
+        "signals": {
+            "TelemCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "TelemStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EfuseBuzzer": {
+        "msg_id": 228,
+        "cycle_time": 100,
+        "description": "Efuse info for buzzer.",
+        "signals": {
+            "BuzzerCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 200,
+                "unit": "A"
+            },
+            "BuzzerStatus": {
+                "bits": 1
+            }
+        }
     }
 }
