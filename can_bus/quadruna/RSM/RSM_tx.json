@@ -1,5 +1,18 @@
 {
-    "Coolant": {
+    "Vitals": {
+		"msg_id": 406, 
+		"cycle_time": 100,
+		"description": "RSM vitals message.",
+		"signals": {
+			"Heartbeat": {
+				"bits": 1
+			},
+			"State": {
+				"enum": "FSMState"
+			}
+		}
+	},
+	"Coolant": {
 		"msg_id": 407,
 		"cycle_time": 1000,
 		"signals": {

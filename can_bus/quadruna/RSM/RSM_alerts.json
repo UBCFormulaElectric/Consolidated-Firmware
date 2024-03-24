@@ -16,6 +16,7 @@
         "LoadCell4OCSC"
     ],
     "faults": [
-        "FlowMeterUnderflow"
+        "FlowMeterUnderflow",
+        "MissingBMSHeartbeat"
     ]
 }

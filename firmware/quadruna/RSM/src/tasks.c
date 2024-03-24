@@ -2,6 +2,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_globals.h"
+#include "app_heartbeatMonitor.h"
+
 #include "io_log.h"
 #include "io_chimera.h"
 
@@ -47,6 +50,47 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
+// config for heartbeat monitor
+/// RSM rellies on BMS and FSM
+bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
+    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+};
+
+// heartbeatGetters - get heartbeat signals from other boards
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_get, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatUpdaters - update local CAN table with heartbeat status
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_update, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
+    [FSM_HEARTBEAT_BOARD] = app_canRx_fsm_Heartbeat_update, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultSetters - broadcast heartbeat faults over CAN
+void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+// heartbeatFaultGetters - gets fault statuses over CAN
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_SM_Fault_MissingBMSHeartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+static const GlobalsConfig globals_config = { .brake_light = &brake_light_en_pin };
+
 void tasks_preInit(void)
 {
     // TODO: Setup bootloader.
@@ -59,6 +103,12 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
+
+    app_globals_init(&globals_config);
+
+    app_heartbeatMonitor_init(
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
 
     // TODO: Re-enable watchdog.
 }
