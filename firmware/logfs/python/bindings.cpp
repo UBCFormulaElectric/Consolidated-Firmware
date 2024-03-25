@@ -7,10 +7,10 @@ namespace py = pybind11;
 static LogFsErr readWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined read function.
-    py::object *context = (py::object *)cfg->context;
-    py::tuple   result  = context->attr("read")(block);
-    LogFsErr    err     = result[0].cast<LogFsErr>();
-    py::bytes   bytes   = result[1].cast<py::bytes>();
+    py::object *disk   = (py::object *)cfg->context;
+    py::tuple   result = disk->attr("read")(block);
+    LogFsErr    err    = result[0].cast<LogFsErr>();
+    py::bytes   bytes  = result[1].cast<py::bytes>();
 
     // Copy returned data into buffer.
     const std::string byte_str = bytes.cast<std::string>();
@@ -21,9 +21,9 @@ static LogFsErr readWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 static LogFsErr writeWrapper(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
     // Invoke user-defined write function.
-    py::object *context = (py::object *)cfg->context;
-    py::bytes   bytes   = py::bytes((char *)buf, cfg->block_size);
-    py::object  result  = context->attr("write")(block, bytes);
+    py::object *disk   = (py::object *)cfg->context;
+    py::bytes   bytes  = py::bytes((char *)buf, cfg->block_size);
+    py::object  result = disk->attr("write")(block, bytes);
     return result.cast<LogFsErr>();
 }
 
@@ -40,15 +40,15 @@ class PyLogFsFile
 class PyLogFs
 {
   public:
-    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, bool rd_only, py::object context)
-      : context(context)
+    PyLogFs(uint32_t block_size, uint32_t block_count, uint32_t write_cycles, bool rd_only, py::object disk)
+      : disk(disk)
     {
         // Init config struct.
         cfg.block_size   = block_size;
         cfg.block_count  = block_count;
         cfg.write_cycles = write_cycles;
         cfg.rd_only      = rd_only;
-        cfg.context      = &this->context;
+        cfg.context      = &this->disk;
         cfg.read         = readWrapper;
         cfg.write        = writeWrapper;
 
@@ -153,7 +153,7 @@ class PyLogFs
   private:
     LogFsCfg   cfg;
     LogFs      fs;
-    py::object context;
+    py::object disk;
 };
 
 PYBIND11_MODULE(logfs_src, m)

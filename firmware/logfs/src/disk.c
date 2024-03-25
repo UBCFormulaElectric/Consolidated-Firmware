@@ -94,6 +94,11 @@ LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, 
 
 LogFsErr disk_syncCache(const LogFs *fs, const LogFsCache *cache)
 {
+    if (cache->cached_addr == LOGFS_INVALID_BLOCK)
+    {
+        return LOGFS_ERR_OK;
+    }
+
     return disk_write(fs, cache->cached_addr, cache->buf);
 }
 
@@ -187,7 +192,7 @@ LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace)
         // Pair has exhausted its write cycles, evict and replace it!
         return disk_replacePair(fs, pair);
     }
-    else if (pair->seq_num %= 2)
+    else if (pair->seq_num % 2 == 0)
     {
         // Only increment on even writes, since write cycles should correspond to the number of writes per block (and
         // writes are evenly distributed over the 2 blocks per pair).

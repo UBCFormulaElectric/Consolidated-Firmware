@@ -1,7 +1,7 @@
 import argparse
 from IPython.terminal.embed import InteractiveShellEmbed
 from .fs import LogFs
-from .context import LogFsUnixContext
+from .disk import LogFsUnixDisk
 
 
 def main() -> None:
@@ -26,13 +26,13 @@ def main() -> None:
     )
 
     # Open the disk.
-    context = LogFsUnixContext(
+    disk = LogFsUnixDisk(
         block_size=args.block_size, block_count=args.block_count, disk_path=args.device
     )
     fs = LogFs(
         block_size=args.block_size,
         block_count=args.block_count,
-        context=context,
+        disk=disk,
         mount=True,
         format=args.format,
     )

@@ -3,17 +3,24 @@
 #include <stdio.h>
 #include "disk.h"
 #include "utils.h"
+#include <assert.h>
 
 static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
 {
+    assert(cfg->block_size > sizeof(LogFsBlock_File));
+    assert(cfg->block_size > sizeof(LogFsBlock_Metadata));
+    assert(cfg->block_size > sizeof(LogFsBlock_Data));
+
     fs->cfg                                 = cfg;
     const uint32_t data_block_metadata_size = sizeof(LogFsBlock_Data) - 1;
     fs->eff_block_size_bytes                = cfg->block_size - data_block_metadata_size;
     fs->mounted                             = false;
     fs->out_of_memory                       = false;
-    fs->max_path_len_bytes                  = MIN(fs->cfg->block_size - sizeof(LogFsBlock_File), LOGFS_PATH_BYTES);
     fs->head_file_addr                      = LOGFS_INVALID_BLOCK;
     fs->head_addr                           = 0;
+
+    fs->max_path_len_bytes = MIN((int)((int)fs->cfg->block_size - sizeof(LogFsBlock_File)), LOGFS_PATH_BYTES);
+    assert(fs->max_path_len_bytes > 0);
 
     fs->cache_pair_hdr = fs->cfg->cache;
     fs->cache_file     = fs->cfg->cache;
@@ -97,10 +104,6 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     fs->head_addr = LOGFS_ORIGIN;
 
     // Initialize file cache.
-    // TODO: Remove this, should be redundant now.
-    memset(fs->cfg->cache, 0U, fs->cfg->block_size);
-    disk_write(fs, 1, fs->cfg->cache);
-
     LogFsFileCfg root_cfg = { .cache = cfg->cache, .path = "/.root" };
     logfs_initFile(&fs->root_file, &root_cfg, LOGFS_OPEN_RD_ONLY | LOGFS_OPEN_CREATE);
     RET_ERR(logfs_createNewFile(fs, &fs->root_file, &root_cfg));
@@ -139,15 +142,15 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
         }
 
         RET_ERR(disk_readPair(fs, &cur_file_pair));
+        cur_file = fs->cache_file->next_file_addr;
+        cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
+        cur_head = MAX(cur_head, cur_file_pair.addrs[1] + 1);
+
         if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
         {
             // Reached end of file linked-list, return.
             break;
         }
-
-        cur_file = fs->cache_file->next_file_addr;
-        cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
-        cur_head = MAX(cur_head, cur_file_pair.addrs[1] + 1);
     }
 
     // Successfully found the the head file, update state variables.
@@ -197,7 +200,7 @@ LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, uint32_t flag
             {
                 file->head_data_addr = fs->cache_file->prev_head_addr;
                 if (fs->cache_file->prev_head_addr == LOGFS_INVALID_BLOCK ||
-                    (disk_exchangeCache(fs, &file->cache, fs->cache_file->prev_head_addr, false, true)))
+                    IS_ERR(disk_exchangeCache(fs, &file->cache, fs->cache_file->prev_head_addr, false, true)))
                 {
                     // If both the head and backup are corrupt, file can't be opened.
                     return LOGFS_ERR_CORRUPT;
@@ -306,6 +309,7 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             file->cache_data->prev_data_addr = file->head_data_addr;
             file->cache_data->num_bytes      = 0U;
             file->head_data_addr             = cur_data;
+            RET_ERR(disk_syncCache(fs, &file->cache));
             INC_HEAD(fs, 1);
         }
 
@@ -326,7 +330,7 @@ LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size)
             RET_ERR(disk_readPair(fs, &file->file_pair));
             fs->cache_file->prev_head_addr = fs->cache_file->head_data_addr;
             fs->cache_file->head_data_addr = file->head_data_addr;
-            RET_ERR(disk_writePair(fs, &file->file_pair, true));
+            RET_ERR(disk_writePair(fs, &file->file_pair, false));
         }
 
         // We'll always need a new block if there is any remaining data to be
@@ -360,26 +364,27 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
         file->read_iter_init      = true;
     }
 
+    // Sync whatever is currently in the cache.
+    if (!fs->cfg->rd_only)
+    {
+        // TODO: Check if this data is from a read or a write. If it's from a write, we need to sync it, but if its from
+        // a read, we don't!
+        RET_ERR(disk_syncCache(fs, &file->cache));
+    }
+
     bool first_block = true;
     *num_read        = 0;
 
     while (*num_read < size && file->read_iter_data_addr != LOGFS_INVALID_BLOCK)
     {
-        // Read current block. Note that we only want to write data in the cache back to disk before the first read.
-        RET_ERR(
-            disk_exchangeCache(fs, &file->cache, file->read_iter_data_addr, first_block && !fs->cfg->rd_only, true));
+        // Read current block.
+        RET_ERR(disk_exchangeCache(fs, &file->cache, file->read_iter_data_addr, false, true));
         first_block = false;
 
         // Calculate number of available bytes.
         const uint32_t num_in_block     = file->cache_data->num_bytes - file->read_iter_data_byte;
         const uint32_t num_left_to_read = size - *num_read;
         uint32_t       num_available    = MIN(num_left_to_read, num_in_block);
-
-        if (num_available == 0)
-        {
-            // No more data left in this block, reached end of file.
-            return LOGFS_ERR_OK;
-        }
 
         // Read out data from cached block.
         uint8_t *const buf_end   = (uint8_t *)buf + size - *num_read;
@@ -389,6 +394,7 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
 
         // Move to next block if we've read all bytes from the current block.
         file->read_iter_data_byte += num_available;
+
         if (file->read_iter_data_byte >= file->cache_data->num_bytes)
         {
             file->read_iter_data_byte = 0;

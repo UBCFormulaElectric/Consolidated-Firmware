@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class LogFsContext:
+class LogFsDisk:
     def __init__(self, block_size: int, block_count: int) -> None:
         self.block_size = block_size
         self.block_count = block_count
@@ -59,9 +59,9 @@ class LogFsContext:
         return err, data
 
 
-class LogFsRamContext(LogFsContext):
+class LogFsRamDisk(LogFsDisk):
     """
-    Context used for interacting with a logfs image stored entirely in RAM.
+    Disk used for interacting with a logfs image stored entirely in RAM.
     No practical use, just used for testing/benchmarking.
 
     """
@@ -81,9 +81,9 @@ class LogFsRamContext(LogFsContext):
         return LogFsErr.OK, self.disk[block]
 
 
-class LogFsUnixContext(LogFsContext):
+class LogFsUnixDisk(LogFsDisk):
     """
-    Context used for interacting with a logfs image on a disk on a Unix machine.
+    Disk used for interacting with a logfs image on a disk on a Unix machine.
 
     """
 

@@ -1,154 +1,165 @@
 import pytest
-from logfs import LogFs, LogFsRamContext, LogFsUnixContext
+import random
+import string
+from logfs import LogFs
 
 
-BLOCK_COUNT = 100000
-BLOCK_SIZE = 512
-WRITE_CYCLES = 100
+def random_data(size_bytes: int) -> bytes:
+    data = "".join(random.choices(string.ascii_uppercase + string.digits, k=size_bytes))
+    data = data.encode()
+    return data
 
 
-@pytest.fixture
-def fs_unformatted() -> LogFs:
-    fs = LogFs(
-        block_size=BLOCK_SIZE,
-        block_count=BLOCK_COUNT,
-        write_cycles=WRITE_CYCLES,
-        rd_only=False,
-        # context=LogFsRamContext(BLOCK_SIZE, BLOCK_COUNT),
-        context=LogFsUnixContext(BLOCK_SIZE, BLOCK_COUNT, "/dev/disk4"),
-        mount=False,
-    )
-    return fs
-
-
-@pytest.fixture
-def fs(fs_unformatted: LogFs) -> LogFs:
-    fs_unformatted.format()
-    return fs_unformatted
-
-
-def test_rw_big_file(fs):
+@pytest.mark.parametrize(
+    "size_bytes",
+    [
+        1,
+        10,
+        100,
+        1000,
+        10_000,
+        100_000,
+        1_000_000,
+    ],
+)
+def test_rw_big_file(fs: LogFs, size_bytes) -> None:
     # Create dummy data.
-    data_len = 0
-    data = " ".join(["hello world!" for _ in range(data_len)]).encode()
+    data = random_data(size_bytes=size_bytes)
 
     # Write data.
-    file = fs.open("/test.txt", "rwx")
-    fs.write(file, data)
+    file = fs.open(path="/test.txt", flags="rwx")
+    fs.write(file=file, data=data)
 
     # Read data back.
-    read_data = fs.read(file)
+    read_data = fs.read(file=file)
     assert data == read_data
 
 
-def test_rw_multiple_files(fs):
-    file_names = [
-        b"/test1.txt",
-        b"/test2.txt",
-        b"/test3.txt",
-        b"/test_with_very_very_long_name.txt",
-    ]
-    files = [(name, fs.open(name, "rwx")) for name in file_names]
+@pytest.mark.parametrize(
+    "num_files",
+    [
+        1,
+        5,
+        10,
+        100,
+    ],
+)
+@pytest.mark.parametrize("data_size", [1, 10, 1000])
+def test_rw_multiple_files(
+    fs: LogFs,
+    num_files: int,
+    data_size: int,
+) -> None:
+    file_names = [f"/test{i}.txt".encode() for i in range(num_files)]
+    file_data = [random_data(size_bytes=data_size) for i in range(num_files)]
+    file_handles = [fs.open(path=name, flags="rwx") for name in file_names]
+    files = zip(file_names, file_data, file_handles)
 
     # Write multiple files.
-    for file_name, file in files:
-        fs.write(file, file_name)
+    for _, data, handle in files:
+        fs.write(file=handle, data=data)
 
     # Read multiple files.
-    for file_name, file in files:
-        read_data = fs.read(file)
-        assert read_data == file_name
+    for _, data, handle in files:
+        read_data = fs.read(file=handle)
+        assert read_data == data
 
     # Repeat for redundancy.
-    for file_name, file in files:
-        fs.write(file, file_name)
+    for _, data, handle in files:
+        fs.write(file=handle, data=data)
 
-    for file_name, file in files:
-        read_data = fs.read(file)
-        assert read_data == file_name * 2
+    for _, data, handle in files:
+        read_data = fs.read(file=handle)
+        assert read_data == handle * 2
+
+    # And once more...
+    for _, data, handle in files:
+        fs.write(file=handle, data=data)
+
+    for _, data, handle in files:
+        read_data = fs.read(file=handle)
+        assert read_data == handle * 3
 
 
-def test_open_existing(fs):
+@pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
+def test_open_existing(fs: LogFs, data_size: int) -> None:
+    fs.format()
+
     # Create dummy data.
     file_name = "/test.txt"
-    data1 = "hello world!".encode()
-    data2 = "test!".encode()
+    data1 = random_data(size_bytes=data_size)
+    data2 = random_data(size_bytes=data_size)
 
     # Write data and read data back.
-    handle = fs.open(file_name, "rwx")
-    fs.write(handle, data1)
-    read_data = fs.read(handle)
+    handle = fs.open(path=file_name, flags="rwx")
+    fs.write(file=handle, data=data1)
+    read_data = fs.read(file=handle)
     assert read_data == data1
-    fs.close(handle)
+    fs.close(file=handle)
 
     # Try opening the file again, and read data back.
     del handle
-    new_handle = fs.open(file_name, "rw")
-    read_data = fs.read(new_handle)
+    new_handle = fs.open(path=file_name, flags="rw")
+    read_data = fs.read(file=new_handle)
     assert read_data == data1
 
     # Try modifying the file.
-    fs.write(new_handle, data2)
-    read_data = fs.read(new_handle)
+    fs.write(file=new_handle, data=data2)
+    read_data = fs.read(file=new_handle)
     assert read_data == data1 + data2
-    fs.close(new_handle)
+    fs.close(file=new_handle)
 
     # Try opening/reading one more time.
     del new_handle
-    newest_handle = fs.open(file_name, "r")
-    read_data = fs.read(newest_handle)
+    newest_handle = fs.open(path=file_name, flags="r")
+    read_data = fs.read(file=newest_handle)
     assert read_data == data1 + data2
 
 
-# def test_mount_empty_fails(fs_unformatted):
-#     with pytest.raises(Exception):
-#         fs_unformatted.mount()
-
-
-def test_mount(fs, fs_unformatted):
+@pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
+def test_mount(fs: LogFs, data_size: int) -> None:
     # Create dummy data.
-    data = "hello world!".encode()
+    data = random_data(size_bytes=data_size)
 
     # Write data.
-    file = fs.open("/test.txt", "rwx")
-    fs.write(file, data)
+    file = fs.open(path="/test.txt", flags="rwx")
+    fs.write(file=file, data=data)
 
     # Read data back.
-    read_data = fs.read(file, len(data))
+    read_data = fs.read(file=file)
     assert read_data == data
-    fs.close(file)
+    fs.close(file=file)
 
     # Re-mount filesystem.
-    del fs
     del file
-    fs_unformatted.mount()
+    fs.mount()
 
     # Read data back.
-    file = fs_unformatted.open("/test.txt", "rw")
-    read_data = fs_unformatted.read(file, len(data))
+    file = fs.open(path="/test.txt", flags="rw")
+    read_data = fs.read(file=file)
     assert read_data == data
 
     # Try writing data again.
-    fs_unformatted.write(file, data)
-    read_data = fs_unformatted.read(file)
+    fs.write(file=file, data=data)
+    read_data = fs.read(file=file)
     assert read_data == data + data
 
 
-def test_read_entire_file_iter(fs):
+@pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
+def test_read_entire_file_iter(fs: LogFs, data_size: int) -> None:
     # Create dummy data.
-    data_len = 10_000
-    data = " ".join(["hello world!" for _ in range(data_len)]).encode()
+    data = random_data(size_bytes=data_size)
 
     # Write data.
-    file = fs.open("/test.txt", "rwx")
-    fs.write(file, data)
+    file = fs.open(path="/test.txt", flags="rwx")
+    fs.write(file=file, data=data)
 
     # Read data back.
-    read_data = fs.read(file)
+    read_data = fs.read(file=file)
     assert data == read_data
 
 
-def test_list_dir(fs):
+def test_list_dir(fs: LogFs) -> None:
     files = [
         "/test1.txt",
         "/test2.txt",
@@ -160,37 +171,41 @@ def test_list_dir(fs):
         "/test8.txt",
     ]
     for file in files:
-        fs.open(file, "wx")
+        fs.open(path=file, flags="wx")
 
     assert fs.list_dir() == files
-    assert fs.list_dir(file="/dir1") == ["/dir1/test3.txt", "/dir1/test4.txt"]
-    assert fs.list_dir(file="/dir2") == ["/dir2/dir3/test5.txt", "/dir2/dir3/test6.txt"]
-    assert fs.list_dir(file="/dir4/dir5/dir6") == ["/dir4/dir5/dir6/test7.txt"]
-    assert fs.list_dir(file="/test8.txt") == ["/test8.txt"]
-    assert fs.list_dir(file="mismatch") == []
+    assert fs.list_dir(matches="/dir1") == ["/dir1/test3.txt", "/dir1/test4.txt"]
+    assert fs.list_dir(matches="/dir2") == [
+        "/dir2/dir3/test5.txt",
+        "/dir2/dir3/test6.txt",
+    ]
+    assert fs.list_dir(matches="/dir4/dir5/dir6") == ["/dir4/dir5/dir6/test7.txt"]
+    assert fs.list_dir(matches="/test8.txt") == ["/test8.txt"]
+    assert fs.list_dir(matches="mismatch") == []
 
 
-def test_metadata(fs):
-    file = fs.open("/test.txt", "rwx")
+@pytest.mark.parametrize("metadata_size", [1, 10, 100])
+def test_metadata(fs: LogFs, metadata_size: int) -> None:
+    file = fs.open(path="/test.txt", flags="rwx")
 
     # Metadata should start empty.
-    assert fs.read_metadata(file) == b""
+    assert fs.read_metadata(file=file) == b""
 
     # R/W metadata.
-    data = b"Grootings!"
-    fs.write_metadata(file, data)
-    assert fs.read_metadata(file) == data
+    data = random_data(size_bytes=metadata_size)
+    fs.write_metadata(file=file, data=data)
+    assert fs.read_metadata(file=file) == data
 
     # Metadata is independent of data on file.
     file_data = b"Hello world!"
     fs.write(file, file_data)
-    assert fs.read(file) == file_data
-    assert fs.read_metadata(file) == data
+    assert fs.read(file=file) == file_data
+    assert fs.read_metadata(file=file) == data
 
     # Data should persist after reopening the file.
     fs.close(file)
     del file
 
-    file = fs.open("/test.txt", "r")
-    assert fs.read(file) == file_data
-    assert fs.read_metadata(file) == data
+    file = fs.open(path="/test.txt", flags="r")
+    assert fs.read(file=file) == file_data
+    assert fs.read_metadata(file=file) == data

@@ -89,7 +89,7 @@ extern "C"
         uint32_t        metadata_addr;  // Address of the file's metadata block
         uint32_t        head_data_addr; // Address of file's newest data block
         uint32_t        prev_head_addr; // Address of file's previous head (for redundnacy, if head is corrupted)
-        char            path[LOGFS_PATH_BYTES]; // File path string
+        char            path[1];        // File path string
     } LogFsBlock_File;
 
     typedef struct
@@ -161,7 +161,7 @@ extern "C"
 
         // Misc. state variables.
         uint32_t eff_block_size_bytes; // How many bytes
-        uint32_t max_path_len_bytes;   // Max path length that can be stored in a block,
+        int      max_path_len_bytes;   // Max path length that can be stored in a block,
         bool     mounted;              // If filesystem has been mounted
         bool     out_of_memory;        // If the filesystem has run out of memory
 

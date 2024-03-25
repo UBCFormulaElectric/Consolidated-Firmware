@@ -7,10 +7,13 @@
 
 #define IS_ERR(err) (err != LOGFS_ERR_OK)
 
-#define RET_ERR(err) \
-    if (IS_ERR(err)) \
-    {                \
-        return err;  \
+#define RET_ERR(err_expr)              \
+    {                                  \
+        const LogFsErr err = err_expr; \
+        if (IS_ERR(err))               \
+        {                              \
+            return err;                \
+        }                              \
     }
 
 #define CHECK_ARG(arg)                \
@@ -19,11 +22,11 @@
         return LOGFS_ERR_INVALID_ARG; \
     }
 
-#define CHECK_PATH(path)                                         \
-    CHECK_ARG(path);                                             \
-    if (path[0] != '/' || strlen(path) > fs->max_path_len_bytes) \
-    {                                                            \
-        return LOGFS_ERR_INVALID_PATH;                           \
+#define CHECK_PATH(path)                                              \
+    CHECK_ARG(path);                                                  \
+    if (path[0] != '/' || (int)strlen(path) > fs->max_path_len_bytes) \
+    {                                                                 \
+        return LOGFS_ERR_INVALID_PATH;                                \
     }
 
 #define CHECK_FILE(file)           \

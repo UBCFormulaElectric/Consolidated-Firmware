@@ -1,5 +1,5 @@
 from typing import Union, Optional
-from .context import LogFsContext
+from .disk import LogFsDisk
 from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
 
 
@@ -47,7 +47,7 @@ class LogFs:
         self,
         block_size: int,
         block_count: int,
-        context: LogFsContext,
+        disk: LogFsDisk,
         write_cycles: int = 0,
         rd_only: bool = True,
         mount=True,
@@ -56,8 +56,8 @@ class LogFs:
         self.block_size = block_size
         self.block_count = block_count
         self.write_cycles = write_cycles
-        self.context = context
-        self.fs = PyLogFs(block_size, block_count, write_cycles, rd_only, context)
+        self.disk = disk
+        self.fs = PyLogFs(block_size, block_count, write_cycles, rd_only, disk)
 
         if format:
             self.format()
@@ -78,7 +78,7 @@ class LogFs:
         """
         self._raise_err(self.fs.mount())
 
-    def open(self, path: str, mode="r") -> LogFsFile:
+    def open(self, path: str, flags="r") -> LogFsFile:
         """
         Open a file.
 
@@ -87,7 +87,7 @@ class LogFs:
         writing = False
         creating = False
 
-        for ch in mode:
+        for ch in flags:
             if ch == "r":
                 reading = True
             elif ch == "w":
@@ -95,7 +95,7 @@ class LogFs:
             elif ch == "x":
                 creating = True
             else:
-                raise ValueError(f"Invalid mode: '{ch}'")
+                raise ValueError(f"Invalid flags: '{ch}'")
 
         flags = 0
         if reading and writing:
@@ -105,7 +105,7 @@ class LogFs:
         elif writing:
             flags |= int(PyLogFsOpenFlags.WR_ONLY)
         else:
-            raise ValueError(f"Invalid mode string: '{mode}'")
+            raise ValueError(f"Invalid flags string: '{flags}'")
 
         if creating:
             flags |= int(PyLogFsOpenFlags.CREATE)
@@ -199,7 +199,7 @@ class LogFs:
         print(num_read)
         return data[:num_read]
 
-    def list_dir(self, file: str = "/"):
+    def list_dir(self, matches: str = "/"):
         """
         List contents of the filesystem.
 
@@ -223,7 +223,7 @@ class LogFs:
             paths.remove("/.root")
 
         # Filter by provided prefix.
-        filtered_paths = [path for path in paths if path.startswith(file)]
+        filtered_paths = [path for path in paths if path.startswith(matches)]
         return filtered_paths
 
     def _raise_err(self, err: LogFsErr) -> None:
