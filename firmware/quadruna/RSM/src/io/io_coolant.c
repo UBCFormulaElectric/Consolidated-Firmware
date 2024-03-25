@@ -36,7 +36,7 @@ void io_coolant_init(TIM_HandleTypeDef *htim)
     assert(htim != NULL);
 
     hw_pwmInputFreqOnly_init(
-        &flow_meter, htim, TIMx_FREQUENCY / TIM8_PRESCALER, TIM_CHANNEL_1, TIM8_AUTO_RELOAD_REG,
+        &flow_meter, htim, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_1, TIM12_AUTO_RELOAD_REG,
         HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
@@ -71,10 +71,8 @@ float io_coolant_getTemperatureA(void)
 
     return coolant_temp_cel;
 }
-q
 
-    float
-    io_coolant_getTemperatureB(void)
+float io_coolant_getTemperatureB(void)
 {
     float const v_out =
         CLAMP(hw_adc_getVoltage(ADC1_IN3_COOLANT_TEMP_2), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);

@@ -15,7 +15,7 @@ float travelFromVoltage(float voltage)
 
 float io_suspension_getRearLeftTravel(void)
 {
-    return hw_adc_getVoltage(ADC1_IN8_SUSP_TRAVEL_RL);
+    return hw_adc_getVoltage(ADC1_IN1_SUSP_TRAVEL_RL);
 }
 
 float io_suspension_getRearRightTravel(void)
@@ -25,7 +25,7 @@ float io_suspension_getRearRightTravel(void)
 
 bool io_suspension_leftSensorOCSC(void)
 {
-    float leftSensorVoltage = hw_adc_getVoltage(ADC1_IN8_SUSP_TRAVEL_RL);
+    float leftSensorVoltage = hw_adc_getVoltage(ADC1_IN1_SUSP_TRAVEL_RL);
     return !(MIN_SUSPENSION_VOLTAGE <= leftSensorVoltage && leftSensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
 

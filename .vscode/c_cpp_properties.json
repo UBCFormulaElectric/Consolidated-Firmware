@@ -2,7 +2,11 @@
     "configurations": [
         {
             "name": "build_fw_deploy",
-            "compileCommands": "${workspaceFolder}/build_fw_deploy/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/build_fw_deploy/compile_commands.json",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/firmware/shared/src/io"
+            ]
         },
         {
             "name": "build_fw_test",

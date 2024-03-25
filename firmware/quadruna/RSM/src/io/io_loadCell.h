@@ -19,4 +19,4 @@ bool io_loadCell3_OCSC(void);
 /**
  * @returns checks open and short circuit for load cell 3
  */
-bool io_loadCell3_OCSC(void);
+bool io_loadCell4_OCSC(void);

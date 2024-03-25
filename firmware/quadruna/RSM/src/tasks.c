@@ -2,22 +2,30 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "app_heartbeatMonitor.h"
+#include "app_mainState.h"
+
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_global.h"
-#include "app_heartbeatMonitor.h"
+#include "app_globals.h"
 
+#include "io_jsoncan.h"
+#include "io_canRx.h"
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_jsoncan.h"
 
-#include "hw_gpio.h"
-#include "hw_adc.h"
-#include "hw_uart.h"
+#include "hw_bootup.h"
+#include "hw_utils.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_can.h"
+#include "hw_watchdog.h"
+#include "hw_stackWaterMark.h"
+#include "hw_stackWaterMarkConfig.h"
+#include "hw_adc.h"
+#include "hw_gpio.h"
+#include "hw_uart.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
@@ -30,13 +38,13 @@ extern UART_HandleTypeDef huart1;
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_RxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+    app_canAlerts_RSM_Warning_RxOverflowCount_set(true);
 }
 
 void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_TxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+    app_canAlerts_RSM_Warning_TxOverflowCount_set(true);
 }
 
 const CanConfig can_config = {
@@ -61,6 +69,11 @@ const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_p
                              [RSM_GpioNetName_ACC_FAN_EN]         = &acc_fan_en_pin,
                              [RSM_GpioNetName_NProgram_3V3]       = &n_program_pin };
 
+static const BinaryLed brake_light = { .gpio = {
+                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
+                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
+                                       } };
+
 AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_ACC_FAN_I_SNS]        = ADC1_IN15_ACC_FAN_I_SNS,
     [RSM_AdcNetName_RAD_FAN_I_SNS]        = ADC1_IN14_RAD_FAN_I_SNS,
@@ -73,6 +86,8 @@ AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_CoolantTemp1_3V3]     = ADC1_IN2_COOLANT_TEMP_1,
     [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
 };
+
+static const GlobalsConfig config = { .brake_light = &brake_light };
 
 static UART debug_uart = { .handle = &huart1 };
 
@@ -92,7 +107,7 @@ bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_update, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = app_canRx_fsm_Heartbeat_update, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_update, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
@@ -110,18 +125,17 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
-
-static const GlobalsConfig globals_config = { .brake_light = &brake_light_en_pin };
 
 void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
+
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("RSM reset!");
@@ -141,7 +155,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_globals_init(&globals_config);
+    app_globals_init(&config);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
@@ -149,19 +163,16 @@ void tasks_init(void)
 
     app_stateMachine_init(app_mainState_get());
 
-    app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
-    app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
+    app_canTx_RSM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_RSM_Clean_set(GIT_COMMIT_CLEAN);
     // TODO: Re-enable watchdog.
 }
 
 void tasks_run100Hz(void)
 {
-    static const TickType_t period_ms = 10;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
 
     for (;;)
     {
@@ -198,12 +209,9 @@ void tasks_runCanRx(void)
 
 void tasks_run1kHz(void)
 {
-    static const TickType_t period_ms = 1U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    static const TickType_t period_ms   = 1U;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
 
     for (;;)
     {
@@ -219,12 +227,9 @@ void tasks_run1kHz(void)
 
 void tasks_run1Hz(void)
 {
-    static const TickType_t period_ms = 1000U;
-    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
-
-    static uint32_t start_ticks = 0;
-    start_ticks                 = osKernelGetTickCount();
+    static const TickType_t period_ms   = 1000U;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
 
     for (;;)
     {

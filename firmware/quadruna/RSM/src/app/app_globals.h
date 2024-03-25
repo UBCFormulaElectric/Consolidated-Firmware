@@ -15,3 +15,5 @@ typedef struct
 } Globals;
 
 extern Globals *const globals;
+
+void app_globals_init();

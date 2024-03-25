@@ -4,6 +4,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_loadCell.h"
+#include "hw_adc.h"
 
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
@@ -21,22 +22,22 @@ bool loadCell_OCSC(int adcPin_toCheck)
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float io_loadCell_getMechanicalLoad3(void);
+float io_loadCell_getMechanicalLoad3(void)
 {
     return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN10_LC3_OUT));
 }
 
 float io_loadCell_getMechanicalLoad4(void)
 {
-    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN10_LC4_OUT));
+    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN0_LC4_OUT));
 }
 
 bool io_loadCell3_OCSC(void)
 {
-    return io_loadCell_OCSC(ADC1_IN10_LC3_OUT);
+    return loadCell_OCSC(ADC1_IN10_LC3_OUT);
 }
 
 bool io_loadCell4_OCSC(void)
 {
-    return io_loadCell_OCSC(ADC1_IN10_LC4_OUT);
+    return loadCell_OCSC(ADC1_IN0_LC4_OUT);
 }

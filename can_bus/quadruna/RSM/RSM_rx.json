@@ -1,5 +1,9 @@
 {
     "messages": [
-        "FSM_Brake"
+        "FSM_Brake",
+        "VC_Vitals",
+        "BMS_Vitals",
+        "FSM_Vitals",
+        "Debug_CanMode"
     ]
 }

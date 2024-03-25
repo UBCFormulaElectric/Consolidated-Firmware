@@ -113,7 +113,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_RSM_can" "quadruna_RSM_stm32cube")
-    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules")
+    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules" "m")
 
     # TODO: embedded_image for boot
     

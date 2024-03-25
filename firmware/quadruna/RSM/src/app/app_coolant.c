@@ -1,4 +1,3 @@
-
 #include "app_coolant.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -34,7 +33,7 @@ void app_coolant_broadcast(void)
     app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
-    const bool  in_drive_state             = app_canRx_DCM_State_get() == DCM_DRIVE_STATE;
+    const bool  in_drive_state             = app_canRx_VC_State_get() == VC_DRIVE_STATE;
     SignalState flow_in_range_signal_state = app_signal_getState(
         &flow_in_range_signal, coolant_status == VALUE_UNDERFLOW && in_drive_state,
         coolant_status == VALUE_IN_RANGE || !in_drive_state);
