@@ -2,22 +2,48 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_globals.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_canAlerts.h"
+#include "app_commitInfo.h"
+#include "app_global.h"
 #include "app_heartbeatMonitor.h"
 
 #include "io_log.h"
 #include "io_chimera.h"
+#include "io_jsoncan.h"
 
 #include "hw_gpio.h"
 #include "hw_adc.h"
 #include "hw_uart.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
+extern CAN_HandleTypeDef  hcan1;
 extern UART_HandleTypeDef huart1;
+
+void canRxQueueOverflowCallBack(uint32_t overflow_count)
+{
+    app_canTx_RSM_RxOverflowCount_set(overflow_count);
+    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+}
+
+void canTxQueueOverflowCallBack(uint32_t overflow_count)
+{
+    app_canTx_RSM_TxOverflowCount_set(overflow_count);
+    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+}
+
+const CanConfig can_config = {
+    .rx_msg_filter        = io_canRx_filterMessageId,
+    .tx_overflow_callback = canTxQueueOverflowCallBack,
+    .rx_overflow_callback = canRxQueueOverflowCallBack,
+};
 
 static const Gpio n_chimera_pin      = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const Gpio led_pin            = { .port = LED_GPIO_Port, .pin = LED_Pin };
@@ -81,7 +107,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_SM_Fault_MissingBMSHeartbeat_get,
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
@@ -91,18 +117,29 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 
 static const GlobalsConfig globals_config = { .brake_light = &brake_light_en_pin };
 
-void tasks_preInit(void)
-{
-    // TODO: Setup bootloader.
-}
+void tasks_preInit(void) {}
 
 void tasks_init(void)
 {
+    __HAL_DBGMCU_FREEZE_IWDG();
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("RSM reset!");
+
     // Start DMA/TIM3 for the ADC.
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
-    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
+    hw_hardFaultHandler_init();
+    hw_can_init(&hcan1);
+
+    io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io_can_init(&can_config);
+    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
+
+    app_canTx_init();
+    app_canRx_init();
 
     app_globals_init(&globals_config);
 
@@ -110,47 +147,97 @@ void tasks_init(void)
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
 
+    app_stateMachine_init(app_mainState_get());
+
+    app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_FSM_Clean_set(GIT_COMMIT_CLEAN);
     // TODO: Re-enable watchdog.
 }
 
 void tasks_run100Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    static const TickType_t period_ms = 10;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        app_stateMachine_tick100Hz();
+        io_canTx_enqueue100HzMsgs();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void tasks_runCanTx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    for (;;)
+    {
+        io_can_transmitMsgFromQueue();
+    }
 }
 
 void tasks_runCanRx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
 
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
 }
 
 void tasks_run1kHz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    static const TickType_t period_ms = 1U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void tasks_run1Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
-    // TODO: Setup tasks.
-    osDelay(osWaitForever);
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        hw_stackWaterMarkConfig_check();
+        app_stateMachine_tick1Hz();
+
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)

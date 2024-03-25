@@ -4,6 +4,8 @@
     "warnings_counts_id": 492,
     "faults_counts_id": 493,
     "warnings": [
+        "TxOverflowCount",
+        "RxOverflowCount",
         "StackWaterMarkHighTask1Hz",
         "StackWaterMarkHighTask100Hz",
         "StackWaterMarkHighTask1kHz",
