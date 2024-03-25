@@ -28,6 +28,8 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
