@@ -27,7 +27,8 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
-#include "hw_pwmInputFreqOnly.h"
+#include "hw_hardFaultHandler.h"
+#include "hw_can.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
@@ -229,7 +230,10 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
 
     for (;;)
     {

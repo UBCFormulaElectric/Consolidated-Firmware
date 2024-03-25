@@ -14,22 +14,13 @@ void mainStateRunOnTick100Hz(void)
 {
     app_coolant_broadcast();
     app_loadcell_broadcast();
-    app_steering_broadcast();
-    app_wheels_broadcast();
+    app_suspension_broadcast();
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
     bool missing_hb = app_heartbeatMonitor_checkFaults();
-
-    if (missing_hb)
-    {
-        // Redundancy if FSM is missing heartbeats
-        // Suppress accelerator pedal percentages (set to 0%)
-        app_canTx_FSM_PappsMappedPedalPercentage_set(0);
-        app_canTx_FSM_SappsMappedPedalPercentage_set(0);
-    }
 }
 
 const State *app_mainState_get(void)
