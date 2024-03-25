@@ -12,6 +12,7 @@
 #include "app_steering.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_shdnLoop.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -22,6 +23,7 @@
 #include "io_wheels.h"
 #include "io_brake.h"
 #include "io_suspension.h"
+#include "io_fsmShdn.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -134,6 +136,10 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
+static const FsmShdnConfig fsm_shdn_pin_config = { 1, fsm_shdn };
+
+static BoardShdnNode fsmBshdnNodes[1] = { { &io_get_FSM_SHDN_OK, &app_canTx_FSM_FSM_SHDN_OK_Status_set } };
+
 void tasks_preInit(void) {}
 
 void tasks_init(void)
@@ -155,9 +161,12 @@ void tasks_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
+    io_fsmShdn_init(&fsm_shdn_pin_config);
 
     app_canTx_init();
     app_canRx_init();
+
+    app_shdn_loop_init(fsmBshdnNodes, io_fsm_num_shdn_nodes());
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
