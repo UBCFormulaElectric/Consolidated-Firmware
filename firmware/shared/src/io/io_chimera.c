@@ -22,14 +22,9 @@ static uint8_t  data[MAX_DEBUG_BUF_SIZE];
 static uint8_t  rx_packet_size;
 static uint32_t net_name_gpio;
 static uint32_t net_name_adc;
+static bool chimera_button_pressed;
 
 static const Gpio *n_chimera_gpio;
-
-static bool chimera_button_pressed(void)
-{
-    // Button is active low
-    return hw_gpio_readPin(n_chimera_gpio) ? false : true;
-}
 
 static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
 {
@@ -105,7 +100,10 @@ void io_chimera_init(UART *serial_uart, uint32_t name_gpio, uint32_t name_adc, c
 
     n_chimera_gpio = bootup_gpio;
 
-    if (chimera_button_pressed())
+    // Button is active low
+    chimera_button_pressed = hw_gpio_readPin(n_chimera_gpio) ? false : true;
+
+    if (chimera_button_pressed)
     {
         hw_uart_receiveIt(uart, data, DEBUG_SIZE_MSG_BUF_SIZE);
     }
@@ -113,7 +111,7 @@ void io_chimera_init(UART *serial_uart, uint32_t name_gpio, uint32_t name_adc, c
 
 void io_chimera_sleepTaskIfEnabled(void)
 {
-    if (chimera_button_pressed())
+    if (chimera_button_pressed)
     {
         osDelay(osWaitForever);
     }
