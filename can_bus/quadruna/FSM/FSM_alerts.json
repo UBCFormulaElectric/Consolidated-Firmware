@@ -22,7 +22,9 @@
         "BrakePressureSensorOCSC",
         "LeftSuspensionOCSC",
         "RightSuspensionOCSC",
-        "BrakeAppsDisagreement"
+        "BrakeAppsDisagreement",
+        "LoadCell1OCSC",
+        "LoadCell2OCSC"
     ],
     "faults": [
         "DummyFault",
