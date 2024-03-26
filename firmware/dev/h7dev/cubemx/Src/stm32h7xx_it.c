@@ -56,13 +56,9 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-<<<<<<< HEAD
-extern TIM_HandleTypeDef htim6;
-=======
 extern FDCAN_HandleTypeDef hfdcan2;
 extern SD_HandleTypeDef    hsd1;
 extern TIM_HandleTypeDef   htim6;
->>>>>>> 8c000e27 (correct erase)
 
 /* USER CODE BEGIN EV */
 
@@ -167,8 +163,6 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
-<<<<<<< HEAD
-=======
  * @brief This function handles FDCAN2 interrupt 0.
  */
 void FDCAN2_IT0_IRQHandler(void)
@@ -211,7 +205,6 @@ void SDMMC1_IRQHandler(void)
 }
 
 /**
->>>>>>> 8c000e27 (correct erase)
  * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
  */
 void TIM6_DAC_IRQHandler(void)

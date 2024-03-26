@@ -1,6 +1,6 @@
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
@@ -10,10 +10,18 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
     # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
-)
+    )
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
+find_package(Nanopb REQUIRED)
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
+    
+set(SRCS ${PROTO_SRCS})
+set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+    
 set(EMBEDDED_INCLUDE_DIRS 
     "${SHARED_APP_INCLUDE_DIR}" 
     "${SHARED_IO_INCLUDE_DIR}" 
@@ -23,7 +31,6 @@ set(EMBEDDED_INCLUDE_DIRS
 
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
-        
         "h7dev"
         "${IOC_PATH}"
     )
@@ -61,7 +68,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}.md5"
     )
 
-    embedded_binary(
+   embedded_binary(
         "h7dev"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
@@ -76,7 +83,8 @@ if("${TARGET}" STREQUAL "deploy")
         "cm7"
         TRUE
     )
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm4")
+
+    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
 
     # embedded_image(
     #     "h7dev"

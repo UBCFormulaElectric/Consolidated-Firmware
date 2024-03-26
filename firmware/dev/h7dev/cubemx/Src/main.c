@@ -25,27 +25,22 @@
 #include "../../nanopb/pb_decode.h"
 #include "sample.pb.h"
 #include "string.h"
+#include "string.h"
 #include "hw_hardFaultHandler.h"
-<<<<<<< HEAD
-#include "hw_bootup.h"
-    <<<<<<< HEAD
-#include "hw_uart.h"
-    =======
-=======
 #include "hw_can.h"
-    >>>>>>> 193708cf (main functin implementation)
 #include "hw_sd.h"
 #include "hw_bootup.h"
+#include "hw_uart.h"
 #include "io_can.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
 #include "hw_utils.h"
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Private typedef -----------------------------------------------------------*/
-    typedef StaticTask_t osStaticThreadDef_t;
+/* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -62,14 +57,12 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-<<<<<<< HEAD
-UART_HandleTypeDef huart9;
-=======
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan2;
->>>>>>> 2a5cb3af (10k with 3% loss)
 
 SD_HandleTypeDef hsd1;
+
+UART_HandleTypeDef huart9;
 
 /* Definitions for defaultTask */
 osThreadId_t         defaultTaskHandle;
@@ -83,8 +76,6 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = sizeof(defaultTaskBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
-<<<<<<< HEAD
-=======
 /* Definitions for canTxTask */
 osThreadId_t         canTxTaskHandle;
 uint32_t             canTxTaskBuffer[512];
@@ -109,7 +100,6 @@ const osThreadAttr_t canRxTask_attributes = {
     .stack_size = sizeof(canRxTaskBuffer),
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
->>>>>>> 672ea0c3 (rm bootload for now)
 /* USER CODE BEGIN PV */
 
 int         write_num    = 0;
@@ -121,38 +111,24 @@ static void callback(uint32_t i)
     // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
->>>>>>> d9a69f1b (write message to sd card)
 static CanConfig can_config = {
     .rx_msg_filter        = NULL,
     .tx_overflow_callback = callback,
     .rx_overflow_callback = callback,
 };
 
-/* Little fs config*/
-struct lfs_config cfg;
->>>>>>> 193708cf (main functin implementation)
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-<<<<<<< HEAD
-static void MX_UART9_Init(void);
-=======
 static void MX_FDCAN2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN1_Init(void);
+static void MX_UART9_Init(void);
 void        runDefaultTask(void *argument);
 void        runCanTxTask(void *argument);
 void        runCanRxTask(void *argument);
-<<<<<<< HEAD
->>>>>>> 6102d31a (add canlogging queue)
-void        runDefaultTask(void *argument);
-=======
-void runDefaultTask(void *argument);
-void runCanTxTask(void *argument);
-void runCanRxTask(void *argument);
->>>>>>> 672ea0c3 (rm bootload for now)
 
 /* USER CODE BEGIN PFP */
 static void can_msg_received_callback(CanMsg *rx_msg);
@@ -204,23 +180,16 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_UART9_Init();
-    /* USER CODE BEGIN 2 */
-    // __HAL_DBGMCU_FREEZE_IWDG();
-
-    // hw_hardFaultHandler_init();
-    // hw_can_init(&hfdcan2);
     MX_FDCAN2_Init();
     MX_SDMMC1_SD_Init();
     MX_FDCAN1_Init();
+    MX_UART9_Init();
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
     io_can_init(&can_config);
     hw_hardFaultHandler_init();
-    hw_can_init(&can1_handle);
-
-    // io_can_init(&can_config);
+    hw_can_init(&can);
 
     if (sd_inited)
     {
@@ -231,7 +200,7 @@ int main(void)
     }
 
     SEGGER_SYSVIEW_Conf();
-    // LOG_INFO("h7dev reset!");
+    LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -256,6 +225,12 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(runDefaultTask, NULL, &defaultTask_attributes);
+
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of canRxTask */
+    canRxTaskHandle = osThreadNew(runCanRxTask, NULL, &canRxTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -340,9 +315,6 @@ void SystemClock_Config(void)
 }
 
 /**
-<<<<<<< HEAD
- * @brief UART9 Initialization Function
-=======
  * @brief FDCAN1 Initialization Function
  * @param None
  * @retval None
@@ -395,33 +367,17 @@ static void MX_FDCAN1_Init(void)
 
 /**
  * @brief FDCAN2 Initialization Function
->>>>>>> 2a5cb3af (10k with 3% loss)
  * @param None
  * @retval None
  */
-static void MX_UART9_Init(void)
+static void MX_FDCAN2_Init(void)
 {
-    /* USER CODE BEGIN UART9_Init 0 */
+    /* USER CODE BEGIN FDCAN2_Init 0 */
 
-    /* USER CODE END UART9_Init 0 */
+    /* USER CODE END FDCAN2_Init 0 */
 
-    /* USER CODE BEGIN UART9_Init 1 */
+    /* USER CODE BEGIN FDCAN2_Init 1 */
 
-<<<<<<< HEAD
-    /* USER CODE END UART9_Init 1 */
-    huart9.Instance                    = UART9;
-    huart9.Init.BaudRate               = 57600;
-    huart9.Init.WordLength             = UART_WORDLENGTH_8B;
-    huart9.Init.StopBits               = UART_STOPBITS_1;
-    huart9.Init.Parity                 = UART_PARITY_NONE;
-    huart9.Init.Mode                   = UART_MODE_TX_RX;
-    huart9.Init.HwFlowCtl              = UART_HWCONTROL_NONE;
-    huart9.Init.OverSampling           = UART_OVERSAMPLING_16;
-    huart9.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
-    huart9.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
-    huart9.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart9) != HAL_OK)
-=======
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
     hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
@@ -452,25 +408,12 @@ static void MX_UART9_Init(void)
     hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
->>>>>>> 672ea0c3 (rm bootload for now)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_SetTxFifoThreshold(&huart9, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    if (HAL_UARTEx_SetRxFifoThreshold(&huart9, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    if (HAL_UARTEx_DisableFifoMode(&huart9) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN UART9_Init 2 */
+    /* USER CODE BEGIN FDCAN2_Init 2 */
 
-    /* USER CODE END UART9_Init 2 */
+    /* USER CODE END FDCAN2_Init 2 */
 }
 
 /**
@@ -509,6 +452,52 @@ static void MX_SDMMC1_SD_Init(void)
 }
 
 /**
+ * @brief UART9 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_UART9_Init(void)
+{
+    /* USER CODE BEGIN UART9_Init 0 */
+
+    /* USER CODE END UART9_Init 0 */
+
+    /* USER CODE BEGIN UART9_Init 1 */
+
+    /* USER CODE END UART9_Init 1 */
+    huart9.Instance                    = UART9;
+    huart9.Init.BaudRate               = 57600;
+    huart9.Init.WordLength             = UART_WORDLENGTH_8B;
+    huart9.Init.StopBits               = UART_STOPBITS_1;
+    huart9.Init.Parity                 = UART_PARITY_NONE;
+    huart9.Init.Mode                   = UART_MODE_TX_RX;
+    huart9.Init.HwFlowCtl              = UART_HWCONTROL_NONE;
+    huart9.Init.OverSampling           = UART_OVERSAMPLING_16;
+    huart9.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart9.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
+    huart9.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart9) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_SetTxFifoThreshold(&huart9, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_SetRxFifoThreshold(&huart9, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_UARTEx_DisableFifoMode(&huart9) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN UART9_Init 2 */
+
+    /* USER CODE END UART9_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -522,12 +511,8 @@ static void MX_GPIO_Init(void)
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
-<<<<<<< HEAD
-=======
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
->>>>>>> 6102d31a (add canlogging queue)
     __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -541,41 +526,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
-<<<<<<< HEAD
-    /*Configure GPIO pin : PD8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-=======
     /*Configure GPIO pin : PA8 */
     GPIO_InitStruct.Pin  = GPIO_PIN_8;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
->>>>>>> d9a69f1b (write message to sd card)
 
-<<<<<<< HEAD
-    /*Configure GPIO pin : PD0 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_0;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PB5 PB6 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-=======
->>>>>>> 2a5cb3af (10k with 3% loss)
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -604,54 +560,48 @@ static void can_msg_received_callback(CanMsg *rx_msg)
 void runDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    UART modem_uart = { .handle = &huart9 };
     /* Infinite loop */
-    // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-    // uint8_t num; // use this if just want numbers
-    // uint8_t predicData[3];
-    // predicData[1] = 13;
-    // predicData[2] = 10;
-    uint8_t buffer[128];
-    uint8_t message_length;
-    bool    status;
-
-    // SimpleMessage message = SimpleMessage_init_zero;
-
     for (;;)
     {
-        /* Create a stream that will write to our buffer. */
-        TelemMessage message = TelemMessage_init_zero;
-        pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        UART modem_uart = { .handle = &huart9 };
+        /* Infinite loop */
+        // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+        // uint8_t num; // use this if just want numbers
+        // uint8_t predicData[3];
+        // predicData[1] = 13;
+        // predicData[2] = 10;
+        uint8_t buffer[128];
+        uint8_t message_length;
+        bool    status;
 
-<<<<<<< HEAD
-        /* Fill in the lucky number */
-        message.can_id     = 53;
-        message.data       = 23;
-        message.time_stamp = 9;
+        // SimpleMessage message = SimpleMessage_init_zero;
 
-        /* Now we are ready to encode the message! */
-        status         = pb_encode(&stream, TelemMessage_fields, &message);
-        message_length = (uint8_t)stream.bytes_written;
-        // message_length = stream.bytes_written;
-        if (status)
+        for (;;)
         {
-            hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
-            hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
+            /* Create a stream that will write to our buffer. */
+            TelemMessage message = TelemMessage_init_zero;
+            pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+
+            /* Fill in the lucky number */
+            message.can_id     = 53;
+            message.data       = 23;
+            message.time_stamp = 9;
+
+            /* Now we are ready to encode the message! */
+            status         = pb_encode(&stream, TelemMessage_fields, &message);
+            message_length = (uint8_t)stream.bytes_written;
+            // message_length = stream.bytes_written;
+            if (status)
+            {
+                hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
+                hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
+            }
+            osDelay(10);
         }
-        osDelay(10);
-=======
-        CanMsg msg = {
-                   .std_id = 100,
-                   .dlc    = 0,
-        };
-        io_can_pushTxMsgToQueue(&msg);
->>>>>>> 672ea0c3 (rm bootload for now)
     }
     /* USER CODE END 5 */
 }
 
-<<<<<<< HEAD
-=======
 /* USER CODE BEGIN Header_runCanTxTask */
 /**
  * @brief Function implementing the canTxTask thread.
@@ -708,7 +658,6 @@ void runCanRxTask(void *argument)
     /* USER CODE END runCanRxTask */
 }
 
->>>>>>> 672ea0c3 (rm bootload for now)
 /**
  * @brief  Period elapsed callback in non blocking mode
  * @note   This function is called  when TIM6 interrupt took place, inside
