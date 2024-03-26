@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "msg_id": 200, 
+        "msg_id": 200,
         "cycle_time": 100,
         "description": "VC vitals message.",
         "signals": {
@@ -9,6 +9,124 @@
             },
             "State": {
                 "enum": "VcState"
+            }
+        }
+    },
+    "LeftInverterCommand": {
+        "msg_id": 32,
+        "cycle_time": 10,
+        "signals": {
+            "LeftInverterTorqueCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            },
+            "LeftInverterSpeedCommand": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm",
+                "start_value": 0
+            },
+            "LeftInverterDirectionCommand": {
+                "start_bit": 32,
+                "enum": "InverterDirection",
+                "start_value": 0
+            },
+            "LeftInverterEnable": {
+                "start_bit": 40,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterEnableDischarge": {
+                "start_bit": 41,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterEnableSpeedMode": {
+                "start_bit": 42,
+                "bits": 1,
+                "start_value": 0
+            },
+            "LeftInverterTorqueLimit": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "RightInverterCommand": {
+        "msg_id": 82,
+        "cycle_time": 10,
+        "signals": {
+            "RightInverterTorqueCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            },
+            "RightInverterSpeedCommand": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm",
+                "start_value": 0
+            },
+            "RightInverterDirectionCommand": {
+                "start_bit": 32,
+                "enum": "InverterDirection",
+                "start_value": 0
+            },
+            "RightInverterEnable": {
+                "start_bit": 40,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableDischarge": {
+                "start_bit": 41,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableSpeedMode": {
+                "start_bit": 42,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterTorqueLimit": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
             }
         }
     },
@@ -31,17 +149,473 @@
             }
         }
     },
+    "EllipseStatus": {
+        "msg_id": 208,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            }
+        }
+    },
+    "EllipseTime": {
+        "msg_id": 209,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseTimestamp": {
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
+    "EllipseAcceleration": {
+        "msg_id": 201,
+        "cycle_time": 10,
+        "description": "Acceleration from the SBG Ellipse N sensor.",
+        "signals": {
+            "AccelerationForward": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "AccelerationLateral": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            },
+            "AccelerationVertical": {
+                "min": -30,
+                "max": 30,
+                "resolution": 0.01,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "EllipseAngularVelocity": {
+        "msg_id": 203,
+        "cycle_time": 10,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+            "AngularVelocityRoll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityPitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityYaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "EllipseEulerAngles": {
+        "msg_id": 207,
+        "cycle_time": 10,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "EulerAnglesRoll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "EulerAnglesPitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            },
+            "EulerAnglesYaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "unit": "deg"
+            }
+        }
+    },
     "CommitInfo": {
-      "msg_id": 204,
-      "cycle_time": 100,
-      "description": "VC Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
+        "msg_id": 204,
+        "cycle_time": 100,
+        "description": "VC Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "PowerEstimate": {
+        "msg_id": 211,
+        "cycle_time": 10,
+        "description": "Debug Power Messages",
+        "signals": {
+            "PowerEstimateValue": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            },
+            "PowerEstimateMeasuredValue": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            }
+        }
+    },
+    "PowerEstimatePID": {
+        "msg_id": 212,
+        "cycle_time": 10,
+        "description": "Debug messages for the PID power estimate controller",
+        "signals": {
+            "PIDPowerEstimateOutput": {
+                "start_bit": 0,
+                "bits": 8,
+                "offset": 0,
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "scale": 0.01
+            },
+            "PIDPowerEstimateError": {
+                "start_bit": 8,
+                "bits": 16,
+                "offset": 0,
+                "signed": true,
+                "min": -80,
+                "max": 80,
+                "scale": 0.1
+            },
+            "PIDPowerEstimateDerivative": {
+                "start_bit": 24,
+                "bits": 16,
+                "offset": 0,
+                "signed": true,
+                "min": -160,
+                "max": 160,
+                "scale": 0.1
+            },
+            "PIDPowerEstimateIntegral": {
+                "start_bit": 40,
+                "bits": 24,
+                "offset": 0,
+                "signed": true,
+                "min": -21474836,
+                "max": 21474836,
+                "scale": 0.1
+            }
+        }
+    },
+    "PIDSlipRatio": {
+        "msg_id": 213,
+        "cycle_time": 10,
+        "description": "Debug messages for the PID slip ratio controller",
+        "signals": {
+            "PIDSlipRatioOutput": {
+                "start_bit": 0,
+                "bits": 8,
+                "offset": 0,
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "scale": 0.01
+            },
+            "PIDSlipRatioError": {
+                "start_bit": 8,
+                "bits": 16,
+                "offset": 0,
+                "signed": true,
+                "min": -80,
+                "max": 80,
+                "scale": 0.1
+            },
+            "PIDSlipRatioDerivative": {
+                "start_bit": 24,
+                "bits": 16,
+                "offset": 0,
+                "signed": true,
+                "min": -160,
+                "max": 160,
+                "scale": 0.1
+            },
+            "PIDSlipRatioIntegral": {
+                "start_bit": 40,
+                "bits": 24,
+                "offset": 0,
+                "signed": true,
+                "min": -21474836,
+                "max": 21474836,
+                "scale": 0.1
+            }
+        }
+    },
+    "SlipRatios": {
+        "msg_id": 214,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Traction Control component of Torque Vectoring",
+        "signals": {
+            "SlipRatioLeft": {
+                "bits": 8,
+                "offset": 0,
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "scale": 0.01
+            },
+            "SlipRatioRight": {
+                "bits": 8,
+                "offset": 0,
+                "signed": true,
+                "min": -1,
+                "max": 1,
+                "scale": 0.01
+            }
+        }
+    },
+    "ActiveDiffOutputs": {
+        "msg_id": 215,
+        "cycle_time": 10,
+        "description": "Debug Messages for the Active Differential component of Torque Vectoring",
+        "signals": {
+            "ActiveDiffTorqueLeft": {
+                "min": 0,
+                "max": 100,
+                "resolution": 0.1
+            },
+            "ActiveDiffTorqueRight": {
+                "min": 0,
+                "max": 100,
+                "resolution": 0.1
+            }
+        }
+    },
+    "PowerLimit": {
+        "msg_id": 216,
+        "cycle_time": 10,
+        "description": "Debug Power Messages for Power Limit ",
+        "signals": {
+            "PowerLimitValue": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            },
+            "PowerLimitValueAtFullThrottle": {
+                "min": 0,
+                "max": 120,
+                "resolution": 0.1
+            }
+        }
+    },
+    "GpsPosInfo": {
+        "msg_id": 217,
+        "cycle_time": 100,
+        "description": "Car position info",
+        "signals": {
+            "PositionStatus": {
+                "enum": "DcmSbgStatus"
+            },
+            "Latitude": {
+                "resolution": 0.00005,
+                "min": 47,
+                "max": 50,
+                "unit": "deg"
+            },
+            "LatitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 2,
+                "unit": "m"
+            },
+            "Longtitude": {
+                "resolution": 0.00005,
+                "min": 122,
+                "max": 125,
+                "unit": "deg"
+            },
+            "LongtitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 2,
+                "unit": "m"
+            },
+            "Altitude": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 400,
+                "unit": "m"
+            },
+            "AltitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m"
+            }
+        }
+    },
+    "GpsVelInfo": {
+        "msg_id": 218,
+        "cycle_time": 100,
+        "description": "Car Velocity info",
+        "signals": {
+            "VelocityStatus": {
+                "enum": "DcmSbgStatus"
+            },
+            "VelocityNorth": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityNorthAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "VelocityEast": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityEastAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "VelocityDown": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 120,
+                "unit": "m/s"
+            },
+            "VelocityDownAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            }
+        }
+    },
+    "Voltages": {
+        "msg_id": 219,
+        "cycle_time": 100,
+        "description": "VC voltages.",
+        "signals": {
+            "BatVoltage": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 10,
+                "unit": "V"
+            },
+            "BoostVoltage": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 30,
+                "unit": "V"
+            },
+            "AccVoltage": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 30,
+                "unit": "V"
+            }
+        }
+    },
+    "CurrentSensing": {
+        "msg_id": 220,
+        "cycle_time": 100,
+        "description": "Battery and accumulator currents.",
+        "signals": {
+            "AccCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 20,
+                "unit": "A"
+            },
+            "BatCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 50,
+                "unit": "A"
+            }
+        }
+    },
+    "Efuse": {
+        "msg_id": 221,
+        "cycle_time": 100,
+        "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+        "signals": {
+            "ShdnCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "ShdnStatus": {
+                "bits": 1
+            },
+            "LvCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 20,
+                "unit": "A"
+            },
+            "LvStatus": {
+                "bits": 1
+            },
+            "PumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "PumpStatus": {
+                "bits": 1
+            },
+            "AuxCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "AuxStatus": {
+                "bits": 1
+            },
+            "InvRCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "InvRStatus": {
+                "bits": 1
+            },
+            "InvLCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "InvLStatus": {
+                "bits": 1
+            }
+        }
     }
 }

@@ -65,7 +65,7 @@ const CanConfig can_config = {
 };
 
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
-static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
+static const Gpio      n_chimera_pin           = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3V3_GPIO_Port,
                                                    .pin  = NBSPD_BRAKE_PRESSED_3V3_Pin };
@@ -73,7 +73,7 @@ static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Por
 static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
 
 const Gpio *id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                             [FSM_GpioNetName_NCHIMERA]                = &nchimera,
+                             [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
                              [FSM_GpioNetName_LED]                     = &led.gpio,
                              [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
                              [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
@@ -156,7 +156,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -200,6 +200,8 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -225,6 +227,8 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -256,6 +260,8 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -264,6 +270,8 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         CanMsg rx_msg;
