@@ -14,7 +14,6 @@
 
 static void initStateRunOnEntry(void)
 {
-
     app_allStates_runOnTick100Hz();
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_setState(POWER_MANAGER_SHUTDOWN);

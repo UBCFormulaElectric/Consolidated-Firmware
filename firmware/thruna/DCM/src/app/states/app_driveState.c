@@ -16,10 +16,8 @@
 #define MAX_PEDAL_PERCENT 1.0f
 #define BUZZER_ON_DURATION_MS 2000
 
-
 static TimerChannel buzzer_timer;
-static bool torque_vectoring_switch_is_on;
-
+static bool         torque_vectoring_switch_is_on;
 
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
@@ -50,7 +48,7 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 static void driveStateRunOnEntry(void)
 {
     // Enable buzzer on transition to drive, and start 2s timer.
-    app_timer_init(&buzzer_timer,BUZZER_ON_DURATION_MS);
+    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     io_buzzer_enable(true);
     app_canTx_DCM_BuzzerOn_set(true);
     app_timer_restart(&buzzer_timer);
