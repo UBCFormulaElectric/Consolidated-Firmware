@@ -136,11 +136,6 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-void tasks_timCaptureCallback(TIM_HandleTypeDef *htim)
-{
-    io_wheels_inputCaptureCallback(htim);
-}
-
 void tasks_preInit(void) {}
 
 void tasks_init(void)
@@ -286,4 +281,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
 }
