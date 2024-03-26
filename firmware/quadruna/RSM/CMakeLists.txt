@@ -118,5 +118,25 @@ if("${TARGET}" STREQUAL "deploy")
     # TODO: embedded_image for boot
     
 elseif("${TARGET}" STREQUAL "test")
-    # TODO: Set up tests
+set(HEADERS_TO_FAKE
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brakeLight.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_load.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
+)
+
+create_fake_library(
+    "quadruna_RSM_fakes"
+    "${HEADERS_TO_FAKE}"
+)
+
+set(SRCS ${APP_SRCS} ${TEST_SRCS})
+set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+compile_gtest_executable(
+    "quadruna_RSM_test"
+    "${SRCS}"
+    "${INCLUDE_DIRS}"
+)
+target_link_libraries("quadruna_RSM_test" "quadruna_RSM_can" "quadruna_RSM_fakes" "shared_fakes" "m")
+
 endif()
