@@ -18,4 +18,10 @@ EMPTY_STRUCT(Buzzer);
  * Turn a buzzer on or off.
  * @param on Whether or not to turn buzzer on.
  */
-void io_buzzer_enable(const Buzzer *buzzer, bool on);
+void io_buzzer_enable(bool on);
+
+/**
+ * Intialize Buzzer as off
+ * @return buzzer 
+*/
+void io_buzzer_init (const Buzzer *buzzer_in);

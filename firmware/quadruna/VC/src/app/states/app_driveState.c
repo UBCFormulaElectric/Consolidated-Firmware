@@ -51,7 +51,7 @@ static void driveStateRunOnEntry(void)
 {
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     // Enable buzzer on transition to drive, and start 2s timer.
-    io_buzzer_enable(globals->config->buzzer, true);
+    io_buzzer_enable(true);
     app_canTx_VC_BuzzerOn_set(true);
     app_timer_restart(&buzzer_timer);
 
@@ -96,7 +96,7 @@ static void driveStateRunOnTick100Hz(void)
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
-        io_buzzer_enable(globals->config->buzzer, false);
+        io_buzzer_enable(false);
         app_canTx_VC_BuzzerOn_set(false);
     }
 
@@ -140,7 +140,7 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on exit drive.
-    io_buzzer_enable(globals->config->buzzer, false);
+    io_buzzer_enable(false);
     app_canTx_VC_BuzzerOn_set(false);
 }
 

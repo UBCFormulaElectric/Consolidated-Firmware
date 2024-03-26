@@ -24,6 +24,7 @@
 #include "io_lowVoltageBattery.h"
 #include "io_shutdown.h"
 #include "io_currentSensing.h"
+#include "io_buzzer.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -215,9 +216,8 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-
+static Buzzer buzzer = {.gpio = buzzer_pwr_en};
 static UART debug_uart = { .handle = &huart7 };
-
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
 // TODO: add RSM to config when boards are ready, also add vitals to canRx json
@@ -295,6 +295,7 @@ void tasks_init(void)
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
+    io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
