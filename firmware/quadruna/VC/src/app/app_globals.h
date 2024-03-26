@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    const Buzzer *const buzzer;
+    uint8_t UNUSED;
 } GlobalsConfig;
 
 typedef struct

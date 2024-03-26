@@ -22,6 +22,6 @@ void io_buzzer_enable(bool on);
 
 /**
  * Intialize Buzzer as off
- * @return buzzer 
-*/
-void io_buzzer_init (const Buzzer *buzzer_in);
+ * @return buzzer
+ */
+void io_buzzer_init(const Buzzer *buzzer_in);
