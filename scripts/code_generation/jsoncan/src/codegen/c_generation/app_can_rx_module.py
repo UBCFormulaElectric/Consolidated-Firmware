@@ -127,6 +127,12 @@ class AppCanRxModule(CModule):
                         CTypesConfig.MSG_STRUCT.format(msg=msg.name),
                     )
                 )
+            rx_table_struct.add_member(
+                CVar(
+                    "__unused_prevent_empty_struct",
+                    "char",
+                )
+            )
 
             cw.add_struct(rx_table_struct)
             cw.add_line()
