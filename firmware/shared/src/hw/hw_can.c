@@ -58,80 +58,81 @@ void hw_can_init(const CanHandle *can_handle)
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
+}
 
-    void hw_can_deinit()
+void hw_can_deinit()
+{
+    assert(HAL_CAN_Stop(handle->can) == HAL_OK);
+    assert(HAL_CAN_DeInit(handle->can) == HAL_OK);
+}
+
+bool hw_can_transmit(const CanMsg *msg)
+{
+    CAN_TxHeaderTypeDef tx_header;
+
+    tx_header.DLC   = msg->dlc;
+    tx_header.StdId = msg->std_id;
+
+    // The standard 11-bit CAN identifier is more than sufficient, so we disable
+    // Extended CAN IDs by setting this field to zero.
+    tx_header.ExtId = CAN_ExtID_NULL;
+
+    // This field can be either Standard CAN or Extended CAN. See .ExtID to see
+    // why we don't want Extended CAN.
+    tx_header.IDE = CAN_ID_STD;
+
+    // This field can be either Data Frame or Remote Frame. For our
+    // purpose, we only ever transmit Data Frames.
+    tx_header.RTR = CAN_RTR_DATA;
+
+    // Enabling this gives us a tick-based timestamp which we do not need. Plus,
+    // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
+    tx_header.TransmitGlobalTime = DISABLE;
+
+    // Spin until a TX mailbox becomes available.
+    while (HAL_CAN_GetTxMailboxesFreeLevel(handle->can) == 0U)
+        ;
+
+    // Indicates the mailbox used for transmission, not currently used.
+    uint32_t mailbox = 0;
+    return HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox) == HAL_OK;
+}
+
+bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
+{
+    CAN_RxHeaderTypeDef header;
+    if (HAL_CAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
     {
-        assert(HAL_CAN_Stop(handle->can) == HAL_OK);
-        assert(HAL_CAN_DeInit(handle->can) == HAL_OK);
+        return false;
     }
 
-    bool hw_can_transmit(const CanMsg *msg)
+    // Copy metadata from HAL's CAN message struct into our custom CAN
+    // message struct
+    msg->std_id = header.StdId;
+    msg->dlc    = header.DLC;
+    return true;
+}
+
+void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
+{
+    CanMsg rx_msg;
+    if (!hw_can_receive(RxFifo0ITs, &rx_msg))
     {
-        CAN_TxHeaderTypeDef tx_header;
-
-        tx_header.DLC   = msg->dlc;
-        tx_header.StdId = msg->std_id;
-
-        // The standard 11-bit CAN identifier is more than sufficient, so we disable
-        // Extended CAN IDs by setting this field to zero.
-        tx_header.ExtId = CAN_ExtID_NULL;
-
-        // This field can be either Standard CAN or Extended CAN. See .ExtID to see
-        // why we don't want Extended CAN.
-        tx_header.IDE = CAN_ID_STD;
-
-        // This field can be either Data Frame or Remote Frame. For our
-        // purpose, we only ever transmit Data Frames.
-        tx_header.RTR = CAN_RTR_DATA;
-
-        // Enabling this gives us a tick-based timestamp which we do not need. Plus,
-        // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
-        tx_header.TransmitGlobalTime = DISABLE;
-
-        // Spin until a TX mailbox becomes available.
-        while (HAL_CAN_GetTxMailboxesFreeLevel(handle->can) == 0U)
-            ;
-
-        // Indicates the mailbox used for transmission, not currently used.
-        uint32_t mailbox = 0;
-        return HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox) == HAL_OK;
+        // Early return if RX msg is unavailable.
+        return;
     }
 
-    bool hw_can_receive(uint32_t rx_fifo, CanMsg * msg)
-    {
-        CAN_RxHeaderTypeDef header;
-        if (HAL_CAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
-        {
-            return false;
-        }
+    handle->can_msg_received_callback(&rx_msg);
+}
 
-        // Copy metadata from HAL's CAN message struct into our custom CAN
-        // message struct
-        msg->std_id = header.StdId;
-        msg->dlc    = header.DLC;
-        return true;
+void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
+{
+    CanMsg rx_msg;
+    if (!hw_can_receive(RxFifo1ITs, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
     }
 
-    void HAL_FDCAN_RxFifo0Callback(CAN_HandleTypeDef * hcan, uint32_t RxFifo0ITs)
-    {
-        CanMsg rx_msg;
-        if (!hw_can_receive(RxFifo0ITs, &rx_msg) && handle->can_msg_received_callback != NULL)
-        {
-            // Early return if RX msg is unavailable.
-            return;
-        }
-
-        handle->can_msg_received_callback(&rx_msg);
-    }
-
-    void HAL_FDCAN_RxFifo1Callback(CAN_HandleTypeDef * hcan, uint32_t RxFifo1ITs)
-    {
-        CanMsg rx_msg;
-        if (!hw_can_receive(RxFifo1ITs, &rx_msg) && handle->can_msg_received_callback != NULL)
-        {
-            // Early return if RX msg is unavailable.
-            return;
-        }
-
-        handle->can_msg_received_callback(&rx_msg);
-    }
+    handle->can_msg_received_callback(&rx_msg);
+}
