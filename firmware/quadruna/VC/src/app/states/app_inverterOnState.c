@@ -21,11 +21,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
 
-    const bool curr_start_switch_pos         = app_canRx_CRIT_StartSwitch_get();
-    const bool was_start_switch_pulled_up    = !prev_start_switch_pos && curr_start_switch_pos;
-    prev_start_switch_pos                    = curr_start_switch_pos;
-    const bool is_brake_actuated             = app_canRx_FSM_BrakeActuated_get();
-    const bool bms_in_drive_state            = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool curr_start_switch_pos      = app_canRx_CRIT_StartSwitch_get();
+    const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
+    prev_start_switch_pos                 = curr_start_switch_pos;
+    const bool is_brake_actuated          = app_canRx_FSM_BrakeActuated_get();
+    const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
