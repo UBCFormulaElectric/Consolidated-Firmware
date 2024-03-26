@@ -154,7 +154,7 @@ bool sd_inited;
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* Enable I-Cache---------------------------------------------------------*/
@@ -563,41 +563,41 @@ void runDefaultTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        UART modem_uart = { .handle = &huart9 };
-        /* Infinite loop */
-        // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-        // uint8_t num; // use this if just want numbers
-        // uint8_t predicData[3];
-        // predicData[1] = 13;
-        // predicData[2] = 10;
-        uint8_t buffer[128];
-        uint8_t message_length;
-        bool    status;
+        // UART modem_uart = { .handle = &huart9 };
+        // /* Infinite loop */
+        // // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+        // // uint8_t num; // use this if just want numbers
+        // // uint8_t predicData[3];
+        // // predicData[1] = 13;
+        // // predicData[2] = 10;
+        // uint8_t buffer[128];
+        // uint8_t message_length;
+        // bool    status;
 
-        // SimpleMessage message = SimpleMessage_init_zero;
+        // // SimpleMessage message = SimpleMessage_init_zero;
 
-        for (;;)
-        {
-            /* Create a stream that will write to our buffer. */
-            TelemMessage message = TelemMessage_init_zero;
-            pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        // for (;;)
+        // {
+        //     /* Create a stream that will write to our buffer. */
+        //     TelemMessage message = TelemMessage_init_zero;
+        //     pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
 
-            /* Fill in the lucky number */
-            message.can_id     = 53;
-            message.data       = 23;
-            message.time_stamp = 9;
+        //     /* Fill in the lucky number */
+        //     message.can_id     = 53;
+        //     message.data       = 23;
+        //     message.time_stamp = 9;
 
-            /* Now we are ready to encode the message! */
-            status         = pb_encode(&stream, TelemMessage_fields, &message);
-            message_length = (uint8_t)stream.bytes_written;
-            // message_length = stream.bytes_written;
-            if (status)
-            {
-                hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
-                hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
-            }
-            osDelay(10);
-        }
+        //     /* Now we are ready to encode the message! */
+        //     status         = pb_encode(&stream, TelemMessage_fields, &message);
+        //     message_length = (uint8_t)stream.bytes_written;
+        //     // message_length = stream.bytes_written;
+        //     if (status)
+        //     {
+        //         hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
+        //         hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
+        //     }
+        //     osDelay(10);
+        // }
     }
     /* USER CODE END 5 */
 }

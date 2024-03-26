@@ -9,7 +9,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-    # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
