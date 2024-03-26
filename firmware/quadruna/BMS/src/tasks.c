@@ -6,7 +6,7 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
-// #include "hw_bootup.h"
+#include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_spi.h"
 #include "hw_pwmInput.h"
@@ -264,7 +264,7 @@ static UART debug_uart = { .handle = &huart1 };
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
@@ -292,7 +292,7 @@ void tasks_init(void)
     io_ltc6813Shared_init(&ltc6813_spi);
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
-    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
     // io_charger_init(&charger_config);
 
     app_canTx_init();
@@ -316,8 +316,7 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -346,8 +345,7 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -372,8 +370,7 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -385,7 +382,9 @@ void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-        hw_watchdog_checkForTimeouts();
+
+        // TODO: Re-enable watchdog after investigating failure
+        // hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
@@ -405,8 +404,7 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {
@@ -416,8 +414,7 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {
