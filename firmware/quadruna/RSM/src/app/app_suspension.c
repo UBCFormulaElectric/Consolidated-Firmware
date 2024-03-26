@@ -7,8 +7,8 @@
 
 void app_suspension_broadcast(void)
 {
-    float left_travel  = io_suspension_getRearLeftTravel();
-    float right_travel = io_suspension_getRearRightTravel();
+    float const left_travel  = io_suspension_getRearLeftTravel();
+    float const right_travel = io_suspension_getRearRightTravel();
 
     app_canTx_RSM_RearLeftSuspensionTravel_set(left_travel);
     app_canTx_RSM_RearRightSuspensionTravel_set(right_travel);

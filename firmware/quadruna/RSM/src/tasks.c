@@ -16,6 +16,7 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_jsoncan.h"
+#include "io_coolant.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -87,7 +88,9 @@ AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
 };
 
-static const GlobalsConfig config = { .brake_light = &brake_light };
+static const GlobalsConfig config = { .brake_light = &brake_light,
+                                      .acc_fan     = &acc_fan_en_pin,
+                                      .rad_fan     = &rad_fan_en_pin };
 
 static UART debug_uart = { .handle = &huart1 };
 
@@ -150,7 +153,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_rsm_net_name_tag, AdcNetName_rsm_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -247,6 +250,8 @@ void tasks_run1Hz(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+    io_coolant_inputCaptureCallback(&htim3);
+
     if (huart == debug_uart.handle)
     {
         io_chimera_msgRxCallback();
