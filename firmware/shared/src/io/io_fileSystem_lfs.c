@@ -56,7 +56,7 @@ int io_fileSystem_init(void)
     return FILE_OK;
 }
 
-static int allocate_file_number(void)
+static int allocateFd(void)
 {
     for (int i = 0; i < MAX_FILE_NUMBER; i++)
     {
@@ -77,7 +77,7 @@ static bool isValidFd(int fd)
 int io_fileSystem_open(const char *path)
 {
     int err;
-    int fd = allocate_file_number();
+    int fd = allocateFd();
     if (fd < 0)
     {
         return FILE_NOT_FOUND;
