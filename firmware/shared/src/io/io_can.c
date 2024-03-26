@@ -72,18 +72,11 @@ void io_can_popRxMsgFromQueue(CanMsg *msg)
     osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
 }
 
-void io_can_msgReceivedCallback(uint32_t rx_fifo)
+void io_can_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
-    CanMsg rx_msg;
-    if (!hw_can_receive(rx_fifo, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg.std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
@@ -91,7 +84,7 @@ void io_can_msgReceivedCallback(uint32_t rx_fifo)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(rx_queue_id, &rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         config->rx_overflow_callback(++rx_overflow_count);

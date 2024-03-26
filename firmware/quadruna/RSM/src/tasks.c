@@ -36,6 +36,8 @@ extern TIM_HandleTypeDef  htim3;
 extern CAN_HandleTypeDef  hcan1;
 extern UART_HandleTypeDef huart1;
 
+const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_RxOverflowCount_set(overflow_count);
@@ -148,7 +150,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);

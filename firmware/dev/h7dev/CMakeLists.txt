@@ -4,10 +4,16 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
+    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
     )
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
 find_package(Nanopb REQUIRED)
@@ -16,7 +22,12 @@ nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
 set(SRCS ${PROTO_SRCS})
 set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
     
-set(EMBEDDED_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
+set(EMBEDDED_INCLUDE_DIRS 
+    "${SHARED_APP_INCLUDE_DIR}" 
+    "${SHARED_IO_INCLUDE_DIR}" 
+    "${SHARED_HW_INCLUDE_DIR}" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+)
 
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
@@ -41,6 +52,9 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
     )
 
@@ -54,7 +68,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}.md5"
     )
 
-    embedded_binary(
+   embedded_binary(
         "h7dev_app"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
@@ -70,7 +84,7 @@ if("${TARGET}" STREQUAL "deploy")
         TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
 
     embedded_image(
         "h7dev"

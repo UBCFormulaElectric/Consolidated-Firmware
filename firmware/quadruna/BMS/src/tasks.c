@@ -95,6 +95,8 @@ PwmInputConfig imd_pwm_input_config = {
     .falling_edge_tim_channel = TIM_CHANNEL_1,
 };
 
+const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
                                           .nss_pin    = SPI_CS_Pin,
@@ -280,7 +282,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim15);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

@@ -9,6 +9,7 @@
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_loadCell.h"
 
 #include "app_heartbeatMonitor.h"
 
@@ -19,6 +20,7 @@ void mainStateRunOnTick100Hz(void)
     app_steering_broadcast();
     app_wheels_broadcast();
     app_suspension_broadcast();
+    app_loadCell_broadcast();
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
