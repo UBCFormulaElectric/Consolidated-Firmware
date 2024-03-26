@@ -286,20 +286,19 @@ void tasks_init(void)
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag);
 
+    io_lowVoltageBattery_init(&lv_battery_config);
+    io_shutdown_init(&shutdown_config);
+    io_currentSensing_init(&current_sensing_config);
+    io_efuse_init(efuse_configs);
+
     app_canTx_init();
     app_canRx_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
-
-    app_stateMachine_init(app_initState_get());
-
-    io_lowVoltageBattery_init(&lv_battery_config);
-    io_shutdown_init(&shutdown_config);
-    io_currentSensing_init(&current_sensing_config);
-    io_efuse_init(efuse_configs);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
+    app_stateMachine_init(app_initState_get());
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
