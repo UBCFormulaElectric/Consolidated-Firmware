@@ -42,6 +42,7 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 // extern IWDG_HandleTypeDef  hiwdg1;
+CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -277,7 +278,7 @@ void tasks_init(void)
     LOG_INFO("VC reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
