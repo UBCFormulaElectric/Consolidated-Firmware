@@ -42,7 +42,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
-        app_globals_init(&globals_config);
+        // app_globals_init(&globals_config);
 
         app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
@@ -153,7 +153,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
     };
 
-    const GlobalsConfig globals_config = {
-        .buzzer = &buzzer,
-    };
+    // const GlobalsConfig globals_config = {
+    //     .a = 0
+    // };
 };

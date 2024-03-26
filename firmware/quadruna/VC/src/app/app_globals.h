@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    uint8_t UNUSED;
+    uint8_t a;
 } GlobalsConfig;
 
 typedef struct
