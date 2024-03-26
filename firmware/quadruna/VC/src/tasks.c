@@ -42,7 +42,7 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 // extern IWDG_HandleTypeDef  hiwdg1;
-CanHandle can;
+CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -276,9 +276,6 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
-
-    can.can                       = &hfdcan1;
-    can.can_msg_received_callback = NULL;
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);

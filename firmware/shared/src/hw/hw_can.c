@@ -59,9 +59,6 @@ void hw_can_init(const CanHandle *can_handle)
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(handle->can) == HAL_OK);
 
-    // if (!handle->can_msg_received_callback)
-    //     handle->can_msg_received_callback = io_can_msgReceivedCallback;
-}
 
 void hw_can_deinit()
 {
