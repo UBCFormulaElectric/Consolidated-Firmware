@@ -1,0 +1,24 @@
+{
+    "warnings_id": 490,
+    "faults_id": 491,
+    "warnings_counts_id": 492,
+    "faults_counts_id": 493,
+    "warnings": [
+        "TxOverflowCount",
+        "RxOverflowCount",
+        "StackWaterMarkHighTask1Hz",
+        "StackWaterMarkHighTask100Hz",
+        "StackWaterMarkHighTask1kHz",
+        "StackWaterMarkHighTaskCanRx",
+        "StackWaterMarkHighTaskCanTx",
+        "FlowRateOutOfRange",
+        "LeftSuspensionOCSC",
+        "RightSuspensionOCSC",
+        "LoadCell3OCSC",
+        "LoadCell4OCSC"
+    ],
+    "faults": [
+        "FlowMeterUnderflow",
+        "MissingBMSHeartbeat"
+    ]
+}
