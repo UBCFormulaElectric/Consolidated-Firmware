@@ -6,7 +6,6 @@
 #include "io_buzzer.h"
 #include "app_timer.h"
 
-
 typedef struct
 {
     const Buzzer *const buzzer;

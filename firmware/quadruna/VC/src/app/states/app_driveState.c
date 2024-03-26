@@ -18,7 +18,7 @@
 #define MAX_PEDAL_PERCENT 1.0f
 #define BUZZER_ON_DURATION_MS 2000
 
-static bool torque_vectoring_switch_is_on;
+static bool         torque_vectoring_switch_is_on;
 static TimerChannel buzzer_timer;
 
 void transmitTorqueRequests(float apps_pedal_percentage)
