@@ -63,7 +63,6 @@ SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offs
     return SD_CARD_ERROR;
 }
 
-
 SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
     while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)

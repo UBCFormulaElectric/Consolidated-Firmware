@@ -114,11 +114,9 @@ void app_soc_init(void)
     // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
     // {
 
-    
     // uint8_t     sd_write_data[4];
     // convert_float_to_bytes(sd_write_data, 50.0f);
     // hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
-
 
     if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
     {
