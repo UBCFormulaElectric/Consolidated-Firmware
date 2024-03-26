@@ -25,7 +25,14 @@ void app_efuse_broadcast(void)
         bool  enabled = io_efuse_isChannelEnabled(efuse);
         float current = io_efuse_getChannelCurrent(efuse);
 
-        (*(efuse_enabled_can_setters[efuse]))(enabled);
-        (*(efuse_current_can_setters[efuse]))(current);
+        if (efuse_enabled_can_setters[efuse] != NULL)
+        {
+            efuse_enabled_can_setters[efuse](enabled);
+        }
+
+        if (efuse_current_can_setters[efuse] != NULL)
+        {
+            efuse_current_can_setters[efuse](current);
+        }
     }
 }
