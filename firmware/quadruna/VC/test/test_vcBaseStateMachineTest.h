@@ -71,17 +71,25 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
     // configs for efuse messages over can
     void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
-        [EFUSE_CHANNEL_SHDN] = app_canTx_VC_ShdnStatus_set,   [EFUSE_CHANNEL_LV] = app_canTx_VC_LvStatus_set,
-        [EFUSE_CHANNEL_PUMP] = app_canTx_VC_PumpStatus_set,   [EFUSE_CHANNEL_AUX] = app_canTx_VC_AuxStatus_set,
-        [EFUSE_CHANNEL_INV_R] = app_canTx_VC_InvRStatus_set,  [EFUSE_CHANNEL_INV_L] = app_canTx_VC_InvLStatus_set,
-        [EFUSE_CHANNEL_TELEM] = app_canTx_VC_TelemStatus_set, [EFUSE_CHANNEL_BUZZER] = app_canTx_VC_BuzzerStatus_set,
+        [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
+        [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
+        [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
+        [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxStatus_set,
+        [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRStatus_set,
+        [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLStatus_set,
+        [EFUSE_CHANNEL_TELEM]  = NULL,
+        [EFUSE_CHANNEL_BUZZER] = NULL,
     };
 
     void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
-        [EFUSE_CHANNEL_SHDN] = app_canTx_VC_ShdnCurrent_set,   [EFUSE_CHANNEL_LV] = app_canTx_VC_LvCurrent_set,
-        [EFUSE_CHANNEL_PUMP] = app_canTx_VC_PumpCurrent_set,   [EFUSE_CHANNEL_AUX] = app_canTx_VC_AuxCurrent_set,
-        [EFUSE_CHANNEL_INV_R] = app_canTx_VC_InvRCurrent_set,  [EFUSE_CHANNEL_INV_L] = app_canTx_VC_InvLCurrent_set,
-        [EFUSE_CHANNEL_TELEM] = app_canTx_VC_TelemCurrent_set, [EFUSE_CHANNEL_BUZZER] = app_canTx_VC_BuzzerCurrent_set,
+        [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
+        [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
+        [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
+        [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxCurrent_set,
+        [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRCurrent_set,
+        [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLCurrent_set,
+        [EFUSE_CHANNEL_TELEM]  = NULL,
+        [EFUSE_CHANNEL_BUZZER] = NULL,
     };
 
     // config for heartbeat monitor (can funcs and flags)
