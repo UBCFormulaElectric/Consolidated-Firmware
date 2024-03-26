@@ -6,7 +6,7 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_hardFaultHandler.h"
-// #include "hw_bootup.h"
+#include "hw_bootup.h"
 #include "hw_utils.h"
 #include "hw_spi.h"
 #include "hw_pwmInput.h"
@@ -264,7 +264,7 @@ static UART debug_uart = { .handle = &huart1 };
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 }
 
 void tasks_init(void)
