@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
+#include "io_can.h"
 #include "config.h"
 /* USER CODE END Includes */
 
@@ -106,7 +107,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 /* USER CODE END 0 */
 
 /**
@@ -147,9 +148,11 @@ int main(void)
 // both FDCAN peripherals are enabled and configured identically, but we only
 // pass one the `hw_can` driver to be used during operation.
 #ifdef BOOT_FDCAN1
-    hw_can_init(&hfdcan1);
+    can.can = &hfdcan1;
+    hw_can_init(&can);
 #elif defined(BOOT_FDCAN2)
-    hw_can_init(&hfdcan2);
+    can.can = &hfdcan2;
+    hw_can_init(&can);
 #else
 #error Define which FDCAN peripheral is used!
 #endif

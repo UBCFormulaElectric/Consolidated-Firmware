@@ -12,16 +12,19 @@
 #include "app_steering.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_loadCell.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
+#include "io_can.h"
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
 #include "io_brake.h"
 #include "io_suspension.h"
+#include "io_loadCell.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,10 +40,12 @@
 #include "shared.pb.h"
 #include "FSM.pb.h"
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern CAN_HandleTypeDef  hcan1;
-extern TIM_HandleTypeDef  htim12;
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim3;
+extern CAN_HandleTypeDef hcan1;
+extern TIM_HandleTypeDef htim12;
+
+const CanHandle           can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -148,7 +153,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
@@ -287,4 +292,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
 }

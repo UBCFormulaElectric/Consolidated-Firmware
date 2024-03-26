@@ -59,6 +59,8 @@ extern TIM_HandleTypeDef  htim3;
 extern UART_HandleTypeDef huart2;
 extern CAN_HandleTypeDef  hcan1;
 
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
     .tx_overflow_callback = canTxQueueOverflowCallback,
@@ -383,7 +385,7 @@ void tasks_init(void)
     LOG_INFO("CRIT reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
