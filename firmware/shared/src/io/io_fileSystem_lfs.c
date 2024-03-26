@@ -69,7 +69,7 @@ static int allocate_file_number(void)
     return FILE_NOT_FOUND;
 }
 
-static bool is_valid_fd(int fd)
+static bool isValidFd(int fd)
 {
     return fd >= 0 && fd < MAX_FILE_NUMBER && file_opened[fd];
 }
@@ -98,7 +98,7 @@ int io_fileSystem_open(const char *path)
 
 int io_fileSystem_read(int fd, void *buffer, size_t size)
 {
-    if (!is_valid_fd(fd))
+    if (!isValidFd(fd))
     {
         return FILE_NOT_FOUND;
     }
@@ -112,7 +112,7 @@ int io_fileSystem_read(int fd, void *buffer, size_t size)
 
 int io_fileSystem_write(int fd, void *buffer, size_t size)
 {
-    if (!is_valid_fd(fd))
+    if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
@@ -139,7 +139,7 @@ uint32_t io_fileSystem_getBootCount(void)
 
 int io_fileSystem_close(int fd)
 {
-    if (!is_valid_fd(fd))
+    if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
@@ -154,7 +154,7 @@ int io_fileSystem_close(int fd)
 
 int io_fileSystem_sync(int fd)
 {
-    if (!is_valid_fd(fd))
+    if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
