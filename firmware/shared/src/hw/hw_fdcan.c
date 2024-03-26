@@ -27,7 +27,6 @@ void hw_can_init(const CanHandle *can_handle)
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
-
 }
 
 void hw_can_deinit()
