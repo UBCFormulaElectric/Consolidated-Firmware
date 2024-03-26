@@ -21,6 +21,7 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
     "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
