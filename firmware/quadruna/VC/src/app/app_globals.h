@@ -6,7 +6,6 @@
 #include "io_buzzer.h"
 #include "app_timer.h"
 
-#define BUZZER_ON_DURATION_MS 2000
 
 typedef struct
 {
@@ -16,8 +15,6 @@ typedef struct
 typedef struct
 {
     const GlobalsConfig *config;
-    bool                 torque_vectoring_switch_is_on;
-    TimerChannel         buzzer_timer;
 } Globals;
 
 extern Globals *const globals;

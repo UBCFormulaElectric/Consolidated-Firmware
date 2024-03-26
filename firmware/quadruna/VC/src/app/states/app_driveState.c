@@ -16,6 +16,10 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define PEDAL_SCALE 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
+#define BUZZER_ON_DURATION_MS 2000
+
+static bool torque_vectoring_switch_is_on;
+static TimerChannel buzzer_timer;
 
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
@@ -45,10 +49,11 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
+    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     // Enable buzzer on transition to drive, and start 2s timer.
     io_buzzer_enable(globals->config->buzzer, true);
     app_canTx_VC_BuzzerOn_set(true);
-    app_timer_restart(&globals->buzzer_timer);
+    app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_setState(POWER_MANAGER_DRIVE);
@@ -64,9 +69,9 @@ static void driveStateRunOnEntry(void)
 
     // TODO: Finish setting up CRIT can set up once crit is done
 
-    globals->torque_vectoring_switch_is_on = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
+    torque_vectoring_switch_is_on = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
 
-    if (globals->torque_vectoring_switch_is_on)
+    if (torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_init();
     }
@@ -89,7 +94,7 @@ static void driveStateRunOnTick100Hz(void)
     float      apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
+    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
         io_buzzer_enable(globals->config->buzzer, false);
         app_canTx_VC_BuzzerOn_set(false);
@@ -115,7 +120,7 @@ static void driveStateRunOnTick100Hz(void)
     {
         app_regen_run(apps_pedal_percentage);
     }
-    else if (globals->torque_vectoring_switch_is_on)
+    else if (torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_run(apps_pedal_percentage);
     }
