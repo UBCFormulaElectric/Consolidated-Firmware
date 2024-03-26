@@ -1,7 +1,15 @@
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
+#include "app_powerManager.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "app_utils.h"
 
-static void driveStateRunOnEntry(void) {}
+static void driveStateRunOnEntry(void)
+{
+    app_canTx_VC_State_set(VC_DRIVE_STATE);
+    app_powerManager_setState(POWER_MANAGER_DRIVE);
+}
 
 static void driveStateRunOnTick1Hz(void)
 {
