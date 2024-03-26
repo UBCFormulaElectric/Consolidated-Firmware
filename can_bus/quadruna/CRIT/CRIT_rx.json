@@ -1,0 +1,8 @@
+{
+	"messages": [
+		"BMS_Contactors",
+		"BMS_Vitals",
+		"FSM_Vitals",
+		"BMS_OkStatuses"
+	]
+}

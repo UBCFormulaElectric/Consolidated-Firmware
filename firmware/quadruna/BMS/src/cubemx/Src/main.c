@@ -472,12 +472,12 @@ static void MX_SPI2_Init(void)
     hspi2.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi2.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi2.Init.NSS                        = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_2;
+    hspi2.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_64;
     hspi2.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
     hspi2.Init.CRCPolynomial              = 0x0;
-    hspi2.Init.NSSPMode                   = SPI_NSS_PULSE_ENABLE;
+    hspi2.Init.NSSPMode                   = SPI_NSS_PULSE_DISABLE;
     hspi2.Init.NSSPolarity                = SPI_NSS_POLARITY_LOW;
     hspi2.Init.FifoThreshold              = SPI_FIFO_THRESHOLD_01DATA;
     hspi2.Init.TxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
@@ -485,7 +485,7 @@ static void MX_SPI2_Init(void)
     hspi2.Init.MasterSSIdleness           = SPI_MASTER_SS_IDLENESS_00CYCLE;
     hspi2.Init.MasterInterDataIdleness    = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
     hspi2.Init.MasterReceiverAutoSusp     = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-    hspi2.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+    hspi2.Init.MasterKeepIOState          = SPI_MASTER_KEEP_IO_STATE_ENABLE;
     hspi2.Init.IOSwap                     = SPI_IO_SWAP_DISABLE;
     if (HAL_SPI_Init(&hspi2) != HAL_OK)
     {
@@ -761,10 +761,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : HVD_SHDN_OK_Pin TS_ILCK_SHDN_OK_Pin nHIGH_CURRENT_BSPD_3V3_Pin nCHIMERA_Pin
-                             IMD_OK_3V3_Pin */
-    GPIO_InitStruct.Pin =
-        HVD_SHDN_OK_Pin | TS_ILCK_SHDN_OK_Pin | nHIGH_CURRENT_BSPD_3V3_Pin | nCHIMERA_Pin | IMD_OK_3V3_Pin;
+    /*Configure GPIO pins : HVD_SHDN_OK_Pin TS_ILCK_SHDN_OK_Pin nHIGH_CURRENT_BSPD_3V3_Pin IMD_OK_3V3_Pin */
+    GPIO_InitStruct.Pin  = HVD_SHDN_OK_Pin | TS_ILCK_SHDN_OK_Pin | nHIGH_CURRENT_BSPD_3V3_Pin | IMD_OK_3V3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -775,6 +773,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BSPD_TEST_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : nCHIMERA_Pin */
+    GPIO_InitStruct.Pin  = nCHIMERA_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(nCHIMERA_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : TS_ISENSE_OCSC_OK_3V3_Pin ACCEL_BRAKE_OK_3V3_Pin SD_CD_Pin */
     GPIO_InitStruct.Pin  = TS_ISENSE_OCSC_OK_3V3_Pin | ACCEL_BRAKE_OK_3V3_Pin | SD_CD_Pin;

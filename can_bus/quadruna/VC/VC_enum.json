@@ -1,6 +1,14 @@
 {
-    "VcState": {
-      "VC_INIT_STATE": 0,
-      "VC_DRIVE_STATE": 1
-    }
+  "VcState": {
+    "VC_INIT_STATE": 0,
+    "VC_INVERTER_ON_STATE": 1,
+    "VC_DRIVE_STATE": 2
+  },
+
+  "DcmSbgStatus": {
+    "Solution_Computed": 0,
+    "Insufficent_Readings": 1, 
+    "Internal_Error": 2, 
+    "Limit_Exceeded": 3
   }
+}
