@@ -30,8 +30,6 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
-    const bool brake_actuated = app_canRx_FSM_BrakeActuated_get();
-    io_led_enable(globals->config->brake_light, brake_actuated);
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
     {

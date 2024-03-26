@@ -10,8 +10,7 @@
 
 typedef struct
 {
-    const BinaryLed *const brake_light;
-    const Buzzer *const    buzzer;
+    const Buzzer *const buzzer;
 } GlobalsConfig;
 
 typedef struct

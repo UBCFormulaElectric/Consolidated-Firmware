@@ -1,5 +1,6 @@
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
+#include "states/app_initState.h"
 #include "app_powerManager.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -19,14 +20,15 @@ static void inverterOnStateRunOnTick100Hz(void)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
 
-    const bool curr_start_switch_pos      = app_canRx_CRIT_StartSwitch_get();
-    const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
-    prev_start_switch_pos                 = curr_start_switch_pos;
+    const bool curr_start_switch_pos         = app_canRx_CRIT_StartSwitch_get();
+    const bool was_start_switch_pulled_up    = !prev_start_switch_pos && curr_start_switch_pos;
+    prev_start_switch_pos                    = curr_start_switch_pos;
+    const bool is_brake_actuated             = app_canRx_FSM_BrakeActuated_get();
+    const bool is_inverter_on_or_drive_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
+                                               app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
+                                               app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    const bool bms_in_drive_state = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool is_brake_actuated  = app_canRx_FSM_BrakeActuated_get();
-
-    if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
+    if (is_inverter_on_or_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
@@ -34,6 +36,11 @@ static void inverterOnStateRunOnTick100Hz(void)
         // TODO: Could not thoroughly validate VC refactor without a working BMS.
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
         app_stateMachine_setNextState(app_driveState_get());
+    }
+
+    else if (!is_inverter_on_or_drive_state || !all_states_ok)
+    {
+        app_stateMachine_setNextState(app_initState_get());
     }
 }
 
