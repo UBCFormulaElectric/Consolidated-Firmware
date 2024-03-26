@@ -69,7 +69,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
    embedded_binary(
-        "h7dev"
+        "h7dev_app"
         "${EMBEDDED_SRCS}"
         "${EMBEDDED_INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -84,14 +84,14 @@ if("${TARGET}" STREQUAL "deploy")
         TRUE
     )
 
-    target_link_libraries("h7dev.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
 
-    # embedded_image(
-    #     "h7dev"
-    #     "h7dev_app.hex"
-    #     "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
-    #     "h7dev_boot.hex"
-    #     "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
-    # )
+    embedded_image(
+        "h7dev"
+        "h7dev_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
+        "h7dev_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+    )
 
 endif()
