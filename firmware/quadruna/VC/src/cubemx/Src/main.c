@@ -141,9 +141,7 @@ static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_SDMMC1_SD_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
@@ -196,9 +194,7 @@ int main(void)
     MX_ADC1_Init();
     MX_SDMMC1_SD_Init();
     MX_USART2_UART_Init();
-    MX_USART1_UART_Init();
     MX_SDMMC1_SD_Init();
-    MX_USART2_UART_Init();
     MX_USART1_UART_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
@@ -621,9 +617,9 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 1 */
     htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
+    htim3.Init.Prescaler         = 0;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.Period            = 65535;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -635,7 +631,7 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {
@@ -753,7 +749,7 @@ static void MX_USART2_UART_Init(void)
 
     /* USER CODE END USART2_Init 1 */
     huart2.Instance                    = USART2;
-    huart2.Init.BaudRate               = 115200;
+    huart2.Init.BaudRate               = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart2.Init.WordLength             = UART_WORDLENGTH_8B;
     huart2.Init.StopBits               = UART_STOPBITS_1;
     huart2.Init.Parity                 = UART_PARITY_NONE;
