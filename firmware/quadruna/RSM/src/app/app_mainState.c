@@ -10,6 +10,7 @@
 #include "app_globals.h"
 #include "app_loadCell.h"
 #include "app_suspension.h"
+#include "app_globals.h"
 
 #include "app_heartbeatMonitor.h"
 
@@ -18,7 +19,6 @@ void mainStateRunOnTick100Hz(void)
     app_coolant_broadcast();
     app_loadcell_broadcast();
     app_suspension_broadcast();
-
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
