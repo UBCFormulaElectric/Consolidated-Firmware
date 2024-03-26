@@ -103,7 +103,7 @@ void app_soc_init(void)
     stats.is_corrupt = true;
     stats.charge_c   = -1;
 
-    uint8_t sd_read_data[64];
+    uint8_t sd_read_data[HW_DEVICE_SECTOR_SIZE];
 
     // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
@@ -113,6 +113,13 @@ void app_soc_init(void)
     // TODO: Update to SD Card logic
     // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
     // {
+
+    
+    // uint8_t     sd_write_data[4];
+    // convert_float_to_bytes(sd_write_data, 50.0f);
+    // hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
+
+
     if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
     {
         saved_soc_c = convert_bytes_to_float(sd_read_data);

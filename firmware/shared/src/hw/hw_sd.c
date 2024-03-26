@@ -14,7 +14,7 @@ static SdCard *sd;
 void hw_sd_init(SdCard *sd_config)
 {
     sd = sd_config;
-    if(sd_init)
+    if (sd_init)
     {
         hw_sd_markInitComplete();
     }
@@ -37,7 +37,7 @@ bool hw_sd_sdReady(void)
 
 SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
+    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
         ;
 
     HAL_StatusTypeDef status = HAL_SD_ReadBlocks(sd->hsd, pdata, block_addr, num_blocks, sd->timeout);
@@ -47,34 +47,26 @@ SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks
 
 SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
-    uint32_t     block_size = sd->hsd->SdCard.BlockSize;
-    SdCardStatus status     = SD_CARD_OK;
+    SdCardStatus status = SD_CARD_OK;
 
     if (size == 0)
     {
         return SD_CARD_OK;
     }
 
-    if (offset == 0 && (block_size - size) == 0) // easy case
+    if (((offset % HW_DEVICE_SECTOR_SIZE) == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0)) // easy case
     {
-        status = hw_sd_read(pdata, block_addr, size / block_size);
+        status = hw_sd_read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
         return (SdCardStatus)status;
     }
 
-    uint8_t local_buffer[block_size];
-
-    status = hw_sd_read(local_buffer, block_addr, 1); // write the whole
-    if (status != SD_CARD_OK)
-        return status;
-
-    memcpy(pdata, local_buffer + offset, size); // copy a section of data out
-
-    return status;
+    return SD_CARD_ERROR;
 }
+
 
 SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
 {
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
+    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
         ;
 
     HAL_StatusTypeDef status = HAL_SD_WriteBlocks(sd->hsd, pdata, block_addr, num_blocks, sd->timeout);
@@ -84,34 +76,24 @@ SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_block
 
 SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size)
 {
-    uint32_t     block_size = sd->hsd->SdCard.BlockSize;
-    SdCardStatus status     = SD_CARD_OK;
+    SdCardStatus status = SD_CARD_OK;
     if (size == 0)
     {
         return status;
     }
 
-    if (offset == 0 && (block_size - size) == 0) // easy case
+    if (((offset % HW_DEVICE_SECTOR_SIZE) == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0)) // easy case
     {
-        status = hw_sd_write(pdata, block_addr, size / block_size);
+        status = hw_sd_write(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE, size / HW_DEVICE_SECTOR_SIZE);
         return status;
     }
 
-    uint8_t local_buffer[block_size];
-
-    status = hw_sd_read(local_buffer, block_addr, 1); // read the whole block
-    if (status != SD_CARD_OK)
-        return status;
-
-    memcpy(local_buffer + offset, pdata, size);            // write to local buffer from offet to offset + size
-    status = hw_sd_write(local_buffer, block_addr, 1); // write back
-
-    return status;
+    return SD_CARD_ERROR;
 }
 
 SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr)
 {
-    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_READY)
+    while (HAL_SD_GetCardState(sd->hsd) != HAL_SD_CARD_TRANSFER)
         ;
 
     HAL_StatusTypeDef status = HAL_SD_Erase(sd->hsd, start_addr, end_addr);

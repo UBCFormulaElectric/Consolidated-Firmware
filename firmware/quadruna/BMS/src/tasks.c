@@ -69,7 +69,7 @@ extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim15;
 extern UART_HandleTypeDef huart1;
-extern SD_HandleTypeDef hsd1;
+extern SD_HandleTypeDef   hsd1;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
@@ -90,11 +90,10 @@ static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_C
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
 
-
 static SdCard sd = {
-    .hsd = &hsd1,
-    .timeout = osWaitForever,
-    .sd_present = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
+    .hsd              = &hsd1,
+    .timeout          = osWaitForever,
+    .sd_present       = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
     .sd_init_complete = false,
 };
 
@@ -328,7 +327,7 @@ void tasks_init(void)
 void tasks_run1Hz(void)
 {
     // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
 
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -358,7 +357,7 @@ void tasks_run1Hz(void)
 void tasks_run100Hz(void)
 {
     // TODO: TemporarilQy disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
 
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -384,7 +383,7 @@ void tasks_run100Hz(void)
 void tasks_run1kHz(void)
 {
     // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
 
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -417,7 +416,7 @@ void tasks_run1kHz(void)
 void tasks_runCanTx(void)
 {
     // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
 
     for (;;)
     {
@@ -428,7 +427,7 @@ void tasks_runCanTx(void)
 void tasks_runCanRx(void)
 {
     // TODO: Temporarily disabled for hardware testing (chimera).
-    osDelay(osWaitForever);
+    // osDelay(osWaitForever);
 
     for (;;)
     {

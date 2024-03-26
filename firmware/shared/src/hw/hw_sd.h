@@ -8,13 +8,15 @@
 // Check here for documentation about the type defined by HAL
 // https://www.disca.upv.es/aperles/arm_cortex_m3/llibre/st/STM32F439xx_User_Manual/structsd__handletypedef.html
 
+#define HW_DEVICE_SECTOR_SIZE 512
+
 typedef struct
 {
-    SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card
-    uint32_t          timeout; // the timeout for the SD card operations
+    SD_HandleTypeDef *hsd;        // the HAL SD handle that will hold the state of the SD card
+    uint32_t          timeout;    // the timeout for the SD card operations
     const Gpio        sd_present; // GPIO to detect if SD card installed
     bool              sd_init_complete;
-} SdCard;                      // struct that included all the state about SDIO and SD card
+} SdCard; // struct that included all the state about SDIO and SD card
 
 typedef enum
 {
@@ -46,7 +48,6 @@ void hw_sd_markInitComplete(void);
  * @return true if initialization complete and SD present
  */
 bool hw_sd_sdReady(void);
-
 
 /* Assume sdio and sd card is initilized, SdCard have desired member*/
 
