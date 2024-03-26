@@ -5,6 +5,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_utils.h"
+#include "app_canAlerts.h"
 #include <stddef.h>
 
 static void inverterOnStateRunOnEntry(void)
@@ -24,11 +25,9 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool was_start_switch_pulled_up    = !prev_start_switch_pos && curr_start_switch_pos;
     prev_start_switch_pos                    = curr_start_switch_pos;
     const bool is_brake_actuated             = app_canRx_FSM_BrakeActuated_get();
-    const bool is_inverter_on_or_drive_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
-                                               app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
-                                               app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool bms_in_drive_state            = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (is_inverter_on_or_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
+    if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
@@ -38,7 +37,7 @@ static void inverterOnStateRunOnTick100Hz(void)
         app_stateMachine_setNextState(app_driveState_get());
     }
 
-    else if (!is_inverter_on_or_drive_state || !all_states_ok)
+    else if (!all_states_ok)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
