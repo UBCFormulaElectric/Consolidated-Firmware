@@ -22,7 +22,7 @@ static uint8_t  data[MAX_DEBUG_BUF_SIZE];
 static uint8_t  rx_packet_size;
 static uint32_t net_name_gpio;
 static uint32_t net_name_adc;
-static bool chimera_button_pressed;
+static bool     chimera_button_pressed;
 
 static const Gpio *n_chimera_gpio;
 
