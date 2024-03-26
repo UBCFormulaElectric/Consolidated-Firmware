@@ -175,6 +175,8 @@ void tasks_init(void)
 
 void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
@@ -193,6 +195,8 @@ void tasks_run100Hz(void)
 
 void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -201,6 +205,8 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         CanMsg rx_msg;
@@ -214,6 +220,8 @@ void tasks_runCanRx(void)
 
 void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms   = 1U;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
@@ -232,6 +240,8 @@ void tasks_run1kHz(void)
 
 void tasks_run1Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms   = 1000U;
     static uint32_t         start_ticks = 0;
     start_ticks                         = osKernelGetTickCount();
