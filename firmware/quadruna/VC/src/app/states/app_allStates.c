@@ -57,8 +57,8 @@ bool app_allStates_runOnTick100Hz(void)
     // once crit dim is done add dim_fault
     const bool any_board_has_fault = bms_fault || vc_fault || fsm_fault || crit_fault;
 
-    io_sbgEllipse_handleLogs();
-    app_sbgEllipse_broadcast();
+    // io_sbgEllipse_handleLogs();
+    // app_sbgEllipse_broadcast();
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
     return !(left_inverter_fault || right_inverter_fault || any_board_has_fault);
