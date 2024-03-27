@@ -9,10 +9,10 @@ file(GLOB_RECURSE LOGFS_SRCS
 
 if("${TARGET}" STREQUAL "deploy")
     embedded_library(
-        "logfs_cm4"
+        "logfs_cm7"
         "${LOGFS_SRCS}"
         "${LOGFS_INCLUDE_DIRS}"
-        "cm4"
+        "cm7"
         TRUE
     )
 elseif("${TARGET}" STREQUAL "test")
@@ -28,13 +28,13 @@ elseif("${TARGET}" STREQUAL "test")
     set_target_properties(logfs_src PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
     )
-    # target_compile_options(logfs_src PRIVATE 
-    #     -O3
-    #     -Wall
-    #     -Werror
-    #     -Wextra
-    #     -pedantic
-    # )
+    target_compile_options(logfs_src PRIVATE 
+        -O3
+        -Wall
+        -Werror
+        -Wextra
+        -pedantic
+    )
 
     # Invoke setuptools to install the Python library.
     add_custom_target(install_python_logfs

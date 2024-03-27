@@ -194,9 +194,6 @@ class LogFs:
 
         err, num_read, data = self.fs.read_metadata(file.file, size)
         self._raise_err(err)
-
-        print(data)
-        print(num_read)
         return data[:num_read]
 
     def list_dir(self, matches: str = "/"):

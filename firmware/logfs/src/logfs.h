@@ -17,17 +17,17 @@ extern "C"
 
     typedef enum
     {
-        LOGFS_ERR_OK,           // No error
-        LOGFS_ERR_IO,           // Error during I/O operation
-        LOGFS_ERR_CORRUPT,      // File system was corrupted (bad CRC)
-        LOGFS_ERR_INVALID_ARG,  // Invalid argument
-        LOGFS_ERR_INVALID_PATH, // Invalid path
-        LOGFS_ERR_UNMOUNTED,    // Filesystem hasn't been successfully mounted
-        LOGFS_ERR_NOMEM,        // Filesystem is full (no more memory)
-        LOGFS_ERR_NOT_OPEN,     // File hasn't been opened
-        LOGFS_ERR_RD_ONLY,      // File is read only, and a write was attempted
-        LOGFS_ERR_WR_ONLY,      // File is write only, and a read was attempted
-        LOGFS_ERR_DNE,          // File does not exist
+        LOGFS_ERR_OK           = 0,   // No error
+        LOGFS_ERR_IO           = -2,  // Error during I/O operation
+        LOGFS_ERR_CORRUPT      = -3,  // File system was corrupted (bad CRC)
+        LOGFS_ERR_INVALID_ARG  = -4,  // Invalid argument
+        LOGFS_ERR_INVALID_PATH = -5,  // Invalid path
+        LOGFS_ERR_UNMOUNTED    = -6,  // Filesystem hasn't been successfully mounted
+        LOGFS_ERR_NOMEM        = -7,  // Filesystem is full (no more memory)
+        LOGFS_ERR_NOT_OPEN     = -8,  // File hasn't been opened
+        LOGFS_ERR_RD_ONLY      = -9,  // File is read only, and a write was attempted
+        LOGFS_ERR_WR_ONLY      = -10, // File is write only, and a read was attempted
+        LOGFS_ERR_DNE          = -11, // File does not exist
     } LogFsErr;
 
     typedef enum
@@ -68,8 +68,8 @@ extern "C"
 
     typedef struct
     {
-        char *path;  // File path string
-        void *cache; // Pointer to cache buffer (must be 1 block in size)
+        const char *path;  // File path string
+        void       *cache; // Pointer to cache buffer (must be 1 block in size)
     } LogFsFileCfg;
 
     /* Block definitions */

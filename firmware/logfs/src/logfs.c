@@ -142,14 +142,18 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
         }
 
         RET_ERR(disk_readPair(fs, &cur_file_pair));
-        cur_file = fs->cache_file->next_file_addr;
         cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
         cur_head = MAX(cur_head, cur_file_pair.addrs[1] + 1);
+        // TODO: What about the metadata pair?
 
         if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
         {
             // Reached end of file linked-list, return.
             break;
+        }
+        else
+        {
+            cur_file = fs->cache_file->next_file_addr;
         }
     }
 
@@ -372,14 +376,11 @@ LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsR
         RET_ERR(disk_syncCache(fs, &file->cache));
     }
 
-    bool first_block = true;
-    *num_read        = 0;
-
+    *num_read = 0;
     while (*num_read < size && file->read_iter_data_addr != LOGFS_INVALID_BLOCK)
     {
         // Read current block.
         RET_ERR(disk_exchangeCache(fs, &file->cache, file->read_iter_data_addr, false, true));
-        first_block = false;
 
         // Calculate number of available bytes.
         const uint32_t num_in_block     = file->cache_data->num_bytes - file->read_iter_data_byte;
