@@ -24,6 +24,7 @@
 #include "io_lowVoltageBattery.h"
 #include "io_shutdown.h"
 #include "io_currentSensing.h"
+#include "io_fileSystem.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -35,14 +36,19 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_sd.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
+extern SD_HandleTypeDef    hsd1;
 // extern IWDG_HandleTypeDef  hiwdg1;
+
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+SdCard    sd  = { .hsd = &hsd1, .timeout = 10 };
+bool      sd_inited;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -272,6 +278,27 @@ void tasks_preInit(void)
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
+
+    io_fileSystem_init();
+
+    int    file = io_fileSystem_open("/can.txt");
+    CanMsg msg  = { .std_id = 100, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
+
+    uint32_t start = HAL_GetTick();
+
+    for (int i = 0; i < 10000; i++)
+    {
+        FileSystemError err = io_fileSystem_write(file, &msg, sizeof(CanMsg));
+
+        if (err != FILE_OK)
+        {
+            BREAK_IF_DEBUGGER_CONNECTED();
+        }
+    }
+
+    io_fileSystem_close(file);
+
+    uint32_t delta_t = HAL_GetTick() - start;
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();

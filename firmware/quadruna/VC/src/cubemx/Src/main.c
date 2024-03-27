@@ -25,11 +25,12 @@
 #include "string.h"
 #include "tasks.h"
 
-#include "hw_gpio.h"
-
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "hw_gpio.h"
+
+extern bool sd_inited;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -569,7 +570,7 @@ static void MX_SDMMC1_SD_Init(void)
     /* USER CODE BEGIN SDMMC1_Init 0 */
     if (hw_gpio_readPin(&sd_present))
     {
-        return;
+        sd_inited = false;
     }
     /* USER CODE END SDMMC1_Init 0 */
 
@@ -587,7 +588,7 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-
+    sd_inited = true;
     /* USER CODE END SDMMC1_Init 2 */
 }
 
