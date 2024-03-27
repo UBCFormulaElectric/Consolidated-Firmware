@@ -61,6 +61,7 @@ class LogFs:
 
         if format:
             self.format()
+            self.mount()
         elif mount:
             self.mount()
 
