@@ -150,7 +150,7 @@
         }
     },
     "EllipseStatus": {
-        "msg_id": 208,
+        "msg_id": 223,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
@@ -224,7 +224,7 @@
         }
     },
     "EllipseEulerAngles": {
-        "msg_id": 207,
+        "msg_id": 222,
         "cycle_time": 10,
         "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {

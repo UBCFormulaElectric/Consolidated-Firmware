@@ -74,6 +74,9 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
     )
 
