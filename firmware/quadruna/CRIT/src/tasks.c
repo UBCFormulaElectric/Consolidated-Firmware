@@ -367,6 +367,10 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 void tasks_preInit(void)
 {
     // hw_bootup_enableInterruptsForApp();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("CRIT reset!");
 }
 
 void tasks_init(void)
@@ -379,10 +383,6 @@ void tasks_init(void)
 
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("CRIT reset!");
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);

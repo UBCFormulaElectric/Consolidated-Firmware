@@ -22,12 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "string.h"
 #include "tasks.h"
-
-#include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_canAlerts.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
