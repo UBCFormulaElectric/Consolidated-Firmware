@@ -25,6 +25,8 @@
 #include "string.h"
 #include "tasks.h"
 
+#include "hw_gpio.h"
+
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -120,7 +122,10 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
-
+Gpio sd_present = {
+    .pin  = GPIO_PIN_8,
+    .port = GPIOA,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -562,7 +567,10 @@ static void MX_FDCAN1_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
+    if (hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
