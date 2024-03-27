@@ -84,6 +84,7 @@ def test_rw_multiple_files(
 @pytest.mark.parametrize("data_size", [1, 10, 100, 1000, 10_000])
 def test_open_existing(fs: LogFs, data_size: int) -> None:
     fs.format()
+    fs.mount()
 
     # Create dummy data.
     file_name = "/test.txt"

@@ -15,6 +15,9 @@ if("${TARGET}" STREQUAL "deploy")
         "cm7"
         TRUE
     )
+    target_compile_options(logfs_cm7 PRIVATE 
+        -O3
+    )
 elseif("${TARGET}" STREQUAL "test")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 

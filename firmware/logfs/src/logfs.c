@@ -106,11 +106,7 @@ LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg)
     // Initialize file cache.
     LogFsFileCfg root_cfg = { .cache = cfg->cache, .path = "/.root" };
     logfs_initFile(&fs->root_file, &root_cfg, LOGFS_OPEN_RD_ONLY | LOGFS_OPEN_CREATE);
-    RET_ERR(logfs_createNewFile(fs, &fs->root_file, &root_cfg));
-
-    // Format was successful.
-    fs->mounted = true;
-    return LOGFS_ERR_OK;
+    return logfs_createNewFile(fs, &fs->root_file, &root_cfg);
 }
 
 LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
@@ -128,7 +124,8 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
 
     while (true)
     {
-        const LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
+        // Read file.
+        LogFsErr err = disk_fetchPair(fs, &cur_file_pair, cur_file);
         if (err == LOGFS_ERR_CORRUPT && cur_file != LOGFS_ORIGIN)
         {
             // Next file is corrupt, assume it is the end (this will be fixed
@@ -143,8 +140,10 @@ LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg)
 
         RET_ERR(disk_readPair(fs, &cur_file_pair));
         cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 1);
-        cur_head = MAX(cur_head, cur_file_pair.addrs[1] + 1);
-        // TODO: What about the metadata pair?
+
+        // Address of first item in pair, so need to add 2 to get first unused block.
+        cur_head = MAX(cur_head, fs->cache_file->head_data_addr + 2);
+        cur_head = MAX(cur_head, fs->cache_file->metadata_addr + 2);
 
         if (fs->cache_file->next_file_addr == LOGFS_INVALID_BLOCK)
         {

@@ -17,6 +17,12 @@ def main() -> None:
         action="store_true",
         help="Format disk (will wipe an existing filesystem)",
     )
+    parser.add_argument(
+        "--write",
+        "-w",
+        action="store_true",
+        help="Allow writes to the filesystem",
+    )
     args = parser.parse_args()
 
     # Initialize the IPython shell.
@@ -35,6 +41,7 @@ def main() -> None:
         disk=disk,
         mount=True,
         format=args.format,
+        rd_only=not args.write,
     )
 
     # Launch the IPython shell.
