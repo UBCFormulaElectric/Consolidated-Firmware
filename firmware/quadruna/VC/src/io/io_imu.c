@@ -26,12 +26,12 @@ double io_imu_get_linear_acceleration_x()
     // Convert raw value to acceleration in m/s^2
     float x_acceleration = x_raw * SENSITIVITY * 9.81f / 1000.0f;
 
-    app_canTx_VC_X_Acceleration_set(x_acceleration);
+    app_canTx_VC_X_set(x_acceleration);
     return x_acceleration;
 }
 
-
-double io_imu_get_linear_acceleration_y() {
+double io_imu_get_linear_acceleration_y()
+{
     uint8_t y_data[2];
 
     // Read raw acceleration data
@@ -42,11 +42,12 @@ double io_imu_get_linear_acceleration_y() {
     // Convert raw value to acceleration in m/s^2
     float y_acceleration = y_raw * SENSITIVITY * 9.81f / 1000.0f;
 
-    app_canTx_VC_Y_Acceleration_set(y_acceleration);
+    app_canTx_VC_Y_set(y_acceleration);
     return y_acceleration;
 }
 
-double io_imu_get_linear_acceleration_z() {
+double io_imu_get_linear_acceleration_z()
+{
     uint8_t z_data[2];
 
     // Read raw acceleration data
@@ -57,6 +58,6 @@ double io_imu_get_linear_acceleration_z() {
     // Convert raw value to acceleration in m/s^2
     float z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f;
 
-    app_canTx_VC_Z_Acceleration_set(z_acceleration);
+    app_canTx_VC_Z_set(z_acceleration);
     return z_acceleration;
 }

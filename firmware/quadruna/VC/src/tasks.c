@@ -45,12 +45,9 @@ extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
-<<<<<<< HEAD
 extern UART_HandleTypeDef  huart2;
 
-=======
-extern I2C_HandleTypeDef   hi2c2;
->>>>>>> 3bd9b3552 (functional imu)
+extern I2C_HandleTypeDef hi2c2;
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 

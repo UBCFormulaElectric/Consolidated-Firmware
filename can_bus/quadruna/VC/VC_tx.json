@@ -679,5 +679,30 @@
                 "bits": 1
             }
         }
+    },
+    "Imu_Linear_Acceleration": {
+        "msg_id": 225,
+        "cycle_time": 100,
+        "description": "Linear acceleration in x,y and z direction from the IMU",
+        "signals": {
+            "X": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "Y": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "Z": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            }
+        }
     }
 }
