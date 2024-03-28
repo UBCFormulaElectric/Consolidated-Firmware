@@ -7,10 +7,11 @@
 // Default sensitivity for LSM6DSM is 0.061 mg/digit
 const float SENSITIVITY = 0.061f;
 
-extern I2cInterface *imu;
+static I2cInterface *imu;
 
-bool io_imu_init()
+bool io_imu_init(I2cInterface * imu_in)
 {
+    imu = imu_in;
     return hw_i2c_is_target_ready(imu);
 }
 

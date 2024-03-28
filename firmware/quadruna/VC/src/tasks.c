@@ -281,7 +281,9 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
-I2cInterface *imu;
+static I2cInterface imu = {
+    &hi2c2,0x6B,100
+};
 
 void tasks_preInit(void)
 {
@@ -324,10 +326,7 @@ void tasks_init(void)
     {
         Error_Handler();
     }
-    imu->i2c_handle     = &hi2c2;
-    imu->target_address = 0x6B;
-    imu->timeout_ms     = 100;
-    io_imu_init(imu);
+    io_imu_init(&imu);
 
     app_canTx_init();
     app_canRx_init();
