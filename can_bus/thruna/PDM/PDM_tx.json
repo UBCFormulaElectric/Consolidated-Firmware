@@ -83,5 +83,19 @@
                 "bits": 1
             }
         }
+    },
+    "Efuses": {
+        "msg_id": 407,
+        "cycle_time": 100,
+        "description": "PDM efuses",
+        "signals": {
+            "Efuse": {
+                "enum": "Efuse"
+            },
+            "Fault_Count": {
+                "bits": 3,
+                "signed": false
+            }
+        }
     }
 }

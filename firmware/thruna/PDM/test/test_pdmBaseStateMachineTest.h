@@ -36,11 +36,13 @@ class PdmBaseStateMachineTest : public BaseStateMachineTest
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_PDM_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
 
-        app_stateMachine_init(app_initState_get());
+        fake_io_time_getCurrentMs_returns(250);
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+
+        app_powerManager_init();
     }
 
     void TearDown() override

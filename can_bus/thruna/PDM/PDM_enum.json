@@ -2,5 +2,15 @@
     "PdmState": {
         "PDM_INIT_STATE": 0,
         "PDM_DRIVE_STATE": 1
+    },
+    "Efuse": {
+        "AIR": 0,
+        "LVPWR": 1,
+        "EMETER": 2,
+        "AUX": 3,
+        "DRS": 4,
+        "FAN": 5,
+        "DI_LHS": 6,
+        "DI_RHS": 7
     }
 }
