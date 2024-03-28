@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.h"
+#include "hw_gpio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
