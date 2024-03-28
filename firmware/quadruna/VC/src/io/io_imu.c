@@ -17,7 +17,7 @@ bool io_imu_init(I2cInterface * imu_in)
 
 double io_imu_get_linear_acceleration_x()
 {
-    uint8_t x_data[1];
+    uint8_t x_data[2];
 
     // Read raw acceleration data
     hw_i2c_mem_read(imu, 0x28, 1, &x_data[0], 1); // LSB

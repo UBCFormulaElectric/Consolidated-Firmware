@@ -15,6 +15,7 @@
 #include "app_efuse.h"
 #include "app_utils.h"
 #include "io_time.h"
+#include "io_imu.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -38,6 +39,10 @@ bool app_allStates_runOnTick100Hz(void)
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
+
+    io_imu_get_linear_acceleration_x();
+    io_imu_get_linear_acceleration_y();
+    io_imu_get_linear_acceleration_z();
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
     {
