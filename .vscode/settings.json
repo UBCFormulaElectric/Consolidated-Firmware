@@ -12,6 +12,9 @@
 	"files.associations": {
 		"stdbool.h": "c",
 		"hw_i2c.h": "c",
-		"hw_hal.h": "c"
+		"hw_hal.h": "c",
+		"io_led.h": "c",
+		"app_initstate.h": "c",
+		"io_i2c_potentiometer.h": "c"
 	}
 }
