@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PCANExplorerProject Version="6.0" AppVersion="6.7.0" Name="PcanProject">
     <Connections AutoReset="0" IgnoreRTRLength="0" ProcessRTR="1">
-        <Connection Name="Connection1" Bus="1" Enabled="1" Protocol="0" SymbolsFileName="CanMsgs.dbc" BitRate="28" Connection="My Net@pcan_usb"/>
+        <Connection Name="Connection1" Bus="1" Enabled="1" Protocol="0" CalcBusLoad="1" SymbolsFileName="quadruna.dbc" BitRate="28" Connection="My Net@pcan_usb"/>
     </Connections>
     <Files>
-        <File RelativePath="dbcs\CanMsgs.dbc"/>
+        <File RelativePath="dbcs\quadruna.dbc" SelectedIDs="ALL"/>
     </Files>
 </PCANExplorerProject>
