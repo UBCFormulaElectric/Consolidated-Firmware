@@ -3,13 +3,18 @@
 #include "io_charger.h"
 
 // 0.05C is standard for a boundary to consider full charge
-#define CURRENT_AT_MAX_CHARGE (0.05f * C_RATE_TO_AMPS)
+#define C_RATE_FOR_MAX_CHARGE (0.05f)
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
+#define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
 
 static void chargeStateRunOnEntry(void)
 {
+    app_canTx_BMS_ChargerEnable_set(1);
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
-    io_charger_enable(true);
+    // Setting these for run on entry right now, change later maybe.
+    app_canTx_BMS_MaxChargingCurrent_set(MAX_CHARGING_CURRENT);
+    app_canTx_BMS_ChargingVoltage_set(CHARGING_VOLTAGE);
+    app_canTx_BMS_ChargingCurrent_set(CHARGING_CURRENT);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
@@ -31,7 +36,7 @@ static void chargeStateRunOnTick100Hz(void)
         bool has_charger_faulted = false;
         if (globals->ignore_charger_fault_counter >= CYCLES_TO_IGNORE_CHGR_FAULT)
         {
-            has_charger_faulted = io_charger_hasFaulted();
+            has_charger_faulted = app_canRx_BRUSA_Error_get();
         }
         else
         {
@@ -56,7 +61,7 @@ static void chargeStateRunOnTick100Hz(void)
         if (!charging_enabled)
         {
             // Charger must be diabled and given time to shut down before air positive is opened
-            io_charger_enable(false);
+            app_canTx_BMS_ChargerEnable_set(false);
             globals->charger_exit_counter++;
 
             if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
@@ -69,7 +74,7 @@ static void chargeStateRunOnTick100Hz(void)
 
 static void chargeStateRunOnExit(void)
 {
-    io_charger_enable(false);
+    app_canTx_BMS_ChargerEnable_set(false);
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);
 }

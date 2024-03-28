@@ -89,13 +89,39 @@
             }
         }
     },
-    "Charger": {
-        "msg_id": 110,
-        "cycle_time": 1000,
-        "description": "Flags relaying BMS Charger Status",
+
+    "BrusaControls": {
+        "msg_id": 1560,
+        "cycle_time": 100,
+        "description": "Flags and parameters for controlling the BRUSA charger",
         "signals": {
-            "ChargerConnected": {
+            "ChargerEnable": {
+                "start_bit": 0,
                 "bits": 1
+            },
+            "ClearLatch": {
+                "start_bit": 1,
+                "bits": 1
+            },
+            "VentilationControlFiller":{
+                "start_bit": 2,
+                "bits": 1
+            },
+            "CPStateVoltageRequest":{
+                "start_bit": 3,
+                "bits": 1
+            },
+            "MaxChargingCurrent": {
+                "start_bit": 8,
+                "bits": 16
+            },
+            "ChargingVoltage": {
+                "start_bit": 24,
+                "bits": 16
+            },
+            "ChargingCurrent": {
+                "start_bit": 40,
+                "bits": 16
             }
         }
     },
