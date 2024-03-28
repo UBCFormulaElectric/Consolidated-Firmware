@@ -382,6 +382,10 @@ void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
+    io_imu_get_linear_acceleration_x();
+    io_imu_get_linear_acceleration_y();
+    io_imu_get_linear_acceleration_z();
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
