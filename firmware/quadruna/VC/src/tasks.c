@@ -26,6 +26,7 @@
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
+#include "io_imu.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,6 +38,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -45,6 +47,7 @@ extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
 
+extern I2C_HandleTypeDef hi2c2;
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -268,6 +271,10 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
+static I2cInterface imu = {
+    &hi2c2,0x6B,100
+};
+
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -309,6 +316,7 @@ void tasks_init(void)
     {
         Error_Handler();
     }
+    io_imu_init(&imu);
 
     app_canTx_init();
     app_canRx_init();
@@ -362,6 +370,10 @@ void tasks_run1Hz(void)
 void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
+
+    io_imu_get_linear_acceleration_x();
+    io_imu_get_linear_acceleration_y();
+    io_imu_get_linear_acceleration_z();
 
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
