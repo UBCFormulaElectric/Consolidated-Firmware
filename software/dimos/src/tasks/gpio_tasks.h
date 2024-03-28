@@ -3,5 +3,5 @@
 
 namespace gpio_handlers
 {
-[[noreturn]] void gpio_monitor(gpio_input i);
-}
+void gpio_monitor(gpio_input i);
+} // namespace gpio_handlers

@@ -6,13 +6,13 @@ extern "C"
 #include "io_canTx.h"
 };
 
-enum CanConnectionError
+enum class CanConnectionError
 {
     SocketError,
     BindError
 };
 
-enum CanReadError
+enum class CanReadError
 {
     ReadInterfaceNotCreated,
     SocketReadError,
@@ -20,10 +20,10 @@ enum CanReadError
     Timeout,
 };
 
-enum CanWriteError
+enum class CanWriteError
 {
     WriteInterfaceNotCreated,
-    SocketWriteError,
+    SocketWriteError
 };
 
 Result<std::monostate, CanConnectionError> Can_Init();

@@ -16,7 +16,7 @@ Result<std::monostate, CanConnectionError> Can_Init()
     if (CanInterface < 0)
     {
         CanInterface = std::nullopt;
-        return SocketError;
+        return CanConnectionError::SocketError;
     }
 
     sockaddr_can addr;
@@ -30,7 +30,7 @@ Result<std::monostate, CanConnectionError> Can_Init()
     addr.can_family  = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
     if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
-        return BindError;
+        return CanConnectionError::BindError;
 
     return std::monostate{};
 }
@@ -38,16 +38,16 @@ Result<std::monostate, CanConnectionError> Can_Init()
 Result<JsonCanMsg, CanReadError> Can_Read()
 {
     if (!CanInterface.has_value())
-        return ReadInterfaceNotCreated;
+        return CanReadError::ReadInterfaceNotCreated;
 
     can_frame     frame{};
     const ssize_t readLengthBytes =
         read(CanInterface.value(), &frame, sizeof(can_frame)); // todo make this react to QThread::requestInterruption
 
     if (readLengthBytes < 0)
-        return SocketReadError;
+        return CanReadError::SocketReadError;
     if (readLengthBytes < sizeof(can_frame))
-        return IncompleteCanFrame;
+        return CanReadError::IncompleteCanFrame;
 
     auto out = JsonCanMsg{
         .std_id = frame.can_id,
@@ -60,17 +60,17 @@ Result<JsonCanMsg, CanReadError> Can_Read()
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 {
     if (!CanInterface.has_value())
-        return WriteInterfaceNotCreated;
+        return CanWriteError::WriteInterfaceNotCreated;
 
     try
     {
         if (write(CanInterface.value(), msg, sizeof(can_frame)) <
             0) // todo make this react to QThread::requestInterruption
-            return SocketWriteError;
+            return CanWriteError::SocketWriteError;
     }
     catch (...)
     {
-        return SocketWriteError;
+        return CanWriteError::SocketWriteError;
     }
     return std::monostate{};
 }

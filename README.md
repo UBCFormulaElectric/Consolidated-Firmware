@@ -2,6 +2,8 @@
 
 A repository for all software and firmware from UBC Formula Electric.
 
+[![Binary and DBC Generation](https://github.com/UBCFormulaElectric/Consolidated-Firmware/actions/workflows/master_cd.yml/badge.svg)](https://github.com/UBCFormulaElectric/Consolidated-Firmware/actions/workflows/master_cd.yml)
+
 ## Table of Contents
 
 - [Consolidated-Firmware](#consolidated-firmware)

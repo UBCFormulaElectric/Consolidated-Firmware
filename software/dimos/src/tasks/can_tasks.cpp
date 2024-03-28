@@ -9,6 +9,7 @@ extern "C"
 {
 #include <io_canRx.h>
 #include <io_canTx.h>
+#include <app_canRx.h>
 }
 
 namespace can_handlers
@@ -24,12 +25,16 @@ void CanRXTask()
         {
             switch (get<CanReadError>(res))
             {
-                case ReadInterfaceNotCreated:
+                case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
                     return;
-                case Timeout:
-                case SocketReadError:
-                case IncompleteCanFrame:
+                case CanReadError::Timeout:
+#ifdef USING_dimos
+                    qWarning("CANRX Timeout");
+                    break;
+#endif
+                case CanReadError::SocketReadError:
+                case CanReadError::IncompleteCanFrame:
                     break;
             }
             continue;
@@ -42,9 +47,13 @@ void CanRXTask()
         // if we care about the message
         can_table_mutex.lock();
         io_canRx_updateRxTableWithMessage(&message);
+#ifdef USING_dimos_dev
+        app_canRx_VC_Fault_DummyFault_update(!app_canRx_VC_Fault_DummyFault_get());
+        // qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
+#endif
         can_table_mutex.unlock();
     }
-    std::cout << "exiting CanRXTask now" << std::endl;
+    qInfo("KILL CanRXTask thread");
 }
 
 void CanPeriodicTXTask()
@@ -58,7 +67,7 @@ void CanPeriodicTXTask()
         can_table_mutex.unlock();
         QThread::msleep(1); // yield to other threads, make larger if big lag problem
     }
-    std::cout << "exiting CanPeriodicTXTask now" << std::endl;
+    qInfo("KILL CanPeriodicTXTask thread");
 }
 
 void CanTx100Hz()
