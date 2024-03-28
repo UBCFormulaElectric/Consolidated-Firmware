@@ -176,7 +176,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         }
     }
 }
-
 /*
  * Create a serial interface that will be used by SBG's library. Requires passing pointers to functions for all I/O
  * operations, such as reading, writing, flushing, etc. These I/O operations will use STM32's HAL drivers to communicate

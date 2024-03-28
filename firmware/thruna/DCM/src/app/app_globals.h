@@ -11,14 +11,11 @@
 typedef struct
 {
     const BinaryLed *const brake_light;
-    const Buzzer *const    buzzer;
 } GlobalsConfig;
 
 typedef struct
 {
     const GlobalsConfig *config;
-    bool                 torque_vectoring_switch_is_on;
-    TimerChannel         buzzer_timer;
 } Globals;
 
 extern Globals *const globals;

@@ -77,6 +77,6 @@ if("${TARGET}" STREQUAL "deploy")
     endfunction()
 
     stm32h7_bootloader("h7dev_boot" "h7dev" "")
-    stm32h7_bootloader("quadruna_VC_boot" "VC" "")
+    stm32h7_bootloader("quadruna_VC_boot" "VC" "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_VC.c")
     stm32h7_bootloader("quadruna_BMS_boot" "quadruna_BMS" "")
 endif()

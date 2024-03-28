@@ -8,5 +8,5 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
 }

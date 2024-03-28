@@ -139,6 +139,7 @@ elseif("${TARGET}" STREQUAL "test")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
         "thruna_DCM_test"
+        
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
