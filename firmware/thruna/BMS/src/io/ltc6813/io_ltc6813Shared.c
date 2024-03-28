@@ -16,6 +16,11 @@
 // Command used to write to configuration registers
 #define WRCFGA (0x0100U)
 #define WRCFGB (0x2400U)
+#define WRPWM (0x2000U)
+#define WRPSB (0x1C00U)
+
+#define PWM_DUTY_CYCLE_REG_GROUP \
+    (0b10101010) // each register contains 2 S pins each of which take a nibble (lower nibble for lower S pin)
 
 // Command used to poll ADC conversions
 #define PLADC (0x1407U)
@@ -41,6 +46,8 @@ typedef enum
 {
     CONFIG_REG_A = 0U,
     CONFIG_REG_B,
+    CONFIG_REG_PWM,
+    CONFIG_REG_PWM_B,
     NUM_OF_CFG_REGS,
 } ConfigurationRegister;
 
@@ -80,8 +87,32 @@ static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
             [REG_GROUP_BYTE_4] = 0U,
             [REG_GROUP_BYTE_5] = 0U,
         },
+    },
+    [CONFIG_REG_PWM] =
+    {
+        .cfg_reg_cmds = WRPWM,
+        .default_cfg_reg = 
+        {
+            [REG_GROUP_BYTE_0] = PWM_DUTY_CYCLE_REG_GROUP,
+            [REG_GROUP_BYTE_1] = PWM_DUTY_CYCLE_REG_GROUP,
+            [REG_GROUP_BYTE_2] = PWM_DUTY_CYCLE_REG_GROUP, 
+            [REG_GROUP_BYTE_3] = PWM_DUTY_CYCLE_REG_GROUP,
+            [REG_GROUP_BYTE_4] = PWM_DUTY_CYCLE_REG_GROUP,
+            [REG_GROUP_BYTE_5] = PWM_DUTY_CYCLE_REG_GROUP,  
+        },
+    },
+    [CONFIG_REG_PWM_B] = // only writing to BYTE 1 and 2 as we only use 16 S pins out of 18
+    {
+        .cfg_reg_cmds = WRPSB,
+        .default_cfg_reg =
+        {
+            [REG_GROUP_BYTE_0] = PWM_DUTY_CYCLE_REG_GROUP,
+            [REG_GROUP_BYTE_1] = PWM_DUTY_CYCLE_REG_GROUP,
+        },
     }
+
 };
+
 // clang-format on
 
 static const uint16_t pec15_lut[PEC15_LUT_SIZE] = {
