@@ -37,7 +37,11 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+<<<<<<< HEAD
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+=======
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+>>>>>>> 3bd9b3552 (functional imu)
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 

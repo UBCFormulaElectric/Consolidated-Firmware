@@ -26,6 +26,7 @@
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
+#include "io_imu.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,14 +38,19 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
+<<<<<<< HEAD
 extern UART_HandleTypeDef  huart2;
 
+=======
+extern I2C_HandleTypeDef   hi2c2;
+>>>>>>> 3bd9b3552 (functional imu)
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -278,6 +284,8 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
+I2cInterface *imu;
+
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -319,6 +327,10 @@ void tasks_init(void)
     {
         Error_Handler();
     }
+    imu->i2c_handle     = &hi2c2;
+    imu->target_address = 0x6B;
+    imu->timeout_ms     = 100;
+    io_imu_init(imu);
 
     app_canTx_init();
     app_canRx_init();
