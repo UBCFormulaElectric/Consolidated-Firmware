@@ -8,12 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-cmake_host_system_information(RESULT CORE_COUNT QUERY NUMBER_OF_PHYSICAL_CORES)
-if (NOT CORE_COUNT EQUAL 0)
-	message("🚀 Using ${CORE_COUNT} cores for building. Override with \"-j\" flag")
-	set(CMAKE_BUILD_PARALLEL_LEVEL ${CORE_COUNT})
-endif ()
-
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
