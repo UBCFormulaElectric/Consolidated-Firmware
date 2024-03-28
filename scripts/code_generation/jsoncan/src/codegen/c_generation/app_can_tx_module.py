@@ -142,6 +142,12 @@ class AppCanTxModule(CModule):
                         CTypesConfig.MSG_STRUCT.format(msg=msg.name),
                     )
                 )
+            tx_table_struct.add_member(
+                CVar(
+                    "__unused_prevent_empty_struct",
+                    "char",
+                )
+            )
 
             cw.add_struct(tx_table_struct)
             cw.add_line()
