@@ -15,6 +15,8 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
@@ -109,8 +111,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules")
+    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m")
 
     embedded_image(
         "quadruna_VC"
@@ -128,6 +130,12 @@ elseif("${TARGET}" STREQUAL "test")
         FALSE
         "quadruna"
     )
+
+
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        )   
+
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
@@ -136,12 +144,14 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
     )
+
     create_fake_library(
         "quadruna_VC_fakes"
         "${HEADERS_TO_FAKE}"
     )
-
+    
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
     list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")

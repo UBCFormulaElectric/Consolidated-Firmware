@@ -30,6 +30,10 @@
         "BatteryFault",
         "AccumulatorFault",
         "LvChargeFault",
-        "BoostControllerFault"
+        "BoostControllerFault",
+        "LEStopFault", 
+        "REStopFault",
+        "TSMSFault",
+        "PCMInterlockFault"
     ]
   }

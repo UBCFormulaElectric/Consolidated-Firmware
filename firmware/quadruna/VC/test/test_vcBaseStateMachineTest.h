@@ -4,6 +4,9 @@
 #include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
+#include "fake_io_led.hpp"
+#include "fake_io_buzzer.hpp"
+#include "fake_io_sbgEllipse.hpp"
 
 extern "C"
 {
@@ -16,8 +19,11 @@ extern "C"
 #include "app_utils.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
+#include "states/app_allStates.h"
+#include "states/app_inverterOnState.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
+#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -36,9 +42,11 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
+        // app_globals_init(&globals_config);
 
         app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
+        // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -91,6 +99,13 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         [EFUSE_CHANNEL_TELEM]  = NULL,
         [EFUSE_CHANNEL_BUZZER] = NULL,
     };
+    std::vector<const State *> GetAllStates(void)
+    {
+        return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
+    }
+
+    const BinaryLed brake_light = {};
+    const Buzzer    buzzer      = {};
 
     // config for heartbeat monitor (can funcs and flags)
     // VC relies on FSM, RSM, BMS, CRIT
@@ -137,4 +152,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
     };
+
+    // const GlobalsConfig globals_config = {
+    //     .a = 0
+    // };
 };

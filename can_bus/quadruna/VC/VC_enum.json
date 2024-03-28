@@ -5,10 +5,10 @@
     "VC_DRIVE_STATE": 2
   },
 
-  "DcmSbgStatus": {
-    "Solution_Computed": 0,
-    "Insufficent_Readings": 1, 
-    "Internal_Error": 2, 
-    "Limit_Exceeded": 3
+  "VcSbgStatus": {
+    "VC_SOLUTION_COMPUTED": 0,
+    "INSUFFICIENT_READINGS": 1, 
+    "INTERNAL_ERROR": 2, 
+    "LIMIT_EXCEEDED": 3
   }
 }

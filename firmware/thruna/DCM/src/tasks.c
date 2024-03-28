@@ -114,9 +114,7 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 
 static const GlobalsConfig globals_config = {
     .brake_light = &brake_light,
-    .buzzer      = &buzzer,
 };
-
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -138,6 +136,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_buzzer_init(&buzzer);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {

@@ -24,6 +24,8 @@
 #include "io_lowVoltageBattery.h"
 #include "io_shutdown.h"
 #include "io_currentSensing.h"
+#include "io_buzzer.h"
+#include "io_sbgEllipse.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -41,6 +43,8 @@ extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
+extern UART_HandleTypeDef  huart2;
+
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -215,9 +219,9 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-
-static UART debug_uart = { .handle = &huart7 };
-
+static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
+static UART   debug_uart = { .handle = &huart7 };
+static UART   imu_uart   = { .handle = &huart2 };
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
 // TODO: add RSM to config when boards are ready, also add vitals to canRx json
@@ -295,10 +299,16 @@ void tasks_init(void)
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
+    io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+
+    if (!io_sbgEllipse_init(&imu_uart))
+    {
+        Error_Handler();
+    }
 
     app_canTx_init();
     app_canRx_init();
@@ -308,6 +318,12 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
+
+    io_lowVoltageBattery_init(&lv_battery_config);
+    io_shutdown_init(&shutdown_config);
+    io_currentSensing_init(&current_sensing_config);
+    io_efuse_init(efuse_configs);
+    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
