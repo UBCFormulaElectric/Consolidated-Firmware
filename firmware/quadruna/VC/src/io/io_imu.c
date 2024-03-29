@@ -27,33 +27,47 @@ bool io_imu_init_accelerometer()
     return hw_i2c_mem_write(imu, 0x10, 1, buffer, sizeof(buffer));
 }
 
-void io_imu_transmit_linear_acceleration()
+void read_register(uint8_t *rx_buffer, uint16_t mem_addr)
+{
+    hw_i2c_mem_read(imu, mem_addr, 1, &rx_buffer[0], 1);         // LSB
+    hw_i2c_mem_read(imu, (mem_addr + 0x1), 1, &rx_buffer[1], 1); // MSB
+}
+
+double io_imu_acceleration_x()
 {
     uint8_t x_data[2];
-    uint8_t y_data[2];
-    uint8_t z_data[2];
-
-    // Read raw acceleration data for x direction
-    hw_i2c_mem_read(imu, 0x28, 1, &x_data[0], 1); // LSB
-    hw_i2c_mem_read(imu, 0x29, 1, &x_data[1], 1); // MSB
+    read_register(x_data, 0x28);
     int16_t x_raw = (int16_t)((int16_t)x_data[1] << 8 | x_data[0]);
-
-    // Read raw acceleration data for y direction
-    hw_i2c_mem_read(imu, 0x2A, 1, &y_data[0], 1); // LSB
-    hw_i2c_mem_read(imu, 0x2B, 1, &y_data[1], 1); // MSB
-    int16_t y_raw = (int16_t)((int16_t)y_data[1] << 8 | y_data[0]);
-
-    // Read raw acceleration data for z direction
-    hw_i2c_mem_read(imu, 0x2C, 1, z_data, 1);
-    hw_i2c_mem_read(imu, 0x2D, 1, z_data, 1);
-    int16_t z_raw = (int16_t)(z_data[1] << 8 | z_data[0]);
 
     // Convert raw value to acceleration in m/s^2
     float x_acceleration = x_raw * SENSITIVITY * 9.81f / 1000.0f;
-    float y_acceleration = y_raw * SENSITIVITY * 9.81f / 1000.0f;
-    float z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f;
 
     app_canTx_VC_X_set(x_acceleration);
+    return x_acceleration;
+}
+
+double io_imu_acceleration_y()
+{
+    uint8_t y_data[2];
+    read_register(y_data, 0x2A);
+    int16_t y_raw = (int16_t)((int16_t)y_data[1] << 8 | y_data[0]);
+
+    // Convert raw value to acceleration in m/s^2
+    float y_acceleration = y_raw * SENSITIVITY * 9.81f / 1000.0f;
+
     app_canTx_VC_Y_set(y_acceleration);
+    return y_acceleration;
+}
+
+double io_imu_acceleration_z()
+{
+    uint8_t z_data[2];
+    read_register(z_data, 0x2C);
+    int16_t z_raw = (int16_t)(z_data[1] << 8 | z_data[0]);
+
+    // Convert raw value to acceleration in m/s^2
+    float z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f;
+
     app_canTx_VC_Z_set(z_acceleration);
+    return z_acceleration;
 }

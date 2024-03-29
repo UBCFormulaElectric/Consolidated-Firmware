@@ -15,4 +15,14 @@ bool io_imu_init_accelerometer();
 /**
  * @brief gets the linear acceleration in the x direction
  */
-void io_imu_transmit_linear_acceleration();
+double io_imu_acceleration_x();
+
+/**
+ * @brief gets the linear acceleration in the y direction
+ */
+double io_imu_acceleration_y();
+
+/**
+ * @brief gets the linear acceleration in the y direction
+ */
+double io_imu_acceleration_z();
