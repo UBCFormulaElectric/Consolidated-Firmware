@@ -5,13 +5,13 @@
 
 /**
  * @brief initalizes the i2c interface
- * @param i2c the i2c handle 
-*/
-bool io_imu_init(I2C_HandleTypeDef* i2c);
+ * @param i2c the i2c handle
+ */
+bool io_imu_init(I2C_HandleTypeDef *i2c);
 
 /**
  * @brief turns on the accelerometer sensor on the imu to normal mode
-*/
+ */
 bool io_imu_init_accelerometer();
 
 /**

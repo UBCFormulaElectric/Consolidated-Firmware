@@ -7,21 +7,22 @@
 // Default sensitivity for LSM6DSM is 0.061 mg/digit
 const float SENSITIVITY = 0.061f;
 
-static I2cInterface* imu;
+static I2cInterface *imu;
 
-bool io_imu_init(I2C_HandleTypeDef* i2c)
+bool io_imu_init(I2C_HandleTypeDef *i2c)
 {
-    imu->i2c_handle = i2c;
+    imu->i2c_handle     = i2c;
     imu->target_address = 0x6B;
-    imu->timeout_ms = 100;
+    imu->timeout_ms     = 100;
 
     return hw_i2c_is_target_ready(imu);
 }
 
-bool io_imu_init_accelerometer() {
+bool io_imu_init_accelerometer()
+{
     uint8_t buffer[1];
-    buffer[0] = 0x40; // turn on accelerometer to normal mode 
-    
+    buffer[0] = 0x40; // turn on accelerometer to normal mode
+
     return hw_i2c_mem_write(imu, 0x10, 1, buffer, sizeof(buffer));
 }
 
