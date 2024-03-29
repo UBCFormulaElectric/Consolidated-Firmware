@@ -279,7 +279,7 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
-static I2cInterface* imu;
+static I2cInterface *imu;
 
 void tasks_preInit(void)
 {
