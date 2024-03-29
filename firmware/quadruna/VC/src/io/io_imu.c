@@ -4,14 +4,15 @@
 #include <math.h>
 #include <stdio.h>
 
+extern I2C_HandleTypeDef hi2c2;
+static I2cInterface *imu;
+
 // Default sensitivity for LSM6DSM is 0.061 mg/digit
 const float SENSITIVITY = 0.061f;
 
-static I2cInterface *imu;
-
-bool io_imu_init(I2C_HandleTypeDef *i2c)
+bool io_imu_init()
 {
-    imu->i2c_handle     = i2c;
+    imu->i2c_handle     = &hi2c2;
     imu->target_address = 0x6B;
     imu->timeout_ms     = 100;
 

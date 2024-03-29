@@ -46,8 +46,6 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
-
-extern I2C_HandleTypeDef hi2c2;
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -281,6 +279,8 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
+static I2cInterface* imu;
+
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -323,7 +323,7 @@ void tasks_init(void)
         Error_Handler();
     }
 
-    io_imu_init(&hi2c2);
+    io_imu_init();
     io_imu_init_accelerometer();
 
     app_canTx_init();
