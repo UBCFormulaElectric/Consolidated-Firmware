@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 /**
- * @param i2c_handle The given I2C handle structure.
+ * @param i2c_handle The given I2C handler.
  * @param target_address The device's 7 bit address value in the datasheet.
  * @param timeout_ms Timout duration.
 */

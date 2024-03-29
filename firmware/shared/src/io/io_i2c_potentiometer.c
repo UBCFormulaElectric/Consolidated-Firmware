@@ -2,18 +2,22 @@
 #include "hw_i2c.h"
 
 const uint8_t TARGET_ADDRESS = 0b0101111;
-const uint16_t BUFFER_SIZE = 1; // TODO
 
+static I2cInterface *pot;
 
-void set_wiper(int value, I2C_HandleTypeDef i2c_handle) {
-    I2cInterface* interface = {
-        .i2c_handle = i2c_handle,
-        .target_address = TARGET_ADDRESS,
-        .timeout_ms = 30
-    };
+bool io_i2c_potentiometer_init(I2C_HandleTypeDef i2c_handle)
+{
+    pot->i2c_handle = &i2c_handle;
+    pot->target_address = TARGET_ADDRESS;
+    pot->timeout_ms = 100;
 
-    uint8_t* buffer[BUFFER_SIZE];
-    // TODO: Fill buffer
+    return hw_i2c_is_target_ready(pot);
+}
 
-    hw_i2c_transmit(interface, buffer, BUFFER_SIZE);
+void io_i2c_set_wiper(uint8_t position)
+{
+    uint8_t* buffer[1];
+    buffer[0] = position;
+
+    hw_i2c_transmit(pot, buffer, sizeof(buffer));
 }
