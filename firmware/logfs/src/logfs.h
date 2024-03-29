@@ -17,17 +17,18 @@ extern "C"
 
     typedef enum
     {
-        LOGFS_ERR_OK           = 0,   // No error
-        LOGFS_ERR_IO           = -2,  // Error during I/O operation
-        LOGFS_ERR_CORRUPT      = -3,  // File system was corrupted (bad CRC)
-        LOGFS_ERR_INVALID_ARG  = -4,  // Invalid argument
-        LOGFS_ERR_INVALID_PATH = -5,  // Invalid path
-        LOGFS_ERR_UNMOUNTED    = -6,  // Filesystem hasn't been successfully mounted
-        LOGFS_ERR_NOMEM        = -7,  // Filesystem is full (no more memory)
-        LOGFS_ERR_NOT_OPEN     = -8,  // File hasn't been opened
-        LOGFS_ERR_RD_ONLY      = -9,  // File is read only, and a write was attempted
-        LOGFS_ERR_WR_ONLY      = -10, // File is write only, and a read was attempted
-        LOGFS_ERR_DNE          = -11, // File does not exist
+        LOGFS_ERR_OK            = 0,   // No error
+        LOGFS_ERR_IO            = -2,  // Error during I/O operation
+        LOGFS_ERR_CORRUPT       = -3,  // File system was corrupted (bad CRC)
+        LOGFS_ERR_INVALID_ARG   = -4,  // Invalid argument
+        LOGFS_ERR_INVALID_PATH  = -5,  // Invalid path
+        LOGFS_ERR_UNMOUNTED     = -6,  // Filesystem hasn't been successfully mounted
+        LOGFS_ERR_NOMEM         = -7,  // Filesystem is full (no more memory)
+        LOGFS_ERR_NOT_OPEN      = -8,  // File hasn't been opened
+        LOGFS_ERR_RD_ONLY       = -9,  // File is read only, and a write was attempted
+        LOGFS_ERR_WR_ONLY       = -10, // File is write only, and a read was attempted
+        LOGFS_ERR_DNE           = -11, // File does not exist
+        LOGFS_ERR_NO_MORE_FILES = -12, // Traversed all files on the filesystem
     } LogFsErr;
 
     typedef enum
@@ -172,19 +173,140 @@ extern "C"
         LogFsBlock_Data     *cache_data;     // Data block pointer to the filesystem cache (for convenience)
     } LogFs;
 
+    /**
+     * Mount the filesystem. Must be called before other filesystem operations can be used.
+     *
+     * @param fs Filesystem object.
+     * @param cfg Config object.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_mount(LogFs *fs, const LogFsCfg *cfg);
+
+    /**
+     * Format the filesystem. Will erase any data currently on the card. This does not mount the filesystem, call
+     * `logfs_mount` after to use the filesystem.
+     *
+     * @param fs Filesystem object.
+     * @param cfg Config object.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_format(LogFs *fs, const LogFsCfg *cfg);
 
+    /**
+     * Open a file for reading/writing.
+     *
+     * @param fs Filesystem object.
+     * @param file File handle, will represent an open file after (if successful).
+     * @param cfg Config on the file you're trying to open.
+     * @param flags Flags specifying how to open the file. See `LogFsOpenFlags` for options (can be ORed together).
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_open(LogFs *fs, LogFsFile *file, LogFsFileCfg *cfg, uint32_t flags);
+
+    /**
+     * Close a file. Syncs all cached data to the disk.
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to close.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_close(LogFs *fs, LogFsFile *file);
+
+    /**
+     * Syncs all cached data to the disk, for a specific file.
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to sync.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_sync(LogFs *fs, LogFsFile *file);
 
+    /**
+     * Write data to a file.
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to write to.
+     * @param buf Pointer to data buffer to write from.
+     * @param size Size of data to write, in bytes.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_write(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
+
+    /**
+     * Read data from a file.
+     *
+     * Reads can be performed either from the end of the file (read last N bytes) or iteratively
+     * (read next N bytes). Reading an entire file involves performing a single read from the end to reset the iterator,
+     * and then call iterative reads until the entire file is read (`*num_read` is zero, indicating no more data is
+     * left).
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to read from.
+     * @param buf Pointer to data buffer to read to.
+     * @param size Size of data to read, in bytes.
+     * @param flags One of `LogFsReadFlags`.
+     * @param num_read Pointer to a variable which will be populated with the number of read bytes, after a successful
+     * read.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_read(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, LogFsReadFlags flags, uint32_t *num_read);
+
+    /**
+     * Write data to the metadata section of a file.
+     *
+     * To support high-bandwidth logging, regular writes/reads are not
+     * safe, and there is no way to overwrite data. To get around these limitations, all files also provide a metadata
+     * section, which are safe and are written to from the start. However, they are only 1 block in size. If that
+     * doesn't work, use a different filesystem!
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to write to.
+     * @param buf Pointer to data buffer to write from.
+     * @param size Size of data to write, in bytes.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_writeMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size);
+
+    /**
+     * Read data from the metadata section of a file.
+     *
+     * To support high-bandwidth logging, regular writes/reads are not
+     * safe, and there is no way to overwrite data. To get around these limitations, all files also provide a metadata
+     * section, which are safe and are written to from the start. However, they are only 1 block in size. If that
+     * doesn't work, use a different filesystem!
+     *
+     * @param fs Filesystem object.
+     * @param file File handle to write to.
+     * @param buf Pointer to data buffer to read to.
+     * @param size Size of data to read, in bytes.
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_readMetadata(LogFs *fs, LogFsFile *file, void *buf, uint32_t size, uint32_t *num_read);
 
+    /**
+     * Get the path to the first file on the filesystem.
+     *
+     * Finding paths on the filesystem is done iteratively. Files are internally stored as a linked-list, so to list all
+     * files on the filesystem first call `logfs_firstPath` and call `logfs_nextPath` to traverse all files, until
+     * LOGFS_ERR_NO_MORE_FILES is returned.
+     *
+     * @param fs Filesystem object.
+     * @param path Filesystem path object, represents path to the next file after (if successful).
+     * @return LOGFS_ERR_OK if successful, or an error code.
+     */
     LogFsErr logfs_firstPath(LogFs *fs, LogFsPath *path);
+
+    /**
+     * Given a file path, get the path to the next file on the filesystem (the file after the one you pass in).
+     *
+     * Finding paths on the filesystem is done iteratively. Files are internally stored as a linked-list, so to list all
+     * files on the filesystem first call `logfs_firstPath` and call `logfs_nextPath` to traverse all files, until
+     * LOGFS_ERR_NO_MORE_FILES is returned.
+     *
+     * @param fs Filesystem object.
+     * @param path Filesystem path object, represents path to the next file (if successful).
+     * @return LOGFS_ERR_OK if successful, LOGFS_ERR_NO_MORE_FILES if traversed all files, or an error code.
+     */
     LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path);
 
 #ifdef __cplusplus

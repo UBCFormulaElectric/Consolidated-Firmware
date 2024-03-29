@@ -171,6 +171,7 @@ PYBIND11_MODULE(logfs_src, m)
         .value("RD_ONLY", LOGFS_ERR_RD_ONLY)
         .value("WR_ONLY", LOGFS_ERR_WR_ONLY)
         .value("DNE", LOGFS_ERR_DNE)
+        .value("NO_MORE_FILES", LOGFS_ERR_NO_MORE_FILES)
         .export_values();
 
 

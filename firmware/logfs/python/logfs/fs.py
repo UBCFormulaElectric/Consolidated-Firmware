@@ -209,7 +209,7 @@ class LogFs:
         # Iterate to find all files.
         while True:
             err, path, path_str = self.fs.next_path(path)
-            if err == LogFsErr.INVALID_PATH:
+            if err == LogFsErr.NO_MORE_FILES:
                 # Error code of invalid path indictes no more files.
                 break
 

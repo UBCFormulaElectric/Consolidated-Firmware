@@ -485,7 +485,7 @@ LogFsErr logfs_nextPath(LogFs *fs, LogFsPath *path)
     if (path->next_file_addr == LOGFS_INVALID_BLOCK)
     {
         // Reached end of files.
-        return LOGFS_ERR_INVALID_PATH;
+        return LOGFS_ERR_NO_MORE_FILES;
     }
 
     // Read the next file block and retrieve the path.
