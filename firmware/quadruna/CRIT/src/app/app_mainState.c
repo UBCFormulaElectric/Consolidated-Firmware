@@ -1,15 +1,10 @@
-#include <string.h>
 #include "app_mainState.h"
-#include <stdlib.h>
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
-#include "app_utils.h"
-#include "app_units.h"
 #include "app_globals.h"
 #include "io_led.h"
 #include "io_switch.h"
-#include "tasks.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
@@ -30,11 +25,11 @@ static void mainStateRunOnTick100Hz(void)
     io_led_enable(globals->config->start_led, start_switch_on);
 
     const bool regen_switch_on = io_switch_isClosed(globals->config->regen_switch);
-    app_canTx_CRIT_RegenSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->regen_led, regen_switch_on);
 
     const bool torquevec_switch_on = io_switch_isClosed(globals->config->torquevec_switch);
-    app_canTx_CRIT_TorqueVecSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->torquevec_led, torquevec_switch_on);
 
     typedef struct
@@ -70,7 +65,7 @@ static void mainStateRunOnTick100Hz(void)
         else
         {
             // Turn green.
-            io_rgbLed_enable(board_status_led, false, true, false);
+            io_rgbLed_enable(board_status_led, false, false, false);
         }
     }
 }
