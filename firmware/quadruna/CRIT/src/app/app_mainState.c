@@ -1,10 +1,15 @@
+#include <string.h>
 #include "app_mainState.h"
+#include <stdlib.h>
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "app_utils.h"
+#include "app_units.h"
 #include "app_globals.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "tasks.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
