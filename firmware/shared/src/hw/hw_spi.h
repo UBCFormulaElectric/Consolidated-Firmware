@@ -37,7 +37,7 @@ void hw_spi_setNssHigh(const SpiInterface *spi);
  * @return True if data is transmitted and received successfully. Else return
  * false.
  */
-bool hw_spi_transmitAndReceive(
+bool hw_spi_transmitThenReceive(
     const SpiInterface *spi,
     uint8_t            *tx_buffer,
     uint16_t            tx_buffer_size,
