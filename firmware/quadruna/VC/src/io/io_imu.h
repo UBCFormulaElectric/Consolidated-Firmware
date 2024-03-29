@@ -4,7 +4,6 @@
 
 /**
  * @brief initalizes the i2c interface
- * @param i2c the i2c handle
  */
 bool io_imu_init();
 
