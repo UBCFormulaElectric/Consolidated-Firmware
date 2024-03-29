@@ -149,6 +149,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
     )
 
     create_fake_library(
