@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hw_hal.h"
-
+#include <stdbool.h>
 /**
  * Initializes the i2c interface with the potentiometer.
  * @param i2c_handle I2c handler.
