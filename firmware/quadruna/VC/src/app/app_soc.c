@@ -9,7 +9,7 @@ static SocStats stats;
 #define SOC_TIMER_DURATION_MS (110U)
 #define MS_TO_S (0.001)
 
-void app_soc_init(void) 
+void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
 
@@ -25,24 +25,27 @@ void app_soc_update(void)
     float  *prev_current = &stats.prev_current_A;
     float   current      = io_currentSensing_getBatteryCurrent();
 
-    double elapsed_time_s = (double) app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
+    double elapsed_time_s = (double)app_timer_getElapsedTime(&stats.soc_timer) * MS_TO_S;
     app_timer_restart(&stats.soc_timer);
 
     // Trapezoidal Rule adds integral of current time-step to previous integral value.
     app_math_trapezoidalRule(charge_c, prev_current, current, elapsed_time_s);
 }
 
-float app_soc_getPercent() {
-    return (float) stats.charge_c / MAX_CHARGE_C * 100.0f;
+float app_soc_getPercent()
+{
+    return (float)stats.charge_c / MAX_CHARGE_C * 100.0f;
 }
 
-void app_soc_broadcast() {
+void app_soc_broadcast()
+{
     app_canTx_VC_Soc_set(app_soc_getPercent());
 }
 
-float app_soc_getChargeFromOcv(void) {
-    float battery_voltage = io_lowVoltageBattery_getBatVoltage();
-    uint8_t lut_index = 0;
+float app_soc_getChargeFromOcv(void)
+{
+    float   battery_voltage = io_lowVoltageBattery_getBatVoltage();
+    uint8_t lut_index       = 0;
 
     while ((battery_voltage > ocv_soc_lut[lut_index]) && (lut_index < OCV_SOC_LUT_SIZE))
     {
