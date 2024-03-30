@@ -98,16 +98,6 @@ void io_sbgEllipse_handleLogs(void);
 uint32_t io_sbgEllipse_getTimestampUs(void);
 
 /*
- * Get a last read output from the SBG Ellipse N sensor.
- * This is a single function to avoid faking a whole bunch of IO functions for each sensor output.
- * @param output Which sensor value to read
- * @return Last read sensor output, in the cooresponding units
- */
-float io_sbgEllipse_getSensorOutput();
-
-SensorData *io_sbgEllipse_getSensorData();
-
-/*
  * Get general status from the sensor.
  * @return Bitmask of faults, 1 indiciates a fault
  */
@@ -125,9 +115,51 @@ uint32_t io_sbgEllipse_getComStatus(void);
  */
 uint32_t io_sbgEllipse_getOverflowCount(void);
 
-// TODO: Write function descriptions
-Vector3         *io_sbgEllipse_getImuAccelerations();
-Attitude        *io_sbgEllipse_getImuAngularVelocities();
-Attitude        *io_sbgEllipse_getEulerAngles();
+/**
+ * Get the IMU accelerations as a struct pointer with fields:
+ * - float x: Forward acceleration in m/s^2
+ * - float y: Lateral acceleration in m/s^2
+ * - float z: Vertical acceleration in m/s^2
+ */
+Vector3 *io_sbgEllipse_getImuAccelerations();
+
+/*
+ * Get the IMU angular velocities as a struct pointer with fields:
+ * - float roll: Roll angular velocity in rad/s
+ * - float pitch: Pitch angular velocity in rad/s
+ * - float yaw: Yaw angular velocity in rad/s
+ */
+Attitude *io_sbgEllipse_getImuAngularVelocities();
+
+/*
+ * Get the Euler angles as a struct pointer with fields:
+ * - float roll: Roll angle in rad
+ * - float pitch: Pitch angle in rad
+ * - float yaw: Yaw angle in rad
+ */
+Attitude *io_sbgEllipse_getEulerAngles();
+
+/*
+ * Get the GPS velocity data as a struct pointer with fields:
+ * - SbgEComGpsVelStatus status: Status of the velocity data
+ * - float velocity_n: North velocity in m/s
+ * - float velocity_e: East velocity in m/s
+ * - float velocity_d: Down velocity in m/s
+ * - float velocity_accuracy_n: North velocity accuracy in m/s
+ * - float velocity_accuracy_e: East velocity accuracy in m/s
+ * - float velocity_accuracy_d: Down velocity accuracy in m/s
+ */
 GpsVelocityData *io_sbgEllipse_getGpsVelocityData();
+
+/*
+ * Get the GPS position data as a struct pointer with fields:
+ * - SbgEComGpsPosStatus status: Status of the position data
+ * - double latitude: Latitude in degrees
+ * - double longitude: Longitude in degrees
+ * - double altitude: Altitude in meters
+ * - float latitude_accuracy: Latitude accuracy in meters
+ * - float longitude_accuracy: Longitude accuracy in meters
+ * - float altitude_accuracy: Altitude accuracy in meters
+ *
+ */
 GpsPositionData *io_sbgEllipse_getGpsPositionData();
