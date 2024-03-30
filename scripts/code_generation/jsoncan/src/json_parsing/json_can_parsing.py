@@ -1,6 +1,7 @@
 """
 Module for parsing CAN JSON, and returning a CanDatabase object. 
 """
+
 import os
 from typing import Dict, Tuple
 import json
@@ -447,12 +448,12 @@ class JsonCanParser:
 
         if any(
             msg_id in {msg.id for msg in self._messages.values()}
-            for msg_id in (warnings_id, faults_id)
+            for msg_id in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
         ):
             conflicting_node = [
                 msg
                 for msg in self._messages.values()
-                for i in (warnings_id, faults_id)
+                for i in (warnings_id, faults_id, warnings_counts_id, faults_counts_id)
                 if msg.id == i
             ][0]
             raise InvalidCanJson(

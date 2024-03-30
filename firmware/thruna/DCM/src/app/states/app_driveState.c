@@ -14,6 +14,10 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define PEDAL_SCALE 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
+#define BUZZER_ON_DURATION_MS 2000
+
+static TimerChannel buzzer_timer;
+static bool         torque_vectoring_switch_is_on;
 
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
@@ -44,9 +48,10 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 static void driveStateRunOnEntry(void)
 {
     // Enable buzzer on transition to drive, and start 2s timer.
-    io_buzzer_enable(globals->config->buzzer, true);
+    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
+    io_buzzer_enable(true);
     app_canTx_DCM_BuzzerOn_set(true);
-    app_timer_restart(&globals->buzzer_timer);
+    app_timer_restart(&buzzer_timer);
 
     app_canTx_DCM_State_set(DCM_DRIVE_STATE);
 
@@ -58,9 +63,9 @@ static void driveStateRunOnEntry(void)
     app_canTx_DCM_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
 
     // Read torque vectoring switch only when entering drive state, not during driving
-    globals->torque_vectoring_switch_is_on = app_canRx_DIM_AuxSwitch_get() == SWITCH_ON;
+    torque_vectoring_switch_is_on = app_canRx_DIM_AuxSwitch_get() == SWITCH_ON;
 
-    if (globals->torque_vectoring_switch_is_on)
+    if (torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_init();
     }
@@ -77,9 +82,9 @@ static void driveStateRunOnTick100Hz(void)
     float      apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&globals->buzzer_timer) == TIMER_STATE_EXPIRED)
+    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
-        io_buzzer_enable(globals->config->buzzer, false);
+        io_buzzer_enable(false);
         app_canTx_DCM_BuzzerOn_set(false);
     }
 
@@ -102,7 +107,7 @@ static void driveStateRunOnTick100Hz(void)
     {
         app_regen_run(apps_pedal_percentage);
     }
-    else if (globals->torque_vectoring_switch_is_on)
+    else if (torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_run(apps_pedal_percentage);
     }
@@ -122,7 +127,7 @@ static void driveStateRunOnExit(void)
     app_canTx_DCM_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on exit drive.
-    io_buzzer_enable(globals->config->buzzer, false);
+    io_buzzer_enable(false);
     app_canTx_DCM_BuzzerOn_set(false);
 }
 

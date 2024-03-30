@@ -12,16 +12,19 @@
 #include "app_steering.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_loadCell.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
+#include "io_can.h"
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
 #include "io_brake.h"
 #include "io_suspension.h"
+#include "io_loadCell.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,10 +40,12 @@
 #include "shared.pb.h"
 #include "FSM.pb.h"
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern CAN_HandleTypeDef  hcan1;
-extern TIM_HandleTypeDef  htim12;
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim3;
+extern CAN_HandleTypeDef hcan1;
+extern TIM_HandleTypeDef htim12;
+
+const CanHandle           can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -63,7 +68,7 @@ const CanConfig can_config = {
 };
 
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
-static const Gpio      nchimera                = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
+static const Gpio      n_chimera_pin           = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
 static const BinaryLed led                     = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
 static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3V3_GPIO_Port,
                                                    .pin  = NBSPD_BRAKE_PRESSED_3V3_Pin };
@@ -71,7 +76,7 @@ static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Por
 static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
 
 const Gpio *id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                             [FSM_GpioNetName_NCHIMERA]                = &nchimera,
+                             [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
                              [FSM_GpioNetName_LED]                     = &led.gpio,
                              [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
                              [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
@@ -134,27 +139,28 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM reset!");
+}
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("FSM reset!");
-
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
 
     app_canTx_init();
     app_canRx_init();
@@ -198,6 +204,8 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
@@ -223,6 +231,8 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
@@ -254,6 +264,8 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         io_can_transmitMsgFromQueue();
@@ -262,6 +274,8 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     for (;;)
     {
         CanMsg rx_msg;
@@ -279,4 +293,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
 }

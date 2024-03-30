@@ -29,9 +29,9 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static CanHandle *handle;
+static const CanHandle *handle;
 
-void hw_can_init(CanHandle *can_handle)
+void hw_can_init(const CanHandle *can_handle)
 {
     handle = can_handle;
 
@@ -48,21 +48,22 @@ void hw_can_init(CanHandle *can_handle)
     filter.FilterBank           = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(handle, &filter) == HAL_OK);
+    assert(HAL_CAN_ConfigFilter(handle->can, &filter) == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
     assert(
         HAL_CAN_ActivateNotification(
-            handle, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
+            handle->can, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) ==
+        HAL_OK);
 
     // Start the CAN peripheral.
-    assert(HAL_CAN_Start(handle) == HAL_OK);
+    assert(HAL_CAN_Start(handle->can) == HAL_OK);
 }
 
 void hw_can_deinit()
 {
-    assert(HAL_CAN_Stop(handle) == HAL_OK);
-    assert(HAL_CAN_DeInit(handle) == HAL_OK);
+    assert(HAL_CAN_Stop(handle->can) == HAL_OK);
+    assert(HAL_CAN_DeInit(handle->can) == HAL_OK);
 }
 
 bool hw_can_transmit(const CanMsg *msg)
@@ -89,18 +90,18 @@ bool hw_can_transmit(const CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    while (HAL_CAN_GetTxMailboxesFreeLevel(handle) == 0U)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(handle->can) == 0U)
         ;
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return HAL_CAN_AddTxMessage(handle, &tx_header, msg->data, &mailbox) == HAL_OK;
+    return HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox) == HAL_OK;
 }
 
 bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 {
     CAN_RxHeaderTypeDef header;
-    if (HAL_CAN_GetRxMessage(handle, rx_fifo, &header, msg->data) != HAL_OK)
+    if (HAL_CAN_GetRxMessage(handle->can, rx_fifo, &header, msg->data) != HAL_OK)
     {
         return false;
     }
@@ -114,12 +115,24 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    // NOTE: All receive mailbox interrupts shall be handled in the same way.
-    io_can_msgReceivedCallback(CAN_RX_FIFO0);
+    CanMsg rx_msg;
+    if (!hw_can_receive(CAN_RX_FIFO0, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->can_msg_received_callback(&rx_msg);
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    // NOTE: All receive mailbox interrupts shall be handled in the same way.
-    io_can_msgReceivedCallback(CAN_RX_FIFO1);
+    CanMsg rx_msg;
+    if (!hw_can_receive(CAN_RX_FIFO1, &rx_msg))
+    {
+        // Early return if RX msg is unavailable.
+        return;
+    }
+
+    handle->can_msg_received_callback(&rx_msg);
 }

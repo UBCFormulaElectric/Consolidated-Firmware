@@ -59,4 +59,4 @@ void io_can_popRxMsgFromQueue(CanMsg *msg);
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param msg CAN msg to be populated by RXed msg.
  */
-void io_can_msgReceivedCallback(uint32_t rx_fifo);
+void io_can_msgReceivedCallback(CanMsg *rx_msg);
