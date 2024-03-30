@@ -126,6 +126,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     const FaultLatch           bspd_ok_latch      = {};
 
     // config for heartbeat monitor (can funcs and flags)
+    // BMS relies on RSM, VC
     bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
         [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
         [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
