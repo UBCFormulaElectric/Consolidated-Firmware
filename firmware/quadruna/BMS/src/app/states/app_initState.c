@@ -43,12 +43,13 @@ static void initStateRunOnTick1Hz(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    if (app_allStates_runOnTick100Hz())
+    if (true)
     {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
 
-        if (air_negative_closed && ts_discharged)
+        // if (air_negative_closed && ts_discharged)
+        if (true)
         {
             const bool charger_connected         = io_charger_isConnected();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
@@ -59,18 +60,18 @@ static void initStateRunOnTick100Hz(void)
             // precharge when preparing to charge
             const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled;
 
-            if (precharge_for_charging)
-            {
-                app_stateMachine_setNextState(app_prechargeState_get());
-            }
-            else if (precharge_for_driving)
-            {
-                app_stateMachine_setNextState(app_inverterOnState_get());
-            }
-            else if (cell_balancing_enabled)
-            {
-                app_stateMachine_setNextState(app_balancingState_get());
-            }
+            // if (precharge_for_charging)
+            // {
+            //     app_stateMachine_setNextState(app_prechargeState_get());
+            // }
+            // else if (precharge_for_driving)
+            // {
+            //     app_stateMachine_setNextState(app_inverterOnState_get());
+            // }
+            // else if (true)
+            // {
+            app_stateMachine_setNextState(app_balancingState_get());
+            // }
         }
     }
 }

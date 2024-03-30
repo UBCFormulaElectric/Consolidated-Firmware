@@ -81,3 +81,9 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  * @return Maximum cell voltage.
  */
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
+
+void app_accumulator_balanceCells(void);
+
+void app_accumulator_calculateCellsToBalance(void);
+
+void app_accumulator_disableBalance(void);
