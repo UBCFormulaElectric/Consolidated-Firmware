@@ -52,7 +52,7 @@ FDCAN_HandleTypeDef hfdcan1;
 
 I2C_HandleTypeDef hi2c1;
 
-SD_HandleTypeDef hsd1;
+SD_HandleTypeDef  hsd1;
 I2C_HandleTypeDef hi2c2;
 
 SD_HandleTypeDef hsd1;
