@@ -16,7 +16,7 @@
     "faults": [
         "MissingBMSHeartbeat",
         "MissingFSMHeartbeat",
-        "MissingPDMHeartbeat",
-        "MissingDCMHeartbeat"
+        "MissingRSMHeartbeat",
+        "MissingVCHeartbeat"
     ]
 }

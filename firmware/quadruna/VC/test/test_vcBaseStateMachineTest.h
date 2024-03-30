@@ -146,7 +146,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
         [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  =  app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
         [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get

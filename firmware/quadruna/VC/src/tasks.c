@@ -232,21 +232,19 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 
 // heartbeatGetters - get heartbeat signals from other boards
 bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                        [VC_HEARTBEAT_BOARD]   = NULL,
-                                                        [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                        [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                        [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                        [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
+                                                      [VC_HEARTBEAT_BOARD]   = NULL,
+                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                      [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
-};
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+                                                           [VC_HEARTBEAT_BOARD]   = NULL,
+                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
+                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
@@ -262,7 +260,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  =  app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
