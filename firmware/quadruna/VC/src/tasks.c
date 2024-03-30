@@ -26,6 +26,7 @@
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_canLogging.h"
+#include "io_fileSystem.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
 
@@ -347,6 +348,7 @@ void tasks_init(void)
     {
         Error_Handler();
     }
+    io_fileSystem_init();
     io_canLogging_init(&canLogging_config);
 
     if (!io_imu_init())

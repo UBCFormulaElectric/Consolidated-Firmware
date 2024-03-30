@@ -687,10 +687,10 @@ static void MX_I2C2_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    if (hw_gpio_readPin(&sd_present))
-    {
-        return;
-    }
+    // if (hw_gpio_readPin(&sd_present))
+    // {
+    //     return;
+    // }
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */

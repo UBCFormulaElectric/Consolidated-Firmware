@@ -33,8 +33,6 @@ static const osMessageQueueAttr_t queue_attr = {
 static void initLoggingFileSystem()
 {
     // early return
-
-    uint32_t bootcount = 0;
     current_bootcount  = io_fileSystem_getBootCount();
 
     // create new folder for this boot

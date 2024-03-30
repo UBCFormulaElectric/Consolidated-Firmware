@@ -7,17 +7,17 @@ char lfs_prog_buffer[IO_LFS_PROG_SIZE];
 
 extern Gpio sd_present;
 
-static bool sdCardReady()
-{
-    return !hw_gpio_readPin(&sd_present);
-}
+// static bool sdCardReady()
+// {
+//     return !hw_gpio_readPin(&sd_present);
+// }
 
 int io_lfsConfig_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
 {
-    if (!sdCardReady())
-    {
-        return LFS_ERR_IO;
-    }
+    // if (!sdCardReady())
+    // {
+    //     return LFS_ERR_IO;
+    // }
     if (hw_sd_readOffset(
             (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
     {
@@ -29,10 +29,10 @@ int io_lfsConfig_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t o
 
 int io_lfsConfig_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size)
 {
-    if (!sdCardReady())
-    {
-        return LFS_ERR_IO;
-    }
+    // if (!sdCardReady())
+    // {
+    //     return LFS_ERR_IO;
+    // }
     if (hw_sd_writeOffset(
             (uint8_t *)buffer, (uint32_t)block * IO_LFS_BLOCK_SIZE_FACTOR, (uint32_t)off, (uint32_t)size) != SD_CARD_OK)
     {
@@ -43,10 +43,10 @@ int io_lfsConfig_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t o
 
 int io_lfsConfig_erase(const struct lfs_config *c, lfs_block_t block)
 {
-    if (!sdCardReady())
-    {
-        return LFS_ERR_IO;
-    }
+    // if (!sdCardReady())
+    // {
+    //     return LFS_ERR_IO;
+    // }
     uint32_t start = block * IO_LFS_BLOCK_SIZE_FACTOR;
     if (hw_sd_erase(start, start + IO_LFS_BLOCK_SIZE_FACTOR - 1))
     {
@@ -57,10 +57,10 @@ int io_lfsConfig_erase(const struct lfs_config *c, lfs_block_t block)
 
 int io_lfsConfig_sync(const struct lfs_config *c)
 {
-    if (!sdCardReady())
-    {
-        return LFS_ERR_IO;
-    }
+    // if (!sdCardReady())
+    // {
+    //     return LFS_ERR_IO;
+    // }
     return 0;
 }
 
