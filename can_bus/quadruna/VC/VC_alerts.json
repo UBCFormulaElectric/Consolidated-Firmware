@@ -23,7 +23,7 @@
     "faults": [
         "MissingBMSHeartbeat",
         "MissingFSMHeartbeat",
-        "MissingDIMHeartbeat",
+        "MissingRSMHeartbeat",
         "MissingCRITHeartbeat",
         "LeftInverterFault",
         "RightInverterFault",

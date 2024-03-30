@@ -19,6 +19,7 @@
     ],
     "faults": [
         "FlowMeterUnderflow",
-        "MissingBMSHeartbeat"
+        "MissingBMSHeartbeat",
+        "MissingFSMHeartbeat"
     ]
 }
