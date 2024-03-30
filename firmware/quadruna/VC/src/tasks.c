@@ -25,6 +25,7 @@
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
+#include "io_canLogging.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
 
@@ -37,6 +38,8 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_sd.h"
+#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -49,6 +52,7 @@ extern UART_HandleTypeDef  huart3;
 
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -78,6 +82,18 @@ static const CanConfig can_config = {
     .rx_overflow_callback       = canRxQueueOverflowCallBack,
     .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
     .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
+};
+
+static const CanConfig canLogging_config = {
+    .rx_msg_filter        = io_canRx_filterMessageId,
+    .tx_overflow_callback = NULL,
+    .rx_overflow_callback = NULL,
+};
+
+static const CanConfig canLogging_config = {
+    .rx_msg_filter        = io_canRx_filterMessageId,
+    .tx_overflow_callback = NULL,
+    .rx_overflow_callback = NULL,
 };
 
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
@@ -306,6 +322,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
+    hw_sd_init(&sd);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -332,6 +349,7 @@ void tasks_init(void)
     {
         Error_Handler();
     }
+    io_canLogging_init(&canLogging_config);
 
     if (!io_imu_init())
     {

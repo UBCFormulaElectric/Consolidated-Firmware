@@ -7,7 +7,7 @@
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 // Private globals.
-static const CanConfig *config;
+static const CanConfig *config = NULL;
 #define QUEUE_SIZE 2048
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 #define PATH_LENGTH 10
@@ -17,10 +17,6 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 
 static uint32_t current_bootcount;
 static int      log_fd; // fd for the log file
-
-extern SdCard sd;
-extern Gpio   sd_present;
-extern bool   sd_inited;
 
 static char current_path[10];
 
@@ -37,10 +33,6 @@ static const osMessageQueueAttr_t queue_attr = {
 static void initLoggingFileSystem()
 {
     // early return
-    if (!sd_inited || hw_gpio_readPin(&sd_present))
-    {
-        return;
-    }
 
     uint32_t bootcount = 0;
     current_bootcount  = io_fileSystem_getBootCount();
@@ -76,10 +68,6 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 
 void io_canLogging_recordMsgFromQueue(void)
 {
-    // if (!sd_inited && hw_gpio_readPin(&sd_present))
-    // {
-    //     return;
-    // }
     CanMsg tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
