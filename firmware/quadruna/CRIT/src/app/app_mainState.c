@@ -70,7 +70,7 @@ static void mainStateRunOnTick100Hz(void)
         else
         {
             // Turn green.
-            io_rgbLed_enable(board_status_led, false, false, false);
+            io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
 }

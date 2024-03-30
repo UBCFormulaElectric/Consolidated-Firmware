@@ -29,6 +29,8 @@ typedef struct
     bool (*const rx_msg_filter)(uint32_t);        // Optional func to filter RX msgs by ID.
     void (*const tx_overflow_callback)(uint32_t); // Callback on TX queue overflow.
     void (*const rx_overflow_callback)(uint32_t); // Callback on RX queue overflow.
+    void (*const tx_overflow_clear_callback)();   // Callback on TX queue overflow clear.
+    void (*const rx_overflow_clear_callback)();   // Callback on RX queue overflow clear.
 } CanConfig;
 
 /**
