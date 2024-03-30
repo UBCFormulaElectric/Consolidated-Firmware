@@ -5,6 +5,6 @@
     </Connections>
     <Files>
         <File RelativePath="dbcs\CanMsgs.dbc"/>
-        <File RelativePath="quadruna.dbc" SelectedIDs="64;68;69;6A;6E;6F;70;78;79;7A;7B;82;83;84;85;8C;8D;8E;96;97;98;99;4C3;4B9;51D;1F6;1F7;1F9;1FA;1F4;1F5;226;227;2BD;2BE;2BF;2C0;333;320;321;352;353;12C;12D;12E;12F;130;131;132;133;134;18C;18D;18E;18F;0;1;2;5;6;7;9;A;B;C;21;22;32;33;34;37;38;39;3B;3C;3D;3E;53;54;191;196;197;198;199;1A3;1EA;1EB;1EC;1ED;C8;20;52;CA;DF;D1;C9;CB;DE;CC;D3;D4;D5;D6;D7;D8;D9;DA;DB;DC;DD;CD;CE;CF;D0;"/>
+        <File RelativePath="quadruna.dbc" />
     </Files>
 </PCANExplorerProject>
