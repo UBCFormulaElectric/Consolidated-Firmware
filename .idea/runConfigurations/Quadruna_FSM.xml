@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Quadruna FSM" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-device &quot;STM32F412RG&quot; -if swd -speed 4000 -port 8427 -nogui -singlerun" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="UBC Formula Electric Software" TARGET_NAME="quadruna_FSM.hex" CONFIG_NAME="embedded" version="1" RUN_PATH="$PROJECT_DIR$/build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM.hex">
     <custom-gdb-server version="1" gdb-connect="tcp::8427" executable="C:\Program Files\SEGGER\JLink_V796b\JLinkGDBServerCL.exe" warmup-ms="0" download-type="ALWAYS" reset-cmd="monitor reset" reset-type="BOTH_TIMES">
-      <debugger kind="GDB">C:\Users\jessi\Documents\School\fsae\Consolidated-Firmware\build_fw_deploy\_deps\gcc-arm-none-eabi-9-src\bin\arm-none-eabi-gdb.exe</debugger>
+      <debugger kind="GDB">$PROJECT_DIR$/build_fw_deploy/_deps/gcc-arm-none-eabi-9-src/bin/arm-none-eabi-gdb.exe</debugger>
     </custom-gdb-server>
     <method v="2">
       <option name="CLION.COMPOUND.BUILD" enabled="true" />
