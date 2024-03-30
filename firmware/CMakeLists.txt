@@ -79,7 +79,7 @@ if ("${TARGET}" STREQUAL "deploy")
 	add_subdirectory(chimera)
 endif ()
 
-add_subdirectory(thruna)
+#add_subdirectory(thruna)
 add_subdirectory(quadruna)
 
 add_subdirectory(dev)
