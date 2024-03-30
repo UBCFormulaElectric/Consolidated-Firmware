@@ -72,4 +72,8 @@ if("${TARGET}" STREQUAL "deploy")
     stm32f4_bootloader("thruna_FSM_boot" "FSM" "")
     stm32f4_bootloader("thruna_PDM_boot" "PDM" "${CMAKE_CURRENT_SOURCE_DIR}/bootloader_PDM.c")
     stm32f4_bootloader("thruna_DIM_boot" "DIM" "")
+
+    stm32f4_bootloader("quadruna_FSM_boot" "quadruna_FSM" "")
+    stm32f4_bootloader("quadruna_RSM_boot" "quadruna_RSM" "")
+    stm32f4_bootloader("quadruna_CRIT_boot" "quadruna_CRIT" "")
 endif()

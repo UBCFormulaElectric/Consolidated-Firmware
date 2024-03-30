@@ -70,6 +70,30 @@
 #define BOOT_GPIO_PIN GPIO_PIN_13
 #define BOOT_FDCAN1
 
+#elif defined(quadruna_FSM)
+
+#define START_UPDATE_ID 1220
+#define UPDATE_ACK_ID 1221
+#define STATUS_10HZ_ID 1229
+#define BOOT_GPIO_PORT GPIOA
+#define BOOT_GPIO_PIN GPIO_PIN_15
+
+#elif defined(quadruna_RSM)
+
+#define START_UPDATE_ID 1230
+#define UPDATE_ACK_ID 1231
+#define STATUS_10HZ_ID 1239
+#define BOOT_GPIO_PORT GPIOB
+#define BOOT_GPIO_PIN GPIO_PIN_12
+
+#elif defined(quadruna_CRIT)
+
+#define START_UPDATE_ID 1240
+#define UPDATE_ACK_ID 1241
+#define STATUS_10HZ_ID 1249
+#define BOOT_GPIO_PORT GPIOA
+#define BOOT_GPIO_PIN GPIO_PIN_9
+
 #elif defined(h7dev)
 
 #define START_UPDATE_ID 1300

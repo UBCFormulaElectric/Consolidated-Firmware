@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
@@ -33,7 +33,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
-    # "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
@@ -100,7 +100,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "quadruna_CRIT"
+        "quadruna_CRIT_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -108,16 +108,22 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     commit_info_library(
-        "quadruna_CRIT.elf"
+        "quadruna_CRIT_app.elf"
         "quadruna_CRIT_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
     target_link_libraries("quadruna_CRIT_can" "quadruna_CRIT_stm32cube")
-    target_link_libraries("quadruna_CRIT.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_can" "quadruna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quadruna_CRIT_app.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_can" "quadruna_CRIT_commit_info" "debug_modules")
 
-    # TODO: embedded_image for boot
+    embedded_image(
+        "quadruna_CRIT"
+        "quadruna_CRIT_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_app.hex"
+        "quadruna_CRIT_boot.hex"
+        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/quadruna_CRIT_boot.hex"
+    )
     
 elseif("${TARGET}" STREQUAL "test")
     # TODO: Set up tests
