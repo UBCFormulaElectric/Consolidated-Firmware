@@ -50,8 +50,9 @@ extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 
+static void can_msg_received_callback(CanMsg *rx_msg);
 // extern IWDG_HandleTypeDef  hiwdg1;
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = can_msg_received_callback };
 SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
@@ -491,6 +492,30 @@ _Noreturn void tasks_runCanRx(void)
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
+}
+
+void tasks_runLogging(void)
+{
+    static uint32_t count = 0;
+    for (;;)
+    {
+        io_canLogging_recordMsgFromQueue();
+        if (count > 256)
+        {
+            io_canLogging_sync();
+            count = 0;
+        }
+    }
+}
+
+static void can_msg_received_callback(CanMsg *rx_msg)
+{
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
+    io_can_msgReceivedCallback(rx_msg);
+    io_canLogging_msgReceivedCallback(rx_msg);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)

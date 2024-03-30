@@ -123,6 +123,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskLogging */
+osThreadId_t         TaskLoggingHandle;
+uint32_t             TaskLoggingBuffer[1024];
+osStaticThreadDef_t  TaskLoggingControlBlock;
+const osThreadAttr_t TaskLogging_attributes = {
+    .name       = "TaskLogging",
+    .cb_mem     = &TaskLoggingControlBlock,
+    .cb_size    = sizeof(TaskLoggingControlBlock),
+    .stack_mem  = &TaskLoggingBuffer[0],
+    .stack_size = sizeof(TaskLoggingBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -150,6 +162,7 @@ void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunTaskLogging(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -238,6 +251,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskLogging */
+    TaskLoggingHandle = osThreadNew(RunTaskLogging, NULL, &TaskLogging_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1123,6 +1139,21 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_StartTask06 */
+/**
+ * @brief Function implementing the TaskLogging thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTask06 */
+void RunTaskLogging(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLogging */
+    /* Infinite loop */
+    tasks_runLogging();
+    /* USER CODE END RunTaskLogging */
 }
 
 /**
