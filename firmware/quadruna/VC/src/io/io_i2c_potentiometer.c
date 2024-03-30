@@ -19,3 +19,10 @@ void io_i2c_setWiper(uint8_t position)
 
     hw_i2c_transmit(&pot, buffer, sizeof(buffer));
 }
+
+uint8_t io_i2c_readWiper()
+{
+    uint8_t buffer[1];
+    hw_i2c_receive(&pot, buffer, sizeof(buffer));
+    return buffer[0];
+}

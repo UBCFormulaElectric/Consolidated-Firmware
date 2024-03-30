@@ -13,3 +13,9 @@ bool io_i2c_potentiometerInit();
  * @param position Wiper position, 0 (min) to 127 (full).
  */
 void io_i2c_setWiper(uint8_t position);
+
+/**
+ * Reads the current state of the wiper.
+ * @return Current state of the wiper, 0 to 127.
+ */
+uint8_t io_i2c_readWiper();
