@@ -101,8 +101,8 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
-            "warnings": Or({str: Or({"id":int, "description":str},int,str)},{}),
-            "faults": Or({str: Or({"id":int, "description":str},int,str)},{}),
+            "warnings": Or({}, {str:Or({},{"id":int, "description":str})}),
+            "faults": Or({},{str: Or({},{"id":int, "description":str})}),
         },
         {},
     )

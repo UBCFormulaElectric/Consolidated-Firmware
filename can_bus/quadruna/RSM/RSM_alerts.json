@@ -3,23 +3,69 @@
     "faults_id": 491,
     "warnings_counts_id": 492,
     "faults_counts_id": 493,
-    "warnings": [
-        "TxOverflow",
-        "RxOverflow",
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "FlowRateOutOfRange",
-        "LeftSuspensionOCSC",
-        "RightSuspensionOCSC",
-        "LoadCell3OCSC",
-        "LoadCell4OCSC"
-    ],
-    "faults": [
-        "FlowMeterUnderflow",
-        "MissingBMSHeartbeat",
-        "MissingFSMHeartbeat"
-    ]
+    "warnings": {
+        "TxOverflowCount": {
+            "id" :401,
+            "description" : "Example"
+        },
+        "RxOverflowCount": {
+            "id" :402,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1Hz": {
+            "id" :403,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask100Hz": {
+            "id" :404,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1kHz": {
+            "id" :405,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id" :406,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanTx": {
+            "id" :407,
+            "description" : "Example"
+        },
+        "FlowRateOutOfRange": {
+            "id" :408,
+            "description" : "Example"
+        },
+        "LeftSuspensionOCSC": {
+            "id" :409,
+            "description" : "Example"
+        },
+        "RightSuspensionOCSC": {
+            "id" :410,
+            "description" : "Example"
+        },
+        "LoadCell3OCSC": {
+            "id" :411,
+            "description" : "Example"
+        },
+        "LoadCell4OCSC": {
+            "id" :412,
+            "description" : "Example"
+        }
+    },
+    "faults": {
+        "FlowMeterUnderflow": {
+            "id" :451,
+            "description" : "Example"
+        },
+        "MissingBMSHeartbeat": {
+            "id" :452,
+            "description" : "Example"
+        },
+        "MissingFSMHeartbeat": {
+            "id" :453,
+            "description" : "Example"
+        }
+        
+    }
 }

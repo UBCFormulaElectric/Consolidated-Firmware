@@ -22,6 +22,7 @@ typedef struct
 {
     char* description;
     char* name;
+    uint16_t id;
 } Fault_Warning_Info;
 
 /* ------------------------- Function Prototypes -------------------------- */

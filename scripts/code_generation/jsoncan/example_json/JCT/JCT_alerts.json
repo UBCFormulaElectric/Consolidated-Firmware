@@ -4,7 +4,10 @@
     "warnings_counts_id": 53,
     "faults_counts_id": 54,
     "warnings": {
-        "Warning_Test": "Example"
+        "Warning_Test": {
+            "description" : "Example",
+             "id" :2000
+        }
     },
     "faults": {
     }

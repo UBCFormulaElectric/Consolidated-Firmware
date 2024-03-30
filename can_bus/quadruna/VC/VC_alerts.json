@@ -3,38 +3,124 @@
     "faults_id": 206,
     "warnings_counts_id": 207,
     "faults_counts_id": 208,
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow",
-        "RegenNotAvailable",
-        "SbgRxOverflow",
-        "LEStop", 
-        "REStop",
-        "TSMS",
-        "PCMInterlock",
-        "SplitterBoxInterlock",
-        "ImuIo"
-    ],
-    "faults": [
-        "MissingBMSHeartbeat",
-        "MissingFSMHeartbeat",
-        "MissingRSMHeartbeat",
-        "MissingCRITHeartbeat",
-        "LeftInverterFault",
-        "RightInverterFault",
-        "BatteryFault",
-        "AccumulatorFault",
-        "LvChargeFault",
-        "BoostControllerFault",
-        "LEStopFault", 
-        "REStopFault",
-        "TSMSFault",
-        "PCMInterlockFault"
-    ]
+    "warnings": {
+        "StackWaterMarkHighTask1Hz":  {
+            "id" :501,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask100Hz":  {
+            "id" :502,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1kHz":  {
+            "id" :503,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanRx":  {
+            "id" :504,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanTx":  {
+            "id" :505,
+            "description" : "Example"
+        },
+        "WatchdogTimeout":  {
+            "id" :506,
+            "description" : "Example"
+        },
+        "TxOverflow":  {
+            "id" :507,
+            "description" : "Example"
+        },
+        "RxOverflow":  {
+            "id" :508,
+            "description" : "Example"
+        },
+        "RegenNotAvailable":  {
+            "id" :509,
+            "description" : "Example"
+        },
+        "SbgRxOverflow":  {
+            "id" :510,
+            "description" : "Example"
+        },
+        "LEStop":  {
+            "id" :511,
+            "description" : "Example"
+        },
+        "REStop":  {
+            "id" :512,
+            "description" : "Example"
+        },
+        "TSMS":  {
+            "id" :513,
+            "description" : "Example"
+        },
+        "PCMInterlock":  {
+            "id" :514,
+            "description" : "Example"
+        },
+        "SplitterBoxInterlock":  {
+            "id" :515,
+            "description" : "Example"
+        }
+    },
+    "faults": {
+        "MissingBMSHeartbeat":  {
+            "id" :551,
+            "description" : "Example"
+        },
+        "MissingFSMHeartbeat":  {
+            "id" :552,
+            "description" : "Example"
+        },
+        "MissingRSMHeartbeat":  {
+            "id" :553,
+            "description" : "Example"
+        },
+        "MissingCRITHeartbeat":  {
+            "id" :554,
+            "description" : "Example"
+        },
+        "LeftInverterFault":  {
+            "id" :555,
+            "description" : "Example"
+        },
+        "RightInverterFault":  {
+            "id" :556,
+            "description" : "Example"
+        },
+        "BatteryFault":  {
+            "id" :557,
+            "description" : "Example"
+        },
+        "AccumulatorFault":  {
+            "id" :558,
+            "description" : "Example"
+        },
+        "LvChargeFault":  {
+            "id" :559,
+            "description" : "Example"
+        },
+        "BoostControllerFault":  {
+            "id" :560,
+            "description" : "Example"
+        },
+        "LEStopFault":  {
+            "id" :561,
+            "description" : "Example"
+        },
+        "REStopFault":  {
+            "id" :562,
+            "description" : "Example"
+        },
+        "TSMSFault":  {
+            "id" :563,
+            "description" : "Example"
+        },
+        "PCMInterlockFault":  {
+            "id" :564,
+            "description" : "Example"
+        }
+    }
   }

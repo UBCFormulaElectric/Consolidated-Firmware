@@ -131,7 +131,13 @@ class AppCanAlertsModule(CModule):
                 
                 item = self._db.node_name_description(node, alert_type = alert_type)
                 
-                description = item[alert]
+                
+                if item[alert] == {} :
+                    id = 0
+                    description = ""
+                    
+                else:
+                    (id,description) = item[alert]
 
                 if node == self._node:
                     get_alert.body.start_if(
@@ -141,9 +147,10 @@ class AppCanAlertsModule(CModule):
                     get_alert.body.start_if(
                         f"{CFuncsConfig.APP_RX_GET_SIGNAL.format(signal=alert)}()"
                     )
-                    
+                 
                 get_alert.body.add_line(f'alert_array[element_num].name = "{alert}";')
                 get_alert.body.add_line(f'alert_array[element_num].description = "{description}";')
+                get_alert.body.add_line(f'alert_array[element_num].id = "{id}";')
                 get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()
@@ -242,6 +249,7 @@ class AppCanAlertsModule(CModule):
         fault_warining_struct = CStruct(CTypesConfig.CAN_ALERT_INFO)
         fault_warining_struct.add_member(CVar("description","char*"))
         fault_warining_struct.add_member(CVar("name", "char*"))
+        fault_warining_struct.add_member(CVar("id", "uint16_t"))
         
         cw.add_struct(fault_warining_struct)
         

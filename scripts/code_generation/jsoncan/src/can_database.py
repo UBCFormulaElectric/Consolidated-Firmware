@@ -254,20 +254,21 @@ class CanDatabase:
             else []
         )
         
-    def node_name_description(self, node: str, alert_type :CanAlert) -> Dict[str, str]:
+    def node_name_description(self, node: str, alert_type :CanAlert) -> Dict[str, tuple]:
         
-        "Returns a dictionary containing a the alert names as the key and a description as the item"
-        
-        return(
-            {
-                alert.name:
-                description
-                for alert, description in self.alerts[node].items()
-                if alert.alert_type == alert_type
-            }
-            if node in self.alerts
-            else {}
-        )
+        "Returns a dictionary containing a the alert names as the key and a description and as the item"
+    
+        new_dict = {}
+        if node not in  self.alerts:
+            return {};
+        for alert, info in self.alerts[node].items():
+            if alert.alert_type == alert_type and info != {}:
+                new_dict[alert.name] = (info["id"], info["description"])
+                
+            elif info == {}:
+                new_dict[alert.name] = {}
+        return new_dict
+                    
 
     def node_alerts_with_rx_check(
         self, tx_node: str, rx_node, alert_type: CanAlertType

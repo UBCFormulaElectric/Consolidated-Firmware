@@ -4,23 +4,23 @@
     "warnings_counts_id": 250,
     "faults_counts_id": 251,
     "warnings": {
-        "StackWaterMarkHighTask1Hz": "description",
-        "StackWaterMarkHighTask100Hz": "description",
-        "StackWaterMarkHighTask1kHz": "description",
-        "StackWaterMarkHighTaskCanRx": "description",
-        "StackWaterMarkHighTaskCanTx": "description",
-        "RegenNotAvailable" : "description",
-        "WatchdogTimeout": "description",
-        "TxOverflow": "description",
-        "RxOverflow": "description", 
-        "SbgRxOverflow" : "description"
+        "StackWaterMarkHighTask1Hz": {},
+        "StackWaterMarkHighTask100Hz": {},
+        "StackWaterMarkHighTask1kHz": {},
+        "StackWaterMarkHighTaskCanRx": {},
+        "StackWaterMarkHighTaskCanTx": {},
+        "RegenNotAvailable" : {},
+        "WatchdogTimeout": {},
+        "TxOverflow": {},
+        "RxOverflow": {}, 
+        "SbgRxOverflow" : {}
 
     },
     "faults": {
-        "MissingBMSHeartbeat":"description",
-        "MissingFSMHeartbeat":"description",
-        "MissingDIMHeartbeat":"description",
-        "LeftInverterFault":"description",
-        "RightInverterFault":"description"
+        "MissingBMSHeartbeat":{},
+        "MissingFSMHeartbeat":{},
+        "MissingDIMHeartbeat":{},
+        "LeftInverterFault":{},
+        "RightInverterFault":{}
     }
 }
