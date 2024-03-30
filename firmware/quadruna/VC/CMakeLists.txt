@@ -35,6 +35,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
@@ -81,6 +82,8 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_sd_ex.c"
         "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
+        "stm32h7xx_hal_i2c.c"
+        "stm32h7xx_hal_i2c_ex.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
