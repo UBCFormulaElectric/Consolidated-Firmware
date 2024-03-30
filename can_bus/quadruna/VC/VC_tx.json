@@ -717,5 +717,18 @@
                 "unit": "L/H"
             }
         }
+    },
+    "StateOfCharge": {
+        "msg_id": 226,
+        "cycle_time": 100,
+        "description": "SOC info for LV battery.",
+        "signals": {
+            "Soc": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
     }
 }

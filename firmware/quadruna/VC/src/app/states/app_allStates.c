@@ -17,6 +17,7 @@
 #include "io_time.h"
 #include "app_pumpControl.h"
 #include "io_imu.h"
+#include "app_soc.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -32,6 +33,9 @@ void app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
+
+    app_soc_update();
+    app_soc_broadcast();
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
     {

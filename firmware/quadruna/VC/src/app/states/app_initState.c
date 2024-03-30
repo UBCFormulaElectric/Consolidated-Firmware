@@ -11,6 +11,7 @@
 #include "app_canAlerts.h"
 #include "io_buzzer.h"
 #include "app_globals.h"
+#include "app_soc.h"
 #include "app_faultCheck.h"
 
 static void initStateRunOnEntry(void)
@@ -18,6 +19,7 @@ static void initStateRunOnEntry(void)
     app_allStates_runOnTick100Hz();
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
+
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -27,6 +29,8 @@ static void initStateRunOnEntry(void)
     // Disable buzzer on transition to init.
     io_buzzer_enable(false);
     app_canTx_VC_BuzzerOn_set(false);
+
+    app_soc_init();
 }
 
 static void initStateRunOnTick100Hz(void)
