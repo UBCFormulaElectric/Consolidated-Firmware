@@ -48,6 +48,15 @@
 #include "shared.pb.h"
 #include "BMS.pb.h"
 
+extern ADC_HandleTypeDef   hadc1;
+extern FDCAN_HandleTypeDef hfdcan1;
+// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
+extern SPI_HandleTypeDef  hspi2;
+extern TIM_HandleTypeDef  htim1;
+extern TIM_HandleTypeDef  htim3;
+extern TIM_HandleTypeDef  htim15;
+extern UART_HandleTypeDef huart1;
+
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_BMS_RxOverflowCount_set(overflow_count);
@@ -60,19 +69,22 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_BMS_Warning_TxOverflow_set(true);
 }
 
-extern ADC_HandleTypeDef   hadc1;
-extern FDCAN_HandleTypeDef hfdcan1;
-// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
-extern SPI_HandleTypeDef  hspi2;
-extern TIM_HandleTypeDef  htim1;
-extern TIM_HandleTypeDef  htim3;
-extern TIM_HandleTypeDef  htim15;
-extern UART_HandleTypeDef huart1;
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_BMS_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_BMS_Warning_RxOverflow_set(false);
+}
 
 static const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 // clang-format off

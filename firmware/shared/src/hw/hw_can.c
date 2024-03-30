@@ -94,8 +94,9 @@ bool hw_can_transmit(const CanMsg *msg)
         ;
 
     // Indicates the mailbox used for transmission, not currently used.
-    uint32_t mailbox = 0;
-    return HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox) == HAL_OK;
+    uint32_t                mailbox       = 0;
+    const HAL_StatusTypeDef return_status = HAL_CAN_AddTxMessage(handle->can, &tx_header, msg->data, &mailbox);
+    return return_status == HAL_OK;
 }
 
 bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)

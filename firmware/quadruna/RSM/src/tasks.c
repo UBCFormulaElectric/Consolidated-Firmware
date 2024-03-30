@@ -41,19 +41,31 @@ const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgRe
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_RxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_RxOverflowCount_set(true);
+    app_canAlerts_RSM_Warning_RxOverflow_set(true);
 }
 
 void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_TxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_TxOverflowCount_set(true);
+    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+}
+
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_RSM_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_RSM_Warning_RxOverflow_set(false);
 }
 
 const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 static const Gpio n_chimera_pin      = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
