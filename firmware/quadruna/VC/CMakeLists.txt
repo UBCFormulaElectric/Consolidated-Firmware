@@ -73,6 +73,8 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
         "stm32h7xx_hal.c"
+        "stm32h7xx_hal_i2c.c"
+        "stm32h7xx_hal_i2c_ex.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.

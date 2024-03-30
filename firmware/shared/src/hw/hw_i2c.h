@@ -7,10 +7,10 @@
  * @param i2c_handle The given I2C handler.
  * @param target_address The device's 7 bit address value in the datasheet.
  * @param timeout_ms Timout duration.
-*/
+ */
 typedef struct
 {
-    I2C_HandleTypeDef* i2c_handle;
+    I2C_HandleTypeDef *i2c_handle;
     uint16_t           target_address;
     uint32_t           timeout_ms;
 } I2cInterface;
