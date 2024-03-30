@@ -5,7 +5,7 @@
 #include "utils.h"
 #include <assert.h>
 
-static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
+inline static void logfs_init(LogFs *fs, const LogFsCfg *cfg)
 {
     assert(cfg->block_size > sizeof(LogFsBlock_File));
     assert(cfg->block_size > sizeof(LogFsBlock_Metadata));
@@ -28,7 +28,7 @@ static void inline logfs_init(LogFs *fs, const LogFsCfg *cfg)
     fs->cache_data     = fs->cfg->cache;
 }
 
-static void inline logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogFsOpenFlags flags)
+inline static void logfs_initFile(LogFsFile *file, const LogFsFileCfg *cfg, LogFsOpenFlags flags)
 {
     file->cache.cached_addr = LOGFS_INVALID_BLOCK;
     file->cache.buf         = cfg->cache;
