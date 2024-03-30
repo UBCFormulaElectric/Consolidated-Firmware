@@ -4,8 +4,6 @@
 #include "cmsis_os.h"
 #include "queue.h"
 
-#include <io_log.h>
-
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128
 #define RX_QUEUE_SIZE 128
