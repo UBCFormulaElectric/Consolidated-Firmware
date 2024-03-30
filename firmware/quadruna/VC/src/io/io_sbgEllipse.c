@@ -304,22 +304,27 @@ uint32_t io_sbgEllipse_getOverflowCount(void)
     return sbg_queue_overflow_count;
 }
 
-Vector3 *io_sbgEllipse_getImuAccelerations() { 
+Vector3 *io_sbgEllipse_getImuAccelerations()
+{
     return &sensor_data.imu_data.acceleration;
 }
 
-Attitude *io_sbgEllipse_getImuAngularVelocities() { 
+Attitude *io_sbgEllipse_getImuAngularVelocities()
+{
     return &sensor_data.imu_data.angular_velocity;
 }
 
-Attitude *io_sbgEllipse_getEulerAngles() { 
+Attitude *io_sbgEllipse_getEulerAngles()
+{
     return &sensor_data.euler_data.euler_angles;
 }
 
-GpsVelocityData *io_sbgEllipse_getGpsVelocityData() {
-    return &sensor_data.gps_dat.gps1_velocity;
+GpsVelocityData *io_sbgEllipse_getGpsVelocityData()
+{
+    return &sensor_data.gps_data.gps1_velocity;
 }
 
-GpsPositionData *io_sbgEllipse_getGpsVelocityData() {
-    return &sensor_data.gps_dat.gps1_position;
+GpsPositionData *io_sbgEllipse_getGpsPositionData()
+{
+    return &sensor_data.gps_data.gps1_position;
 }

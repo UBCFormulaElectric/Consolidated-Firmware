@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "sbgECom.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"
@@ -102,9 +103,9 @@ uint32_t io_sbgEllipse_getTimestampUs(void);
  * @param output Which sensor value to read
  * @return Last read sensor output, in the cooresponding units
  */
-float io_sbgEllipse_getSensorOutput(SbgEllipseOutput output);
+float io_sbgEllipse_getSensorOutput();
 
-SensorData *io_sbgEllipse_getSensorData(); 
+SensorData *io_sbgEllipse_getSensorData();
 
 /*
  * Get general status from the sensor.
@@ -125,8 +126,8 @@ uint32_t io_sbgEllipse_getComStatus(void);
 uint32_t io_sbgEllipse_getOverflowCount(void);
 
 // TODO: Write function descriptions
-Vector3 *io_sbgEllipse_getImuAcceleration();
-Attitude *io_sbgEllipse_getImuAngularVelocity();
-Attitude *io_sbgEllipse_getEulerAngles();
-GpsVelocityData *io_sbgEllipse_getGpsVelocity();
-GpsPositionData *io_sbgEllipse_getGpsVelocity();
+Vector3         *io_sbgEllipse_getImuAccelerations();
+Attitude        *io_sbgEllipse_getImuAngularVelocities();
+Attitude        *io_sbgEllipse_getEulerAngles();
+GpsVelocityData *io_sbgEllipse_getGpsVelocityData();
+GpsPositionData *io_sbgEllipse_getGpsPositionData();
