@@ -279,8 +279,6 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
 };
 
-static I2cInterface *imu;
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -323,8 +321,10 @@ void tasks_init(void)
         Error_Handler();
     }
 
-    io_imu_init();
-    io_imu_init_accelerometer();
+    if (!io_imu_init())
+    {
+        app_canAlerts_VC_Warning_ImuIo_set(true);
+    }
 
     app_canTx_init();
     app_canRx_init();
