@@ -26,31 +26,31 @@ typedef struct
 
 typedef struct
 {
-    SbgEComGpsPosStatus status;
-    double              latitude;
-    double              longitude;
-    double              altitude;
-    float               latitude_accuracy;
-    float               longitude_accuracy;
-    float               altitude_accuracy;
-} GpsPositionData;
+    uint32_t status;
+    double   latitude;
+    double   longitude;
+    double   altitude;
+    float    latitude_std_dev;
+    float    longitude_std_dev;
+    float    altitude_std_dev;
+} EkfNavPositionData;
 
 typedef struct
 {
-    SbgEComGpsVelStatus status;
-    float               velocity_n; // North
-    float               velocity_e; // East
-    float               velocity_d; // Down
-    float               velocity_accuracy_n;
-    float               velocity_accuracy_e;
-    float               velocity_accuracy_d;
-} GpsVelocityData;
+    uint32_t status;
+    float    north; // North
+    float    east;  // East
+    float    down;  // Down
+    float    north_std_dev;
+    float    east_std_dev;
+    float    down_std_dev;
+} EkfNavVelocityData;
 
 typedef struct
 {
-    GpsVelocityData gps1_velocity;
-    GpsPositionData gps1_position;
-} Gps1Data;
+    EkfNavVelocityData ekf_nav_velocity;
+    EkfNavPositionData ekf_nav_position;
+} EkfData;
 
 typedef struct
 {
@@ -75,7 +75,7 @@ typedef struct
     ImuPacketData    imu_data;
     EulerPacketData  euler_data;
     StatusPacketData status_data;
-    Gps1Data         gps_data;
+    EkfData          ekf_data;
 } SensorData;
 
 #ifdef TARGET_EMBEDDED
@@ -149,7 +149,7 @@ Attitude *io_sbgEllipse_getEulerAngles();
  * - float velocity_accuracy_e: East velocity accuracy in m/s
  * - float velocity_accuracy_d: Down velocity accuracy in m/s
  */
-GpsVelocityData *io_sbgEllipse_getGpsVelocityData();
+EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData();
 
 /*
  * Get the GPS position data as a struct pointer with fields:
@@ -162,4 +162,4 @@ GpsVelocityData *io_sbgEllipse_getGpsVelocityData();
  * - float altitude_accuracy: Altitude accuracy in meters
  *
  */
-GpsPositionData *io_sbgEllipse_getGpsPositionData();
+EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData();

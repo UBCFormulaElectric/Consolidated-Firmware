@@ -47,11 +47,10 @@ static SbgErrorCode io_sbgEllipse_logReceivedCallback(
     SbgEComMsgId            msg_id,
     const SbgBinaryLogData *log_data,
     void                   *user_arg);
-static void io_sbgEllipse_processMsg_imu(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_processMsg_gpsVel(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_processMsg_gpsPos(const SbgBinaryLogData *log_data);
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data);
 
 /* ------------------------- Static Function Definitions -------------------------- */
 /*
@@ -134,7 +133,7 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
         {
             case SBG_ECOM_LOG_IMU_DATA:
             {
-                io_sbgEllipse_processMsg_imu(log_data);
+                io_sbgEllipse_processMsg_Imu(log_data);
                 break;
             }
             case SBG_ECOM_LOG_EKF_EULER:
@@ -147,14 +146,9 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
                 io_sbgEllipse_processMsg_status(log_data);
                 break;
             }
-            case SBG_ECOM_LOG_GPS1_VEL:
+            case SBG_ECOM_LOG_EKF_NAV:
             {
-                io_sbgEllipse_processMsg_gpsVel(log_data);
-                break;
-            }
-            case SBG_ECOM_LOG_GPS1_POS:
-            {
-                io_sbgEllipse_processMsg_gpsPos(log_data);
+                io_sbgEllipse_processMsg_EkfNavVelandPos(log_data);
                 break;
             }
             default:
@@ -169,7 +163,7 @@ SbgErrorCode io_sbgEllipse_logReceivedCallback(
 /*
  * Process and save a new IMU data msg.
  */
-static void io_sbgEllipse_processMsg_imu(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data)
 {
     // Save acceleration, in m/s^2
     sensor_data.imu_data.acceleration.x = log_data->imuData.accelerometers[0];
@@ -204,40 +198,33 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
 }
 
 /*
- * Process and save a relevant GPS Velocity information.
+ * Process and save relevant EKF Navigation Velocity and Position information.
  */
-static void io_sbgEllipse_processMsg_gpsVel(const SbgBinaryLogData *log_data)
+static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
 {
-    sensor_data.gps_data.gps1_velocity.status = sbgEComLogGpsVelGetStatus(log_data->gpsVelData.status);
+    // TODO: uncomment after initial testing
+    // app_canAlerts_VC_Fault_WrongSBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
+    // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
     // velocity data in m/s
-    sensor_data.gps_data.gps1_velocity.velocity_n = log_data->gpsVelData.velocity[0];
-    sensor_data.gps_data.gps1_velocity.velocity_e = log_data->gpsVelData.velocity[1];
-    sensor_data.gps_data.gps1_velocity.velocity_d = log_data->gpsVelData.velocity[2];
+    sensor_data.ekf_data.ekf_nav_velocity.north = log_data->ekfNavData.velocity[0];
+    sensor_data.ekf_data.ekf_nav_velocity.east  = log_data->ekfNavData.velocity[1];
+    sensor_data.ekf_data.ekf_nav_velocity.down  = log_data->ekfNavData.velocity[2];
 
-    // velocity accuracy
-    sensor_data.gps_data.gps1_velocity.velocity_accuracy_n = log_data->gpsVelData.velocityAcc[0];
-    sensor_data.gps_data.gps1_velocity.velocity_accuracy_e = log_data->gpsVelData.velocityAcc[1];
-    sensor_data.gps_data.gps1_velocity.velocity_accuracy_d = log_data->gpsVelData.velocityAcc[2];
-}
+    // velocity standard dev
+    sensor_data.ekf_data.ekf_nav_velocity.north_std_dev = log_data->ekfNavData.velocityStdDev[0];
+    sensor_data.ekf_data.ekf_nav_velocity.east_std_dev  = log_data->ekfNavData.velocityStdDev[1];
+    sensor_data.ekf_data.ekf_nav_velocity.down_std_dev  = log_data->ekfNavData.velocityStdDev[2];
 
-/*
- * Process and save a relevant GPS Position information.
- */
-static void io_sbgEllipse_processMsg_gpsPos(const SbgBinaryLogData *log_data)
-{
-    // 0 means solution computed, 1-3 means an error occured (see binry log for more detail)
-    sensor_data.gps_data.gps1_position.status = sbgEComLogGpsPosGetStatus(log_data->gpsPosData.status);
+    // position data in m
+    sensor_data.ekf_data.ekf_nav_position.latitude  = log_data->ekfNavData.position[0];
+    sensor_data.ekf_data.ekf_nav_position.longitude = log_data->ekfNavData.position[1];
+    sensor_data.ekf_data.ekf_nav_position.altitude  = log_data->ekfNavData.position[2];
 
-    // lat and long measured in degrees, alt is measured in m
-    sensor_data.gps_data.gps1_position.altitude  = log_data->gpsPosData.altitude;
-    sensor_data.gps_data.gps1_position.latitude  = log_data->gpsPosData.latitude;
-    sensor_data.gps_data.gps1_position.longitude = log_data->gpsPosData.longitude;
-
-    // accuracy in m
-    sensor_data.gps_data.gps1_position.altitude_accuracy  = log_data->gpsPosData.altitudeAccuracy;
-    sensor_data.gps_data.gps1_position.latitude_accuracy  = log_data->gpsPosData.latitudeAccuracy;
-    sensor_data.gps_data.gps1_position.longitude_accuracy = log_data->gpsPosData.longitudeAccuracy;
+    // position standard dev
+    sensor_data.ekf_data.ekf_nav_position.altitude_std_dev  = log_data->ekfNavData.positionStdDev[0];
+    sensor_data.ekf_data.ekf_nav_position.latitude_std_dev  = log_data->ekfNavData.positionStdDev[1];
+    sensor_data.ekf_data.ekf_nav_position.longitude_std_dev = log_data->ekfNavData.positionStdDev[2];
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
@@ -319,12 +306,12 @@ Attitude *io_sbgEllipse_getEulerAngles()
     return &sensor_data.euler_data.euler_angles;
 }
 
-GpsVelocityData *io_sbgEllipse_getGpsVelocityData()
+EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData()
 {
-    return &sensor_data.gps_data.gps1_velocity;
+    return &sensor_data.ekf_data.ekf_nav_velocity;
 }
 
-GpsPositionData *io_sbgEllipse_getGpsPositionData()
+EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData()
 {
-    return &sensor_data.gps_data.gps1_position;
+    return &sensor_data.ekf_data.ekf_nav_position;
 }

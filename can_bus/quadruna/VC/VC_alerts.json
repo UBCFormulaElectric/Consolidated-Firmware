@@ -105,6 +105,10 @@
         "RightInverterFault": {
             "id": 556,
             "description": "Right inverter entered fault state."
-        }
+        },
+        "WrongSBGModeFault":  {
+            "id" :557,
+            "description" : "Example"
+        }  
     }
 }
