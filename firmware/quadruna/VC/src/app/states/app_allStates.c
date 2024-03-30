@@ -40,9 +40,9 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
 
-    app_canTx_VC_ImuLinearAccelX_set(io_imu_getLinearAccelerationX());
-    app_canTx_VC_ImuLinearAccelY_set(io_imu_getLinearAccelerationY());
-    app_canTx_VC_ImuLinearAccelZ_set(io_imu_getLinearAccelerationZ());
+    app_canTx_VC_ImuAccelerationX_set(io_imu_getLinearAccelerationX());
+    app_canTx_VC_ImuAccelerationY_set(io_imu_getLinearAccelerationY());
+    app_canTx_VC_ImuAccelerationZ_set(io_imu_getLinearAccelerationZ());
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
     {

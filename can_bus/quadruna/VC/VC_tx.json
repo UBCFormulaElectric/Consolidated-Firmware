@@ -685,19 +685,19 @@
         "cycle_time": 100,
         "description": "Linear acceleration in x, y and z direction from the IMU",
         "signals": {
-            "ImuLinearAccelX": {
+            "ImuAccelerationX": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 20,
                 "unit": "m/s"
             },
-            "ImuLinearAccelY": {
+            "ImuAccelerationY": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 20,
                 "unit": "m/s"
             },
-            "ImuLinearAccelZ": {
+            "ImuAccelerationZ": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 20,
