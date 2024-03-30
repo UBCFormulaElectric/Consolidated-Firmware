@@ -21,8 +21,8 @@ bool io_imu_init()
 
 bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
-    uint16_t x_data;
-    bool     is_read_successful = hw_i2c_memRead(&imu, 0x28, (uint8_t *)&x_data, 2);
+    uint8_t x_data[2];
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x28, x_data, 2);
 
     if (!is_read_successful)
     {
@@ -30,14 +30,15 @@ bool io_imu_getLinearAccelerationX(float *x_acceleration)
     }
 
     // Convert raw value to acceleration in m/s^2
-    *x_acceleration = x_data * SENSITIVITY * 9.81f / 1000.0f;
+    int16_t x_raw   = (int16_t)(x_data[1] << 8 | x_data[0]);
+    *x_acceleration = x_raw * SENSITIVITY * 9.81f / 1000.0f;
     return true;
 }
 
 bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
-    uint16_t y_data;
-    bool     is_read_successful = hw_i2c_memRead(&imu, 0x2A, (uint8_t *)&y_data, 2);
+    uint8_t y_data[2];
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2A, y_data, 2);
 
     if (!is_read_successful)
     {
@@ -45,14 +46,15 @@ bool io_imu_getLinearAccelerationY(float *y_acceleration)
     }
 
     // Convert raw value to acceleration in m/s^2
-    *y_acceleration = y_data * SENSITIVITY * 9.81f / 1000.0f;
+    int16_t y_raw   = (int16_t)(y_data[1] << 8 | y_data[0]);
+    *y_acceleration = y_raw * SENSITIVITY * 9.81f / 1000.0f;
     return true;
 }
 
 bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
-    uint16_t z_data;
-    bool     is_read_successful = hw_i2c_memRead(&imu, 0x2C, (uint8_t *)&z_data, 2);
+    uint8_t z_data[2];
+    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2C, z_data, 2);
 
     if (!is_read_successful)
     {
@@ -60,6 +62,7 @@ bool io_imu_getLinearAccelerationZ(float *z_acceleration)
     }
 
     // Convert raw value to acceleration in m/s^2 and subtract force of gravity
-    *z_acceleration = z_data * SENSITIVITY * 9.81f / 1000.0f - 9.81f;
+    int16_t z_raw   = (int16_t)(z_data[1] << 8 | z_data[0]);
+    *z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f - 9.81f;
     return true;
 }

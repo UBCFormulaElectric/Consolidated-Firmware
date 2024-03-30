@@ -40,22 +40,22 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
 
-    float *x_acceleration               = 0;
-    float *y_acceleration               = 0;
-    float *z_acceleration               = 0;
-    bool   successful_acceleration_read = io_imu_getLinearAccelerationX(x_acceleration) ||
-                                        io_imu_getLinearAccelerationY(y_acceleration) ||
-                                        io_imu_getLinearAccelerationZ(z_acceleration);
+    float x_acceleration;
+    float y_acceleration;
+    float z_acceleration;
+    bool  successful_read_x = io_imu_getLinearAccelerationX(&x_acceleration);
+    bool  successful_read_y = io_imu_getLinearAccelerationY(&y_acceleration);
+    bool  successful_read_z = io_imu_getLinearAccelerationZ(&z_acceleration);
 
-    if (!successful_acceleration_read)
+    if (!successful_read_x || !successful_read_y || !successful_read_z)
     {
         app_canAlerts_VC_Warning_ImuIo_set(true);
     }
     else
     {
-        app_canTx_VC_ImuAccelerationX_set(*x_acceleration);
-        app_canTx_VC_ImuAccelerationY_set(*y_acceleration);
-        app_canTx_VC_ImuAccelerationZ_set(*z_acceleration);
+        app_canTx_VC_ImuAccelerationX_set(x_acceleration);
+        app_canTx_VC_ImuAccelerationY_set(y_acceleration);
+        app_canTx_VC_ImuAccelerationZ_set(z_acceleration);
     }
 
     if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
