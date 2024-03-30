@@ -14,74 +14,6 @@
 #define UART_RX_PACKET_SIZE 128 // Size of each received UART packet, in bytes
 #define QUEUE_MAX_SIZE 4095     // 4kB
 
-/* ------------------------------------ Typedefs ------------------------------------- */
-
-typedef struct
-{
-    float x;
-    float y;
-    float z;
-} Vector3;
-
-typedef struct
-{
-    float roll;
-    float pitch;
-    float yaw;
-} Attitude;
-
-typedef struct
-{
-    SbgEComGpsPosStatus status;
-    double              latitude;
-    double              longitude;
-    double              altitude;
-    float               latitude_accuracy;
-    float               longitude_accuracy;
-    float               altitude_accuracy;
-} GpsPositionData;
-typedef struct
-{
-    SbgEComGpsVelStatus status;
-    float               velocity_n; // North
-    float               velocity_e; // East
-    float               velocity_d; // Down
-    float               velocity_accuracy_n;
-    float               velocity_accuracy_e;
-    float               velocity_accuracy_d;
-} GpsVelocityData;
-typedef struct
-{
-    GpsVelocityData gps1_velocity;
-    GpsPositionData gps1_position;
-} Gps1Data;
-
-typedef struct
-{
-    Vector3  acceleration;
-    Attitude angular_velocity;
-} ImuPacketData;
-
-typedef struct
-{
-    Attitude euler_angles;
-} EulerPacketData;
-
-typedef struct
-{
-    uint32_t timestamp_us;
-    uint16_t general_status;
-    uint32_t com_status;
-} StatusPacketData;
-
-typedef struct
-{
-    ImuPacketData    imu_data;
-    EulerPacketData  euler_data;
-    StatusPacketData status_data;
-    Gps1Data         gps_data;
-} SensorData;
-
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
@@ -105,37 +37,6 @@ static const osMessageQueueAttr_t sensor_rx_queue_attr = {
     .mq_size   = QUEUE_MAX_SIZE,
 };
 
-// Map each sensor output enum to a ptr to the actual value
-float *sensor_output_map[NUM_SBG_OUTPUTS] = {
-    [ELLIPSE_OUTPUT_ACCELERATION_X] = &sensor_data.imu_data.acceleration.x,
-    [ELLIPSE_OUTPUT_ACCELERATION_Y] = &sensor_data.imu_data.acceleration.y,
-    [ELLIPSE_OUTPUT_ACCELERATION_Z] = &sensor_data.imu_data.acceleration.z,
-
-    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_ROLL]  = &sensor_data.imu_data.angular_velocity.roll,
-    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_PITCH] = &sensor_data.imu_data.angular_velocity.pitch,
-    [ELLIPSE_OUTPUT_ANGULAR_VELOCITY_YAW]   = &sensor_data.imu_data.angular_velocity.yaw,
-
-    [ELLIPSE_OUTPUT_EULER_ROLL]  = &sensor_data.euler_data.euler_angles.roll,
-    [ELLIPSE_OUTPUT_EULER_PITCH] = &sensor_data.euler_data.euler_angles.pitch,
-    [ELLIPSE_OUTPUT_EULER_YAW]   = &sensor_data.euler_data.euler_angles.yaw,
-
-    [ELLIPSE_OUTPUT_GPS_POS_STATUS] = (float *)&sensor_data.gps_data.gps1_position.status,
-    [ELLIPSE_OUTPUT_GPS_LAT]        = (float *)&sensor_data.gps_data.gps1_position.latitude,
-    [ELLIPSE_OUTPUT_GPS_LAT_ACC]    = &sensor_data.gps_data.gps1_position.latitude_accuracy,
-    [ELLIPSE_OUTPUT_GPS_LONG]       = (float *)&sensor_data.gps_data.gps1_position.longitude,
-    [ELLIPSE_OUTPUT_GPS_LONG_ACC]   = &sensor_data.gps_data.gps1_position.longitude_accuracy,
-    [ELLIPSE_OUTPUT_GPS_ALT]        = (float *)&sensor_data.gps_data.gps1_position.altitude,
-    [ELLIPSE_OUTPUT_GPS_ALT_ACC]    = &sensor_data.gps_data.gps1_position.altitude_accuracy,
-
-    [ELLIPSE_OUTPUT_GPS_VEL_STATUS] = (float *)&sensor_data.gps_data.gps1_velocity.status,
-    [ELLIPSE_OUTPUT_GPS_VEL_N]      = &sensor_data.gps_data.gps1_velocity.velocity_n,
-    [ELLIPSE_OUTPUT_GPS_VEL_N_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_n,
-    [ELLIPSE_OUTPUT_GPS_VEL_E]      = &sensor_data.gps_data.gps1_velocity.velocity_e,
-    [ELLIPSE_OUTPUT_GPS_VEL_E_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_e,
-    [ELLIPSE_OUTPUT_GPS_VEL_D]      = &sensor_data.gps_data.gps1_velocity.velocity_d,
-    [ELLIPSE_OUTPUT_GPS_VEL_D_ACC]  = &sensor_data.gps_data.gps1_velocity.velocity_accuracy_d
-
-};
 /* ------------------------- Static Function Prototypes -------------------------- */
 
 static void         io_sbgEllipse_createSerialInterface(SbgInterface *interface);
@@ -401,4 +302,24 @@ uint32_t io_sbgEllipse_getComStatus(void)
 uint32_t io_sbgEllipse_getOverflowCount(void)
 {
     return sbg_queue_overflow_count;
+}
+
+Vector3 *io_sbgEllipse_getImuAccelerations() { 
+    return &sensor_data.imu_data.acceleration;
+}
+
+Attitude *io_sbgEllipse_getImuAngularVelocities() { 
+    return &sensor_data.imu_data.angular_velocity;
+}
+
+Attitude *io_sbgEllipse_getEulerAngles() { 
+    return &sensor_data.euler_data.euler_angles;
+}
+
+GpsVelocityData *io_sbgEllipse_getGpsVelocityData() {
+    return &sensor_data.gps_dat.gps1_velocity;
+}
+
+GpsPositionData *io_sbgEllipse_getGpsVelocityData() {
+    return &sensor_data.gps_dat.gps1_position;
 }
