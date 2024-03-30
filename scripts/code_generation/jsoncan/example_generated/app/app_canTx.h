@@ -69,7 +69,7 @@ void app_canTx_JCT_Voltage_set(float value);
 /**
  * Update value stored in TX table of signal JCT_UnsignedTester in msg JCT_Status.
  */
-void app_canTx_JCT_UnsignedTester_set(uint32_t value);
+void app_canTx_JCT_UnsignedTester_set(int value);
 
 /**
  * Update value stored in TX table of signal JCT_Warning_Warning_Test in msg JCT_Warnings.
@@ -134,7 +134,7 @@ float app_canTx_JCT_Voltage_get(void);
 /**
  * Return value from TX table of signal JCT_UnsignedTester in msg JCT_Status.
  */
-uint32_t app_canTx_JCT_UnsignedTester_get(void);
+int app_canTx_JCT_UnsignedTester_get(void);
 
 /**
  * Return value from TX table of signal JCT_Warning_Warning_Test in msg JCT_Warnings.

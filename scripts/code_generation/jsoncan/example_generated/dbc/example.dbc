@@ -135,7 +135,7 @@ BO_ 608 JCT_Status: 5 JCT
 SG_ JCT_ContactorsClosed : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ JCT_Current : 1|12@1+ (0.02442002442002442,0) [0|100] "A" DEBUG
 SG_ JCT_Voltage : 13|12@1+ (0.1221001221001221,0) [0|500] "V" DEBUG
-SG_ JCT_UnsignedTester : 25|12@1+ (1,0) [0|4095] "V" DEBUG
+SG_ JCT_UnsignedTester : 25|12@1- (1,0) [-2047|2046] "V" DEBUG
 
 BO_ 51 JCT_Warnings: 1 JCT
 SG_ JCT_Warning_Warning_Test : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM,FSM
