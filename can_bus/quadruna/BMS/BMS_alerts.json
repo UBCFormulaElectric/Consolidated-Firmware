@@ -14,9 +14,8 @@
         "RxOverflow"
     ],
     "faults": [
-        "MissingFSMHeartbeat",
-        "MissingDCMHeartbeat",
-        "MissingPDMHeartbeat",
+        "MissingVCHeartbeat",
+        "MissingRSMHeartbeat",
         "StateMachine",
         "CellUndervoltage",
         "CellOvervoltage",
