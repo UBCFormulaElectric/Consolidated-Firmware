@@ -4,6 +4,7 @@
 
 char lfs_read_buffer[IO_LFS_READ_SIZE];
 char lfs_prog_buffer[IO_LFS_PROG_SIZE];
+char lfs_lookahead_buffer[IO_LFS_LOOKAHEAD_SIZE];
 
 extern Gpio sd_present;
 
@@ -77,12 +78,13 @@ int io_lfsConfig(struct lfs_config *cfg)
     cfg->block_size     = IO_LFS_BLOCK_SIZE;
     cfg->lookahead_size = IO_LFS_LOOKAHEAD_SIZE;
     // cfg->block_count    = block_number / IO_LFS_BLOCK_SIZE_FACTOR;
-    cfg->block_count  = 1000000;
-    cfg->block_cycles = IO_LFS_BLOCK_CYCLES;
-    cfg->cache_size   = IO_LFS_CACHE_SIZE;
-    cfg->read_buffer  = lfs_read_buffer;
-    cfg->prog_buffer  = lfs_prog_buffer;
-    cfg->attr_max     = 0;
+    cfg->block_count      = 1000000;
+    cfg->block_cycles     = IO_LFS_BLOCK_CYCLES;
+    cfg->cache_size       = IO_LFS_CACHE_SIZE;
+    cfg->read_buffer      = lfs_read_buffer;
+    cfg->prog_buffer      = lfs_prog_buffer;
+    cfg->lookahead_buffer = lfs_lookahead_buffer;
+    // cfg->attr_max         = 0;
 
     return 0;
 }

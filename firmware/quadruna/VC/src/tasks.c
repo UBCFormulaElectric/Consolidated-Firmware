@@ -86,10 +86,24 @@ static const CanConfig can_config = {
     .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
+static bool dummyFilter(uint32_t msg_id)
+{
+    return true;
+}
+
+static uint32_t overflow_count = 0;
+static uint32_t read_count     = 0;
+static uint32_t write_count    = 0;
+
+static void dummyOverflow(uint32_t f)
+{
+    overflow_count++;
+}
+
 static const CanConfig canLogging_config = {
-    .rx_msg_filter              = io_canRx_filterMessageId,
-    .tx_overflow_callback       = NULL,
-    .rx_overflow_callback       = NULL,
+    .rx_msg_filter              = dummyFilter,
+    .tx_overflow_callback       = dummyOverflow,
+    .rx_overflow_callback       = dummyOverflow,
     .tx_overflow_clear_callback = NULL,
     .rx_overflow_clear_callback = NULL,
 
@@ -499,6 +513,8 @@ void tasks_runLogging(void)
     for (;;)
     {
         io_canLogging_recordMsgFromQueue();
+        count++;
+        write_count++;
         if (count > 256)
         {
             io_canLogging_sync();
@@ -512,6 +528,7 @@ static void can_msg_received_callback(CanMsg *rx_msg)
     // TODO: check gpio present
     io_can_msgReceivedCallback(rx_msg);        // push to queue
     io_canLogging_msgReceivedCallback(rx_msg); // push to logging queue
+    read_count++;
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
