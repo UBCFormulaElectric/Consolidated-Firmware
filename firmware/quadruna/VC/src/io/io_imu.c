@@ -1,6 +1,5 @@
 #include "io_imu.h"
 #include "hw_i2c.h"
-#include "app_canTx.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -17,60 +16,50 @@ bool io_imu_init()
         uint8_t buffer = 0x40; // turn on accelerometer to normal mode
         return hw_i2c_memWrite(&imu, 0x10, &buffer, 1);
     }
-
     return false;
 }
 
-float io_imu_getLinearAccelerationX()
+bool io_imu_getLinearAccelerationX(float *x_acceleration)
 {
-    uint8_t x_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x28, x_data, 2);
+    uint16_t x_data;
+    bool     is_read_successful = hw_i2c_memRead(&imu, 0x28, (uint8_t *)&x_data, 2);
 
     if (!is_read_successful)
     {
-        app_canTx_VC_Warning_ImuIo_set(true);
-        return 0;
+        return false;
     }
 
     // Convert raw value to acceleration in m/s^2
-    int16_t x_raw          = (int16_t)((int16_t)x_data[1] << 8 | x_data[0]);
-    float   x_acceleration = x_raw * SENSITIVITY * 9.81f / 1000.0f;
-
-    return x_acceleration;
+    *x_acceleration = x_data * SENSITIVITY * 9.81f / 1000.0f;
+    return true;
 }
 
-float io_imu_getLinearAccelerationY()
+bool io_imu_getLinearAccelerationY(float *y_acceleration)
 {
-    uint8_t y_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2A, y_data, 2);
+    uint16_t y_data;
+    bool     is_read_successful = hw_i2c_memRead(&imu, 0x2A, (uint8_t *)&y_data, 2);
 
     if (!is_read_successful)
     {
-        app_canTx_VC_Warning_ImuIo_set(true);
-        return 0;
+        return false;
     }
 
     // Convert raw value to acceleration in m/s^2
-    int16_t y_raw          = (int16_t)((int16_t)y_data[1] << 8 | y_data[0]);
-    float   y_acceleration = y_raw * SENSITIVITY * 9.81f / 1000.0f;
-
-    return y_acceleration;
+    *y_acceleration = y_data * SENSITIVITY * 9.81f / 1000.0f;
+    return true;
 }
 
-float io_imu_getLinearAccelerationZ()
+bool io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
-    uint8_t z_data[2];
-    bool    is_read_successful = hw_i2c_memRead(&imu, 0x2C, z_data, 2);
+    uint16_t z_data;
+    bool     is_read_successful = hw_i2c_memRead(&imu, 0x2C, (uint8_t *)&z_data, 2);
 
     if (!is_read_successful)
     {
-        app_canTx_VC_Warning_ImuIo_set(true);
-        return 0;
+        return false;
     }
 
     // Convert raw value to acceleration in m/s^2 and subtract force of gravity
-    int16_t z_raw          = (int16_t)(z_data[1] << 8 | z_data[0]);
-    float   z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f - 9.81f;
-
-    return z_acceleration;
+    *z_acceleration = z_data * SENSITIVITY * 9.81f / 1000.0f - 9.81f;
+    return true;
 }
