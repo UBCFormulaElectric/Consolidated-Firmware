@@ -9,12 +9,12 @@ static I2cInterface pot = {
     &hi2c1, TARGET_ADDRESS, 100
 };
 
-bool io_i2c_potentiometer_init()
+bool io_i2c_potentiometerInit()
 {
-    return hw_i2c_is_target_ready(&pot);
+    return hw_i2c_isTargetReady(&pot);
 }
 
-void io_i2c_set_wiper(uint8_t position)
+void io_i2c_setWiper(uint8_t position)
 {
     uint8_t buffer[1];
     buffer[0] = position;

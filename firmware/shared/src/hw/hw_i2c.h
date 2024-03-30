@@ -40,4 +40,4 @@ bool hw_i2c_receive(const I2cInterface *i2c, uint8_t *rx_buffer, uint16_t rx_buf
  * @param i2c The given I2C interface.
  * @return True if connected device is ready to communicate over I2C.
  */
-bool hw_i2c_is_target_ready(const I2cInterface *i2c);
+bool hw_i2c_isTargetReady(const I2cInterface *i2c);
