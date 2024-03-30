@@ -8,7 +8,6 @@
 #include "hw_gpio.h"
 #include "hw_adc.h"
 #include "hw_uart.h"
-// #include "hw_bootup.h"
 
 #include "io_jsoncan.h"
 #include "app_heartbeatMonitor.h"
@@ -40,6 +39,13 @@
 #include "hw_gpio.h"
 #include "hw_uart.h"
 
+extern ADC_HandleTypeDef  hadc1;
+extern TIM_HandleTypeDef  htim3;
+extern UART_HandleTypeDef huart2;
+extern CAN_HandleTypeDef  hcan1;
+
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
 void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
@@ -54,18 +60,21 @@ void canRxQueueOverflowCallback(uint32_t overflow_count)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
-extern CAN_HandleTypeDef  hcan1;
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_CRIT_Warning_TxOverflow_set(false);
+}
 
-static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_CRIT_Warning_RxOverflow_set(false);
+}
 
-static const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallback,
-    .rx_overflow_callback = canRxQueueOverflowCallback,
-};
+static const CanConfig can_config = { .rx_msg_filter              = io_canRx_filterMessageId,
+                                      .tx_overflow_callback       = canTxQueueOverflowCallback,
+                                      .rx_overflow_callback       = canRxQueueOverflowCallback,
+                                      .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+                                      .rx_overflow_clear_callback = canRxQueueOverflowClearCallback };
 
 static const BinaryLed imd_led       = { .gpio = {
                                              .port = IMD_R_GPIO_Port,
