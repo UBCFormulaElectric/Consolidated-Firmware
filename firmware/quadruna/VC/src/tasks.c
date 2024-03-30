@@ -86,15 +86,12 @@ static const CanConfig can_config = {
 };
 
 static const CanConfig canLogging_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = NULL,
-    .rx_overflow_callback = NULL,
-};
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = NULL,
+    .rx_overflow_callback       = NULL,
+    .tx_overflow_clear_callback = NULL,
+    .rx_overflow_clear_callback = NULL,
 
-static const CanConfig canLogging_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = NULL,
-    .rx_overflow_callback = NULL,
 };
 
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
