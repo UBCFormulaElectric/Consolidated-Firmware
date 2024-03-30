@@ -50,8 +50,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_FSM_can"
+    jsoncan_sources(
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
@@ -122,8 +121,7 @@ if("${TARGET}" STREQUAL "deploy")
     # TODO: embedded_image for boot
     
 elseif("${TARGET}" STREQUAL "test")
-    jsoncan_library(
-        "quadruna_FSM_can"
+    jsoncan_sources(
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE

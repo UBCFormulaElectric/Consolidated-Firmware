@@ -49,8 +49,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_CRIT_can"
+    jsoncan_sources(
         "CRIT"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
