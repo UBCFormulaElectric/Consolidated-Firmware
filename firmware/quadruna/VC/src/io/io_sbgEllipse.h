@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "sbgECom.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"

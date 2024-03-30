@@ -203,7 +203,7 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
 static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
 {
     // TODO: uncomment after initial testing
-    // app_canAlerts_VC_Fault_WrongSBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
+    // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
     // velocity data in m/s
