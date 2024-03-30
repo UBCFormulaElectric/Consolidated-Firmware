@@ -70,8 +70,8 @@ class PyLogFs
     {
         // Allocate file cache on the heap.
         LogFsFileCfg file_cfg = {
-            .cache = malloc(cfg.block_size),
             .path  = path,
+            .cache = malloc(cfg.block_size),
         };
         return logfs_open(&fs, &file.file, &file_cfg, flags);
     }
