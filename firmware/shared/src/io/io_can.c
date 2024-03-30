@@ -41,11 +41,6 @@ void io_can_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
     config = can_config;
-    assert(config->rx_msg_filter != NULL);
-    assert(config->rx_overflow_callback != NULL);
-    assert(config->rx_overflow_clear_callback != NULL);
-    assert(config->tx_overflow_callback != NULL);
-    assert(config->tx_overflow_clear_callback != NULL);
 
     // Initialize CAN queues.
     tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
@@ -60,11 +55,11 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
     if (s != osOK)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        config->tx_overflow_callback(++tx_overflow_count);
+        if(config->tx_overflow_callback) config->tx_overflow_callback(++tx_overflow_count);
     }
     else
     {
-        config->tx_overflow_clear_callback();
+        if(config->tx_overflow_clear_callback) config->tx_overflow_clear_callback();
     }
 }
 
@@ -99,10 +94,10 @@ void io_can_msgReceivedCallback(CanMsg *rx_msg)
     if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        config->rx_overflow_callback(++rx_overflow_count);
+        if(config->rx_overflow_callback != NULL) config->rx_overflow_callback(++rx_overflow_count);
     }
     else
     {
-        config->rx_overflow_clear_callback();
+        if(config->rx_overflow_clear_callback != NULL) config->rx_overflow_clear_callback();
     }
 }
