@@ -1,6 +1,6 @@
 {
     "messages": [
-        "FSM_Vitals",
+        "RSM_Vitals",
         "VC_Vitals",
         "Debug_Charging",
         "Debug_CanMode",
