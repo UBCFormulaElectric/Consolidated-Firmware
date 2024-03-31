@@ -3,7 +3,6 @@ ARG IMAGE_ARCH=arm64
 ARG GPU=-vivante
 
 FROM --platform=linux/${IMAGE_ARCH} torizon/qt6-wayland${GPU}:${BASE_VERSION}
-
 ARG IMAGE_ARCH
 ARG GPU
 
@@ -35,6 +34,7 @@ RUN apt-get -q -y update && \
 RUN apt-get -q -y update && \
     apt-get -q -y install \
     file \
+    gpiod \
     curl \
     qt6-base-private-dev \
     qt6-base-dev \
@@ -49,11 +49,15 @@ RUN apt-get -q -y update && \
     qml6-module-qtquick-window \
     qml6-module-qtquick-controls \
     qml6-module-qtquick-layouts \
-    qml6-module-qtwayland-compositor \
     qml6-module-qtquick-templates \
+    qml6-module-qtwayland-compositor \
+    libqt6opengl6 \
     libqt6svg6 \
     libqt6svg6-dev \
-    gpiod \
+    libqt6core5compat6 \
+    libqt6core5compat6-dev \
+    qml6-module-qt5compat-graphicaleffects \
+    qml6-module-qtquick-shapes \
     && \
     apt-get clean && apt-get autoremove && \
     rm -rf /var/lib/apt/lists/*
