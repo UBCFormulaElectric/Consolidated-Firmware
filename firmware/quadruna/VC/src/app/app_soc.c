@@ -44,32 +44,35 @@ float app_soc_getChargeFromOcv(void)
     float battery_ocv = io_lowVoltageBattery_getBatVoltage();
 
     // identify between which two anchor points our battery voltage lies
-    int i = 0;
+    int   i          = 0;
     float ocv_anchor = ocv_charge_spline_anchors[i][0];
 
-    while (ocv_anchor < battery_ocv) {
+    while (ocv_anchor < battery_ocv)
+    {
         i += 1;
         ocv_anchor = ocv_charge_spline_anchors[i][0];
     }
 
-    int left_anchor_index = i - 1;
+    int left_anchor_index  = i - 1;
     int right_anchor_index = i;
 
     // if voltage lower than minimum anchor, assume data extends first sector
-    if (left_anchor_index == -1) {
-        left_anchor_index = 0;
+    if (left_anchor_index == -1)
+    {
+        left_anchor_index  = 0;
         right_anchor_index = 1;
     }
 
     // if voltage higher than maximum anchor, assume data extends last sector
-    if (right_anchor_index == OCV_CHARGE_SPLINE_ANCHORS_SIZE) {
-        left_anchor_index = OCV_CHARGE_SPLINE_ANCHORS_SIZE - 2;
+    if (right_anchor_index == OCV_CHARGE_SPLINE_ANCHORS_SIZE)
+    {
+        left_anchor_index  = OCV_CHARGE_SPLINE_ANCHORS_SIZE - 2;
         right_anchor_index = OCV_CHARGE_SPLINE_ANCHORS_SIZE - 1;
     }
 
-    float left_ocv_anchor = ocv_charge_spline_anchors[left_anchor_index][0];
-    float left_charge_anchor = ocv_charge_spline_anchors[left_anchor_index][1];
-    float right_ocv_anchor = ocv_charge_spline_anchors[right_anchor_index][0];
+    float left_ocv_anchor     = ocv_charge_spline_anchors[left_anchor_index][0];
+    float left_charge_anchor  = ocv_charge_spline_anchors[left_anchor_index][1];
+    float right_ocv_anchor    = ocv_charge_spline_anchors[right_anchor_index][0];
     float right_charge_anchor = ocv_charge_spline_anchors[right_anchor_index][1];
 
     // compute slope in sector
