@@ -282,5 +282,6 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
+          pip3 install pybind11
           cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
           make --directory=$BUILD_DIR -j`nproc` install_python_logfs
