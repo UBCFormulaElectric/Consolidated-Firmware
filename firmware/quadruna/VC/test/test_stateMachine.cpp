@@ -129,7 +129,7 @@ TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_init_stat
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     LetTimePass(10);
 
-    ASSERT_EQ(VC_INIT_STATE, app_canTx_VC_State_get());
+    ASSERT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
 }
 
 TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)

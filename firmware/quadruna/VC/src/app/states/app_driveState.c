@@ -8,6 +8,7 @@
 #include "app_powerManager.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
+#include "states/app_inverterOnState.h"
 #include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
@@ -120,7 +121,7 @@ static void driveStateRunOnTick100Hz(void)
     }
     else if (exit_drive_to_inverterOn)
     {
-        app_stateMachine_setNextState(app_inverterOn_get());
+        app_stateMachine_setNextState(app_inverterOnState_get());
         return;
     }
 
