@@ -29,6 +29,8 @@ static void inverterOnStateRunOnTick100Hz(void)
     prev_start_switch_pos                 = curr_start_switch_pos;
     const bool is_brake_actuated          = app_canRx_FSM_BrakeActuated_get();
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool bms_in_inverterOn_state    = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE;
+    const bool bms_in_precharge_state     = app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
@@ -39,8 +41,7 @@ static void inverterOnStateRunOnTick100Hz(void)
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
         app_stateMachine_setNextState(app_driveState_get());
     }
-
-    else if (!all_states_ok)
+    else if (!all_states_ok || (!bms_in_drive_state && !bms_in_inverterOn_state && !bms_in_precharge_state))
     {
         app_stateMachine_setNextState(app_initState_get());
     }

@@ -84,6 +84,13 @@ TEST_F(VCStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
 }
 
+TEST_F(VCStateMachineTest, check_inverterOn_state_is_broadcasted_over_can)
+{
+    SetInitialState(app_inverterOnState_get());
+
+    EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
+}
+
 TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
 {
     SetInitialState(app_initState_get());

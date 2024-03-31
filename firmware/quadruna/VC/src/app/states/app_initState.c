@@ -39,7 +39,7 @@ static void initStateRunOnTick100Hz(void)
                                          app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                          app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (is_inverter_on_or_drive_state)
+    if (is_inverter_on_or_drive_state && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }

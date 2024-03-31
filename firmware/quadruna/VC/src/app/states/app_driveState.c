@@ -90,11 +90,12 @@ static void driveStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive            = !all_states_ok || bms_not_in_drive || start_switch_off;
-    bool       regen_switch_enabled  = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
-    float      apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    const bool start_switch_off         = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive         = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init       = !all_states_ok;
+    bool       exit_drive_to_inverterOn = bms_not_in_drive || start_switch_off;
+    bool       regen_switch_enabled     = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
+    float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
@@ -113,9 +114,13 @@ static void driveStateRunOnTick100Hz(void)
                                     : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
-    if (exit_drive)
+    if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());
+    }
+    else if (exit_drive_to_inverterOn)
+    {
+        app_stateMachine_setNextState(app_inverterOn_get());
         return;
     }
 
