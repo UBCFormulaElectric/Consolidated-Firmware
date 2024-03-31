@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hw_hal.h"
 #include <stdbool.h>
+#include <stdint.h>
 /**
  * Initializes the i2c interface with the potentiometer.
  * @return True if i2c potentiometer is ready, else false.

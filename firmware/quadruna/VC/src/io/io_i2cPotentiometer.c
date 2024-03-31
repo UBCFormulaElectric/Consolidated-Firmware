@@ -1,5 +1,6 @@
 #include "io_i2cPotentiometer.h"
 #include "hw_i2c.h"
+#include "hw_hal.h"
 
 const uint8_t TARGET_ADDRESS = 0x2F;
 
