@@ -22,15 +22,12 @@ elseif("${TARGET}" STREQUAL "test")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
     # Create pybind11 module.
-    pybind11_add_module(
-        logfs_src
+    add_library(
+        logfs_src STATIC
         ${LOGFS_SRCS} 
-        "${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp"
     )
     target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
-    set_target_properties(logfs_src PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
-    )
+    set_target_properties(logfs_src PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python")
     target_compile_options(logfs_src PRIVATE 
         -O3
         -Wall
@@ -41,7 +38,6 @@ elseif("${TARGET}" STREQUAL "test")
 
     # Invoke setuptools to install the Python library.
     add_custom_target(install_python_logfs
-        COMMAND ${PYTHON_COMMAND} -m pip install .
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python"
+        COMMAND ${PYTHON_COMMAND} -m pip install "${CMAKE_CURRENT_SOURCE_DIR}/python"
         DEPENDS logfs_src)
 endif()

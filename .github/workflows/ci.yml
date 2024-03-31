@@ -255,3 +255,32 @@ jobs:
       - name: Run tests
         run: |
           cd $BUILD_DIR/scripts/code_generation/fakegen
+  
+  test-logfs:
+    name: Test logfs
+    runs-on: ubuntu-22.04
+    needs: [ clang-format ]
+    container:
+      image: ubcformulaelectric/environment:latest
+      credentials:
+        username: ubcformulaelectric
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    env:
+      BUILD_DIR: build_fw_test
+
+    steps:
+      # Fix to ensure that commands like git status work in child directories
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and install `logfs`
+        run: |
+          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
+          make --directory=$BUILD_DIR -j`nproc` install_python_logfs
