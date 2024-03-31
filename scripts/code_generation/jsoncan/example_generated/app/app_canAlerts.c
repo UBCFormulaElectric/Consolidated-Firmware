@@ -12,6 +12,7 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 
+
 void app_canAlerts_JCT_Warning_Warning_Test_set(bool set_alert)
 {
     // Increment alert counter.
@@ -112,5 +113,53 @@ bool app_canAlerts_AnyBoardHasFault()
     }
     
     return false;
+}
+
+uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    
+    if (app_canRx_FSM_Warning_Warning_Test1_get())
+    {
+        alert_array[element_num].name = "FSM_Warning_Warning_Test1";
+        alert_array[element_num].description = "Example";
+        alert_array[element_num].id = "1000";
+        element_num++;
+    }
+    
+    if (app_canRx_FSM_Warning_Warning_Test2_get())
+    {
+        alert_array[element_num].name = "FSM_Warning_Warning_Test2";
+        alert_array[element_num].description = "Example";
+        alert_array[element_num].id = "21000";
+        element_num++;
+    }
+    
+    if (app_canTx_JCT_Warning_Warning_Test_get())
+    {
+        alert_array[element_num].name = "JCT_Warning_Warning_Test";
+        alert_array[element_num].description = "Example";
+        alert_array[element_num].id = "2000";
+        element_num++;
+    }
+    
+    return element_num;
+    
+}
+
+uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    
+    if (app_canRx_FSM_Fault_Fault_Test3_get())
+    {
+        alert_array[element_num].name = "FSM_Fault_Fault_Test3";
+        alert_array[element_num].description = "";
+        alert_array[element_num].id = "0";
+        element_num++;
+    }
+    
+    return element_num;
+    
 }
 

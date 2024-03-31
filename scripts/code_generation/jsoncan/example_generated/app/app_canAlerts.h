@@ -17,17 +17,13 @@ typedef enum
     FSM_ALERT_BOARD = 0,
     JCT_ALERT_BOARD = 1,
 } CanAlertBoard;
-typedef enum
-{
-    JCT_Warning_Warning_Test = 0,
-    NUM_JCT_WARNINGS = 1,
-} JCT_WarningId;
 
-typedef enum
+typedef struct
 {
-    NUM_JCT_FAULTS = 0,
-} JCT_FaultId;
-
+    char* description;
+    char* name;
+    uint16_t id;
+} Fault_Warning_Info;
 
 /* ------------------------- Function Prototypes -------------------------- */
 
@@ -60,4 +56,14 @@ bool app_canAlerts_AnyBoardHasWarning(void);
  * Return whether or not any board has set a fault.
  */
 bool app_canAlerts_AnyBoardHasFault(void);
+
+/**
+ * Return whether or not a board has set a warning.
+ */
+uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array);
+
+/**
+ * Return whether or not a board has set a fault.
+ */
+uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array);
 
