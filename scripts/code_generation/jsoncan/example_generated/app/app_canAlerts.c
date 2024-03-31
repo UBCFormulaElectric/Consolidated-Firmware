@@ -123,7 +123,7 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
     {
         alert_array[element_num].name = "FSM_Warning_Warning_Test1";
         alert_array[element_num].description = "Example";
-        alert_array[element_num].id = "1000";
+        alert_array[element_num].id = 1000;
         element_num++;
     }
     
@@ -131,7 +131,7 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
     {
         alert_array[element_num].name = "FSM_Warning_Warning_Test2";
         alert_array[element_num].description = "Example";
-        alert_array[element_num].id = "21000";
+        alert_array[element_num].id = 21000;
         element_num++;
     }
     
@@ -139,7 +139,7 @@ uint8_t app_canAlerts_WarningInfo(Fault_Warning_Info *alert_array)
     {
         alert_array[element_num].name = "JCT_Warning_Warning_Test";
         alert_array[element_num].description = "Example";
-        alert_array[element_num].id = "2000";
+        alert_array[element_num].id = 2000;
         element_num++;
     }
     
@@ -155,7 +155,7 @@ uint8_t app_canAlerts_FaultInfo(Fault_Warning_Info *alert_array)
     {
         alert_array[element_num].name = "FSM_Fault_Fault_Test3";
         alert_array[element_num].description = "";
-        alert_array[element_num].id = "0";
+        alert_array[element_num].id = 0;
         element_num++;
     }
     
