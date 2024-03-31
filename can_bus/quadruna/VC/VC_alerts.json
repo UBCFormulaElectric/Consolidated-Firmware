@@ -63,6 +63,10 @@
         "SplitterBoxInterlock":  {
             "id" :515,
             "description" : "Example"
+        },
+        "ImuIo" : {
+            "id" :516,
+            "description" : "Example"
         }
     },
     "faults": {
