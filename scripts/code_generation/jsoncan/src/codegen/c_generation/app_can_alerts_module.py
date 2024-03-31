@@ -150,7 +150,7 @@ class AppCanAlertsModule(CModule):
                  
                 get_alert.body.add_line(f'alert_array[element_num].name = "{alert}";')
                 get_alert.body.add_line(f'alert_array[element_num].description = "{description}";')
-                get_alert.body.add_line(f'alert_array[element_num].id = "{id}";')
+                get_alert.body.add_line(f'alert_array[element_num].id = {id};')
                 get_alert.body.add_line("element_num++;")
 
                 get_alert.body.end_if()
