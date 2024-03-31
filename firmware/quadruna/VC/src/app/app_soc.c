@@ -6,9 +6,6 @@
 
 static SocStats stats;
 
-#define SOC_TIMER_DURATION_MS (110U)
-#define MS_TO_S (0.001)
-
 void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
@@ -44,19 +41,41 @@ void app_soc_broadcast()
 
 float app_soc_getChargeFromOcv(void)
 {
-    float   battery_voltage = io_lowVoltageBattery_getBatVoltage();
-    uint8_t lut_index       = 0;
+    float battery_ocv = io_lowVoltageBattery_getBatVoltage();
 
-    while ((battery_voltage > ocv_soc_lut[lut_index]) && (lut_index < OCV_SOC_LUT_SIZE))
-    {
-        lut_index++;
+    // identify between which two anchor points our battery voltage lies
+    int i = 0;
+    float ocv_anchor = ocv_charge_spline_anchors[i][0];
+
+    while (ocv_anchor < battery_ocv) {
+        i += 1;
+        ocv_anchor = ocv_charge_spline_anchors[i][0];
     }
 
-    if (lut_index == OCV_SOC_LUT_SIZE)
-    {
-        // Ensures that the index is in the LUT range
-        lut_index--;
+    int left_anchor_index = i - 1;
+    int right_anchor_index = i;
+
+    // if voltage lower than minimum anchor, assume data extends first sector
+    if (left_anchor_index == -1) {
+        left_anchor_index = 0;
+        right_anchor_index = 1;
     }
 
-    return MAX_CHARGE_C * battery_voltage;
+    // if voltage higher than maximum anchor, assume data extends last sector
+    if (right_anchor_index == OCV_CHARGE_SPLINE_ANCHORS_SIZE) {
+        left_anchor_index = OCV_CHARGE_SPLINE_ANCHORS_SIZE - 2;
+        right_anchor_index = OCV_CHARGE_SPLINE_ANCHORS_SIZE - 1;
+    }
+
+    float left_ocv_anchor = ocv_charge_spline_anchors[left_anchor_index][0];
+    float left_charge_anchor = ocv_charge_spline_anchors[left_anchor_index][1];
+    float right_ocv_anchor = ocv_charge_spline_anchors[right_anchor_index][0];
+    float right_charge_anchor = ocv_charge_spline_anchors[right_anchor_index][1];
+
+    // compute slope in sector
+    float m = (right_charge_anchor - left_charge_anchor) / (right_ocv_anchor - left_ocv_anchor);
+
+    // extrapolate charge
+    // y = (x - x_0) / m + y_0
+    return (battery_ocv - left_ocv_anchor) / m + left_charge_anchor;
 }
