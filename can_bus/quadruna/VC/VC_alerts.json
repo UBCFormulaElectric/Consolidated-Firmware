@@ -18,7 +18,8 @@
         "REStop",
         "TSMS",
         "PCMInterlock",
-        "SplitterBoxInterlock"
+        "SplitterBoxInterlock",
+        "ImuIo"
     ],
     "faults": [
         "MissingBMSHeartbeat",

@@ -38,6 +38,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
@@ -148,6 +149,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
     )
 
     create_fake_library(
