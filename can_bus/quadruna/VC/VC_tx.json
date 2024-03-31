@@ -704,5 +704,18 @@
                 "unit": "m/s"
             }
         }
+    },
+    "CoolantPumpFlowRate": {
+        "msg_id": 224,
+        "cycle_time": 1,
+        "description": "Broadcast flow rate of coolant pump.",
+        "signals": {
+            "FlowRate": {
+                "resolution": 15.625,
+                "min": 0,
+                "max": 2000,
+                "unit": "L/H"
+            }
+        }
     }
 }

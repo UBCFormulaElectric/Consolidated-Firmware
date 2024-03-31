@@ -135,21 +135,18 @@ elseif("${TARGET}" STREQUAL "test")
         "quadruna"
     )
 
-
-    set(HEADERS_TO_FAKE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-        )   
-
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
     )
 
     create_fake_library(
