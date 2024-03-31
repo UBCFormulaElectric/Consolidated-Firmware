@@ -4,11 +4,11 @@
     "warnings_counts_id": 492,
     "faults_counts_id": 493,
     "warnings": {
-        "TxOverflowCount": {
+        "TxOverflow": {
             "id" :401,
             "description" : "Example"
         },
-        "RxOverflowCount": {
+        "RxOverflow": {
             "id" :402,
             "description" : "Example"
         },
