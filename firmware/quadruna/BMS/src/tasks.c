@@ -15,6 +15,7 @@
 #include "hw_watchdog.h"
 #include "hw_uart.h"
 #include "hw_sd.h"
+#include "hw_crc.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
@@ -70,6 +71,7 @@ extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim15;
 extern UART_HandleTypeDef huart1;
 extern SD_HandleTypeDef   hsd1;
+extern CRC_HandleTypeDef  hcrc;
 
 static const CanConfig can_config = {
     .rx_msg_filter        = io_canRx_filterMessageId,
@@ -291,6 +293,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&hfdcan1);
     hw_sd_init(&sd);
+    hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

@@ -42,6 +42,7 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
@@ -91,6 +92,8 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
         "stm32h7xx_hal_sd.c"
+        "stm32h7xx_hal_crc.c"
+        "stm32h7xx_hal_crc_ex.c"
         "stm32h7xx_ll_sdmmc.c"
         "stm32h7xx_hal.c"
     )
