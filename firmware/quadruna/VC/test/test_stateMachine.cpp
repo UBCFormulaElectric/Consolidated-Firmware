@@ -34,7 +34,22 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         LetTimePass(20);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     }
+
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+    }
 };
+
+TEST_F(VCStateMachineTest, test_SetStateToDrive)
+{
+    SetStateToDrive();
+    LetTimePass(1000);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+}
 
 TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
@@ -169,7 +184,7 @@ TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_e
 
 TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
-    SetInitialState(app_driveState_get());
+    SetStateToDrive();
 
     // Set the CRIT start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
@@ -233,10 +248,7 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
 
 TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
 {
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    app_canRx_FSM_BrakeActuated_update(true);
-    SetInitialState(app_driveState_get());
+    SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
@@ -248,10 +260,7 @@ TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
 
 TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
 {
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    app_canRx_FSM_BrakeActuated_update(true);
-    SetInitialState(app_driveState_get());
+    SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
@@ -262,10 +271,7 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
 
 TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn_to_init)
 {
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    app_canRx_FSM_BrakeActuated_update(true);
-    SetInitialState(app_driveState_get());
+    SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
