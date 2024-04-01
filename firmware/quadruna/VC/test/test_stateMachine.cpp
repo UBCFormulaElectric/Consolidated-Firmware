@@ -231,21 +231,6 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
-TEST_F(VCStateMachineTest, check_drive_to_init)
-{
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    app_canRx_FSM_BrakeActuated_update(true);
-    SetInitialState(app_driveState_get());
-    LetTimePass(100);
-    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
-
-    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
-
-    LetTimePass(100);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-}
-
 TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
 {
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
@@ -261,7 +246,7 @@ TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
     EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(VCStateMachineTest, BMS_causes_drive_inverterOn)
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
 {
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
