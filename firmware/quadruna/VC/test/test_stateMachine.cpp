@@ -123,7 +123,7 @@ TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
     EXPECT_FLOAT_EQ(false, app_canTx_VC_RightInverterEnable_get());
 }
 
-TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
+TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverterOn_state)
 {
     SetInitialState(app_driveState_get());
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
@@ -229,4 +229,66 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
     auto clear_fault = []() { app_canRx_CRIT_Fault_MissingBMSHeartbeat_update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
+}
+
+TEST_F(VCStateMachineTest, check_drive_to_init)
+{
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    app_canRx_FSM_BrakeActuated_update(true);
+    SetInitialState(app_driveState_get());
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+
+    LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
+{
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    app_canRx_FSM_BrakeActuated_update(true);
+    SetInitialState(app_driveState_get());
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+
+    LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, BMS_causes_drive_inverterOn)
+{
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    app_canRx_FSM_BrakeActuated_update(true);
+    SetInitialState(app_driveState_get());
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_INVERTER_ON_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn_to_init)
+{
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    app_canRx_FSM_BrakeActuated_update(true);
+    SetInitialState(app_driveState_get());
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_PRECHARGE_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_INIT_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }

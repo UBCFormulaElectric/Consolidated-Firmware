@@ -118,6 +118,7 @@ static void driveStateRunOnTick100Hz(void)
     if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());
+        return;
     }
     else if (exit_drive_to_inverterOn)
     {
