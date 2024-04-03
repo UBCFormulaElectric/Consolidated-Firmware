@@ -46,7 +46,6 @@ void app_allStates_runOnTick100Hz(void)
     {
         app_heartbeatMonitor_broadcastFaults();
     }
-    // check if either inverter faulted
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();
 
