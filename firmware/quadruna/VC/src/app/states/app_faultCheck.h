@@ -11,7 +11,6 @@ bool app_boardFaultCheck();
  * Check either right or left inverters have faulted
  * 
  */
-
 bool app_inverterFaultCheck();
 
 
