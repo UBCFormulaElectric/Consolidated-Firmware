@@ -6,6 +6,7 @@
 #include "app_canRx.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_faultCheck.h"
 #include <stddef.h>
 
 static void inverterOnStateRunOnEntry(void)
@@ -16,7 +17,9 @@ static void inverterOnStateRunOnEntry(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
-    const bool all_states_ok = app_allStates_runOnTick100Hz();
+    const bool any_board_has_fault = app_boardFaultCheck();
+    const bool inverter_has_fault = app_inverterFaultCheck();
+    const bool all_states_ok = !(any_board_has_fault || inverter_has_fault);
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;

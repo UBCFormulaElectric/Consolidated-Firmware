@@ -7,6 +7,7 @@
 #include "app_globals.h"
 #include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
+#include "states/app_allStates.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -390,6 +391,7 @@ void tasks_run100Hz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
+        app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 

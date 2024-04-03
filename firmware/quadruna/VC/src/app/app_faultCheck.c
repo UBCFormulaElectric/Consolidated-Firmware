@@ -3,7 +3,8 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 
-bool app_boardFaultCheck(){
+bool app_boardFaultCheck()
+{
     const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
     const bool vc_fault   = app_canAlerts_BoardHasFault(VC_ALERT_BOARD);
     const bool fsm_fault  = app_canAlerts_BoardHasFault(FSM_ALERT_BOARD);
@@ -12,9 +13,8 @@ bool app_boardFaultCheck(){
     return (bms_fault || vc_fault || fsm_fault || crit_fault);
 }
 
-
-bool app_inverterFaultCheck(){
-
+bool app_inverterFaultCheck()
+{
     const bool left_inverter_fault  = app_canRx_INVL_VsmState_get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     const bool right_inverter_fault = app_canRx_INVR_VsmState_get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
     app_canAlerts_VC_Fault_LeftInverterFault_set(left_inverter_fault);
@@ -22,6 +22,3 @@ bool app_inverterFaultCheck(){
 
     return (left_inverter_fault || right_inverter_fault);
 }
-
-
-
