@@ -2,7 +2,6 @@
 #include "states/app_allStates.h"
 
 #include "app_sbgEllipse.h"
-#include "app_faultCheck.h"
 #include "io_led.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
