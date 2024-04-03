@@ -87,8 +87,8 @@ static void driveStateRunOnTick100Hz(void)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
     const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault = app_inverterFaultCheck();
-    const bool all_states_ok = !(any_board_has_fault || inverter_has_fault);
+    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;

@@ -32,8 +32,8 @@ static void initStateRunOnEntry(void)
 static void initStateRunOnTick100Hz(void)
 {
     const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault = app_inverterFaultCheck();
-    const bool all_states_ok = !(any_board_has_fault || inverter_has_fault);
+    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     bool is_inverter_on_or_drive_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                          app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
