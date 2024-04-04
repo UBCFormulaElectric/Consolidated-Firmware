@@ -2,12 +2,13 @@
 
 #include <stdbool.h>
 #include "io_led.h"
+#include "io_fan.h"
 
 typedef struct
 {
-    const BinaryLed *const brake_light;
-    const Gpio *const      acc_fan;
-    const Gpio *const      rad_fan;
+    const BinaryLed *brake_light;
+    const BinaryFan *acc_fan;
+    const BinaryFan *rad_fan;
 } GlobalsConfig;
 
 typedef struct

@@ -1,6 +1,7 @@
 #include "app_mainState.h"
 #include <stddef.h>
 #include "io_led.h"
+#include "io_fan.h"
 #include "app_utils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -23,10 +24,8 @@ void mainStateRunOnTick100Hz(void)
 
     const bool brake_actuated = app_canRx_FSM_BrakeActuated_get();
     io_led_enable(globals->config->brake_light, brake_actuated);
-    hw_gpio_writePin(globals->config->acc_fan, true);
-    hw_gpio_writePin(globals->config->rad_fan, true);
-
-    bool missing_hb = app_heartbeatMonitor_checkFaults();
+    io_fan_enable(globals->config->acc_fan, true);
+    io_fan_enable(globals->config->rad_fan, true);
 }
 
 const State *app_mainState_get(void)

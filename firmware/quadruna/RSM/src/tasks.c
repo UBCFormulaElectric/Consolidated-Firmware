@@ -89,6 +89,16 @@ static const BinaryLed brake_light = { .gpio = {
                                            .pin  = BRAKE_LIGHT_EN_3V3_Pin,
                                        } };
 
+static const BinaryFan acc_fan = { .gpio = {
+                                       .port = ACC_FAN_EN_GPIO_Port,
+                                       .pin  = RAD_FAN_EN_Pin,
+                                   } };
+
+static const BinaryFan rad_fan = { .gpio = {
+                                       .port = RAD_FAN_EN_GPIO_Port,
+                                       .pin  = ACC_FAN_EN_Pin,
+                                   } };
+
 AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_ACC_FAN_I_SNS]        = ADC1_IN15_ACC_FAN_I_SNS,
     [RSM_AdcNetName_RAD_FAN_I_SNS]        = ADC1_IN14_RAD_FAN_I_SNS,
@@ -102,9 +112,7 @@ AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
 };
 
-static const GlobalsConfig config = { .brake_light = &brake_light,
-                                      .acc_fan     = &acc_fan_en_pin,
-                                      .rad_fan     = &rad_fan_en_pin };
+static const GlobalsConfig config = { .brake_light = &brake_light, .acc_fan = &acc_fan, .rad_fan = &rad_fan };
 
 PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
                                           .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
