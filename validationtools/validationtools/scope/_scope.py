@@ -93,7 +93,7 @@ class Scope:
         fid = open(filename, 'wb')
         fid.write(raw_data)
         fid.close()
-        print("Wrote screen capture to filename " + '\"' + filename + '\"')
+        print("Wrote screen  to filename " + '\"' + filename + '\"')
         time.sleep(5)
 
     def vertical_scale(self, channel, scale):
@@ -220,6 +220,8 @@ class Scope:
         df = pd.DataFrame({"time": t, "Channel 1": ch1, "Channel 2": ch2, "Channel 3": ch3, "Channel 4": ch4})
         if (filename == ''):
             filename = "rigol_waveform_all_channels_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".csv"
+        elif (filename[len(filename) - 4:] != ".csv"):
+            filename += ".csv"
 
         df.to_csv(filename)
 
