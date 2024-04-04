@@ -93,7 +93,7 @@ class Scope:
         fid = open(filename, 'wb')
         fid.write(raw_data)
         fid.close()
-        print("Wrote screen  to filename " + '\"' + filename + '\"')
+        print("Wrote screen capture to filename " + '\"' + filename + '\"')
         time.sleep(5)
 
     def vertical_scale(self, channel, scale):
@@ -141,7 +141,7 @@ class Scope:
         
         returns: an array of timestamps and voltage values
         '''
-        self.scope.channel_on(channel)
+        self.channel_on(channel)
         self.scope.write(':stop')
         self.scope.write(':wav:sour chan%i' % channel)
         self.scope.write(':wav:mode norm')
