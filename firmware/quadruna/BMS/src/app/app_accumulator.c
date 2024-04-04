@@ -197,7 +197,7 @@ void app_accumulator_balanceCells(void)
     if (data.balance_pwm_high)
     {
         // Enable cell discharging
-        io_ltc6813Shared_enableBalance();
+        app_accumulator_enableBalance(true);
         data.balance_pwm_ticks += 1;
 
         if (data.balance_pwm_ticks >= balance_ticks_on)
@@ -210,7 +210,7 @@ void app_accumulator_balanceCells(void)
     else
     {
         // Disable cell discharging
-        io_ltc6813Shared_disableBalance();
+        app_accumulator_enableBalance(false);
         data.balance_pwm_ticks += 1;
 
         if (data.balance_pwm_ticks >= balance_ticks_off)
@@ -220,11 +220,6 @@ void app_accumulator_balanceCells(void)
             data.balance_pwm_ticks = 0;
         }
     }
-}
-
-void app_accumulator_disableBalance(void)
-{
-    io_ltc6813Shared_disableBalance();
 }
 
 void app_accumulator_init(void)

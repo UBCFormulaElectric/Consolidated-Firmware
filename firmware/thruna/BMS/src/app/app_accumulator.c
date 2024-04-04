@@ -28,7 +28,7 @@
 // Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
 // distracting.
 #define BALANCE_DEFAULT_FREQ (1)  // Hz
-#define BALANCE_DEFAULT_DUTY (50) // %
+#define BALANCE_DEFAULT_DUTY (80) // %
 #define BALANCE_TICKS_ON (100U)
 #define BALANCE_TICKS_OFF (100U)
 
@@ -153,7 +153,7 @@ static void app_accumulator_calculateVoltageStats(void)
     data.voltage_stats = temp_voltage_stats;
 }
 
-static void app_accumulator_calculateCellsToBalance(void)
+void app_accumulator_calculateCellsToBalance(void)
 {
     float target_voltage = data.voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
@@ -170,7 +170,7 @@ static void app_accumulator_calculateCellsToBalance(void)
     }
 }
 
-static void app_accumulator_balanceCells(void)
+void app_accumulator_balanceCells(void)
 {
     if (!data.balance_enabled)
     {
@@ -178,10 +178,16 @@ static void app_accumulator_balanceCells(void)
         return;
     }
 
+    // Exit early if ADC conversion fails
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
+        return;
+    }
+
     // Write to configuration register to configure cell discharging
     app_accumulator_calculateCellsToBalance();
     io_ltc6813Shared_writeConfigurationRegisters(true);
-
+    
     // Balance PWM settings
     float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
                                     ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()
@@ -258,9 +264,6 @@ void app_accumulator_runCellMeasurements(void)
 
             // Calculate min/max/segment voltages
             app_accumulator_calculateVoltageStats();
-
-            // Configure cell balancing
-            app_accumulator_balanceCells();
 
             // Start cell voltage conversions for the next cycle
             io_ltc6813CellTemps_startAdcConversion();
@@ -491,6 +494,8 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_OpenWireCheck_Segment3_GND_set(data.owc_faults.owcFaultGND[3]);
     app_canAlerts_BMS_Fault_OpenWireCheck_Segment4_GND_set(data.owc_faults.owcFaultGND[4]);
 
+    overtemp_fault = false;
+
     const bool acc_fault = overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault ||
                            communication_fault || owc_fault;
 
@@ -500,6 +505,11 @@ bool app_accumulator_checkFaults(void)
 void app_accumulator_enableBalancing(bool enabled)
 {
     data.balance_enabled = enabled;
+
+    if (!enabled)
+    {
+        io_ltc6813Shared_disableBalance();
+    }
 }
 
 float app_accumulator_getPackVoltage(void)
