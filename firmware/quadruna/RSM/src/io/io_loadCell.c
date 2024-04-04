@@ -11,6 +11,13 @@
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
 
+float loadCell_voltageToMechancialLoad(float voltage)
+{
+    // TODO: find transfer function (no spec sheet so far just this amazon link:
+    // https://caltsensor.com/product/s-type-load-cells-dyly-103/
+    return 0.0;
+}
+
 bool loadCell_OCSC(int adcPin_toCheck)
 {
     const float voltage = hw_adc_getVoltage(ADC1_IN10_LC3_OUT);
