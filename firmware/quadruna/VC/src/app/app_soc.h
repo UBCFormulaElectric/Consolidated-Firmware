@@ -36,8 +36,29 @@ static const float ocv_charge_spline_anchors[OCV_CHARGE_SPLINE_ANCHORS_SIZE][2] 
     { 3.5f, 5162.4f }, { 3.66f, 10152.0f }, { 4.09f, 17870.4f }, { 4.1674f, 18702.0f }
 };
 
+/**
+ * Initialize SOC stats.
+ */
 void  app_soc_init(void);
+
+/**
+ * Update soc with trapezoidal sum/coulomb counting
+ */
 void  app_soc_update(void);
+
+/**
+ * Getter for SOC percent.
+ * @return the current SOC percent (range: [0, 100]).
+ */
 float app_soc_getPercent(void);
+
+/**
+ * broadcasts soc message over can
+ */
 void  app_soc_broadcast(void);
+
+/**
+ * Gets charge (in coulombs) from battery voltage, see ocv_charge_spline_anchors for details
+ * @return coulombs of charge in batteries.
+ */
 float app_soc_getChargeFromOcv(void);
