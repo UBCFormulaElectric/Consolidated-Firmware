@@ -9,7 +9,7 @@ using std::cout, std::endl;
 
 Result<std::monostate, CanConnectionError> Can_Init()
 {
-    cout << "Can Initialized" << endl;
+    qInfo("Can Initialized");
     return std::monostate{};
 }
 
