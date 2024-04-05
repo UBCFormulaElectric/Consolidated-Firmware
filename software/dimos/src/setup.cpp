@@ -47,6 +47,7 @@ static QTimer                            tx100Hz{}, tx1Hz{};
 static std::unique_ptr<QThread>          CanRxTaskThread, CanTxPeriodicTaskThread;
 Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref)
 {
+    Can_Init();
     // tx 100hz
     tx100Hz.setInterval(can_handlers::TASK_INTERVAL_100HZ);
     tx100Hz.setSingleShot(false);
