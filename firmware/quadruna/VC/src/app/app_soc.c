@@ -11,6 +11,7 @@ void app_soc_init(void)
     stats.prev_current_A = 0.0f;
 
     stats.charge_c = app_soc_getChargeFromOcv();
+    // TODO: initialize soc from SD card, not ocv
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION_MS);
 }
