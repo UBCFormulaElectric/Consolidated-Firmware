@@ -720,7 +720,7 @@
     },
     "StateOfCharge": {
         "msg_id": 226,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "SOC info for LV battery.",
         "signals": {
             "Soc": {
