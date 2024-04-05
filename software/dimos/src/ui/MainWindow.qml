@@ -11,6 +11,7 @@ Window {
     minimumWidth: Constants.SCREEN_WIDTH
     minimumHeight: Constants.SCREEN_HEIGHT
     visible: true
+    visibility: Constants.deploy ? Window.FullScreen : Window.AutomaticVisibility;
     title: Constants.WINDOW_TITLE
     color: "#5BC236"
 

@@ -22,7 +22,9 @@ class Constants : public QObject
 
 #ifdef USING_dimos
     SHARED_CONSTANT(const, QString, WINDOW_TITLE, "Dimos");
+    SHARED_CONSTANT(const, bool, deploy, true);
 #elif USING_dimos_dev
     SHARED_CONSTANT(const, QString, WINDOW_TITLE, "[Development] Dimos");
+    SHARED_CONSTANT(const, bool, deploy, false);
 #endif
 };
