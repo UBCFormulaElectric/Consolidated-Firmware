@@ -76,9 +76,9 @@ float app_soc_getChargeFromOcv(void)
     float right_charge_anchor = ocv_charge_spline_anchors[right_anchor_index][1];
 
     // compute slope in sector
-    float m = (right_charge_anchor - left_charge_anchor) / (right_ocv_anchor - left_ocv_anchor);
+    float charge_per_voltage = (right_charge_anchor - left_charge_anchor) / (right_ocv_anchor - left_ocv_anchor);
 
     // extrapolate charge
-    // y = (x - x_0) / m + y_0
-    return (battery_ocv - left_ocv_anchor) / m + left_charge_anchor;
+    // y = m(x - x_0) + y_0
+    return (battery_ocv - left_ocv_anchor) * charge_per_voltage + left_charge_anchor;
 }
