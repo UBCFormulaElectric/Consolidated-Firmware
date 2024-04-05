@@ -74,6 +74,7 @@ Item {
     }
 
     CircleProgressBar {
+        id: leftBar
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         // anchors.top: parent.top
@@ -92,7 +93,20 @@ Item {
         bg_percentage: 1
     }
 
+    Text {
+        anchors.left: leftBar.horizontalCenter
+        anchors.leftMargin: -65
+        anchors.top: leftBar.bottom
+        anchors.topMargin: -30
+        font.family: "Roboto"
+        font.pointSize: 12
+        font.bold: true
+        text: "A"
+        color: "#FFFFFF"
+    }
+
     CircleProgressBar {
+        id: rightBar
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         // anchors.top: parent.top
@@ -109,5 +123,17 @@ Item {
         background: true
         bg_color: "#696969"
         bg_percentage: 1
+    }
+
+    Text {
+        anchors.right: rightBar.horizontalCenter
+        anchors.rightMargin: -65
+        anchors.top: rightBar.bottom
+        anchors.topMargin: -30
+        font.family: "Roboto"
+        font.pointSize: 12
+        font.bold: true
+        text: "B"
+        color: "#FFFFFF"
     }
 }
