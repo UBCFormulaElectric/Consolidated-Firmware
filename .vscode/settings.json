@@ -9,10 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"llc_repl": "cpp",
-		"": "",
-		"*.llc_repl": "cpp",
-		"io_faultlatch.h": "c"
-	},
 }

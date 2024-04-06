@@ -197,7 +197,7 @@ void app_accumulator_balanceCells(void)
     if (data.balance_pwm_high)
     {
         // Enable cell discharging
-        app_accumulator_enableBalance(true);
+        io_ltc6813Shared_enableBalance();
         data.balance_pwm_ticks += 1;
 
         if (data.balance_pwm_ticks >= balance_ticks_on)
@@ -210,7 +210,7 @@ void app_accumulator_balanceCells(void)
     else
     {
         // Disable cell discharging
-        app_accumulator_enableBalance(false);
+        io_ltc6813Shared_disableBalance();
         data.balance_pwm_ticks += 1;
 
         if (data.balance_pwm_ticks >= balance_ticks_off)

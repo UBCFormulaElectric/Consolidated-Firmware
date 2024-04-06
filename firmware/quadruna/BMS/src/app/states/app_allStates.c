@@ -111,7 +111,7 @@ bool app_allStates_runOnTick100Hz(void)
 
             if (iso_spi_state_counter >= NUM_CYCLES_TO_BALANCE)
             {
-                app_accumulator_enableBalance(false);
+                io_ltc6813Shared_disableBalance();
                 iso_spi_task_state    = RUN_CELL_MEASUREMENTS;
                 iso_spi_state_counter = 0;
             }
