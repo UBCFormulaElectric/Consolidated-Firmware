@@ -8,4 +8,7 @@
 #define MIN_RIGHT_WHEEL_SPEED_KPH 0.1f
 #define MAX_RIGHT_WHEEL_SPEED_KPH 150.0f
 
+/**
+ * CAN BUS Broadcast Function
+ */
 void app_wheels_broadcast();
