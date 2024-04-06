@@ -147,5 +147,24 @@
 				"unit": "cm"
 			}
 		}
+	},
+	"LoadCell": {
+		"msg_id": 308, 
+		"cycle_time": 100,
+		"description": "Load cell mechanical loads.",
+		"signals": {
+			"LoadCell1": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "N"
+			},
+			"LoadCell2": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000,
+				"unit": "N"
+			}
+		}
 	}
 }

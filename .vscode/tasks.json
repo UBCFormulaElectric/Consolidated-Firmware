@@ -270,5 +270,14 @@
                 }
             }
         },
+        {
+            "label": "Format: Codebase",
+            "type": "shell",
+            "command": "python3 fix_formatting.py",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/scripts/clang_format"
+            }
+        },
     ]
 }

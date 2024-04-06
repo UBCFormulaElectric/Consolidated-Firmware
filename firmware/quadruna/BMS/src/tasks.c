@@ -50,6 +50,15 @@
 #include "shared.pb.h"
 #include "BMS.pb.h"
 
+extern ADC_HandleTypeDef   hadc1;
+extern FDCAN_HandleTypeDef hfdcan1;
+// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
+extern SPI_HandleTypeDef  hspi2;
+extern TIM_HandleTypeDef  htim1;
+extern TIM_HandleTypeDef  htim3;
+extern TIM_HandleTypeDef  htim15;
+extern UART_HandleTypeDef huart1;
+
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_BMS_RxOverflowCount_set(overflow_count);
@@ -62,6 +71,7 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_BMS_Warning_TxOverflow_set(true);
 }
 
+
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
 // extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
@@ -73,10 +83,22 @@ extern UART_HandleTypeDef huart1;
 extern SD_HandleTypeDef   hsd1;
 extern CRC_HandleTypeDef  hcrc;
 
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_BMS_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_BMS_Warning_RxOverflow_set(false);
+}
+
 static const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 // clang-format off
@@ -105,6 +127,8 @@ PwmInputConfig imd_pwm_input_config = {
     .rising_edge_tim_channel  = TIM_CHANNEL_2,
     .falling_edge_tim_channel = TIM_CHANNEL_1,
 };
+
+const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
@@ -209,34 +233,46 @@ static const GlobalsConfig globals_config = {
 };
 
 // config for heartbeat monitor (can funcs and flags)
-// TODO: fill out these configs
+// BMS relies on RSM, VC
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
+    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
     [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                           [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
+                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_set,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = NULL, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
@@ -276,24 +312,26 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     hw_bootup_enableInterruptsForApp();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS reset!");
 }
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
 
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("BMS reset!");
-
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
 
     hw_hardFaultHandler_init();
+
     hw_can_init(&hfdcan1);
     hw_sd_init(&sd);
     hw_crc_init(&hcrc);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
@@ -305,7 +343,7 @@ void tasks_init(void)
     io_ltc6813Shared_init(&ltc6813_spi);
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
-    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag);
+    io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
     // io_charger_init(&charger_config);
 
     app_canTx_init();
@@ -329,8 +367,8 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    // osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
+
 
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -359,8 +397,7 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    // TODO: TemporarilQy disabled for hardware testing (chimera).
-    // osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -385,8 +422,7 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    // osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
@@ -398,7 +434,9 @@ void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-        hw_watchdog_checkForTimeouts();
+
+        // TODO: Re-enable watchdog after investigating failure
+        // hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
@@ -418,8 +456,7 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    // osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {
@@ -429,8 +466,7 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    // TODO: Temporarily disabled for hardware testing (chimera).
-    // osDelay(osWaitForever);
+    io_chimera_sleepTaskIfEnabled();
 
     for (;;)
     {

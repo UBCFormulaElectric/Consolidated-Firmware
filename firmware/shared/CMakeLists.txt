@@ -5,6 +5,8 @@ if("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_rgbLed.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switch.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_mechanicalLoad.h"
     )
     create_fake_library(
         "shared_fakes"

@@ -37,6 +37,14 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
+
+    embedded_library(
+        "littlefs_cm7"
+        "${LITTLEFS_SRCS}"
+        "${LITTLEFS_SOURCE_DIR}"
+        "cm4"
+        TRUE
+    )
 elseif("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
 

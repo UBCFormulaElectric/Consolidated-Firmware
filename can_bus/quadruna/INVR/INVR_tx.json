@@ -1,0 +1,731 @@
+{
+    "Temperatures1": {
+        "msg_id": 50,
+        "cycle_time": 100,
+        "signals": {
+            "ModuleATemperature": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "ModuleBTemperature": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "ModuleCTemperature": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "GateDriverBoardTemperature": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            }
+        }
+    },
+    "Temperatures2": {
+        "msg_id": 51,
+        "cycle_time": 100,
+        "signals": {
+            "ControlBoardTemperature": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "Rtd1Temperature": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "Rtd2Temperature": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "Rtd3Temperature": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            }
+        }
+    },
+    "Temperatures3": {
+        "msg_id": 52,
+        "cycle_time": 100,
+        "signals": {
+            "Rtd4Temperature": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "Rtd5Temperature": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "MotorTemperature": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "degC"
+            },
+            "TorqueShudder": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm"
+            }
+        }
+    },
+    "MotorPositionInfo": {
+        "msg_id": 55,
+        "cycle_time": 10,
+        "signals": {
+            "MotorAngle": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": 0.0,
+                "max": 359.9,
+                "unit": "deg"
+            },
+            "MotorSpeed": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm"
+            },
+            "ElectricalOutputFrequency": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "hz"
+            },
+            "DeltaResolverFiltered": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": 0.0,
+                "max": 359.9,
+                "unit": "deg"
+            }
+        }
+    },
+    "CurrentInfo": {
+        "msg_id": 56,
+        "cycle_time": 10,
+        "signals": {
+            "PhaseACurrent": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "PhaseBCurrent": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "PhaseCCurrent": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "DcBusCurrent": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            }
+        }
+    },
+    "VoltageInfo": {
+        "msg_id": 57,
+        "cycle_time": 10,
+        "signals": {
+            "DcBusVoltage": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "V"
+            },
+            "OutputVoltage": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "V"
+            },
+            "VAB_Vd_Voltage": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "V"
+            },
+            "VBC_Vq_Voltage": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "V"
+            }
+        }
+    },
+    "InternalVoltages": {
+        "msg_id": 59,
+        "cycle_time": 100,
+        "signals": {
+            "ReferenceVoltage_1V5": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "ReferenceVoltage_2V5": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "ReferenceVoltage_5V": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "ReferenceVoltage_12V": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            }
+        }
+    },
+    "InternalStates": {
+        "msg_id": 60,
+        "cycle_time": 10,
+        "signals": {
+            "VsmState": {
+                "start_bit": 0,
+                "enum": "InverterVsmState"
+            },
+            "PwmFrequency": {
+                "start_bit": 8,
+                "bits": 8,
+                "unit": "kHz"
+            },
+            "InverterState": {
+                "start_bit": 16,
+                "enum": "InverterState"
+            },
+            "Relay1State": {
+                "start_bit": 24,
+                "bits": 1
+            },
+            "Relay2State": {
+                "start_bit": 25,
+                "bits": 1
+            },
+            "Relay3State": {
+                "start_bit": 26,
+                "bits": 1
+            },
+            "Relay4State": {
+                "start_bit": 27,
+                "bits": 1
+            },
+            "Relay5State": {
+                "start_bit": 28,
+                "bits": 1
+            },
+            "Relay6State": {
+                "start_bit": 29,
+                "bits": 1
+            },
+            "InverterRunMode": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "InverterActiveDischargeState": {
+                "start_bit": 37,
+                "enum": "InverterActiveDischargeState"
+            },
+            "InverterCommandMode": {
+                "start_bit": 40,
+                "enum": "InverterCommandMode"
+            },
+            "RollingCounter": {
+                "start_bit": 44,
+                "bits": 4
+            },
+            "InverterEnableState": {
+                "start_bit": 48,
+                "bits": 1
+            },
+            "StartModeActive": {
+                "start_bit": 54,
+                "bits": 1
+            },
+            "InverterLockoutEnabled": {
+                "start_bit": 55,
+                "enum": "InverterLockout"
+            },
+            "DirectionCommand": {
+                "start_bit": 56,
+                "enum": "InverterDirection"
+            },
+            "BmsActive": {
+                "start_bit": 57,
+                "bits": 1
+            },
+            "BmsTorqueLimiting": {
+                "start_bit": 58,
+                "bits": 1
+            },
+            "MaxSpeedLimiting": {
+                "start_bit": 59,
+                "bits": 1
+            },
+            "HotSpotLimiting": {
+                "start_bit": 60,
+                "bits": 1
+            },
+            "LowSpeedLimiting": {
+                "start_bit": 61,
+                "bits": 1
+            },
+            "CoolantTemperatureLimiting": {
+                "start_bit": 62,
+                "bits": 1
+            }
+        }
+    },
+    "FaultCodes": {
+        "msg_id": 61,
+        "cycle_time": 10,
+        "signals": {
+            "Post_HardwareGateDesaturationFault": {
+                "start_bit": 0,
+                "bits": 1
+            },
+            "Post_HwOverCurrentFault": {
+                "start_bit": 1,
+                "bits": 1
+            },
+            "Post_AcceleratorShorted": {
+                "start_bit": 2,
+                "bits": 1
+            },
+            "Post_AcceleratorOpen": {
+                "start_bit": 3,
+                "bits": 1
+            },
+            "Post_CurrentSensorLow": {
+                "start_bit": 4,
+                "bits": 1
+            },
+            "Post_CurrentSensorHigh": {
+                "start_bit": 5,
+                "bits": 1
+            },
+            "Post_ModuleTempreatureLow": {
+                "start_bit": 6,
+                "bits": 1
+            },
+            "Post_ModuleTemperatureHigh": {
+                "start_bit": 7,
+                "bits": 1
+            },
+            "Post_ControlPcbTemperatureLow": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "Post_ControlPcbTemperatureHigh": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "Post_GateDrivePcbTemperatureLow": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "Post_GateDrivePcbTemperatureHigh": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "Post_5VSenseVoltageLow": {
+                "start_bit": 12,
+                "bits": 1
+            },
+            "Post_5VSenseVoltageHigh": {
+                "start_bit": 13,
+                "bits": 1
+            },
+            "Post_12VSenseVoltageLow": {
+                "start_bit": 14,
+                "bits": 1
+            },
+            "Post_12VSenseVoltageHigh": {
+                "start_bit": 15,
+                "bits": 1
+            },
+            "Post_2V5SenseVoltageLow": {
+                "start_bit": 16,
+                "bits": 1
+            },
+            "Post_2V5SenseVoltageHigh": {
+                "start_bit": 17,
+                "bits": 1
+            },
+            "Post_1V5SenseVoltageLow": {
+                "start_bit": 18,
+                "bits": 1
+            },
+            "Post_1V5SenseVoltageHigh": {
+                "start_bit": 19,
+                "bits": 1
+            },
+            "Post_DcBusVoltageHigh": {
+                "start_bit": 20,
+                "bits": 1
+            },
+            "Post_DcBusVoltageLow": {
+                "start_bit": 21,
+                "bits": 1
+            },
+            "Post_PrechargeTimeout": {
+                "start_bit": 22,
+                "bits": 1
+            },
+            "Post_PrechargeVoltageFailure": {
+                "start_bit": 23,
+                "bits": 1
+            },
+            "Post_EepromChecksumInvalid": {
+                "start_bit": 24,
+                "bits": 1
+            },
+            "Post_EepromDataOutOfRange": {
+                "start_bit": 25,
+                "bits": 1
+            },
+            "Post_EepromUpdateRequired": {
+                "start_bit": 26,
+                "bits": 1
+            },
+            "Post_HardwareDcBusOverVoltageDuringInitialization": {
+                "start_bit": 27,
+                "bits": 1
+            },
+            "Post_GateDriverInitialization": {
+                "start_bit": 28,
+                "bits": 1
+            },
+            "Post_BrakeShorted": {
+                "start_bit": 30,
+                "bits": 1
+            },
+            "Post_BrakeOpen": {
+                "start_bit": 31,
+                "bits": 1
+            },
+            "Run_MotorOverSpeedFault": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "Run_OverCurrentFault": {
+                "start_bit": 33,
+                "bits": 1
+            },
+            "Run_OverVoltageFault": {
+                "start_bit": 34,
+                "bits": 1
+            },
+            "Run_InverterOverTemperatureFault": {
+                "start_bit": 35,
+                "bits": 1
+            },
+            "Run_AcceleratorInputShortedFault": {
+                "start_bit": 36,
+                "bits": 1
+            },
+            "Run_AcceleratorInputOpenFault": {
+                "start_bit": 37,
+                "bits": 1
+            },
+            "Run_DirectionCommandFault": {
+                "start_bit": 38,
+                "bits": 1
+            },
+            "Run_InverterResponseTimeoutFault": {
+                "start_bit": 39,
+                "bits": 1
+            },
+            "Run_HardwareGateDesaturationFault": {
+                "start_bit": 40,
+                "bits": 1
+            },
+            "Run_HardwareOverCurrentFault": {
+                "start_bit": 41,
+                "bits": 1
+            },
+            "Run_UnderVoltageFault": {
+                "start_bit": 42,
+                "bits": 1
+            },
+            "Run_CanCommandMessageLostFault": {
+                "start_bit": 43,
+                "bits": 1
+            },
+            "Run_MotorOverTemperature": {
+                "start_bit": 44,
+                "bits": 1
+            },
+            "Run_BrakeInputShortedFault": {
+                "start_bit": 48,
+                "bits": 1
+            },
+            "Run_BrakeInputOpenFault": {
+                "start_bit": 49,
+                "bits": 1
+            },
+            "Run_ModuleAOverTemperatureFault": {
+                "start_bit": 50,
+                "bits": 1
+            },
+            "Run_ModuleBOverTemperatureFault": {
+                "start_bit": 51,
+                "bits": 1
+            },
+            "Run_ModuleCOverTemperatureFault": {
+                "start_bit": 52,
+                "bits": 1
+            },
+            "Run_PcbOverTemperatureFault": {
+                "start_bit": 53,
+                "bits": 1
+            },
+            "Run_GateDriveBoard1OverTemperatureFault": {
+                "start_bit": 54,
+                "bits": 1
+            },
+            "Run_GateDriveBoard2OverTemperatureFault": {
+                "start_bit": 55,
+                "bits": 1
+            },
+            "Run_GateDriveBoard3OverTemperatureFault": {
+                "start_bit": 56,
+                "bits": 1
+            },
+            "Run_CurrentSensorFault": {
+                "start_bit": 57,
+                "bits": 1
+            },
+            "Run_GateDriverOverVoltage": {
+                "start_bit": 58,
+                "bits": 1
+            },
+            "Run_HardwareDcBusOverVoltageGen3": {
+                "start_bit": 59,
+                "bits": 1
+            },
+            "Run_HardwareDcBusOverVoltageGen5": {
+                "start_bit": 60,
+                "bits": 1
+            },
+            "Run_ResolverNotConnected": {
+                "start_bit": 62,
+                "bits": 1
+            }
+        }
+    },
+    "TorqueAndTimerInfo": {
+        "msg_id": 62,
+        "cycle_time": 10,
+        "signals": {
+            "CommandedTorque": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm"
+            },
+            "TorqueFeedback": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm"
+            },
+            "PowerOnTimer": {
+                "start_bit": 32,
+                "bits": 32,
+                "signed": false,
+                "scale": 0.003,
+                "offset": 0,
+                "min": 0,
+                "max": 12884900,
+                "unit": "sec"
+            }
+        }
+    },
+    "DebugReadWriteParamCommand": {
+        "msg_id": 83, 
+        "signals": {
+            "CommandParameterAddress": {
+                "start_bit": 0, 
+                "bits": 16
+            },
+            "CommandReadWrite": {
+                "start_bit": 16, 
+                "enum": "InverterReadWriteCommand"
+            },
+            "CommandData": {
+                "start_bit": 32, 
+                "bits": 16
+            }
+        }
+    },
+    "DebugReadWriteParamResponse": {
+        "msg_id": 84, 
+        "signals": {
+            "ResponseParameterAddress": {
+                "start_bit": 0, 
+                "bits": 16
+            },
+            "ResponseWriteSuccess": {
+                "start_bit": 16, 
+                "bits": 1
+            },
+            "ResponseData": {
+                "start_bit": 32, 
+                "bits": 16
+            }
+        }
+    }
+}
