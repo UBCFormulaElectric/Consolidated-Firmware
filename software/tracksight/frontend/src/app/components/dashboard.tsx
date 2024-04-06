@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getRealtimeData, deleteDashboardData } from '../../../firestoreService';
+import { getRealtimeData, deleteDashboardData } from '../../../dashboardService';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Select, Space, Button, Modal, Checkbox, List, message } from 'antd';
 import { Socket } from "socket.io-client";
