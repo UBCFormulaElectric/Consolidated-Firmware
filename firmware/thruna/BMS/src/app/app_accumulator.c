@@ -187,7 +187,7 @@ void app_accumulator_balanceCells(void)
     // Write to configuration register to configure cell discharging
     app_accumulator_calculateCellsToBalance();
     io_ltc6813Shared_writeConfigurationRegisters(true);
-    
+
     // Balance PWM settings
     float    balance_pwm_freq = app_canRx_Debug_CellBalancingOverridePWM_get()
                                     ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get()

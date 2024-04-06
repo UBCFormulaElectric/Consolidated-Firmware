@@ -57,7 +57,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    const bool balancing_requested = true; //app_canRx_Debug_CellBalancingRequest_get();
+    const bool balancing_requested = app_canRx_Debug_CellBalancingRequest_get();
 
     switch (iso_spi_task_state)
     {
@@ -101,8 +101,8 @@ bool app_allStates_runOnTick100Hz(void)
             if (iso_spi_state_counter >= NUM_CYCLES_TO_BALANCE)
             {
                 app_accumulator_enableBalancing(false);
-                iso_spi_task_state    = RUN_CELL_MEASUREMENTS;
-                iso_spi_state_counter = 0;
+                iso_spi_task_state                 = RUN_CELL_MEASUREMENTS;
+                iso_spi_state_counter              = 0;
                 globals->cell_monitor_settle_count = 0;
             }
 
