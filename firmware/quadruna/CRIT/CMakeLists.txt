@@ -134,6 +134,7 @@ elseif("${TARGET}" STREQUAL "test")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdownSensor.h"
     )   
     create_fake_library(
         "quadruna_CRIT_fakes"

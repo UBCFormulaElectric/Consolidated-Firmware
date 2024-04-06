@@ -9,6 +9,7 @@
 #include "app_globals.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "io_shutdownSensor.h"
 // #include "./tasks.h"
 
 static void mainStateRunOnTick100Hz(void)
@@ -22,7 +23,7 @@ static void mainStateRunOnTick100Hz(void)
     const bool ams_fault_latched = app_canRx_BMS_BmsLatchedFault_get();
     io_led_enable(globals->config->ams_led, ams_fault_latched);
 
-    const bool shutdown_sensor = hw_gpio_readPin(globals->config->shdn_sen_pin);
+    const bool shutdown_sensor = io_shutdownSensor_readPin(globals->config->shdn_sen);
     io_led_enable(globals->config->shdn_led, shutdown_sensor);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);

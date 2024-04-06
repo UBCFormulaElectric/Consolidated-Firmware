@@ -23,6 +23,7 @@
 #include "io_rgbLed.h"
 #include "io_can.h"
 #include "io_canRx.h"
+#include "io_shutdownSensor.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -269,6 +270,10 @@ static const Gpio shdn_sen_pin    = { .port = SHDN_SEN_GPIO_Port, .pin = SHDN_SE
 static const Gpio inertia_sen_pin = { .port = INERTIA_SEN_GPIO_Port, .pin = INERTIA_SEN_Pin };
 // clang-format on
 
+static const ShutdownSensor shdn_sen = {
+    .shdn_sen_pin = &shdn_sen_pin
+};    
+
 const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
     [CRIT_GpioNetName_START_LED]            = &start_led_pin,
@@ -332,7 +337,7 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .fsm_status_led   = &fsm_status_led,
                                               .rsm_status_led   = &rsm_status_led,
                                               .vc_status_led    = &vc_status_led,
-                                              .shdn_sen_pin     = &shdn_sen_pin };
+                                              .shdn_sen     = &shdn_sen };
 
 // TODO: add heartbeat for VC and RSM
 // CRIT rellies on BMS, VC, RSM, FSM

@@ -69,7 +69,7 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed    rsm_status_led   = {};
     const RgbLed    vc_status_led    = {};
     // dummy used to initialize shdn_sen_pin
-    const Gpio      dummy_shdn_sen_pin     = {};
+    const ShutdownSensor shdn_sen     = {};
 
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself
@@ -131,6 +131,6 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         .fsm_status_led   = &fsm_status_led,
         .rsm_status_led   = &rsm_status_led,
         .vc_status_led    = &vc_status_led,
-        .shdn_sen_pin     = &dummy_shdn_sen_pin
+        .shdn_sen     = &shdn_sen
     };
 };

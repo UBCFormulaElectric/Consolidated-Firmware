@@ -3,6 +3,7 @@
 #include "io_switch.h"
 #include "io_rgbLed.h"
 #include "io_led.h"
+#include "io_shutdownSensor.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
@@ -31,7 +32,7 @@ typedef struct
     const RgbLed *const    aux_status_led;
     const RgbLed *const    crit_status_led;
     const RgbLed *const    rsm_status_led;
-    const Gpio *const      shdn_sen_pin;
+    const ShutdownSensor *const      shdn_sen;
 } GlobalsConfig;
 
 typedef struct
