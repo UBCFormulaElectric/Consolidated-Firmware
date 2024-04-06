@@ -26,12 +26,12 @@ bool loadCell_OCSC(int adcPin_toCheck)
 
 float io_loadCell_getMechanicalLoad3(void)
 {
-    return io_voltageToMechanicalLoad(hw_adc_getVoltage(ADC1_IN10_LC3_OUT));
+    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN10_LC3_OUT));
 }
 
 float io_loadCell_getMechanicalLoad4(void)
 {
-    return io_voltageToMechanicalLoad(hw_adc_getVoltage(ADC1_IN0_LC4_OUT));
+    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN0_LC4_OUT));
 }
 
 bool io_loadCell_sensor3OCSC(void)

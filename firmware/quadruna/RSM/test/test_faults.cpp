@@ -4,7 +4,7 @@
 #include "app_suspension.h"
 #include <cmath>
 
-    class RsmFaultsTest : public RsmBaseStateMachineTest
+class RsmFaultsTest : public RsmBaseStateMachineTest
 {
 };
 
