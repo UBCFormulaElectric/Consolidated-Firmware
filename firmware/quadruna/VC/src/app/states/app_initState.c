@@ -15,6 +15,8 @@
 
 #include <app_pumpControl.h>
 
+#define DEFAULT_FLOW_RATE 1000 // TODO: determine appropriate value
+
 static void initStateRunOnEntry(void)
 {
     app_allStates_runOnTick100Hz();
@@ -74,10 +76,14 @@ static void initStateRunOnTick1Hz(void)
 {
     app_allStates_runOnTick1Hz();
 
-    // if (app_canRx_Debug_SetCoolantPump_CustomEnable_get())
-    // {
-    //     app_pumpControl_setFlowRate(app_canRx_Debug_SetCoolantPump_CustomVal_get());
-    // }
+    if (app_canRx_Debug_SetCoolantPump_CustomEnable_get())
+    {
+        app_pumpControl_setFlowRate(app_canRx_Debug_SetCoolantPump_CustomVal_get());
+    }
+    else
+    {
+        app_pumpControl_setFlowRate(DEFAULT_FLOW_RATE);
+    }
 }
 
 const State *app_initState_get(void)
