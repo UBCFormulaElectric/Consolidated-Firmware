@@ -164,8 +164,6 @@ static const FsmShdnConfig fsm_shdn_pin_config = { 1, fsm_shdn };
 
 static BoardShdnNode fsmBshdnNodes[1] = { { &io_get_FSM_SHDN_OK, &app_canTx_FSM_FSM_SHDN_OK_Status_set } };
 
-void tasks_preInit(void) {}
-
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();

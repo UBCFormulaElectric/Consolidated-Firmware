@@ -9,11 +9,8 @@
 #include "app_apps.h"
 #include "app_brake.h"
 #include "app_suspension.h"
-<<<<<<< HEAD
 #include "app_loadCell.h"
-=======
 #include "app_shdnLoop.h"
->>>>>>> 19010f36 (Added broadcast function to FSM)
 
 #include "app_heartbeatMonitor.h"
 
@@ -24,11 +21,8 @@ void mainStateRunOnTick100Hz(void)
     app_steering_broadcast();
     app_wheels_broadcast();
     app_suspension_broadcast();
-<<<<<<< HEAD
     app_loadCell_broadcast();
-=======
     app_shdn_loop_broadcast();
->>>>>>> 19010f36 (Added broadcast function to FSM)
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
