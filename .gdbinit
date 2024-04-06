@@ -1,5 +1,5 @@
-add-symbol-file "./build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.elf"
-add-symbol-file "./build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM.elf"
+add-symbol-file "./build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT_app.elf"
+add-symbol-file "./build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_app.elf"
 add-symbol-file "./build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS_app.elf"
-add-symbol-file "./build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM.elf"
+add-symbol-file "./build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM_app.elf"
 add-symbol-file "./build_fw_deploy/firmware/quadruna/VC/quadruna_VC_app.elf"
