@@ -386,7 +386,7 @@ static const CritShdnConfig crit_shdn_pin_config = {
 };
 
 static BoardShdnNode critBshdnNodes[2] = { { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_INERTIA_SEN_OK_Status_set },
-                                       { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_SHDN_SEN_OK_Status_set } };
+                                           { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_SHDN_SEN_OK_Status_set } };
 
 void tasks_preInit(void)
 {
