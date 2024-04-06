@@ -138,10 +138,11 @@ static void can_msg_received_callback(CanMsg *rx_msg);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 CanHandle can = { .can = &hfdcan2, .can_msg_received_callback = can_msg_received_callback };
-SdCard    sd;
-Gpio      sd_present = {
-         .pin  = GPIO_PIN_8,
-         .port = GPIOA,
+SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
+
+Gpio sd_present = {
+    .pin  = GPIO_PIN_8,
+    .port = GPIOA,
 };
 bool sd_inited;
 
@@ -447,7 +448,7 @@ static void MX_SDMMC1_SD_Init(void)
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
     sd_inited = true;
-    HAL_SD_ConfigWideBusOperation(&hsd1, SDMMC_BUS_WIDE_4B);
+    hw_sd_init(&sd);
     /* USER CODE END SDMMC1_Init 2 */
 }
 
