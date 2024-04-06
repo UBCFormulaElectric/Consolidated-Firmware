@@ -140,21 +140,20 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-
     jsoncan_library(
-    "quadruna_CRIT_can"
-    "CRIT"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    FALSE
-    "quadruna"
-    )   
+        "quadruna_CRIT_can"
+        "CRIT"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
+        "quadruna"
+    )
     add_library(quadruna_CRIT_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_CRIT_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdownSensor.h"
-    )   
+    )
     create_fake_library(
         "quadruna_CRIT_fakes"
         "${HEADERS_TO_FAKE}"
