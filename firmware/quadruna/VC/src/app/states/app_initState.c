@@ -48,6 +48,8 @@ static void initStateRunOnTick100Hz(void)
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
 
+    app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
+
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;

@@ -9,153 +9,81 @@
 #include "app_retryHandler.h"
 #include "app_powerManager.h"
 
-bool app_retry_handler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
+bool app_retryHandler_start(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
 {
     bool go_to_init = false;
+
     switch (protocol)
     {
-        // turn off/on lv and inverters
+        case RETRY_PROTOCOL_SHDN:
+            io_efuse_standbyReset(EFUSE_CHANNEL_SHDN);
+            io_efuse_setChannel(EFUSE_CHANNEL_SHDN, false);
+
+            retry_data[EFUSE_CHANNEL_SHDN].protocol_state = PROTOCOL_STATE_DEBOUNCE;
+            break;
         case RETRY_PROTOCOL_LV:
-            io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_LVPWR);
-            io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
-
-            go_to_init = true;
-
-            retry_data[EFUSE_CHANNEL_LVPWR].protocol_state  = PROTOCOL_STATE_CALC_AVG;
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_WAITING;
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_WAITING;
-            break;
-        // turn off inverters and aux
-        case RETRY_PROTOCOL_DI_LHS:
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_DI_LHS);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_CALC_AVG;
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_WAITING;
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state    = PROTOCOL_STATE_WAITING;
-            break;
-        // turn off inverters and aux
-        case RETRY_PROTOCOL_DI_RHS:
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_DI_RHS);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
-
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_CALC_AVG;
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_WAITING;
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state    = PROTOCOL_STATE_WAITING;
-            break;
-        // turn off air and lv, go to init state
-        case RETRY_PROTOCOL_AIR:
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, false);
-            io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_AIR);
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
+            for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
+            {
+                io_efuse_setChannel(efuse, false);
+                retry_data[efuse].protocol_state = PROTOCOL_STATE_DEPENDENCY_WAITING;
+            }
 
             go_to_init = true;
 
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state   = PROTOCOL_STATE_CALC_AVG;
-            retry_data[EFUSE_CHANNEL_LVPWR].protocol_state = PROTOCOL_STATE_WAITING;
+            retry_data[EFUSE_CHANNEL_LV].protocol_state = PROTOCOL_STATE_DEBOUNCE;
             break;
-        // go back to init state
-        case RETRY_PROTOCOL_AUX:
-            io_efuse_setChannel(EFUSE_CHANNEL_AUX, false);
+        case RETRY_PROTOCOL_PUMP:
+            io_efuse_setChannel(EFUSE_CHANNEL_PUMP, false);
+            retry_data[EFUSE_CHANNEL_PUMP].protocol_state = PROTOCOL_STATE_DEBOUNCE;
+            break;
+        case RETRY_PROTOCOL_INV_R:
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_R, false);
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_L, false);
+            io_efuse_setChannel(EFUSE_CHANNEL_SHDN, false);
 
             go_to_init = true;
 
-            io_efuse_standbyReset(EFUSE_CHANNEL_AUX);
-            io_efuse_setChannel(EFUSE_CHANNEL_AUX, true);
-
-            retry_data[EFUSE_CHANNEL_AUX].protocol_state = PROTOCOL_STATE_CALC_AVG;
+            retry_data[EFUSE_CHANNEL_INV_R].protocol_state = PROTOCOL_STATE_DEBOUNCE;
+            retry_data[EFUSE_CHANNEL_INV_L].protocol_state = PROTOCOL_STATE_DEPENDENCY_WAITING;
+            retry_data[EFUSE_CHANNEL_SHDN].protocol_state  = PROTOCOL_STATE_DEPENDENCY_WAITING;
             break;
-        // turn off fans
-        case RETRY_PROTOCOL_FANS:
-            io_efuse_setChannel(EFUSE_CHANNEL_FAN, false);
+        case RETRY_PROTOCOL_INV_L:
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_R, false);
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_L, false);
+            io_efuse_setChannel(EFUSE_CHANNEL_SHDN, false);
 
-            io_efuse_standbyReset(EFUSE_CHANNEL_FAN);
-            io_efuse_setChannel(EFUSE_CHANNEL_FAN, true);
+            go_to_init = true;
 
-            retry_data[EFUSE_CHANNEL_FAN].protocol_state = PROTOCOL_STATE_CALC_AVG;
+            retry_data[EFUSE_CHANNEL_INV_L].protocol_state = PROTOCOL_STATE_DEBOUNCE;
+            retry_data[EFUSE_CHANNEL_INV_R].protocol_state = PROTOCOL_STATE_DEPENDENCY_WAITING;
+            retry_data[EFUSE_CHANNEL_SHDN].protocol_state  = PROTOCOL_STATE_DEPENDENCY_WAITING;
             break;
-        // turn off emeter
-        case RETRY_PROTOCOL_EMETER:
-            io_efuse_setChannel(EFUSE_CHANNEL_EMETER, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_EMETER);
-            io_efuse_setChannel(EFUSE_CHANNEL_EMETER, true);
-
-            retry_data[EFUSE_CHANNEL_EMETER].protocol_state = PROTOCOL_STATE_CALC_AVG;
-            break;
-        // turn off drs
-        case RETRY_PROTOCOL_DRS:
-            io_efuse_setChannel(EFUSE_CHANNEL_DRS, false);
-
-            io_efuse_standbyReset(EFUSE_CHANNEL_DRS);
-            io_efuse_setChannel(EFUSE_CHANNEL_DRS, true);
-
-            retry_data[EFUSE_CHANNEL_DRS].protocol_state = PROTOCOL_STATE_CALC_AVG;
         default:
             break;
     }
     return go_to_init;
 }
 
-void app_retry_handler_success(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
+void app_retryHandler_success(RetryProtocol protocol, const RetryConfig retry_configs[], RetryData retry_data[])
 {
     switch (protocol)
     {
         case RETRY_PROTOCOL_LV:
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
+            for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
+            {
+                io_efuse_setChannel(efuse, true);
+                retry_data[efuse].protocol_state = PROTOCOL_STATE_OFF;
+            }
+            break;
+        case RETRY_PROTOCOL_INV_R:
+        case RETRY_PROTOCOL_INV_L:
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
+            io_efuse_setChannel(EFUSE_CHANNEL_INV_R, true);
+            io_efuse_setChannel(EFUSE_CHANNEL_SHDN, true);
 
-            retry_data[EFUSE_CHANNEL_LVPWR].protocol_state  = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_DI_LHS:
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_RHS, true);
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
-
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state    = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_DI_RHS:
-            io_efuse_setChannel(EFUSE_CHANNEL_DI_LHS, true);
-            io_efuse_setChannel(EFUSE_CHANNEL_AIR, true);
-
-            retry_data[EFUSE_CHANNEL_DI_LHS].protocol_state = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_DI_RHS].protocol_state = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state    = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_AIR:
-            io_efuse_setChannel(EFUSE_CHANNEL_LVPWR, true);
-
-            retry_data[EFUSE_CHANNEL_AIR].protocol_state   = PROTOCOL_STATE_OFF;
-            retry_data[EFUSE_CHANNEL_LVPWR].protocol_state = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_AUX:
-            retry_data[EFUSE_CHANNEL_AUX].protocol_state = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_FANS:
-            retry_data[EFUSE_CHANNEL_FAN].protocol_state = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_EMETER:
-            retry_data[EFUSE_CHANNEL_FAN].protocol_state = PROTOCOL_STATE_OFF;
-            break;
-        case RETRY_PROTOCOL_DRS:
-            retry_data[EFUSE_CHANNEL_FAN].protocol_state = PROTOCOL_STATE_OFF;
+            retry_data[EFUSE_CHANNEL_INV_L].protocol_state = PROTOCOL_STATE_OFF;
+            retry_data[EFUSE_CHANNEL_INV_R].protocol_state = PROTOCOL_STATE_OFF;
+            retry_data[EFUSE_CHANNEL_SHDN].protocol_state  = PROTOCOL_STATE_OFF;
             break;
         default:
             break;

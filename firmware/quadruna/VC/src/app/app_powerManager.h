@@ -35,4 +35,4 @@ PowerManagerState app_powerManager_getState();
  * @param state the current PowerManagerState's efuses being checked
  * @returns if the state machine should go to init state
  */
-bool app_powerManager_check_efuses(PowerManagerState state);
+bool app_powerManager_checkEfuses(PowerManagerState state);

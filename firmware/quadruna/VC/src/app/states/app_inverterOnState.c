@@ -46,6 +46,8 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
+
+    app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
 }
 
 const State *app_inverterOnState_get()
