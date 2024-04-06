@@ -61,10 +61,22 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_FSM_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_FSM_Warning_RxOverflow_set(false);
+}
+
 const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
@@ -139,15 +151,16 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM reset!");
+}
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("FSM reset!");
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);

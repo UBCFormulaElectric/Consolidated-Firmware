@@ -9,6 +9,9 @@
             },
             "State": {
                 "enum": "VcState"
+            },
+            "BuzzerOn": {
+                "bits": 1
             }
         }
     },
@@ -73,6 +76,65 @@
     },
     "RightInverterCommand": {
         "msg_id": 82,
+        "cycle_time": 10,
+        "signals": {
+            "RightInverterTorqueCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            },
+            "RightInverterSpeedCommand": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 1,
+                "offset": 0,
+                "min": -32768,
+                "max": 32767,
+                "unit": "rpm",
+                "start_value": 0
+            },
+            "RightInverterDirectionCommand": {
+                "start_bit": 32,
+                "enum": "InverterDirection",
+                "start_value": 0
+            },
+            "RightInverterEnable": {
+                "start_bit": 40,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableDischarge": {
+                "start_bit": 41,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterEnableSpeedMode": {
+                "start_bit": 42,
+                "bits": 1,
+                "start_value": 0
+            },
+            "RightInverterTorqueLimit": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "AlertsContext": {
+        "msg_id": 202,
         "cycle_time": 10,
         "signals": {
             "RightInverterTorqueCommand": {
@@ -249,17 +311,17 @@
         }
     },
     "CommitInfo": {
-        "msg_id": 204,
-        "cycle_time": 100,
-        "description": "VC Current Running Git Commit Info",
-        "signals": {
-            "Hash": {
-                "bits": 32
-            },
-            "Clean": {
-                "bits": 1
-            }
-        }
+      "msg_id": 204,
+      "cycle_time": 100,
+      "description": "VC Current Running Git Commit Info",
+      "signals": {
+          "Hash": {
+              "bits": 32
+          },
+          "Clean": {
+              "bits": 1
+          }
+      }
     },
     "PowerEstimate": {
         "msg_id": 211,
@@ -424,56 +486,56 @@
     "GpsPosInfo": {
         "msg_id": 217,
         "cycle_time": 100,
-        "description": "Car position info",
-        "signals": {
-            "PositionStatus": {
-                "enum": "DcmSbgStatus"
-            },
-            "Latitude": {
-                "resolution": 0.00005,
-                "min": 47,
-                "max": 50,
-                "unit": "deg"
-            },
-            "LatitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 2,
-                "unit": "m"
-            },
-            "Longtitude": {
-                "resolution": 0.00005,
-                "min": 122,
-                "max": 125,
-                "unit": "deg"
-            },
-            "LongtitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 2,
-                "unit": "m"
-            },
-            "Altitude": {
-                "resolution": 0.5,
-                "min": 0,
-                "max": 400,
-                "unit": "m"
-            },
-            "AltitudeAccuracy": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 20,
-                "unit": "m"
-            }
+        "description": "Car position info", 
+            "signals":{
+                "PositionStatus":{
+                    "enum": "VcSbgStatus"
+                },
+                "Latitude":{
+                    "resolution": 0.00005,
+                    "min": 47,
+                    "max": 50,
+                    "unit": "deg"  
+                },
+                "LatitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Longtitude":{
+                    "resolution": 0.00005,
+                    "min": 122,
+                    "max": 125,
+                    "unit": "deg" 
+                },
+                "LongtitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 2,
+                    "unit": "m" 
+                },
+                "Altitude":{
+                    "resolution": 0.5,
+                    "min": 0,
+                    "max": 400,
+                    "unit": "m"
+                },
+                "AltitudeAccuracy":{
+                    "resolution": 0.1,
+                    "min": 0,
+                    "max": 20,
+                    "unit": "m"
+                }
         }
     },
     "GpsVelInfo": {
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",
-        "signals": {
-            "VelocityStatus": {
-                "enum": "DcmSbgStatus"
+        "signals":{
+            "VelocityStatus":{
+                "enum":"VcSbgStatus"
             },
             "VelocityNorth": {
                 "resolution": 0.1,
@@ -615,6 +677,44 @@
             },
             "InvLStatus": {
                 "bits": 1
+            }
+        }
+    },
+    "ImuLinearAcceleration": {
+        "msg_id": 225,
+        "cycle_time": 100,
+        "description": "Linear acceleration in x, y and z direction from the IMU",
+        "signals": {
+            "ImuAccelerationX": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "ImuAccelerationY": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "ImuAccelerationZ": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            }
+        }
+    },
+    "CoolantPumpFlowRate": {
+        "msg_id": 224,
+        "cycle_time": 1,
+        "description": "Broadcast flow rate of coolant pump.",
+        "signals": {
+            "FlowRate": {
+                "resolution": 15.625,
+                "min": 0,
+                "max": 2000,
+                "unit": "L/H"
             }
         }
     }

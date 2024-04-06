@@ -41,19 +41,31 @@ const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgRe
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_RxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_RxOverflowCount_set(true);
+    app_canAlerts_RSM_Warning_RxOverflow_set(true);
 }
 
 void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_RSM_TxOverflowCount_set(overflow_count);
-    app_canAlerts_RSM_Warning_TxOverflowCount_set(true);
+    app_canAlerts_RSM_Warning_TxOverflow_set(true);
+}
+
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_RSM_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_RSM_Warning_RxOverflow_set(false);
 }
 
 const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 static const Gpio n_chimera_pin      = { .port = NCHIMERA_GPIO_Port, .pin = NCHIMERA_Pin };
@@ -120,7 +132,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
@@ -130,20 +142,21 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("RSM reset!");
+}
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("RSM reset!");
 
     // Start DMA/TIM3 for the ADC.
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);

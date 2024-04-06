@@ -11,6 +11,7 @@
 !/.env
 !**/.clang-format
 !inverter-eeprom-config/
+!.gdbinit
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
