@@ -51,39 +51,41 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
 {
     static uint32_t tx_overflow_count = 0;
 
-    if (osMessageQueuePut(tx_queue_id, msg, 0, 0) != osOK && config->tx_overflow_callback != NULL)
+    const osStatus_t s = osMessageQueuePut(tx_queue_id, msg, 0, 0);
+    if (s != osOK)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        config->tx_overflow_callback(++tx_overflow_count);
+        if (config->tx_overflow_callback)
+            config->tx_overflow_callback(++tx_overflow_count);
+    }
+    else
+    {
+        if (config->tx_overflow_clear_callback)
+            config->tx_overflow_clear_callback();
     }
 }
 
 void io_can_transmitMsgFromQueue(void)
 {
     // Pop a msg of the TX queue, then transmit it onto the bus.
-    CanMsg tx_msg;
-    osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
+    CanMsg           tx_msg;
+    const osStatus_t s = osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
+    assert(s == osOK);
     hw_can_transmit(&tx_msg);
 }
 
 void io_can_popRxMsgFromQueue(CanMsg *msg)
 {
     // Pop a message off the RX queue.
-    osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
+    const osStatus_t s = osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);
+    assert(s == osOK);
 }
 
-void io_can_msgReceivedCallback(uint32_t rx_fifo)
+void io_can_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
-    CanMsg rx_msg;
-    if (!hw_can_receive(rx_fifo, &rx_msg))
-    {
-        // Early return if RX msg is unavailable.
-        return;
-    }
-
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg.std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
@@ -91,9 +93,15 @@ void io_can_msgReceivedCallback(uint32_t rx_fifo)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(rx_queue_id, &rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        config->rx_overflow_callback(++rx_overflow_count);
+        if (config->rx_overflow_callback != NULL)
+            config->rx_overflow_callback(++rx_overflow_count);
+    }
+    else
+    {
+        if (config->rx_overflow_clear_callback != NULL)
+            config->rx_overflow_clear_callback();
     }
 }

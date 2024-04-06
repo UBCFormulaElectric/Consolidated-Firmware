@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
 #include "hw_can.h"
+#include "io_can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,7 +85,10 @@ const osThreadAttr_t tickTask_attributes = {
     .priority   = (osPriority_t)osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,7 +106,6 @@ void        runTickTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -136,7 +139,10 @@ int main(void)
     MX_CAN1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
-    hw_can_init(&hcan1);
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+
+    hw_can_init(&can);
     bootloader_init();
     /* USER CODE END 2 */
 

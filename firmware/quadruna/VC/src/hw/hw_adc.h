@@ -38,7 +38,8 @@ typedef enum
     ADC1_IN19_VBAT_SENSE,
     ADC3_IN0_AUX_PWR_I_SNS,
     ADC3_IN1_PUMP_PWR_I_SNS,
-    NUM_ADC_CHANNELS
+    NUM_ADC_CHANNELS,
+    NO_ADC_CHANNEL // for cases where configuration requires an ADC pin, but there is none (TELEM/BUZZER efuses)
 } AdcChannel;
 
 /**

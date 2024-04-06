@@ -3,20 +3,56 @@
     "faults_id": 501,
     "warnings_counts_id": 550,
     "faults_counts_id": 551,
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow"
-    ],
-    "faults": [
-        "MissingBMSHeartbeat",
-        "MissingFSMHeartbeat",
-        "MissingPDMHeartbeat",
-        "MissingDCMHeartbeat"
-    ]
+    "warnings": {
+        "StackWaterMarkHighTask1Hz": {
+            "id" :201,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask100Hz": {
+            "id" :202,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1kHz": {
+            "id" :203,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id" :204,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanTx": {
+            "id" :205,
+            "description" : "Example"
+        },
+        "WatchdogTimeout": {
+            "id" :206,
+            "description" : "Example"
+        },
+        "TxOverflow": {
+            "id" :207,
+            "description" : "Example"
+        },
+        "RxOverflow": {
+            "id" :208,
+            "description" : "Example"
+        }
+    },
+    "faults": {
+        "MissingBMSHeartbeat": {
+            "id" :251,
+            "description" : "Example"
+        },
+        "MissingFSMHeartbeat": {
+            "id" :252,
+            "description" : "Example"
+        },
+        "MissingRSMHeartbeat": {
+            "id" :253,
+            "description" : "Example"
+        },
+        "MissingVCHeartbeat": {
+            "id":254,
+            "description" : "Example"
+        }
+}
 }

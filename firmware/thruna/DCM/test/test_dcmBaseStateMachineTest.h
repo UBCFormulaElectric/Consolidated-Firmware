@@ -104,6 +104,5 @@ class DcmBaseStateMachineTest : public BaseStateMachineTest
 
     const GlobalsConfig globals_config = {
         .brake_light = &brake_light,
-        .buzzer      = &buzzer,
     };
 };

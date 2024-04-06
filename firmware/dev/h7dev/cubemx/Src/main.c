@@ -4,8 +4,6 @@
  * @file           : main.c
  * @brief          : Main program body
  ******************************************************************************
- * @attention
- *
  * Copyright (c) 2023 STMicroelectronics.
  * All rights reserved.
  *
@@ -27,9 +25,18 @@
 #include "../../nanopb/pb_decode.h"
 #include "sample.pb.h"
 #include "string.h"
+#include "string.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_can.h"
+#include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
+#include "io_can.h"
+#include "io_canLogging.h"
+#include "io_fileSystem.h"
+#include "hw_gpio.h"
+#include "io_log.h"
+#include "hw_utils.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +57,11 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 
+FDCAN_HandleTypeDef hfdcan1;
+FDCAN_HandleTypeDef hfdcan2;
+
+SD_HandleTypeDef hsd1;
+
 UART_HandleTypeDef huart9;
 
 /* Definitions for defaultTask */
@@ -64,26 +76,75 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = sizeof(defaultTaskBuffer),
     .priority   = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[512];
+osStaticThreadDef_t  canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for canRxTask */
+osThreadId_t         canRxTaskHandle;
+uint32_t             canRxTaskBuffer[512];
+osStaticThreadDef_t  canRxTaskControlBlock;
+const osThreadAttr_t canRxTask_attributes = {
+    .name       = "canRxTask",
+    .cb_mem     = &canRxTaskControlBlock,
+    .cb_size    = sizeof(canRxTaskControlBlock),
+    .stack_mem  = &canRxTaskBuffer[0],
+    .stack_size = sizeof(canRxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
 /* USER CODE BEGIN PV */
-// static CanConfig can_config = {
-//     .rx_msg_filter        = NULL,
-//     .tx_overflow_callback = NULL,
-//     .rx_overflow_callback = NULL,
-// };
+
+int         write_num    = 0;
+int         read_num     = 0;
+int         overflow_num = 0;
+static void callback(uint32_t i)
+{
+    overflow_num++;
+    // BREAK_IF_DEBUGGER_CONNECTED();
+}
+
+static CanConfig can_config = {
+    .rx_msg_filter        = NULL,
+    .tx_overflow_callback = callback,
+    .rx_overflow_callback = callback,
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_FDCAN2_Init(void);
+static void MX_SDMMC1_SD_Init(void);
+static void MX_FDCAN1_Init(void);
 static void MX_UART9_Init(void);
 void        runDefaultTask(void *argument);
+void        runCanTxTask(void *argument);
+void        runCanRxTask(void *argument);
 
 /* USER CODE BEGIN PFP */
+static void can_msg_received_callback(CanMsg *rx_msg);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+CanHandle can = { .can = &hfdcan2, .can_msg_received_callback = can_msg_received_callback };
+SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
+
+Gpio sd_present = {
+    .pin  = GPIO_PIN_8,
+    .port = GPIOA,
+};
+bool sd_inited;
 
 /* USER CODE END 0 */
 
@@ -120,18 +181,27 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_FDCAN2_Init();
+    MX_SDMMC1_SD_Init();
+    MX_FDCAN1_Init();
     MX_UART9_Init();
     /* USER CODE BEGIN 2 */
     // __HAL_DBGMCU_FREEZE_IWDG();
 
-    // hw_hardFaultHandler_init();
-    // hw_can_init(&hfdcan2);
+    io_can_init(&can_config);
+    hw_hardFaultHandler_init();
+    hw_can_init(&can);
 
-    // io_can_init(&can_config);
+    if (sd_inited)
+    {
+        sd.hsd     = &hsd1;
+        sd.timeout = osWaitForever;
+        int err    = io_fileSystem_init();
+        io_canLogging_init(&can_config);
+    }
 
-    // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
-    // LOG_INFO("h7dev reset!");
+    LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -156,6 +226,12 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(runDefaultTask, NULL, &defaultTask_attributes);
+
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* creation of canRxTask */
+    canRxTaskHandle = osThreadNew(runCanRxTask, NULL, &canRxTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -240,6 +316,143 @@ void SystemClock_Config(void)
 }
 
 /**
+ * @brief FDCAN1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FDCAN1_Init(void)
+{
+    /* USER CODE BEGIN FDCAN1_Init 0 */
+
+    /* USER CODE END FDCAN1_Init 0 */
+
+    /* USER CODE BEGIN FDCAN1_Init 1 */
+
+    /* USER CODE END FDCAN1_Init 1 */
+    hfdcan1.Instance                  = FDCAN1;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.TransmitPause        = DISABLE;
+    hfdcan1.Init.ProtocolException    = DISABLE;
+    hfdcan1.Init.NominalPrescaler     = 16;
+    hfdcan1.Init.NominalSyncJumpWidth = 1;
+    hfdcan1.Init.NominalTimeSeg1      = 2;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 1;
+    hfdcan1.Init.DataTimeSeg1         = 1;
+    hfdcan1.Init.DataTimeSeg2         = 1;
+    hfdcan1.Init.MessageRAMOffset     = 0;
+    hfdcan1.Init.StdFiltersNbr        = 0;
+    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 0;
+    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxBuffersNbr         = 0;
+    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.TxEventsNbr          = 0;
+    hfdcan1.Init.TxBuffersNbr         = 0;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 0;
+    hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FDCAN1_Init 2 */
+
+    /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief FDCAN2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FDCAN2_Init(void)
+{
+    /* USER CODE BEGIN FDCAN2_Init 0 */
+
+    /* USER CODE END FDCAN2_Init 0 */
+
+    /* USER CODE BEGIN FDCAN2_Init 1 */
+
+    /* USER CODE END FDCAN2_Init 1 */
+    hfdcan2.Instance                  = FDCAN2;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan2.Init.AutoRetransmission   = ENABLE;
+    hfdcan2.Init.TransmitPause        = DISABLE;
+    hfdcan2.Init.ProtocolException    = DISABLE;
+    hfdcan2.Init.NominalPrescaler     = 16;
+    hfdcan2.Init.NominalSyncJumpWidth = 4;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.DataPrescaler        = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 1;
+    hfdcan2.Init.DataTimeSeg1         = 1;
+    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 0;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 1;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.RxBuffersNbr         = 0;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan2.Init.TxEventsNbr          = 0;
+    hfdcan2.Init.TxBuffersNbr         = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 1;
+    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FDCAN2_Init 2 */
+
+    /* USER CODE END FDCAN2_Init 2 */
+}
+
+/**
+ * @brief SDMMC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SDMMC1_SD_Init(void)
+{
+    /* USER CODE BEGIN SDMMC1_Init 0 */
+    if (hw_gpio_readPin(&sd_present))
+    {
+        sd_inited = false;
+        return;
+    }
+
+    /* USER CODE END SDMMC1_Init 0 */
+
+    /* USER CODE BEGIN SDMMC1_Init 1 */
+
+    /* USER CODE END SDMMC1_Init 1 */
+    hsd1.Instance                 = SDMMC1;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
+    hsd1.Init.ClockDiv            = 9;
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SDMMC1_Init 2 */
+    sd_inited = true;
+    hw_sd_init(&sd);
+    /* USER CODE END SDMMC1_Init 2 */
+}
+
+/**
  * @brief UART9 Initialization Function
  * @param None
  * @retval None
@@ -300,6 +513,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -313,35 +527,27 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PD8 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PD0 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_0;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PB5 PB6 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    /*Configure GPIO pin : PA8 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
+
+static void can_msg_received_callback(CanMsg *rx_msg)
+{
+    // TODO: check gpio present
+    static uint32_t id = 0;
+    rx_msg->std_id     = id;
+    id++;
+    io_can_msgReceivedCallback(rx_msg);
+    io_canLogging_msgReceivedCallback(rx_msg);
+}
 
 /* USER CODE END 4 */
 
@@ -355,42 +561,102 @@ static void MX_GPIO_Init(void)
 void runDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    UART modem_uart = { .handle = &huart9 };
     /* Infinite loop */
-    // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-    // uint8_t num; // use this if just want numbers
-    // uint8_t predicData[3];
-    // predicData[1] = 13;
-    // predicData[2] = 10;
-    uint8_t buffer[128];
-    uint8_t message_length;
-    bool    status;
-
-    // SimpleMessage message = SimpleMessage_init_zero;
-
     for (;;)
     {
-        /* Create a stream that will write to our buffer. */
-        TelemMessage message = TelemMessage_init_zero;
-        pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+        // UART modem_uart = { .handle = &huart9 };
+        // /* Infinite loop */
+        // // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+        // // uint8_t num; // use this if just want numbers
+        // // uint8_t predicData[3];
+        // // predicData[1] = 13;
+        // // predicData[2] = 10;
+        // uint8_t buffer[128];
+        // uint8_t message_length;
+        // bool    status;
 
-        /* Fill in the lucky number */
-        message.can_id     = 53;
-        message.data       = 23;
-        message.time_stamp = 9;
+        // // SimpleMessage message = SimpleMessage_init_zero;
 
-        /* Now we are ready to encode the message! */
-        status         = pb_encode(&stream, TelemMessage_fields, &message);
-        message_length = (uint8_t)stream.bytes_written;
-        // message_length = stream.bytes_written;
-        if (status)
-        {
-            hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
-            hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
-        }
-        osDelay(10);
+        // for (;;)
+        // {
+        //     /* Create a stream that will write to our buffer. */
+        //     TelemMessage message = TelemMessage_init_zero;
+        //     pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
+
+        //     /* Fill in the lucky number */
+        //     message.can_id     = 53;
+        //     message.data       = 23;
+        //     message.time_stamp = 9;
+
+        //     /* Now we are ready to encode the message! */
+        //     status         = pb_encode(&stream, TelemMessage_fields, &message);
+        //     message_length = (uint8_t)stream.bytes_written;
+        //     // message_length = stream.bytes_written;
+        //     if (status)
+        //     {
+        //         hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
+        //         hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
+        //     }
+        //     osDelay(10);
+        // }
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_runCanTxTask */
+/**
+ * @brief Function implementing the canTxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanTxTask */
+void runCanTxTask(void *argument)
+{
+    /* USER CODE BEGIN runCanTxTask */
+    /* Infinite loop */
+
+    for (unsigned int i = 0; i < 10000; i++)
+    {
+        CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
+        for (int j = 0; j < 6; j++)
+        {
+            read_num++;
+            io_canLogging_pushTxMsgToQueue(&msg);
+        }
+        osDelay(1);
+    }
+
+    osDelay(osWaitForever);
+    /* USER CODE END runCanTxTask */
+}
+
+/* USER CODE BEGIN Header_runCanRxTask */
+/**
+ * @brief Function implementing the canRxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_runCanRxTask */
+void runCanRxTask(void *argument)
+{
+    /* USER CODE BEGIN runCanRxTask */
+    /* Infinite loop */
+    static uint32_t count = 0;
+    for (;;)
+    {
+        // CanMsg msg;
+        // io_can_popRxMsgFromQueue(&msg);
+        io_canLogging_recordMsgFromQueue();
+        write_num++;
+        count++;
+
+        if (count > 256)
+        {
+            io_canLogging_sync();
+            count = 0;
+        }
+    }
+    /* USER CODE END runCanRxTask */
 }
 
 /**

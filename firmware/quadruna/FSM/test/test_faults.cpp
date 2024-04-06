@@ -400,3 +400,35 @@ TEST_F(FsmFaultsTest, right_suspension_ocsc_sets_warning)
     LetTimePass(10);
     ASSERT_FALSE(app_canAlerts_FSM_Warning_RightSuspensionOCSC_get());
 }
+
+TEST_F(FsmFaultsTest, load_cell_1_ocsc_sets_warning)
+{
+    fake_io_loadCell_sensor1OCSC_returns(true);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LoadCell1OCSC_get());
+
+    // Confirm set indefinitely
+    LetTimePass(1000);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LoadCell1OCSC_get());
+
+    // Clear condition, confirm warning resets
+    fake_io_loadCell_sensor1OCSC_returns(false);
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_LoadCell1OCSC_get());
+}
+
+TEST_F(FsmFaultsTest, load_cell_2_ocsc_sets_warning)
+{
+    fake_io_loadCell_sensor2OCSC_returns(true);
+    LetTimePass(10);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LoadCell2OCSC_get());
+
+    // Confirm set indefinitely
+    LetTimePass(1000);
+    ASSERT_TRUE(app_canAlerts_FSM_Warning_LoadCell2OCSC_get());
+
+    // Clear condition, confirm warning resets
+    fake_io_loadCell_sensor2OCSC_returns(false);
+    LetTimePass(10);
+    ASSERT_FALSE(app_canAlerts_FSM_Warning_LoadCell2OCSC_get());
+}

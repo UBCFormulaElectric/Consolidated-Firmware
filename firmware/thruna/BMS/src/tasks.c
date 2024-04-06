@@ -70,6 +70,11 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
 
+static CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
+};
+
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
     .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
@@ -235,7 +240,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim13);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);

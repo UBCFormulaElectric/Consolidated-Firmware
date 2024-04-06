@@ -9,23 +9,33 @@
 typedef struct
 {
     uint32_t std_id;
-    uint32_t dlc;
+    uint32_t dlc; // data length range : [0, 8]
     uint8_t  data[CAN_PAYLOAD_BYTES];
 } CanMsg;
 
+typedef void (*MsgReceivedCallback)(CanMsg *rx_msg);
+
 #ifdef CANFD
 // STM32 HAL CAN FD handle.
-typedef FDCAN_HandleTypeDef CanHandle;
+typedef struct
+{
+    FDCAN_HandleTypeDef *can;
+    MsgReceivedCallback  can_msg_received_callback;
+} CanHandle;
 #else
 // STM32 HAL CAN handle.
-typedef CAN_HandleTypeDef CanHandle;
+typedef struct
+{
+    CAN_HandleTypeDef  *can;
+    MsgReceivedCallback can_msg_received_callback;
+} CanHandle;
 #endif
 
 /**
  * Initialize CAN driver.
  * @param can_handle STM32 HAL CAN handle.
  */
-void hw_can_init(CanHandle *can_handle);
+void hw_can_init(const CanHandle *can_handle);
 
 /**
  * Stop and deinitialize the CAN peripheral.
