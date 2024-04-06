@@ -26,8 +26,6 @@ def write_json_file(data):
 def get_data():
     path = request.args.get('path')
     data = read_json_file()
-    # Access data by path. For simplicity, this example assumes 'path' directly maps to key(s) in the JSON.
-    # Adjust based on your data structure.
     path_data = data.get(path, 'No data found')
     return jsonify(path_data)
 
@@ -49,10 +47,8 @@ def delete_data():
     print(path)
     data = read_json_file()
 
-    # Split the path to get the section (e.g., 'dashboards') and the key (e.g., 'ass')
     path_parts = path.split('/')
     if len(path_parts) == 2 and path_parts[0] == 'dashboards' and path_parts[1] in data.get('dashboards', {}):
-        # Delete the specific dashboard
         del data['dashboards'][path_parts[1]]
         write_json_file(data)
         return jsonify({'message': 'Data deleted successfully'})
