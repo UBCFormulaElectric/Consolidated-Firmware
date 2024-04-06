@@ -1,3 +1,4 @@
+#include "app_chargeState.h"
 #include "states/app_allStates.h"
 #include "io_airs.h"
 #include "io_charger.h"
@@ -7,15 +8,36 @@
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 #define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
 
+static uint16_t sixteenByteEndianSwap(uint16_t can_signal)
+{
+    uint16_t swapped_signal = (uint16_t)(can_signal >> 8) | (uint16_t)(can_signal << 8);
+
+    return swapped_signal;
+}
+
+static float translateChargingParams(float charging_value)
+{
+    charging_value              = charging_value * 10.0f;
+    uint16_t charging_value_int = (uint16_t)charging_value;
+
+    charging_value_int = sixteenByteEndianSwap(charging_value_int);
+
+    float charging_value_translated = (float)charging_value_int / 10.0f;
+
+    return charging_value_translated;
+}
+
 static void chargeStateRunOnEntry(void)
 {
     app_canTx_BMS_ChargerEnable_set(true);
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
+    const float mains_current = translateChargingParams(MAX_MAINS_CURRENT);
+    const float batt_voltage  = translateChargingParams(CHARGING_VOLTAGE);
+    const float batt_current  = translateChargingParams(CHARGING_CURRENT);
     // Setting these for run on entry right now, change later maybe.
-    app_canTx_BMS_MaxChargingCurrent_set(MAX_CHARGING_CURRENT);
-    app_canTx_BMS_ChargingVoltage_set(CHARGING_VOLTAGE);
-    app_canTx_BMS_ChargingCurrent_set(CHARGING_CURRENT);
-    io_charger_enable(true);
+    app_canTx_BMS_MaxMainsCurrent_set(mains_current);
+    app_canTx_BMS_ChargingVoltage_set(batt_voltage);
+    app_canTx_BMS_ChargingCurrent_set(batt_current);
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
@@ -60,10 +82,20 @@ static void chargeStateRunOnTick100Hz(void)
         }
         // If charging is disabled over CAN go back to init state.
         if (!charging_enabled)
-        {
+        {   
+            
+            globals->charger_exit_counter++;
+
             // Charger must be diabled and given time to shut down before air positive is opened
             // app_canTx_BMS_ChargerEnable_set(false);
-            globals->charger_exit_counter++;
+
+            // HERE FOR TESTING PURPOSES
+            // Seemed to be hitting this multiple times and going between init and charge state a few times before settling in charge state and charging
+            // without this line and the charger disable above it will charge without issue.
+            // We exit charge state with the charger shutdown timeout instead. It seems to be getting the wrong Debug charging enable signal
+            // for the first few cycles of charge state and disabling the charger immediately. However because of the counter for exiting the state
+            // it will not go back to init state as it does not exceed 100U.
+            // app_stateMachine_setNextState(app_initState_get());
 
             if (globals->charger_exit_counter >= CHARGER_SHUTDOWN_TIMEOUT)
             {

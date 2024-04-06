@@ -15,6 +15,7 @@ static void initStateRunOnEntry(void)
     app_canTx_BMS_State_set(BMS_INIT_STATE);
     app_accumulator_writeDefaultConfig();
     io_faultLatch_setCurrentStatus(globals->config->bms_ok_latch, true);
+    io_charger_enable(true);
 
     // AIR+ opens upon entering init state
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want

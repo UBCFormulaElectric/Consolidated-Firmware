@@ -5,15 +5,15 @@
         "description": "Flags relaying BMS Charger Faults",
         "signals": {
             "OnStatus": {
-                "start_bit": 0,
+                "start_bit": 7,
                 "bits": 1
             },
             "Error": {
-                "start_bit": 1,
+                "start_bit": 6,
                 "bits": 1
             },
             "PowerLimitedWarning": {
-                "start_bit": 2,
+                "start_bit": 5,
                 "bits": 1
             }
         }

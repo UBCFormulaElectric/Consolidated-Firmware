@@ -10,9 +10,9 @@
 #define CHARGER_SHUTDOWN_TIMEOUT (100U)
 
 // Setting these to testing, will need to be changed later.
-#define CHARGING_VOLTAGE (320U)
-#define CHARGING_CURRENT (1U)
-#define MAX_CHARGING_CURRENT (2U)
+#define CHARGING_VOLTAGE (330.0f)
+#define CHARGING_CURRENT (10.0f)
+#define MAX_MAINS_CURRENT (10.0f)
 /**
  * Get a pointer to the Charge State.
  * @return A pointer to the Charge State. THIS SHOULD NOT BE MODIFIED.

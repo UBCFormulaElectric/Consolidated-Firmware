@@ -103,21 +103,25 @@
                 "start_bit": 6,
                 "bits": 1
             },
-            "VentilationControlFiller":{
-                "start_bit": 5,
-                "bits": 1
-            },
-            "MaxChargingCurrent": {
+            "MaxMainsCurrent": {
                 "start_bit": 8,
-                "bits": 16
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
             },
             "ChargingVoltage": {
                 "start_bit": 24,
-                "bits": 16
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
             },
             "ChargingCurrent": {
                 "start_bit": 40,
-                "bits": 16
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
+
+
             }
         }
     },
