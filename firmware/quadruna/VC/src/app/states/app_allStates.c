@@ -53,5 +53,6 @@ void app_allStates_runOnTick100Hz(void)
 
 void app_allStates_runOnTick1Hz()
 {
+    //app_pumpControl_setFlowRate();
     app_canTx_VC_FlowRate_set(app_pumpControl_getFlowRate());
 }
