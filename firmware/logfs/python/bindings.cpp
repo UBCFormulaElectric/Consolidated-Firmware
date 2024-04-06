@@ -34,6 +34,8 @@ class PyLogFsFile
 
     std::string path(void) { return file.path; }
 
+    bool is_open(void) { return file.is_open; }
+
     LogFsFile file;
 };
 
@@ -189,7 +191,8 @@ PYBIND11_MODULE(logfs_src, m)
 
     py::class_<PyLogFsFile>(m, "PyLogFsFile")
         .def(py::init<>())
-        .def("path", &PyLogFsFile::path);
+        .def("path", &PyLogFsFile::path)
+        .def("is_open", &PyLogFsFile::is_open);
 
     py::class_<LogFsPath>(m, "PyLogFsPath")
         .def(py::init<>());

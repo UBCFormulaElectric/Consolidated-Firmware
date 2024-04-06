@@ -28,10 +28,10 @@ def test_rw_big_file(fs: LogFs, size_bytes) -> None:
 
     # Write data.
     file = fs.open(path="/test.txt", flags="rwx")
-    fs.write(file=file, data=data)
+    file.write(data=data)
 
     # Read data back.
-    read_data = fs.read(file=file)
+    read_data = file.read()
     assert data == read_data
 
 
@@ -57,27 +57,27 @@ def test_rw_multiple_files(
 
     # Write multiple files.
     for _, data, handle in files:
-        fs.write(file=handle, data=data)
+        handle.write(data=data)
 
     # Read multiple files.
     for _, data, handle in files:
-        read_data = fs.read(file=handle)
+        read_data = handle.read()
         assert read_data == data
 
     # Repeat for redundancy.
     for _, data, handle in files:
-        fs.write(file=handle, data=data)
+        handle.write(data=data)
 
     for _, data, handle in files:
-        read_data = fs.read(file=handle)
+        read_data = handle.read()
         assert read_data == handle * 2
 
     # And once more...
     for _, data, handle in files:
-        fs.write(file=handle, data=data)
+        handle.write(data=data)
 
     for _, data, handle in files:
-        read_data = fs.read(file=handle)
+        read_data = handle.read()
         assert read_data == handle * 3
 
 
@@ -93,27 +93,27 @@ def test_open_existing(fs: LogFs, data_size: int) -> None:
 
     # Write data and read data back.
     handle = fs.open(path=file_name, flags="rwx")
-    fs.write(file=handle, data=data1)
-    read_data = fs.read(file=handle)
+    handle.write(data=data1)
+    read_data = handle.read()
     assert read_data == data1
-    fs.close(file=handle)
+    handle.close()
 
     # Try opening the file again, and read data back.
     del handle
     new_handle = fs.open(path=file_name, flags="rw")
-    read_data = fs.read(file=new_handle)
+    read_data = new_handle.read()
     assert read_data == data1
 
     # Try modifying the file.
-    fs.write(file=new_handle, data=data2)
-    read_data = fs.read(file=new_handle)
+    new_handle.write(data=data2)
+    read_data = new_handle.read()
     assert read_data == data1 + data2
-    fs.close(file=new_handle)
+    new_handle.close()
 
     # Try opening/reading one more time.
     del new_handle
     newest_handle = fs.open(path=file_name, flags="r")
-    read_data = fs.read(file=newest_handle)
+    read_data = newest_handle.read()
     assert read_data == data1 + data2
 
 
@@ -124,12 +124,12 @@ def test_mount(fs: LogFs, data_size: int) -> None:
 
     # Write data.
     file = fs.open(path="/test.txt", flags="rwx")
-    fs.write(file=file, data=data)
+    file.write(data=data)
 
     # Read data back.
-    read_data = fs.read(file=file)
+    read_data = file.read()
     assert read_data == data
-    fs.close(file=file)
+    file.close()
 
     # Re-mount filesystem.
     del file
@@ -137,12 +137,12 @@ def test_mount(fs: LogFs, data_size: int) -> None:
 
     # Read data back.
     file = fs.open(path="/test.txt", flags="rw")
-    read_data = fs.read(file=file)
+    read_data = file.read()
     assert read_data == data
 
     # Try writing data again.
-    fs.write(file=file, data=data)
-    read_data = fs.read(file=file)
+    file.write(data=data)
+    read_data = file.read()
     assert read_data == data + data
 
 
@@ -153,10 +153,10 @@ def test_read_entire_file_iter(fs: LogFs, data_size: int) -> None:
 
     # Write data.
     file = fs.open(path="/test.txt", flags="rwx")
-    fs.write(file=file, data=data)
+    file.write(data=data)
 
     # Read data back.
-    read_data = fs.read(file=file)
+    read_data = file.read()
     assert data == read_data
 
 
@@ -190,23 +190,24 @@ def test_metadata(fs: LogFs, metadata_size: int) -> None:
     file = fs.open(path="/test.txt", flags="rwx")
 
     # Metadata should start empty.
-    assert fs.read_metadata(file=file) == b""
+    assert file.read_metadata() == b""
 
     # R/W metadata.
     data = random_data(size_bytes=metadata_size)
-    fs.write_metadata(file=file, data=data)
-    assert fs.read_metadata(file=file) == data
+    file.write_metadata(data=data)
+    assert file.read_metadata() == data
 
     # Metadata is independent of data on file.
     file_data = b"Hello world!"
-    fs.write(file, file_data)
-    assert fs.read(file=file) == file_data
-    assert fs.read_metadata(file=file) == data
+    file.write(data=file_data)
+    assert file.read() == file_data
+    assert file.read_metadata() == data
 
     # Data should persist after reopening the file.
-    fs.close(file)
+    file.close()
     del file
 
     file = fs.open(path="/test.txt", flags="r")
-    assert fs.read(file=file) == file_data
-    assert fs.read_metadata(file=file) == data
+    assert file.read() == file_data
+    assert file.read_metadata() == data
+    
