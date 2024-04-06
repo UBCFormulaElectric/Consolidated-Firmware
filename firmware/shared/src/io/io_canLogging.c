@@ -1,3 +1,6 @@
+#pragma GCC diagnostic ignored "-Wconversion"
+// #pragma GCC diagnostic ignored "-Wint-conversion"
+
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
@@ -6,10 +9,11 @@
 #include "hw_gpio.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
+#include "io_time.h"
 // Private globals.
-static const CanConfig *config = NULL;
+static const CanConfig *config;
 #define QUEUE_SIZE 2048
-#define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
+#define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE
 #define PATH_LENGTH 10
 static osMessageQueueId_t message_queue_id;
 static StaticQueue_t      queue_control_block;
@@ -17,6 +21,9 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 
 static uint32_t current_bootcount;
 static int      log_fd; // fd for the log file
+
+extern SdCard sd;
+extern Gpio   sd_present;
 
 static char current_path[10];
 
@@ -33,11 +40,25 @@ static const osMessageQueueAttr_t queue_attr = {
 static void initLoggingFileSystem()
 {
     // early return
-    current_bootcount = io_fileSystem_getBootCount();
+    if (!hw_gpio_readPin(&sd_present))
+    {
+        return;
+    }
+
+    uint32_t bootcount = 0;
+    current_bootcount  = io_fileSystem_getBootCount();
 
     // create new folder for this boot
     sprintf(current_path, "%lu", current_bootcount);
     log_fd = io_fileSystem_open(current_path);
+}
+
+static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
+{
+    log->id        = msg->std_id;
+    log->dlc       = msg->dlc - 1;
+    log->timestamp = io_time_getCurrentMs();
+    memcpy(log->data, msg->data, 8);
 }
 
 void io_canLogging_init(const CanConfig *can_config)
@@ -57,7 +78,10 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 {
     static uint32_t tx_overflow_count = 0;
 
-    if (osMessageQueuePut(message_queue_id, msg, 0, 0) != osOK && config->tx_overflow_callback != NULL)
+    CanMsgLog log;
+    convertCanMsgToLog(msg, &log);
+
+    if (osMessageQueuePut(message_queue_id, &log, 0, 0) != osOK && config->tx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
         config->tx_overflow_callback(++tx_overflow_count);
@@ -66,7 +90,11 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 
 void io_canLogging_recordMsgFromQueue(void)
 {
-    CanMsg tx_msg;
+    // if (!sd_inited && hw_gpio_readPin(&sd_present))
+    // {
+    //     return;
+    // }
+    CanMsgLog tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg));
@@ -76,10 +104,6 @@ void io_canLogging_recordMsgFromQueue(void)
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
-    if (config == NULL)
-    {
-        return;
-    }
 
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
@@ -89,7 +113,8 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config != NULL &&
+        config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         // config->rx_overflow_callback(++rx_overflow_count);
