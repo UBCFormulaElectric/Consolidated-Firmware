@@ -65,6 +65,8 @@ static void inverterOnStateRunOnTick100Hz(void)
     }
 
     prev_start_switch_pos = curr_start_switch_on;
+
+    app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
 }
 
 const State *app_inverterOnState_get(void)

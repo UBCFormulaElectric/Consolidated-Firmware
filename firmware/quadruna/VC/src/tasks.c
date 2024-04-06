@@ -391,6 +391,8 @@ void tasks_init(void)
     io_lowVoltageBattery_init(&lv_battery_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
+    app_powerManager_init();
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);

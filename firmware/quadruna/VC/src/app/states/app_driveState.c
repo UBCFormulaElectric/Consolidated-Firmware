@@ -178,6 +178,8 @@ static void driveStateRunOnTick100Hz(void)
     {
         transmitTorqueRequests(apps_pedal_percentage);
     }
+
+    app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 }
 
 static void driveStateRunOnExit(void)
