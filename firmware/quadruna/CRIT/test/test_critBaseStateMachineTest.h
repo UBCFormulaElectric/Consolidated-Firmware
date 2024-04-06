@@ -12,7 +12,6 @@ extern "C"
 #include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
-#include "app_avgPower.h"
 #include "app_canUtils.h"
 #include "app_utils.h"
 #include "app_mainState.h"
@@ -22,7 +21,7 @@ extern "C"
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
-class DimBaseStateMachineTest : public BaseStateMachineTest
+class CritBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -33,11 +32,9 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_init();
 
         app_heartbeatMonitor_init(
-            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_DIM_Heartbeat_set,
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
-        app_avgPower_init();
-        app_sevenSegDisplays_init();
-        app_globals_init(&globals_config);
+        // app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -59,7 +56,6 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
     const BinaryLed bspd_led         = {};
     const BinaryLed ams_led          = {};
     const BinaryLed shdn_led         = {};
-    const BinaryLed shdn_led         = {};
     const BinaryLed start_led        = {};
     const Switch    start_switch     = {};
     const BinaryLed regen_led        = {};
@@ -72,6 +68,8 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed    fsm_status_led   = {};
     const RgbLed    rsm_status_led   = {};
     const RgbLed    vc_status_led    = {};
+    // dummy used to initialize shdn_sen_pin
+    const Gpio      dummy_shdn_sen_pin     = {};
 
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself
@@ -116,21 +114,23 @@ class DimBaseStateMachineTest : public BaseStateMachineTest
         [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
-    const GlobalsConfig globals_config = { .imd_led          = &imd_led,
-                                           .bspd_led         = &bspd_led,
-                                           .ams_led          = &ams_led,
-                                           .shdn_led         = &shdn_led,
-                                           .start_led        = &start_led,
-                                           .start_switch     = &start_switch,
-                                           .regen_led        = &regen_led,
-                                           .regen_switch     = &regen_switch,
-                                           .torquevec_led    = &torquevec_led,
-                                           .torquevec_switch = &torquevec_switch,
-                                           .aux_status_led   = &aux_status_led,
-                                           .bms_status_led   = &bms_status_led,
-                                           .crit_status_led  = &crit_status_led,
-                                           .fsm_status_led   = &fsm_status_led,
-                                           .rsm_status_led   = &rsm_status_led,
-                                           .vc_status_led    = &vc_status_led,
-                                           .shdn_sen_pin     = &shdn_sen_pin };
+    const GlobalsConfig globals_config = {
+        .imd_led          = &imd_led,
+        .bspd_led         = &bspd_led,
+        .ams_led          = &ams_led,
+        .shdn_led         = &shdn_led,
+        .start_led        = &start_led,
+        .start_switch     = &start_switch,
+        .regen_led        = &regen_led,
+        .regen_switch     = &regen_switch,
+        .torquevec_led    = &torquevec_led,
+        .torquevec_switch = &torquevec_switch,
+        .aux_status_led   = &aux_status_led,
+        .bms_status_led   = &bms_status_led,
+        .crit_status_led  = &crit_status_led,
+        .fsm_status_led   = &fsm_status_led,
+        .rsm_status_led   = &rsm_status_led,
+        .vc_status_led    = &vc_status_led,
+        .shdn_sen_pin     = &dummy_shdn_sen_pin
+    };
 };

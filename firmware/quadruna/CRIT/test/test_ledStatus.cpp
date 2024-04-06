@@ -1,6 +1,7 @@
-#include "test_dimBaseStateMachineTest.h"
+#include "test_critBaseStateMachineTest.h"
+#include "test_baseStateMachineTest.h"
 
-class LedStatusTest : public __cpp_variable_templates
+class LedStatusTest : public CritBaseStateMachineTest
 {
 };
 
@@ -58,54 +59,54 @@ TEST_F(LedStatusTest, ams_led_control_in_drive_state)
     ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&ams_led, false));
 }
 
-TEST_F(LedStatusTest, dim_board_status_led_control_with_warning)
+TEST_F(LedStatusTest, crit_board_status_led_control_with_warning)
 {
-    // Set any non-critical error and check that the DIM LED turns blue
-    app_canAlerts_DIM_Warning_WatchdogTimeout_set(true);
+    // Set any non-critical error and check that the CRIT LED turns blue
+    app_canAlerts_CRIT_Warning_WatchdogTimeout_set(true);
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dim_status_led, false, false, true));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&crit_status_led, false, false, true));
 }
 
-TEST_F(LedStatusTest, dim_board_status_led_control_with_no_error)
+TEST_F(LedStatusTest, crit_board_status_led_control_with_no_error)
 {
-    // Don't set any error and check that the DIM LED turns green
+    // Don't set any error and check that the CRIT LED turns green
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dim_status_led, false, true, false));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&crit_status_led, false, true, false));
 }
 
-TEST_F(LedStatusTest, dcm_board_status_led_control_with_critical_error)
+TEST_F(LedStatusTest, vc_board_status_led_control_with_critical_error)
 {
     // Set any critical error and check that the DCM LED turns red
-    app_canRx_DCM_Fault_MissingBMSHeartbeat_update(true);
+    app_canRx_VC_Fault_MissingBMSHeartbeat_update(true);
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dcm_status_led, true, false, false));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&vc_status_led, true, false, false));
 }
 
-TEST_F(LedStatusTest, dcm_board_status_led_control_with_warning)
+TEST_F(LedStatusTest, vc_board_status_led_control_with_warning)
 {
     // Set any warning and check that the DCM LED turns blue
-    app_canRx_DCM_Warning_StackWaterMarkHighTask1Hz_update(true);
+    app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_update(true);
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dcm_status_led, false, false, true));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&vc_status_led, false, false, true));
 }
 
-TEST_F(LedStatusTest, dcm_board_status_led_control_with_no_error)
+TEST_F(LedStatusTest, vc_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the DCM LED turns green
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dcm_status_led, false, true, false));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&vc_status_led, false, true, false));
 }
 
-TEST_F(LedStatusTest, dcm_board_status_led_control_with_multiple_errors)
+TEST_F(LedStatusTest, vc_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
     // simultaneously, the critical error should take precedence and turn the
     // DCM LED red rather than blue
-    app_canRx_DCM_Fault_MissingBMSHeartbeat_update(true);
-    app_canRx_DCM_Warning_StackWaterMarkHighTask1Hz_update(true);
+    app_canRx_VC_Fault_MissingBMSHeartbeat_update(true);
+    app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_update(true);
     LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&dcm_status_led, true, false, false));
-    ASSERT_EQ(0, fake_io_rgbLed_enable_callCountForArgs(&dcm_status_led, false, false, true));
+    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&vc_status_led, true, false, false));
+    ASSERT_EQ(0, fake_io_rgbLed_enable_callCountForArgs(&vc_status_led, false, false, true));
 }
 
 TEST_F(LedStatusTest, fsm_board_status_led_control_with_critical_error)
@@ -156,19 +157,4 @@ TEST_F(LedStatusTest, bms_board_status_led_control_with_fault)
     LetTimePass(10);
 
     ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&bms_status_led, true, false, false));
-}
-
-TEST_F(LedStatusTest, pdm_board_status_led_control_with_warning)
-{
-    // Set any warning and check that the PDM LED turns blue
-    app_canRx_PDM_Warning_StackWaterMarkHighTask1Hz_update(true);
-    LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&pdm_status_led, false, false, true));
-}
-
-TEST_F(LedStatusTest, pdm_board_status_led_control_with_no_error)
-{
-    // Don't set any error and check that the PDM LED turns green
-    LetTimePass(10);
-    ASSERT_EQ(1, fake_io_rgbLed_enable_callCountForArgs(&pdm_status_led, false, true, false));
 }
