@@ -80,7 +80,7 @@ SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t off
 
 /**
  * @brief Erase data from the sd card [start_addr, end_addr] inclusive
- * 
+ *
  * @param sd he state struct of sd card
  * @param start_addr  start of block index
  * @param end_addr start of block index
