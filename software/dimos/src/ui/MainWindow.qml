@@ -26,7 +26,7 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
-            property int currentIndex: -1
+            property int currentIndex: 6
             Landing {
                 id: landingPage
                 visible: mainStack.currentIndex === -1

@@ -20,10 +20,10 @@ class Constants : public QObject
     SHARED_CONSTANT(constexpr, int, SCREEN_WIDTH, 1024);
     SHARED_CONSTANT(constexpr, int, SCREEN_HEIGHT, 600);
 
-#ifdef USING_dimos
+#ifdef USING_TARGET_deploy
     SHARED_CONSTANT(const, QString, WINDOW_TITLE, "Dimos");
     SHARED_CONSTANT(const, bool, deploy, true);
-#elif USING_dimos_dev
+#elif USING_TARGET_dev
     SHARED_CONSTANT(const, QString, WINDOW_TITLE, "[Development] Dimos");
     SHARED_CONSTANT(const, bool, deploy, false);
 #endif

@@ -29,7 +29,7 @@ void CanRXTask()
                     qWarning("Can interface not created");
                     return;
                 case CanReadError::Timeout:
-#ifdef USING_dimos
+#ifdef USING_TARGET_deploy
                     qWarning("CANRX Timeout");
                     break;
 #endif
@@ -47,7 +47,7 @@ void CanRXTask()
         // if we care about the message
         can_table_mutex.lock();
         io_canRx_updateRxTableWithMessage(&message);
-#ifdef USING_dimos_dev
+#ifdef USING_TARGET_dev
         app_canRx_VC_Fault_DummyFault_update(!app_canRx_VC_Fault_DummyFault_get());
         // qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
 #endif

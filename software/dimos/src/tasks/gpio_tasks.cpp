@@ -104,7 +104,7 @@ void gpio_monitor(const gpio_input i)
         {
             if (get<line_read_error>(l_event) == line_read_error::DEV_DUMMY_DATA)
                 continue;
-#ifdef USING_dimos_dev
+#ifdef USING_TARGET_dev
             if (get<line_read_error>(l_event) == line_read_error::TIMEOUT)
                 continue;
 #endif

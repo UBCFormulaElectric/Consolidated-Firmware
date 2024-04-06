@@ -9,11 +9,11 @@ set(UI_SOURCES main.cpp setup.cpp setup.h assets/resources.qrc)
 file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
 file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
 file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
-if("${TARGET}" STREQUAL "deploy")
+if ("${TARGET}" STREQUAL "deploy")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/*.cpp")
 elseif ("${TARGET}" STREQUAL "dev")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.h")
-endif()
+endif ()
 set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${IO_INC} ${SHARED_FILES} ${TASKS_FILES})
 
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
@@ -24,27 +24,27 @@ target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io assets tasks)
 include(find_libs.cmake)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
-target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_${EXECUTABLE_NAME}") # todo change to using_target_dimos
+target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_TARGET_${TARGET}")
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DQT_DEBUG -DQT_MESSAGELOGCONTEXT) # W mans https://stackoverflow.com/a/43549795/6833423
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
-    URI "DimosMain"
-    VERSION 1.0
-    QML_FILES ui/MainWindow.qml
+        URI "DimosMain"
+        VERSION 1.0
+        QML_FILES ui/MainWindow.qml
 )
 # add qml modules
 add_subdirectory(ui)
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE
-    DimosConstantsplugin
-    Switcherplugin
-    Pagesplugin
-    Componentsplugin
-    DimSwitchesplugin
-    CanQMLplugin
+target_link_libraries(${EXECUTABLE_NAME} PUBLIC
+        DimosConstantsplugin
+        Switcherplugin
+        Pagesplugin
+        Componentsplugin
+        DimSwitchesplugin
+        CanQMLplugin
 )
-target_compile_definitions(DimosConstants PUBLIC "USING_${EXECUTABLE_NAME}") # L QML compiler
+#target_compile_definitions(DimosConstants PUBLIC "USING_TARGET_${TARGET}") # L QML compiler
 target_link_libraries(CanQML PUBLIC dimos_can)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
