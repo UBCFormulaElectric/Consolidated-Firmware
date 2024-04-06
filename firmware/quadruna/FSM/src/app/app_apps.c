@@ -63,14 +63,19 @@ void app_apps_broadcast()
     }
 
     // Accelerator Brake Plausibility (bad user input safety issues)
-    SignalState app_brake_disagreement = app_signal_getState(
-        &app_brake_signal, io_brake_isActuated() && (papps_pedal_percentage > 25 || papps_pedal_percentage > 25),
-        papps_pedal_percentage < 5);
+    // Protect against brake/apps active at same time (BSPD)
+    // brakes disagreement is detected if brakes are actuated and apps are past 25% threshold
+    // allowed to exit disagreement only when apps is released (< 5%)
+    bool app_brake_disagreement_entry =
+        io_brake_isActuated() && (papps_pedal_percentage > 25 || sapps_pedal_percentage > 25);
+    bool app_brake_disagreement_exit = papps_pedal_percentage < 5 && sapps_pedal_percentage < 5;
 
-    const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
-    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(brake_acc_disagreement);
+    SignalState app_brake_disagreement =
+        app_signal_getState(&app_brake_signal, app_brake_disagreement_entry, app_brake_disagreement_exit);
 
-    if (brake_acc_disagreement)
+    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(app_brake_disagreement == SIGNAL_STATE_ACTIVE);
+
+    if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
     {
         app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
         app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
