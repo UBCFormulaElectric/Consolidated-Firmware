@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QQmlEngine>
-#include <qqmlintegration.h>
 #include <qquickitem.h>
 
 // ReSharper disable once CppClassCanBeFinal

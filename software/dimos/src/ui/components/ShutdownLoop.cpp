@@ -120,7 +120,7 @@ void ShutdownLoop::drawShutdownLoopPath(QPainter *p)
     p->drawPath(loopPath.value());
 
 #ifdef QT_DEBUG
-    p->drawText(100, 100, QString::fromStdString(std::to_string(percentage)));
+    p->drawText(100, 100, QString::fromStdString(std::to_string(m_percentage)));
 #endif
 }
 
