@@ -32,9 +32,9 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         app_canTx_init();
         app_canRx_init();
 
-        app_apps_init();
+        app_coolant_init();
         app_heartbeatMonitor_init(
-            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
         app_stateMachine_init(app_mainState_get());
 
@@ -103,4 +103,4 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = NULL
     };
-}
+};
