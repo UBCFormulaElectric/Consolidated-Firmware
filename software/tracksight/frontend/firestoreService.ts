@@ -1,14 +1,12 @@
-import database from './firebase'; 
-import { ref, get, set } from "firebase/database";
+const FLASK_URL = "http://206.12.160.196:5000";
 
-
-// function for getting  data from firebase
+// Function for getting data
 const getRealtimeData = async (path: string) => {
     try {
-        const dataRef = ref(database, path);
-        const snapshot = await get(dataRef);
-        if (snapshot.exists()) {
-            return snapshot.val();
+        const response = await fetch(`${FLASK_URL}/get-data?path=${path}`);
+        const data = await response.json();
+        if (data) {
+            return data;
         } else {
             console.log("No data available");
             return null;
@@ -18,25 +16,42 @@ const getRealtimeData = async (path: string) => {
     }
 };
 
-// function for saving data to firebase
+// Function for saving data
 const saveDashboardData = async (path: string, data: any) => {
     try {
-        const dataRef = ref(database, path);
-        await set(dataRef, data);
-        return true; 
+        const response = await fetch(`${FLASK_URL}/save-data`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path, data }),
+        });
+        if (response.ok) {
+            return true;
+        } else {
+            throw new Error('Failed to save data');
+        }
     } catch (error) {
         console.error("Error saving dashboard data: ", error);
-        return false; 
+        return false;
     }
 };
 
-
-// function for deleting data from firebase
+// Function for deleting data
 const deleteDashboardData = async (path: string) => {
     try {
-        const dataRef = ref(database, path);
-        await set(dataRef, null); 
-        return true;
+        const response = await fetch(`${FLASK_URL}/delete-data`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path }),
+        });
+        if (response.ok) {
+            return true;
+        } else {
+            throw new Error('Failed to delete data');
+        }
     } catch (error) {
         console.error("Error deleting dashboard data: ", error);
         return false;
