@@ -38,7 +38,6 @@ void hw_sd_init(const SdCard *sd);
  *
  */
 SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-SdCardStatus hw_sd_read_dma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 /**
  * @brief   write to sd card. The data size will be num_blocks * BlockSize
  * @param   sd the state struct of sd card
@@ -53,35 +52,35 @@ SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_block
 SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
 
 /**
- * @brief   Read within the 1 block from sd card, provided offset and size
+ * @brief   Read interface with offset and size arguement, interface for littlefs
  * @param   sd the state struct of sd card
  * @param   pdata the base addr where data write to;
  *                the data in the address space [pdata, pdata + size] will be copy to sd card
  * @param   block_addr the index of the block on sd card must greater then 0
- * @param   offset offset within a block value range [0, block_size)
- * @param   size   bytes of the data read (size + offset) < blocksize
+ * @param   offset offset within a block devisible by BLOCK_SIZE
+ * @param   size   devisible by BLOCK_SIZE
  * @return SD_card_status the status of the opeation
  *
  */
 SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
- * @brief   write within the 1 block from sd card, provided offset and size
+ * @brief   write interface with offset and size, interface for littlefs
  *
  * @param   sd the state struct of sd card
  * @param   pdata the base addr where data write to;
  *                the data in the address space [pdata, pdata + size] will be copy to sd card
  * @param   block_addr the index of the block on sd card must greater then 0
- * @param   offset offset within a block [0, block_size)
- * @param   size   bytes of the data write to (size + offset) < blocksize
+ * @param   offset offset within a block devisible by BLOCK_SIZE
+ * @param   size   bytes of the data write to size devisible by BLOCK_SIZE
  * @return SD_card_status the status of the opeation
  *
  */
 SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
 /**
- * @brief Erase data from the sd card
- *
+ * @brief Erase data from the sd card [start_addr, end_addr] inclusive
+ * 
  * @param sd he state struct of sd card
  * @param start_addr  start of block index
  * @param end_addr start of block index
