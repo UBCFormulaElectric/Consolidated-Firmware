@@ -33,7 +33,7 @@ static const osMessageQueueAttr_t queue_attr = {
 static void initLoggingFileSystem()
 {
     // early return
-    current_bootcount  = io_fileSystem_getBootCount();
+    current_bootcount = io_fileSystem_getBootCount();
 
     // create new folder for this boot
     sprintf(current_path, "%lu", current_bootcount);

@@ -10,7 +10,7 @@
 #define IO_LFS_LOOKAHEAD_SIZE_FACTOR 1
 #define IO_LFS_CACHE_SIZE_FACTOR 1 // a multiple of the read and program sizes
 #define IO_LFS_BLOCK_CYCLES 500
-#define IO_LFS_BLOCK_COUNT 1000000 // -1 means max block count else set the block count
+#define IO_LFS_BLOCK_COUNT 1000000
 
 #define IO_LFS_BLOCK_SIZE HW_DEVICE_SECTOR_SIZE *IO_LFS_BLOCK_SIZE_FACTOR
 #define IO_LFS_READ_SIZE HW_DEVICE_SECTOR_SIZE *IO_LFS_READ_SIZE_FACTOR
