@@ -28,7 +28,7 @@
 // Reducing the ticks to 1 on / 1 off causes noticeable flicker, so I've set it to 1s on / 1s off to be less
 // distracting.
 #define BALANCE_DEFAULT_FREQ (1)  // Hz
-#define BALANCE_DEFAULT_DUTY (80) // %
+#define BALANCE_DEFAULT_DUTY (50) // %
 #define BALANCE_TICKS_ON (100U)
 #define BALANCE_TICKS_OFF (100U)
 
