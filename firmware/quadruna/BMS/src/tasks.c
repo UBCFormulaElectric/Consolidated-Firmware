@@ -328,7 +328,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
 
-    hw_can_init(&hfdcan1);
+    hw_can_init(&can);
     hw_sd_init(&sd);
     hw_crc_init(&hcrc);
     hw_can_init(&can);

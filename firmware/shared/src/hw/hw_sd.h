@@ -50,10 +50,6 @@ void hw_sd_markInitComplete(void);
  */
 bool hw_sd_sdReady(void);
 
-/* Assume sdio and sd card is initilized, SdCard have desired member*/
-
-void hw_sd_init(const SdCard *sd);
-
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize
  * @param   sd the state struct of sd card
