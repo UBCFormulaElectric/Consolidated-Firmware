@@ -35,12 +35,6 @@ float app_soc_getOcvFromSoc(float soc_percent);
 void app_soc_init(void);
 
 /**
- * @brief Return the active address on the EEPROM where SOC values are being stored
- * @return page being used to store SOC values
- */
-uint16_t app_soc_getSocAddress(void);
-
-/**
  * @brief Return if the SOC value was corrupt on startup
  * @return corrupt status
  */
@@ -81,6 +75,15 @@ void app_soc_resetSocFromVoltage(void);
 void app_soc_resetSocCustomValue(float soc_percent);
 
 /**
- * @brief Write updated SOC value to non-voltile storage
+ * @brief Function to read SOC value from SD card
+ * @param saved_soc_c pointer to the received soc value if received correct checksum
+ * @return true if received soc with correct CRC
+ * @return false if received soc with incorrect CRC
  */
-void app_soc_writeValue(void);
+bool app_soc_readSocFromSd(float *saved_soc_c);
+
+/**
+ * @brief Writes updated SOC and CRC value to SD
+ * @param soc value that should be written to the SD
+ */
+void app_soc_writeSocToSd(float soc);
