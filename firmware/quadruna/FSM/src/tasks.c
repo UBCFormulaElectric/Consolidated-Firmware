@@ -145,7 +145,7 @@ void tasks_preInit(void)
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("FSM reset!");
 }
 
 void tasks_init(void)

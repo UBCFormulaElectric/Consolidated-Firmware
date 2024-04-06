@@ -12,7 +12,7 @@
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
 
-#if defined(BMS)
+#if defined(thruna_BMS)
 
 #define START_UPDATE_ID 1100
 #define UPDATE_ACK_ID 1101
@@ -20,7 +20,7 @@
 #define BOOT_GPIO_PORT GPIOA
 #define BOOT_GPIO_PIN GPIO_PIN_2
 
-#elif defined(DCM)
+#elif defined(thruna_DCM)
 
 #define START_UPDATE_ID 1110
 #define UPDATE_ACK_ID 1111
@@ -28,7 +28,7 @@
 #define BOOT_GPIO_PORT GPIOB
 #define BOOT_GPIO_PIN GPIO_PIN_13
 
-#elif defined(FSM)
+#elif defined(thruna_FSM)
 
 #define START_UPDATE_ID 1120
 #define UPDATE_ACK_ID 1121
@@ -36,7 +36,7 @@
 #define BOOT_GPIO_PORT GPIOB
 #define BOOT_GPIO_PIN GPIO_PIN_2
 
-#elif defined(PDM)
+#elif defined(thruna_PDM)
 
 #define START_UPDATE_ID 1130
 #define UPDATE_ACK_ID 1131
@@ -44,7 +44,7 @@
 #define BOOT_GPIO_PORT GPIOA
 #define BOOT_GPIO_PIN GPIO_PIN_9
 
-#elif defined(DIM)
+#elif defined(thruna_DIM)
 
 #define START_UPDATE_ID 1140
 #define UPDATE_ACK_ID 1141
@@ -52,7 +52,7 @@
 #define BOOT_GPIO_PORT GPIOB
 #define BOOT_GPIO_PIN GPIO_PIN_4
 
-#elif defined(VC)
+#elif defined(quadruna_VC)
 
 #define START_UPDATE_ID 1210
 #define UPDATE_ACK_ID 1211
