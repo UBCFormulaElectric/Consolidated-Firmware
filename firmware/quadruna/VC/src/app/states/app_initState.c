@@ -15,7 +15,7 @@
 
 #include <app_pumpControl.h>
 
-#define DEFAULT_FLOW_RATE 1000 // TODO: determine appropriate value
+#define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 
 static void initStateRunOnEntry(void)
 {
