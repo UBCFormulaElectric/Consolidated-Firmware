@@ -679,5 +679,43 @@
                 "bits": 1
             }
         }
+    },
+    "ImuLinearAcceleration": {
+        "msg_id": 225,
+        "cycle_time": 100,
+        "description": "Linear acceleration in x, y and z direction from the IMU",
+        "signals": {
+            "ImuAccelerationX": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "ImuAccelerationY": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            },
+            "ImuAccelerationZ": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m/s"
+            }
+        }
+    },
+    "CoolantPumpFlowRate": {
+        "msg_id": 224,
+        "cycle_time": 1,
+        "description": "Broadcast flow rate of coolant pump.",
+        "signals": {
+            "FlowRate": {
+                "resolution": 15.625,
+                "min": 0,
+                "max": 2000,
+                "unit": "L/H"
+            }
+        }
     }
 }

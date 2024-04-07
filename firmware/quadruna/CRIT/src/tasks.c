@@ -8,7 +8,6 @@
 #include "hw_gpio.h"
 #include "hw_adc.h"
 #include "hw_uart.h"
-// #include "hw_bootup.h"
 
 #include "io_jsoncan.h"
 #include "app_heartbeatMonitor.h"
@@ -40,6 +39,13 @@
 #include "hw_gpio.h"
 #include "hw_uart.h"
 
+extern ADC_HandleTypeDef  hadc1;
+extern TIM_HandleTypeDef  htim3;
+extern UART_HandleTypeDef huart2;
+extern CAN_HandleTypeDef  hcan1;
+
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
 void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
@@ -54,18 +60,21 @@ void canRxQueueOverflowCallback(uint32_t overflow_count)
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern UART_HandleTypeDef huart2;
-extern CAN_HandleTypeDef  hcan1;
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_CRIT_Warning_TxOverflow_set(false);
+}
 
-static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_CRIT_Warning_RxOverflow_set(false);
+}
 
-static const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallback,
-    .rx_overflow_callback = canRxQueueOverflowCallback,
-};
+static const CanConfig can_config = { .rx_msg_filter              = io_canRx_filterMessageId,
+                                      .tx_overflow_callback       = canTxQueueOverflowCallback,
+                                      .rx_overflow_callback       = canRxQueueOverflowCallback,
+                                      .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+                                      .rx_overflow_clear_callback = canRxQueueOverflowClearCallback };
 
 static const BinaryLed imd_led       = { .gpio = {
                                              .port = IMD_R_GPIO_Port,
@@ -325,30 +334,34 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .vc_status_led    = &vc_status_led,
                                               .shdn_sen_pin     = &shdn_sen_pin };
 
-// CRIT rellies on all boards but AUX & CRIT
 // TODO: add heartbeat for VC and RSM
+// CRIT rellies on BMS, VC, RSM, FSM
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
     [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_get, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = app_canRx_BMS_Heartbeat_update, [VC_HEARTBEAT_BOARD] = NULL,  [RSM_HEARTBEAT_BOARD] = NULL,
-    [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_update, [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-};
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+                                                           [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
+                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
+                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
@@ -357,8 +370,8 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 // heartbeatFaultGetters - gets fault statuses over CAN
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL

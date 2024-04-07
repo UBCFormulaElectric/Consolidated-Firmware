@@ -3,33 +3,108 @@
     "faults_id": 397,
     "warnings_counts_id": 398,
     "faults_counts_id": 399,
-    "warnings": [
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow",
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "SteeringAngleOCSC",
-        "SteeringAngleOutOfRange",
-        "LeftWheelSpeedOutOfRange",
-        "RightWheelSpeedOutOfRange",
-        "AppsDisagreement",
-        "FrontBrakePressureOutOfRange",
-        "RearBrakePressureOutOfRange",
-        "BrakePressureSensorOCSC",
-        "LeftSuspensionOCSC",
-        "RightSuspensionOCSC",
-        "BrakeAppsDisagreement",
-        "LoadCell1OCSC",
-        "LoadCell2OCSC"
-    ],
-    "faults": [
-        "DummyFault",
-        "PappsOCSC",
-        "SappsOCSC",
-        "MissingBMSHeartbeat"
-    ]
+    "warnings": {
+        "WatchdogTimeout": {
+            "id" :301,
+            "description" : "Example"
+        },
+        "TxOverflow": {
+            "id" :302,
+            "description" : "Example"
+        },
+        "RxOverflow": {
+            "id" :303,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1Hz": {
+            "id" :304,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask100Hz": {
+            "id" :305,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1kHz": {
+            "id" :306,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id" :307,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanTx" :{
+            "id" :308,
+            "description" : "Example"
+        },
+        "SteeringAngleOCSC": {
+            "id" :309,
+            "description" : "Example"
+        },
+        "SteeringAngleOutOfRange": {
+            "id" :310,
+            "description" : "Example"
+        },
+        "LeftWheelSpeedOutOfRange": {
+            "id" :311,
+            "description" : "Example"
+        },
+        "RightWheelSpeedOutOfRange": {
+            "id" :312,
+            "description" : "Example"
+        },
+        "AppsDisagreement": {
+            "id" :313,
+            "description" : "Example"
+        },
+        "FrontBrakePressureOutOfRange": {
+            "id" :314,
+            "description" : "Example"
+        },
+        "RearBrakePressureOutOfRange": {
+            "id" :315,
+            "description" : "Example"
+        },
+        "BrakePressureSensorOCSC": {
+            "id" :316,
+            "description" : "Example"
+        },
+        "LeftSuspensionOCSC": {
+            "id" :317,
+            "description" : "Example"
+        },
+        "RightSuspensionOCSC": {
+            "id" :318,
+            "description" : "Example"
+        },
+        "BrakeAppsDisagreement": {
+            "id" :319,
+            "description" : "Example"
+        },
+        "LoadCell1OCSC": {
+            "id" :320,
+            "description" : "Example"
+        },
+        "LoadCell2OCSC": {
+            "id" :321,
+            "description" : "Example"
+        }
+    },
+    "faults": {
+        "DummyFault": {
+            "id" :351,
+            "description" : "Example"
+        },
+        "PappsOCSC": {
+            "id" :352,
+            "description" : "Example"
+        },
+        "SappsOCSC": {
+            "id" :353,
+            "description" : "Example"
+        },
+        "MissingBMSHeartbeat": {
+            "id" :354,
+            "description" : "Example"
+        }
+    }
 }

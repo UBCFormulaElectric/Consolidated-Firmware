@@ -7,6 +7,7 @@
 #include "app_globals.h"
 #include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
+#include "states/app_allStates.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -26,6 +27,7 @@
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
+#include "io_imu.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,6 +39,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -44,7 +47,6 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
-
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -60,10 +62,22 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_VC_Warning_TxOverflow_set(true);
 }
 
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_VC_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_VC_Warning_RxOverflow_set(false);
+}
+
 static const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
@@ -222,9 +236,9 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
 static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
 static UART   debug_uart = { .handle = &huart7 };
 static UART   imu_uart   = { .handle = &huart2 };
+
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
-// TODO: add RSM to config when boards are ready, also add vitals to canRx json
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
     [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = true
@@ -233,26 +247,24 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 // heartbeatGetters - get heartbeat signals from other boards
 bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
                                                       [VC_HEARTBEAT_BOARD]   = NULL,
-                                                      [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
+                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
                                                       [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
                                                       [DIM_HEARTBEAT_BOARD]  = NULL,
                                                       [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_update
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
-};
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+                                                           [VC_HEARTBEAT_BOARD]   = NULL,
+                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
+                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL, // app_canAlerts_VC_Fault_MissingRSMHeartbeat_set
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
@@ -262,7 +274,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL, // app_canAlerts_VC_Fault_MissingRSMHeartbeat_get
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
@@ -308,6 +320,11 @@ void tasks_init(void)
     if (!io_sbgEllipse_init(&imu_uart))
     {
         Error_Handler();
+    }
+
+    if (!io_imu_init())
+    {
+        app_canAlerts_VC_Warning_ImuIo_set(true);
     }
 
     app_canTx_init();
@@ -374,6 +391,7 @@ void tasks_run100Hz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
+        app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
