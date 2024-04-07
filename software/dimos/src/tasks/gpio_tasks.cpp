@@ -103,10 +103,9 @@ void gpio_monitor(const gpio_input i)
         const Result<gpio_edge, line_read_error> l_event = wait_for_line_event(i);
         if (l_event.index() == 1)
         {
-            if (get<line_read_error>(l_event) == line_read_error::DEV_DUMMY_DATA)
-                continue;
 #ifdef USING_TARGET_dev
-            if (get<line_read_error>(l_event) == line_read_error::TIMEOUT)
+            if (get<line_read_error>(l_event) == line_read_error::DEV_DUMMY_DATA ||
+                get<line_read_error>(l_event) == line_read_error::TIMEOUT)
                 continue;
 #endif
             qWarning("GPIO READ ERROR: %d", static_cast<int>(get<line_read_error>(l_event)));
