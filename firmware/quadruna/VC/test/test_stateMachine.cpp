@@ -28,13 +28,28 @@ class VCStateMachineTest : public VcBaseStateMachineTest
 
         app_canRx_FSM_BrakeActuated_update(true);
         app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-        // had to increase time from 10 to 20 to allow transition from init to inverterOnState to drivestate
-        LetTimePass(20);
+        // had to increase time from 10 to 50 to allow transition from init to inverterOnState to drivestate
+        LetTimePass(50);
         app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        LetTimePass(20);
+        LetTimePass(50);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     }
+
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+    }
 };
+
+TEST_F(VCStateMachineTest, test_SetStateToDrive)
+{
+    SetStateToDrive();
+    LetTimePass(1000);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+}
 
 TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
@@ -84,6 +99,13 @@ TEST_F(VCStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
 }
 
+TEST_F(VCStateMachineTest, check_inverterOn_state_is_broadcasted_over_can)
+{
+    SetInitialState(app_inverterOnState_get());
+
+    EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
+}
+
 TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
 {
     SetInitialState(app_initState_get());
@@ -116,13 +138,13 @@ TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
     EXPECT_FLOAT_EQ(false, app_canTx_VC_RightInverterEnable_get());
 }
 
-TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
+TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverterOn_state)
 {
     SetInitialState(app_driveState_get());
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     LetTimePass(10);
 
-    ASSERT_EQ(VC_INIT_STATE, app_canTx_VC_State_get());
+    ASSERT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
 }
 
 TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
@@ -162,7 +184,7 @@ TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_e
 
 TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
-    SetInitialState(app_driveState_get());
+    SetStateToDrive();
 
     // Set the CRIT start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
@@ -222,4 +244,42 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
     auto clear_fault = []() { app_canRx_CRIT_Fault_MissingBMSHeartbeat_update(false); };
 
     TestFaultBlocksDrive(set_fault, clear_fault);
+}
+
+TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
+{
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+
+    LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
+{
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_INVERTER_ON_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn_to_init)
+{
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_PRECHARGE_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_INIT_STATE);
+    LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
