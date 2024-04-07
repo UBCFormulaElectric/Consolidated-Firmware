@@ -18,12 +18,12 @@ static void balancingStateRunOnTick100Hz(void)
 {
     if (app_allStates_runOnTick100Hz())
     {
-        // const bool air_negative_open          = !io_airs_isNegativeClosed();
-        // const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
-        // if (air_negative_open || stopped_requesting_balance)
-        // {
-        //     app_stateMachine_setNextState(app_initState_get());
-        // }
+        const bool air_negative_open          = !io_airs_isNegativeClosed();
+        const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
+        if (air_negative_open || stopped_requesting_balance)
+        {
+            app_stateMachine_setNextState(app_initState_get());
+        }
     }
 }
 

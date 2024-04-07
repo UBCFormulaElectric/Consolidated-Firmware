@@ -13,7 +13,7 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
 #define NUM_CYCLES_TO_BALANCE (1000U)
-#define NUM_CYCLES_TO_MEASURE_BALANCING (500U)
+#define NUM_CYCLES_TO_MEASURE_BALANCING (100U)
 #define NUM_CYCLES_TO_MEASURE_NOMINAL (500U)
 
 typedef enum
@@ -65,16 +65,11 @@ bool app_allStates_runOnTick100Hz(void)
         case RUN_CELL_MEASUREMENTS:
         {
             app_accumulator_runCellMeasurements();
-            iso_spi_state_counter++;
 
-            // Only calculate cells to balance if voltage measurements have settled
-            if (balancing_enabled)
+            if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
             {
-                if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
-                {
-                    // Do not start timeout until voltage readings have settled
-                    iso_spi_state_counter = 0;
-                }
+                // Do not start timeout until voltage readings have settled
+                iso_spi_state_counter = 0;
             }
 
             const uint32_t cycles_to_measure =
@@ -84,6 +79,8 @@ bool app_allStates_runOnTick100Hz(void)
                 iso_spi_state_counter = 0;
                 iso_spi_task_state    = RUN_OPEN_WIRE_CHECK;
             }
+
+            iso_spi_state_counter++;
             break;
         }
         case RUN_OPEN_WIRE_CHECK:
@@ -157,11 +154,11 @@ bool app_allStates_runOnTick100Hz(void)
     {
         globals->cell_monitor_settle_count++;
     }
-    // else if (acc_fault || ts_fault)
-    // {
-    //     status = false;
-    // app_stateMachine_setNextState(app_faultState_get());
-    // }
+    else if (acc_fault || ts_fault)
+    {
+        status = false;
+        app_stateMachine_setNextState(app_faultState_get());
+    }
 
     return status;
 }

@@ -82,6 +82,12 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  */
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
 
+/**
+ * Calculate cells to balance based on min cell voltage
+ */
 void app_accumulator_calculateCellsToBalance(void);
 
+/**
+ * Send command to segments to begin balancing based on cells marked for discharge
+ */
 void app_accumulator_balanceCells(void);
