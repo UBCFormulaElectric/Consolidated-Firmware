@@ -2,6 +2,7 @@
 #include "ui/DimSwitches/DimSwitchEmitter.h"
 
 #include <QThread>
+#include <qlogging.h>
 
 static DimSwitchEmitter *dse = DimSwitchEmitter::getInstance();
 // Functions handlers here correspond to the names given to the lines in altium.
@@ -108,7 +109,7 @@ void gpio_monitor(const gpio_input i)
             if (get<line_read_error>(l_event) == line_read_error::TIMEOUT)
                 continue;
 #endif
-            qWarning("GPIO READ ERROR: %d", get<line_read_error>(l_event));
+            qWarning("GPIO READ ERROR: %d", static_cast<int>(get<line_read_error>(l_event)));
             continue;
         }
         gpio_handler_funcs.at(i)(std::get<gpio_edge>(l_event));

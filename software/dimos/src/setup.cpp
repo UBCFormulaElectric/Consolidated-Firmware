@@ -95,6 +95,7 @@ Result<std::monostate, GPIO_setup_errors>    setupGPIOThreads(const QQmlApplicat
             engine_ref, &QQmlApplicationEngine::quit, gpio_monitor_threads.back().get(), &QThread::requestInterruption);
     }
 
+    qInfo("GPIO Thread Initialization Complete");
     if (any_gpio_has_err)
         return GPIO_setup_errors::LINE_SETUP_ERROR;
     qInfo("GPIO Threads Sucessfully Initialized");

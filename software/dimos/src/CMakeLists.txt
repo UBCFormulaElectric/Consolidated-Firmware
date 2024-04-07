@@ -44,7 +44,7 @@ target_link_libraries(${EXECUTABLE_NAME} PUBLIC
         DimSwitchesplugin
         CanQMLplugin
 )
-#target_compile_definitions(DimosConstants PUBLIC "USING_TARGET_${TARGET}") # L QML compiler
+target_compile_definitions(DimosConstants PUBLIC "USING_TARGET_${TARGET}") # L QML compiler
 target_link_libraries(CanQML PUBLIC dimos_can)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
