@@ -29,9 +29,9 @@ static void inverterOnStateRunOnTick100Hz(void)
     prev_start_switch_pos                 = curr_start_switch_pos;
     const bool is_brake_actuated          = app_canRx_FSM_BrakeActuated_get();
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool inverters_off_exit =
-        !all_states_ok || (!bms_in_drive_state && app_canRx_BMS_State_get() != BMS_INVERTER_ON_STATE &&
-                           app_canRx_BMS_State_get() != BMS_PRECHARGE_STATE);
+    const bool bms_in_correct_state       = bms_in_drive_state || app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
+                                      app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
+    const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
