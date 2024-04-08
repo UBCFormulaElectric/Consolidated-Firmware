@@ -5,15 +5,6 @@
 #include "io_led.h"
 #include "io_shutdownSensor.h"
 
-// #ifdef TARGET_EMBEDDED
-// #include "hw_gpio.h"
-// #else
-// // dummy version of Gpio when not compiling for the embedded target
-// typedef struct {
-//     bool unused; // Just a placeholder, doesn't need to be used
-// } Gpio;
-// #endif
-
 typedef struct
 {
     const BinaryLed *const imd_led;
