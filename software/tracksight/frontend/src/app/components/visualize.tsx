@@ -5,7 +5,7 @@ import LiveGraph from './live/livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { Socket } from "socket.io-client";
 import { MessageInstance } from 'antd/es/message/interface';
-import { saveDashboardData } from '../../../firestoreService'
+import { saveDashboardData } from '../../../dashboardService'
 
 export interface VisualizeProps {
     addGraph: (live: boolean) => void;
