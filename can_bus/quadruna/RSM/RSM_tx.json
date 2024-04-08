@@ -1,6 +1,6 @@
 {
 	"AlertsContext": {
-		"msg_id": 401,
+		"msg_id": 414,
 		"cycle_time": 1000,
 		"signals": {
 			"WatchdogTimeoutTaskName": {
@@ -15,7 +15,7 @@
 		}
 	},
 	"Vitals": {
-		"msg_id": 406, 
+		"msg_id": 415, 
 		"cycle_time": 100,
 		"description": "RSM vitals message.",
 		"signals": {
@@ -28,7 +28,7 @@
 		}
 	},
 	"Coolant": {
-		"msg_id": 407,
+		"msg_id": 416,
 		"cycle_time": 1000,
 		"signals": {
 			"CoolantFlowRate": {
@@ -64,7 +64,7 @@
 		}
 	},
 	"Suspension": {
-		"msg_id": 408,
+		"msg_id": 417,
 		"cycle_time": 100,
 		"description": "Suspension travel.",
 		"signals": {
@@ -83,7 +83,7 @@
 		}
 	},
 	"LoadCell":{
-		"msg_id" : 409,
+		"msg_id" : 418,
 		"description" : "Mechanical load on load cell",
 		"signals" : {
 			"LoadCell3" : {

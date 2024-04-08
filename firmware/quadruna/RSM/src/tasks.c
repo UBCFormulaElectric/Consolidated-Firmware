@@ -24,6 +24,7 @@
 #include "hw_watchdog.h"
 #include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
+#include "hw_watchdogConfig.h"
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
@@ -184,6 +185,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);

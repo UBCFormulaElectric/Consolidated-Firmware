@@ -4,52 +4,56 @@
     "warnings_counts_id": 492,
     "faults_counts_id": 493,
     "warnings": {
-        "TxOverflow": {
+        "WatchdogTimeout": {
             "id" :401,
             "description" : "Example"
         },
-        "RxOverflow": {
+        "TxOverflow": {
             "id" :402,
             "description" : "Example"
         },
-        "StackWaterMarkHighTask1Hz": {
+        "RxOverflow": {
             "id" :403,
             "description" : "Example"
         },
-        "StackWaterMarkHighTask100Hz": {
+        "StackWaterMarkHighTask1Hz": {
             "id" :404,
             "description" : "Example"
         },
-        "StackWaterMarkHighTask1kHz": {
+        "StackWaterMarkHighTask100Hz": {
             "id" :405,
             "description" : "Example"
         },
-        "StackWaterMarkHighTaskCanRx": {
+        "StackWaterMarkHighTask1kHz": {
             "id" :406,
             "description" : "Example"
         },
-        "StackWaterMarkHighTaskCanTx": {
+        "StackWaterMarkHighTaskCanRx": {
             "id" :407,
             "description" : "Example"
         },
-        "FlowRateOutOfRange": {
+        "StackWaterMarkHighTaskCanTx": {
             "id" :408,
             "description" : "Example"
         },
-        "LeftSuspensionOCSC": {
+        "FlowRateOutOfRange": {
             "id" :409,
             "description" : "Example"
         },
-        "RightSuspensionOCSC": {
+        "LeftSuspensionOCSC": {
             "id" :410,
             "description" : "Example"
         },
-        "LoadCell3OCSC": {
+        "RightSuspensionOCSC": {
             "id" :411,
             "description" : "Example"
         },
-        "LoadCell4OCSC": {
+        "LoadCell3OCSC": {
             "id" :412,
+            "description" : "Example"
+        },
+        "LoadCell4OCSC": {
+            "id" :413,
             "description" : "Example"
         }
     },
