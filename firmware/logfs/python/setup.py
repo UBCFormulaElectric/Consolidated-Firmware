@@ -1,16 +1,24 @@
 import os
 from setuptools import setup, find_packages
-from pybind11.setup_helpers import Pybind11Extension, build_ext
+import glob
+
+PATTERNS = ["logfs_src*.so", "logfs_src*.pyd"]
 
 setup_dir = os.path.dirname(os.path.abspath(__file__))
+glob_pattern = os.path.join(setup_dir, "logfs_src*.so")
+files = glob.glob(glob_pattern)
 
-logfs_src = Pybind11Extension(
-    "logfs_src",
-    sources=[os.path.join(setup_dir, "bindings.cpp")],
-    include_dirs=[os.path.join(setup_dir, "../src")],
-    extra_link_args=["-llogfs_src"],
-    library_dirs=[setup_dir],
-)
+for pattern in PATTERNS:
+    glob_pattern = os.path.join(setup_dir, pattern)
+    files = glob.glob(glob_pattern)
+
+    if len(files) != 0:
+        break
+
+if len(files) == 0:
+    raise Exception("logfs_src shared library not found")
+else:
+    logfs_src = files[0]
 
 setup(
     name="logfs-python",
@@ -20,7 +28,7 @@ setup(
             "logfs=logfs.shell:main",
         ],
     },
-    cmdclass={"build_ext": build_ext},
-    ext_modules=[logfs_src],
-    install_requires=["pytest"],
+    install_requires=[],
+    package_data={"logfs": [logfs_src]},
+    include_package_data=True,
 )

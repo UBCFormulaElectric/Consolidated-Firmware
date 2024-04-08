@@ -20,14 +20,12 @@ if("${TARGET}" STREQUAL "deploy")
     )
 elseif("${TARGET}" STREQUAL "test")
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+    find_package(pybind11 CONFIG)
 
     # Create pybind11 module.
-    add_library(
-        logfs_src STATIC
-        ${LOGFS_SRCS} 
-    )
+    pybind11_add_module(logfs_src ${LOGFS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp)
     target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
-    set_target_properties(logfs_src PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python")
+    set_target_properties(logfs_src PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python")
     target_compile_options(logfs_src PRIVATE 
         -O3
         -Wall
