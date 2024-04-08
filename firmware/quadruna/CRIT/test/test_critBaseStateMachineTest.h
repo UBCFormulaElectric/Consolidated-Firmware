@@ -34,7 +34,7 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
-        // app_globals_init(&globals_config);
+        app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
