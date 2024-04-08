@@ -1,5 +1,4 @@
 #include "test_critBaseStateMachineTest.h"
-// #include "./fake_io_led.hpp"
 
 class LedStatusTest : public CritBaseStateMachineTest
 {

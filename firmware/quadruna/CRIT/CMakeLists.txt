@@ -117,10 +117,8 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_CRIT_can" "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_can" "quadruna_CRIT_commit_info" "debug_modules")
 
-    # TODO: embedded_image for boot
     
 elseif("${TARGET}" STREQUAL "test")
-    # TODO: Set up tests
 
     jsoncan_library(
     "quadruna_CRIT_can"
