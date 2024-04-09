@@ -12,6 +12,20 @@
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
+#define NUM_CYCLES_TO_BALANCE (1000U)
+#define NUM_CYCLES_TO_MEASURE_BALANCING (100U)
+#define NUM_CYCLES_TO_MEASURE_NOMINAL (500U)
+
+uint32_t iso_spi_state_counter = 0;
+
+typedef enum
+{
+    RUN_CELL_MEASUREMENTS,
+    RUN_OPEN_WIRE_CHECK,
+    RUN_CELL_BALANCING
+} isoSpiTasks;
+
+isoSpiTasks iso_spi_task_state = RUN_CELL_MEASUREMENTS;
 
 void app_allStates_runOnTick1Hz(void)
 {
@@ -35,8 +49,6 @@ void app_allStates_runOnTick1Hz(void)
     }
 }
 
-uint32_t owcCounter = 0;
-
 bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
@@ -45,17 +57,68 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    owcCounter++;
-    if (owcCounter >= 500) // run Open Wire Check every 5 seconds
+    const bool balancing_requested = app_canRx_Debug_CellBalancingRequest_get();
+
+    switch (iso_spi_task_state)
     {
-        if (app_accumulator_openWireCheck())
+        case RUN_CELL_MEASUREMENTS:
         {
-            owcCounter = 0;
+            app_accumulator_runCellMeasurements();
+
+            if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
+            {
+                // Do not start timeout until voltage readings have settled
+                iso_spi_state_counter = 0;
+            }
+
+            const uint32_t cycles_to_measure =
+                balancing_requested ? NUM_CYCLES_TO_MEASURE_BALANCING : NUM_CYCLES_TO_MEASURE_NOMINAL;
+            if (iso_spi_state_counter == cycles_to_measure)
+            {
+                iso_spi_state_counter = 0;
+                iso_spi_task_state    = RUN_OPEN_WIRE_CHECK;
+            }
+
+            iso_spi_state_counter++;
+            break;
         }
-    }
-    else
-    {
-        app_accumulator_runOnTick100Hz();
+        case RUN_OPEN_WIRE_CHECK:
+        {
+            if (app_accumulator_runOpenWireCheck())
+            {
+                iso_spi_state_counter = 0;
+                if (balancing_requested)
+                {
+                    iso_spi_task_state = RUN_CELL_BALANCING;
+                }
+                else
+                {
+                    globals->cell_monitor_settle_count = 0;
+                    iso_spi_task_state                 = RUN_CELL_MEASUREMENTS;
+                }
+            }
+            break;
+        }
+        case RUN_CELL_BALANCING:
+        {
+            app_accumulator_balanceCells();
+            app_accumulator_enableBalancing(true);
+
+            if (iso_spi_state_counter >= NUM_CYCLES_TO_BALANCE)
+            {
+                app_accumulator_enableBalancing(false);
+                iso_spi_task_state                 = RUN_CELL_MEASUREMENTS;
+                iso_spi_state_counter              = 0;
+                globals->cell_monitor_settle_count = 0;
+            }
+
+            iso_spi_state_counter++;
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
 
     app_thermistors_updateAuxThermistorTemps();

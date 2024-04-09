@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <math.h>
 #include "main.h"
+#include "app_units.h"
 #include "hw_pwmInputFreqOnly.h"
 
 // Note: Unit for length is measured in metres unless specified

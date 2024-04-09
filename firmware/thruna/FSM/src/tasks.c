@@ -64,7 +64,10 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
-
+static CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
+};
 // config to forward can functions to shared heartbeat
 // FSM rellies on BMS
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = true,
@@ -123,7 +126,7 @@ void tasks_init(void)
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
@@ -142,8 +145,8 @@ void tasks_init(void)
     app_stateMachine_init(app_mainState_get());
 
     app_heartbeatMonitor_init(
-        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &app_canTx_FSM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
 
     // broadcast commit info
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);

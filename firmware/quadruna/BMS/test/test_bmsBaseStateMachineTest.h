@@ -38,8 +38,6 @@ extern "C"
 #include "app_globals.h"
 }
 
-extern uint32_t owcCounter;
-
 class BmsBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -51,8 +49,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_init();
 
         app_heartbeatMonitor_init(
-            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-            &app_canTx_BMS_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
+            heartbeatFaultSetters, heartbeatFaultGetters);
 
         app_inverterOnState_init();
         app_accumulator_init();
@@ -82,9 +80,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
-
-        // Reset Open-Wire-Check counter
-        owcCounter = 0;
     }
 
     void TearDown() override
@@ -130,43 +125,47 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     const FaultLatch           imd_ok_latch       = {};
     const FaultLatch           bspd_ok_latch      = {};
 
-    // config to forward can functions to shared heartbeat
-    // BMS rellies on DCM, PDM, and FSM
-    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = { [BMS_HEARTBEAT_BOARD] = false,
-                                                              [DCM_HEARTBEAT_BOARD] = true,
-                                                              [PDM_HEARTBEAT_BOARD] = true,
-                                                              [FSM_HEARTBEAT_BOARD] = true,
-                                                              [DIM_HEARTBEAT_BOARD] = false };
+    // config for heartbeat monitor (can funcs and flags)
+    // BMS relies on RSM, VC
+    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+        [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
+        [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+    };
+
     // heartbeatGetters - get heartbeat signals from other boards
-    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD] = NULL,
-                                                          [DCM_HEARTBEAT_BOARD] = NULL,
-                                                          [PDM_HEARTBEAT_BOARD] = NULL,
-                                                          [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_get,
-                                                          [DIM_HEARTBEAT_BOARD] = NULL };
+    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
-    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD] = NULL,
-                                                               [DCM_HEARTBEAT_BOARD] = NULL,
-                                                               [PDM_HEARTBEAT_BOARD] = NULL,
-                                                               [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_update,
-                                                               [DIM_HEARTBEAT_BOARD] = NULL };
+    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                               [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
+                                                               [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+                                                               [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                               [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                               [CRIT_HEARTBEAT_BOARD] = NULL };
 
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
     void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-        [BMS_HEARTBEAT_BOARD] = NULL,
-        [DCM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingDCMHeartbeat_set,
-        [PDM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingPDMHeartbeat_set,
-        [FSM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingFSMHeartbeat_set,
-        [DIM_HEARTBEAT_BOARD] = NULL
+        [BMS_HEARTBEAT_BOARD]  = NULL,
+        [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_set,
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_set,
+        [FSM_HEARTBEAT_BOARD]  = NULL,
+        [DIM_HEARTBEAT_BOARD]  = NULL,
+        [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-        [BMS_HEARTBEAT_BOARD] = NULL,
-        [DCM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingDCMHeartbeat_get,
-        [PDM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingPDMHeartbeat_get,
-        [FSM_HEARTBEAT_BOARD] = &app_canAlerts_BMS_Fault_MissingFSMHeartbeat_get,
-        [DIM_HEARTBEAT_BOARD] = NULL
+        [BMS_HEARTBEAT_BOARD]  = NULL,
+        [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
+        [FSM_HEARTBEAT_BOARD]  = NULL,
+        [DIM_HEARTBEAT_BOARD]  = NULL,
+        [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     const GlobalsConfig globals_config = {

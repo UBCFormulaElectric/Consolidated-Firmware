@@ -9,8 +9,9 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_utils.h"
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
@@ -18,8 +19,10 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
@@ -37,8 +40,9 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -111,10 +115,30 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_RSM_can" "quadruna_RSM_stm32cube")
-    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules")
+    target_link_libraries("quadruna_RSM.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules" "m")
 
     # TODO: embedded_image for boot
     
 elseif("${TARGET}" STREQUAL "test")
-    # TODO: Set up tests
+set(HEADERS_TO_FAKE
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brakeLight.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_load.h"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
+)
+
+create_fake_library(
+    "quadruna_RSM_fakes"
+    "${HEADERS_TO_FAKE}"
+)
+
+set(SRCS ${APP_SRCS} ${TEST_SRCS})
+set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+compile_gtest_executable(
+    "quadruna_RSM_test"
+    "${SRCS}"
+    "${INCLUDE_DIRS}"
+)
+target_link_libraries("quadruna_RSM_test" "quadruna_RSM_can" "quadruna_RSM_fakes" "shared_fakes" "m")
+
 endif()

@@ -56,6 +56,10 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallback,
     .rx_overflow_callback = canRxQueueOverflowCallback,
 };
+static CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
+};
 
 static const BinaryLed imd_led   = { .gpio = {
                                          .port = IMD_LED_GPIO_Port,
@@ -247,7 +251,7 @@ void tasks_init(void)
     LOG_INFO("DIM reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
@@ -259,8 +263,8 @@ void tasks_init(void)
     app_canRx_init();
 
     app_heartbeatMonitor_init(
-        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &app_canTx_DIM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_DIM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
     app_sevenSegDisplays_init();
     app_avgPower_init();
     app_stateMachine_init(app_mainState_get());

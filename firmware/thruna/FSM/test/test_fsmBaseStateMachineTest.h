@@ -41,8 +41,8 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         app_apps_init();
         app_coolant_init();
         app_heartbeatMonitor_init(
-            HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-            &app_canTx_FSM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+            heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
+            heartbeatFaultSetters, heartbeatFaultGetters);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,

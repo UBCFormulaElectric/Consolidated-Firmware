@@ -1,0 +1,10 @@
+{
+	"messages": [
+		"BMS_Vitals",
+		"FSM_Vitals",
+		"RSM_Vitals",
+		"VC_Vitals",
+		"BMS_Contactors",
+		"BMS_OkStatuses"
+	]
+}

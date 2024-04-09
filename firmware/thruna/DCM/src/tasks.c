@@ -56,6 +56,10 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxQueueOverflowCallBack,
     .rx_overflow_callback = canRxQueueOverflowCallBack,
 };
+static CanHandle can = {
+    .can                       = &hcan1,
+    .can_msg_received_callback = io_can_msgReceivedCallback,
+};
 
 UART imu_uart = { .handle = &huart1 };
 
@@ -110,9 +114,7 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 
 static const GlobalsConfig globals_config = {
     .brake_light = &brake_light,
-    .buzzer      = &buzzer,
 };
-
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -128,12 +130,13 @@ void tasks_init(void)
     LOG_INFO("DCM reset!");
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_buzzer_init(&buzzer);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
@@ -145,8 +148,8 @@ void tasks_init(void)
 
     app_globals_init(&globals_config);
     app_heartbeatMonitor_init(
-        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters,
-        &app_canTx_DCM_Heartbeat_set, heartbeatFaultSetters, heartbeatFaultGetters);
+        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_DCM_Heartbeat_set,
+        heartbeatFaultSetters, heartbeatFaultGetters);
     app_stateMachine_init(app_initState_get());
 
     // broadcast commit info

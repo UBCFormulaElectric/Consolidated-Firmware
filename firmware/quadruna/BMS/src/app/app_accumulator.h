@@ -34,14 +34,14 @@ void app_accumulator_init(void);
 void app_accumulator_writeDefaultConfig(void);
 
 /**
- * Tick function to be called at 100Hz.
+ * Cell Voltage and Temp Measurement function to be called at 100Hz.
  */
-void app_accumulator_runOnTick100Hz(void);
+void app_accumulator_runCellMeasurements(void);
 
 /**
  * Open Wire Check state machine
  */
-bool app_accumulator_openWireCheck(void);
+bool app_accumulator_runOpenWireCheck(void);
 
 /**
  * Broadcast state of the accumulator over CAN.
@@ -81,3 +81,13 @@ float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
  * @return Maximum cell voltage.
  */
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell);
+
+/**
+ * Calculate cells to balance based on min cell voltage
+ */
+void app_accumulator_calculateCellsToBalance(void);
+
+/**
+ * Send command to segments to begin balancing based on cells marked for discharge
+ */
+void app_accumulator_balanceCells(void);

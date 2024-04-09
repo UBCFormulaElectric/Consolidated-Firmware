@@ -208,7 +208,7 @@ void io_ltc6813Shared_packRegisterGroupPec15(uint8_t *tx_cfg)
 
 bool io_ltc6813Shared_sendCommand(uint16_t cmd)
 {
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
+    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
     return hw_spi_transmit(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
@@ -220,7 +220,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Prepare command to get the status of ADC conversions
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = PLADC, [CMD_PEC15] = 0U };
+    uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = PLADC, [CMD_PEC15] = 0U };
     io_ltc6813Shared_packCmdPec15(tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when
@@ -228,7 +228,7 @@ bool io_ltc6813Shared_pollAdcConversions(void)
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok =
-            hw_spi_transmitAndReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            hw_spi_transmitThenReceive(ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -246,9 +246,7 @@ bool io_ltc6813Shared_writeConfigurationRegisters(bool enable_balance)
     for (uint8_t curr_cfg_reg = 0U; curr_cfg_reg < NUM_OF_CFG_REGS; curr_cfg_reg++)
     {
         // Command used to write to a configuration register
-        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
-            [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U
-        };
+        uint16_t tx_cmd[NUM_CMD_WORDS] = { [CMD_WORD] = ltc6813_configs[curr_cfg_reg].cfg_reg_cmds, [CMD_PEC15] = 0U };
 
         // Array containing bytes to write to the configuration register
         uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };

@@ -4,17 +4,22 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS 
+    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
 )
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}")
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
@@ -30,9 +35,12 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
-set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
+set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
@@ -71,7 +79,12 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal.c"
+        "stm32h7xx_hal_i2c.c"
+        "stm32h7xx_hal_i2c_ex.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
@@ -102,8 +115,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules")
+    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m")
 
     embedded_image(
         "quadruna_VC"
@@ -121,8 +134,29 @@ elseif("${TARGET}" STREQUAL "test")
         FALSE
         "quadruna"
     )
+
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
+
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
+    )
+
+    create_fake_library(
+        "quadruna_VC_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+    
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
@@ -131,5 +165,5 @@ elseif("${TARGET}" STREQUAL "test")
         "${SRCS}"
         "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_VC_test" "quadruna_VC_can")
+    target_link_libraries("quadruna_VC_test" "quadruna_VC_can" "quadruna_VC_fakes" "shared_fakes")
 endif()
