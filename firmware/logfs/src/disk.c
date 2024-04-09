@@ -181,11 +181,13 @@ LogFsErr disk_writePair(LogFs *fs, LogFsPair *pair, bool check_replace)
         fs->cache_pair_hdr->write_cycles     = 0;
         fs->cache_pair_hdr->replacement_addr = LOGFS_INVALID_BLOCK;
 
-        // Wipe both blocks to guarantee state is corrupted by data already on the card.
-        uint8_t empty_buf[fs->cfg->block_size];
-        memset(empty_buf, 0U, sizeof(empty_buf));
-        RET_ERR(fs->cfg->write(fs->cfg, pair->addrs[0], empty_buf));
-        RET_ERR(fs->cfg->write(fs->cfg, pair->addrs[1], empty_buf));
+        // Corrupt both blocks so they don't get misinterpreted.
+        uint32_t *const first_word     = (uint32_t *)fs->cfg->cache;
+        const uint32_t  cur_first_word = *first_word;
+        *first_word                    = ~cur_first_word; // This is (almost) guaranteed to invalidate the checksum.
+        RET_ERR(fs->cfg->write(fs->cfg, pair->addrs[0], fs->cfg->cache));
+        RET_ERR(fs->cfg->write(fs->cfg, pair->addrs[1], fs->cfg->cache));
+        *first_word = cur_first_word; // Restore checksum so this has no side effects (probably unnecessary)
     }
     else if (fs->cfg->write_cycles != 0 && check_replace && fs->cache_pair_hdr->write_cycles >= fs->cfg->write_cycles)
     {

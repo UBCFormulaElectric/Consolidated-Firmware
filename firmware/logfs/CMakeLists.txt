@@ -26,13 +26,22 @@ elseif("${TARGET}" STREQUAL "test")
     pybind11_add_module(logfs_src ${LOGFS_SRCS} ${CMAKE_CURRENT_SOURCE_DIR}/python/bindings.cpp)
     target_include_directories(logfs_src PUBLIC "${LOGFS_INCLUDE_DIRS}")
     set_target_properties(logfs_src PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/python")
-    target_compile_options(logfs_src PRIVATE 
-        -O3
-        -Wall
-        -Werror
-        -Wextra
-        -pedantic
-    )
+    
+    if(MSVC)
+        target_compile_options(logfs_src PRIVATE 
+            /O2
+            /W3
+            /WX
+        )
+    else()
+        target_compile_options(logfs_src PRIVATE 
+            -O3
+            -Wall
+            -Werror
+            -Wextra
+            -pedantic
+        )
+    endif()
 
     # Invoke setuptools to install the Python library.
     add_custom_target(install_python_logfs

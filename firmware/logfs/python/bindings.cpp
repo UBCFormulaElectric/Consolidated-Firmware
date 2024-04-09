@@ -71,10 +71,7 @@ class PyLogFs
     LogFsErr open(PyLogFsFile &file, char *path, uint32_t flags)
     {
         // Allocate file cache on the heap.
-        LogFsFileCfg file_cfg = {
-            .path  = path,
-            .cache = malloc(cfg.block_size),
-        };
+        LogFsFileCfg file_cfg = { path, malloc(cfg.block_size) };
         return logfs_open(&fs, &file.file, &file_cfg, flags);
     }
 
