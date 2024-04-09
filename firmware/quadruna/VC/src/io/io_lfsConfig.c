@@ -1,12 +1,23 @@
 #include "io_lfsConfig.h"
 #include "hw_sd.h"
 #include "hw_gpio.h"
-
+#include "cmsis_os2.h"
 char lfs_read_buffer[IO_LFS_READ_SIZE];
 char lfs_prog_buffer[IO_LFS_PROG_SIZE];
 char lfs_lookahead_buffer[IO_LFS_LOOKAHEAD_SIZE];
 
 extern Gpio sd_present;
+
+void io_lfsConfig_showdown(void)
+{
+    if (osKernelGetState() == osKernelRunning)
+    {
+        osDelay(osWaitForever);
+        return;
+    }
+
+    assert(0);
+}
 
 static bool sdCardReady()
 {
