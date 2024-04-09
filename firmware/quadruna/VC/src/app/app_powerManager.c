@@ -2,7 +2,7 @@
 #include "app_powerManager.h"
 #include "app_canTx.h"
 
-const int   DEBOUNCE_TIME        = 100;
+const int   DEBOUNCE_TIMER_LIMIT = 100;
 const float TIMER_ATTEMPTS_LIMIT = 100.0;
 
 typedef struct
@@ -119,9 +119,9 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
 
         switch (efuse_retry_data->protocol_state)
         {
-            // waiting for debounce time to pass, then efuse on
+            // Handle waiting for debounce time to pass and then turn on the efuse
             case PROTOCOL_STATE_DEBOUNCE:
-                if (efuse_retry_data->debounce_timer_attempts == DEBOUNCE_TIME)
+                if (efuse_retry_data->debounce_timer_attempts == DEBOUNCE_TIMER_LIMIT)
                 {
                     io_efuse_standbyReset(efuse);
                     io_efuse_setChannel(efuse, true);
@@ -133,10 +133,10 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 {
                     efuse_retry_data->debounce_timer_attempts++;
                 }
-            // This efuse is waiting for a different efuse to finish retry protocol
+            // Handle efuse dependant that is waiting for an efuse in protocol
             case PROTOCOL_STATE_DEPENDENCY_WAITING:
                 break;
-            // Going through the retry protocol, getting current total
+            // Handle going through the retry protocol and calculating current total
             case PROTOCOL_STATE_CALC_AVG:
             {
                 efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
@@ -148,16 +148,20 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 }
                 break;
             }
-            // Finished calculating current avg
+            // Handle finishing calculating current average
             case PROTOCOL_STATE_CALC_DONE:
             {
                 float avg = efuse_retry_data->current_sum / TIMER_ATTEMPTS_LIMIT;
+
+                // Calculate average and check if it's less than the minimum needed current to go into protocol
                 if (avg <= efuse_retry_config->min_needed_current)
                 {
+                    // Reached retry attempts limit or start retry protocol
                     if (efuse_retry_data->retry_attempts == efuse_retry_config->retry_attempts_limit)
                     {
                         app_canTx_VC_Efuse_set(efuse_retry_config->efuse_state);
                         app_canTx_VC_Fault_Count_set((long unsigned int)efuse_retry_data->retry_attempts);
+                        efuse_retry_data->protocol_state = PROTOCOL_STATE_OFF;
                     }
                     else
                     {
@@ -166,15 +170,22 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                         efuse_retry_data->retry_attempts++;
                     }
                 }
+                // Successful retry protocol after previous retry attempts
                 else if (efuse_retry_data->retry_attempts > 0)
                 {
                     app_retryHandler_success(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
                 }
+                // Efuse has good current after first current count
+                else
+                {
+                    efuse_retry_data->protocol_state = PROTOCOL_STATE_OFF;
+                }
+
                 efuse_retry_data->current_sum            = 0;
                 efuse_retry_data->current_timer_attempts = 0;
                 break;
             }
-            // Not in a retry protocol, checking if it should be
+            // Handle efuse not in a retry protocol, check if it should be
             case PROTOCOL_STATE_OFF:
             {
                 bool is_efuse_faulting = efuse_retry_config->efuse_state &&
