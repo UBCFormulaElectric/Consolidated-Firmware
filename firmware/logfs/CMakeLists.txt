@@ -32,11 +32,6 @@ elseif("${TARGET}" STREQUAL "test")
             LIBRARY_OUTPUT_DIRECTORY_DEBUG "${LOGFS_SRC_OUTPUT_DIR}"
             LIBRARY_OUTPUT_DIRECTORY_RELEASE "${LOGFS_SRC_OUTPUT_DIR}"
         )
-        target_compile_options(logfs_src PRIVATE 
-            /O2
-            /W3
-            /WX
-        )
     else()
         set_target_properties(logfs_src PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${LOGFS_SRC_OUTPUT_DIR}")
         target_compile_options(logfs_src PRIVATE 
