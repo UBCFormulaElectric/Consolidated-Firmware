@@ -5,8 +5,8 @@
 typedef struct
 {
     uint32_t id : 11;
-    uint32_t dlc : 3;        // Data length code
-    uint32_t timestamp : 18; // sum up to 32 bits
+    uint32_t dlc : 4;        // Data length code [0, 8)
+    uint32_t timestamp : 17; // sum up to 32 bits
     uint8_t  data[8];
 } CanMsgLog;
 
