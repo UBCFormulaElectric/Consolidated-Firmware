@@ -90,10 +90,6 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 
 void io_canLogging_recordMsgFromQueue(void)
 {
-    // if (!sd_inited && hw_gpio_readPin(&sd_present))
-    // {
-    //     return;
-    // }
     CanMsgLog tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
