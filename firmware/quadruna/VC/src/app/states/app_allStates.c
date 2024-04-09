@@ -17,6 +17,7 @@
 #include "io_time.h"
 #include "app_pumpControl.h"
 #include "io_imu.h"
+#include "app_soc.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -32,6 +33,8 @@ void app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
+
+    app_soc_update();
 
     if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
     {
@@ -51,4 +54,7 @@ void app_allStates_runOnTick100Hz(void)
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
 
-void app_allStates_runOnTick1Hz() {}
+void app_allStates_runOnTick1Hz()
+{
+    app_soc_broadcast();
+}
