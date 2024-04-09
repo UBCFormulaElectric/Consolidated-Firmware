@@ -8,7 +8,7 @@ typedef enum
     RETRY_PROTOCOL_PUMP,
     RETRY_PROTOCOL_INV_R,
     RETRY_PROTOCOL_INV_L,
-    RETYR_PROTOCOL_NONE,
+    RETRY_PROTOCOL_NONE,
     NUM_RETRY_PROTOCOL
 } RetryProtocol;
 
@@ -33,8 +33,9 @@ typedef struct
 {
     ProtocolState protocol_state;
     int           retry_attempts;
-    int           timer_attempts;
+    int           current_timer_attempts;
     float         current_sum;
+    int           debounce_timer_attempts;
 } RetryData;
 
 /**

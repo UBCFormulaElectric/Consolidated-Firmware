@@ -52,6 +52,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+        app_powerManager_init();
     }
 
     void TearDown() override
