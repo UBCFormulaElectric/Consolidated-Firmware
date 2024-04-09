@@ -707,7 +707,7 @@
     },
     "CoolantPumpFlowRate": {
         "msg_id": 224,
-        "cycle_time": 1,
+        "cycle_time": 1000,
         "description": "Broadcast flow rate of coolant pump.",
         "signals": {
             "FlowRate": {
