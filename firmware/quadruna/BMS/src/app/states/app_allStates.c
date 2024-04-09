@@ -58,7 +58,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    const bool balancing_enabled = true; // app_canRx_Debug_CellBalancingRequest_get();
+    const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
     switch (iso_spi_task_state)
     {
