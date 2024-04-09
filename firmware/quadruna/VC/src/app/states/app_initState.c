@@ -13,7 +13,7 @@
 #include "app_globals.h"
 #include "app_faultCheck.h"
 
-#include <app_pumpControl.h>
+#include "app_pumpControl.h"
 
 #define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 
