@@ -51,8 +51,6 @@ DMA_HandleTypeDef hdma_adc1;
 FDCAN_HandleTypeDef hfdcan1;
 
 I2C_HandleTypeDef hi2c1;
-
-SD_HandleTypeDef  hsd1;
 I2C_HandleTypeDef hi2c2;
 
 SD_HandleTypeDef hsd1;
@@ -141,9 +139,9 @@ static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
+static void MX_I2C1_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -195,9 +193,9 @@ int main(void)
     MX_ADC1_Init();
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
-    MX_I2C1_Init();
     MX_I2C2_Init();
     MX_SDMMC1_SD_Init();
+    MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -616,7 +614,6 @@ static void MX_I2C1_Init(void)
 }
 
 /**
- * @brief SDMMC1 Initialization Function
  * @brief I2C2 Initialization Function
  * @param None
  * @retval None
@@ -712,9 +709,9 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 1 */
     htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = 0;
+    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = 65535;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -726,7 +723,7 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {
@@ -1014,14 +1011,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PB6 PB7 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
