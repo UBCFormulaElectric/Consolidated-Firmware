@@ -85,10 +85,10 @@ void app_powerManager_init()
 {
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        retry_data[efuse].protocol_state = PROTOCOL_STATE_OFF;
-        retry_data[efuse].retry_attempts = 0;
-        retry_data[efuse].current_timer_attempts = 0;
-        retry_data[efuse].current_sum    = 0.0;
+        retry_data[efuse].protocol_state          = PROTOCOL_STATE_OFF;
+        retry_data[efuse].retry_attempts          = 0;
+        retry_data[efuse].current_timer_attempts  = 0;
+        retry_data[efuse].current_sum             = 0.0;
         retry_data[efuse].debounce_timer_attempts = 0;
     }
 }
@@ -104,10 +104,6 @@ void app_powerManager_setState(PowerManagerState state)
         if (not_in_retry_protocol)
         {
             io_efuse_setChannel(efuse, is_efuse_on);
-        }
-        if (!is_efuse_on)
-        {
-            retry_data[efuse].protocol_state = PROTOCOL_STATE_OFF;
         }
     }
 }
@@ -130,7 +126,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                     io_efuse_standbyReset(efuse);
                     io_efuse_setChannel(efuse, true);
 
-                    efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_AVG;
+                    efuse_retry_data->protocol_state          = PROTOCOL_STATE_CALC_AVG;
                     efuse_retry_data->debounce_timer_attempts = 0;
                 }
                 else
@@ -174,7 +170,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 {
                     app_retryHandler_success(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
                 }
-                efuse_retry_data->current_sum    = 0;
+                efuse_retry_data->current_sum            = 0;
                 efuse_retry_data->current_timer_attempts = 0;
                 break;
             }

@@ -34,19 +34,11 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         LetTimePass(50);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     }
-
-    void SetStateToDrive()
-    {
-        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-        app_canRx_FSM_BrakeActuated_update(true);
-        SetInitialState(app_driveState_get());
-    }
 };
 
 TEST_F(VCStateMachineTest, test_SetStateToDrive)
 {
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(1000);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 }
@@ -149,6 +141,18 @@ TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverterO
 
 TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
 {
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_SHDN, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_LV, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_PUMP, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_INV_L, true);
+    fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_INV_R, true);
+
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_SHDN, 10);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LV, 10);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_PUMP, 10);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, 10);
+    fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, 10);
+
     for (auto &state : GetAllStates())
     {
         BaseStateMachineTest::SetUp();
@@ -184,7 +188,7 @@ TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_e
 
 TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
 
     // Set the CRIT start switch to on, and the BMS to drive state, to prevent state transitions in
     // the drive state.
@@ -248,7 +252,7 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
 
 TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
 {
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
@@ -260,7 +264,7 @@ TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
 
 TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
 {
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
@@ -271,7 +275,7 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
 
 TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn_to_init)
 {
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(100);
     EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 

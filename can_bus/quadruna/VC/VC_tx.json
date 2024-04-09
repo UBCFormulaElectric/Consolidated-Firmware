@@ -721,7 +721,7 @@
     "Efuses": {
         "msg_id": 226,
         "cycle_time": 100,
-        "description": "PDM efuses",
+        "description": "VC efuse retry protocol faults",
         "signals": {
             "Efuse": {
                 "enum": "Efuse"

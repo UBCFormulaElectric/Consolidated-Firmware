@@ -97,6 +97,7 @@ static void driveStateRunOnTick100Hz(void)
     bool       exit_drive_to_inverterOn = bms_not_in_drive || start_switch_off;
     bool       regen_switch_enabled     = app_canRx_CRIT_AuxSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    bool       efuse_fault              = app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
@@ -115,7 +116,7 @@ static void driveStateRunOnTick100Hz(void)
                                     : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
     }
 
-    if (exit_drive_to_init)
+    if (exit_drive_to_init || efuse_fault)
     {
         app_stateMachine_setNextState(app_initState_get());
         return;
@@ -138,8 +139,6 @@ static void driveStateRunOnTick100Hz(void)
     {
         transmitTorqueRequests(apps_pedal_percentage);
     }
-
-    app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 }
 
 static void driveStateRunOnExit(void)

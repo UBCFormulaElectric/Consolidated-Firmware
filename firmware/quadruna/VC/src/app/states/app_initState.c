@@ -43,12 +43,12 @@ static void initStateRunOnTick100Hz(void)
                                    app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                    app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (is_bms_in_correct_state && all_states_ok)
+    bool efuse_fault = app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
+
+    if (is_bms_in_correct_state && all_states_ok && !efuse_fault)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
-
-    app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
 
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start

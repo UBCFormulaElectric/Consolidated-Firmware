@@ -2,15 +2,17 @@
 
 extern "C"
 {
-    #include "app_canTx.h"
-    #include "app_powerManager.h"
+#include "app_canTx.h"
+#include "app_powerManager.h"
 }
 
 const int GOOD_CURRENT = 10;
 
-class VCEfuseProtocolTest : public VcBaseStateMachineTest {
-protected:
-    void configEfuseChannels() {
+class VCEfuseProtocolTest : public VcBaseStateMachineTest
+{
+  protected:
+    void configEfuseChannels()
+    {
         fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_SHDN, true);
         fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_LV, true);
         fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_PUMP, true);
@@ -26,15 +28,6 @@ protected:
         fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_BUZZER, GOOD_CURRENT);
         fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, GOOD_CURRENT);
         fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, GOOD_CURRENT);
-    }
-    void SetStateToDrive()
-    {
-        app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-        LetTimePass(10);
-        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-        app_canRx_FSM_BrakeActuated_update(true);
-        SetInitialState(app_driveState_get());
     }
 };
 
@@ -130,10 +123,10 @@ TEST_F(VCEfuseProtocolTest, inv_r_protocol_unsuccessful)
     configEfuseChannels();
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, 0.3);
 
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(3500);
 
-    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_R, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_R, false), 3);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_INV_R), 1);
     EXPECT_EQ(app_canTx_VC_Fault_Count_get(), 1);
 }
@@ -142,13 +135,13 @@ TEST_F(VCEfuseProtocolTest, inv_r_protocol_successful)
 {
     configEfuseChannels();
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, 0.3);
-    
-    SetStateToDrive();
+
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(1250);
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, GOOD_CURRENT);
     LetTimePass(3000);
 
-    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_R, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_R, false), 3);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_INV_R), 1);
     EXPECT_EQ(app_canTx_VC_Fault_Count_get(), 0);
 }
@@ -158,10 +151,10 @@ TEST_F(VCEfuseProtocolTest, inv_l_protocol_unsuccessful)
     configEfuseChannels();
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, 0.3);
 
-    SetStateToDrive();
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(3500);
 
-    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_L, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_L, false), 3);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_INV_L), 1);
     EXPECT_EQ(app_canTx_VC_Fault_Count_get(), 1);
 }
@@ -170,13 +163,13 @@ TEST_F(VCEfuseProtocolTest, inv_l_protocol_successful)
 {
     configEfuseChannels();
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, 0.3);
-    
-    SetStateToDrive();
+
+    VcBaseStateMachineTest::SetStateToDrive();
     LetTimePass(1250);
     fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, GOOD_CURRENT);
     LetTimePass(3000);
 
-    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_L, false), 2);
+    EXPECT_EQ(fake_io_efuse_setChannel_callCountForArgs(EFUSE_CHANNEL_INV_L, false), 3);
     EXPECT_EQ(fake_io_efuse_standbyReset_callCountForArgs(EFUSE_CHANNEL_INV_L), 1);
     EXPECT_EQ(app_canTx_VC_Fault_Count_get(), 0);
 }
