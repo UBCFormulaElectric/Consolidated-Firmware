@@ -31,15 +31,17 @@ static void mainStateRunOnTick100Hz(void)
 
     const bool regen_switch_on = io_switch_isClosed(globals->config->regen_switch);
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
+    io_led_enable(globals->config->regen_led, true);
 
     const bool torquevec_switch_on = io_switch_isClosed(globals->config->torquevec_switch);
     app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
+    io_led_enable(globals->config->torquevec_led, true);
 
-    if (app_canRx_VC_State_get() == 2)
+    int VC_STATE_ENUM_VALUE = 2;
+
+    if (app_canRx_VC_State_get() == VC_STATE_ENUM_VALUE)
     {
         io_led_enable(globals->config->start_led, true);
-        io_led_enable(globals->config->regen_led, true);
-        io_led_enable(globals->config->torquevec_led, true);
     }
 
     typedef struct
