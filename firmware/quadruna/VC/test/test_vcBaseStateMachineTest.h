@@ -59,6 +59,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
         fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
+        app_powerManager_init();
     }
 
     void TearDown() override

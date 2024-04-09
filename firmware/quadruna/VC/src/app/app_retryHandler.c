@@ -16,7 +16,6 @@ bool app_retryHandler_start(RetryProtocol protocol, const RetryConfig retry_conf
     switch (protocol)
     {
         case RETRY_PROTOCOL_SHDN:
-            io_efuse_standbyReset(EFUSE_CHANNEL_SHDN);
             io_efuse_setChannel(EFUSE_CHANNEL_SHDN, false);
 
             retry_data[EFUSE_CHANNEL_SHDN].protocol_state = PROTOCOL_STATE_DEBOUNCE;
@@ -68,12 +67,18 @@ void app_retryHandler_success(RetryProtocol protocol, const RetryConfig retry_co
 {
     switch (protocol)
     {
+        case RETRY_PROTOCOL_SHDN:
+            retry_data[EFUSE_CHANNEL_SHDN].protocol_state = PROTOCOL_STATE_OFF;
+            break;
         case RETRY_PROTOCOL_LV:
             for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
             {
                 io_efuse_setChannel(efuse, true);
                 retry_data[efuse].protocol_state = PROTOCOL_STATE_OFF;
             }
+            break;
+        case RETRY_PROTOCOL_PUMP:
+            retry_data[EFUSE_CHANNEL_PUMP].protocol_state = PROTOCOL_STATE_OFF;
             break;
         case RETRY_PROTOCOL_INV_R:
         case RETRY_PROTOCOL_INV_L:

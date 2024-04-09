@@ -33,7 +33,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0.5 },
                                                     [EFUSE_CHANNEL_AUX]    = { .efuse_state          = false,
-                                                                               .retry_protocol       = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol       = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
                                                     [EFUSE_CHANNEL_INV_R]  = { .efuse_state    = false,
@@ -45,11 +45,11 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0.5 },
                                                     [EFUSE_CHANNEL_TELEM]  = { .efuse_state    = true,
-                                                                               .retry_protocol = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
                                                     [EFUSE_CHANNEL_BUZZER] = { .efuse_state    = false,
-                                                                               .retry_protocol = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 } } },
     [POWER_MANAGER_DRIVE]    = { .retry_configs = { [EFUSE_CHANNEL_SHDN]   = { .efuse_state          = true,
@@ -65,7 +65,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0.5 },
                                                     [EFUSE_CHANNEL_AUX]    = { .efuse_state          = false,
-                                                                               .retry_protocol       = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol       = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
                                                     [EFUSE_CHANNEL_INV_R]  = { .efuse_state          = true,
@@ -77,11 +77,11 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0.5 },
                                                     [EFUSE_CHANNEL_TELEM]  = { .efuse_state          = true,
-                                                                               .retry_protocol       = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol       = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
                                                     [EFUSE_CHANNEL_BUZZER] = { .efuse_state          = true,
-                                                                               .retry_protocol       = RETYR_PROTOCOL_NONE,
+                                                                               .retry_protocol       = RETRY_PROTOCOL_NONE,
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 } } }
 };
@@ -94,8 +94,9 @@ void app_powerManager_init()
     {
         retry_data[efuse].protocol_state = PROTOCOL_STATE_OFF;
         retry_data[efuse].retry_attempts = 0;
-        retry_data[efuse].timer_attempts = 0;
+        retry_data[efuse].current_timer_attempts = 0;
         retry_data[efuse].current_sum    = 0.0;
+        retry_data[efuse].debounce_timer_attempts = 0;
     }
 }
 
@@ -105,7 +106,7 @@ void app_powerManager_setState(PowerManagerState state)
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        bool not_in_retry_protocol = retry_data[efuse].protocol_state == PROTOCOL_STATE_DEPENDENCY_WAITING;
+        bool not_in_retry_protocol = retry_data[efuse].protocol_state != PROTOCOL_STATE_DEPENDENCY_WAITING;
         bool is_efuse_on           = power_states_config[state].retry_configs[efuse].efuse_state;
         if (not_in_retry_protocol)
         {
@@ -127,27 +128,21 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
         RetryData         *efuse_retry_data   = &retry_data[efuse];
         const RetryConfig *efuse_retry_config = &power_states_config[state].retry_configs[efuse];
 
-        // Check if timer attempts reached the limit
-        if (efuse_retry_data->timer_attempts == TIMER_ATTEMPTS_LIMIT)
-        {
-            efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_DONE;
-        }
-
         switch (efuse_retry_data->protocol_state)
         {
             // waiting for debounce time to pass, then efuse on
             case PROTOCOL_STATE_DEBOUNCE:
-                if (efuse_retry_data->timer_attempts == DEBOUNCE_TIME)
+                if (efuse_retry_data->debounce_timer_attempts == DEBOUNCE_TIME)
                 {
                     io_efuse_standbyReset(efuse);
                     io_efuse_setChannel(efuse, true);
 
                     efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_AVG;
-                    efuse_retry_data->timer_attempts = 0;
+                    efuse_retry_data->debounce_timer_attempts = 0;
                 }
                 else
                 {
-                    efuse_retry_data->timer_attempts++;
+                    efuse_retry_data->debounce_timer_attempts++;
                 }
             // This efuse is waiting for a different efuse to finish retry protocol
             case PROTOCOL_STATE_DEPENDENCY_WAITING:
@@ -156,7 +151,12 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
             case PROTOCOL_STATE_CALC_AVG:
             {
                 efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-                efuse_retry_data->timer_attempts++;
+                efuse_retry_data->current_timer_attempts++;
+                // Check if timer attempts reached the limit
+                if (efuse_retry_data->current_timer_attempts == TIMER_ATTEMPTS_LIMIT)
+                {
+                    efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_DONE;
+                }
                 break;
             }
             // Finished calculating current avg
@@ -182,7 +182,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                     app_retryHandler_success(efuse_retry_config->retry_protocol, efuse_retry_config, retry_data);
                 }
                 efuse_retry_data->current_sum    = 0;
-                efuse_retry_data->timer_attempts = 0;
+                efuse_retry_data->current_timer_attempts = 0;
                 break;
             }
             // Not in a retry protocol, checking if it should be
@@ -194,7 +194,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 {
                     efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_AVG;
                     efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-                    efuse_retry_data->timer_attempts++;
+                    efuse_retry_data->current_timer_attempts++;
                 }
                 break;
             }
