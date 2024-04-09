@@ -5,6 +5,6 @@
     </Connections>
     <Files>
         <File RelativePath="dbcs\CanMsgs.dbc"/>
-        <File RelativePath="quadruna.dbc" />
+        <File RelativePath="dbcs\quadruna.dbc"/>
     </Files>
 </PCANExplorerProject>
