@@ -20,6 +20,7 @@
         "INVR_Temperatures3",
         "BMS_TractiveSystem",
         "BMS_CellTemperatures",
-        "BMS_CellVoltages"
+        "BMS_CellVoltages",
+        "Debug_SetCoolantPump"
     ]
 }
