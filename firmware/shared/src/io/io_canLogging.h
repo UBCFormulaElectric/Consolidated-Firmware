@@ -16,20 +16,20 @@ typedef struct
  * @param can_config
  *
  */
-void io_canLogging_init(const CanConfig *can_config);
+int io_canLogging_init(const CanConfig *can_config);
 
 /**
  * Create a push message to
  */
-void io_canLogging_pushTxMsgToQueue(const CanMsg *msg);
+int io_canLogging_pushTxMsgToQueue(const CanMsg *msg);
 
 /**
  * write the can message to the sdcard
  * pop the massage from queue
  *
  */
-void io_canLogging_recordMsgFromQueue(void);
+int io_canLogging_recordMsgFromQueue(void);
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg);
 
-void io_canLogging_sync(void);
+int io_canLogging_sync(void);

@@ -22,8 +22,8 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 static uint32_t current_bootcount;
 static int      log_fd; // fd for the log file
 
-extern SdCard sd;
-extern Gpio   sd_present;
+static uint8_t logging_error_remaining = 5; // number of times to error before stopping logging
+extern Gpio    sd_present;
 
 static char current_path[10];
 
@@ -37,12 +37,13 @@ static const osMessageQueueAttr_t queue_attr = {
 };
 
 // assume the lfs is already mounted
-static void initLoggingFileSystem()
+static int initLoggingFileSystem()
 {
     // early return
     if (!hw_gpio_readPin(&sd_present))
     {
-        return;
+        logging_error_remaining = 0;
+        return 1;
     }
 
     uint32_t bootcount = 0;
@@ -51,6 +52,12 @@ static void initLoggingFileSystem()
     // create new folder for this boot
     sprintf(current_path, "%lu", current_bootcount);
     log_fd = io_fileSystem_open(current_path);
+    if (log_fd < 0)
+    {
+        logging_error_remaining = 0;
+        return 1;
+    }
+    return 0;
 }
 
 static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
@@ -61,21 +68,28 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     memcpy(log->data, msg->data, 8);
 }
 
-void io_canLogging_init(const CanConfig *can_config)
+static bool isLoggingEnabled()
+{
+    return (logging_error_remaining > 0) && !hw_gpio_readPin(&sd_present);
+}
+
+int io_canLogging_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
     config = can_config;
 
-    // Initialize CAN queues.
-
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
 
     // create new folder for this boot
-    initLoggingFileSystem();
+    return initLoggingFileSystem();
 }
 
-void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
+int io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
 {
+    if (!isLoggingEnabled())
+    {
+        return 1;
+    }
     static uint32_t tx_overflow_count = 0;
 
     CanMsgLog log;
@@ -85,20 +99,27 @@ void io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
         config->tx_overflow_callback(++tx_overflow_count);
+        return 1;
     }
+    return 0;
 }
 
-void io_canLogging_recordMsgFromQueue(void)
+int io_canLogging_recordMsgFromQueue(void)
 {
-    // if (!sd_inited && hw_gpio_readPin(&sd_present))
-    // {
-    //     return;
-    // }
+    if (!isLoggingEnabled())
+    {
+        return 1;
+    }
     CanMsgLog tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
-    io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg));
-    // assert(size = sizeof(tx_msg));
+    int err = io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg));
+    if (err < 0)
+    {
+        logging_error_remaining--;
+        return 1;
+    }
+    return 0;
 }
 
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
@@ -108,7 +129,7 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
-        return;
+       return;
     }
 
     // We defer reading the CAN RX message to another task by storing the
@@ -117,12 +138,18 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
         config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        // config->rx_overflow_callback(++rx_overflow_count);
+        config->rx_overflow_callback(++rx_overflow_count);
     }
 }
 
-void io_canLogging_sync()
+int io_canLogging_sync()
 {
     // SAVe the seek before close
-    io_fileSystem_sync(log_fd);
+    int err = io_fileSystem_sync(log_fd);
+    if (err < 0)
+    {
+        logging_error_remaining--;
+        return 1;
+    }
+    return 0;
 }
