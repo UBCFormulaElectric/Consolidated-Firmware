@@ -25,6 +25,7 @@
 #include "io_brake.h"
 #include "io_suspension.h"
 #include "io_loadCell.h"
+#include "io_apps.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -108,6 +109,8 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
+AppsConfig apps_config = { .apps1 = ADC1_IN12_APPS1, .apps2 = ADC1_IN5_APPS2 };
+
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
@@ -178,6 +181,8 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    io_apps_init(&apps_config);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
