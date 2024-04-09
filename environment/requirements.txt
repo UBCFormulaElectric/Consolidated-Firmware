@@ -12,3 +12,4 @@ grpcio-tools
 pyserial
 protoletariat
 pybind11
+pytest

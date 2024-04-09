@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=amd64 ubuntu:22.04
 
 # Install dependencies:
 # wget: Downloading files from the internet
