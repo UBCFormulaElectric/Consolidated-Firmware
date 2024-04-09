@@ -69,7 +69,7 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed    rsm_status_led   = {};
     const RgbLed    vc_status_led    = {};
     // dummy used to initialize shdn_sen_pin
-    const ShutdownSensor shdn_sen     = {};
+    const ShutdownSensor shdn_sen = {};
 
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself
@@ -114,23 +114,21 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
-    const GlobalsConfig globals_config = {
-        .imd_led          = &imd_led,
-        .bspd_led         = &bspd_led,
-        .ams_led          = &ams_led,
-        .shdn_led         = &shdn_led,
-        .start_led        = &start_led,
-        .start_switch     = &start_switch,
-        .regen_led        = &regen_led,
-        .regen_switch     = &regen_switch,
-        .torquevec_led    = &torquevec_led,
-        .torquevec_switch = &torquevec_switch,
-        .aux_status_led   = &aux_status_led,
-        .bms_status_led   = &bms_status_led,
-        .crit_status_led  = &crit_status_led,
-        .fsm_status_led   = &fsm_status_led,
-        .rsm_status_led   = &rsm_status_led,
-        .vc_status_led    = &vc_status_led,
-        .shdn_sen     = &shdn_sen
-    };
+    const GlobalsConfig globals_config = { .imd_led          = &imd_led,
+                                           .bspd_led         = &bspd_led,
+                                           .ams_led          = &ams_led,
+                                           .shdn_led         = &shdn_led,
+                                           .start_led        = &start_led,
+                                           .start_switch     = &start_switch,
+                                           .regen_led        = &regen_led,
+                                           .regen_switch     = &regen_switch,
+                                           .torquevec_led    = &torquevec_led,
+                                           .torquevec_switch = &torquevec_switch,
+                                           .aux_status_led   = &aux_status_led,
+                                           .bms_status_led   = &bms_status_led,
+                                           .crit_status_led  = &crit_status_led,
+                                           .fsm_status_led   = &fsm_status_led,
+                                           .rsm_status_led   = &rsm_status_led,
+                                           .vc_status_led    = &vc_status_led,
+                                           .shdn_sen         = &shdn_sen };
 };

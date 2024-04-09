@@ -7,23 +7,23 @@
 
 typedef struct
 {
-    const BinaryLed *const imd_led;
-    const BinaryLed *const bspd_led;
-    const BinaryLed *const ams_led;
-    const BinaryLed *const start_led;
-    const BinaryLed *const regen_led;
-    const BinaryLed *const torquevec_led;
-    const BinaryLed *const shdn_led;
-    const Switch *const    start_switch;
-    const Switch *const    regen_switch;
-    const Switch *const    torquevec_switch;
-    const RgbLed *const    bms_status_led;
-    const RgbLed *const    fsm_status_led;
-    const RgbLed *const    vc_status_led;
-    const RgbLed *const    aux_status_led;
-    const RgbLed *const    crit_status_led;
-    const RgbLed *const    rsm_status_led;
-    const ShutdownSensor *const      shdn_sen;
+    const BinaryLed *const      imd_led;
+    const BinaryLed *const      bspd_led;
+    const BinaryLed *const      ams_led;
+    const BinaryLed *const      start_led;
+    const BinaryLed *const      regen_led;
+    const BinaryLed *const      torquevec_led;
+    const BinaryLed *const      shdn_led;
+    const Switch *const         start_switch;
+    const Switch *const         regen_switch;
+    const Switch *const         torquevec_switch;
+    const RgbLed *const         bms_status_led;
+    const RgbLed *const         fsm_status_led;
+    const RgbLed *const         vc_status_led;
+    const RgbLed *const         aux_status_led;
+    const RgbLed *const         crit_status_led;
+    const RgbLed *const         rsm_status_led;
+    const ShutdownSensor *const shdn_sen;
 } GlobalsConfig;
 
 typedef struct
