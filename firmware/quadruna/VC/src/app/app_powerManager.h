@@ -25,7 +25,7 @@ void app_powerManager_init();
 
 /**
  * sets the efuses for a specific PowerManagerState
- * @param state the state of the car shutdown/init or drive
+ * @param state the PowerManagerState of the car shutdown/init or drive
  */
 void app_powerManager_setState(PowerManagerState state);
 
