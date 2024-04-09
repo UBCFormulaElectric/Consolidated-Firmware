@@ -1,6 +1,15 @@
 #include "io_can.h"
 #include "hw_sd.h"
 #include "lfs.h"
+
+typedef struct
+{
+    uint32_t id : 11;
+    uint32_t dlc : 3;        // Data length code
+    uint32_t timestamp : 18; // sum up to 32 bits
+    uint8_t  data[8];
+} CanMsgLog;
+
 /**
  * Create a new message queue for can logging message
  * Create a new file for this boot for record message
