@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=amd64 ubuntu:22.04
 
 # Install dependencies:
 # wget: Downloading files from the internet
@@ -26,7 +26,8 @@ RUN apt update -y && apt install -y \
     libgtk-3-0 \
     libxi6 \
     libxtst6 \
-    libxrender1
+    libxrender1 \
+    protobuf-compiler
 
 COPY . /root/environment/
 
