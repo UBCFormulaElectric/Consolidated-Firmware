@@ -154,4 +154,11 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // };
 
     SensorData fake_sensor_data;
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+    }
 };

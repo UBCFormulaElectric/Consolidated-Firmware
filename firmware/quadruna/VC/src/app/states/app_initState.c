@@ -47,7 +47,8 @@ static void initStateRunOnTick100Hz(void)
     const bool enable_inverters = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                   app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                   app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    if (enable_inverters)
+    bool efuse_fault = app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
+    if (enable_inverters && !efuse_fault)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }

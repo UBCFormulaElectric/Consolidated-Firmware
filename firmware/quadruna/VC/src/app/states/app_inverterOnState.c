@@ -52,12 +52,13 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     const bool hv_support_lost =
         app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
+    bool efuse_fault = app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 
     if (hv_support_lost)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
-    else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
+    else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled && !efuse_fault)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):

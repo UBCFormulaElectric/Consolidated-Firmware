@@ -116,6 +116,7 @@ static void driveStateRunOnTick100Hz(void)
     regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
     bool turn_tv_led                     = torque_vectoring_switch_is_on;
+    bool efuse_fault                     = app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
@@ -131,8 +132,8 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
-
-    if (exit_drive_to_init)
+    
+    if (exit_drive_to_init || efuse_fault)
     {
         app_stateMachine_setNextState(app_initState_get());
         return;
@@ -178,8 +179,6 @@ static void driveStateRunOnTick100Hz(void)
     {
         transmitTorqueRequests(apps_pedal_percentage);
     }
-
-    app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
 }
 
 static void driveStateRunOnExit(void)
