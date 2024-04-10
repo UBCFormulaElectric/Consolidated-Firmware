@@ -15,8 +15,7 @@ int main(int argc, char *argv[])
     engine.addImportPath(":/");
     // engine.loadFromModule("MainWindow", "MainWindow"); // this does not work on Qt < 6.6
     // const QUrl url("./MainWindow/ui/MainWindow.qml"); // this also works, but is cringe
-    const QUrl url(u"qrc:/DimosMain/ui/MainWindow.qml"_qs);
-    engine.load(url);
+    engine.load(QUrl(u"qrc:/DimosMain/ui/MainWindow.qml"_qs));
 
     // graceful exit
     QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QGuiApplication::quit);
