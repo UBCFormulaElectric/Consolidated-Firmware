@@ -88,13 +88,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--board", help="The board to generate STM32CubeMX code for")
     parser.add_argument("--ioc", help="STM32CubeMX .ioc file")
+    parser.add_argument(
+        "--ioc_hash", help="Location of the MD5 hash file of the .ioc file"
+    )
     parser.add_argument("--codegen_output_dir", help="Code generation output folder")
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
     args = parser.parse_args()
 
     # check the current checksum to see if it needs to be updated
-    if os.path.isfile(f"{args.ioc}.md5"):
-        with open(f"{args.ioc}.md5", "r") as f:
+    if os.path.isfile(f"{args.ioc_hash}"):
+        with open(f"{args.ioc_hash}", "r") as f:
             current_checksum = f.read()
             # if the checksum of args.ioc is the same as the one in the .md5 file, then exit
             ioc_checksum = generate_md5_checksum(args.ioc)
@@ -116,7 +119,7 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
     # Write MD5 checksum to disk
-    with open(f"{args.ioc}.md5", "w") as f:
+    with open(f"{args.ioc_hash}", "w") as f:
         f.write(new_ioc_md5)
         f.close()
 

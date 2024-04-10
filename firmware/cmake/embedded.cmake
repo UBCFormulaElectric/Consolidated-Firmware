@@ -261,19 +261,7 @@ function(generate_stm32cube_code
             --ioc ${IOC_PATH}
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}
-
-            # Create a MD5 hash of IOC_PATH for other build targets to depend on, so
-            # this custom command is only executed when IOC_PATH.md5 changes.
-            COMMAND ${PYTHON_COMMAND}
-            ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
-            ${IOC_PATH}
-            ${IOC_PATH}.md5
-            DEPENDS ${IOC_PATH}
-
-            # Run clang-format because the STM32CubeMX-generated code is not
-            # compliant to our clang-format rules.
-            COMMAND ${PYTHON_COMMAND}
-            ${FIX_FORMATTING_SCRIPT_PY}
+            --md5 ${IOC_PATH}.md5
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 endfunction()
