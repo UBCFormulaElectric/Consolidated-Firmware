@@ -2,6 +2,7 @@
     "messages": [
         "BMS_Vitals",
         "FSM_Vitals",
+        "RSM_Vitals",
         "CRIT_Vitals",
         "FSM_Apps",
         "FSM_Steering",
@@ -19,6 +20,7 @@
         "INVR_Temperatures3",
         "BMS_TractiveSystem",
         "BMS_CellTemperatures",
-        "BMS_CellVoltages"
+        "BMS_CellVoltages",
+        "Debug_SetCoolantPump"
     ]
 }

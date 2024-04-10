@@ -3,36 +3,116 @@
     "faults_id": 151,
     "warnings_counts_id": 152,
     "faults_counts_id": 153,
-    "warnings": [
-        "StackWaterMarkHighTask1Hz",
-        "StackWaterMarkHighTask100Hz",
-        "StackWaterMarkHighTask1kHz",
-        "StackWaterMarkHighTaskCanRx",
-        "StackWaterMarkHighTaskCanTx",
-        "WatchdogTimeout",
-        "TxOverflow",
-        "RxOverflow"
-    ],
-    "faults": [
-        "MissingFSMHeartbeat",
-        "MissingDCMHeartbeat",
-        "MissingPDMHeartbeat",
-        "StateMachine",
-        "CellUndervoltage",
-        "CellOvervoltage",
-        "ModuleCommunicationError",
-        "CellUndertemp",
-        "CellOvertemp",
-        "Charger",
-        "ChargerDisconnectedDuringCharge",
-        "ChargerExternalShutdown",
-        "TractiveSystemOvercurrent",
-        "PrechargeFailure",
-        "OpenWireCheckFault",
-        "OpenWireCheck_Segment0_GND",
-        "OpenWireCheck_Segment1_GND",
-        "OpenWireCheck_Segment2_GND",
-        "OpenWireCheck_Segment3_GND",
-        "OpenWireCheck_Segment4_GND"
-    ]
+    "warnings": {
+        "StackWaterMarkHighTask1Hz" : {
+            "id" :101,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask100Hz" : {
+            "id" :102,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTask1kHz" :{
+            "id" :103,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id" :104,
+            "description" : "Example"
+        },
+        "StackWaterMarkHighTaskCanTx":{
+            "id" :105,
+            "description" : "Example"
+        },
+        "WatchdogTimeout" :{
+            "id" :106,
+            "description" : "Example"
+        },
+        "TxOverflow": {
+            "id" :107,
+            "description" : "Example"
+        },
+        "RxOverflow" : {
+            "id" :108,
+            "description" : "Example"
+        }
+    },
+    "faults": {
+        "MissingVCHeartbeat":{
+            "id" :151,
+            "description" : "Example"
+        },
+        "MissingRSMHeartbeat":{
+            "id" :152,
+            "description" : "Example"
+        },
+        "StateMachine" :{
+            "id" :154,
+            "description" : "Example"
+        },
+        "CellUndervoltage": {
+            "id" :155,
+            "description" : "Example"
+        },
+        "CellOvervoltage": {
+            "id" :156,
+            "description" : "Example"
+        },
+        "ModuleCommunicationError": {
+            "id" :157,
+            "description" : "Example"
+        },
+        "CellUndertemp": {
+            "id" :158,
+            "description" : "Example"
+        },
+        "CellOvertemp": {
+            "id" :159,
+            "description" : "Example"
+        },
+        "Charger": {
+            "id" :160,
+            "description" : "Example"
+        },
+        "ChargerDisconnectedDuringCharge": {
+            "id" :161,
+            "description" : "Example"
+        },
+        "ChargerExternalShutdown": {
+            "id" :162,
+            "description" : "Example"
+        },
+        "TractiveSystemOvercurrent": {
+            "id" :163,
+            "description" : "Example"
+        },
+        "PrechargeFailure": {
+            "id" :164,
+            "description" : "Example"
+        },
+        "OpenWireCheckFault": {
+            "id" :165,
+            "description" : "Example"
+        },
+        "OpenWireCheck_Segment0_GND": {
+            "id" :166,
+            "description" : "Example"
+        },
+        "OpenWireCheck_Segment1_GND": {
+            "id" :167,
+            "description" : "Example"
+        },
+        "OpenWireCheck_Segment2_GND": {
+            "id" :168,
+            "description" : "Example"
+        },
+        "OpenWireCheck_Segment3_GND": {
+            "id" :169,
+            "description" : "Example"
+        },
+        "OpenWireCheck_Segment4_GND": {
+            "id" :170,
+            "description" : "Example"
+        }
+    }
 }

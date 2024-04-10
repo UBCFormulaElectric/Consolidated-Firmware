@@ -6,6 +6,7 @@
 #include "app_canRx.h"
 #include "app_utils.h"
 #include "app_canAlerts.h"
+#include "app_faultCheck.h"
 #include <stddef.h>
 
 static void inverterOnStateRunOnEntry(void)
@@ -16,7 +17,9 @@ static void inverterOnStateRunOnEntry(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
-    const bool all_states_ok = app_allStates_runOnTick100Hz();
+    const bool any_board_has_fault = app_boardFaultCheck();
+    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
@@ -26,6 +29,9 @@ static void inverterOnStateRunOnTick100Hz(void)
     prev_start_switch_pos                 = curr_start_switch_pos;
     const bool is_brake_actuated          = app_canRx_FSM_BrakeActuated_get();
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool bms_in_correct_state       = bms_in_drive_state || app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
+                                      app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
+    const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
@@ -36,8 +42,7 @@ static void inverterOnStateRunOnTick100Hz(void)
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
         app_stateMachine_setNextState(app_driveState_get());
     }
-
-    else if (!all_states_ok)
+    else if (inverters_off_exit)
     {
         app_stateMachine_setNextState(app_initState_get());
     }

@@ -26,17 +26,19 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+list(APPEND HW_SRCS 
+    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
@@ -46,26 +48,28 @@ if ("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code("VC" "${IOC_PATH}")
 
     set(STM32_HAL_SRCS
-            "stm32h7xx_hal_adc_ex.c"
-            "stm32h7xx_hal_adc.c"
-            "stm32h7xx_hal_cortex.c"
-            "stm32h7xx_hal_dma_ex.c"
-            "stm32h7xx_hal_dma.c"
-            "stm32h7xx_hal_exti.c"
-            "stm32h7xx_hal_fdcan.c"
-            "stm32h7xx_hal_gpio.c"
-            "stm32h7xx_hal_iwdg.c"
-            "stm32h7xx_hal_pwr_ex.c"
-            "stm32h7xx_hal_rcc_ex.c"
-            "stm32h7xx_hal_rcc.c"
-            "stm32h7xx_hal_tim_ex.c"
-            "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal_uart_ex.c"
-            "stm32h7xx_hal_uart.c"
-            "stm32h7xx_ll_sdmmc.c"
-            "stm32h7xx_hal_sd_ex.c"
-            "stm32h7xx_hal_sd.c"
-            "stm32h7xx_hal.c"
+        "stm32h7xx_hal_adc_ex.c"
+        "stm32h7xx_hal_adc.c"
+        "stm32h7xx_hal_cortex.c"
+        "stm32h7xx_hal_dma_ex.c"
+        "stm32h7xx_hal_dma.c"
+        "stm32h7xx_hal_exti.c"
+        "stm32h7xx_hal_fdcan.c"
+        "stm32h7xx_hal_gpio.c"
+        "stm32h7xx_hal_iwdg.c"
+        "stm32h7xx_hal_pwr_ex.c"
+        "stm32h7xx_hal_rcc_ex.c"
+        "stm32h7xx_hal_rcc.c"
+        "stm32h7xx_hal_tim_ex.c"
+        "stm32h7xx_hal_tim.c"
+        "stm32h7xx_hal_uart_ex.c"
+        "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
+        "stm32h7xx_hal.c"
+        "stm32h7xx_hal_i2c.c"
+        "stm32h7xx_hal_i2c_ex.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
@@ -114,21 +118,18 @@ elseif ("${TARGET}" STREQUAL "test")
             FALSE
             "quadruna"
     )
-
-
-    set(HEADERS_TO_FAKE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-    )
-
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
     )
 
     create_fake_library(

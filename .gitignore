@@ -11,6 +11,7 @@
 !/.env
 !**/.clang-format
 !inverter-eeprom-config/
+!.gdbinit
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -44,6 +45,7 @@
 *.obj
 *.o
 *.sbr
+*.so
 
 # Build files
 *.bat
@@ -58,6 +60,7 @@
 *.pyc
 __pycache__
 Pipfile.lock
+*.egg-info
 
 # Other files
 *.build_log.htm
