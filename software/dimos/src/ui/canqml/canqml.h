@@ -24,7 +24,7 @@ class CanQML final : public QObject
     static constexpr uint16_t ui_update_interval_msec = 1000 / frame_rate_hz;
 
     // timer shit
-    QTimer   uiUpdate{};
+    QTimer uiUpdate{};
     explicit CanQML(QObject *parent = nullptr) : QObject(parent)
     {
         // ui update
@@ -58,7 +58,7 @@ class CanQML final : public QObject
         return -1; // TODO implement faults when they arrive
     }
     // Signals
-    REGISTER_CAN_MESSAGE(VC_Fault_DummyFault)
+    REGISTER_CAN_MESSAGE(FSM_LeftWheelSpeed)
 
   signals:
     void notify_all_signals();

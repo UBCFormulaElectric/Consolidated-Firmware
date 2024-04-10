@@ -48,7 +48,7 @@ void CanRXTask()
         can_table_mutex.lock();
         io_canRx_updateRxTableWithMessage(&message);
 #ifdef USING_TARGET_dev
-        app_canRx_VC_Fault_DummyFault_update(!app_canRx_VC_Fault_DummyFault_get());
+        app_canRx_FSM_LeftWheelSpeed_update(10 - app_canRx_FSM_LeftWheelSpeed_get());
         // qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
 #endif
         can_table_mutex.unlock();
