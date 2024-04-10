@@ -39,9 +39,7 @@ static void mainStateRunOnTick100Hz(void)
     app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->torquevec_led, true);
 
-    int VC_STATE_ENUM_VALUE = 2;
-
-    if (app_canRx_VC_State_get() == VC_STATE_ENUM_VALUE)
+    if (app_canRx_VC_State_get() == VC_DRIVE_STATE)
     {
         io_led_enable(globals->config->start_led, true);
     }
