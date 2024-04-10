@@ -29,10 +29,9 @@ TEST_F(ShutdownSensorTest, ShutdownSensorActiveWhenImdLatchedFaultIsFalse)
     app_canRx_BMS_ImdLatchedFault_update(false);
 
     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, true);
-    
+
     // Verify that the shutdown sensor is indeed active.
     ASSERT_TRUE(io_shutdownSensor_readPin(&shdn_sen));
-
 }
 
 TEST_F(ShutdownSensorTest, ShutdownSensorActiveWhenImdLatchedFaultIsTrue)
@@ -40,10 +39,9 @@ TEST_F(ShutdownSensorTest, ShutdownSensorActiveWhenImdLatchedFaultIsTrue)
     app_canRx_BMS_ImdLatchedFault_update(true);
 
     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, false);
-    
+
     // Verify that the shutdown sensor is indeed not active.
     ASSERT_FALSE(io_shutdownSensor_readPin(&shdn_sen));
-
 }
 
 TEST_F(ShutdownSensorTest, VerifyCallCount)
