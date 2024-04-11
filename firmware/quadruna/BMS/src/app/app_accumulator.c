@@ -178,6 +178,12 @@ void app_accumulator_balanceCells(void)
         return;
     }
 
+    // Exit early if ADC conversion fails
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
+        return;
+    }
+
     // Write to configuration register to configure cell discharging
     io_ltc6813Shared_writeConfigurationRegisters(true);
 
