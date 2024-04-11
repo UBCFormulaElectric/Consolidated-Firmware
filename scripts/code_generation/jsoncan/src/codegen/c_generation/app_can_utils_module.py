@@ -232,6 +232,8 @@ class AppCanUtilsModule(CModule):
                         comment=signal_comment,
                     )
                 )
+            if len(msg.signals) == 0:
+                struct.add_member(CVar(name="_unused", type="uint8_t"))
 
             cw.add_struct(struct)
             cw.add_line()
