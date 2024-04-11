@@ -255,13 +255,15 @@ function(generate_stm32cube_code
     add_custom_command(
             OUTPUT ${IOC_PATH}.md5
             COMMENT "Generating drivers for ${TARGET_NAME}"
-            COMMAND ${PYTHON_COMMAND}
-            ${GENERATE_CUBE_CODE_SCRIPT_PY}
+            COMMAND ${PYTHON_COMMAND} ${GENERATE_CUBE_CODE_SCRIPT_PY}
             --board ${TARGET_NAME}
             --ioc ${IOC_PATH}
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}
             --md5 ${IOC_PATH}.md5
+            WORKING_DIRECTORY ${REPO_ROOT_DIR}
+
+            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT_PY}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 endfunction()
