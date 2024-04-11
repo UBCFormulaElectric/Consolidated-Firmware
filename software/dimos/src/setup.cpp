@@ -1,16 +1,13 @@
 #include "setup.h"
 #include "can.h"
 #include "gpio.h"
-#include "can_tasks.h"
 #include "gpio_tasks.h"
-#include "ui/canqml/canqml.h"
 extern "C"
 {
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_commitInfo.h"
 #include "io_canTx.h"
-    // #include "io_canRx.h"
 }
 
 #include <QThread>
@@ -25,7 +22,7 @@ void set_qt_environment()
     qputenv("QT_WIN_DEBUG_CONSOLE", "attach");
 #endif
 
-    qSetMessagePattern("[%{time hh:mm:ss.z} | %{function}] %{message}"
+    qSetMessagePattern("[%{time hh:mm:ss.z}] %{function}: \"%{message}\""
                        // "%{file}:%{line}"
     );
 }
@@ -41,37 +38,6 @@ void init_json_can()
     // set values for commit info
     app_canTx_dimos_Hash_set(GIT_COMMIT_HASH);
     app_canTx_dimos_Clean_set(GIT_COMMIT_CLEAN);
-}
-
-static QTimer                            tx100Hz{}, tx1Hz{};
-static std::unique_ptr<QThread>          CanRxTaskThread, CanTxPeriodicTaskThread;
-Result<std::monostate, CAN_setup_errors> setupCanThreads(const QQmlApplicationEngine *engine_ref)
-{
-    Can_Init();
-    // tx 100hz
-    tx100Hz.setInterval(can_handlers::TASK_INTERVAL_100HZ);
-    tx100Hz.setSingleShot(false);
-    QObject::connect(&tx100Hz, &QTimer::timeout, can_handlers::CanTx100Hz);
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &tx100Hz, &QTimer::stop);
-    tx100Hz.start();
-    // tx 1hz
-    tx1Hz.setInterval(can_handlers::TASK_INTERVAL_1HZ);
-    tx1Hz.setSingleShot(false);
-    QObject::connect(&tx1Hz, &QTimer::timeout, can_handlers::CanTx1Hz);
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, &tx1Hz, &QTimer::stop);
-    tx1Hz.start();
-    // rx
-    CanRxTaskThread = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanRXTask));
-    CanRxTaskThread->start();
-    QObject::connect(engine_ref, &QQmlApplicationEngine::quit, CanRxTaskThread.get(), &QThread::requestInterruption);
-    // tx periodic
-    CanTxPeriodicTaskThread = std::unique_ptr<QThread>(QThread::create(&can_handlers::CanPeriodicTXTask));
-    CanTxPeriodicTaskThread->start();
-    QObject::connect(
-        engine_ref, &QQmlApplicationEngine::quit, CanTxPeriodicTaskThread.get(), &QThread::requestInterruption);
-
-    qInfo() << "CAN Threads Successfully Initialized";
-    return std::monostate{};
 }
 
 static std::vector<std::unique_ptr<QThread>> gpio_monitor_threads;

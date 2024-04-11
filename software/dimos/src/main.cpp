@@ -1,9 +1,12 @@
 #include "io/KeyTranslator.h"
 #include "setup.h"
+#include "can_tasks.h"
 // qt
 #include <QtGui>
 #include <QQmlApplicationEngine>
 #include <QString>
+
+static CanTask ct;
 
 int main(int argc, char *argv[])
 {
@@ -22,11 +25,12 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return EXIT_FAILURE;
 
+    // keyfilter
     KeyTranslator k;
     engine.rootObjects().first()->installEventFilter(&k);
 
     // setup task threads
-    if (const Result<std::monostate, CAN_setup_errors> r = setupCanThreads(&engine); r.index() == 1)
+    if (const Result<std::monostate, CAN_setup_errors> r = ct.setup(); r.index() == 1)
     {
         if (const auto can_err_kv = CAN_setup_errors_str.find(get<CAN_setup_errors>(r));
             can_err_kv == CAN_setup_errors_str.end())
