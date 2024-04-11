@@ -58,24 +58,23 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
     # find the a valid script), the process may never exit so there is no status
     # code to check at all. Account for this by setting a time out.
     timeout_sec = 5 * 60
-    print(
-        "timeout started",
-        " ".join([f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name]),
-    )
-    retcode = subprocess.check_call(
-        [f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name],
-        timeout=timeout_sec,
-    )
-    print("timeout done")
-    # try:
-    #     proc.wait(timeout_sec)
-    # except subprocess.TimeoutExpired:
-    #     raise Exception(
-    #         "STM32CubeMX execution has timed out after {} seconds.".format(
-    #             str(timeout_sec)
-    #         )
-    #     )
-    if retcode != 0:
+    cube_gen_args = [f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name]
+
+    # check if os is windows
+    if os.name == "nt":
+        cube_gen_args = [f"{cubemx_dir}/jre/bin/java.exe", "-jar", *cube_gen_args]
+
+    proc = subprocess.Popen(cube_gen_args)
+    try:
+        proc.wait(timeout_sec)
+        print("timeout done")
+    except subprocess.TimeoutExpired:
+        raise Exception(
+            "STM32CubeMX execution has timed out after {} seconds.".format(
+                str(timeout_sec)
+            )
+        )
+    if proc.returncode != 0:
         raise Exception("An error occured while executing STM32CubeMX.")
     print("STM32CubeMX code generation completed successfully.")
 
