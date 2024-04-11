@@ -50,6 +50,7 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
+    add_compile_definitions(_USE_MATH_DEFINES)
 
     # We assume this cmake is running on a x86 TARGET, so the
     # *default compiler* settings should be fine
