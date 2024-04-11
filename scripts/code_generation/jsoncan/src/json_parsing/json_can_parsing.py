@@ -2,18 +2,20 @@
 Module for parsing CAN JSON, and returning a CanDatabase object. 
 """
 
-import os
-from typing import Dict, Tuple
 import json
+import os
 from math import ceil
-from ..can_database import *
+from typing import Tuple, Any
+
 from .schema_validation import (
     validate_bus_json,
     validate_enum_json,
     validate_tx_json,
     validate_alerts_json,
 )
-from ..utils import max_uint_for_bits, pascal_to_screaming_snake_case
+from ..can_database import *
+from ..can_database import CanSignal
+from ..utils import max_uint_for_bits
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -48,7 +50,7 @@ class JsonCanParser:
         self._alerts = {}  # Dict of node names to node's alerts
         self._alert_descriptions = {}
 
-        self._parse_json_data(dir=can_data_dir)
+        self._parse_json_data(can_data_dir=can_data_dir)
 
     def make_database(self) -> CanDatabase:
         """
@@ -57,23 +59,22 @@ class JsonCanParser:
         return CanDatabase(
             nodes=self._nodes,
             bus_config=self._bus_cfg,
-            msgs=self._messages.values(),
+            msgs=list(self._messages.values()),
             shared_enums=self._shared_enums,
             alerts=self._alerts,
         )
 
-    def _parse_json_data(self, dir: str):
+    def _parse_json_data(self, can_data_dir: str):
         """
         Load all CAN JSON data from specified directory.
         """
         # Load shared JSON data
-        raw_bus_json_data = self._get_raw_json_data_from_file(f"{dir}/bus")
-        bus_json_data = validate_bus_json(raw_bus_json_data)
-
-        raw_shared_enum_json_data = self._get_raw_json_data_from_file(
-            f"{dir}/shared_enum"
+        bus_json_data: dict = validate_bus_json(
+            self._load_json_file(f"{can_data_dir}/bus")
         )
-        shared_enum_json_data = validate_enum_json(raw_shared_enum_json_data)
+        shared_enum_json_data: dict = validate_enum_json(
+            self._load_json_file(f"{can_data_dir}/shared_enum")
+        )
 
         # Parse bus data
         self._bus_cfg = CanBusConfig(
@@ -101,23 +102,18 @@ class JsonCanParser:
             self._shared_enums.append(can_enum)
 
         # Parse node's tx, alerts, and enum JSON
-        self._nodes = [f.name for f in os.scandir(dir) if f.is_dir()]
+        self._nodes = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
         for node in self._nodes:
             # Parse JSON files
-            raw_node_tx_json_data = self._get_raw_json_data_from_file(
-                f"{dir}/{node}/{node}_tx"
+            node_tx_json_data = validate_tx_json(
+                self._load_json_file(f"{can_data_dir}/{node}/{node}_tx")
             )
-            node_tx_json_data = validate_tx_json(raw_node_tx_json_data)
-
-            raw_node_enum_json_data = self._get_raw_json_data_from_file(
-                f"{dir}/{node}/{node}_enum"
+            node_enum_json_data = validate_enum_json(
+                self._load_json_file(f"{can_data_dir}/{node}/{node}_enum")
             )
-            node_enum_json_data = validate_enum_json(raw_node_enum_json_data)
-
-            raw_node_alerts_json_data = self._get_raw_json_data_from_file(
-                f"{dir}/{node}/{node}_alerts"
+            node_alerts_json_data = validate_alerts_json(
+                self._load_json_file(f"{can_data_dir}/{node}/{node}_alerts")
             )
-            node_alerts_json_data = validate_alerts_json(raw_node_alerts_json_data)
 
             # Parse node's enums
             for enum_name, enum_data in node_enum_json_data.items():
@@ -149,15 +145,17 @@ class JsonCanParser:
 
             # Parse node's alerts
             if len(node_alerts_json_data) > 0:
-                
-                alert_array, meta_data = self._parse_node_alerts(node, node_alerts_json_data)
+
+                alert_array, meta_data = self._parse_node_alerts(
+                    node, node_alerts_json_data
+                )
                 (
                     warnings,
                     faults,
                     warnings_counts,
                     faults_counts,
                 ) = alert_array
-                
+
                 (
                     faults_meta_data,
                     warinings_meta_data,
@@ -172,25 +170,25 @@ class JsonCanParser:
                 self._messages[faults.name] = faults
                 self._messages[warnings_counts.name] = warnings_counts
                 self._messages[faults_counts.name] = faults_counts
-    
-                self._alerts[node] ={
+
+                self._alerts[node] = {
                     **{
-                        CanAlert(alert.name, CanAlertType.WARNING):
-                        warinings_meta_data[alert.name]
+                        CanAlert(alert.name, CanAlertType.WARNING): warinings_meta_data[
+                            alert.name
+                        ]
                         for alert in warnings.signals
                     },
                     **{
-                        CanAlert(alert.name, CanAlertType.FAULT):
-                        faults_meta_data[alert.name]
+                        CanAlert(alert.name, CanAlertType.FAULT): faults_meta_data[
+                            alert.name
+                        ]
                         for alert in faults.signals
                     },
                 }
-                                                
+
         # Parse node's RX JSON (have to do this last so all messages on this bus are already found, from TX JSON)
         for node in self._nodes:
-            node_rx_json_data = self._get_raw_json_data_from_file(
-                f"{dir}/{node}/{node}_rx"
-            )
+            node_rx_json_data = self._load_json_file(f"{can_data_dir}/{node}/{node}_rx")
             node_rx_msgs = node_rx_json_data["messages"]
 
             for tx_node_msg_name in node_rx_msgs:
@@ -263,7 +261,7 @@ class JsonCanParser:
                     raise InvalidCanJson(
                         f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. Messages have a maximum length of 64 bits."
                     )
-                elif occupied_bits[idx] != None:
+                elif occupied_bits[idx] is not None:
                     raise InvalidCanJson(
                         f"Signal '{signal.name}' in '{msg_name}' is requesting to put a bit at invalid position {idx}. That position is already occupied by the signal '{occupied_bits[idx]}'."
                     )
@@ -292,7 +290,7 @@ class JsonCanParser:
         signal_json_data: Dict,
         next_available_bit: int,
         msg_name: str,
-    ) -> CanSignal:
+    ) -> tuple[CanSignal, Any]:
         """
         Parse JSON data dictionary representing a CAN signal.
         """
@@ -412,7 +410,8 @@ class JsonCanParser:
             specified_start_bit,
         )
 
-    def _get_parsed_can_enum(self, enum_name: str, enum_json_data: Dict) -> CanEnum:
+    @staticmethod
+    def _get_parsed_can_enum(enum_name: str, enum_json_data: Dict) -> CanEnum:
         """
         Parse JSON data dictionary representing a CAN enum.
         """
@@ -441,7 +440,7 @@ class JsonCanParser:
         """
         warnings = alerts_json["warnings"]
         faults = alerts_json["faults"]
-        
+
         # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
         # that indicate the number of times an alert has been set. Each signal is allocated 3 bits, and so can count
         # up to 8, meaning we can pack 21 alerts to fit inside a 64-bit CAN payload.
@@ -491,19 +490,20 @@ class JsonCanParser:
             )
 
         # Make alert signals
-        warnings_meta_data,warnings_signals = self._node_alert_signals(node, warnings, "Warning")
-        faults_meta_data,faults_signals = self._node_alert_signals(node, faults, "Fault")
+        warnings_meta_data, warnings_signals = self._node_alert_signals(
+            node, warnings, "Warning"
+        )
+        faults_meta_data, faults_signals = self._node_alert_signals(
+            node, faults, "Fault"
+        )
         warnings_counts_signals = self._node_alert_count_signals(
             node, warnings, "Warning"
         )
         faults_counts_signals = self._node_alert_count_signals(node, faults, "Fault")
 
         # Make CAN msg for alerts
-        meta_data = [
-            faults_meta_data,
-            warnings_meta_data
-        ]
-        
+        meta_data = [faults_meta_data, warnings_meta_data]
+
         alerts_msgs = [
             CanMessage(
                 name=name,
@@ -548,39 +548,42 @@ class JsonCanParser:
         ]
 
         return alerts_msgs, meta_data
-    
+
+    @staticmethod
     def _node_alert_signals(
-        self, node: str, alerts: Dict, type: str
-    ) -> List[CanSignal]:
+        node: str, alerts: Dict, alert_type: str
+    ) -> tuple[dict[str, Any], list[CanSignal]]:
         """
         From a list of strings of alert names, return a list of CAN signals that will make up the frame for an alerts msg.
         """
         signals = []
         meta_data = {}
         bit_pos = 0
-        
+
         for alerts_name, alerts_id in alerts.items():
-            signals.append(CanSignal(
-                name=f"{node}_{type}_{alerts_name}",
-                start_bit=bit_pos,
-                bits=1,
-                scale=1,
-                offset=0,
-                min_val=0,
-                max_val=1,
-                start_val=0,
-                enum=None,
-                unit="",
-                signed=False,
-            ))
-            
-            bit_pos +=1
-            meta_data[f"{node}_{type}_{alerts_name}"] = alerts_id
-            
+            signals.append(
+                CanSignal(
+                    name=f"{node}_{alert_type}_{alerts_name}",
+                    start_bit=bit_pos,
+                    bits=1,
+                    scale=1,
+                    offset=0,
+                    min_val=0,
+                    max_val=1,
+                    start_val=0,
+                    enum=None,
+                    unit="",
+                    signed=False,
+                )
+            )
+
+            bit_pos += 1
+            meta_data[f"{node}_{alert_type}_{alerts_name}"] = alerts_id
         return meta_data, signals
 
+    @staticmethod
     def _node_alert_count_signals(
-        self, node: str, alerts: Dict, type: str
+        node: str, alerts: Dict, alert_type: str
     ) -> List[CanSignal]:
         """
         From a list of strings of alert names, return a list of CAN signals.
@@ -589,7 +592,7 @@ class JsonCanParser:
         COUNT_BITS = 3
         return [
             CanSignal(
-                name=f"{node}_{type}_{alert}Count",
+                name=f"{node}_{alert_type}_{alert}Count",
                 start_bit=i * COUNT_BITS,
                 bits=COUNT_BITS,
                 scale=1,
@@ -604,7 +607,8 @@ class JsonCanParser:
             for i, alert in enumerate(alerts)
         ]
 
-    def _get_raw_json_data_from_file(self, file_path: str) -> Dict:
+    @staticmethod
+    def _load_json_file(file_path: str) -> Dict:
         """
         Load an individual JSON file from specified path.
         """
@@ -617,7 +621,8 @@ class JsonCanParser:
                     f"Error parsing JSON data from file path '{file_path}'."
                 )
 
-    def _get_optional_value(self, data: Dict, key: str, default: str) -> str:
+    @staticmethod
+    def _get_optional_value(data: Dict, key: str, default: any) -> (str | any, bool):
         """
         Parse a value from a key in data. If key not found, return default.
         """

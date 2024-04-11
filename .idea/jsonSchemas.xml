@@ -3,24 +3,6 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="schema_enum">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_enum" />
-              <option name="relativePathToSchema" value="can_bus/thruna/shared_enum.json" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="pattern" value="true" />
-                    <option name="path" value="can_bus/thruna/*/*_enum.json" />
-                    <option name="mappingKind" value="Pattern" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
         <entry key="schema_enum quadruna">
           <value>
             <SchemaInfo>
@@ -39,30 +21,12 @@
             </SchemaInfo>
           </value>
         </entry>
-        <entry key="schema_tx">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="schema_tx" />
-              <option name="relativePathToSchema" value="can_bus/thruna/schema_tx.json" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="pattern" value="true" />
-                    <option name="path" value="can_bus/thruna/*/*_tx.json" />
-                    <option name="mappingKind" value="Pattern" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
         <entry key="schema_tx quadruna">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="schema_tx quadruna" />
-              <option name="relativePathToSchema" value="can_bus/quadruna/schema_tx.json" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_tx.json" />
               <option name="patterns">
                 <list>
                   <Item>
