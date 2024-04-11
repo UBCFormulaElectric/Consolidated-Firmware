@@ -604,7 +604,7 @@ class JsonCanParser:
                 )
 
     @staticmethod
-    def _get_optional_value(data: Dict, key: str, default: any) -> (str | any, bool):
+    def _get_optional_value(data: Dict, key: str, default: any) -> (str or any, bool):
         """
         Parse a value from a key in data. If key not found, return default.
         """
