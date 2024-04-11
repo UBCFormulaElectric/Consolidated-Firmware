@@ -1,6 +1,3 @@
-from ...can_database import *
-from ...utils import *
-from .c_config import *
 from .c_writer import *
 
 
@@ -127,12 +124,13 @@ class AppCanRxModule(CModule):
                         CTypesConfig.MSG_STRUCT.format(msg=msg.name),
                     )
                 )
-            rx_table_struct.add_member(
-                CVar(
-                    "__unused_prevent_empty_struct",
-                    "char",
+            if len(self._db.rx_msgs_for_node(self._node)) == 0:
+                rx_table_struct.add_member(
+                    CVar(
+                        name="__unused_prevent_empty_struct",
+                        type="char",
+                    )
                 )
-            )
 
             cw.add_struct(rx_table_struct)
             cw.add_line()

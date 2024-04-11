@@ -1,6 +1,3 @@
-from ...can_database import *
-from ...utils import *
-from .c_config import *
 from .c_writer import *
 
 
@@ -142,12 +139,13 @@ class AppCanTxModule(CModule):
                         CTypesConfig.MSG_STRUCT.format(msg=msg.name),
                     )
                 )
-            tx_table_struct.add_member(
-                CVar(
-                    "__unused_prevent_empty_struct",
-                    "char",
+            if len(self._db.tx_msgs_for_node(self._node)) == 0:
+                tx_table_struct.add_member(
+                    CVar(
+                        name="__unused_prevent_empty_struct",
+                        type="char",
+                    )
                 )
-            )
 
             cw.add_struct(tx_table_struct)
             cw.add_line()
