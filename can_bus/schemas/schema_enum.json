@@ -1,4 +1,34 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "entries": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "value"
+                    ]
+                }
+            }
+        },
+        "required": [
+            "name",
+            "entries"
+        ]
+    }
 }

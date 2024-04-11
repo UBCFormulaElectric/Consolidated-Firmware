@@ -1,4 +1,70 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "warnings_id": {
+            "type": "integer"
+        },
+        "faults_id": {
+            "type": "integer"
+        },
+        "warnings_counts_id": {
+            "type": "integer"
+        },
+        "faults_counts_id": {
+            "type": "integer"
+        },
+        "warnings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "id",
+                    "description"
+                ]
+            }
+        },
+        "faults": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "id",
+                    "description"
+                ]
+            }
+        }
+    },
+    "required": [
+        "warnings_id",
+        "faults_id",
+        "warnings_counts_id",
+        "faults_counts_id",
+        "warnings",
+        "faults"
+    ]
 }

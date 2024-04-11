@@ -3,11 +3,11 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="jsoncan_alertscan_bus\quadruna\*\*_rx.json">
+        <entry key="jsoncan_alerts">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
-              <option name="name" value="jsoncan_alertscan_bus\quadruna\*\*_rx.json" />
+              <option name="name" value="jsoncan_alerts" />
               <option name="relativePathToSchema" value="can_bus/schemas/schema_alerts.json" />
               <option name="patterns">
                 <list>
@@ -26,7 +26,7 @@
             <SchemaInfo>
               <option name="generatedName" value="New Schema" />
               <option name="name" value="jsoncan_enum" />
-              <option name="relativePathToSchema" value="can_bus/quadruna/shared_enum.json" />
+              <option name="relativePathToSchema" value="can_bus/schemas/schema_enum.json" />
               <option name="patterns">
                 <list>
                   <Item>
