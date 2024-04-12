@@ -6,6 +6,10 @@
 #include <QtGui>
 #include <QQmlApplicationEngine>
 #include <QString>
+#ifdef USING_TARGET_deploy
+#include "unixsignals.h"
+#include <csignal>
+#endif
 
 template <typename T>
 inline static void report_task_errors(
@@ -27,17 +31,22 @@ int main(int argc, char *argv[])
     set_qt_environment();
     init_json_can();
 
-    const QGuiApplication app(argc, argv);
+    QGuiApplication       app(argc, argv);
     QQmlApplicationEngine engine;
     engine.addImportPath(":/");
     // engine.loadFromModule("MainWindow", "MainWindow"); // this does not work on Qt < 6.6
     // const QUrl url("./MainWindow/ui/MainWindow.qml"); // this also works, but is cringe
     engine.load(QUrl(u"qrc:/DimosMain/ui/MainWindow.qml"_qs));
 
-    // graceful exit
+    // kill parent application if qml quits
     QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QGuiApplication::quit);
     if (engine.rootObjects().isEmpty())
         return EXIT_FAILURE;
+
+#ifdef USING_TARGET_deploy
+    // kill parent application if SIGTERM is recieved
+    QObject::connect(new UnixSignalHandler(SIGTERM, &app), &UnixSignalHandler::raised, qApp, &QCoreApplication::quit);
+#endif
 
     // keyfilter
     KeyTranslator k;
