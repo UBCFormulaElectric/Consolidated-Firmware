@@ -97,7 +97,7 @@ const std::map<gpio_input, void (*)(gpio_edge)> gpio_handler_funcs{
 class GPIOMonitorTask final : public QThread
 {
   public:
-    explicit GPIOMonitorTask(const gpio_input i) : i(i) {}
+    explicit GPIOMonitorTask(const gpio_input i, QObject *parent = nullptr) : i(i), QThread(parent) {}
 
   private:
     const gpio_input i;
@@ -128,8 +128,8 @@ void GPIOMonitorTask::run()
 
 namespace GPIOTask
 {
-static std::vector<std::unique_ptr<GPIOMonitorTask>> gpio_monitor_threads;
-Result<std::monostate, GPIO_setup_errors>            setup()
+static std::vector<GPIOMonitorTask *>     gpio_monitor_threads;
+Result<std::monostate, GPIO_setup_errors> setup()
 {
     qInfo("Initializing GPIO Threads");
     const std::map<gpio_input, bool> gpio_has_err     = gpio_init();
@@ -142,9 +142,7 @@ Result<std::monostate, GPIO_setup_errors>            setup()
             any_gpio_has_err = true;
             continue;
         }
-
-        std::unique_ptr<GPIOMonitorTask> new_gpio_thread = std::make_unique<GPIOMonitorTask>(gpio_input);
-        gpio_monitor_threads.push_back(std::move(new_gpio_thread));
+        gpio_monitor_threads.push_back(new GPIOMonitorTask(gpio_input));
         gpio_monitor_threads.back()->start();
     }
     qInfo("GPIO Thread Initialization Complete, has %s errors", (any_gpio_has_err ? "some" : "no"));
@@ -157,8 +155,12 @@ Result<std::monostate, GPIO_teardown_errors> teardown()
     qInfo("Terminating GPIO Threads");
     for (auto &gpio_thread : gpio_monitor_threads)
         gpio_thread->requestInterruption();
-    for (auto &gpio_thread : gpio_monitor_threads)
-        gpio_thread->wait();
+    for (auto &gpio_monitor_thread : gpio_monitor_threads)
+    {
+        gpio_monitor_thread->wait();
+        delete gpio_monitor_thread;
+    }
+
     qInfo("GPIO Threads Sucessfully Terminated");
     return std::monostate{};
 }
