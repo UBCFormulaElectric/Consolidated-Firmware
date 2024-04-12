@@ -10,7 +10,53 @@ extern "C"
 #include "app_canRx.h"
 }
 
-Result<std::monostate, CAN_setup_errors> CanTask::setup()
+#ifdef USING_TARGET_dev
+static constexpr uint16_t TASK_INTERVAL_100HZ = 1000;
+static constexpr uint16_t TASK_INTERVAL_1HZ   = 1000;
+#elif USING_TARGET_deploy
+static constexpr uint16_t TASK_INTERVAL_100HZ = 10;
+static constexpr uint16_t TASK_INTERVAL_1HZ   = 1000;
+#endif
+QTimer tx100Hz{}, tx1Hz{};
+QMutex can_table_mutex{};
+
+class CanRxTask final : public QThread
+{
+    QMutex *can_table_mutex;
+
+  public:
+    explicit CanRxTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+    void run() override;
+} rxworker{ &can_table_mutex };
+
+class CanTxPeriodicTask final : public QThread
+{
+    QMutex *can_table_mutex;
+
+  public:
+    void run() override;
+    explicit CanTxPeriodicTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+} txperiodicworker{ &can_table_mutex };
+
+class CanTx100HzTask final : public QObject
+{
+    QMutex *can_table_mutex;
+
+  public slots:
+    void run();
+    explicit CanTx100HzTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+} tx100Hzworker{ &can_table_mutex };
+
+class CanTx1HzTask final : public QObject
+{
+    QMutex *can_table_mutex;
+
+  public slots:
+    void run();
+    explicit CanTx1HzTask(QMutex *can_table_mutex) : can_table_mutex{ can_table_mutex } {};
+} tx1Hzworker{ &can_table_mutex };
+
+Result<std::monostate, CanTask::CAN_setup_errors> CanTask::setup()
 {
     Can_Init();
     // tx 100hz
@@ -31,7 +77,7 @@ Result<std::monostate, CAN_setup_errors> CanTask::setup()
     return std::monostate{};
 }
 
-void CanTask::CanRxTask::run()
+void CanRxTask::run()
 {
     qInfo("Starting CanRXTask thread");
     while (!QThread::currentThread()->isInterruptionRequested())
@@ -70,9 +116,9 @@ void CanTask::CanRxTask::run()
         can_table_mutex->unlock();
     }
     qInfo("KILL CanRXTask thread");
-}
+};
 
-void CanTask::CanTxPeriodicTask::run()
+void CanTxPeriodicTask::run()
 {
     using namespace std::chrono;
     qInfo("Starting CanPeriodicTXTask thread");
@@ -87,26 +133,29 @@ void CanTask::CanTxPeriodicTask::run()
     qInfo("KILL CanPeriodicTXTask thread");
 }
 
-void CanTask::CanTx100HzTask::run()
+void CanTx100HzTask::run()
 {
     can_table_mutex->lock();
     io_canTx_enqueue100HzMsgs();
     can_table_mutex->unlock();
 }
 
-void CanTask::CanTx1HzTask::run()
+void CanTx1HzTask::run()
 {
     can_table_mutex->lock();
     io_canTx_enqueue1HzMsgs();
     can_table_mutex->unlock();
 }
 
-CanTask::~CanTask()
+Result<std::monostate, CanTask::CAN_teardown_errors> CanTask::teardown()
 {
     rxworker.requestInterruption();
     txperiodicworker.requestInterruption();
     tx100Hz.stop();
     tx1Hz.stop();
+    qInfo("Waiting for CAN threads to terminate");
     rxworker.wait();         // TODO figure out what this does
     txperiodicworker.wait(); // TODO figure out what this does
+    qInfo("CAN Threads terminated");
+    return std::monostate{};
 }

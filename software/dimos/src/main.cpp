@@ -6,7 +6,20 @@
 #include <QQmlApplicationEngine>
 #include <QString>
 
-static CanTask ct;
+template <typename T>
+inline static void report_task_errors(
+    const Result<std::monostate, T> &res,
+    const std::map<T, std::string>  &err_string_map,
+    const std::string               &sys)
+{
+    if (res.index() == 1)
+    {
+        if (const auto can_err_kv = err_string_map.find(get<T>(res)); can_err_kv == err_string_map.end())
+            qWarning("Unknown %s Setup Error", sys.c_str());
+        else
+            qWarning("%s Setup Error: %s", sys.c_str(), can_err_kv->second.c_str());
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -30,22 +43,9 @@ int main(int argc, char *argv[])
     engine.rootObjects().first()->installEventFilter(&k);
 
     // setup task threads
-    if (const Result<std::monostate, CAN_setup_errors> r = ct.setup(); r.index() == 1)
-    {
-        if (const auto can_err_kv = CAN_setup_errors_str.find(get<CAN_setup_errors>(r));
-            can_err_kv == CAN_setup_errors_str.end())
-            qWarning("Unknown CAN Setup Error");
-        else
-            qWarning("CAN Setup Error: %s", can_err_kv->second.c_str());
-    }
-    if (const Result<std::monostate, GPIO_setup_errors> r = setupGPIOThreads(&engine); r.index() == 1)
-    {
-        if (const auto gpio_err_kv = GPIO_setup_errors_str.find(get<GPIO_setup_errors>(r));
-            gpio_err_kv == GPIO_setup_errors_str.end())
-            qWarning("Unknown GPIO Setup Error");
-        else
-            qWarning("GPIO Setup Error: %s", gpio_err_kv->second.c_str());
-    }
-
-    return QGuiApplication::exec();
+    report_task_errors(CanTask::setup(), CanTask::CAN_setup_errors_str, "CAN");
+    report_task_errors(setupGPIOThreads(&engine), GPIO_setup_errors_str, "GPIO");
+    auto status = QGuiApplication::exec();
+    report_task_errors(CanTask::teardown(), CanTask::CAN_teardown_errors_str, "CAN");
+    return status;
 }
