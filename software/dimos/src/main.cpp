@@ -1,6 +1,7 @@
 #include "io/KeyTranslator.h"
 #include "setup.h"
 #include "can_tasks.h"
+#include "gpio_tasks.h"
 // qt
 #include <QtGui>
 #include <QQmlApplicationEngine>
@@ -44,8 +45,9 @@ int main(int argc, char *argv[])
 
     // setup task threads
     report_task_errors(CanTask::setup(), CanTask::CAN_setup_errors_str, "CAN");
-    report_task_errors(setupGPIOThreads(&engine), GPIO_setup_errors_str, "GPIO");
+    report_task_errors(GPIOTask::setup(), GPIOTask::GPIO_setup_errors_str, "GPIO");
     auto status = QGuiApplication::exec();
     report_task_errors(CanTask::teardown(), CanTask::CAN_teardown_errors_str, "CAN");
+    report_task_errors(GPIOTask::teardown(), GPIOTask::GPIO_teardown_errors_str, "GPIO");
     return status;
 }

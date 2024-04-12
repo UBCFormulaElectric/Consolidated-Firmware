@@ -1,4 +1,5 @@
 #include "gpio.h"
+#include "gpio_tasks.h"
 #include "ui/DimSwitches/DimSwitchEmitter.h"
 
 #include <QThread>
@@ -93,9 +94,18 @@ const std::map<gpio_input, void (*)(gpio_edge)> gpio_handler_funcs{
     { gpio_input::GPIO7, &ROT_S }, { gpio_input::GPIO8, &ROT_B },
 };
 
-namespace gpio_handlers
+class GPIOMonitorTask final : public QThread
 {
-void gpio_monitor(const gpio_input i)
+  public:
+    explicit GPIOMonitorTask(const gpio_input i) : i(i) {}
+
+  private:
+    const gpio_input i;
+
+    void run() override;
+};
+
+void GPIOMonitorTask::run()
 {
     qInfo("%s thread started", GPIO_inputs_info.at(i).enum_name.c_str());
     while (!QThread::currentThread()->isInterruptionRequested())
@@ -115,4 +125,41 @@ void gpio_monitor(const gpio_input i)
     }
     qInfo("KILL GPIO thread: %s", GPIO_inputs_info.at(i).enum_name.c_str());
 }
-} // namespace gpio_handlers
+
+namespace GPIOTask
+{
+static std::vector<std::unique_ptr<GPIOMonitorTask>> gpio_monitor_threads;
+Result<std::monostate, GPIO_setup_errors>            setup()
+{
+    qInfo("Initializing GPIO Threads");
+    const std::map<gpio_input, bool> gpio_has_err     = gpio_init();
+    bool                             any_gpio_has_err = false;
+    for (auto &gpio_input : gpio_inputs)
+    {
+        if (const auto gpiokvpair = gpio_has_err.find(gpio_input);
+            gpiokvpair == gpio_has_err.end() || gpiokvpair->second)
+        {
+            any_gpio_has_err = true;
+            continue;
+        }
+
+        std::unique_ptr<GPIOMonitorTask> new_gpio_thread = std::make_unique<GPIOMonitorTask>(gpio_input);
+        gpio_monitor_threads.push_back(std::move(new_gpio_thread));
+        gpio_monitor_threads.back()->start();
+    }
+    qInfo("GPIO Thread Initialization Complete, has %s errors", (any_gpio_has_err ? "some" : "no"));
+    if (any_gpio_has_err)
+        return GPIO_setup_errors::LINE_SETUP_ERROR;
+    return std::monostate{};
+}
+Result<std::monostate, GPIO_teardown_errors> teardown()
+{
+    qInfo("Terminating GPIO Threads");
+    for (auto &gpio_thread : gpio_monitor_threads)
+        gpio_thread->requestInterruption();
+    for (auto &gpio_thread : gpio_monitor_threads)
+        gpio_thread->wait();
+    qInfo("GPIO Threads Sucessfully Terminated");
+    return std::monostate{};
+}
+} // namespace GPIOTask
