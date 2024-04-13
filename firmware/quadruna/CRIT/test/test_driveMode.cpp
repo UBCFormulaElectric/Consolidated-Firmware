@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 #include "fake_io_driveMode.hpp"
+#include "test_critBaseStateMachineTest.h"
+#include <stdint.h>
 
-class DriveModeTest : public testing::Test
+class DriveModeTest : public CritBaseStateMachineTest
 {
   protected:
     void SetUp() override { fake_io_driveMode_readPins_reset(); }
@@ -46,4 +48,22 @@ TEST_F(DriveModeTest, VerifyDriveModeConsistency)
 
     // The drive mode should be read consistently, and the fake should be called each time
     ASSERT_EQ(2u, fake_io_driveMode_readPins_callCount());
+}
+
+TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly) {
+    // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
+    fake_io_driveMode_readPins_returns(0);
+    
+    uint16_t result = io_driveMode_readPins();
+    
+    ASSERT_EQ(result, 0);
+}
+
+TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly) {
+    // Setup the fake to return 15 (all pins high in a 4-bit system: 1111 binary)
+    fake_io_driveMode_readPins_returns(15);
+    
+    auto result = io_driveMode_readPins();
+    
+    ASSERT_EQ(result, 15);
 }
