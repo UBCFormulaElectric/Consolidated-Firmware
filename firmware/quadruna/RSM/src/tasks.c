@@ -107,7 +107,7 @@ static const GlobalsConfig config = { .brake_light = &brake_light,
                                       .acc_fan     = &acc_fan_en_pin,
                                       .rad_fan     = &rad_fan_en_pin };
 
-PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim12,
+PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
                                           .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
                                           .tim_channel         = TIM_CHANNEL_1,
                                           .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,

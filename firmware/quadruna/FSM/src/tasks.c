@@ -203,7 +203,7 @@ void tasks_init(void)
     io_brake_init(&brake_config);
     io_loadCell_init(&load_cell_config);
     io_steering_init(&steering_config);
-    io_suspension_init(&steering_config);
+    io_suspension_init(&suspension_config);
     io_wheels_init(&left_wheel_config, &right_wheel_config);
 
     app_heartbeatMonitor_init(
