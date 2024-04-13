@@ -73,6 +73,10 @@ static void mainStateRunOnTick100Hz(void)
             io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
+
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 }
 
 static void mainStateRunOnEntry(void) {}
