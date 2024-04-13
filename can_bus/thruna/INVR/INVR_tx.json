@@ -714,7 +714,6 @@
     },
     "DebugReadWriteParamResponse": {
         "msg_id": 84, 
-        "cycle_time": null,
         "signals": {
             "ResponseParameterAddress": {
                 "start_bit": 0, 
