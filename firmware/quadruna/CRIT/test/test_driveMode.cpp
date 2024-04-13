@@ -50,20 +50,22 @@ TEST_F(DriveModeTest, VerifyDriveModeConsistency)
     ASSERT_EQ(2u, fake_io_driveMode_readPins_callCount());
 }
 
-TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly) {
+TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly)
+{
     // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
     fake_io_driveMode_readPins_returns(0);
-    
+
     uint16_t result = io_driveMode_readPins();
-    
+
     ASSERT_EQ(result, 0);
 }
 
-TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly) {
+TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly)
+{
     // Setup the fake to return 15 (all pins high in a 4-bit system: 1111 binary)
     fake_io_driveMode_readPins_returns(15);
-    
+
     auto result = io_driveMode_readPins();
-    
+
     ASSERT_EQ(result, 15);
 }

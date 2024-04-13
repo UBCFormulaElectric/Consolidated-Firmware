@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include "app_utils.h"
-#include <stdint.h> 
+#include <stdint.h>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"

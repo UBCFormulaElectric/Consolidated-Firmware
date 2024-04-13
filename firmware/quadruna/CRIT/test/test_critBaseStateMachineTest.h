@@ -69,8 +69,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed    rsm_status_led   = {};
     const RgbLed    vc_status_led    = {};
     // dummy used to initialize shdn_sen_pin
-    const ShutdownSensor shdn_sen = {};
-    const DriveMode drive_mode = {};
+    const ShutdownSensor shdn_sen   = {};
+    const DriveMode      drive_mode = {};
 
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself

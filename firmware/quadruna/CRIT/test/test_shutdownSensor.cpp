@@ -34,7 +34,7 @@ TEST_F(ShutdownSensorTest, ShutdownSensorReadsTrue)
 
 TEST_F(ShutdownSensorTest, ShutdownSensorReadsFalse)
 {
-     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, false);
+    fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, false);
 
     // Verify that the shutdown sensor is indeed not active.
     ASSERT_FALSE(io_shutdownSensor_readPin(&shdn_sen));

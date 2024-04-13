@@ -6,7 +6,6 @@
 #include "io_shutdownSensor.h"
 #include "io_driveMode.h"
 
-
 typedef struct
 {
     const BinaryLed *const      imd_led;
@@ -26,7 +25,7 @@ typedef struct
     const RgbLed *const         crit_status_led;
     const RgbLed *const         rsm_status_led;
     const ShutdownSensor *const shdn_sen;
-    const DriveMode *const drive_mode;
+    const DriveMode *const      drive_mode;
 } GlobalsConfig;
 
 typedef struct
