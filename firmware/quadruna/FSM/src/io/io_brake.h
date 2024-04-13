@@ -18,7 +18,7 @@ EMPTY_STRUCT(BrakeConfig)
 
 /**
  * Sets up configuration for ADC pins in brake io layer
-*/
+ */
 void io_brake_init(BrakeConfig *brakes_config);
 
 /**

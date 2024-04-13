@@ -33,7 +33,8 @@ static float pressureFromVoltage(float voltage)
     return psi_per_volt * (voltage - min_input_voltage);
 }
 
-void io_brake_init(BrakeConfig *brakes_config) {
+void io_brake_init(BrakeConfig *brakes_config)
+{
     config = brakes_config;
 }
 
