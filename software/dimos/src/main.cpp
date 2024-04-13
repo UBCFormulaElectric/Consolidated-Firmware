@@ -1,4 +1,4 @@
-#include "io/KeyTranslator.h"
+#include "KeyTranslator.h"
 #include "setup.h"
 #include "can_tasks.h"
 #include "gpio_tasks.h"

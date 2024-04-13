@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <qevent.h>
-#include "../ui/dimswitches/DimSwitchEmitter.h"
+#include "ui/dimswitches/DimSwitchEmitter.h"
 
 class KeyTranslator final : public QObject
 {

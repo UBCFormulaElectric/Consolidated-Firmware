@@ -153,9 +153,10 @@ Result<std::monostate, CanTask::CAN_teardown_errors> CanTask::teardown()
     txperiodicworker.requestInterruption();
     tx100Hz.stop();
     tx1Hz.stop();
+    rxworker.terminate(); // TODO unless we can figure out how to timeout socket read
     qInfo("Waiting for CAN threads to terminate");
-    rxworker.wait();         // TODO figure out what this does
-    txperiodicworker.wait(); // TODO figure out what this does
+    rxworker.wait();
+    txperiodicworker.wait();
     qInfo("CAN Threads terminated");
     return std::monostate{};
 }

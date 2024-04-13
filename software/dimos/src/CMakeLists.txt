@@ -6,20 +6,19 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 # define sources
 set(UI_SOURCES main.cpp setup.cpp setup.h assets/resources.qrc)
-file(GLOB IO_INC "${CMAKE_CURRENT_SOURCE_DIR}/io/*.h")
-file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
-file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
+file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
+file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
 if ("${TARGET}" STREQUAL "deploy")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/*.cpp")
 elseif ("${TARGET}" STREQUAL "dev")
-    file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.h")
+    file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp")
 endif ()
-set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${IO_INC} ${SHARED_FILES} ${TASKS_FILES})
+set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${SHARED_FILES} ${TASKS_FILES} io/KeyTranslator.h)
 
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 qt_add_executable(${EXECUTABLE_NAME} ${SOURCES})
 # include directories
-target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io assets tasks)
+target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io dev_io assets tasks)
 # link libraries
 include(find_libs.cmake)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})

@@ -45,8 +45,7 @@ Result<JsonCanMsg, CanReadError> Can_Read()
         return CanReadError::ReadInterfaceNotCreated;
 
     can_frame     frame{};
-    const ssize_t readLengthBytes =
-        read(CanInterface.value(), &frame, sizeof(can_frame)); // todo make this react to QThread::requestInterruption
+    const ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
 
     if (readLengthBytes < 0)
         return CanReadError::SocketReadError;
@@ -68,8 +67,7 @@ Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 
     try
     {
-        if (write(CanInterface.value(), msg, sizeof(can_frame)) <
-            0) // todo make this react to QThread::requestInterruption
+        if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0)
             return CanWriteError::SocketWriteError;
     }
     catch (...)
