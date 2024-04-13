@@ -1,5 +1,25 @@
 #pragma once
 #include <stdbool.h>
+#include "app_utils.h"
+
+#ifdef TARGET_EMBEDDED
+#include "hw_adc.h"
+
+typedef struct
+{
+    AdcChannel front_left_suspension;
+    AdcChannel front_right_suspension;
+} SuspensionConfig;
+
+#else
+EMPTY_STRUCT(SuspensionConfig)
+#endif
+
+/**
+ * Set up adc pins for suspension sensors
+ * @param suspension_config wrapper around ADC pins for suspension sensors
+*/
+void io_suspension_init(SuspensionConfig *suspension_config);
 
 /**
  * Get the travel of the front left suspension

@@ -17,7 +17,7 @@ EMPTY_STRUCT(AppsConfig)
 #endif
 /**
  * Performs initial calculations for the rest and max angle of PAPPS and SAPPS
- * @param apps_config, a pointer to a struct w/ adc pins for apps1 and apps2
+ * @param apps_config a pointer to a struct w/ adc pins for apps1 and apps2
  */
 void io_apps_init(AppsConfig *apps_config);
 
