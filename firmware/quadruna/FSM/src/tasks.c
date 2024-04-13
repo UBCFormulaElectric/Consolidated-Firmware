@@ -112,6 +112,7 @@ static UART debug_uart = { .handle = &huart1 };
 AppsConfig     apps_config      = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
 BrakeConfig    brake_config     = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
 LoadCellConfig load_cell_config = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
+SteeringConfig steering_config = { .steering = ADC1_IN11_STEERING_ANGLE };
 
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
@@ -187,6 +188,7 @@ void tasks_init(void)
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
     io_loadCell_init(&load_cell_config);
+    io_steering_init(&steering_config);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
