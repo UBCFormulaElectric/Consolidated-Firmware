@@ -48,7 +48,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE
 
 # Bootloader files.
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 # tests
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -131,8 +131,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${BOOT_SRCS}"
         "${BOOT_INCLUDE_DIRS}"
         "quadruna_FSM"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/FSM_boot.ioc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
     )
 
     embedded_image(

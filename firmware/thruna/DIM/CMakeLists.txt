@@ -40,7 +40,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE
 
 # Bootloader files.
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -120,8 +120,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${BOOT_SRCS}"
         "${BOOT_INCLUDE_DIRS}"
         "thruna_DIM"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/DIM_boot.ioc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/DIM_boot.ioc"
     )
 
     embedded_image(
@@ -129,7 +129,7 @@ if("${TARGET}" STREQUAL "deploy")
         "thruna_DIM_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/thruna_DIM_app.hex"
         "thruna_DIM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_DIM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_DIM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
