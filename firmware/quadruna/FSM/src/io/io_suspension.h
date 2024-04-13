@@ -18,7 +18,7 @@ EMPTY_STRUCT(SuspensionConfig)
 /**
  * Set up adc pins for suspension sensors
  * @param suspension_config wrapper around ADC pins for suspension sensors
-*/
+ */
 void io_suspension_init(SuspensionConfig *suspension_config);
 
 /**

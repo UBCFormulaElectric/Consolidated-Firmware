@@ -17,7 +17,7 @@ EMPTY_STRUCT(SteeringConfig)
 /**
  * Initialize pins for steering sensor
  * @param steering_config wrapper around steering adc pin
-*/
+ */
 void io_steering_init(SteeringConfig *steering_config);
 
 /**
