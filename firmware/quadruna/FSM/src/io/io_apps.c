@@ -87,7 +87,7 @@ void io_apps_init(AppsConfig *apps_config)
 
 float io_apps_getPrimary(void)
 {
-    float pedal_voltage = hw_adc_getVoltage((*config).apps1);
+    float pedal_voltage = hw_adc_getVoltage((*config).papps);
 
     // Length calculated via voltage reading from PAPPS
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
@@ -109,14 +109,14 @@ float io_apps_getPrimary(void)
 
 bool io_apps_isPrimaryOCSC(void)
 {
-    float pedal_voltage = hw_adc_getVoltage((*config).apps1);
+    float pedal_voltage = hw_adc_getVoltage((*config).papps);
 
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
 }
 
 float io_apps_getSecondary(void)
 {
-    float pedal_voltage = hw_adc_getVoltage((*config).apps2);
+    float pedal_voltage = hw_adc_getVoltage((*config).sapps);
 
     // length calc from SAPPS voltage reading
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
@@ -140,7 +140,7 @@ float io_apps_getSecondary(void)
 
 bool io_apps_isSecondaryOCSC(void)
 {
-    float pedal_voltage = hw_adc_getVoltage((*config).apps2);
+    float pedal_voltage = hw_adc_getVoltage((*config).sapps);
 
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }

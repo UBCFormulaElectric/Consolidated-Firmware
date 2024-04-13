@@ -109,7 +109,8 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
-AppsConfig apps_config = { .apps1 = ADC1_IN12_APPS1, .apps2 = ADC1_IN5_APPS2 };
+AppsConfig apps_config = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
+BrakeConfig brake_config = {.rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F}
 
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
@@ -183,6 +184,7 @@ void tasks_init(void)
     app_canRx_init();
 
     io_apps_init(&apps_config);
+    io_brake_init(&brake_config);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
