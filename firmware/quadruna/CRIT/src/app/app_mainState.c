@@ -7,6 +7,7 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "app_globals.h"
+#include "app_driveMode.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_shutdownSensor.h"
@@ -41,6 +42,8 @@ static void mainStateRunOnTick100Hz(void)
     {
         io_led_enable(globals->config->start_led, true);
     }
+
+    app_driveMode_broadcast();
 
     typedef struct
     {

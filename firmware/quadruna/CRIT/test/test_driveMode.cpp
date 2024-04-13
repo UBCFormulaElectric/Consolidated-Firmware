@@ -7,6 +7,17 @@ class DriveModeTest : public CritBaseStateMachineTest
 {
   protected:
     void SetUp() override { fake_io_driveMode_readPins_reset(); }
+
+    // void CheckBinaryStatusCanSignal(void (*fake_setter)(uint16_t), uint16_t (*can_signal_getter)())
+    // {
+    //     fake_setter(true);
+    //     LetTimePass(10);
+    //     ASSERT_TRUE(can_signal_getter());
+
+    //     fake_setter(false);
+    //     LetTimePass(10);
+    //     ASSERT_FALSE(can_signal_getter());
+    // }
 };
 
 TEST_F(DriveModeTest, ReadSingleDriveMode)
@@ -60,12 +71,28 @@ TEST_F(DriveModeTest, ReadsPinStateZeroCorrectly)
     ASSERT_EQ(result, 0);
 }
 
+TEST_F(DriveModeTest, ReadsPinStateZeroCANMessage)
+{
+    // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
+    fake_io_driveMode_readPins_returns(0);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_CRIT_DriveMode_get(), 0);
+}
+
 TEST_F(DriveModeTest, ReadsPinStateFifteenCorrectly)
 {
     // Setup the fake to return 15 (all pins high in a 4-bit system: 1111 binary)
     fake_io_driveMode_readPins_returns(15);
 
-    auto result = io_driveMode_readPins();
+    uint16_t result = io_driveMode_readPins();
 
     ASSERT_EQ(result, 15);
+}
+
+TEST_F(DriveModeTest, ReadsPinStateFifteenCANMessage)
+{
+    // Setup the fake to return 0 (all pins low in a 4-bit system: 0000 binary)
+    fake_io_driveMode_readPins_returns(15);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_CRIT_DriveMode_get(), 15);
 }
