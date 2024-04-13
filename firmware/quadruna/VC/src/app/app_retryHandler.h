@@ -32,9 +32,8 @@ typedef struct
 {
     ProtocolState protocol_state;          // Current state of the efuse protocol
     int           retry_attempts;          // Number of retry attempts
-    int           current_timer_attempts;  // Timer attempts for current calculation
+    int           timer_attempts;  // Timer attempts for current calculation
     float         current_sum;             // Sum of current readings for average calculation
-    int           debounce_timer_attempts; // Timer attempts for debounce time
 } RetryData;
 
 /**

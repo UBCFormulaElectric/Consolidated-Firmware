@@ -94,9 +94,8 @@ void app_powerManager_init()
     {
         retry_data[efuse].protocol_state          = PROTOCOL_STATE_OFF;
         retry_data[efuse].retry_attempts          = 0;
-        retry_data[efuse].current_timer_attempts  = 0;
+        retry_data[efuse].timer_attempts  = 0;
         retry_data[efuse].current_sum             = 0.0;
-        retry_data[efuse].debounce_timer_attempts = 0;
     }
 }
 
@@ -128,17 +127,17 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
         {
             // Handle waiting for debounce time to pass and then turn on the efuse
             case PROTOCOL_STATE_DEBOUNCE:
-                if (efuse_retry_data->debounce_timer_attempts == DEBOUNCE_TIMER_LIMIT)
+                if (efuse_retry_data->timer_attempts == DEBOUNCE_TIMER_LIMIT)
                 {
                     io_efuse_standbyReset(efuse);
                     io_efuse_setChannel(efuse, true);
 
                     efuse_retry_data->protocol_state          = PROTOCOL_STATE_CALC_AVG;
-                    efuse_retry_data->debounce_timer_attempts = 0;
+                    efuse_retry_data->timer_attempts = 0;
                 }
                 else
                 {
-                    efuse_retry_data->debounce_timer_attempts++;
+                    efuse_retry_data->timer_attempts++;
                 }
             // Handle efuse dependant that is waiting for an efuse in protocol
             case PROTOCOL_STATE_DEPENDENCY_WAITING:
@@ -147,9 +146,9 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
             case PROTOCOL_STATE_CALC_AVG:
             {
                 efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-                efuse_retry_data->current_timer_attempts++;
+                efuse_retry_data->timer_attempts++;
                 // Check if timer attempts reached the limit
-                if (efuse_retry_data->current_timer_attempts == TIMER_ATTEMPTS_LIMIT)
+                if (efuse_retry_data->timer_attempts == TIMER_ATTEMPTS_LIMIT)
                 {
                     efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_DONE;
                 }
@@ -189,7 +188,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 }
 
                 efuse_retry_data->current_sum            = 0;
-                efuse_retry_data->current_timer_attempts = 0;
+                efuse_retry_data->timer_attempts = 0;
                 break;
             }
             // Handle efuse not in a retry protocol, check if it should be
@@ -201,7 +200,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                 {
                     efuse_retry_data->protocol_state = PROTOCOL_STATE_CALC_AVG;
                     efuse_retry_data->current_sum += io_efuse_getChannelCurrent(efuse);
-                    efuse_retry_data->current_timer_attempts++;
+                    efuse_retry_data->timer_attempts++;
                 }
                 break;
             }
