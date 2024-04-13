@@ -23,7 +23,7 @@ set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DI
 
 file(GLOB_RECURSE HW_SRCS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.c" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS 
@@ -37,6 +37,10 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_THRUNA_DIR}")
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
 
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -109,12 +113,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("thruna_DCM_can" "thruna_DCM_stm32cube")
     target_link_libraries("thruna_DCM_app.elf" "thruna_DCM_stm32cube" "thruna_DCM_can" "thruna_DCM_commit_info" "sbg_ecom_cm4" m)
 
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "thruna_DCM_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "thruna_DCM"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/DCM_boot.ioc"
+    )
+
     embedded_image(
         "thruna_DCM"
         "thruna_DCM_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/thruna_DCM_app.hex"
         "thruna_DCM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_DCM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_DCM_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")

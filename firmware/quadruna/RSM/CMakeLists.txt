@@ -45,6 +45,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -118,12 +122,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_RSM_can" "quadruna_RSM_stm32cube")
     target_link_libraries("quadruna_RSM_app.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_can" "quadruna_RSM_commit_info" "debug_modules" "m")
 
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "quadruna_RSM_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_RSM"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/RSM_boot.ioc"
+    )
+
     embedded_image(
         "quadruna_RSM"
         "quadruna_RSM_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_RSM_app.hex"
         "quadruna_RSM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/quadruna_RSM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_RSM_boot.hex"
     )
     
 elseif("${TARGET}" STREQUAL "test")

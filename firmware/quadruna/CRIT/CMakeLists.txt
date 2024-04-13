@@ -44,6 +44,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -117,12 +121,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_CRIT_can" "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT_app.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_can" "quadruna_CRIT_commit_info" "debug_modules")
 
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "quadruna_CRIT_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_CRIT"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/CRIT_boot.ioc"
+    )
+
     embedded_image(
         "quadruna_CRIT"
         "quadruna_CRIT_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_app.hex"
         "quadruna_CRIT_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/quadruna_CRIT_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_boot.hex"
     )
     
 elseif("${TARGET}" STREQUAL "test")

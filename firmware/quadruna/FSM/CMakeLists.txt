@@ -46,6 +46,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 # tests
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -121,12 +125,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_FSM_can" "quadruna_FSM_stm32cube")
     target_link_libraries("quadruna_FSM_app.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules" "m")
 
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "quadruna_FSM_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_FSM"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/FSM_boot.ioc"
+    )
+
     embedded_image(
         "quadruna_FSM"
         "quadruna_FSM_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_app.hex"
         "quadruna_FSM_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/quadruna_FSM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_boot.hex"
     )
     
 elseif("${TARGET}" STREQUAL "test")

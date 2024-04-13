@@ -35,6 +35,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_THRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
@@ -106,6 +110,16 @@ if("${TARGET}" STREQUAL "deploy")
 
     target_link_libraries("thruna_PDM_can" "thruna_PDM_stm32cube")
     target_link_libraries("thruna_PDM_app.elf" "thruna_PDM_stm32cube" "thruna_PDM_can" "thruna_PDM_commit_info")
+
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "thruna_PDM_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "thruna_PDM"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/PDM_boot.ioc"
+    )
 
     embedded_image(
         "thruna_PDM"

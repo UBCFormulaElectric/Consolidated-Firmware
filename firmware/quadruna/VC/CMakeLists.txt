@@ -42,6 +42,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
         "quadruna_VC_can"
@@ -118,12 +122,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
     target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m")
 
+    # Build bootloader.
+    stm32h7_boot_binary(
+        "quadruna_VC_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_VC"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/VC_boot.ioc"
+    )
+
     embedded_image(
         "quadruna_VC"
         "quadruna_VC_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_app.hex"
         "quadruna_VC_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_VC_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")

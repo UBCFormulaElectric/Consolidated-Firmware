@@ -38,6 +38,10 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_THRUNA_DIR}")
 
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/Inc")
+
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
 set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -113,12 +117,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("thruna_BMS_can" "thruna_BMS_stm32cube")
     target_link_libraries("thruna_BMS_app.elf" "thruna_BMS_stm32cube" "thruna_BMS_can" "thruna_BMS_commit_info")
 
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "thruna_BMS_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "thruna_BMS"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/BMS_boot.ioc"
+    )
+
     embedded_image(
         "thruna_BMS"
         "thruna_BMS_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/thruna_BMS_app.hex"
         "thruna_BMS_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/f4boot/thruna_BMS_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/thruna_BMS_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
