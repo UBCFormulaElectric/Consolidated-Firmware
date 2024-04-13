@@ -1,4 +1,5 @@
 #pragma once
+#include "hw_pwmInputFreqOnly.h"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
