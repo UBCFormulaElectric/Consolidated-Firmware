@@ -110,19 +110,17 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart1 };
 
-AppsConfig       apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
-BrakeConfig      brake_config      = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
-LoadCellConfig   load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
-SteeringConfig   steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
-SuspensionConfig suspension_config = { .front_left_suspension = ADC1_IN8_SUSP_TRAVEL_FL,
-                                       .front_right_suspension =
-                                           ADC1_IN9_SUSP_TRAVEL_FR } PwmInputFreqOnlyConfig left_wheel_config = {
-    .htim                = &htim12,
-    .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
-    .tim_channel         = TIM_CHANNEL_2,
-    .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
-    .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2
-};
+AppsConfig             apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
+BrakeConfig            brake_config      = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
+LoadCellConfig         load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
+SteeringConfig         steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
+SuspensionConfig       suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
+                                             .front_right_suspension = ADC1_IN9_SUSP_TRAVEL_FR };
+PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
+                                             .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                             .tim_channel         = TIM_CHANNEL_2,
+                                             .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                             .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2 };
 
 PwmInputFreqOnlyConfig right_wheel_config = { .htim                = &htim12,
                                               .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,

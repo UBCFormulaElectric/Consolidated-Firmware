@@ -31,13 +31,9 @@
 
 static PwmInputFreqOnly flow_meter;
 
-void io_coolant_init(TIM_HandleTypeDef *htim)
+void io_coolant_init(PwmInputFreqOnlyConfig *config)
 {
-    assert(htim != NULL);
-
-    hw_pwmInputFreqOnly_init(
-        &flow_meter, htim, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_1, TIM12_AUTO_RELOAD_REG,
-        HAL_TIM_ACTIVE_CHANNEL_1);
+    hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
 
 void io_coolant_inputCaptureCallback(TIM_HandleTypeDef *htim)
