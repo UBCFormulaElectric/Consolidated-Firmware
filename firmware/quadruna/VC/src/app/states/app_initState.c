@@ -13,6 +13,10 @@
 #include "app_globals.h"
 #include "app_faultCheck.h"
 
+#include "app_pumpControl.h"
+
+#define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
+
 static void initStateRunOnEntry(void)
 {
     app_allStates_runOnTick100Hz();
@@ -68,12 +72,26 @@ static void initStateRunOnTick100Hz(void)
     // }
 }
 
+static void initStateRunOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+
+    if (app_canRx_Debug_SetCoolantPump_CustomEnable_get())
+    {
+        app_pumpControl_setFlowRate(app_canRx_Debug_SetCoolantPump_CustomVal_get());
+    }
+    else
+    {
+        app_pumpControl_setFlowRate(DEFAULT_FLOW_RATE);
+    }
+}
+
 const State *app_initState_get(void)
 {
     static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,
-        .run_on_tick_1Hz   = NULL,
+        .run_on_tick_1Hz   = initStateRunOnTick1Hz,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
         .run_on_exit       = NULL,
     };

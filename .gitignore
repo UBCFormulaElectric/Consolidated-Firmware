@@ -45,6 +45,7 @@
 *.obj
 *.o
 *.sbr
+*.so
 
 # Build files
 *.bat
@@ -59,6 +60,7 @@
 *.pyc
 __pycache__
 Pipfile.lock
+*.egg-info
 
 # Other files
 *.build_log.htm
