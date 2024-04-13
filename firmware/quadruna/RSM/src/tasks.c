@@ -126,44 +126,36 @@ static UART debug_uart = { .handle = &huart1 };
 // config for heartbeat monitor
 /// RSM rellies on BMS
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
-    [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
+    [FSM_HEARTBEAT_BOARD] = true,  [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = NULL,
-                                                      [RSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                           [RSM_HEARTBEAT_BOARD]  = NULL,
-                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
+void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 void tasks_preInit(void)
@@ -210,13 +202,41 @@ void tasks_init(void)
     // TODO: Re-enable watchdog.
 }
 
+void tasks_run1Hz(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
+    static const TickType_t period_ms = 1000U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        hw_stackWaterMarkConfig_check();
+        app_stateMachine_tick1Hz();
+
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
-    static const TickType_t period_ms   = 10;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
+    static const TickType_t period_ms = 10;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
 
     for (;;)
     {
@@ -224,6 +244,33 @@ void tasks_run100Hz(void)
 
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void tasks_run1kHz(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
+    static const TickType_t period_ms = 1U;
+    WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -249,48 +296,6 @@ void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-    }
-}
-
-void tasks_run1kHz(void)
-{
-    io_chimera_sleepTaskIfEnabled();
-
-    static const TickType_t period_ms   = 1U;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
-
-    for (;;)
-    {
-        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_run1Hz(void)
-{
-    io_chimera_sleepTaskIfEnabled();
-
-    static const TickType_t period_ms   = 1000U;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
-
-    for (;;)
-    {
-        hw_stackWaterMarkConfig_check();
-        app_stateMachine_tick1Hz();
-
-        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        io_canTx_enqueue1HzMsgs();
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }
 

@@ -218,6 +218,8 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
+    io_chimera_sleepTaskIfEnabled();
+
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);

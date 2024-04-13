@@ -6,69 +6,69 @@
     "warnings": {
         "WatchdogTimeout": {
             "id" :401,
-            "description" : "Example"
+            "description" : "Watchdog timeout"
         },
         "TxOverflow": {
             "id" :402,
-            "description" : "Example"
+            "description" : "canTX overflow"
         },
         "RxOverflow": {
             "id" :403,
-            "description" : "Example"
+            "description" : "canRX overflow"
         },
         "StackWaterMarkHighTask1Hz": {
             "id" :404,
-            "description" : "Example"
+            "description" : "Stack Watermark mark failed for 1Hz"
         },
         "StackWaterMarkHighTask100Hz": {
             "id" :405,
-            "description" : "Example"
+            "description" : "Stack Watermark mark failed for 100Hz"
         },
         "StackWaterMarkHighTask1kHz": {
             "id" :406,
-            "description" : "Example"
+            "description" : "Stack Watermark mark failed for 1kHz"
         },
         "StackWaterMarkHighTaskCanRx": {
             "id" :407,
-            "description" : "Example"
+            "description" : "Stack Watermark failed on canRx"
         },
         "StackWaterMarkHighTaskCanTx": {
             "id" :408,
-            "description" : "Example"
+            "description" : "Stack Watermark failed on CanTx"
         },
         "FlowRateOutOfRange": {
             "id" :409,
-            "description" : "Example"
+            "description" : "Coolant flow out of range"
         },
         "LeftSuspensionOCSC": {
             "id" :410,
-            "description" : "Example"
+            "description" : "Rear left suspension open or short circuit"
         },
         "RightSuspensionOCSC": {
             "id" :411,
-            "description" : "Example"
+            "description" : "Rear right suspension open or short circuit"
         },
         "LoadCell3OCSC": {
             "id" :412,
-            "description" : "Example"
+            "description" : "Load cell 3 open or short circuit"
         },
         "LoadCell4OCSC": {
             "id" :413,
-            "description" : "Example"
+            "description" : "Load cell 4 open or short circuit"
         }
     },
     "faults": {
         "FlowMeterUnderflow": {
             "id" :451,
-            "description" : "Example"
+            "description" : "Coolant flow meter underflow"
         },
-        "MissingBMSHeartbeat": {
+        "MissingVCHeartbeat": {
             "id" :452,
-            "description" : "Example"
+            "description" : "VC Missing Heart beat"
         },
         "MissingFSMHeartbeat": {
             "id" :453,
-            "description" : "Example"
+            "description" : "FSM Missing Heart beat"
         }
         
     }
