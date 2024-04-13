@@ -13,3 +13,6 @@
 [submodule "scripts/canup"]
 	path = scripts/canup
 	url = https://github.com/UBCFormulaElectric/canup.git
+[submodule "firmware/third_party/pybind11"]
+	path = firmware/third_party/pybind11
+	url = https://github.com/pybind/pybind11.git
