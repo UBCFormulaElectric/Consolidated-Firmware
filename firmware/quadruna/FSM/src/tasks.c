@@ -110,7 +110,7 @@ AdcChannel id_to_adc[] = {
 static UART debug_uart = { .handle = &huart1 };
 
 AppsConfig  apps_config  = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
-BrakeConfig brake_config = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F }
+BrakeConfig brake_config = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
 
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
