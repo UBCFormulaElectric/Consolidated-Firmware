@@ -1,4 +1,3 @@
-#include "gpio.h"
 #include "gpio_tasks.h"
 #include "ui/DimSwitches/DimSwitchEmitter.h"
 
@@ -128,7 +127,7 @@ void GPIOMonitorTask::run()
 
 namespace GPIOTask
 {
-static std::vector<GPIOMonitorTask *>     gpio_monitor_threads;
+std::vector<GPIOMonitorTask *>            gpio_monitor_threads;
 Result<std::monostate, GPIO_setup_errors> setup()
 {
     qInfo("Initializing GPIO Threads");
@@ -136,8 +135,13 @@ Result<std::monostate, GPIO_setup_errors> setup()
     bool                             any_gpio_has_err = false;
     for (auto &gpio_input : gpio_inputs)
     {
-        if (const auto gpiokvpair = gpio_has_err.find(gpio_input);
-            gpiokvpair == gpio_has_err.end() || gpiokvpair->second)
+        const auto gpiokvpair = gpio_has_err.find(gpio_input);
+        if (gpiokvpair == gpio_has_err.end())
+        {
+            qWarning("GPIO could not be found for that \"gpio_input\" value");
+            continue;
+        }
+        if (gpiokvpair->second)
         {
             any_gpio_has_err = true;
             continue;

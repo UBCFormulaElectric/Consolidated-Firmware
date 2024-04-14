@@ -84,6 +84,7 @@ std::map<gpio_input, bool> gpio_init()
             continue;
         }
         gpio_lines[i] = std::get<gpiod::line>(r);
+        has_error[i]  = false;
     }
     return has_error;
 }
