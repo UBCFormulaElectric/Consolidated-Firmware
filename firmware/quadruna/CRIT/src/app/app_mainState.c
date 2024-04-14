@@ -10,6 +10,7 @@
 #include "io_led.h"
 #include "io_switch.h"
 #include "tasks.h"
+#include "app_heartbeatMonitor.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
