@@ -56,12 +56,10 @@ jobs:
             ioc_dir: firmware/quadruna/RSM/src/cubemx
           - board: CRIT
             ioc_dir: firmware/quadruna/CRIT/src/cubemx
-          - board: f4boot
-            ioc_dir: firmware/boot/f4boot/cubemx
           - board: f4dev
             ioc_dir: firmware/dev/f4dev/cubemx
           - board: h7dev
-            ioc_dir: firmware/dev/h7dev/cubemx
+            ioc_dir: firmware/dev/h7dev/src/cubemx
 
     container:
       image: ubcformulaelectric/environment:latest
