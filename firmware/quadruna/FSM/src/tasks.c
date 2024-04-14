@@ -153,6 +153,8 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
 
 void tasks_preInit(void)
 {
+    hw_bootup_enableInterruptsForApp();
+
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("FSM reset!");
