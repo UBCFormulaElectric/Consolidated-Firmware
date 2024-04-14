@@ -139,8 +139,8 @@ int main(void)
     MX_CRC_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-    hw_can_init(&can);
     bootloader_init();
+    hw_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */

@@ -138,8 +138,8 @@ int main(void)
     MX_CRC_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-    hw_can_init(&can);
     bootloader_init();
+    hw_can_init(&can);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -345,8 +345,19 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LVPWR_EN_GPIO_Port, LVPWR_EN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : LVPWR_EN_Pin */
+    GPIO_InitStruct.Pin   = LVPWR_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LVPWR_EN_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nBOOT_EN_Pin */
     GPIO_InitStruct.Pin  = nBOOT_EN_Pin;

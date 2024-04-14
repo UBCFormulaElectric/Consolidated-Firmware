@@ -58,6 +58,8 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LVPWR_EN_Pin GPIO_PIN_14
+#define LVPWR_EN_GPIO_Port GPIOC
 #define nBOOT_EN_Pin GPIO_PIN_5
 #define nBOOT_EN_GPIO_Port GPIOB
 
