@@ -1,11 +1,7 @@
-#include <iostream>
-#include <chrono>
 #include <qlogging.h>
 
 #include "can.h"
 #include "dev_io_utils.h"
-
-using std::cout, std::endl;
 
 Result<std::monostate, CanConnectionError> Can_Init()
 {

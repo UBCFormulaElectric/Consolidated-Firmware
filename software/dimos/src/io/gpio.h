@@ -29,7 +29,7 @@ typedef struct
     std::string name, enum_name;
 } gpio_info;
 
-const std::map<gpio_input, gpio_info> GPIO_inputs_info{
+const std::map<gpio_input, gpio_info> gpio_inputs_metadata{
     { gpio_input::GPIO1, { .name = "F1", .enum_name = "GPIO1" } },
     { gpio_input::GPIO2, { .name = "ROT_A", .enum_name = "GPIO2" } },
     { gpio_input::GPIO3, { .name = "OUT", .enum_name = "GPIO3" } },
@@ -42,10 +42,6 @@ const std::map<gpio_input, gpio_info> GPIO_inputs_info{
 
 std::map<gpio_input, bool> gpio_init();
 
-/**
- * \brief Waits for a line event on the given gpio input
- * \return The line event that occurred (either rising or falling)
- */
 enum class gpio_edge
 {
     RISING_EDGE,
@@ -57,6 +53,15 @@ enum class line_read_error
     DEV_DUMMY_DATA,         // returned on dev gpio
     TIMEOUT
 };
+const std::map<line_read_error, std::string> line_read_error_str{ { line_read_error::LINE_READ_SYSTEM_ERROR,
+                                                                    "LINE_READ_SYSTEM_ERROR" },
+                                                                  { line_read_error::DEV_DUMMY_DATA, "DEV_DUMMY_DATA" },
+                                                                  { line_read_error::TIMEOUT, "TIMEOUT" } };
+/**
+ * Waits for a line event on the given gpio input
+ * @param i the gpio input to wait for an event on
+ * @return The line event that occurred (either rising or falling)
+ */
 Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i);
 
 enum class gpio_level
@@ -64,4 +69,9 @@ enum class gpio_level
     LOW,
     HIGH
 };
+/**
+ * Reads the instantaneous value of the gpio input
+ * @param i the gpio input to read
+ * @return the value of the gpio input
+ */
 Result<gpio_level, line_read_error> read_gpio(gpio_input i);

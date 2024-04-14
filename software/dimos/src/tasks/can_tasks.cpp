@@ -82,10 +82,10 @@ void CanRxTask::run()
     qInfo("Starting CanRXTask thread");
     while (!QThread::currentThread()->isInterruptionRequested())
     {
-        Result<JsonCanMsg, CanReadError> res = Can_Read();
-        if (res.index() == 1)
+        Result<JsonCanMsg, CanReadError> can_read_res = Can_Read();
+        if (can_read_res.has_error())
         {
-            switch (get<CanReadError>(res))
+            switch (can_read_res.get_error())
             {
                 case CanReadError::ReadInterfaceNotCreated:
                     qWarning("Can interface not created");
@@ -103,7 +103,7 @@ void CanRxTask::run()
         }
 
         // success
-        auto message = get<JsonCanMsg>(res);
+        auto message = can_read_res.get_data();
         // check with
         // io_canRx_filterMessageId
         // if we care about the message
@@ -116,7 +116,7 @@ void CanRxTask::run()
         can_table_mutex->unlock();
     }
     qInfo("KILL CanRXTask thread");
-};
+}
 
 void CanTxPeriodicTask::run()
 {

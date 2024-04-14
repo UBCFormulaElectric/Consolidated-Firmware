@@ -8,10 +8,10 @@ typedef struct
 {
     std::string chip;
     int         line;
-} gpio_hw_info;
+} gpio_hw_metadata;
 
 // Derived from gpiofuckshit.txt
-const std::map<gpio_input, gpio_hw_info> GPIO_inputs_hw_info{
+const std::map<gpio_input, gpio_hw_metadata> gpio_input_hw_metadata{
     { gpio_input::GPIO1, { .chip = "/dev/gpiochip2", .line = 8 } },
     { gpio_input::GPIO2, { .chip = "/dev/gpiochip2", .line = 9 } },
     { gpio_input::GPIO3, { .chip = "/dev/gpiochip2", .line = 12 } },
@@ -33,11 +33,11 @@ enum class gpiod_line_init_error
 };
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
 {
-    const auto [gpio_name, gpio_enum_name] = GPIO_inputs_info.at(i);
+    const auto [gpio_name, gpio_enum_name] = gpio_inputs_metadata.at(i);
     const std::string err_prefix           = "[" + gpio_name + " on " + gpio_enum_name + "]:";
     try
     {
-        const auto [chip_loc, line_num] = GPIO_inputs_hw_info.at(i);
+        const auto [chip_loc, line_num] = gpio_input_hw_metadata.at(i);
         const gpiod::chip c(chip_loc);
         gpiod::line       l = c.get_line(line_num);
         l.request(
@@ -78,12 +78,12 @@ std::map<gpio_input, bool> gpio_init()
     for (auto &i : gpio_inputs)
     {
         Result<gpiod::line, gpiod_line_init_error> r = create_gpio_input_pin(i);
-        if (r.index() == 1)
+        if (r.has_error())
         {
             has_error[i] = true;
             continue;
         }
-        gpio_lines[i] = std::get<gpiod::line>(r);
+        gpio_lines[i] = r.get_data();
         has_error[i]  = false;
     }
     return has_error;
@@ -92,11 +92,12 @@ std::map<gpio_input, bool> gpio_init()
 Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
 {
     const gpiod::line &l = gpio_lines[i];
-
     try
     {
-        const auto l_event = l.event_read(); // todo make this react to QThread::requestInterruption
-        return l_event.event_type == gpiod::line_event::RISING_EDGE ? gpio_edge::RISING_EDGE : gpio_edge::FALLING_EDGE;
+        const auto has_event = l.event_wait(std::chrono::milliseconds(500));
+        if (!has_event)
+            return line_read_error::TIMEOUT;
+        return l.get_value() == 1 ? gpio_edge::RISING_EDGE : gpio_edge::FALLING_EDGE;
     }
     catch (std::system_error &e)
     {
@@ -108,7 +109,7 @@ Result<gpio_edge, line_read_error> wait_for_line_event(const gpio_input i)
     }
 }
 
-Result<gpio_level, line_read_error> read_gpio(gpio_input i)
+Result<gpio_level, line_read_error> read_gpio(const gpio_input i)
 {
     const gpiod::line &l = gpio_lines[i];
     try

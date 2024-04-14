@@ -17,13 +17,12 @@ inline static void report_task_errors(
     const std::map<T, std::string>  &err_string_map,
     const std::string               &sys)
 {
-    if (res.index() == 1)
-    {
-        if (const auto can_err_kv = err_string_map.find(get<T>(res)); can_err_kv == err_string_map.end())
-            qWarning("Unknown %s Setup Error", sys.c_str());
-        else
-            qWarning("%s Setup Error: %s", sys.c_str(), can_err_kv->second.c_str());
-    }
+    if (!res.has_error())
+        return;
+    if (const auto can_err_kv = err_string_map.find(res.get_error()); can_err_kv == err_string_map.end())
+        qWarning("Unknown %s Setup Error", sys.c_str());
+    else
+        qWarning("%s Setup Error: %s", sys.c_str(), can_err_kv->second.c_str());
 }
 
 int main(int argc, char *argv[])
