@@ -15,7 +15,7 @@
 #define QUEUE_MAX_SIZE 4095     // 4kB
 
 /* --------------------------------- Variables ---------------------------------- */
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 
 static const UART   *uart = NULL;
 static SbgInterface  sbg_interface;                       // Handle for interface
@@ -315,3 +315,20 @@ EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData()
 {
     return &sensor_data.ekf_data.ekf_nav_position;
 }
+
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     if (huart == &huart2)
+//     {
+//         // Push newly received data to queue
+//         for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
+//         {
+//             sbg_queue_overflow_count = 0;
+
+//             if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
+//             {
+//                 sbg_queue_overflow_count++;
+//             }
+//         }
+//     }
+// }
