@@ -7,7 +7,7 @@
       "executable": "build_fw_deploy/firmware/thruna/BMS/thruna_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/thruna_BMS_boot.elf",
+        "build_fw_deploy/firmware/thruna/BMS/thruna_BMS_boot.elf",
         "build_fw_deploy/firmware/thruna/BMS/thruna_BMS_app.elf",
       ],
       "request": "launch",
@@ -37,7 +37,7 @@
       "executable": "build_fw_deploy/firmware/thruna/DCM/thruna_DCM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/thruna_DCM_boot.elf",
+        "build_fw_deploy/firmware/thruna/DCM/thruna_DCM_boot.elf",
         "build_fw_deploy/firmware/thruna/DCM/thruna_DCM_app.elf",
       ],
       "request": "launch",
@@ -67,7 +67,7 @@
       "executable": "build_fw_deploy/firmware/thruna/FSM/thruna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/thruna_FSM_boot.elf",
+        "build_fw_deploy/firmware/thruna/FSM/thruna_FSM_boot.elf",
         "build_fw_deploy/firmware/thruna/FSM/thruna_FSM_app.elf",
       ],
       "request": "launch",
@@ -97,7 +97,7 @@
       "executable": "build_fw_deploy/firmware/thruna/PDM/thruna_PDM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/thruna_PDM_boot.elf",
+        "build_fw_deploy/firmware/thruna/PDM/thruna_PDM_boot.elf",
         "build_fw_deploy/firmware/thruna/PDM/thruna_PDM_app.elf",
       ],
       "request": "launch",
@@ -127,7 +127,7 @@
       "executable": "build_fw_deploy/firmware/thruna/DIM/thruna_DIM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/thruna_DIM_boot.elf",
+        "build_fw_deploy/firmware/thruna/DIM/thruna_DIM_boot.elf",
         "build_fw_deploy/firmware/thruna/DIM/thruna_DIM_app.elf",
       ],
       "request": "launch",
@@ -157,7 +157,7 @@
       "executable": "build_fw_deploy/firmware/quadruna/VC/quadruna_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/h7boot/quadruna_VC_boot.elf",
+        "build_fw_deploy/firmware/quadruna/VC/quadruna_VC_boot.elf",
         "build_fw_deploy/firmware/quadruna/VC/quadruna_VC_app.elf",
       ],
       "request": "launch",
@@ -187,7 +187,7 @@
       "executable": "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/h7boot/quadruna_BMS_boot.elf",
+        "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS_boot.elf",
         "build_fw_deploy/firmware/quadruna/BMS/quadruna_BMS_app.elf",
       ],
       "request": "launch",
@@ -217,7 +217,7 @@
       "executable": "build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/quadruna_FSM_boot.elf",
+        "build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM_boot.elf",
         "build_fw_deploy/firmware/quadruna/FSM/quadruna_FSM_app.elf",
       ],
       "request": "launch",
@@ -247,7 +247,7 @@
       "executable": "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/quadruna_RSM_boot.elf",
+        "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_boot.elf",
         "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_app.elf",
       ],
       "request": "launch",
@@ -277,7 +277,7 @@
       "executable": "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_deploy/firmware/boot/f4boot/quadruna_CRIT_boot.elf",
+        "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT_boot.elf",
         "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT_app.elf",
       ],
       "request": "launch",
@@ -397,7 +397,6 @@
         "MIMode": "lldb"
       }
     },
-
     {
       "name": "Debug Tests: PDM (Thruna)",
       "type": "cppdbg",
@@ -426,7 +425,6 @@
         "MIMode": "lldb"
       }
     },
-
     {
       "name": "Debug Tests: VC (Quadruna)",
       "type": "cppdbg",

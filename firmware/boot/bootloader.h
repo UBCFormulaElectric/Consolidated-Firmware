@@ -13,6 +13,7 @@
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
 
+void bootloader_preInit(void);
 void bootloader_init(void);
 void bootloader_runInterfaceTask(void);
 void bootloader_runTickTask(void);

@@ -139,9 +139,6 @@ int main(void)
     MX_CAN1_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-
     hw_can_init(&can);
     bootloader_init();
     /* USER CODE END 2 */

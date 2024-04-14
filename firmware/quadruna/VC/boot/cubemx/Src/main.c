@@ -114,7 +114,7 @@ CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceiv
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/

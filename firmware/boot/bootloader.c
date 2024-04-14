@@ -7,6 +7,7 @@
 #include "cmsis_os.h"
 #include "hw_hal.h"
 #include "io_can.h"
+#include "io_log.h"
 #include "hw_flash.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
@@ -131,11 +132,15 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_init()
+void bootloader_preInit()
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
+}
 
+void bootloader_init()
+{
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
