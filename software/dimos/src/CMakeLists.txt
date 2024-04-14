@@ -5,7 +5,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 # define sources
-set(UI_SOURCES main.cpp setup.cpp setup.h assets/resources.qrc)
+set(UI_SOURCES main.cpp setup.cpp assets/resources.qrc)
 file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
 file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
 if ("${TARGET}" STREQUAL "deploy")
@@ -18,7 +18,7 @@ set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${SHARED_FILES} ${TASKS_FILES} io/KeyTra
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 qt_add_executable(${EXECUTABLE_NAME} ${SOURCES})
 # include directories
-target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io dev_io assets tasks)
+target_include_directories(${EXECUTABLE_NAME} PRIVATE shared io dev_io assets tasks .)
 # link libraries
 include(find_libs.cmake)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})

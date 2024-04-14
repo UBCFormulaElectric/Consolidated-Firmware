@@ -19,7 +19,7 @@ Result<gpio_edge, line_read_error> wait_for_line_event(gpio_input i)
 {
     if (const WaitDelegateResult res = wait_delegate_thread(); res == WaitDelegateResult::INTERRUPTED)
         return line_read_error::TIMEOUT;
-    qInfo("Requested %s, responding with DEV_DUMMY_DATA", gpio_inputs_metadata.at(i).enum_name.c_str());
+    //    qInfo("Requested %s, responding with DEV_DUMMY_DATA", gpio_inputs_metadata.at(i).enum_name.c_str());
     return line_read_error::DEV_DUMMY_DATA;
 }
 

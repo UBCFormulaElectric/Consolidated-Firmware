@@ -7,18 +7,12 @@ extern "C"
 }
 
 #define CONCAT_HELPER(x, y) x##y
-#define REGISTER_DOUBLE_CAN_MESSAGE(name)     \
-    static bool CONCAT_HELPER(name, _get)() \
-    {                                       \
-        return app_canRx_##name##_get();    \
-    }                                       \
-    Q_PROPERTY(double name READ CONCAT_HELPER(name, _get) NOTIFY notify_all_signals FINAL REQUIRED STORED false)
-#define REGISTER_BOOL_CAN_MESSAGE(name)     \
-    static bool CONCAT_HELPER(name, _get)() \
-    {                                       \
-        return app_canRx_##name##_get();    \
-    }                                       \
-    Q_PROPERTY(bool name READ CONCAT_HELPER(name, _get) NOTIFY notify_all_signals FINAL REQUIRED STORED false)
+#define REGISTER_DOUBLE_CAN_MESSAGE(name, type) \
+    static type CONCAT_HELPER(name, _get)()     \
+    {                                           \
+        return app_canRx_##name##_get();        \
+    }                                           \
+    Q_PROPERTY(type name READ CONCAT_HELPER(name, _get) NOTIFY notify_all_signals FINAL REQUIRED STORED false)
 
 class CanQML final : public QObject
 {
@@ -41,22 +35,9 @@ class CanQML final : public QObject
     }
     ~CanQML() override { uiUpdate.stop(); };
 
-    // singleton activity
-    static CanQML *instance;
-
   public:
-    static CanQML *getInstance()
-    {
-        if (instance == nullptr)
-            instance = new CanQML();
-        return instance;
-    }
-    static CanQML *create(const QQmlEngine *qmlEngine, const QJSEngine *jsEngine)
-    {
-        Q_UNUSED(qmlEngine);
-        Q_UNUSED(jsEngine);
-        return getInstance();
-    }
+    static CanQML *getInstance();
+    static CanQML *create(const QQmlEngine *qmlEngine, const QJSEngine *jsEngine);
 
     Q_PROPERTY(int first_error_node READ get_first_error_node NOTIFY notify_all_signals FINAL REQUIRED STORED false)
     static int get_first_error_node()
@@ -64,7 +45,7 @@ class CanQML final : public QObject
         return -1; // TODO implement faults when they arrive
     }
     // Signals
-    REGISTER_DOUBLE_CAN_MESSAGE(FSM_LeftWheelSpeed)
+    REGISTER_DOUBLE_CAN_MESSAGE(FSM_LeftWheelSpeed, float)
 
   signals:
     void notify_all_signals();
