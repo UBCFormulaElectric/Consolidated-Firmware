@@ -1,5 +1,5 @@
 #include "gpio.h"
-
+#include <QtGlobal>
 #include <iostream>
 #include <qlogging.h>
 
