@@ -7,7 +7,13 @@ extern "C"
 }
 
 #define CONCAT_HELPER(x, y) x##y
-#define REGISTER_CAN_MESSAGE(name)          \
+#define REGISTER_DOUBLE_CAN_MESSAGE(name)     \
+    static bool CONCAT_HELPER(name, _get)() \
+    {                                       \
+        return app_canRx_##name##_get();    \
+    }                                       \
+    Q_PROPERTY(double name READ CONCAT_HELPER(name, _get) NOTIFY notify_all_signals FINAL REQUIRED STORED false)
+#define REGISTER_BOOL_CAN_MESSAGE(name)     \
     static bool CONCAT_HELPER(name, _get)() \
     {                                       \
         return app_canRx_##name##_get();    \
@@ -58,7 +64,7 @@ class CanQML final : public QObject
         return -1; // TODO implement faults when they arrive
     }
     // Signals
-    REGISTER_CAN_MESSAGE(FSM_LeftWheelSpeed)
+    REGISTER_DOUBLE_CAN_MESSAGE(FSM_LeftWheelSpeed)
 
   signals:
     void notify_all_signals();

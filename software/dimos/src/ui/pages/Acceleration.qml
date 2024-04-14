@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Shapes
 import components
+import canqml
 
 Item {
     anchors.fill: parent
     id: innerAcceleration
-    property int speed: 0 // Change to canQML
+    property double rpmToSpeed: 3.1415926*60/39370
 
     onActiveFocusChanged: {
         if (activeFocus) {
@@ -16,13 +17,14 @@ Item {
     Text {
         id: speedString
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: acclerationSpeedometer.top
+        anchors.topMargin: 70
         // anchors.top: parent.top
         // anchors.topMargin: 200
         font.family: "Roboto"
         font.bold: true
         font.pointSize: 72
-        text: speed
+        text: parseInt(CanQML.FSM_LeftWheelSpeed*1000*rpmToSpeed) // do math for wheel
         color: "#ffffff"
     }
 
@@ -44,7 +46,7 @@ Item {
         // anchors.topMargin: 135
         width: 250
         height: 250
-        property real speed_percentage: speed / 150;
+        property real speed_percentage: (parseInt(CanQML.FSM_LeftWheelSpeed*1000*rpmToSpeed)) / 150;
         percentage: speed_percentage;
         stroke_width: 18
         start_angle: 225
