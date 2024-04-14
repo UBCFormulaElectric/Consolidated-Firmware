@@ -19,11 +19,10 @@ enum class gpio_input
 
 // MAKE SURE THIS IS UPDATED WITH ABOVE!!!
 
-constexpr int               GPIO_COUNT  = 8;
-inline constexpr std::array gpio_inputs = {
-    gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3, gpio_input::GPIO4,
-    gpio_input::GPIO5, gpio_input::GPIO6, gpio_input::GPIO7, gpio_input::GPIO8
-};
+constexpr int                            GPIO_COUNT  = 8;
+const std::array<gpio_input, GPIO_COUNT> gpio_inputs = { gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3,
+                                                         gpio_input::GPIO4, gpio_input::GPIO5, gpio_input::GPIO6,
+                                                         gpio_input::GPIO7, gpio_input::GPIO8 };
 
 typedef struct
 {
