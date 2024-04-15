@@ -98,7 +98,7 @@
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
         "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_boot.elf",
-        "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_app.elf"
+        "build_fw_deploy/firmware/quadruna/RSM/quadruna_RSM_app.elf",
       ],
       "request": "launch",
       "type": "cortex-debug",
@@ -119,7 +119,7 @@
             "type": "console"
           }
         ]
-      }
+      },
     },
     {
       "name": "Debug Embedded: RSM (Quadruna)",
@@ -181,7 +181,6 @@
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/dev/h7dev/h7dev.hex",
       "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
         "build_fw_deploy/firmware/boot/h7boot/h7dev_boot.elf",
         "build_fw_deploy/firmware/dev/h7dev/h7dev_app.elf",
       ],
