@@ -38,8 +38,13 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 if("${TARGET}" STREQUAL "deploy")
     jsoncan_library(
@@ -117,12 +122,22 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
     target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m")
 
+    # Build bootloader.
+    stm32h7_boot_binary(
+        "quadruna_VC_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_VC"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
+    )
+
     embedded_image(
         "quadruna_VC"
         "quadruna_VC_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_app.hex"
         "quadruna_VC_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_VC_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
     )
 
 elseif("${TARGET}" STREQUAL "test")
@@ -134,20 +149,18 @@ elseif("${TARGET}" STREQUAL "test")
         "quadruna"
     )
 
-
-    set(HEADERS_TO_FAKE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-        )   
-
     add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdown.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
     )
 
     create_fake_library(

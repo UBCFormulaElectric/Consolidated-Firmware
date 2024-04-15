@@ -7,6 +7,7 @@
 #include "app_globals.h"
 #include "app_heartbeatMonitor.h"
 #include "states/app_initState.h"
+#include "states/app_allStates.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -26,6 +27,7 @@
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
+#include "io_imu.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -37,6 +39,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -44,7 +47,6 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
-
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -320,6 +322,11 @@ void tasks_init(void)
         Error_Handler();
     }
 
+    if (!io_imu_init())
+    {
+        app_canAlerts_VC_Warning_ImuIo_set(true);
+    }
+
     app_canTx_init();
     app_canRx_init();
 
@@ -384,6 +391,7 @@ void tasks_run100Hz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
+        app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 

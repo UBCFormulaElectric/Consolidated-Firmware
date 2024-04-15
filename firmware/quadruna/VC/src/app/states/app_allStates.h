@@ -14,4 +14,4 @@ void app_allStates_runOnTick1Hz(void);
  * @param state_machine The state machine to run on-tick function for
  * @return True if the next state is not the fault state, otherwise false
  */
-bool app_allStates_runOnTick100Hz(void);
+void app_allStates_runOnTick100Hz(void);

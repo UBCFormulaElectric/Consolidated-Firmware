@@ -11,6 +11,11 @@
 #include "app_canAlerts.h"
 #include "io_buzzer.h"
 #include "app_globals.h"
+#include "app_faultCheck.h"
+
+#include "app_pumpControl.h"
+
+#define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 
 static void initStateRunOnEntry(void)
 {
@@ -30,13 +35,15 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool all_states_ok = app_allStates_runOnTick100Hz();
+    const bool any_board_has_fault = app_boardFaultCheck();
+    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    bool is_inverter_on_or_drive_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
-                                         app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
-                                         app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    bool is_bms_in_correct_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
+                                   app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
+                                   app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (is_inverter_on_or_drive_state)
+    if (is_bms_in_correct_state && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
@@ -65,12 +72,26 @@ static void initStateRunOnTick100Hz(void)
     // }
 }
 
+static void initStateRunOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+
+    if (app_canRx_Debug_SetCoolantPump_CustomEnable_get())
+    {
+        app_pumpControl_setFlowRate(app_canRx_Debug_SetCoolantPump_CustomVal_get());
+    }
+    else
+    {
+        app_pumpControl_setFlowRate(DEFAULT_FLOW_RATE);
+    }
+}
+
 const State *app_initState_get(void)
 {
     static State init_state = {
         .name              = "INIT",
         .run_on_entry      = initStateRunOnEntry,
-        .run_on_tick_1Hz   = NULL,
+        .run_on_tick_1Hz   = initStateRunOnTick1Hz,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
         .run_on_exit       = NULL,
     };

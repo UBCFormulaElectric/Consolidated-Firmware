@@ -25,6 +25,7 @@
 #include "tasks.h"
 #include "hw_error.h"
 #include "hw_gpio.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,6 +52,7 @@ DMA_HandleTypeDef hdma_adc1;
 FDCAN_HandleTypeDef hfdcan1;
 
 I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c2;
 
 SD_HandleTypeDef hsd1;
 
@@ -137,8 +139,9 @@ static void MX_FDCAN1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_SDMMC1_SD_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_I2C2_Init(void);
+static void MX_SDMMC1_SD_Init(void);
 static void MX_I2C1_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
@@ -190,8 +193,9 @@ int main(void)
     MX_TIM3_Init();
     MX_ADC1_Init();
     MX_USART2_UART_Init();
-    MX_SDMMC1_SD_Init();
     MX_USART1_UART_Init();
+    MX_I2C2_Init();
+    MX_SDMMC1_SD_Init();
     MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
@@ -611,6 +615,52 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+ * @brief I2C2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2C2_Init(void)
+{
+    /* USER CODE BEGIN I2C2_Init 0 */
+
+    /* USER CODE END I2C2_Init 0 */
+
+    /* USER CODE BEGIN I2C2_Init 1 */
+
+    /* USER CODE END I2C2_Init 1 */
+    hi2c2.Instance              = I2C2;
+    hi2c2.Init.Timing           = 0x20A0C4DF;
+    hi2c2.Init.OwnAddress1      = 0;
+    hi2c2.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+    hi2c2.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+    hi2c2.Init.OwnAddress2      = 0;
+    hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    hi2c2.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+    hi2c2.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Analogue filter
+     */
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Digital filter
+     */
+    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2C2_Init 2 */
+
+    /* USER CODE END I2C2_Init 2 */
+}
+
+/**
  * @brief SDMMC1 Initialization Function
  * @param None
  * @retval None
@@ -660,9 +710,9 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 1 */
     htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = 0;
+    htim3.Init.Prescaler         = TIM3_PRESCALER - 1;
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = 65535;
+    htim3.Init.Period            = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -674,7 +724,7 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {
@@ -920,14 +970,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(L_SHDN_SNS_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PB10 PB11 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_10 | GPIO_PIN_11;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nPCM_EN_Pin */
     GPIO_InitStruct.Pin   = nPCM_EN_Pin;

@@ -47,16 +47,7 @@
             }
         },
         {
-            "label": "Build Embedded: BMS (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_BMS.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: DCM",
+            "label": "Build Embedded: DCM (Thruna)",
             "type": "shell",
             "command": "cmake --build . --target thruna_DCM.hex -- -j$(nproc)",
             "group": "build",
@@ -74,6 +65,42 @@
             }
         },
         {
+            "label": "Build Embedded: PDM (Thruna)",
+            "type": "shell",
+            "command": "cmake --build . --target thruna_PDM.hex -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: DIM (Thruna)",
+            "type": "shell",
+            "command": "cmake --build . --target thruna_DIM.hex -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: VC (Quadruna)",
+            "type": "shell",
+            "command": "cmake --build . --target quadruna_VC.hex -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
+            "label": "Build Embedded: BMS (Quadruna)",
+            "type": "shell",
+            "command": "cmake --build . --target quadruna_BMS.hex -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_deploy"
+            }
+        },
+        {
             "label": "Build Embedded: FSM (Quadruna)",
             "type": "shell",
             "command": "cmake --build . --target quadruna_FSM.hex -- -j$(nproc)",
@@ -83,18 +110,18 @@
             }
         },
         {
-            "label": "Build Embedded: PDM",
+            "label": "Build Embedded: RSM (Quadruna)",
             "type": "shell",
-            "command": "cmake --build . --target thruna_PDM.hex -- -j$(nproc)",
+            "command": "cmake --build . --target quadruna_RSM.hex -- -j$(nproc)",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
         {
-            "label": "Build Embedded: DIM",
+            "label": "Build Embedded: CRIT (Quadruna)",
             "type": "shell",
-            "command": "cmake --build . --target thruna_DIM.hex -- -j$(nproc)",
+            "command": "cmake --build . --target quadruna_CRIT.hex -- -j$(nproc)",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
@@ -103,7 +130,7 @@
         {
             "label": "Build Embedded: f4dev",
             "type": "shell",
-            "command": "cmake --build . --target f4dev.hex -- -j$(nproc)",
+            "command": "cmake --build . --target f4dev.elf -- -j$(nproc)",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
@@ -118,33 +145,7 @@
                 "cwd": "${workspaceFolder}/build_fw_deploy"
             }
         },
-        {
-            "label": "Build Embedded: VC",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_VC.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: RSM",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_RSM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: CRIT",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_CRIT.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
+
         {
             "label": "Build Tests: BMS (Thruna)",
             "type": "shell",
@@ -155,16 +156,7 @@
             }
         },
         {
-            "label": "Build Tests: BMS (Quadruna)",
-            "type": "shell",
-            "command": "cmake --build . --target quadruna_BMS_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: DCM",
+            "label": "Build Tests: DCM (Thruna)",
             "type": "shell",
             "command": "cmake --build . --target thruna_DCM_test -- -j$(nproc)",
             "group": "build",
@@ -182,7 +174,7 @@
             }
         },
         {
-            "label": "Build Tests: PDM",
+            "label": "Build Tests: PDM (Thruna)",
             "type": "shell",
             "command": "cmake --build . --target thruna_PDM_test -- -j$(nproc)",
             "group": "build",
@@ -191,7 +183,7 @@
             }
         },
         {
-            "label": "Build Tests: DIM",
+            "label": "Build Tests: DIM (Thruna)",
             "type": "shell",
             "command": "cmake --build . --target thruna_DIM_test -- -j$(nproc)",
             "group": "build",
@@ -200,9 +192,18 @@
             }
         },
         {
-            "label": "Build Tests: VC",
+            "label": "Build Tests: VC (Quadruna)",
             "type": "shell",
             "command": "cmake --build . --target quadruna_VC_test -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: BMS (Quadruna)",
+            "type": "shell",
+            "command": "cmake --build . --target quadruna_BMS_test -- -j$(nproc)",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
@@ -212,6 +213,24 @@
             "label": "Build Tests: FSM (Quadruna)",
             "type": "shell",
             "command": "cmake --build . --target quadruna_FSM_test -- -j$(nproc)",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: RSM (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_RSM_test",
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/build_fw_test"
+            }
+        },
+        {
+            "label": "Build Tests: CRIT (Quadruna)",
+            "type": "shell",
+            "command": "make -j`nproc` quadruna_CRIT_test",
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_test"
