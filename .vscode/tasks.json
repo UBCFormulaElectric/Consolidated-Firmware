@@ -38,51 +38,6 @@
             },
         },
         {
-            "label": "Build Embedded: BMS (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_BMS.hex",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: DCM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_DCM.hex",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: FSM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_FSM.hex",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: PDM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_PDM.hex",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: DIM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_DIM.hex",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
             "label": "Build Embedded: VC (Quadruna)",
             "type": "shell",
             "command": "make -j`nproc` quadruna_VC.hex",
@@ -143,52 +98,6 @@
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-
-        {
-            "label": "Build Tests: BMS (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_BMS_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: DCM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_DCM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: FSM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_FSM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: PDM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_PDM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: DIM (Thruna)",
-            "type": "shell",
-            "command": "make -j`nproc` thruna_DIM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
