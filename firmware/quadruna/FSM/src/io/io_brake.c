@@ -46,22 +46,22 @@ bool io_brake_isActuated(void)
 
 float io_brake_getFrontPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage((*config).front_brake));
+    return pressureFromVoltage(hw_adc_getVoltage(config->front_brake));
 }
 
 bool io_brake_frontPressureSensorOCSC(void)
 {
-    float front_pressure_voltage = hw_adc_getVoltage((*config).front_brake);
+    float front_pressure_voltage = hw_adc_getVoltage(config->front_brake);
     return pressureSensorOCSC(front_pressure_voltage);
 }
 
 float io_brake_getRearPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage((*config).rear_brake));
+    return pressureFromVoltage(hw_adc_getVoltage(config->rear_brake));
 }
 
 bool io_brake_rearPressureSensorOCSC(void)
 {
-    float rear_pressure_voltage = hw_adc_getVoltage((*config).rear_brake);
+    float rear_pressure_voltage = hw_adc_getVoltage(config->rear_brake);
     return pressureSensorOCSC(rear_pressure_voltage);
 }

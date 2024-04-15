@@ -20,22 +20,22 @@ float travelFromVoltage(float voltage)
 
 float io_suspension_getLeftTravel(void)
 {
-    return hw_adc_getVoltage((*config).front_left_suspension);
+    return hw_adc_getVoltage(config->front_left_suspension);
 }
 
 float io_suspension_getRightTravel(void)
 {
-    return hw_adc_getVoltage((*config).front_right_suspension);
+    return hw_adc_getVoltage(config->front_right_suspension);
 }
 
 bool io_suspension_leftSensorOCSC(void)
 {
-    float leftSensorVoltage = hw_adc_getVoltage((*config).front_left_suspension);
+    float leftSensorVoltage = hw_adc_getVoltage(config->front_left_suspension);
     return !(MIN_SUSPENSION_VOLTAGE <= leftSensorVoltage && leftSensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
 
 bool io_suspension_rightSensorOCSC(void)
 {
-    float rightSensorVoltage = hw_adc_getVoltage((*config).front_right_suspension);
+    float rightSensorVoltage = hw_adc_getVoltage(config->front_right_suspension);
     return !(MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage && rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
