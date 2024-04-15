@@ -18,7 +18,7 @@ if("${TARGET}" STREQUAL "test")
         "shared"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE
-        "thruna"
+        "quadruna"
     )
 
     set(CAN_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/app)

@@ -36,16 +36,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: BMS
-            ioc_dir: firmware/thruna/BMS/src/cubemx
-          - board: DCM
-            ioc_dir: firmware/thruna/DCM/src/cubemx
-          - board: FSM
-            ioc_dir: firmware/thruna/FSM/src/cubemx
-          - board: PDM
-            ioc_dir: firmware/thruna/PDM/src/cubemx
-          - board: DIM
-            ioc_dir: firmware/thruna/DIM/src/cubemx
           - board: VC
             ioc_dir: firmware/quadruna/VC/src/cubemx
           - board: BMS
@@ -100,11 +90,6 @@ jobs:
       fail-fast: false
       matrix:
         board:
-          - thruna_BMS
-          - thruna_DCM
-          - thruna_FSM
-          - thruna_PDM
-          - thruna_DIM
           - quadruna_VC
           - quadruna_BMS
           - quadruna_FSM
@@ -135,27 +120,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: FSM
-            car: thruna
-          - board: PDM
-            car: thruna
-          - board: BMS
-            car: thruna
-          - board: DCM
-            car: thruna
-          - board: DIM
-            car: thruna
           - board: VC
             car: quadruna
           - board: BMS
             car: quadruna
           - board: FSM
             car: quadruna
-# TODO uncomment when RSM and CRIT tests are readys
-#          - board: RSM
-#            car: quadruna
-#          - board: CRIT
-#            car: quadruna
+         - board: RSM
+           car: quadruna
+         - board: CRIT
+           car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest
