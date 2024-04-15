@@ -126,10 +126,10 @@ jobs:
             car: quadruna
           - board: FSM
             car: quadruna
-         - board: RSM
-           car: quadruna
-         - board: CRIT
-           car: quadruna
+          - board: RSM
+            car: quadruna
+          - board: CRIT
+            car: quadruna
 
     container:
       image: ubcformulaelectric/environment:latest
