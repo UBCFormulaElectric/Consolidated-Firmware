@@ -205,6 +205,8 @@
         ]
       }
     },
+
+    // ========== TESTS ==========
     {
       "name": "Debug Tests: VC (Quadruna)",
       "type": "cppdbg",
