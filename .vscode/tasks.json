@@ -38,51 +38,6 @@
             },
         },
         {
-            "label": "Build Embedded: BMS (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_BMS.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: DCM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_DCM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: FSM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_FSM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: PDM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_PDM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
-            "label": "Build Embedded: DIM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_DIM.hex -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-        {
             "label": "Build Embedded: VC (Quadruna)",
             "type": "shell",
             "command": "cmake --build . --target quadruna_VC.hex -- -j$(nproc)",
@@ -143,52 +98,6 @@
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}/build_fw_deploy"
-            }
-        },
-
-        {
-            "label": "Build Tests: BMS (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_BMS_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: DCM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_DCM_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: FSM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_FSM_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: PDM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_PDM_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: DIM (Thruna)",
-            "type": "shell",
-            "command": "cmake --build . --target thruna_DIM_test -- -j$(nproc)",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
             }
         },
         {
