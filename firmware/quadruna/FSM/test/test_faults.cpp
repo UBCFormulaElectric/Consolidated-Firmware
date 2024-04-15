@@ -88,7 +88,7 @@ TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero)
     LetTimePass(10);
 
     // Check before signal time has elapsed
-    LetTimePass(PAPPS_OCSC_TIME_TO_FAULT - 1);
+    LetTimePass(APPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
     ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
     ASSERT_FALSE(app_canAlerts_FSM_Fault_PappsOCSC_get());
@@ -108,7 +108,7 @@ TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero)
     // Clear condition, confirm fault resets
     fake_io_apps_isPrimaryOCSC_returns(false);
 
-    LetTimePass(10 + PAPPS_OCSC_TIME_TO_CLEAR - 1);
+    LetTimePass(10 + APPS_OCSC_TIME_TO_CLEAR - 1);
     ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
     ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
     ASSERT_TRUE(app_canAlerts_FSM_Fault_PappsOCSC_get());
@@ -135,7 +135,7 @@ TEST_F(FsmFaultsTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero)
     LetTimePass(10);
 
     // Check before signal time has elapsed
-    LetTimePass(SAPPS_OCSC_TIME_TO_FAULT - 1);
+    LetTimePass(APPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_FALSE(app_canAlerts_FSM_Fault_SappsOCSC_get());
     ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
     ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
@@ -155,7 +155,7 @@ TEST_F(FsmFaultsTest, sapps_ocsc_sets_mapped_pedal_percentage_to_zero)
     // Clear condition, confirm fault resets
     fake_io_apps_isSecondaryOCSC_returns(false);
 
-    LetTimePass(10 + PAPPS_OCSC_TIME_TO_CLEAR - 1);
+    LetTimePass(10 + APPS_OCSC_TIME_TO_CLEAR - 1);
     ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
     ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
     ASSERT_TRUE(app_canAlerts_FSM_Fault_SappsOCSC_get());
@@ -228,7 +228,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
         fake_io_apps_getPrimary_returns(test_params[i].papps_percentage);
         fake_io_apps_getSecondary_returns(test_params[i].sapps_percentage);
 
-        LetTimePass(10 + AGREEMENT_TIME_TO_FAULT - 1);
+        LetTimePass(10 + PAPPS_SAPPS_DISAGREEMENT_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].papps_percentage, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
         ASSERT_NEAR(test_params[i].sapps_percentage, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
         ASSERT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
@@ -252,7 +252,7 @@ TEST_F(FsmFaultsTest, apps_disagreement_sets_mapped_pedal_percentage_to_zero_and
             fake_io_apps_getSecondary_returns(
                 test_params[i].papps_percentage); // Set sapps to papps, so there is agreement
 
-            LetTimePass(10 + AGREEMENT_TIME_TO_CLEAR - 1);
+            LetTimePass(10 + PAPPS_SAPPS_DISAGREEMENT_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
             ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
             ASSERT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
@@ -297,7 +297,7 @@ TEST_F(FsmFaultsTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_se
         fake_io_apps_getPrimary_returns(test_params[i].apps_percentage);
         fake_io_apps_getSecondary_returns(test_params[i].apps_percentage);
         fake_io_brake_isActuated_returns(test_params[i].brake_actuated);
-        LetTimePass(10 + APP_BRAKE_TIME_TO_FAULT - 1);
+        LetTimePass(10 + APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT - 1);
         ASSERT_NEAR(test_params[i].apps_percentage, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
         ASSERT_NEAR(test_params[i].apps_percentage, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
         ASSERT_FALSE(app_canAlerts_FSM_Warning_BrakeAppsDisagreement_get());
@@ -320,7 +320,7 @@ TEST_F(FsmFaultsTest, brake_actuated_sets_mapped_pedal_percentage_to_zero_and_se
             fake_io_apps_getPrimary_returns(4); // Primary must be <5% to clear
             fake_io_apps_getSecondary_returns(4);
 
-            LetTimePass(10 + APP_BRAKE_TIME_TO_CLEAR - 1);
+            LetTimePass(10 + APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR - 1);
             ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
             ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
             ASSERT_TRUE(app_canAlerts_FSM_Warning_BrakeAppsDisagreement_get());
