@@ -122,7 +122,7 @@
       },
     },
     {
-      "name": "Debug Embedded: RSM (Quadruna)",
+      "name": "Debug Embedded: CRIT (Quadruna)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_deploy/firmware/quadruna/CRIT/quadruna_CRIT.hex",
       "symbolFiles": [
@@ -144,7 +144,7 @@
         "clearSearch": false, // Required for OpenOCD
         "decoders": [
           {
-            "label": "Debug logs: RSM",
+            "label": "Debug logs: CRIT",
             "port": 0,
             "type": "console"
           }
