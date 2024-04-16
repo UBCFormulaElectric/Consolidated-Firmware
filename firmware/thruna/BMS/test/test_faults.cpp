@@ -375,3 +375,66 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, true), 0);
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, false), 1);
 }
+
+TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning)
+{
+    fake_io_charger_isConnected_returns(false);
+    fake_io_airs_isNegativeClosed_returns(true);
+    fake_io_tractiveSystem_getCurrentHighResolution_returns(100.0f);
+    fake_io_tractiveSystem_getCurrentLowResolution_returns(100.0f);
+    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(3.5f);
+    // fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(0, 0, 3.5f);
+    // fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(0, 1, 3.1f);
+    // for (uint8_t seg = 0; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
+    // {
+    //     for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+    //     {
+    //         if (seg == 0 && cell == 10)
+    //         {
+    //             fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.5f);
+    //         }
+    //         else
+    //         {
+    //             fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.8f);
+    //         }
+    //     }
+    // }
+
+    SetInitialState(app_driveState_get());
+
+    LetTimePass(20);
+    ASSERT_TRUE(app_canAlerts_BMS_Warning_BlownCellFuse_get());
+}
+
+TEST_F(BmsFaultTest, check_blown_fuse_doesnt_falsely_trigger)
+{
+    SetInitialState(app_driveState_get());
+    fake_io_tractiveSystem_getCurrentHighResolution_returns(100.0f);
+    fake_io_tractiveSystem_getCurrentLowResolution_returns(100.0f);
+    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(3.8f);
+
+    LetTimePass(20);
+    ASSERT_FALSE(app_canAlerts_BMS_Warning_BlownCellFuse_get());
+}
+
+TEST_F(BmsFaultTest, check_blown_fuse_doesnt_trigger_when_below_current_threshold)
+{
+    SetInitialState(app_driveState_get());
+    fake_io_tractiveSystem_getCurrentHighResolution_returns(10.0f);
+    fake_io_tractiveSystem_getCurrentLowResolution_returns(10.0f);
+    for (uint8_t seg = 0; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            float cell_voltage = 3.8f;
+            if (seg == 0 && cell == 10)
+            {
+                cell_voltage = 3.5f;
+            }
+            fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, cell_voltage);
+        }
+    }
+
+    LetTimePass(20);
+    ASSERT_FALSE(app_canAlerts_BMS_Warning_BlownCellFuse_get());
+}
