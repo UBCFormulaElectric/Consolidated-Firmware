@@ -382,23 +382,29 @@ TEST_F(BmsFaultTest, check_blown_fuse_detected_as_warning)
     fake_io_airs_isNegativeClosed_returns(true);
     fake_io_tractiveSystem_getCurrentHighResolution_returns(100.0f);
     fake_io_tractiveSystem_getCurrentLowResolution_returns(100.0f);
-    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(3.5f);
-    // fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(0, 0, 3.5f);
-    // fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(0, 1, 3.1f);
-    // for (uint8_t seg = 0; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
-    // {
-    //     for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
-    //     {
-    //         if (seg == 0 && cell == 10)
-    //         {
-    //             fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.5f);
-    //         }
-    //         else
-    //         {
-    //             fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.8f);
-    //         }
-    //     }
-    // }
+
+    /*
+     * Reset return value override to false, this is set in the BmsBaseStateMachineTest constructor,
+     * which calls fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(3.8f);, setting the override.
+     * If you want to have individual cell return value modification, need to reset the override and set return values
+     * for each individually.
+     */
+    fake_io_ltc6813CellVoltages_getCellVoltage_reset();
+
+    for (uint8_t seg = 0; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            if (seg == 0 && cell == 10)
+            {
+                fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.5f);
+            }
+            else
+            {
+                fake_io_ltc6813CellVoltages_getCellVoltage_returnsForArgs(seg, cell, 3.8f);
+            }
+        }
+    }
 
     SetInitialState(app_driveState_get());
 
