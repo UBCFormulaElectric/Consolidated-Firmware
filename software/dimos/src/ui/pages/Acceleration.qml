@@ -2,11 +2,14 @@ import QtQuick
 import QtQuick.Shapes
 import components
 import canqml
+import constants
 
 Item {
     anchors.fill: parent
     id: innerAcceleration
-    property double rpmToSpeed: 3.1415926*60/39370
+    property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
+    property real sappsPedalPercentage: CanQML.FSM_SappsMappedPedalPercentage
+    property real pappsPedalPercentage: CanQML.FSM_PappsMappedPedalPercentage
 
     onActiveFocusChanged: {
         if (activeFocus) {
@@ -24,7 +27,7 @@ Item {
         font.family: "Roboto"
         font.bold: true
         font.pointSize: 72
-        text: parseInt(CanQML.FSM_LeftWheelSpeed*1000*rpmToSpeed) // do math for wheel
+        text: speed // do math for wheel
         color: "#ffffff"
     }
 
@@ -46,7 +49,7 @@ Item {
         // anchors.topMargin: 135
         width: 250
         height: 250
-        property real speed_percentage: (parseInt(CanQML.FSM_LeftWheelSpeed*1000*rpmToSpeed)) / 150;
+        property real speed_percentage: speed / 150;
         percentage: speed_percentage;
         stroke_width: 18
         start_angle: 225
@@ -83,7 +86,7 @@ Item {
         // anchors.topMargin: 135
         width: 325
         height: 325
-        percentage: 0.50
+        percentage: SappsPedalPercentage
         stroke_width: 15
         start_angle: 240
         end_angle: 160
@@ -115,7 +118,7 @@ Item {
         // anchors.topMargin: 135
         width: 325
         height: 325
-        percentage: 0.50
+        percentage: PappsPedalPercentage
         stroke_width: 15
         start_angle: -60
         end_angle: 20
@@ -136,6 +139,16 @@ Item {
         font.pointSize: 12
         font.bold: true
         text: "B"
+        color: "#FFFFFF"
+    }
+
+    // Debug
+    Text{
+        anchors.top: rightBar.bottom
+        font.family: "Roboto"
+        font.pointSize: 32
+        font.bold: true
+        text: PappsPedalPercentage + 20
         color: "#FFFFFF"
     }
 }

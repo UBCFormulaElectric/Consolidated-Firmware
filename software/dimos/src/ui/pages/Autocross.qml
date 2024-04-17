@@ -2,11 +2,12 @@ import QtQuick
 import QtQuick.Shapes
 import components
 import canqml
+import constants
 
 Item {
     anchors.fill: parent
-
     id: innerAutocross
+    property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
 
     onActiveFocusChanged: {
         if (activeFocus) {
@@ -24,7 +25,7 @@ Item {
         font.family: "Roboto"
         font.bold: true
         font.pointSize: 72
-        text: CanQML.FSM_LeftWheelSpeed // do math for wheel
+        text: speed // do math for wheel
         color: "#ffffff"
     }
 
@@ -46,7 +47,7 @@ Item {
         // anchors.topMargin: 135
         width: 250
         height: 250
-        property real speed_percentage: CanQML.FSM_LeftWheelSpeed / 150;
+        property real speed_percentage: speed / 150;
         percentage: speed_percentage;
         stroke_width: 8
         start_angle: 270
