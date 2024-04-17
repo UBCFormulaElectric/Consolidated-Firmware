@@ -1,14 +1,15 @@
 #pragma once
 
 #ifdef TARGET_EMBEDDED
+#include "hw_pwmInputFreqOnly.h"
 #include "hw_hal.h"
 
 /**
  * Initialize the left and right wheel speed sensors
- * @param htim_left_wheel_speed Timer handle for the left wheel speed
- * @param htim_right_wheel_speed Timer handle for the right wheel speed
+ * @param left_wheel_speed_config pwm config for left wheel speed sensor
+ * @param right_wheel_speed_config pwm config for right wheel speed sensor
  */
-void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef *htim_right_wheel_speed);
+void io_wheels_init(PwmInputFreqOnlyConfig *left_wheel_speed_config, PwmInputFreqOnlyConfig *right_wheel_speed_config);
 
 /**
  * Update the frequency for the left and right wheel speed sensors.

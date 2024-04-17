@@ -1,5 +1,5 @@
 #include "bootloader.h"
-#include "config.h"
+#include "bootloaderConfig.h"
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
@@ -7,6 +7,7 @@
 #include "cmsis_os.h"
 #include "hw_hal.h"
 #include "io_can.h"
+#include "io_log.h"
 #include "hw_flash.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
@@ -120,35 +121,26 @@ static const CanConfig can_config = {
     .rx_overflow_callback = canRxOverflow,
     .tx_overflow_callback = canTxOverflow,
 };
+
+#ifndef BOOT_AUTO
 static const Gpio bootloader_pin = {
-    .port = BOOT_GPIO_PORT,
-    .pin  = BOOT_GPIO_PIN,
+    .port = nBOOT_EN_GPIO_Port,
+    .pin  = nBOOT_EN_Pin,
 };
+#endif
 
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_init()
+void bootloader_preInit()
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("Bootloader reset!");
+}
 
-#ifndef BOOT_AUTO
-    // This file is shared between multiple boards, meaning we cannot rely on STM32CubeMX
-    // to initialize the peripherals. So we do it manually here.
-    __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-
-    GPIO_InitTypeDef bootloader_gpio_init = {
-        .Pin  = BOOT_GPIO_PIN,
-        .Mode = GPIO_MODE_INPUT,
-        .Pull = GPIO_PULLUP,
-    };
-    HAL_GPIO_Init(BOOT_GPIO_PORT, &bootloader_gpio_init);
-#endif
-
+void bootloader_init()
+{
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
@@ -172,11 +164,10 @@ void bootloader_init()
     {
         // Deinit peripherals.
 #ifndef BOOT_AUTO
-        HAL_GPIO_DeInit(BOOT_GPIO_PORT, BOOT_GPIO_PIN);
+        HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
 #endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
-        hw_can_deinit();
 
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);

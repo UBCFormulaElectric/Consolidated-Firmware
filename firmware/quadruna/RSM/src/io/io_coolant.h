@@ -4,12 +4,13 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+#include "hw_pwmInputFreqOnly.h"
 
 /**
  * Initializes a given timer handle for a flow meter
- * @param htim : The timer handle for both flow meters
+ * @param config: configuration wrapper for coolant pwm.
  */
-void io_coolant_init(TIM_HandleTypeDef *htim);
+void io_coolant_init(PwmInputFreqOnlyConfig *config);
 
 /**
  * Update the frequency for the primary flow meter's PWM outputs.
