@@ -1,29 +1,56 @@
 {
-	"VC": {
-		"msg_id": 1219,
-		"cycle_time": 100,
-		"signals": {
-			"VC_Status": {
-				"enum": "BootStatus"
-			}
-		}
-	},
-	"BMS": {
-		"msg_id": 1209,
-		"cycle_time": 100,
-		"signals": {
-			"BMS_Status": {
-				"enum": "BootStatus"
-			}
-		}
-	},
-	"H7Dev": {
-		"msg_id": 1309,
-		"cycle_time": 100,
-		"signals": {
-			"H7Dev_Status": {
-				"enum": "BootStatus"
-			}
-		}
-	}
+  "VC": {
+    "msg_id": 1219,
+    "cycle_time": 100,
+    "signals": {
+      "VC_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "BMS": {
+    "msg_id": 1209,
+    "cycle_time": 100,
+    "signals": {
+      "BMS_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "RSM": {
+    "msg_id": 1239,
+    "cycle_time": 100,
+    "signals": {
+      "RSM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "FSM": {
+    "msg_id": 1229,
+    "cycle_time": 100,
+    "signals": {
+      "FSM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "CRIT": {
+    "msg_id": 1249,
+    "cycle_time": 100,
+    "signals": {
+      "CRIT_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H7Dev": {
+    "msg_id": 1309,
+    "cycle_time": 100,
+    "signals": {
+      "H7Dev_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  }
 }
