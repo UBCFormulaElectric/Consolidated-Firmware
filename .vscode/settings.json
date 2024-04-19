@@ -9,4 +9,9 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"hw_adc.h": "c",
+		"io_sbgellipse.h": "c",
+		"hw_uart.h": "c"
+	},
 }
