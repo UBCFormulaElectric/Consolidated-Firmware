@@ -111,8 +111,8 @@ void CanRxTask::run()
         io_canRx_updateRxTableWithMessage(&message);
 #ifdef USING_TARGET_dev
         app_canRx_FSM_LeftWheelSpeed_update(10 - app_canRx_FSM_LeftWheelSpeed_get());
-        app_canRx_FSM_SappsMappedPedalPercentage_update(0.5);
-        app_canRx_FSM_PappsMappedPedalPercentage_update(0.5);
+        app_canRx_FSM_SappsMappedPedalPercentage_update(50);
+        app_canRx_FSM_PappsMappedPedalPercentage_update(30);
         // qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
 #endif
         can_table_mutex->unlock();

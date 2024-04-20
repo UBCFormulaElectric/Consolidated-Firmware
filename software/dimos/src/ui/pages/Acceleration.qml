@@ -86,7 +86,7 @@ Item {
         // anchors.topMargin: 135
         width: 325
         height: 325
-        percentage: SappsPedalPercentage
+        percentage: sappsPedalPercentage/100
         stroke_width: 15
         start_angle: 240
         end_angle: 160
@@ -118,7 +118,7 @@ Item {
         // anchors.topMargin: 135
         width: 325
         height: 325
-        percentage: PappsPedalPercentage
+        percentage: pappsPedalPercentage/100
         stroke_width: 15
         start_angle: -60
         end_angle: 20

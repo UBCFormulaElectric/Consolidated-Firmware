@@ -1,8 +1,11 @@
 import QtQuick
+import canqml
+import constants
 
 Item {
     anchors.fill: parent
-    property var speed: 60 // Change to canQML
+    property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
+    property int speedRatio: (60/CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed)*5
 
     Text {
         id: speedString
@@ -29,33 +32,12 @@ Item {
 
     Rectangle {
         anchors.centerIn: speedString
-        height: 200
-        width: 200
-        radius: 100
+        height: speedRatio + 200
+        width: speedRatio + 200
+        radius: (speedRatio + 200)/2
         border.color: "#36FB61"
         color: "transparent"
         border.width: 20
     }
 
-    Rectangle {
-        anchors.centerIn: speedString
-        height: 400
-        width: 400
-        radius: 200
-        border.color: "#36FB61"
-        opacity: 0.5
-        color: "transparent"
-        border.width: 5
-    }
-
-    Rectangle {
-        anchors.centerIn: speedString
-        height: 600
-        width: 600
-        radius: 300
-        border.color: "#36FB61"
-        opacity: 0.5
-        color: "transparent"
-        border.width: 5
-    }
 }
