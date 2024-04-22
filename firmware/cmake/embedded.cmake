@@ -252,6 +252,8 @@ function(generate_stm32cube_code
             ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
 
+    string(REGEX REPLACE "(.*)/([^/]*)$" "\\1/auto_generated/\\2" MD5_LOCATION "${IOC_PATH}")
+
     add_custom_command(
             OUTPUT ${IOC_PATH}.md5
             COMMENT "Generating drivers for ${TARGET_NAME}"
@@ -265,6 +267,8 @@ function(generate_stm32cube_code
 
             COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT_PY}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
+
+            COMMAND ${CMAKE_COMMAND} -E rename ${IOC_PATH}.md5 ${MD5_LOCATION}.md5
     )
 endfunction()
 
