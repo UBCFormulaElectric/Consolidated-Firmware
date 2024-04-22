@@ -14,30 +14,20 @@ static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
     pwm_input->frequency_hz = frequency_hz;
 }
 
-void hw_pwmInputFreqOnly_init(
-    PwmInputFreqOnly     *pwm_input,
-    TIM_HandleTypeDef    *htim,
-    float                 tim_frequency_hz,
-    uint32_t              tim_channel,
-    uint32_t              tim_auto_reload_reg,
-    HAL_TIM_ActiveChannel tim_active_channel)
+void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, PwmInputFreqOnlyConfig *config)
 {
-    assert(htim != NULL);
+    assert((*config).htim != NULL);
     assert(pwm_input != NULL);
 
-    pwm_input->frequency_hz        = 0.0f;
-    pwm_input->htim                = htim;
-    pwm_input->tim_frequency_hz    = tim_frequency_hz;
-    pwm_input->tim_channel         = tim_channel;
-    pwm_input->tim_auto_reload_reg = tim_auto_reload_reg;
-    pwm_input->tim_active_channel  = tim_active_channel;
-    pwm_input->prev_rising_edge    = 0U;
-    pwm_input->curr_rising_edge    = 0U;
-    pwm_input->first_tick          = true;
-    pwm_input->tim_overflow_count  = 0U;
+    pwm_input->frequency_hz       = 0.0f;
+    pwm_input->config             = config;
+    pwm_input->prev_rising_edge   = 0U;
+    pwm_input->curr_rising_edge   = 0U;
+    pwm_input->first_tick         = true;
+    pwm_input->tim_overflow_count = 0U;
 
-    HAL_TIM_IC_Start_IT(htim, tim_channel);
-    HAL_TIM_Base_Start_IT(htim);
+    HAL_TIM_IC_Start_IT((*config).htim, (*config).tim_channel);
+    HAL_TIM_Base_Start_IT((*config).htim);
 }
 
 float hw_pwmInputFreqOnly_getFrequency(const PwmInputFreqOnly *const pwm_input)
@@ -47,12 +37,12 @@ float hw_pwmInputFreqOnly_getFrequency(const PwmInputFreqOnly *const pwm_input)
 
 TIM_HandleTypeDef *hw_pwmInputFreqOnly_getTimerHandle(const PwmInputFreqOnly *const pwm_input)
 {
-    return pwm_input->htim;
+    return (*(pwm_input->config)).htim;
 }
 
 HAL_TIM_ActiveChannel hw_pwmInputFreqOnly_getTimerActiveChannel(const PwmInputFreqOnly *const pwm_input)
 {
-    return pwm_input->tim_active_channel;
+    return (*(pwm_input->config)).tim_active_channel;
 }
 
 void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
@@ -66,13 +56,15 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
 
     if (pwm_input->first_tick)
     {
-        pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->tim_channel);
-        pwm_input->first_tick       = false;
+        pwm_input->curr_rising_edge =
+            HAL_TIM_ReadCapturedValue((*(pwm_input->config)).htim, (*(pwm_input->config)).tim_channel);
+        pwm_input->first_tick = false;
     }
     else
     {
         pwm_input->prev_rising_edge = pwm_input->curr_rising_edge;
-        pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(pwm_input->htim, pwm_input->tim_channel);
+        pwm_input->curr_rising_edge =
+            HAL_TIM_ReadCapturedValue((*(pwm_input->config)).htim, (*(pwm_input->config)).tim_channel);
 
         uint32_t       rising_edge_delta;
         const uint32_t prev_rising_edge = pwm_input->prev_rising_edge;
@@ -81,13 +73,13 @@ void hw_pwmInputFreqOnly_tick(PwmInputFreqOnly *const pwm_input)
         if (curr_rising_edge > prev_rising_edge)
         {
             rising_edge_delta = curr_rising_edge - prev_rising_edge;
-            setFrequency(pwm_input, pwm_input->tim_frequency_hz / (float)rising_edge_delta);
+            setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
         }
         else if (curr_rising_edge < prev_rising_edge)
         {
             // Occurs when the counter rolls over
-            rising_edge_delta = pwm_input->tim_auto_reload_reg - prev_rising_edge + curr_rising_edge + 1;
-            setFrequency(pwm_input, pwm_input->tim_frequency_hz / (float)rising_edge_delta);
+            rising_edge_delta = (*(pwm_input->config)).tim_auto_reload_reg - prev_rising_edge + curr_rising_edge + 1;
+            setFrequency(pwm_input, (*(pwm_input->config)).tim_frequency_hz / (float)rising_edge_delta);
         }
         else
         {

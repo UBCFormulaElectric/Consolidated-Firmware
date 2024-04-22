@@ -1,12 +1,25 @@
 #pragma once
 
 #include <stdbool.h>
+#include "app_utils.h"
 
+#ifdef TARGET_EMBEDDED
+#include "hw_adc.h"
+
+typedef struct
+{
+    AdcChannel papps;
+    AdcChannel sapps;
+} AppsConfig;
+
+#else
+EMPTY_STRUCT(AppsConfig)
+#endif
 /**
  * Performs initial calculations for the rest and max angle of PAPPS and SAPPS
- * @return
+ * @param apps_config a pointer to a struct w/ adc pins for apps1 and apps2
  */
-void io_apps_init(void);
+void io_apps_init(AppsConfig *apps_config);
 
 /**
  * Calculates pedal percentage by comparing the current angle to the max angle

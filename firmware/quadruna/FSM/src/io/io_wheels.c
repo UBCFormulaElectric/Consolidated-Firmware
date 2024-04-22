@@ -1,7 +1,6 @@
 #include "io_wheels.h"
 #include <assert.h>
 #include <math.h>
-#include "main.h"
 #include "app_units.h"
 #include "hw_pwmInputFreqOnly.h"
 
@@ -13,18 +12,10 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 
 static PwmInputFreqOnly left_wheel_speed_sensor, right_wheel_speed_sensor;
 
-void io_wheels_init(TIM_HandleTypeDef *htim_left_wheel_speed_sensor, TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
+void io_wheels_init(PwmInputFreqOnlyConfig *left_wheel_speed_config, PwmInputFreqOnlyConfig *right_wheel_speed_config)
 {
-    assert(htim_left_wheel_speed_sensor != NULL);
-    assert(htim_right_wheel_speed_sensor != NULL);
-
-    hw_pwmInputFreqOnly_init(
-        &left_wheel_speed_sensor, htim_left_wheel_speed_sensor, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_2,
-        TIM12_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_2);
-
-    hw_pwmInputFreqOnly_init(
-        &right_wheel_speed_sensor, htim_right_wheel_speed_sensor, TIMx_FREQUENCY / TIM12_PRESCALER, TIM_CHANNEL_1,
-        TIM12_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+    hw_pwmInputFreqOnly_init(&left_wheel_speed_sensor, right_wheel_speed_config);
+    hw_pwmInputFreqOnly_init(&right_wheel_speed_sensor, left_wheel_speed_config);
 }
 
 void io_wheels_inputCaptureCallback(TIM_HandleTypeDef *htim)

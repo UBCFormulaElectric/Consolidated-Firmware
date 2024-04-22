@@ -10,6 +10,8 @@
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
 #define BRAKE_PRESSURE_SENSOR_MAX_V (5.0f)
 
+static BrakeConfig *config;
+
 static bool pressureSensorOCSC(float pressure_voltage)
 {
     return !(BRAKE_PRESSURE_OC_THRESHOLD_V <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD_V);
@@ -31,6 +33,11 @@ static float pressureFromVoltage(float voltage)
     return psi_per_volt * (voltage - min_input_voltage);
 }
 
+void io_brake_init(BrakeConfig *brake_config)
+{
+    config = brake_config;
+}
+
 bool io_brake_isActuated(void)
 {
     return io_brake_getFrontPressurePsi() > BRAKE_PRESSURE_PRESSED_THRESHOLD_PSI ||
@@ -39,22 +46,22 @@ bool io_brake_isActuated(void)
 
 float io_brake_getFrontPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage(ADC1_IN7_BPS_F));
+    return pressureFromVoltage(hw_adc_getVoltage(config->front_brake));
 }
 
 bool io_brake_frontPressureSensorOCSC(void)
 {
-    float front_pressure_voltage = hw_adc_getVoltage(ADC1_IN7_BPS_F);
+    float front_pressure_voltage = hw_adc_getVoltage(config->front_brake);
     return pressureSensorOCSC(front_pressure_voltage);
 }
 
 float io_brake_getRearPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage(ADC1_IN15_BPS_B));
+    return pressureFromVoltage(hw_adc_getVoltage(config->rear_brake));
 }
 
 bool io_brake_rearPressureSensorOCSC(void)
 {
-    float rear_pressure_voltage = hw_adc_getVoltage(ADC1_IN15_BPS_B);
+    float rear_pressure_voltage = hw_adc_getVoltage(config->rear_brake);
     return pressureSensorOCSC(rear_pressure_voltage);
 }
