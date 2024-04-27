@@ -143,6 +143,7 @@ int io_fileSystem_close(int fd)
         return FILE_ERROR;
     }
     int err = lfs_file_close(&lfs, &files[fd]);
+    err = lfs_file_close(&lfs, &files[fd]);
     if (err < 0)
     {
         return lfsErrorToFsError(err);

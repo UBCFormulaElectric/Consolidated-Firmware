@@ -57,7 +57,7 @@ static void can_msg_received_callback(CanMsg *rx_msg);
 static bool sd_functional(void);
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = can_msg_received_callback };
-SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
+SdCard    sd  = { .hsd = &hsd1, .timeout = 1000 };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
