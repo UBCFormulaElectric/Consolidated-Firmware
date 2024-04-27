@@ -135,9 +135,7 @@ if ("${TARGET}" STREQUAL "deploy")
 
 
     # Add your replacement function source file to the littlefs_cm7 library
-    target_sources(littlefs_cm7 PRIVATE "src/io/io_custom_lfs_assert.c")
-
-    # Add a compile definition to override the LFS_ASSERT macro
+    # target_sources(littlefs_cm7 PRIVATE "src/io/io_custom_lfs_assert.c")
     target_compile_definitions(littlefs_cm7 PRIVATE LFS_ASSERT=custom_assert)
 
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
