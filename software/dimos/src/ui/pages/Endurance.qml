@@ -80,22 +80,40 @@ Item {
         width: parent.width
         columns: 2
         rows: 2
-        Item {
-            Layout.fillWidth: true
-            Layout.rowSpan: 1
-            Layout.columnSpan: 1
-            Text {
-                text: "VAL1"
-                color: "darkgrey"
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-            }
-            Text {
-                text: "100V"
-                color: "white"
-                font.pixelSize: 20
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
+        Repeater {
+            model: [{
+                key: "VAL 1",
+                value: "100V"
+            }, {
+                key: "VAL 2",
+                value: "100V"
+            }, {
+                key: "VAL 3",
+                value: "100V"
+            }, {
+                key: "VAL 4",
+                value: "100V"
+            }]
+            Item {
+                Layout.fillWidth: true
+                Layout.rowSpan: 1
+                Layout.columnSpan: 1
+                Layout.preferredHeight: 30
+                required property var modelData
+
+                Text {
+                    text: modelData.key
+                    color: "darkgrey"
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                }
+                Text {
+                    text: modelData.value
+                    color: "white"
+                    font.pixelSize: 20
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                }
             }
         }
     }
