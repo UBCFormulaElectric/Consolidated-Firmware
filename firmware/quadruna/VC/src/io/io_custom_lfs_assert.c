@@ -1,6 +1,8 @@
 #include "cmsis_os.h"
 #include <assert.h>
-void custom_assert(int condition)
+
+// replace the default lfs assert function
+void custom_lfs_assert(int condition)
 {
     // if the condition is false, assert
     if (!condition)
