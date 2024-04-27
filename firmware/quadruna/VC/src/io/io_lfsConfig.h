@@ -1,11 +1,10 @@
 #include "hw_sd.h"
 #include <stdint.h>
+#include <lfs.h>
 
 void io_lfsConfig_showdown(void);
 
 #define LFS_NO_MALLOC 1
-#define LFS_ASSERT(test) ((test) ? (void)0 : lfsAssert())
-#include <lfs.h>
 // those factor will be multiple with the block size
 #define IO_LFS_BLOCK_SIZE_FACTOR 1
 #define IO_LFS_READ_SIZE_FACTOR 1

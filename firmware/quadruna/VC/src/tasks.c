@@ -52,6 +52,9 @@ extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 
 static void can_msg_received_callback(CanMsg *rx_msg);
+
+// check if the SD peripiral is functional
+static bool sd_functional(void);
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = can_msg_received_callback };
 SdCard    sd  = { .hsd = &hsd1, .timeout = osWaitForever };
@@ -108,7 +111,7 @@ static const CanConfig canLogging_config = {
     .rx_overflow_clear_callback = NULL,
 
 };
-
+extern Gpio            sd_present;
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
 static const Gpio      bat_i_sns_nflt   = { .port = BAT_I_SNS_nFLT_GPIO_Port, .pin = BAT_I_SNS_nFLT_Pin };
 static const BinaryLed led              = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
@@ -362,8 +365,12 @@ void tasks_init(void)
     {
         Error_Handler();
     }
-    io_fileSystem_init();
-    io_canLogging_init(&canLogging_config);
+
+    if (sd_functional())
+    {
+        io_fileSystem_init();
+        io_canLogging_init(&canLogging_config);
+    }
 
     if (!io_imu_init())
     {
@@ -512,6 +519,12 @@ void tasks_runLogging(void)
     static uint32_t count = 0;
     for (;;)
     {
+        if (!sd_functional())
+        {
+            osDelay(1000);
+            continue;
+        }
+
         io_canLogging_recordMsgFromQueue();
         count++;
         write_count++;
@@ -526,9 +539,17 @@ void tasks_runLogging(void)
 static void can_msg_received_callback(CanMsg *rx_msg)
 {
     // TODO: check gpio present
-    io_can_msgReceivedCallback(rx_msg);        // push to queue
-    io_canLogging_msgReceivedCallback(rx_msg); // push to logging queue
+    io_can_msgReceivedCallback(rx_msg); // push to queue
+    if (sd_functional())
+    {
+        io_canLogging_msgReceivedCallback(rx_msg); // push to logging queue
+    }
     read_count++;
+}
+
+static bool sd_functional(void)
+{
+    return !hw_gpio_readPin(&sd_present);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)

@@ -162,7 +162,7 @@ void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
-void        StartTask06(void *argument);
+void        RunLoggingTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -253,7 +253,7 @@ int main(void)
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
 
     /* creation of TaskLogging */
-    TaskLoggingHandle = osThreadNew(StartTask06, NULL, &TaskLogging_attributes);
+    TaskLoggingHandle = osThreadNew(RunLoggingTask, NULL, &TaskLogging_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1148,15 +1148,15 @@ void RunTask1Hz(void *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTask06 */
-void StartTask06(void *argument)
+void RunLoggingTask(void *argument)
 {
-    /* USER CODE BEGIN StartTask06 */
+    /* USER CODE BEGIN RunLoggingTask */
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        tasks_runLogging();
     }
-    /* USER CODE END StartTask06 */
+    /* USER CODE END RunLoggingTask */
 }
 
 /**

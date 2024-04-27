@@ -86,6 +86,11 @@ void io_can_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
+    if (config == NULL)
+    {
+        return;
+    }
+
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.

@@ -23,7 +23,6 @@ static uint32_t current_bootcount;
 static int      log_fd; // fd for the log file
 
 static uint8_t logging_error_remaining = 5; // number of times to error before stopping logging
-extern Gpio    sd_present;
 
 static char current_path[10];
 
@@ -36,16 +35,10 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-// assume the lfs is already mounted
+// assume the filesystem is already inited
 static int initLoggingFileSystem()
 {
     // early return
-    if (!hw_gpio_readPin(&sd_present))
-    {
-        logging_error_remaining = 0;
-        return 1;
-    }
-
     uint32_t bootcount = 0;
     current_bootcount  = io_fileSystem_getBootCount();
 
@@ -63,14 +56,14 @@ static int initLoggingFileSystem()
 static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
 {
     log->id        = msg->std_id;
-    log->dlc       = msg->dlc - 1;
+    log->dlc       = msg->dlc;
     log->timestamp = io_time_getCurrentMs();
     memcpy(log->data, msg->data, 8);
 }
 
 static bool isLoggingEnabled()
 {
-    return (logging_error_remaining > 0) && !hw_gpio_readPin(&sd_present);
+    return (logging_error_remaining > 0);
 }
 
 int io_canLogging_init(const CanConfig *can_config)
@@ -125,8 +118,8 @@ int io_canLogging_recordMsgFromQueue(void)
 void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
-
-    if (config != NULL)
+    CanMsgLog       msg;
+    if (config == NULL)
         return;
 
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
@@ -137,7 +130,9 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+
+    convertCanMsgToLog(rx_msg, &msg);
+    if (osMessageQueuePut(message_queue_id, &msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         config->rx_overflow_callback(++rx_overflow_count);
