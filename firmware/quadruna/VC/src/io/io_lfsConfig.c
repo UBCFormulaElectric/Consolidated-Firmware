@@ -8,15 +8,23 @@ char lfs_lookahead_buffer[IO_LFS_LOOKAHEAD_SIZE];
 
 extern Gpio sd_present;
 
-void io_lfsConfig_showdown(void)
+// replace the default lfs assert function
+void io_custom_lfs_assert(int condition)
 {
-    if (osKernelGetState() == osKernelRunning)
+    // if the condition is false, assert
+    if (!condition)
     {
-        osDelay(osWaitForever);
-        return;
-    }
+        // if in an RTOS context, suspend the task
+        if (osKernelGetState() == osKernelRunning)
+        {
+            osThreadSuspend(osThreadGetId());
+        }
 
-    assert(0);
+        else
+        {
+            assert(0);
+        }
+    }
 }
 
 static bool sdCardReady()
