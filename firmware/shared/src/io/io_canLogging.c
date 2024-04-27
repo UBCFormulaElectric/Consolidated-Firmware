@@ -126,16 +126,18 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
+    if (config != NULL)
+        return;
+
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
-       return;
+        return;
     }
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config != NULL &&
-        config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(message_queue_id, rx_msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
         config->rx_overflow_callback(++rx_overflow_count);
