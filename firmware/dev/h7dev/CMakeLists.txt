@@ -12,7 +12,9 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
     )
 
@@ -86,6 +88,8 @@ if("${TARGET}" STREQUAL "deploy")
         "cm7"
         TRUE
     )
+
+    add_compile_definitions(PRIVATE LFS_ASSERT=io_custom_lfs_assert)
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
 
     # Build bootloader.
