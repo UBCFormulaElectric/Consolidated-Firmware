@@ -115,6 +115,10 @@ void GPIOMonitorTask::run()
             qWarning("GPIO READ ERROR: %d", static_cast<int>(l_event.get_error()));
             continue;
         }
+
+        qInfo(
+            "Got GPIO event: %s, %d", gpio_inputs_metadata.at(i).enum_name.c_str(),
+            static_cast<int>(l_event.get_data()));
         gpio_handler_funcs.at(i)(l_event.get_data());
     }
     qInfo("KILL GPIO thread: %s", gpio_inputs_metadata.at(i).enum_name.c_str());

@@ -63,12 +63,18 @@ Result<JsonCanMsg, CanReadError> Can_Read()
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 {
     if (!CanInterface.has_value())
+    {
+        qInfo("Can interface not created error!!");
         return CanWriteError::WriteInterfaceNotCreated;
+    }
 
     try
     {
         if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0)
+        {
+            qInfo("Socket Write Error");
             return CanWriteError::SocketWriteError;
+        }
     }
     catch (...)
     {

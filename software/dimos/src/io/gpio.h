@@ -51,7 +51,8 @@ enum class line_read_error
 {
     LINE_READ_SYSTEM_ERROR, // caused by not requesting?
     DEV_DUMMY_DATA,         // returned on dev gpio
-    TIMEOUT
+    TIMEOUT,
+    GPIO_NOT_INITALIZED
 };
 const std::map<line_read_error, std::string> line_read_error_str{ { line_read_error::LINE_READ_SYSTEM_ERROR,
                                                                     "LINE_READ_SYSTEM_ERROR" },

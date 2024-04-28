@@ -7,7 +7,7 @@
 template <typename Data, typename Error> class Result : private std::variant<Data, Error>
 {
   private:
-    mutable bool checked_error = false;
+    mutable bool type_checked = false;
 
   public:
     /**
@@ -23,22 +23,33 @@ template <typename Data, typename Error> class Result : private std::variant<Dat
 
     [[nodiscard]] bool has_error() const
     {
-        checked_error = true;
+        type_checked = true;
         return std::holds_alternative<Error>(*this);
     }
 
-    [[nodiscard]] Error get_error() const { return std::get<Error>(*this); }
-
-    [[nodiscard]] bool has_data() const
+    [[nodiscard]] Error get_error() const
     {
-        if (!checked_error)
+        if (!type_checked)
         {
             qWarning("Result has not been checked for error");
         }
+        return std::get<Error>(*this);
+    }
+
+    [[nodiscard]] bool has_data() const
+    {
+        type_checked = true;
         return std::holds_alternative<Data>(*this);
     }
 
-    [[nodiscard]] Data get_data() const { return std::get<Data>(*this); }
+    [[nodiscard]] Data get_data() const
+    {
+        if (!type_checked)
+        {
+            qWarning("Result has not been checked for error");
+        }
+        return std::get<Data>(*this);
+    }
 
     Result(const Data &data) : std::variant<Data, Error>(data) {}    // NOLINT(*-explicit-constructor)
     Result(const Error &error) : std::variant<Data, Error>(error) {} // NOLINT(*-explicit-constructor)
