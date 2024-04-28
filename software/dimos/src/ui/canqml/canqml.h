@@ -48,6 +48,7 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(FSM_LeftWheelSpeed, float)
     REGISTER_CAN_MESSAGE(FSM_PappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(FSM_SappsMappedPedalPercentage, float)
+    REGISTER_CAN_MESSAGE(BMS_Soc, float)
 
   signals:
     void notify_all_signals();

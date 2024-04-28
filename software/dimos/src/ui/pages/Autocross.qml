@@ -8,6 +8,7 @@ Item {
     anchors.fill: parent
     id: innerAutocross
     property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
+    property real stateOfCharge: CanQML.BMS_Soc;
 
     onActiveFocusChanged: {
         if (activeFocus) {
@@ -74,5 +75,15 @@ Item {
                 easing.type: Easing.InOutQuad;
             }
         }
+    }
+
+    Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: acclerationSpeedometer.bottom
+        anchors.topMargin: 30
+        font.family: "Roboto"
+        font.pointSize: 24
+        text: "Uwu Points: " + stateOfCharge
+        color: "#ffffff"
     }
 }

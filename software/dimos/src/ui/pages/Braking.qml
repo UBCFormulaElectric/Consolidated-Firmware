@@ -1,6 +1,7 @@
 import QtQuick
 import canqml
 import constants
+// import QtGraphicalEffects
 
 Item {
     anchors.fill: parent
@@ -31,6 +32,7 @@ Item {
     }
 
     Rectangle {
+        id: speedRing
         anchors.centerIn: speedString
         height: speedRatio + 200
         width: speedRatio + 200
@@ -39,5 +41,14 @@ Item {
         color: "transparent"
         border.width: 20
     }
+
+    // Glow {
+    //     // set visible true when mark is hit
+    //     anchors.fill: speedRing
+    //     radius: 8
+    //     samples: 17
+    //     color: "#36FB61"
+    //     source: speedRing
+    // }
 
 }

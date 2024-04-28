@@ -4,6 +4,7 @@ import components
 import canqml
 
 Item {
+    property real stateOfCharge: CanQML.BMS_Soc/100;
     property bool first_visit_complete: false
     onFocusChanged: {
         if (focus) {
@@ -123,7 +124,7 @@ Item {
                     bg_color: "#40B8B8B8" // NOTE THAT THIS IS "AARRGGBB" FORMAT
                     bg_percentage: 1
 
-                    percentage: 0.79
+                    percentage: stateOfCharge
                     start_angle: 90
                     end_angle: -270
                     Image {
