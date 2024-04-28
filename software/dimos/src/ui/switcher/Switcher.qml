@@ -9,7 +9,6 @@ FocusScope {
     anchors.fill: parent
     readonly property int appIconSize: 225
     focus: true
-    visible: activeFocus
 
     // todo improved model
     ListModel {
@@ -70,14 +69,20 @@ FocusScope {
     GaussianBlur {
         anchors.fill: parent
         source: mainStack
-        radius: 32
+        radius: switcher.activeFocus ? 32 : 0
+        Behavior on radius {
+            NumberAnimation {
+                duration: 50
+                easing.type: Easing.Linear
+            }
+        }
         samples: 32
-        visible: switcher.activeFocus
     }
 
     // todo custom animations
     PathView {
         anchors.fill: parent
+        visible: parent.activeFocus
         model: appModel
         delegate: appIcon
         id: appIconPathView
@@ -121,6 +126,10 @@ FocusScope {
         highlightRangeMode: PathView.StrictlyEnforceRange
         clip: true
         pathItemCount: 5
+
+        Component.onCompleted: {
+            currentIndex = mainStack.currentIndex
+        }
 
         DimSwitches {
             function refocusMainStack() {

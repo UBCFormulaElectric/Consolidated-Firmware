@@ -1,6 +1,7 @@
 {
-  "messages": [
-    "FSM_Wheels",
-    "FSM_Apps"
-  ]
+    "messages": [
+        "FSM_Wheels",
+        "FSM_Apps",
+        "BMS_StateOfCharge"
+    ]
 }
