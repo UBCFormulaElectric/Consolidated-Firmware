@@ -195,6 +195,13 @@ FocusScope {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 7
         anchors.horizontalCenter: parent.horizontalCenter
+        opacity: parent.activeFocus ? 1 : 0
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 100
+                easing.type: Easing.Linear
+            }
+        }
         color: "white"
         font.pixelSize: 24
         font.weight: 600

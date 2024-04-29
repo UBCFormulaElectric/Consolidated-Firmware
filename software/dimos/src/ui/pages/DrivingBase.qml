@@ -12,7 +12,7 @@ Item {
     Item {
         id: notifParent
         height: parent.height
-        width: parent.width * (1-child_ratio)
+        width: parent.width * (1 - child_ratio)
 
         Squircle {
             id: notifContainer
@@ -32,14 +32,12 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 source: "qrc:/fe_logo.svg"
             }
-
             GaussianBlur {
                 anchors.fill: logoImage
                 source: logoImage
                 radius: 60
                 samples: 16
             }
-
         }
 
         ListModel {
@@ -66,10 +64,10 @@ Item {
         Component {
             id: errorDelegate
             Item {
-                property int iconSize: notifContainer.height*0.15 * 0.8
+                property int iconSize: notifContainer.height * 0.15 * 0.8
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width*0.95
-                height: notifContainer.height*0.15
+                width: parent.width * 0.95
+                height: notifContainer.height * 0.15
                 Rectangle {
                     anchors.fill: parent
                     id: errorContainer
@@ -80,7 +78,7 @@ Item {
                     Rectangle { // Todo: add icons
                         id: icon
                         anchors.top: parent.top
-                        anchors.topMargin: parent.height*0.1
+                        anchors.topMargin: parent.height * 0.1
                         anchors.left: parent.left
                         anchors.leftMargin: 10
                         width: iconSize
@@ -93,7 +91,7 @@ Item {
                         anchors.left: icon.right
                         anchors.leftMargin: 10
                         anchors.top: parent.top
-                        anchors.topMargin: parent.height*0.2
+                        anchors.topMargin: parent.height * 0.2
                         font.family: "SF Pro"
                         font.bold: true
                         font.pointSize: 20
@@ -104,7 +102,7 @@ Item {
                         anchors.left: icon.right
                         anchors.leftMargin: 10
                         anchors.top: parent.top
-                        anchors.topMargin: parent.height*0.5
+                        anchors.topMargin: parent.height * 0.5
                         anchors.horizontalCenter: parent.horizontalCenter
                         font.family: "SF Pro"
                         font.pointSize: 14

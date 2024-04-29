@@ -5,5 +5,6 @@ qt_add_qml_module(Components
         URI components
         VERSION 1.0
         SOURCES ${COMPONENT_SOURCES}
+        QML_FILES Speedometer.qml
         RESOURCE_PREFIX /
 )

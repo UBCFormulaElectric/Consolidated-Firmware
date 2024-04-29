@@ -163,6 +163,7 @@ Result<std::monostate, GPIO_teardown_errors> teardown()
     while (!gpio_monitor_threads.empty())
     {
         GPIOMonitorTask *gpio_monitor_thread = gpio_monitor_threads.back();
+        gpio_monitor_thread->quit();
         gpio_monitor_thread->wait();
         delete gpio_monitor_thread;
         gpio_monitor_threads.pop_back();
