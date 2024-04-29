@@ -1,2 +1,0 @@
-add_subdirectory(f4boot)
-add_subdirectory(h7boot)

@@ -10,6 +10,7 @@
 #include "io_led.h"
 #include "io_switch.h"
 #include "tasks.h"
+#include "app_heartbeatMonitor.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
@@ -73,6 +74,10 @@ static void mainStateRunOnTick100Hz(void)
             io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
+
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 }
 
 static void mainStateRunOnEntry(void) {}
