@@ -2,14 +2,21 @@ import QtQuick
 import QtQuick.Layouts
 import components
 
-FocusScope {
+Item {
     anchors.fill: parent
 
+    onActiveFocusChanged: {
+        if (activeFocus) {
+            enduranceSpeedometer.startup_animation_running = true
+        }
+    }
+
     Speedometer {
+        id: enduranceSpeedometer
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: -40
-        id: enduranceSpeedometer
+        startup_animation_running: false
     }
 
     ColumnLayout {
