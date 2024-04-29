@@ -1,7 +1,7 @@
 import QtQuick
 import canqml
 import constants
-// import QtGraphicalEffects
+import Qt5Compat.GraphicalEffects
 
 Item {
     anchors.fill: parent
@@ -42,13 +42,13 @@ Item {
         border.width: 20
     }
 
-    // Glow {
-    //     // set visible true when mark is hit
-    //     anchors.fill: speedRing
-    //     radius: 8
-    //     samples: 17
-    //     color: "#36FB61"
-    //     source: speedRing
-    // }
+    Glow {
+         // set visible true when mark is hit
+         anchors.fill: speedRing
+         radius: 10
+         samples: 20
+         color: "#36FB61"
+         source: speedRing
+    }
 
 }
