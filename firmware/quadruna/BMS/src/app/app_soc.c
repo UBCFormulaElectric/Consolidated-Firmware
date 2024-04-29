@@ -117,6 +117,32 @@ float app_soc_getOcvFromSoc(float soc_percent)
     return ocv_soc_lut[lut_index];
 }
 
+float app_soc_get0cvFromSocNew(float soc_percent)
+{
+    float x = soc_percent;
+
+    if (x < 5.0f)
+    {
+        x = 5.0f;
+    }
+    else if (x > 100.0f)
+    {
+        x = 100.0f;
+    }
+
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x4 = x3 * x;
+
+    float ocv = -1e-8f * x4    // Calculate x^4 term
+                + 3e-6f * x3   // Calculate x^3 term
+                - 0.0003f * x2 // Calculate x^2 term
+                + 0.0105f * x  // Calculate x term
+                + 3.6239f;     // Add constant term
+
+    return ocv;
+}
+
 void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
