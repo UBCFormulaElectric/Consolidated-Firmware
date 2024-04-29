@@ -31,11 +31,12 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 source: "qrc:/fe_logo.svg"
+                visible: false
             }
             GaussianBlur {
                 anchors.fill: logoImage
                 source: logoImage
-                radius: 60
+                radius: 30
                 samples: 16
             }
         }
