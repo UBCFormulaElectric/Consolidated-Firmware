@@ -65,7 +65,7 @@ tx_msg_schema = Schema(
         "signals": {
             str: tx_signal_schema,
         },
-        Optional("cycle_time"): Or(int, lambda x: x >= 0),
+        "cycle_time": Or(int, None, lambda x: x >= 0),
         Optional("num_bytes"): Or(int, lambda x: x >= 0 and x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): [str]
