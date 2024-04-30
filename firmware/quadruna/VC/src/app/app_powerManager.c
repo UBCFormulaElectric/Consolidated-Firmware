@@ -24,68 +24,68 @@ typedef struct
 static RetryData retry_data[NUM_EFUSE_CHANNELS];
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
-    [POWER_MANAGER_SHUTDOWN] = { .retry_configs = { [EFUSE_CHANNEL_SHDN]   = { .is_efuse_on    = true,
-                                                                               
+    [POWER_MANAGER_SHUTDOWN] = { .retry_configs = { [EFUSE_CHANNEL_SHDN]   = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_LV]     = { .is_efuse_on          = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_LV]     = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_PUMP]   = { .is_efuse_on    = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_PUMP]   = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_AUX]    = { .is_efuse_on          = false,
-                                                                              
+                                                    [EFUSE_CHANNEL_AUX]    = { .is_efuse_on = false,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_INV_R]  = { .is_efuse_on    = false,
-                                                                               
+                                                    [EFUSE_CHANNEL_INV_R]  = { .is_efuse_on = false,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_INV_L]  = { .is_efuse_on    = false,
-                                                                               
+                                                    [EFUSE_CHANNEL_INV_L]  = { .is_efuse_on = false,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_TELEM]  = { .is_efuse_on    = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_TELEM]  = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_BUZZER] = { .is_efuse_on    = false,
-                                                                              
+                                                    [EFUSE_CHANNEL_BUZZER] = { .is_efuse_on = false,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 } } },
-    [POWER_MANAGER_DRIVE]    = { .retry_configs = { [EFUSE_CHANNEL_SHDN]   = { .is_efuse_on          = true,
-                                                                               
+    [POWER_MANAGER_DRIVE]    = { .retry_configs = { [EFUSE_CHANNEL_SHDN]   = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_LV]     = { .is_efuse_on          = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_LV]     = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_PUMP]   = { .is_efuse_on          = true,
-                                                                              
+                                                    [EFUSE_CHANNEL_PUMP]   = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 3,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_AUX]    = { .is_efuse_on          = false,
-                                                                              
+                                                    [EFUSE_CHANNEL_AUX]    = { .is_efuse_on = false,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_INV_R]  = { .is_efuse_on          = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_INV_R]  = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_INV_L]  = { .is_efuse_on          = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_INV_L]  = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 1,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_TELEM]  = { .is_efuse_on          = true,
-                                                                              
+                                                    [EFUSE_CHANNEL_TELEM]  = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 },
-                                                    [EFUSE_CHANNEL_BUZZER] = { .is_efuse_on          = true,
-                                                                               
+                                                    [EFUSE_CHANNEL_BUZZER] = { .is_efuse_on = true,
+
                                                                                .retry_attempts_limit = 0,
                                                                                .min_needed_current   = 0 } } }
 };
@@ -174,8 +174,7 @@ bool app_powerManager_checkEfuses(PowerManagerState state)
                     }
                     else
                     {
-                        go_to_init_state =
-                            app_retryHandler_start(efuse, efuse_retry_config, retry_data);
+                        go_to_init_state = app_retryHandler_start(efuse, efuse_retry_config, retry_data);
                         efuse_retry_data->retry_attempts++;
                     }
                 }
