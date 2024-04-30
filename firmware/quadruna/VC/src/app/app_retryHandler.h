@@ -14,9 +14,9 @@ typedef enum
 
 typedef struct
 {
-    bool          is_efuse_on;          // State of the efuse (on/off)
-    int           retry_attempts_limit; // Limit for retry protocol attempts
-    float         min_needed_current;   // Minimum current required for the efuse
+    bool  is_efuse_on;          // State of the efuse (on/off)
+    int   retry_attempts_limit; // Limit for retry protocol attempts
+    float min_needed_current;   // Minimum current required for the efuse
 } RetryConfig;
 typedef struct
 {
