@@ -37,6 +37,6 @@ PowerManagerState app_powerManager_getState();
 /**
  * @note runs every 100Hz
  * @param state the current PowerManagerState's efuses being checked
- * @returns if the state machine should go to init state
+ * @returns If efuse faulted and car should reset (go to init state)
  */
 bool app_powerManager_check_efuses(PowerManagerState state);

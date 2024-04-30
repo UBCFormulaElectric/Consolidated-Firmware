@@ -772,15 +772,15 @@
             }
         }
     },
-    "Efuses": { 
+    "EfuseFaults": {
         "msg_id": 231,
         "cycle_time": 100,
         "description": "VC efuse retry protocol faults",
         "signals": {
-            "Efuse": {
+            "FaultedEfuse": {
                 "enum": "Efuse_Enum"
             },
-            "Fault_Count": {
+            "EFuseFaultCount": {
                 "bits": 3,
                 "signed": false
             }

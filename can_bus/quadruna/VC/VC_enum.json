@@ -13,13 +13,14 @@
   },
 
   "Efuse_Enum": {
-    "SHDN": 0,
-    "LV": 1,
-    "PUMP": 2,
-    "AUX": 3,
-    "INV_R": 4,
-    "INV_L": 5,
-    "TELEM": 6,
-    "BUZZER": 7
+    "NO_FAULT": 0,
+    "SHDN": 1,
+    "LV": 2,
+    "PUMP": 3,
+    "AUX": 4,
+    "INV_R": 5,
+    "INV_L": 6,
+    "TELEM": 7,
+    "BUZZER": 8
   }
 }
