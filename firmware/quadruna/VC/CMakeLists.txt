@@ -172,6 +172,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
     )
 
     create_fake_library(

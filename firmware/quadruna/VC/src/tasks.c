@@ -242,6 +242,7 @@ static UART   debug_uart    = { .handle = &huart7 };
 static UART   imu_uart      = { .handle = &huart2 };
 static UART   modem2G4_uart = { .handle = &huart3 };
 static UART   modem900_uart = { .handle = &huart1 };
+static Modem modem = {.modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart};
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
@@ -341,7 +342,7 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
-    io_telemMessage_init(&modem900_uart, &modem2G4_uart);
+    io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
