@@ -13,7 +13,9 @@ if ("${TARGET}" STREQUAL "deploy")
 elseif ("${TARGET}" STREQUAL "dev")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp")
 endif ()
-set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${SHARED_FILES} ${TASKS_FILES} io/KeyTranslator.h)
+# Append to IO_SOURCES
+list(APPEND IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/KeyTranslator.cpp")
+set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${SHARED_FILES} ${TASKS_FILES})
 
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 qt_add_executable(${EXECUTABLE_NAME} ${SOURCES})
