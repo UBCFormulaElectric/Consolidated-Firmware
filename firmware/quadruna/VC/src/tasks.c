@@ -237,11 +237,11 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
-static UART   debug_uart = { .handle = &huart7 };
-static UART   imu_uart   = { .handle = &huart2 };
-static UART               modem2G4_uart = { .handle = &huart3 };
-static UART               modem900_uart = { .handle = &huart1 };
+static Buzzer buzzer        = { .gpio = buzzer_pwr_en };
+static UART   debug_uart    = { .handle = &huart7 };
+static UART   imu_uart      = { .handle = &huart2 };
+static UART   modem2G4_uart = { .handle = &huart3 };
+static UART   modem900_uart = { .handle = &huart1 };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
