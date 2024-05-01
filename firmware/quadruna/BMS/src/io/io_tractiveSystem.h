@@ -29,14 +29,14 @@ float io_tractiveSystem_getVoltage(void);
 
 /**
  * Convert the given ADC voltage to high resolution main current
- * @note This correspond to output 1 of HSNBV-D06 (+/- 50A):
+ * @note This correspond to output 1 of DHAB S/124 (+/- 75A):
  * @return Main current from high resolution sensor.
  */
 float io_tractiveSystem_getCurrentHighResolution(void);
 
 /**
  * Convert the given ADC voltage to low resolution main current
- * @note This corresponds to output 2 of HSNBV-D06 (+/- 300A):
+ * @note This corresponds to output 2 of DHAB S/124 (+/- 500A):
  * @return Main current from low resolution sensor.
  */
 float io_tractiveSystem_getCurrentLowResolution(void);
