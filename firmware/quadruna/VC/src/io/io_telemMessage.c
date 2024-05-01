@@ -1,12 +1,6 @@
 #include "io_telemMessage.h"
-#include "cmsis_os.h"
-#include "queue.h"
 #include "main.h"
-#include "../../../build_fw_deploy/firmware/quadruna/VC/telem.pb.h"
-#include "../../nanopb/pb_encode.h"
-#include "../../nanopb/pb_decode.h"
 
-// use a static queue for better memory management
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
 
@@ -23,12 +17,7 @@ TelemMessage   message = TelemMessage_init_zero;
 
 void io_telemMessage_init()
 {
-    Modem900 = true; // if false, then using the 2.4GHz
-    // message_queue_id = osMessageQueueNew(QUEUE_SIZE, 4, &queue_attr);
-    // if (message_queue_id == NULL)
-    // {
-    //     ; // Message Queue object not created, handle failure
-    // }
+    Modem900 = true; // if false, then using the 2.4GHz, not implemented now bc no 2.4 yet
 }
 
 void io_telemMessage_broadcast(UART *modem)

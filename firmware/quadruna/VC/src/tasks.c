@@ -48,6 +48,9 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
+extern UART_HandleTypeDef  huart1;
+extern UART_HandleTypeDef  huart3;
+
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -237,6 +240,9 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
 static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
 static UART   debug_uart = { .handle = &huart7 };
 static UART   imu_uart   = { .handle = &huart2 };
+static UART               modem2G4_uart = { .handle = &huart3 };
+static UART               modem900_uart = { .handle = &huart1 };
+
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
@@ -304,7 +310,7 @@ void tasks_init(void)
     HAL_ADC_Start_IT(&hadc3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -398,6 +404,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
+        io_telemMessage_broadcast(&modem900_uart);
         hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;

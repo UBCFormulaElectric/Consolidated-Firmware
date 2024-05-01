@@ -20,11 +20,6 @@
 #include "io_imu.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
-extern UART_HandleTypeDef huart1;
-static UART               modem900_uart = { .handle = &huart1 };
-
-extern UART_HandleTypeDef huart3;
-static UART               modem2G4_uart = { .handle = &huart3 };
 
 static uint16_t num_cycles = 0;
 
@@ -53,7 +48,6 @@ void app_allStates_runOnTick100Hz(void)
     }
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();
-    io_telemMessage_broadcast(&modem900_uart);
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
