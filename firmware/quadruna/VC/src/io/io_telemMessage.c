@@ -9,7 +9,9 @@
 // create or grab the constants for the different modem and pins and such
 
 // Private Globals
-static bool Modem900;
+static bool  modem_900_choice;
+static UART *modem900_uart;
+static UART *modem924G_uart;
 
 #define QUEUE_SIZE 12
 #define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
@@ -19,12 +21,14 @@ static uint8_t proto_msg_length;
 static uint8_t proto_buffer[QUEUE_SIZE]; // TODO: verify that this is the needed size (most likely can be smaller)
 TelemMessage   message = TelemMessage_init_zero;
 
-void io_telemMessage_init()
+void io_telemMessage_init(UART *modem900M, UART *modem2_4G)
 {
-    Modem900 = true; // if false, then using the 2.4GHz, not implemented now bc no 2.4 yet
+    modem_900_choice = true; // if false, then using the 2.4GHz,
+    modem900_uart    = modem900M;
+    modem924G_uart   = modem2_4G;
 }
 
-void io_telemMessage_broadcast(UART *modem)
+void io_telemMessage_broadcast()
 {
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
@@ -37,8 +41,16 @@ void io_telemMessage_broadcast(UART *modem)
     // encoding message
     proto_status     = pb_encode(&stream, TelemMessage_fields, &message);
     proto_msg_length = (uint8_t)stream.bytes_written;
-    hw_uart_transmitPoll(modem, &proto_msg_length, 1, 1);
-    hw_uart_transmitPoll(modem, proto_buffer, (uint8_t)sizeof(proto_buffer), 1); // fun string
 
+    if (modem_900_choice == true)
+    {
+        hw_uart_transmitPoll(modem900_uart, &proto_msg_length, 1, 1);
+        hw_uart_transmitPoll(modem900_uart, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
+    }
+    else
+    {
+        hw_uart_transmitPoll(modem900_uart, &proto_msg_length, 1, 1);
+        hw_uart_transmitPoll(modem900_uart, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
+    }
     return;
 }

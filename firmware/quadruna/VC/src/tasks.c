@@ -341,7 +341,7 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
-    io_telemMessage_init();
+    io_telemMessage_init(&modem900_uart, &modem2G4_uart);
 
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
@@ -404,7 +404,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        io_telemMessage_broadcast(&modem900_uart);
+        io_telemMessage_broadcast();
         hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
