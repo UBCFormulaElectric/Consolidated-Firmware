@@ -1,5 +1,9 @@
 #include "io_telemMessage.h"
-#include "main.h"
+#include "telem.pb.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "cmsis_os.h"
+#include "queue.h"
 
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such

@@ -42,10 +42,7 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
-find_package(Nanopb REQUIRED)
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
-    
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)    
 set(P_SRCS ${PROTO_SRCS})
 set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 # Bootloader files.
