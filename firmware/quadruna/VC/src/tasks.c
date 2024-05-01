@@ -28,6 +28,7 @@
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_telemMessage.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -236,7 +237,6 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
 static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
 static UART   debug_uart = { .handle = &huart7 };
 static UART   imu_uart   = { .handle = &huart2 };
-
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
 bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
@@ -304,7 +304,7 @@ void tasks_init(void)
     HAL_ADC_Start_IT(&hadc3);
 
     // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -335,6 +335,7 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
+    io_telemMessage_init();
 
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
@@ -419,7 +420,7 @@ void tasks_run1kHz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        hw_watchdog_checkForTimeouts();
+        // hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
