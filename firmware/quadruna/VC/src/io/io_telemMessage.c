@@ -19,11 +19,11 @@ static bool Modem900;
 static bool    proto_status;
 static uint8_t proto_msg_length;
 static uint8_t proto_buffer[QUEUE_SIZE]; // TODO: verify that this is the needed size (most likely can be smaller)
-TelemMessage message = TelemMessage_init_zero;
+TelemMessage   message = TelemMessage_init_zero;
 
 void io_telemMessage_init()
 {
-    Modem900         = true; // if false, then using the 2.4GHz
+    Modem900 = true; // if false, then using the 2.4GHz
     // message_queue_id = osMessageQueueNew(QUEUE_SIZE, 4, &queue_attr);
     // if (message_queue_id == NULL)
     // {
@@ -31,11 +31,10 @@ void io_telemMessage_init()
     // }
 }
 
-
 void io_telemMessage_broadcast(UART *modem)
 {
     // send it over the correct UART functionality
-    pb_ostream_t stream  = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
+    pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
     // filling in fields
     message.can_id     = 53;
