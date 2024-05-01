@@ -242,7 +242,7 @@ static UART   debug_uart    = { .handle = &huart7 };
 static UART   imu_uart      = { .handle = &huart2 };
 static UART   modem2G4_uart = { .handle = &huart3 };
 static UART   modem900_uart = { .handle = &huart1 };
-static Modem modem = {.modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart};
+static Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT

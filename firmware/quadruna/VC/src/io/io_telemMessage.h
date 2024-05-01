@@ -17,7 +17,7 @@ EMPTY_STRUCT(Modem);
  * Creates a new message queue for storing telem messages
  *
  */
-void io_telemMessage_init(Modem * m);
+void io_telemMessage_init(Modem *m);
 
 /**
  * Serializes the can msg and sends it over UART to the appropriate Modem

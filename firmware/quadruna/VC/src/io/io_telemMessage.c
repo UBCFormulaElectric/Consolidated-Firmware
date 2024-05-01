@@ -9,8 +9,8 @@
 // create or grab the constants for the different modem and pins and such
 
 // Private Globals
-static bool  modem_900_choice;
-static Modem * modem;
+static bool   modem_900_choice;
+static Modem *modem;
 
 #define QUEUE_SIZE 12
 #define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
@@ -20,10 +20,10 @@ static uint8_t proto_msg_length;
 static uint8_t proto_buffer[QUEUE_SIZE]; // TODO: verify that this is the needed size (most likely can be smaller)
 TelemMessage   message = TelemMessage_init_zero;
 
-void io_telemMessage_init(Modem * m)
+void io_telemMessage_init(Modem *m)
 {
     modem_900_choice = true; // if false, then using the 2.4GHz,
-    modem = m;
+    modem            = m;
 }
 
 bool io_telemMessage_broadcast()
