@@ -24,7 +24,7 @@ void hw_spi_setNssLow(const SpiInterface *spi);
 void hw_spi_setNssHigh(const SpiInterface *spi);
 
 /**
- * Transmit data to then receive data from the device connected to the given SPI
+ * Transmit data to and receive data from the device connected to the given SPI
  * interface.
  * @param spi The given SPI interface.
  * @param tx_buffer A pointer to the data buffer containing the data transmitted

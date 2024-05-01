@@ -4,6 +4,9 @@
 #include "fake_io_time.hpp"
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
+#include "fake_io_led.hpp"
+#include "fake_io_buzzer.hpp"
+#include "fake_io_sbgEllipse.hpp"
 
 extern "C"
 {
@@ -16,8 +19,11 @@ extern "C"
 #include "app_utils.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
+#include "states/app_allStates.h"
+#include "states/app_inverterOnState.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
+#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -36,9 +42,11 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
+        // app_globals_init(&globals_config);
 
         app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
+        // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -91,10 +99,16 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         [EFUSE_CHANNEL_TELEM]  = NULL,
         [EFUSE_CHANNEL_BUZZER] = NULL,
     };
+    std::vector<const State *> GetAllStates(void)
+    {
+        return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
+    }
+
+    const BinaryLed brake_light = {};
+    const Buzzer    buzzer      = {};
 
     // config for heartbeat monitor (can funcs and flags)
     // VC relies on FSM, RSM, BMS, CRIT
-    // TODO: add RSM to config when boards are ready, also add vitals to canRx json
     bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
         [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
         [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = true
@@ -103,7 +117,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // heartbeatGetters - get heartbeat signals from other boards
     bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_get
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
@@ -112,7 +126,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
         [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = NULL, // app_canRx_RSM_Heartbeat_update
+        [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
         [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
@@ -122,7 +136,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
         [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = NULL, // app_canAlerts_VC_Fault_MissingRSMHeartbeat_set
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
         [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
@@ -132,9 +146,13 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
         [VC_HEARTBEAT_BOARD]   = NULL,
-        [RSM_HEARTBEAT_BOARD]  = NULL, // app_canAlerts_VC_Fault_MissingRSMHeartbeat_get
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
         [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
     };
+
+    // const GlobalsConfig globals_config = {
+    //     .a = 0
+    // };
 };

@@ -153,7 +153,7 @@ static void app_accumulator_calculateVoltageStats(void)
     data.voltage_stats = temp_voltage_stats;
 }
 
-static void app_accumulator_calculateCellsToBalance(void)
+void app_accumulator_calculateCellsToBalance(void)
 {
     float target_voltage = data.voltage_stats.min_voltage.voltage + CELL_VOLTAGE_BALANCE_WINDOW_V;
 
@@ -170,7 +170,7 @@ static void app_accumulator_calculateCellsToBalance(void)
     }
 }
 
-static void app_accumulator_balanceCells(void)
+void app_accumulator_balanceCells(void)
 {
     if (!data.balance_enabled)
     {
@@ -178,8 +178,13 @@ static void app_accumulator_balanceCells(void)
         return;
     }
 
+    // Exit early if ADC conversion fails
+    if (!io_ltc6813Shared_pollAdcConversions())
+    {
+        return;
+    }
+
     // Write to configuration register to configure cell discharging
-    app_accumulator_calculateCellsToBalance();
     io_ltc6813Shared_writeConfigurationRegisters(true);
 
     // Balance PWM settings
@@ -258,9 +263,6 @@ void app_accumulator_runCellMeasurements(void)
 
             // Calculate min/max/segment voltages
             app_accumulator_calculateVoltageStats();
-
-            // Configure cell balancing
-            app_accumulator_balanceCells();
 
             // Start cell voltage conversions for the next cycle
             io_ltc6813CellTemps_startAdcConversion();

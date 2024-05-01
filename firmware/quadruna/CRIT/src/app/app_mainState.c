@@ -10,6 +10,7 @@
 #include "io_led.h"
 #include "io_switch.h"
 #include "tasks.h"
+#include "app_heartbeatMonitor.h"
 
 static void mainStateRunOnTick100Hz(void)
 {
@@ -30,11 +31,11 @@ static void mainStateRunOnTick100Hz(void)
     io_led_enable(globals->config->start_led, start_switch_on);
 
     const bool regen_switch_on = io_switch_isClosed(globals->config->regen_switch);
-    app_canTx_CRIT_RegenSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->regen_led, regen_switch_on);
 
     const bool torquevec_switch_on = io_switch_isClosed(globals->config->torquevec_switch);
-    app_canTx_CRIT_TorqueVecSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
+    app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->torquevec_led, torquevec_switch_on);
 
     typedef struct
@@ -73,6 +74,10 @@ static void mainStateRunOnTick100Hz(void)
             io_rgbLed_enable(board_status_led, false, true, false);
         }
     }
+
+    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_broadcastFaults();
 }
 
 static void mainStateRunOnEntry(void) {}

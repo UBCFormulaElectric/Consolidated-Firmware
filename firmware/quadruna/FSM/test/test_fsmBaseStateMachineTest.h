@@ -6,6 +6,7 @@
 #include "fake_io_steering.hpp"
 #include "fake_io_suspension.hpp"
 #include "fake_io_wheels.hpp"
+#include "fake_io_loadCell.hpp"
 
 extern "C"
 {
@@ -75,6 +76,11 @@ class FsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_wheels_getRightSpeedKph_reset();
         fake_io_wheels_checkIfLeftSensorActive_reset();
         fake_io_wheels_checkIfRightSensorActive_reset();
+
+        fake_io_loadCell_getMechanicalLoad1_reset();
+        fake_io_loadCell_getMechanicalLoad2_reset();
+        fake_io_loadCell_sensor1OCSC_reset();
+        fake_io_loadCell_sensor2OCSC_reset();
     }
 
     // config for heartbeat monitor (can funcs and flags)

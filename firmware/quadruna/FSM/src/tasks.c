@@ -12,16 +12,20 @@
 #include "app_steering.h"
 #include "app_brake.h"
 #include "app_suspension.h"
+#include "app_loadCell.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
+#include "io_can.h"
 #include "io_led.h"
 #include "io_chimera.h"
 #include "io_steering.h"
 #include "io_wheels.h"
 #include "io_brake.h"
 #include "io_suspension.h"
+#include "io_loadCell.h"
+#include "io_apps.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -33,14 +37,17 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_pwmInputFreqOnly.h"
 
 #include "shared.pb.h"
 #include "FSM.pb.h"
 
-extern ADC_HandleTypeDef  hadc1;
-extern TIM_HandleTypeDef  htim3;
-extern CAN_HandleTypeDef  hcan1;
-extern TIM_HandleTypeDef  htim12;
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim3;
+extern CAN_HandleTypeDef hcan1;
+extern TIM_HandleTypeDef htim12;
+
+const CanHandle           can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -56,10 +63,22 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
+void canTxQueueOverflowClearCallback()
+{
+    app_canAlerts_FSM_Warning_TxOverflow_set(false);
+}
+
+void canRxQueueOverflowClearCallback()
+{
+    app_canAlerts_FSM_Warning_RxOverflow_set(false);
+}
+
 const CanConfig can_config = {
-    .rx_msg_filter        = io_canRx_filterMessageId,
-    .tx_overflow_callback = canTxQueueOverflowCallBack,
-    .rx_overflow_callback = canRxQueueOverflowCallBack,
+    .rx_msg_filter              = io_canRx_filterMessageId,
+    .tx_overflow_callback       = canTxQueueOverflowCallBack,
+    .rx_overflow_callback       = canRxQueueOverflowCallBack,
+    .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
+    .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
 static const Gpio      brake_ocsc_ok_3v3       = { .port = BRAKE_OCSC_OK_3V3_GPIO_Port, .pin = BRAKE_OCSC_OK_3V3_Pin };
@@ -90,6 +109,24 @@ AdcChannel id_to_adc[] = {
 };
 
 static UART debug_uart = { .handle = &huart1 };
+
+AppsConfig             apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
+BrakeConfig            brake_config      = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
+LoadCellConfig         load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
+SteeringConfig         steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
+SuspensionConfig       suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
+                                             .front_right_suspension = ADC1_IN9_SUSP_TRAVEL_FR };
+PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
+                                             .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                             .tim_channel         = TIM_CHANNEL_2,
+                                             .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                             .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2 };
+
+PwmInputFreqOnlyConfig right_wheel_config = { .htim                = &htim12,
+                                              .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                              .tim_channel         = TIM_CHANNEL_1,
+                                              .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                              .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
@@ -134,21 +171,24 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-void tasks_preInit(void) {}
+void tasks_preInit(void)
+{
+    hw_bootup_enableInterruptsForApp();
+
+    // Configure and initialize SEGGER SystemView.
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM reset!");
+}
 
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("FSM reset!");
-
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
 
     hw_hardFaultHandler_init();
-    hw_can_init(&hcan1);
+    hw_can_init(&can);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
@@ -158,6 +198,13 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    io_apps_init(&apps_config);
+    io_brake_init(&brake_config);
+    io_loadCell_init(&load_cell_config);
+    io_steering_init(&steering_config);
+    io_suspension_init(&suspension_config);
+    io_wheels_init(&left_wheel_config, &right_wheel_config);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
@@ -287,4 +334,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_wheels_inputCaptureCallback(htim);
 }

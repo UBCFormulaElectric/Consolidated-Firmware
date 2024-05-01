@@ -40,9 +40,14 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c" # TODO: add back when uart finalized
+    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 # tests
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -125,13 +130,23 @@ if("${TARGET}" STREQUAL "deploy")
     target_link_libraries("quadruna_BMS_can" "quadruna_BMS_stm32cube")
     target_link_libraries("quadruna_BMS_app.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "debug_modules")
 
-     embedded_image(
-         "quadruna_BMS"
-         "quadruna_BMS_app.hex"
-         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_app.hex"
-         "quadruna_BMS_boot.hex"
-         "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/quadruna_BMS_boot.hex"
-     )
+    # Build bootloader.
+    stm32h7_boot_binary(
+        "quadruna_BMS_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_BMS"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
+    )
+
+    embedded_image(
+        "quadruna_BMS"
+        "quadruna_BMS_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_app.hex"
+        "quadruna_BMS_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_boot.hex"
+    )
 
 elseif("${TARGET}" STREQUAL "test")
 set(HEADERS_TO_FAKE

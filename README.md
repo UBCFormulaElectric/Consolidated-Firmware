@@ -112,19 +112,19 @@ sudo ip link set can0 type can bitrate 500000 && sudo ip link set up can0
 - Display CAN messages on `stdout` with DBC decoding and delta-time as timestamps:
 
 ```
-candump can0 -c -t d | cantools decode --single-line can_bus/dbcs/CanMsgs.dbc
+candump can0 -c -t d | cantools decode --single-line can_bus/dbcs/quadruna.dbc
 ```
 
 - Monitor CAN traffic in a text-based user interface:
 
 ```
-cantools monitor scripts/codegen/CAN/App_CanMsgs.dbc -b socketcan -c can0 -B 500000
+cantools monitor can_bus/dbcs/quadruna.dbc -b socketcan -c can0 -B 500000
 ```
 
 On Mac:
 
 ```
-cantools monitor can_bus/dbcs/CanMsgs.dbc -b pcan -c PCAN_USBBUS1 -B 500000
+cantools monitor can_bus/dbcs/quadruna.dbc -b pcan -c PCAN_USBBUS1 -B 500000
 ```
 
 ## Continuous Integration (CI)
