@@ -26,6 +26,8 @@ void io_telemMessage_init(Modem *m)
     modem            = m;
 }
 
+//make a converter file 
+
 bool io_telemMessage_broadcast()
 {
     // send it over the correct UART functionality
@@ -48,7 +50,7 @@ bool io_telemMessage_broadcast()
     else
     {
         hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, 1, 1);
-        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
+        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), 1); //TODO: get rid of the magic numbers
     }
     return true;
 }
