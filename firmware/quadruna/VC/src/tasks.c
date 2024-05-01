@@ -420,7 +420,7 @@ void tasks_run1kHz(void)
     {
         const uint32_t start_time_ms = osKernelGetTickCount();
 
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
