@@ -88,18 +88,76 @@ Window {
                 visible: mainStack.currentIndex === 6
                 id: softwareDebugPage
             }
+
+            function refocusMainStack() {
+                switch (mainStack.currentIndex) {
+                    case 0:
+                        // noinspection JSUnresolvedReference
+                        lowVoltagePage.forceActiveFocus()
+                        break
+                    case 1:
+                        // noinspection JSUnresolvedReference
+                        accelerationPage.forceActiveFocus()
+                        break
+                    case 2:
+                        // noinspection JSUnresolvedReference
+                        autocrossPage.forceActiveFocus()
+                        break
+                    case 3:
+                        // noinspection JSUnresolvedReference
+                        brakingPage.forceActiveFocus()
+                        break
+                    case 4:
+                        // noinspection JSUnresolvedReference
+                        endurancePage.forceActiveFocus()
+                        break
+                    case 5:
+                        // noinspection JSUnresolvedReference
+                        skidpadPage.forceActiveFocus()
+                        break
+                    case 6:
+                        // noinspection JSUnresolvedReference
+                        softwareDebugPage.forceActiveFocus()
+                        break
+                    default:
+                        break;
+                }
+            }
         }
 
         Switcher {
             id: switcher
         }
         Shutdown {
-            visible: false
+            id: shutdown_element
+            property bool override: false
+            focus: true
+            opacity: CanQML.has_fault && (override === false) ? 1 : 0
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 1000
+                }
+            }
+
+            DimSwitches {
+                onPushRot: {
+                    if (!shutdown_element.activeFocus) return;
+                    if (CanQML.has_fault) {
+                        shutdown_element.override = true;
+                        mainStack.refocusMainStack();
+                    }
+                }
+            }
+            Connections {
+                target: CanQML
+
+                function onFaultChanged() {
+                    if (CanQML.has_fault) { // fault turns on
+                        shutdown_element.override = false;
+                        shutdown_element.focus = true;
+                    }
+                }
+            }
         }
-        // Text {
-        //     anchors.centerIn: parent
-        //     text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
-        //     color: "white"
-        // }
     }
 }

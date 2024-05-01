@@ -34,4 +34,6 @@ void init_json_can()
     // set values for commit info
     app_canTx_dimos_Hash_set(GIT_COMMIT_HASH);
     app_canTx_dimos_Clean_set(GIT_COMMIT_CLEAN);
+
+    app_canRx_BMS_Fault_CellOvertemp_update(true);
 }

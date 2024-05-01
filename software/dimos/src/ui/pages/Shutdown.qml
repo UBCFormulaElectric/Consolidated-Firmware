@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import canqml
 
 Item {
     anchors.fill: parent
@@ -8,6 +9,7 @@ Item {
         color: "black"
         opacity: 0.8
     }
+
     ColumnLayout {
         anchors.centerIn: parent
         Text {
@@ -20,30 +22,34 @@ Item {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        Text {
-            text: "Error 1"
-            color: "white"
-            font {
-                pixelSize: 40
+        Repeater {
+            model: CanQML.faults
+            delegate: Text {
+                text: modelData.name
+                color: "white"
+                font {
+                    pixelSize: 40
+                }
+                Layout.alignment: Qt.AlignHCenter
             }
-            Layout.alignment: Qt.AlignHCenter
         }
-        Text {
-            text: "Error 2"
-            color: "white"
-            font {
-                pixelSize: 40
-            }
-            Layout.alignment: Qt.AlignHCenter
-        }
-        Text {
-            text: "Error 3"
-            color: "white"
-            font {
-                pixelSize: 40
-            }
-            Layout.alignment: Qt.AlignHCenter
-        }
+
+        // Text {
+        //     text: "Error 2"
+        //     color: "white"
+        //     font {
+        //         pixelSize: 40
+        //     }
+        //     Layout.alignment: Qt.AlignHCenter
+        // }
+        // Text {
+        //     text: "Error 3"
+        //     color: "white"
+        //     font {
+        //         pixelSize: 40
+        //     }
+        //     Layout.alignment: Qt.AlignHCenter
+        // }
 
         Text {
             text: "Press OK to Continue"
@@ -51,7 +57,7 @@ Item {
             font {
                 pixelSize: 20
             }
-            Layout.topMargin: 30
+            // Layout.topMargin: 30
             Layout.alignment: Qt.AlignHCenter
         }
     }

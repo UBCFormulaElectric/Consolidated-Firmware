@@ -1,17 +1,41 @@
 #pragma once
 #include <QtQml>
-
 extern "C"
 {
 #include "app_canRx.h"
+#include "app_canAlerts.h"
 }
 
+class Q_Fault_Warning_Info : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QString description MEMBER description CONSTANT)
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
+    Q_PROPERTY(QString id MEMBER id CONSTANT)
+  public:
+    explicit Q_Fault_Warning_Info(const Fault_Warning_Info &info)
+      : description(info.description), name(info.name), id(info.id), int_id(info.id)
+    {
+    }
+
+    bool operator==(const Fault_Warning_Info &other) const { return id == other.id; }
+
+    int get_id() const { return int_id; }
+
+  private:
+    const QString description;
+    const QString name;
+    const QString id;
+    const int     int_id;
+};
+
 #define CONCAT_HELPER(x, y) x##y
-#define REGISTER_CAN_MESSAGE(name, type) \
-    static type CONCAT_HELPER(name, _get)()     \
-    {                                           \
-        return app_canRx_##name##_get();        \
-    }                                           \
+#define REGISTER_CAN_MESSAGE(name, type)    \
+    static type CONCAT_HELPER(name, _get)() \
+    {                                       \
+        return app_canRx_##name##_get();    \
+    }                                       \
     Q_PROPERTY(type name READ CONCAT_HELPER(name, _get) NOTIFY notify_all_signals FINAL REQUIRED STORED false)
 
 class CanQML final : public QObject
@@ -20,20 +44,36 @@ class CanQML final : public QObject
     QML_ELEMENT
     QML_SINGLETON
 
-    static constexpr uint16_t frame_rate_hz           = 30;
-    static constexpr uint16_t ui_update_interval_msec = 1000 / frame_rate_hz;
-
     // timer shit
-    QTimer uiUpdate{};
+    static constexpr uint16_t FRAME_RATE_HZ            = 30;
+    static constexpr uint16_t UI_UPDATE_INTERVAL_MSEC  = 1000 / FRAME_RATE_HZ;
+    static constexpr uint16_t FAULT_POLL_INTERVAL_MSEC = 500;
+    QTimer                    uiUpdate{}, faultPoll{};
+
+    bool has_fault = false;
+    Q_PROPERTY(bool has_fault MEMBER has_fault NOTIFY faultChanged FINAL)
+    QList<Q_Fault_Warning_Info *> faults{}, warnings{};
+    Q_PROPERTY(QList<Q_Fault_Warning_Info *> faults MEMBER faults FINAL NOTIFY faults_changed)
+    Q_PROPERTY(QList<Q_Fault_Warning_Info *> warnings MEMBER warnings FINAL NOTIFY warnings_changed)
+
     explicit CanQML(QObject *parent = nullptr) : QObject(parent)
     {
         // ui update
-        uiUpdate.setInterval(ui_update_interval_msec);
+        uiUpdate.setInterval(UI_UPDATE_INTERVAL_MSEC);
         uiUpdate.setSingleShot(false);
         connect(&uiUpdate, &QTimer::timeout, this, &CanQML::notify_all_signals);
         uiUpdate.start();
+
+        faultPoll.setInterval(FAULT_POLL_INTERVAL_MSEC);
+        faultPoll.setSingleShot(false);
+        connect(&faultPoll, &QTimer::timeout, this, &CanQML::fault_poll);
+        faultPoll.start();
     }
-    ~CanQML() override { uiUpdate.stop(); };
+    ~CanQML() override
+    {
+        uiUpdate.stop();
+        faultPoll.stop();
+    };
 
   public:
     static CanQML *getInstance();
@@ -50,6 +90,73 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(FSM_SappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(BMS_Soc, float)
 
+  public slots:
+    void fault_poll()
+    {
+        Fault_Warning_Info faults_arr[10];
+        Fault_Warning_Info warnings_arr[10];
+        const uint8_t      warning_count = app_canAlerts_WarningInfo(warnings_arr);
+        const uint8_t      fault_count   = app_canAlerts_FaultInfo(faults_arr);
+        if (fault_count == 0)
+        {
+            has_fault = false;
+            emit faultChanged();
+        }
+        else if (!has_fault)
+        {
+            has_fault = true;
+            emit faultChanged();
+        }
+
+        if (const bool has_faults_changed = fault_consolidation(faults, faults_arr, fault_count))
+            emit faults_changed();
+        if (const bool has_warnings_changed = fault_consolidation(warnings, warnings_arr, warning_count))
+            emit warnings_changed();
+    }
+
+  private:
+    bool fault_consolidation(QList<Q_Fault_Warning_Info *> &a, Fault_Warning_Info *b, int b_size)
+    {
+        bool has_changed = false;
+        int  ai = 0, bi = 0;
+        while (ai < faults.size() && bi < b_size)
+        {
+            if (*faults[ai] == b[bi])
+            {
+                ai++;
+                bi++;
+            }
+            else if (a[ai]->get_id() < b[bi].id)
+            {
+                a.erase(a.begin() + ai, a.begin() + ai + 1);
+                has_changed = true;
+            }
+            else
+            {
+                a.insert(a.begin() + ai, new Q_Fault_Warning_Info(b[bi]));
+                ai++;
+                bi++;
+                has_changed = true;
+            }
+        }
+        if (bi < b_size)
+        {
+            for (int i = bi; i < b_size; i++)
+                a.append(new Q_Fault_Warning_Info(b[i]));
+            has_changed = true;
+        }
+        else if (ai < a.size())
+        {
+            a.erase(a.begin() + ai, a.end());
+            has_changed = true;
+        }
+
+        return has_changed;
+    }
+
   signals:
+    void faultChanged();
+    void faults_changed();
+    void warnings_changed();
     void notify_all_signals();
 };

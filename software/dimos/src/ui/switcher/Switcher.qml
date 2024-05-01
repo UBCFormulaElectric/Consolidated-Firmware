@@ -132,41 +132,6 @@ FocusScope {
         }
 
         DimSwitches {
-            function refocusMainStack() {
-                switch (mainStack.currentIndex) {
-                    case 0:
-                        // noinspection JSUnresolvedReference
-                        lowVoltagePage.forceActiveFocus()
-                        break
-                    case 1:
-                        // noinspection JSUnresolvedReference
-                        accelerationPage.forceActiveFocus()
-                        break
-                    case 2:
-                        // noinspection JSUnresolvedReference
-                        autocrossPage.forceActiveFocus()
-                        break
-                    case 3:
-                        // noinspection JSUnresolvedReference
-                        brakingPage.forceActiveFocus()
-                        break
-                    case 4:
-                        // noinspection JSUnresolvedReference
-                        endurancePage.forceActiveFocus()
-                        break
-                    case 5:
-                        // noinspection JSUnresolvedReference
-                        skidpadPage.forceActiveFocus()
-                        break
-                    case 6:
-                        // noinspection JSUnresolvedReference
-                        softwareDebugPage.forceActiveFocus()
-                        break
-                    default:
-                        break;
-                }
-            }
-
             onLeftRot: {
                 if (!switcher.activeFocus) return;
                 // noinspection JSUnresolvedReference
@@ -181,11 +146,11 @@ FocusScope {
                 if (!switcher.activeFocus) return;
                 mainStack.currentIndex = appIconPathView.currentIndex
                 console.log("Navigating to page with index: ", appIconPathView.currentIndex)
-                refocusMainStack()
+                mainStack.refocusMainStack()
             }
             onOutButtonPressed: {
                 if (!switcher.activeFocus) return;
-                refocusMainStack()
+                mainStack.refocusMainStack()
             }
         }
     }
