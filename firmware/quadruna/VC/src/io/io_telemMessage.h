@@ -3,6 +3,7 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"
+#include "hw_can.h"
 
 typedef struct
 {
@@ -23,4 +24,4 @@ void io_telemMessage_init(Modem *m);
  * Serializes the can msg and sends it over UART to the appropriate Modem
  */
 
-bool io_telemMessage_broadcast(void);
+bool io_telemMessage_broadcast(CanMsg *rx_msg);
