@@ -68,7 +68,7 @@ TEST_F(RsmAppTest, check_temperatuereB_can_signals)
 // Transfer functio is not written yet, just testing voltage value
 TEST_F(RsmAppTest, check_pressureA_can_signals)
 {
-    fake_io_coolant_getPressureB_returns(0.1);
+    fake_io_coolant_getPressureA_returns(0.1);
     LetTimePass(10);
     ASSERT_EQ(app_canTx_RSM_CoolantPressureA_get(), 0.1);
 }

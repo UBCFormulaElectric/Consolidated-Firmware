@@ -146,24 +146,6 @@
             }
         },
         {
-            "label": "Build Tests: RSM (Quadruna)",
-            "type": "shell",
-            "command": "make -j`nproc` quadruna_RSM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
-            "label": "Build Tests: RSM (Quadruna)",
-            "type": "shell",
-            "command": "make -j`nproc` quadruna_RSM_test",
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}/build_fw_test"
-            }
-        },
-        {
             "label": "Build Tests: Shared",
             "type": "shell",
             "command": "cmake --build . --target shared_test -- -j$(nproc)",

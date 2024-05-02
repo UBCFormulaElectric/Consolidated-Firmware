@@ -6,9 +6,9 @@
 
 typedef struct
 {
-    const BinaryLed *brake_light;
-    const BinaryFan *acc_fan;
-    const BinaryFan *rad_fan;
+    const BinaryLed *const brake_light;
+    const BinaryFan *const acc_fan;
+    const BinaryFan *const rad_fan;
 } GlobalsConfig;
 
 typedef struct
@@ -19,4 +19,4 @@ typedef struct
 
 extern Globals *const globals;
 
-void app_globals_init();
+void app_globals_init(const GlobalsConfig *config);

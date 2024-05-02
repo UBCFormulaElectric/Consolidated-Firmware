@@ -4,6 +4,8 @@
 #include "fake_io_coolant.hpp"
 #include "fake_io_loadCell.hpp"
 #include "fake_io_suspension.hpp"
+#include "fake_io_led.hpp"
+#include "fake_io_fan.hpp"
 
 extern "C"
 {
@@ -36,6 +38,8 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
+
+        app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -62,6 +66,10 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_suspension_leftSensorOCSC_reset();
         fake_io_suspension_rightSensorOCSC_reset();
     }
+
+    const BinaryLed brake_light = {};
+    const BinaryFan acc_fan     = {};
+    const BinaryFan rad_fan     = {};
 
     // config for heartbeat monitor (can funcs and flags)
     // RSM rellies on BMS and FSM
@@ -96,5 +104,11 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
         [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    };
+
+    const GlobalsConfig globals_config = {
+        .brake_light = &brake_light,
+        .acc_fan     = &acc_fan,
+        .rad_fan     = &rad_fan,
     };
 };
