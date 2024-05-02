@@ -9,6 +9,18 @@
 // create or grab the constants for the different modem and pins and such
 
 // Private Globals
+#include "cmsis_os.h"
+#include "queue.h"
+
+// create the truth table for now to decide which amount of things to use
+// create or grab the constants for the different modem and pins and such
+
+// Private Globals
+static bool   modem_900_choice;
+static Modem *modem;
+
+#define QUEUE_SIZE 12
+#define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
 static bool   modem_900_choice;
 static Modem *modem;
 
@@ -26,9 +38,7 @@ void io_telemMessage_init(Modem *m)
     modem            = m;
 }
 
-//make a converter file 
-
-bool io_telemMessage_broadcast()
+bool io_telemMessage_broadcast(CanMsg *rx_msg)
 {
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
@@ -50,7 +60,7 @@ bool io_telemMessage_broadcast()
     else
     {
         hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, 1, 1);
-        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), 1); //TODO: get rid of the magic numbers
+        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
     }
     return true;
 }
