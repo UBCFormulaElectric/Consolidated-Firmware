@@ -46,16 +46,6 @@ static void mainStateRunOnTick100Hz(void)
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     io_led_enable(globals->config->torquevec_led, torquevec_light_on);
 
-    if (app_canRx_VC_State_get() == VC_DRIVE_STATE)
-    {
-        io_led_enable(globals->config->start_led, true);
-    }
-
-    if (app_canRx_VC_State_get() == VC_DRIVE_STATE)
-    {
-        io_led_enable(globals->config->start_led, true);
-    }
-
     app_driveMode_broadcast();
 
     typedef struct
