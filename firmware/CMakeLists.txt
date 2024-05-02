@@ -56,8 +56,6 @@ if("${TARGET}" STREQUAL "deploy")
         GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
         GIT_SHALLOW TRUE
     )
-    list(APPEND CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-    find_package(Nanopb REQUIRED)
 elseif("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
     # protobufs
