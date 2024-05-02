@@ -311,17 +311,17 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 204,
-      "cycle_time": 100,
-      "description": "VC Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
+        "msg_id": 204,
+        "cycle_time": 100,
+        "description": "VC Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
     },
     "PowerEstimate": {
         "msg_id": 211,
@@ -483,59 +483,79 @@
             }
         }
     },
+    "Regen": {
+        "msg_id": 226,
+        "cycle_time": 100,
+        "description": "Regen info",
+        "signals": {
+            "RegenEnabled": {
+                "bits": 1
+            }
+        }
+    },
+    "TorqueVectoring": {
+        "msg_id": 227,
+        "cycle_time": 100,
+        "description": "Torque vectoring info",
+        "signals": {
+            "TorqueVectoringEnabled": {
+                "bits": 1
+            }
+        }
+    },
     "GpsPosInfo": {
         "msg_id": 217,
         "cycle_time": 100,
-        "description": "Car position info", 
-            "signals":{
-                "PositionStatus":{
-                    "enum": "VcSbgStatus"
-                },
-                "Latitude":{
-                    "resolution": 0.00005,
-                    "min": 47,
-                    "max": 50,
-                    "unit": "deg"  
-                },
-                "LatitudeAccuracy":{
-                    "resolution": 0.1,
-                    "min": 0,
-                    "max": 2,
-                    "unit": "m" 
-                },
-                "Longtitude":{
-                    "resolution": 0.00005,
-                    "min": 122,
-                    "max": 125,
-                    "unit": "deg" 
-                },
-                "LongtitudeAccuracy":{
-                    "resolution": 0.1,
-                    "min": 0,
-                    "max": 2,
-                    "unit": "m" 
-                },
-                "Altitude":{
-                    "resolution": 0.5,
-                    "min": 0,
-                    "max": 400,
-                    "unit": "m"
-                },
-                "AltitudeAccuracy":{
-                    "resolution": 0.1,
-                    "min": 0,
-                    "max": 20,
-                    "unit": "m"
-                }
+        "description": "Car position info",
+        "signals": {
+            "PositionStatus": {
+                "enum": "VcSbgStatus"
+            },
+            "Latitude": {
+                "resolution": 0.00005,
+                "min": 47,
+                "max": 50,
+                "unit": "deg"
+            },
+            "LatitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 2,
+                "unit": "m"
+            },
+            "Longtitude": {
+                "resolution": 0.00005,
+                "min": 122,
+                "max": 125,
+                "unit": "deg"
+            },
+            "LongtitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 2,
+                "unit": "m"
+            },
+            "Altitude": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 400,
+                "unit": "m"
+            },
+            "AltitudeAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "m"
+            }
         }
     },
     "GpsVelInfo": {
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",
-        "signals":{
-            "VelocityStatus":{
-                "enum":"VcSbgStatus"
+        "signals": {
+            "VelocityStatus": {
+                "enum": "VcSbgStatus"
             },
             "VelocityNorth": {
                 "resolution": 0.1,
