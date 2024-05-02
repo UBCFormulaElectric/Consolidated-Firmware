@@ -8,5 +8,9 @@
 		}
 	],
 	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false
+	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"app_globals.h": "c",
+		"app_heartbeatmonitor.h": "c"
+	}
 }
