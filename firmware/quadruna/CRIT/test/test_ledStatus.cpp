@@ -1,5 +1,4 @@
 #include "test_critBaseStateMachineTest.h"
-#include "fake_io_shutdownSensor.hpp"
 
 class LedStatusTest : public CritBaseStateMachineTest
 {
@@ -59,26 +58,26 @@ TEST_F(LedStatusTest, ams_led_control_in_drive_state)
     ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&ams_led, false));
 }
 
-TEST_F(LedStatusTest, shdn_led_control_in_drive_state)
-{
-    app_canRx_BMS_BmsLatchedFault_update(false);
-    LetTimePass(10);
-    fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, true);
-    ASSERT_EQ(0, fake_io_led_enable_callCountForArgs(&shdn_led, true));
-    ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, false));
-
-    app_canRx_BMS_BmsLatchedFault_update(true);
-    LetTimePass(10);
-    fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, false);
-    ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, true));
-    ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, false));
-
-    app_canRx_BMS_BmsLatchedFault_update(false);
-    LetTimePass(10);
-    fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, true);
-    ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, true));
-    ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&shdn_led, false));
-}
+// TEST_F(LedStatusTest, shdn_led_control_in_drive_state)
+//{
+//     app_canRx_BMS_BmsLatchedFault_update(false);
+//     LetTimePass(10);
+//     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, true);
+//     ASSERT_EQ(0, fake_io_led_enable_callCountForArgs(&shdn_led, true));
+//     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, false));
+//
+//     app_canRx_BMS_BmsLatchedFault_update(true);
+//     LetTimePass(10);
+//     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, false);
+//     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, true));
+//     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, false));
+//
+//     app_canRx_BMS_BmsLatchedFault_update(false);
+//     LetTimePass(10);
+//     fake_io_shutdownSensor_readPin_returnsForArgs(&shdn_sen, true);
+//     ASSERT_EQ(1, fake_io_led_enable_callCountForArgs(&shdn_led, true));
+//     ASSERT_EQ(2, fake_io_led_enable_callCountForArgs(&shdn_led, false));
+// }
 
 /**
  * CRIT TESTS

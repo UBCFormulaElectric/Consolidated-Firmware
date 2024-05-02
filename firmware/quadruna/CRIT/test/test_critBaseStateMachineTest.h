@@ -16,6 +16,8 @@ extern "C"
 #include "app_utils.h"
 #include "app_mainState.h"
 #include "app_globals.h"
+#include "app_leds.h"
+#include "app_switches.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -40,6 +42,9 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+
+        app_led_init(&leds);
+        app_switches_init(&switches);
     }
 
     void TearDown() override
@@ -69,67 +74,72 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     const RgbLed    rsm_status_led   = {};
     const RgbLed    vc_status_led    = {};
     // dummy used to initialize shdn_sen_pin
-    const ShutdownSensor shdn_sen   = {};
-    const DriveMode      drive_mode = {};
+    const DriveMode drive_mode = {};
 
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself
-    bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+    const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
         [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
         [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
     };
 
     // heartbeatGetters - get heartbeat signals from other boards
-    bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = &app_canRx_BMS_Heartbeat_get,
-                                                          [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_get,
-                                                          [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_get,
-                                                          [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_get,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
+    bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = &app_canRx_BMS_Heartbeat_get,
+                                                                [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_get,
+                                                                [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_get,
+                                                                [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_get,
+                                                                [DIM_HEARTBEAT_BOARD]  = nullptr,
+                                                                [CRIT_HEARTBEAT_BOARD] = nullptr };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
-    void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = &app_canRx_BMS_Heartbeat_update,
-                                                               [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_update,
-                                                               [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_update,
-                                                               [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_update,
-                                                               [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                               [CRIT_HEARTBEAT_BOARD] = NULL };
+    void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+        [BMS_HEARTBEAT_BOARD]  = &app_canRx_BMS_Heartbeat_update,
+        [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_update,
+        [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_update,
+        [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_update,
+        [DIM_HEARTBEAT_BOARD]  = nullptr,
+        [CRIT_HEARTBEAT_BOARD] = nullptr
+    };
 
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-    void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
         [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
         [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
         [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = NULL
+        [DIM_HEARTBEAT_BOARD]  = nullptr,
+        [CRIT_HEARTBEAT_BOARD] = nullptr
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
-    bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+    bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
         [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
         [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
         [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
-        [DIM_HEARTBEAT_BOARD]  = NULL,
-        [CRIT_HEARTBEAT_BOARD] = NULL
+        [DIM_HEARTBEAT_BOARD]  = nullptr,
+        [CRIT_HEARTBEAT_BOARD] = nullptr
     };
 
-    const GlobalsConfig globals_config = { .imd_led          = &imd_led,
-                                           .bspd_led         = &bspd_led,
-                                           .ams_led          = &ams_led,
-                                           .start_led        = &start_led,
-                                           .regen_led        = &regen_led,
-                                           .torquevec_led    = &torquevec_led,
-                                           .shdn_led         = &shdn_led,
-                                           .start_switch     = &start_switch,
-                                           .regen_switch     = &regen_switch,
-                                           .torquevec_switch = &torquevec_switch,
-                                           .bms_status_led   = &bms_status_led,
-                                           .fsm_status_led   = &fsm_status_led,
-                                           .vc_status_led    = &vc_status_led,
-                                           .aux_status_led   = &aux_status_led,
-                                           .crit_status_led  = &crit_status_led,
-                                           .rsm_status_led   = &rsm_status_led,
-                                           .shdn_sen         = &shdn_sen };
+    const GlobalsConfig globals_config = {
+        .drive_mode = &drive_mode,
+    };
+    const Leds     leds     = { .imd_led         = &imd_led,
+                                .bspd_led        = &bspd_led,
+                                .ams_led         = &ams_led,
+                                .start_led       = &start_led,
+                                .regen_led       = &regen_led,
+                                .torquevec_led   = &torquevec_led,
+                                .shdn_led        = &shdn_led,
+                                .bms_status_led  = &bms_status_led,
+                                .fsm_status_led  = &fsm_status_led,
+                                .vc_status_led   = &vc_status_led,
+                                .aux_status_led  = &aux_status_led,
+                                .crit_status_led = &crit_status_led,
+                                .rsm_status_led  = &rsm_status_led };
+    const Switches switches = {
+        .start_switch     = &start_switch,
+        .regen_switch     = &regen_switch,
+        .torquevec_switch = &torquevec_switch,
+    };
 };
