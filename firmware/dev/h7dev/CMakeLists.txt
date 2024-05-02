@@ -16,11 +16,10 @@ list (APPEND EMBEDDED_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
     )
 
-set(CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-find_package(Nanopb REQUIRED)
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
 
 set(SRCS ${PROTO_SRCS})
+message("${PROTO_SRCS}")
 set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
     
 set(EMBEDDED_INCLUDE_DIRS 
