@@ -9,6 +9,8 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
+#include "app_leds.h"
+#include "app_switches.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -19,7 +21,6 @@
 #include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_canRx.h"
-#include "io_shutdownSensor.h"
 #include "io_driveMode.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -266,11 +267,10 @@ static const Gpio shdn_sen_pin    = { .port = SHDN_SEN_GPIO_Port, .pin = SHDN_SE
 static const Gpio inertia_sen_pin = { .port = INERTIA_SEN_GPIO_Port, .pin = INERTIA_SEN_Pin };
 // clang-format on
 
-static const ShutdownSensor shdn_sen   = { .shdn_sen_pin = &shdn_sen_pin };
-static const DriveMode      drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
-                                           .n_drive_mode_1_pin = &n_drive_mode_1_pin,
-                                           .n_drive_mode_2_pin = &n_drive_mode_2_pin,
-                                           .n_drive_mode_3_pin = &n_drive_mode_3_pin };
+static const DriveMode drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
+                                      .n_drive_mode_1_pin = &n_drive_mode_1_pin,
+                                      .n_drive_mode_2_pin = &n_drive_mode_2_pin,
+                                      .n_drive_mode_3_pin = &n_drive_mode_3_pin };
 
 const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
@@ -319,24 +319,29 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart2 };
 
-static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
-                                              .bspd_led         = &bspd_led,
-                                              .ams_led          = &ams_led,
-                                              .shdn_led         = &shdn_led,
-                                              .start_led        = &start_led,
-                                              .start_switch     = &start_switch,
-                                              .regen_led        = &regen_led,
-                                              .regen_switch     = &regen_switch,
-                                              .torquevec_led    = &torquevec_led,
-                                              .torquevec_switch = &torquevec_switch,
-                                              .aux_status_led   = &aux_status_led,
-                                              .bms_status_led   = &bms_status_led,
-                                              .crit_status_led  = &crit_status_led,
-                                              .fsm_status_led   = &fsm_status_led,
-                                              .rsm_status_led   = &rsm_status_led,
-                                              .vc_status_led    = &vc_status_led,
-                                              .shdn_sen         = &shdn_sen,
-                                              .drive_mode       = &drive_mode };
+static const GlobalsConfig globals_config = { .drive_mode = &drive_mode };
+
+static const Leds led_config = {
+    .imd_led         = &imd_led,
+    .bspd_led        = &bspd_led,
+    .ams_led         = &ams_led,
+    .shdn_led        = &shdn_led,
+    .start_led       = &start_led,
+    .regen_led       = &regen_led,
+    .torquevec_led   = &torquevec_led,
+    .aux_status_led  = &aux_status_led,
+    .bms_status_led  = &bms_status_led,
+    .crit_status_led = &crit_status_led,
+    .fsm_status_led  = &fsm_status_led,
+    .rsm_status_led  = &rsm_status_led,
+    .vc_status_led   = &vc_status_led,
+};
+
+static const Switches switch_config = {
+    .start_switch     = &start_switch,
+    .regen_switch     = &regen_switch,
+    .torquevec_switch = &torquevec_switch,
+};
 
 // TODO: add heartbeat for VC and RSM
 // CRIT rellies on BMS, VC, RSM, FSM
@@ -422,6 +427,9 @@ void tasks_init(void)
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+
+    app_led_init(&led_config);
+    app_switches_init(&switch_config);
 }
 
 _Noreturn void tasks_run100Hz(void)
