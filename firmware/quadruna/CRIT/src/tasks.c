@@ -1,26 +1,22 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
-
-#include "io_log.h"
-#include "io_chimera.h"
-
-#include "hw_gpio.h"
-#include "hw_adc.h"
-#include "hw_uart.h"
-
-#include "io_jsoncan.h"
+// protobufs
+#include "shared.pb.h"
+#include "CRIT.pb.h"
+// app
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
-
-#include "shared.pb.h"
-#include "CRIT.pb.h"
-
+// io
+#include "io_log.h"
+#include "io_chimera.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
+// can
+#include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_canRx.h"
 #include "io_shutdownSensor.h"
@@ -29,17 +25,16 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-
+// hw
+#include "hw_gpio.h"
+#include "hw_adc.h"
+#include "hw_uart.h"
 #include "hw_utils.h"
 #include "hw_bootup.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_adc.h"
-#include "hw_gpio.h"
-#include "hw_uart.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
@@ -52,22 +47,22 @@ void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canRxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_CRIT_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_CRIT_Warning_RxOverflow_set(false);
 }
@@ -351,12 +346,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
@@ -377,7 +372,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
@@ -429,7 +424,7 @@ void tasks_init(void)
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -455,7 +450,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -466,7 +461,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -482,7 +477,7 @@ void tasks_runCanRx(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -516,7 +511,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 

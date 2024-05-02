@@ -114,9 +114,6 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
 
-    message("${P_SRCS}")
-    message("${PROTO_SRCS}")
-    message("${P_HDRS}")
     embedded_library(
         "telem_proto"
         "${P_SRCS}"
