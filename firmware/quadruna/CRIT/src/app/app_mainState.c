@@ -31,13 +31,20 @@ static void mainStateRunOnTick100Hz(void)
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
     app_canTx_CRIT_StartSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
 
+    const bool start_led_on = app_canRx_VC_State_get() == VC_DRIVE_STATE;
+    io_led_enable(globals->config->start_led, start_led_on);
+
     const bool regen_switch_on = io_switch_isClosed(globals->config->regen_switch);
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
-    io_led_enable(globals->config->regen_led, regen_switch_on);
+
+    const bool regen_light_on = app_canRx_VC_RegenEnabled_get();
+    io_led_enable(globals->config->regen_led, regen_light_on);
 
     const bool torquevec_switch_on = io_switch_isClosed(globals->config->torquevec_switch);
     app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
-    io_led_enable(globals->config->torquevec_led, torquevec_switch_on);
+
+    const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
+    io_led_enable(globals->config->torquevec_led, torquevec_light_on);
 
     if (app_canRx_VC_State_get() == VC_DRIVE_STATE)
     {
