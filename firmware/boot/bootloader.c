@@ -178,7 +178,7 @@ void bootloader_runInterfaceTask()
 {
     for (;;)
     {
-        CanMsg command;
+        CanMsgIo command;
         io_can_popRxMsgFromQueue(&command);
 
         if (command.std_id == START_UPDATE_ID)
@@ -188,7 +188,7 @@ void bootloader_runInterfaceTask()
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            CanMsg reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
+            CanMsgIo reply = { .std_id = UPDATE_ACK_ID, .dlc = 0 };
             io_can_pushTxMsgToQueue(&reply);
         }
         else if (command.std_id == ERASE_SECTOR_ID && update_in_progress)
@@ -198,7 +198,7 @@ void bootloader_runInterfaceTask()
             hw_flash_eraseSector(sector);
 
             // Erasing sectors takes a while, so reply when finished.
-            CanMsg reply = {
+            CanMsgIo reply = {
                 .std_id = ERASE_SECTOR_COMPLETE_ID,
                 .dlc    = 0,
             };
@@ -214,7 +214,7 @@ void bootloader_runInterfaceTask()
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
-            CanMsg reply = {
+            CanMsgIo reply = {
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
@@ -234,7 +234,7 @@ void bootloader_runTickTask()
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
+        CanMsgIo status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
         status_msg.data[0] = verifyAppCodeChecksum();
         io_can_pushTxMsgToQueue(&status_msg);
 
