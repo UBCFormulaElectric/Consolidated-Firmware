@@ -52,7 +52,7 @@ void app_allStates_runOnTick100Hz(void)
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
 
-void app_allStates_runOnTick1Hz()
+void app_allStates_runOnTick1Hz(void)
 {
     app_canTx_VC_FlowRate_set(app_pumpControl_getFlowRate());
 }
