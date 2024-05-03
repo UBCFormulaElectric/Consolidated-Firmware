@@ -4,12 +4,12 @@
 #include <stdbool.h>
 // #include "hw_hal.h" // TODO remove
 
-//TODO: Update documentation
+// TODO: Update documentation
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
  * TX, and one for RX.
- * 
+ *
  * Transmission:
  * 1. Enqueue msgs via `io_can_enqueueTxMsg`. If the TX queue is full, the `tx_overflow_callback` function is called.
  * 2. Pop msgs off the TX queue and transmit them via `io_can_transmitTxMsg`. After popping a msg off the TX queue,
@@ -34,7 +34,7 @@ typedef struct
     void (*const rx_overflow_clear_callback)();   // Callback on RX queue overflow clear.
 } CanConfig;
 
-#define CAN_PAYLOAD_BYTES 8 //TODO: grab from the same place perhaps 
+#define CAN_PAYLOAD_BYTES 8 // TODO: grab from the same place perhaps
 
 typedef struct
 {
