@@ -137,7 +137,7 @@ float io_tractiveSystem_getCurrentLowResolution()
     //                                              33k + 60.4k
     // DHAB S/124 Output 2 Voltage = ADC Voltage x --------------
     //                                                 60.4k
-    // Offset Voltage = 2.5V
+    // Offset Voltage = 2.5V (Datasheet)
     //
     // Sensitivity = 4.0mV/A
 
