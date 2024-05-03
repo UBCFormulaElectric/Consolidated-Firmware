@@ -38,7 +38,7 @@ void io_telemMessage_init(Modem *m)
     modem            = m;
 }
 
-bool io_telemMessage_broadcast(CanMsg *rx_msg)
+bool io_telemMessage_broadcast(CanMsgIo *rx_msg)
 {
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));

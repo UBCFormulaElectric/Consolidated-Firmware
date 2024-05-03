@@ -2,12 +2,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "hw_hal.h"
+// #include "hw_hal.h" // TODO remove
+
+//TODO: Update documentation
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
  * TX, and one for RX.
- *
+ * 
  * Transmission:
  * 1. Enqueue msgs via `io_can_enqueueTxMsg`. If the TX queue is full, the `tx_overflow_callback` function is called.
  * 2. Pop msgs off the TX queue and transmit them via `io_can_transmitTxMsg`. After popping a msg off the TX queue,
@@ -65,8 +67,11 @@ void io_can_transmitMsgFromQueue(void);
  */
 void io_can_popRxMsgFromQueue(CanMsgIo *msg);
 
+#ifdef TARGET_EMBEDDED
+#include "hw_can.h"
 /**
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param msg CAN msg to be populated by RXed msg.
  */
-void io_can_msgReceivedCallback(CanMsgIo *rx_msg);
+void io_can_msgReceivedCallback(CanMsg *rx_msg);
+#endif
