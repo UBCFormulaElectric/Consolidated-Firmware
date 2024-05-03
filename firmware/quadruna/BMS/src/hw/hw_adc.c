@@ -15,8 +15,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
         hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN5_TS_ISENSE_50A]);
     adc_voltages[ADC1_IN9_TS_ISENSE_400A] =
         hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN9_TS_ISENSE_400A]);
-    adc_voltages[ADC1_IN10_TS_VSENSE_DIFF] =
-        hw_adcConversions_rawAdcValueToVoltage(hadc, true, raw_adc_values[ADC1_IN10_TS_VSENSE_DIFF]);
+    adc_voltages[ADC1_IN10_TS_VSENSE_P] =
+        hw_adcConversions_rawAdcValueToVoltage(hadc, true, raw_adc_values[ADC1_IN10_TS_VSENSE_P]);
+    adc_voltages[ADC1_IN11_TS_VSENSE_N] =
+        hw_adcConversions_rawAdcValueToVoltage(hadc, true, raw_adc_values[ADC1_IN11_TS_VSENSE_N]);
 }
 
 uint16_t *hw_adc_getRawValuesBuffer(void)
