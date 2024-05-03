@@ -280,8 +280,10 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
 
 const AdcChannel id_to_adc[] = {
-    [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
+    [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       
+    [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
+    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A,
+    [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
     [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
 };
 
@@ -301,6 +303,7 @@ void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
 
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY,ADC_SINGLE_ENDED);
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);

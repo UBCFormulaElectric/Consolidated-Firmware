@@ -72,8 +72,8 @@ float io_tractiveSystem_getVoltage()
     }
     else
     {
-        const float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (2 * TS_VOLTAGE_DIV * AMPLIFIER_GAIN) - 4;
-        return ts_vsense * R_ERROR_COMPENSATION / (2 * TS_VOLTAGE_DIV * AMPLIFIER_GAIN) - 4;
+        const float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        return ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
     }
 }
 

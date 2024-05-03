@@ -9,4 +9,8 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"cmsis_os.h": "c",
+		"tasks.h": "c"
+	},
 }
