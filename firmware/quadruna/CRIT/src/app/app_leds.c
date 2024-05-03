@@ -1,76 +1,48 @@
 #include "app_leds.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "io_leds.h"
 
-static const Leds *leds = NULL;
-
-void app_led_init(const Leds *in_leds)
+BoardLEDStatus board_worst_status(CanAlertBoard b)
 {
-    leds = in_leds;
+    if (app_canAlerts_BoardHasFault(b))
+        return FAULT;
+    if (app_canAlerts_BoardHasWarning(b))
+        return WARNING;
+    return OK;
 }
 
 void app_leds_update(void)
 {
-    if (leds == NULL)
-    {
-        return;
-    }
-
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
-    io_led_enable(leds->imd_led, imd_fault_latched);
-
+    io_led_imd_set(imd_fault_latched);
     const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();
-    io_led_enable(leds->bspd_led, bspd_fault_latched);
-
+    io_led_bspd_set(bspd_fault_latched);
     const bool ams_fault_latched = app_canRx_BMS_BmsLatchedFault_get();
-    io_led_enable(leds->ams_led, ams_fault_latched);
-
+    io_led_ams_set(ams_fault_latched);
     const bool shutdown_sensor = false; // TODO implement when SigmaWrath's changes are in
-    io_led_enable(leds->shdn_led, shutdown_sensor);
-
+    io_led_shutdown_set(shutdown_sensor);
     const bool start_led_on = app_canRx_VC_State_get() == VC_DRIVE_STATE;
-    io_led_enable(leds->start_led, start_led_on);
-
+    io_led_start_set(start_led_on);
     const bool regen_light_on = app_canRx_VC_RegenEnabled_get();
-    io_led_enable(leds->regen_led, regen_light_on);
-
+    io_led_regen_set(regen_light_on);
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
-    io_led_enable(leds->torquevec_led, torquevec_light_on);
+    io_led_torquevec_set(torquevec_light_on);
+    
+    BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
+    io_led_bms_status_set(bms_status);
 
-    typedef struct
-    {
-        const RgbLed *led;
-        CanAlertBoard jsoncan_board_enum;
-    } LedCAN;
+    BoardLEDStatus fsm_status = board_worst_status(FSM_ALERT_BOARD);
+    io_led_fsm_status_set(fsm_status);
 
-    const LedCAN boards[NUM_BOARD_LEDS] = {
-        { .led = leds->bms_status_led, .jsoncan_board_enum = BMS_ALERT_BOARD },
-        { .led = leds->fsm_status_led, .jsoncan_board_enum = FSM_ALERT_BOARD },
-        { .led = leds->vc_status_led, .jsoncan_board_enum = VC_ALERT_BOARD },
-        { .led = leds->aux_status_led },
-        { .led = leds->crit_status_led, .jsoncan_board_enum = CRIT_ALERT_BOARD },
-        { .led = leds->rsm_status_led },
-    };
+    BoardLEDStatus vc_status = board_worst_status(VC_ALERT_BOARD);
+    io_led_vc_status_set(vc_status);
 
-    for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
-    {
-        const RgbLed *board_status_led = boards[i].led;
-        CanAlertBoard alert_board_ids  = boards[i].jsoncan_board_enum;
+    BoardLEDStatus crit_status = board_worst_status(CRIT_ALERT_BOARD);
+    io_led_crit_status_set(crit_status);
 
-        if (app_canAlerts_BoardHasFault(alert_board_ids))
-        {
-            // Turn red.
-            io_rgbLed_enable(board_status_led, true, false, false);
-        }
-        else if (app_canAlerts_BoardHasWarning(alert_board_ids))
-        {
-            // Turn blue.
-            io_rgbLed_enable(board_status_led, false, false, true);
-        }
-        else
-        {
-            // Turn green.
-            io_rgbLed_enable(board_status_led, false, true, false);
-        }
-    }
+    BoardLEDStatus rsm_status = board_worst_status(RSM_ALERT_BOARD);
+    io_led_rsm_status_set(rsm_status);
+
+    // TODO AUX status
 }

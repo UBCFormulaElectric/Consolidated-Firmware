@@ -1,26 +1,15 @@
 #include "app_switches.h"
+#include "io_switches.h"
 #include "app_canTx.h"
 
-static const Switches *switches = NULL;
-
-void app_switches_init(const Switches *switches_in)
+void app_switches_broadcast(void)
 {
-    switches = switches_in;
-}
-
-void app_switches_update(void)
-{
-    if (switches == NULL)
-    {
-        return;
-    }
-
-    const bool start_switch_on = io_switch_isClosed(switches->start_switch);
+    const bool start_switch_on = io_switches_start_get();
     app_canTx_CRIT_StartSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const bool regen_switch_on = io_switch_isClosed(switches->regen_switch);
+    const bool regen_switch_on = io_switches_regen_get();
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
 
-    const bool torquevec_switch_on = io_switch_isClosed(switches->torquevec_switch);
+    const bool torquevec_switch_on = io_switches_torquevec_get();
     app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
 }

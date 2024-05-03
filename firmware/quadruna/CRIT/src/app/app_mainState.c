@@ -7,7 +7,7 @@
 static void mainStateRunOnTick100Hz(void)
 {
     app_leds_update();
-    app_switches_update();
+    app_switches_broadcast();
     app_driveMode_broadcast();
 
     app_heartbeatMonitor_checkIn();

@@ -9,8 +9,8 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
-#include "app_leds.h"
-#include "app_switches.h"
+#include "io_leds.h"
+#include "io_switches.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -414,6 +414,10 @@ void tasks_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
 
+    io_led_init(&led_config);
+    io_switches_init(&switch_config);
+    io_driveMode_init(&drive_mode);
+
     app_canTx_init();
     app_canRx_init();
 
@@ -427,9 +431,6 @@ void tasks_init(void)
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
-
-    app_led_init(&led_config);
-    app_switches_init(&switch_config);
 }
 
 _Noreturn void tasks_run100Hz(void)

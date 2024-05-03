@@ -16,8 +16,8 @@ extern "C"
 #include "app_utils.h"
 #include "app_mainState.h"
 #include "app_globals.h"
-#include "app_leds.h"
-#include "app_switches.h"
+#include "io_leds.h"
+#include "io_switches.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -43,8 +43,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
 
-        app_led_init(&leds);
-        app_switches_init(&switches);
+        io_led_init(&leds);
+        io_switches_init(&switches);
     }
 
     void TearDown() override
