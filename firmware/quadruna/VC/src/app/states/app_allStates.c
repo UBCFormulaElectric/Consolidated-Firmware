@@ -8,6 +8,7 @@
 #include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_globals.h"
+#include "io_telemMessage.h"
 #include "io_sbgEllipse.h"
 #include "app_lowVoltageBattery.h"
 #include "app_shutdown.h"

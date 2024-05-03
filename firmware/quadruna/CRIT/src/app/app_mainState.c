@@ -7,8 +7,10 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "app_globals.h"
+#include "app_driveMode.h"
 #include "io_led.h"
 #include "io_switch.h"
+#include "io_shutdownSensor.h"
 #include "tasks.h"
 #include "app_heartbeatMonitor.h"
 
@@ -23,12 +25,11 @@ static void mainStateRunOnTick100Hz(void)
     const bool ams_fault_latched = app_canRx_BMS_BmsLatchedFault_get();
     io_led_enable(globals->config->ams_led, ams_fault_latched);
 
-    const bool shutdown_sensor = hw_gpio_readPin(globals->config->shdn_sen_pin);
+    const bool shutdown_sensor = io_shutdownSensor_readPin(globals->config->shdn_sen);
     io_led_enable(globals->config->shdn_led, shutdown_sensor);
 
     const bool start_switch_on = io_switch_isClosed(globals->config->start_switch);
     app_canTx_CRIT_StartSwitch_set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
-    io_led_enable(globals->config->start_led, start_switch_on);
 
     const bool regen_switch_on = io_switch_isClosed(globals->config->regen_switch);
     app_canTx_CRIT_RegenSwitch_set(regen_switch_on ? SWITCH_ON : SWITCH_OFF);
@@ -37,6 +38,13 @@ static void mainStateRunOnTick100Hz(void)
     const bool torquevec_switch_on = io_switch_isClosed(globals->config->torquevec_switch);
     app_canTx_CRIT_TorqueVecSwitch_set(torquevec_switch_on ? SWITCH_ON : SWITCH_OFF);
     io_led_enable(globals->config->torquevec_led, torquevec_switch_on);
+
+    if (app_canRx_VC_State_get() == VC_DRIVE_STATE)
+    {
+        io_led_enable(globals->config->start_led, true);
+    }
+
+    app_driveMode_broadcast();
 
     typedef struct
     {

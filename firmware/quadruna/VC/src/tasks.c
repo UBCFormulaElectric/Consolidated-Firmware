@@ -28,6 +28,7 @@
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_telemMessage.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -47,6 +48,9 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
+extern UART_HandleTypeDef  huart1;
+extern UART_HandleTypeDef  huart3;
+
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -233,9 +237,12 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
-static UART   debug_uart = { .handle = &huart7 };
-static UART   imu_uart   = { .handle = &huart2 };
+static Buzzer buzzer        = { .gpio = buzzer_pwr_en };
+static UART   debug_uart    = { .handle = &huart7 };
+static UART   imu_uart      = { .handle = &huart2 };
+static UART   modem2G4_uart = { .handle = &huart3 };
+static UART   modem900_uart = { .handle = &huart1 };
+static Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
@@ -335,6 +342,7 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
+    io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
     io_shutdown_init(&shutdown_config);
@@ -397,6 +405,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
+        io_telemMessage_broadcast();
         hw_watchdog_checkIn(watchdog);
 
         start_ticks += period_ms;
