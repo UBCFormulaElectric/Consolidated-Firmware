@@ -6,7 +6,7 @@
 #include "app_canTx.h"
 #include "app_utils.h"
 
-#define HIGH_RES_MAX_CURRENT_READING (50.0f)
+#define HIGH_RES_MAX_CURRENT_READING (75.0f)
 #define MAX_TS_CHARGE_CURRENT_AMPS (70.8f)
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (-265.5f)
 
