@@ -19,6 +19,7 @@ pyserial = "*"
 protoletariat = "*"
 python-can = "*"
 rich = "*"
+PyGithub = "*"
 
 [dev-packages]
 setuptools = "*"
