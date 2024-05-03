@@ -56,6 +56,9 @@ void cringe(const RgbLed *led, const BoardLEDStatus status)
         case WARNING:
             io_rgbLed_enable(led, false, false, true);
             break;
+        case WHITE:
+            io_rgbLed_enable(led, true, true, true);
+            break;
     }
 }
 

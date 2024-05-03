@@ -20,17 +20,6 @@ typedef struct
     const RgbLed *const    rsm_status_led;
 } Leds;
 
-typedef enum
-{
-    BMS_LED,
-    FSM_LED,
-    VC_LED,
-    AUX_LED,
-    CRIT_LED,
-    RSM_LED,
-    NUM_BOARD_LEDS,
-} BoardLeds;
-
 void io_led_init(const Leds *in_leds);
 
 void io_led_imd_set(bool val);
@@ -45,7 +34,8 @@ typedef enum
 {
     OK,
     WARNING,
-    FAULT
+    FAULT,
+    WHITE
 } BoardLEDStatus;
 
 void io_led_bms_status_set(BoardLEDStatus status);

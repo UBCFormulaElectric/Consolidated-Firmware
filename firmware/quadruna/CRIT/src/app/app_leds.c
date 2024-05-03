@@ -28,7 +28,7 @@ void app_leds_update(void)
     io_led_regen_set(regen_light_on);
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     io_led_torquevec_set(torquevec_light_on);
-    
+
     BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
     io_led_bms_status_set(bms_status);
 
@@ -45,4 +45,5 @@ void app_leds_update(void)
     io_led_rsm_status_set(rsm_status);
 
     // TODO AUX status
+    io_led_aux_status_set(WHITE);
 }
