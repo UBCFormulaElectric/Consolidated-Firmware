@@ -100,8 +100,8 @@ static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin =
 static const PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
     .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_2,
-    .falling_edge_tim_channel = TIM_CHANNEL_1,
+    .rising_edge_tim_channel  = TIM_CHANNEL_1,
+    .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
 
 static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };

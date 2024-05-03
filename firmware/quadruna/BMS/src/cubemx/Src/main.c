@@ -539,8 +539,8 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
-    sSlaveConfig.InputTrigger    = TIM_TS_TI2FP2;
-    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
     sSlaveConfig.TriggerFilter   = 0;
     if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
     {
