@@ -3,6 +3,15 @@ include(cmake/tests.cmake)
 include(cmake/shared.cmake)
 
 # ======== Libraries ========
+CPMAddPackage(
+        NAME NANOPB_REPO
+        GITHUB_REPOSITORY nanopb/nanopb
+        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+)
+list(APPEND CMAKE_MODULE_PATH ${NANOPB_REPO_SOURCE_DIR}/extra)
+find_package(Nanopb REQUIRED)
 if ("${TARGET}" STREQUAL "deploy")
     add_compile_definitions(TARGET_EMBEDDED)
 
@@ -48,27 +57,9 @@ if ("${TARGET}" STREQUAL "deploy")
             "cm4"
             TRUE
     )
-    # protobufs
-    CPMAddPackage(
-        NAME NANOPB
-        GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
-        GIT_SHALLOW TRUE
-    )
-    list(APPEND CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-    find_package(Nanopb REQUIRED)
 elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
     add_compile_definitions(_USE_MATH_DEFINES)
-    # protobufs
-    CPMAddPackage(
-        NAME NANOPB
-        GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
-        GIT_SHALLOW TRUE
-    )
-    list(APPEND CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-    find_package(Nanopb REQUIRED)
 
     # We assume this cmake is running on a x86 TARGET, so the
     # *default compiler* settings should be fine
