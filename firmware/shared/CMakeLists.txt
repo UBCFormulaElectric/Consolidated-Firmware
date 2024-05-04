@@ -13,7 +13,12 @@ if("${TARGET}" STREQUAL "test")
             "${HDRS_TO_FAKE}"
     )
 
-    jsoncan_sources("shared" "${CMAKE_CURRENT_BINARY_DIR}" FALSE "quadruna")
+    jsoncan_sources(
+        "shared"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
+        "quadruna"
+    )
     add_library("shared_can" STATIC "${CAN_SRCS}")
     target_include_directories("shared_can" PUBLIC "${CAN_INCLUDE_DIRS}")
 

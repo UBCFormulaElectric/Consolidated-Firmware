@@ -218,7 +218,13 @@ function(embedded_binary
 endfunction()
 
 # Generate firmware image package (merged app + bootloader).
-function(embedded_image IMAGE_NAME APP_HEX_TARGET APP_HEX_PATH BOOT_HEX_TARGET BOOT_HEX_PATH)
+function(embedded_image
+    IMAGE_NAME
+    APP_HEX_TARGET
+    APP_HEX_PATH
+    BOOT_HEX_TARGET
+    BOOT_HEX_PATH
+)
     message("🖼️ Creating Embedded Image for ${IMAGE_NAME}")
 
     set(APP_METADATA_HEX "${IMAGE_NAME}_app_metadata.hex")

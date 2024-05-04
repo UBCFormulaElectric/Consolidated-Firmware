@@ -47,9 +47,24 @@ file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 if ("${TARGET}" STREQUAL "deploy")
-    jsoncan_sources("VC" "${CMAKE_CURRENT_BINARY_DIR}" TRUE "quadruna")
-    embedded_library("quadruna_VC_can" "${CAN_SRCS}" "${CAN_INCLUDE_DIRS}" "${ARM_CORE}" TRUE)
-    generate_stm32cube_code("VC" "${IOC_PATH}")
+    jsoncan_library(
+        "quadruna_VC_can"
+        "VC"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        TRUE
+        "quadruna"
+    )
+    embedded_library(
+        quadruna_VC_can
+        "${CAN_SRCS}"
+        "${CAN_INCLUDE_DIRS}"
+        "${ARM_CORE}"
+        TRUE
+    )
+    generate_stm32cube_code(
+        "VC"
+        "${IOC_PATH}"
+    )
 
     set(STM32_HAL_SRCS
         "stm32h7xx_hal_adc_ex.c"

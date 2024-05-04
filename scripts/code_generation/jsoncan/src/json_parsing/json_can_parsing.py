@@ -93,7 +93,9 @@ class JsonCanParser:
                 raise InvalidCanJson(
                     f"Shared enum '{enum_name}' is a duplicate, enums must have unique names."
                 )
-            can_enum: CanEnum = self._get_parsed_can_enum(enum_name, enum_entries)
+            can_enum: CanEnum = self._get_parsed_can_enum(
+                enum_name=enum_name, enum_json_data=enum_data
+            )
             self._enums[enum_name] = can_enum
             self._shared_enums.append(can_enum)
 
