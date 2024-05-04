@@ -234,8 +234,8 @@ void bootloader_runTickTask()
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0]  = verifyAppCodeChecksum();
+        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
+        status_msg.data[0] = verifyAppCodeChecksum();
         io_can_pushTxMsgToQueue(&status_msg);
 
         bootloader_boardSpecific_tick();

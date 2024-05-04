@@ -69,7 +69,7 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
 void io_can_transmitMsgFromQueue(void)
 {
     // Pop a msg of the TX queue, then transmit it onto the bus.
-    CanMsg         tx_msg;
+    CanMsg           tx_msg;
     const osStatus_t s = osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
     assert(s == osOK);
     CanMsg tx_msg_hw;

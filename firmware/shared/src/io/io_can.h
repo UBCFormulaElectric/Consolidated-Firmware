@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #ifdef TARGET_EMBEDDED
 #include "hw_can.h"
-#endif 
+#endif
 // TODO: Update documentation
 
 /**
