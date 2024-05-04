@@ -122,7 +122,7 @@ if ("${TARGET}" STREQUAL "deploy")
         "littlefs_cm7_vc"
         "${LITTLEFS_SRCS}"
         "${LITTLEFS_SOURCE_DIR}"
-        "cm4"
+        "cm7"
         TRUE
     )
 
