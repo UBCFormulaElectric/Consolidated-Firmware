@@ -33,6 +33,8 @@ static void inverterOnStateRunOnTick100Hz(void)
                                       app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
     const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
 
+    bool efuse_fault = app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
+
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
         // Transition to drive state when start-up conditions are passed (see
@@ -42,7 +44,7 @@ static void inverterOnStateRunOnTick100Hz(void)
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
         app_stateMachine_setNextState(app_driveState_get());
     }
-    else if (inverters_off_exit)
+    else if (inverters_off_exit || efuse_fault)
     {
         app_stateMachine_setNextState(app_initState_get());
     }

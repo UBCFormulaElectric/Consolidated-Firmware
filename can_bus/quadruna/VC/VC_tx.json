@@ -717,5 +717,19 @@
                 "unit": "L/H"
             }
         }
+    },
+    "EfuseFaults": {
+        "msg_id": 226,
+        "cycle_time": 100,
+        "description": "VC efuse retry protocol faults",
+        "signals": {
+            "FaultedEfuse": {
+                "enum": "Efuse_Enum"
+            },
+            "EFuseFaultCount": {
+                "bits": 3,
+                "signed": false
+            }
+        }
     }
 }

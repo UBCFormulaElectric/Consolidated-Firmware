@@ -52,6 +52,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+        app_powerManager_init();
     }
 
     void TearDown() override
@@ -155,4 +156,12 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // const GlobalsConfig globals_config = {
     //     .a = 0
     // };
+
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+    }
 };

@@ -10,5 +10,17 @@
     "INSUFFICIENT_READINGS": 1, 
     "INTERNAL_ERROR": 2, 
     "LIMIT_EXCEEDED": 3
+  },
+
+  "Efuse_Enum": {
+    "NO_FAULT": 0,
+    "SHDN": 1,
+    "LV": 2,
+    "PUMP": 3,
+    "AUX": 4,
+    "INV_R": 5,
+    "INV_L": 6,
+    "TELEM": 7,
+    "BUZZER": 8
   }
 }
