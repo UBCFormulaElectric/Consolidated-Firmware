@@ -60,6 +60,20 @@ extern "C"
 /* Private defines -----------------------------------------------------------*/
 #define nBOOT_EN_Pin GPIO_PIN_13
 #define nBOOT_EN_GPIO_Port GPIOC
+#define AIR_P_EN_Pin GPIO_PIN_2
+#define AIR_P_EN_GPIO_Port GPIOC
+#define PRE_CHARGE_END_Pin GPIO_PIN_3
+#define PRE_CHARGE_END_GPIO_Port GPIOC
+#define BSPD_TEST_EN_Pin GPIO_PIN_4
+#define BSPD_TEST_EN_GPIO_Port GPIOA
+#define nCHIMERA_Pin GPIO_PIN_5
+#define nCHIMERA_GPIO_Port GPIOA
+#define DEBUG_LED_Pin GPIO_PIN_7
+#define DEBUG_LED_GPIO_Port GPIOE
+#define SPI_CS_Pin GPIO_PIN_12
+#define SPI_CS_GPIO_Port GPIOB
+#define BMS_OK_Pin GPIO_PIN_9
+#define BMS_OK_GPIO_Port GPIOD
 
     /* USER CODE BEGIN Private defines */
 
