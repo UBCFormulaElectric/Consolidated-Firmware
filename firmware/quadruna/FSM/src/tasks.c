@@ -206,7 +206,7 @@ void tasks_init(void)
     app_canRx_init();
 
     app_shdn_loop_init(fsmBshdnNodes, io_fsm_num_shdn_nodes());
-  
+
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
     io_loadCell_init(&load_cell_config);
