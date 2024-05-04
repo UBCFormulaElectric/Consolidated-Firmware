@@ -8,71 +8,78 @@
 #include "io_apps.h"
 #include "io_brake.h"
 
-Signal app_agreement_signal;
-Signal papp_alarm_signal;
-Signal sapp_alarm_signal;
-Signal app_brake_signal;
+Signal papps_ocsc_signal;
+Signal sapps_ocsc_signal;
+Signal papps_sapps_disagreement_signal;
+Signal apps_brake_disagreement_signal;
 
 void app_apps_init(void)
 {
-    app_signal_init(&app_agreement_signal, AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
-    app_signal_init(&papp_alarm_signal, PAPPS_OCSC_TIME_TO_FAULT, PAPPS_OCSC_TIME_TO_CLEAR);
-    app_signal_init(&sapp_alarm_signal, SAPPS_OCSC_TIME_TO_FAULT, SAPPS_OCSC_TIME_TO_CLEAR);
-    app_signal_init(&app_brake_signal, APP_BRAKE_TIME_TO_FAULT, APP_BRAKE_TIME_TO_CLEAR);
+    app_signal_init(&papps_ocsc_signal, APPS_OCSC_TIME_TO_FAULT, APPS_OCSC_TIME_TO_CLEAR);
+    app_signal_init(&sapps_ocsc_signal, APPS_OCSC_TIME_TO_FAULT, APPS_OCSC_TIME_TO_CLEAR);
+    app_signal_init(
+        &papps_sapps_disagreement_signal, PAPPS_SAPPS_DISAGREEMENT_TIME_TO_FAULT,
+        PAPPS_SAPPS_DISAGREEMENT_TIME_TO_CLEAR);
+    app_signal_init(
+        &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
 }
 
 void app_apps_broadcast()
 {
     float papps_pedal_percentage = io_apps_getPrimary();
     float sapps_pedal_percentage = io_apps_getSecondary();
-    app_canTx_FSM_PappsMappedPedalPercentage_set(papps_pedal_percentage);
-    app_canTx_FSM_SappsMappedPedalPercentage_set(sapps_pedal_percentage);
+
+    // Open Short Circuit Tests (pin voltages out of bounds)
+    const bool  primary_pedal_ocsc = io_apps_isPrimaryOCSC();
+    SignalState papps_ocsc_signal_state =
+        app_signal_getState(&papps_ocsc_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
+    const bool papps_ocsc_active = papps_ocsc_signal_state == SIGNAL_STATE_ACTIVE;
+
+    const bool  secondary_pedal_ocsc = io_apps_isSecondaryOCSC();
+    SignalState sapps_ocsc_signal_state =
+        app_signal_getState(&sapps_ocsc_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
+    const bool sapps_ocsc_active = sapps_ocsc_signal_state == SIGNAL_STATE_ACTIVE;
+
+    app_canAlerts_FSM_Fault_PappsOCSC_set(papps_ocsc_active);
+    app_canAlerts_FSM_Fault_SappsOCSC_set(sapps_ocsc_active);
+
+    // Primary Secondary Accelerator Agreement (Inaccurate data)
+    const float papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
+
+    SignalState papps_sapps_disagreement_signal_state =
+        app_signal_getState(&papps_sapps_disagreement_signal, (papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
+
+    const bool papps_sapps_disagreement_active = papps_sapps_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
+
+    app_canAlerts_FSM_Warning_AppsDisagreement_set(papps_sapps_disagreement_active);
+
+    // Accelerator Brake Plausibility (bad user input safety issues)
+    // Protect against brake/apps active at same time
+    // Brakes disagreement is detected if brakes are actuated and apps are past 25% threshold
+    // Allowed to exit disagreement only when apps is released (< 5%)
+    bool apps_brakes_conflict = io_brake_isActuated() && (papps_pedal_percentage > 25 || sapps_pedal_percentage > 25);
+
+    bool apps_less_than_5_percent = papps_pedal_percentage < 5 && sapps_pedal_percentage < 5;
+
+    SignalState apps_brake_disagreement_signal_state =
+        app_signal_getState(&apps_brake_disagreement_signal, apps_brakes_conflict, apps_less_than_5_percent);
+
+    const bool apps_brake_disagreement_active = apps_brake_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
+
+    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(apps_brake_disagreement_active);
+
     app_canTx_FSM_PappsRawPedalPercentage_set(papps_pedal_percentage);
     app_canTx_FSM_SappsRawPedalPercentage_set(sapps_pedal_percentage);
 
-    // Open Short Circuit Tests (non-understandable data test)
-    const bool  primary_pedal_ocsc = io_apps_isPrimaryOCSC();
-    SignalState papp_signal_state  = app_signal_getState(&papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
-    const bool  papps_ocsc_active  = papp_signal_state == SIGNAL_STATE_ACTIVE;
-    app_canAlerts_FSM_Fault_PappsOCSC_set(papps_ocsc_active);
-
-    const bool  secondary_pedal_ocsc = io_apps_isSecondaryOCSC();
-    SignalState sapp_signal_state =
-        app_signal_getState(&sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
-    const bool sapps_ocsc_active = sapp_signal_state == SIGNAL_STATE_ACTIVE;
-    app_canAlerts_FSM_Fault_SappsOCSC_set(sapps_ocsc_active);
-
-    // torque 0
-    if (papps_ocsc_active || sapps_ocsc_active)
+    // set mapped apps to 0 if anything went wrong
+    if (papps_ocsc_active || sapps_ocsc_active || apps_brake_disagreement_active || papps_sapps_disagreement_active)
     {
         app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
         app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
     }
-
-    // Primary Secondary Accelerator Agreement (Inaccurate data)
-    const float papp_sapp_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
-    SignalState app_agreement_signal_state =
-        app_signal_getState(&app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
-    const bool apps_disagreement = app_agreement_signal_state == SIGNAL_STATE_ACTIVE;
-    app_canAlerts_FSM_Warning_AppsDisagreement_set(apps_disagreement);
-
-    if (apps_disagreement)
+    else
     {
-        app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
-        app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
-    }
-
-    // Accelerator Brake Plausibility (bad user input safety issues)
-    SignalState app_brake_disagreement = app_signal_getState(
-        &app_brake_signal, io_brake_isActuated() && (papps_pedal_percentage > 25 || papps_pedal_percentage > 25),
-        papps_pedal_percentage < 5);
-
-    const bool brake_acc_disagreement = app_brake_disagreement == SIGNAL_STATE_ACTIVE;
-    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(brake_acc_disagreement);
-
-    if (brake_acc_disagreement)
-    {
-        app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
-        app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);
+        app_canTx_FSM_PappsMappedPedalPercentage_set(papps_pedal_percentage);
+        app_canTx_FSM_SappsMappedPedalPercentage_set(sapps_pedal_percentage);
     }
 }

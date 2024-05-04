@@ -24,6 +24,8 @@
 #include "io_can.h"
 #include "io_canRx.h"
 #include "io_critShdn.h"
+#include "io_shutdownSensor.h"
+#include "io_driveMode.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -271,6 +273,12 @@ static const Gpio shdn_sen_pin    = { .port = SHDN_SEN_GPIO_Port, .pin = SHDN_SE
 static const Gpio inertia_sen_pin = { .port = INERTIA_SEN_GPIO_Port, .pin = INERTIA_SEN_Pin };
 // clang-format on
 
+static const ShutdownSensor shdn_sen   = { .shdn_sen_pin = &shdn_sen_pin };
+static const DriveMode      drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
+                                           .n_drive_mode_1_pin = &n_drive_mode_1_pin,
+                                           .n_drive_mode_2_pin = &n_drive_mode_2_pin,
+                                           .n_drive_mode_3_pin = &n_drive_mode_3_pin };
+
 const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
     [CRIT_GpioNetName_START_LED]            = &start_led_pin,
@@ -334,7 +342,8 @@ static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
                                               .fsm_status_led   = &fsm_status_led,
                                               .rsm_status_led   = &rsm_status_led,
                                               .vc_status_led    = &vc_status_led,
-                                              .shdn_sen_pin     = &shdn_sen_pin };
+                                              .shdn_sen         = &shdn_sen,
+                                              .drive_mode       = &drive_mode };
 
 // TODO: add heartbeat for VC and RSM
 // CRIT rellies on BMS, VC, RSM, FSM
@@ -390,7 +399,7 @@ static BoardShdnNode critBshdnNodes[2] = { { &io_get_INERTIA_SEN_OK, &app_canTx_
 
 void tasks_preInit(void)
 {
-    // hw_bootup_enableInterruptsForApp();
+    hw_bootup_enableInterruptsForApp();
 
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();

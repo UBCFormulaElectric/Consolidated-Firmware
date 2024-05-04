@@ -1,8 +1,8 @@
 set(ARM_CORE "cm7")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/h7dev.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
-file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
+file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list (APPEND EMBEDDED_SRCS 
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
     "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
@@ -15,8 +15,6 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
     )
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/nanopb/extra)
-find_package(Nanopb REQUIRED)
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
     
 set(SRCS ${PROTO_SRCS})
@@ -28,6 +26,10 @@ set(EMBEDDED_INCLUDE_DIRS
     "${SHARED_HW_INCLUDE_DIR}" 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
 )
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 if("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
@@ -59,10 +61,10 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
         "h7dev_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
         "${IOC_PATH}.md5"
@@ -83,15 +85,24 @@ if("${TARGET}" STREQUAL "deploy")
         "cm7"
         TRUE
     )
-
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
+
+    # Build bootloader.
+    stm32h7_boot_binary(
+        "h7dev_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "h7dev"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
+    )
 
     embedded_image(
         "h7dev"
         "h7dev_app.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/h7dev_app.hex"
         "h7dev_boot.hex"
-        "${CMAKE_BINARY_DIR}/firmware/boot/h7boot/h7dev_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
     )
 
 endif()

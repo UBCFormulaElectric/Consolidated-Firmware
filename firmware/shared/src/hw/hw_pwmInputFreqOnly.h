@@ -3,15 +3,27 @@
 #include <stdbool.h>
 #include "hw_hal.h"
 
+/*
+  htim: The handle of the timer measuring the PWM input
+  timer_frequency_hz: The frequency of the timer measuring the PWM input
+  tim_channel: The timer channel measuring the PWM input
+  tim_auto_reload_reg: Maximum value that the counter can count to
+  tim_active_channel: The active timer channel measuring the PWM input
+*/
 typedef struct
 {
-    float frequency_hz;
-
     TIM_HandleTypeDef    *htim;
     float                 tim_frequency_hz;
     uint32_t              tim_channel;
     uint32_t              tim_auto_reload_reg;
     HAL_TIM_ActiveChannel tim_active_channel;
+} PwmInputFreqOnlyConfig;
+
+typedef struct
+{
+    PwmInputFreqOnlyConfig *config;
+
+    float frequency_hz;
 
     bool     first_tick;
     uint32_t curr_rising_edge;
@@ -24,21 +36,11 @@ typedef struct
  * Initialize a frequency-only PWM input using the given (hardware) timer
  *
  * @note The given timer must be initialized with Input Capture Direct Mode
- * @param htim: The handle of the timer measuring the PWM input
- * @param htim: The handle of the timer measuring the PWM input
- * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
- * @param tim_channel: The timer channel measuring the PWM input
- * @param tim_auto_reload_reg: Maximum value that the counter can count to
- * @param tim_active_channel: The active timer channel measuring the PWM input
+ * @param pwm_input: The handle of the timer measuring the PWM input
+ * @param config: Wrapper around configuration of PwmInputFreqOnly
  * @return Pointer to the allocated and initialized PWM input
  */
-void hw_pwmInputFreqOnly_init(
-    PwmInputFreqOnly     *pwm_input,
-    TIM_HandleTypeDef    *htim,
-    float                 tim_frequency_hz,
-    uint32_t              tim_channel,
-    uint32_t              tim_auto_reload_reg,
-    HAL_TIM_ActiveChannel tim_active_channel);
+void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, PwmInputFreqOnlyConfig *config);
 
 /**
  * Get the frequency for the given PWM input

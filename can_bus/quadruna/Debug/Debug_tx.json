@@ -71,5 +71,21 @@
                 "unit": "%"
             }
         }
+    },
+    "SetCoolantPump": {
+        "msg_id": 705,
+        "cycle_time": 1,
+        "description": "Value set by the user to set the coolant pump flow rate.",
+        "signals": {
+            "SetCoolantPump_CustomEnable": {
+                "bits": 1
+            },
+            "SetCoolantPump_CustomVal": {
+                "resolution": 15.625,
+                "min": 0,
+                "max": 2000,
+                "unit": "L/H"
+            }
+        }
     }
 }

@@ -5,106 +5,106 @@
     "faults_counts_id": 399,
     "warnings": {
         "WatchdogTimeout": {
-            "id" :301,
-            "description" : "Example"
+            "id": 301,
+            "description": "Watchdog timed out."
         },
         "TxOverflow": {
-            "id" :302,
-            "description" : "Example"
+            "id": 302,
+            "description": "CanTx queue overflowed."
         },
         "RxOverflow": {
-            "id" :303,
-            "description" : "Example"
+            "id": 303,
+            "description": "CanRx queue overflowed."
         },
         "StackWaterMarkHighTask1Hz": {
-            "id" :304,
-            "description" : "Example"
+            "id": 304,
+            "description": "Stack watermark failed on 1Hz task."
         },
         "StackWaterMarkHighTask100Hz": {
-            "id" :305,
-            "description" : "Example"
+            "id": 305,
+            "description": "Stack watermark failed on 100Hz task."
         },
         "StackWaterMarkHighTask1kHz": {
-            "id" :306,
-            "description" : "Example"
+            "id": 306,
+            "description": "Stack watermark failed on 1kHz task."
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id" :307,
-            "description" : "Example"
+            "id": 307,
+            "description": "Stack watermark failed on canRx task."
         },
-        "StackWaterMarkHighTaskCanTx" :{
-            "id" :308,
-            "description" : "Example"
+        "StackWaterMarkHighTaskCanTx":{
+            "id": 308,
+            "description": "Stack watermark failed on canTx task."
         },
         "SteeringAngleOCSC": {
-            "id" :309,
-            "description" : "Example"
+            "id": 309,
+            "description": "Steering sensor voltage out of acceptable range (OCSC)."
         },
         "SteeringAngleOutOfRange": {
-            "id" :310,
-            "description" : "Example"
+            "id": 310,
+            "description": "Steering angle out of range."
         },
         "LeftWheelSpeedOutOfRange": {
-            "id" :311,
-            "description" : "Example"
+            "id": 311,
+            "description": "Left wheel speed out of range."
         },
         "RightWheelSpeedOutOfRange": {
-            "id" :312,
-            "description" : "Example"
+            "id": 312,
+            "description": "Right wheel speed out of range."
         },
         "AppsDisagreement": {
-            "id" :313,
-            "description" : "Example"
+            "id": 313,
+            "description": "Conflict between primary and secondary accelerator pedals."
         },
         "FrontBrakePressureOutOfRange": {
-            "id" :314,
-            "description" : "Example"
+            "id": 314,
+            "description": "Front brake pressure out of range."
         },
         "RearBrakePressureOutOfRange": {
-            "id" :315,
-            "description" : "Example"
+            "id": 315,
+            "description": "Rear brake pressure out of range."
         },
         "BrakePressureSensorOCSC": {
-            "id" :316,
-            "description" : "Example"
+            "id": 316,
+            "description": "Brake pressure sensor voltage out of acceptable range (OCSC)."
         },
         "LeftSuspensionOCSC": {
-            "id" :317,
-            "description" : "Example"
+            "id": 317,
+            "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
         },
         "RightSuspensionOCSC": {
-            "id" :318,
-            "description" : "Example"
+            "id": 318,
+            "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
         },
         "BrakeAppsDisagreement": {
-            "id" :319,
-            "description" : "Example"
+            "id": 319,
+            "description": "Brakes and apps active at same time."
         },
         "LoadCell1OCSC": {
-            "id" :320,
-            "description" : "Example"
+            "id": 320,
+            "description": "Load cell 1 sensor voltage out of acceptable range (OCSC)."
         },
         "LoadCell2OCSC": {
-            "id" :321,
-            "description" : "Example"
+            "id": 321,
+            "description": "Load cell 2 sensor voltage out of acceptable range (OCSC)."
         }
     },
     "faults": {
         "DummyFault": {
-            "id" :351,
-            "description" : "Example"
+            "id": 351,
+            "description": "Placeholder."
         },
         "PappsOCSC": {
-            "id" :352,
-            "description" : "Example"
+            "id": 352,
+            "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
         },
         "SappsOCSC": {
-            "id" :353,
-            "description" : "Example"
+            "id": 353,
+            "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
         },
         "MissingBMSHeartbeat": {
-            "id" :354,
-            "description" : "Example"
+            "id": 354,
+            "description": "BMS heartbeat no longer captured."
         }
     }
 }

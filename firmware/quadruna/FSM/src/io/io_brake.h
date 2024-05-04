@@ -1,6 +1,26 @@
 #pragma once
 
 #include <stdbool.h>
+#include "app_utils.h"
+
+#ifdef TARGET_EMBEDDED
+#include "hw_adc.h"
+
+typedef struct
+{
+    AdcChannel rear_brake;
+    AdcChannel front_brake;
+} BrakeConfig;
+
+#else
+EMPTY_STRUCT(BrakeConfig)
+#endif
+
+/**
+ * Sets up configuration for ADC pins in brake io layer
+ * @param brake_config wrapper around brake adc pins
+ */
+void io_brake_init(BrakeConfig *brake_config);
 
 /**
  * Check if the brake is actuated, by getting the digital signal from the comparator on the FSM

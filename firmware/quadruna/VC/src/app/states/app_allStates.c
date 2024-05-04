@@ -8,6 +8,7 @@
 #include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_globals.h"
+#include "io_telemMessage.h"
 #include "io_sbgEllipse.h"
 #include "app_lowVoltageBattery.h"
 #include "app_shutdown.h"
@@ -51,4 +52,7 @@ void app_allStates_runOnTick100Hz(void)
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
 
-void app_allStates_runOnTick1Hz() {}
+void app_allStates_runOnTick1Hz()
+{
+    app_canTx_VC_FlowRate_set(app_pumpControl_getFlowRate());
+}

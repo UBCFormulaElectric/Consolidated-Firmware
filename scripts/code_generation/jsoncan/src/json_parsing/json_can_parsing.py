@@ -212,7 +212,7 @@ class JsonCanParser:
         """
         msg_id = msg_json_data["msg_id"]
         description, _ = self._get_optional_value(msg_json_data, "description", "")
-        msg_cycle_time, _ = self._get_optional_value(msg_json_data, "cycle_time", None)
+        msg_cycle_time = msg_json_data["cycle_time"]
         msg_modes, _ = self._get_optional_value(
             msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
         )

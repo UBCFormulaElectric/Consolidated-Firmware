@@ -1,6 +1,6 @@
 set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 # app
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -43,8 +43,13 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
+
+# Bootloader files.
+file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 # tests
 file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -104,7 +109,7 @@ if("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
-        "quadruna_FSM"
+        "quadruna_FSM_app"
         "${SRCS}"
         "${INCLUDE_DIRS}"
         "${LINKER_SCRIPT}"
@@ -112,16 +117,32 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     commit_info_library(
-        "quadruna_FSM.elf"
+        "quadruna_FSM_app.elf"
         "quadruna_FSM_commit_info"
         "${CMAKE_CURRENT_BINARY_DIR}/app"
         "${ARM_CORE}"
     )
 
     target_link_libraries("quadruna_FSM_can" "quadruna_FSM_stm32cube")
-    target_link_libraries("quadruna_FSM.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules" "m")
+    target_link_libraries("quadruna_FSM_app.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules" "m")
 
-    # TODO: embedded_image for boot
+    # Build bootloader.
+    stm32f4_boot_binary(
+        "quadruna_FSM_boot"
+        "${BOOT_SRCS}"
+        "${BOOT_INCLUDE_DIRS}"
+        "quadruna_FSM"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
+    )
+
+    embedded_image(
+        "quadruna_FSM"
+        "quadruna_FSM_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_app.hex"
+        "quadruna_FSM_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_boot.hex"
+    )
     
 elseif("${TARGET}" STREQUAL "test")
     jsoncan_library(
