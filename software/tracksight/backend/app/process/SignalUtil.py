@@ -13,8 +13,6 @@ DEBUG_SIZE_MSG_BUF_SIZE = 1
 # import Definitions 
 # MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
 
-
-
 class SignalUtil:
     def __init__(self, is_mock = True):
         ser = serial.Serial("/dev/ttyUSB0", baudrate = 57600, timeout= 1)
