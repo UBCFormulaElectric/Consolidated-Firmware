@@ -456,7 +456,7 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
-        CanMsgIo rx_msg;
+        CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_broadcast(&rx_msg);
         JsonCanMsg jsoncan_rx_msg;

@@ -24,4 +24,4 @@ void io_telemMessage_init(Modem *m);
  * Serializes the can msg and sends it over UART to the appropriate Modem
  */
 
-bool io_telemMessage_broadcast(CanMsgIo *rx_msg);
+bool io_telemMessage_broadcast(CanMsg *rx_msg);

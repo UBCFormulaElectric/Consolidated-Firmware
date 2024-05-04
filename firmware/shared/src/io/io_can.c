@@ -8,8 +8,8 @@
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128
 #define RX_QUEUE_SIZE 128
-#define TX_QUEUE_BYTES sizeof(CanMsgIo) * TX_QUEUE_SIZE
-#define RX_QUEUE_BYTES sizeof(CanMsgIo) * RX_QUEUE_SIZE
+#define TX_QUEUE_BYTES sizeof(CanMsg) * TX_QUEUE_SIZE
+#define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
 
 // Private globals.
 static const CanConfig *config;
@@ -44,11 +44,11 @@ void io_can_init(const CanConfig *can_config)
     config = can_config;
 
     // Initialize CAN queues.
-    tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsgIo), &tx_queue_attr);
-    rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsgIo), &rx_queue_attr);
+    tx_queue_id = osMessageQueueNew(TX_QUEUE_SIZE, sizeof(CanMsg), &tx_queue_attr);
+    rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(CanMsg), &rx_queue_attr);
 }
 
-void io_can_pushTxMsgToQueue(const CanMsgIo *msg)
+void io_can_pushTxMsgToQueue(const CanMsg *msg)
 {
     static uint32_t tx_overflow_count = 0;
 
@@ -69,7 +69,7 @@ void io_can_pushTxMsgToQueue(const CanMsgIo *msg)
 void io_can_transmitMsgFromQueue(void)
 {
     // Pop a msg of the TX queue, then transmit it onto the bus.
-    CanMsgIo         tx_msg;
+    CanMsg         tx_msg;
     const osStatus_t s = osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
     assert(s == osOK);
     CanMsg tx_msg_hw;
@@ -80,7 +80,7 @@ void io_can_transmitMsgFromQueue(void)
     hw_can_transmit(&tx_msg_hw);
 }
 
-void io_can_popRxMsgFromQueue(CanMsgIo *msg)
+void io_can_popRxMsgFromQueue(CanMsg *msg)
 {
     // Pop a message off the RX queue.
     const osStatus_t s = osMessageQueueGet(rx_queue_id, msg, NULL, osWaitForever);

@@ -2,8 +2,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-// #include "hw_hal.h" // TODO remove
-
+#ifdef TARGET_EMBEDDED
+#include "hw_can.h"
+#endif 
 // TODO: Update documentation
 
 /**
@@ -36,12 +37,14 @@ typedef struct
 
 #define CAN_PAYLOAD_BYTES 8 // TODO: grab from the same place perhaps
 
+#ifdef TARGET_TEST
 typedef struct
 {
     uint32_t std_id;
     uint32_t dlc; // data length range : [0, 8]
     uint8_t  data[CAN_PAYLOAD_BYTES];
-} CanMsgIo;
+} CanMsg;
+#endif
 
 /**
  * Initialize and start the CAN peripheral.
@@ -54,7 +57,7 @@ void io_can_init(const CanConfig *can_config);
  * Does not block, calls `tx_overflow_callback` if queue is full.
  * @param msg CAN msg to be TXed.
  */
-void io_can_pushTxMsgToQueue(const CanMsgIo *msg);
+void io_can_pushTxMsgToQueue(const CanMsg *msg);
 
 /**
  * Transmit a single CAN msg onto the bus from the TX queue. Blocks until a msg exists in the queue.
@@ -65,10 +68,9 @@ void io_can_transmitMsgFromQueue(void);
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
  * @param rx_fifo Which RX FIFO to receive a message from.
  */
-void io_can_popRxMsgFromQueue(CanMsgIo *msg);
+void io_can_popRxMsgFromQueue(CanMsg *msg);
 
 #ifdef TARGET_EMBEDDED
-#include "hw_can.h"
 /**
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param msg CAN msg to be populated by RXed msg.
