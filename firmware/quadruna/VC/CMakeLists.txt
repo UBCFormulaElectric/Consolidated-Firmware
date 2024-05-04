@@ -42,7 +42,7 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)    
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
 set(P_SRCS ${PROTO_SRCS})
 set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 # Bootloader files.
@@ -51,7 +51,6 @@ set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURC
 
 if ("${TARGET}" STREQUAL "deploy")
     jsoncan_sources(
-        "quadruna_VC_can"
         "VC"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
