@@ -165,7 +165,8 @@ static const AirsConfig airs_config = { .air_p_gpio = {
 };
 
 // TODO: Test differential ADC for voltage measurement
-static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC1_IN10_TS_VSENSE_DIFF,
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
+                                                .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
                                                 .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
                                                 .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
@@ -281,10 +282,9 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
 
 const AdcChannel id_to_adc[] = {
-    [BMS_AdcNetName_AUX_TSENSE]     = ADC1_IN4_AUX_TSENSE,
-    [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_50A]  = ADC1_IN5_TS_ISENSE_50A,
-    [BMS_AdcNetName_TS_VSENSE]      = ADC1_IN10_TS_VSENSE_DIFF,
+    [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
+    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
+    [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
 };
 
 static UART debug_uart = { .handle = &huart1 };
@@ -312,6 +312,7 @@ void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
 
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
@@ -353,7 +354,7 @@ void tasks_init(void)
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -382,7 +383,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -407,7 +408,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -441,7 +442,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -451,7 +452,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 

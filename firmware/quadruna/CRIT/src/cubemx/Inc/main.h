@@ -143,8 +143,8 @@ extern "C"
 #define IMD_R_GPIO_Port GPIOC
 #define AMS_R_Pin GPIO_PIN_2
 #define AMS_R_GPIO_Port GPIOD
-#define REGEN_LED_Pin GPIO_PIN_4
-#define REGEN_LED_GPIO_Port GPIOB
+#define START_LED_Pin GPIO_PIN_4
+#define START_LED_GPIO_Port GPIOB
 #define START_SIG_Pin GPIO_PIN_5
 #define START_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_LED_Pin GPIO_PIN_6
@@ -153,8 +153,8 @@ extern "C"
 #define REGEN_SIG_GPIO_Port GPIOB
 #define TORQUE_VECTORING_SIG_Pin GPIO_PIN_8
 #define TORQUE_VECTORING_SIG_GPIO_Port GPIOB
-#define START_LED_Pin GPIO_PIN_9
-#define START_LED_GPIO_Port GPIOB
+#define REGEN_LED_Pin GPIO_PIN_9
+#define REGEN_LED_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

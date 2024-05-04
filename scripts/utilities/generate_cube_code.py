@@ -2,9 +2,12 @@
 Generate a script that can be used by STM32CubeMX command line interface. And
 generate STM32CubeMX code accordingy.
 """
+
+import argparse
 import os
 import subprocess
-import argparse
+
+from generate_md5_checksum import generate_md5_checksum
 
 CUBE_SCRIPT = """\
 ###############################################################################
@@ -19,7 +22,7 @@ config load {ioc}
 # Generate the peripheral initializations in main.c
 project couplefilesbyip 0
 
-# Generate code in the project direcotry
+# Generate code in the project directory
 generate code {codegen_dir}
 
 # Exit the program
@@ -50,14 +53,21 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
     # Generate STM32CubeMX code
     cubemx_dir = os.path.dirname(cubemx)
     cubemx_bin = os.path.basename(cubemx)
-    proc = subprocess.Popen([f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name])
-
+    # proc = subprocess.Popen([f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name])
     # Note: If the STM32CubeMX script encounters an exception (e.g. It can't
     # find the a valid script), the process may never exit so there is no status
     # code to check at all. Account for this by setting a time out.
     timeout_sec = 5 * 60
+    cube_gen_args = [f"{cubemx_dir}/{cubemx_bin}", "-q", cube_script_f.name]
+
+    # check if os is windows
+    if os.name == "nt":
+        cube_gen_args = [f"{cubemx_dir}/jre/bin/java.exe", "-jar", *cube_gen_args]
+
+    proc = subprocess.Popen(cube_gen_args)
     try:
         proc.wait(timeout_sec)
+        print("timeout done")
     except subprocess.TimeoutExpired:
         raise Exception(
             "STM32CubeMX execution has timed out after {} seconds.".format(
@@ -66,20 +76,49 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
         )
     if proc.returncode != 0:
         raise Exception("An error occured while executing STM32CubeMX.")
+    print("STM32CubeMX code generation completed successfully.")
 
 
+# Generates the STM32CubeMX code for the board specified in the arguments and then clang-format the generated code
+# WILL NOT REGENERATE if the .ioc file has not changed (i.e. the checksum is the same as the file)
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--board", help="The board to generate STM32CubeMX code for")
     parser.add_argument("--ioc", help="STM32CubeMX .ioc file")
+    parser.add_argument("--md5", help="Location of the MD5 hash file of the .ioc file")
     parser.add_argument("--codegen_output_dir", help="Code generation output folder")
     parser.add_argument("--cube_bin", help="STM32CubeMX binary")
     args = parser.parse_args()
 
+    # check the current checksum to see if it needs to be updated
+    if os.path.isfile(f"{args.md5}"):
+        with open(f"{args.md5}", "r") as f:
+            current_checksum = f.read()
+            # if the checksum of args.ioc is the same as the one in the .md5 file, then exit
+            ioc_checksum = generate_md5_checksum(args.ioc)
+            if current_checksum == ioc_checksum:
+                print(f"{current_checksum} == {ioc_checksum}")
+                print("No changes in the .ioc file. Code generation skipped.")
+                exit(0)
+            else:
+                print("Checksum not matching, generating new checksum")
+    else:
+        print("file not found, generating new checksum")
     generate_cubemx_code(
         args.board,
         args.ioc,
         args.codegen_output_dir,
         args.cube_bin,
     )
+    # generate the new checksum
+    new_ioc_md5 = generate_md5_checksum(args.ioc)
+    # Generate output folders if they don't exist already
+    output_dir = os.path.dirname(args.codegen_output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    # Write MD5 checksum to disk
+    with open(f"{args.md5}", "w") as f:
+        f.write(new_ioc_md5)
+        print(f"MD5 checksum of {args.ioc} written to {args.md5}")
+        f.close()

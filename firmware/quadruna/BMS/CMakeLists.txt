@@ -56,8 +56,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_BMS_can"
+    jsoncan_sources(
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
@@ -107,7 +106,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+        "${MD5_LOCATION}"
     )
 
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
@@ -165,8 +164,7 @@ set(HEADERS_TO_FAKE
         "quadruna_BMS_fakes"
         "${HEADERS_TO_FAKE}"
     )
-    jsoncan_library(
-        "quadruna_BMS_can"
+    jsoncan_sources(
         "BMS"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE

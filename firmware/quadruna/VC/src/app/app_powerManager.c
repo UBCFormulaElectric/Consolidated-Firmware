@@ -42,11 +42,11 @@ void app_powerManager_setState(PowerManagerState state)
 
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        io_efuse_setChannel(efuse, power_states_config[state].efuses[efuse]);
+        io_efuse_setChannel((EfuseChannel)efuse, power_states_config[state].efuses[efuse]);
     }
 }
 
-PowerManagerState app_powerManager_getState()
+PowerManagerState app_powerManager_getState(void)
 {
     return current_power_state;
 }

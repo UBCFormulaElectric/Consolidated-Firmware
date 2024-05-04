@@ -54,8 +54,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_CRIT_can"
+    jsoncan_sources(
         "CRIT"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
@@ -99,7 +98,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+        "${MD5_LOCATION}"
     )
 
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
@@ -141,21 +140,20 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-
-    jsoncan_library(
-    "quadruna_CRIT_can"
-    "CRIT"
-    "${CMAKE_CURRENT_BINARY_DIR}"
-    FALSE
-    "quadruna"
-    )   
+    jsoncan_sources(
+        "CRIT"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
+        "quadruna"
+    )
     add_library(quadruna_CRIT_can STATIC "${CAN_SRCS}")
     target_include_directories(quadruna_CRIT_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_shutdownSensor.h"
-    )   
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+    )
     create_fake_library(
         "quadruna_CRIT_fakes"
         "${HEADERS_TO_FAKE}"
