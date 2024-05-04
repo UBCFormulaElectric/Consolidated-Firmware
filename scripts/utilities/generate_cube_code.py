@@ -117,4 +117,6 @@ if __name__ == "__main__":
     # Write MD5 checksum to disk
     with open(f"{args.md5}", "w") as f:
         f.write(new_ioc_md5)
+        print(f"MD5 checksum of {args.ioc} written to {args.md5}")
         f.close()
+    print(os.path.isfile(f"{args.md5}"))
