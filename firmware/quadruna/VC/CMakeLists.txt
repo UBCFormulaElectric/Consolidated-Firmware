@@ -50,7 +50,7 @@ file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
 if ("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
+    jsoncan_sources(
         "quadruna_VC_can"
         "VC"
         "${CMAKE_CURRENT_BINARY_DIR}"
