@@ -20,9 +20,6 @@
             "StartSwitch": {
                 "enum": "SwitchState"
             },
-            "AuxSwitch": {
-                "enum": "SwitchState"
-            },
             "RegenSwitch": {
                 "enum": "SwitchState"
             },

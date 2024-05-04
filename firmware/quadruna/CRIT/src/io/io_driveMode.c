@@ -7,7 +7,12 @@
 
 static const DriveMode *config;
 
-uint16_t io_driveMode_readPins()
+void io_driveMode_init(const DriveMode *config_in)
+{
+    config = config_in;
+}
+
+uint16_t io_driveMode_readPins(void)
 {
     uint16_t out = (uint16_t)(hw_gpio_readPin(config->n_drive_mode_0_pin));
     out += (uint16_t)(hw_gpio_readPin(config->n_drive_mode_1_pin) << 1);
