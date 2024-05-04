@@ -42,6 +42,9 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)    
+set(P_SRCS ${PROTO_SRCS})
+set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 # Bootloader files.
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
@@ -111,6 +114,14 @@ if ("${TARGET}" STREQUAL "deploy")
             "${ARM_CORE}"
     )
 
+    embedded_library(
+        "telem_proto"
+        "${P_SRCS}"
+        "${P_HDRS}"
+        "cm7"
+        TRUE
+    )
+    
     # Autogenerate git commit info header/source.
     commit_info_library(
             "quadruna_VC_app.elf"
@@ -120,7 +131,7 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "debug_modules" "m" "telem_proto")
 
     # Build bootloader.
     stm32h7_boot_binary(
@@ -159,6 +170,7 @@ elseif ("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
     )
 
     create_fake_library(

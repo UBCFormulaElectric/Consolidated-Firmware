@@ -31,6 +31,16 @@
             }
         }
     },
+    "DriveMode": {
+		"msg_id": 504,
+		"cycle_time": 100,
+		"description": "Drive Mode.",
+		"signals": {
+			"DriveMode": {
+				"bits": 4
+			}
+		}
+	},
     "AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,

@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 import json
 import os
-from flask_cors import CORS
+# from flask_cors import CORS
 from process.http_app import app as http_app
 from process.socket_app import socketio as socket_app
 
 
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 app.register_blueprint(http_app)
 
 JSON_FILE = './dashboards.json'
