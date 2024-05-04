@@ -4,16 +4,13 @@
 #include "string.h"
 #include "shared.pb.h"
 
-#include "app_globals.h"
 #include "app_heartbeatMonitor.h"
-#include "states/app_initState.h"
-#include "states/app_allStates.h"
+#include "app_states.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_currentSensing.h"
 #include "app_efuse.h"
 
 #include "io_jsoncan.h"
@@ -36,11 +33,9 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 #include "hw_gpio.h"
-#include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
-#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -66,12 +61,12 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_VC_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_VC_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_VC_Warning_RxOverflow_set(false);
 }
@@ -252,12 +247,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = NULL,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = NULL,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
@@ -278,7 +273,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
@@ -397,7 +392,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
@@ -426,7 +421,7 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         hw_watchdog_checkForTimeouts();
 
