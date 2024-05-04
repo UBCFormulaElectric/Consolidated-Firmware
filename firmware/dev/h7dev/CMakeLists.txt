@@ -67,7 +67,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+        "${MD5_LOCATION}"
     )
 
    embedded_binary(
