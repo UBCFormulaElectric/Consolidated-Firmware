@@ -1,7 +1,3 @@
-from unicodedata import name
-from ...can_database import *
-from ...utils import *
-from .c_config import *
 from .c_writer import *
 
 PACK_SHIFT_LEFT_FUNC = "packShiftLeft"
@@ -34,10 +30,10 @@ class AppCanUtilsModule(CModule):
                 "void",
                 args=[
                     CVar(
-                        "in_msg",
-                        f"const {CTypesConfig.MSG_STRUCT.format(msg=msg.name)}* const",
+                        name="in_msg",
+                        type=f"const {CTypesConfig.MSG_STRUCT.format(msg=msg.name)}* const",
                     ),
-                    CVar("out_data", "uint8_t* const"),
+                    CVar(name="out_data", type="uint8_t* const"),
                 ],
                 comment=f"Pack signals into CAN payload for {msg.name}.",
             )
@@ -71,10 +67,10 @@ class AppCanUtilsModule(CModule):
                 CFuncsConfig.UTILS_UNPACK.format(msg=msg.name),
                 "void",
                 args=[
-                    CVar("in_data", "const uint8_t* const"),
+                    CVar(name="in_data", type="const uint8_t* const"),
                     CVar(
-                        "out_msg",
-                        f"{CTypesConfig.MSG_STRUCT.format(msg=msg.name)}* const",
+                        name="out_msg",
+                        type=f"{CTypesConfig.MSG_STRUCT.format(msg=msg.name)}* const",
                     ),
                 ],
                 comment=f"Unpack signals from CAN payload for {msg.name}.",
@@ -106,7 +102,7 @@ class AppCanUtilsModule(CModule):
         for msg in self._db.msgs_for_node(self._node):
             cw.add_macro(
                 CMacrosConfig.id(msg.name),
-                msg.id,
+                str(msg.id),
             )
         cw.add_line()
 
@@ -125,7 +121,7 @@ class AppCanUtilsModule(CModule):
             if msg.is_periodic():
                 cw.add_macro(
                     CMacrosConfig.cycle_time(msg.name),
-                    msg.cycle_time,
+                    str(msg.cycle_time),
                 )
         cw.add_line()
 
@@ -206,10 +202,10 @@ class AppCanUtilsModule(CModule):
         for can_enum in can_enums:
             enum = CEnum(can_enum.name)
             for item in can_enum.items:
-                enum.add_value(CVar(item.name, value=item.value))
+                enum.add_value(CVar(name=item.name, value=item.value))
             enum.add_value(
                 CVar(
-                    f"NUM_{pascal_to_screaming_snake_case(can_enum.name)}_CHOICES",
+                    name=f"NUM_{pascal_to_screaming_snake_case(can_enum.name)}_CHOICES",
                     value=len(can_enum.items),
                 )
             )
@@ -231,11 +227,13 @@ class AppCanUtilsModule(CModule):
                 signal_comment = f"Range: {signal.min_val}{signal.unit} to {signal.max_val}{signal.unit}"
                 struct.add_member(
                     CVar(
-                        CVarsConfig.SIGNAL_VALUE.format(signal=signal.name),
-                        signal.datatype(),
+                        name=CVarsConfig.SIGNAL_VALUE.format(signal=signal.name),
+                        type=signal.datatype(),
                         comment=signal_comment,
                     )
                 )
+            if len(msg.signals) == 0:
+                struct.add_member(CVar(name="_unused", type="uint8_t"))
 
             cw.add_struct(struct)
             cw.add_line()
@@ -267,9 +265,9 @@ class AppCanUtilsModule(CModule):
             PACK_SHIFT_LEFT_FUNC,
             "uint8_t",
             args=[
-                CVar("input", "uint32_t"),
-                CVar("shift", "uint8_t"),
-                CVar("mask", "uint8_t"),
+                CVar(name="input", type="uint32_t"),
+                CVar(name="shift", type="uint8_t"),
+                CVar(name="mask", type="uint8_t"),
             ],
             comment="Shift input left and apply mask, for packing.",
             qualifier="static inline",
@@ -282,9 +280,9 @@ class AppCanUtilsModule(CModule):
             PACK_SHIFT_RIGHT_FUNC,
             "uint8_t",
             args=[
-                CVar("input", "uint32_t"),
-                CVar("shift", "uint8_t"),
-                CVar("mask", "uint8_t"),
+                CVar(name="input", type="uint32_t"),
+                CVar(name="shift", type="uint8_t"),
+                CVar(name="mask", type="uint8_t"),
             ],
             comment="Shift input right and apply mask, for packing.",
             qualifier="static inline",
@@ -297,9 +295,9 @@ class AppCanUtilsModule(CModule):
             UNPACK_SHIFT_LEFT_FUNC,
             "uint32_t",
             args=[
-                CVar("input", "uint8_t"),
-                CVar("shift", "uint8_t"),
-                CVar("mask", "uint8_t"),
+                CVar(name="input", type="uint8_t"),
+                CVar(name="shift", type="uint8_t"),
+                CVar(name="mask", type="uint8_t"),
             ],
             comment="Apply mask, then shift input left by shift bits, for unpacking.",
             qualifier="static inline",
@@ -312,9 +310,9 @@ class AppCanUtilsModule(CModule):
             UNPACK_SHIFT_RIGHT_FUNC,
             "uint32_t",
             args=[
-                CVar("input", "uint8_t"),
-                CVar("shift", "uint8_t"),
-                CVar("mask", "uint8_t"),
+                CVar(name="input", type="uint8_t"),
+                CVar(name="shift", type="uint8_t"),
+                CVar(name="mask", type="uint8_t"),
             ],
             comment="Apply mask, then shift input left by shift bits, for unpacking.",
             qualifier="static inline",
