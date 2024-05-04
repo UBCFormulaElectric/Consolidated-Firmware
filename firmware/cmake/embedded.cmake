@@ -270,13 +270,13 @@ function(generate_stm32cube_code
             --ioc ${IOC_PATH}
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}
-            --md5 ${OUTPUT_MD5_LOCATION}
+            --md5 ${TRACKED_MD5_LOCATION}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
 
             COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT_PY}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
 
-            COMMAND ${CMAKE_COMMAND} -E copy ${OUTPUT_MD5_LOCATION} ${TRACKED_MD5_LOCATION}
+            COMMAND ${CMAKE_COMMAND} -E copy ${TRACKED_MD5_LOCATION} ${OUTPUT_MD5_LOCATION}
 
             DEPENDS ${IOC_PATH}
     )

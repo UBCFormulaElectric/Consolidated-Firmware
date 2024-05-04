@@ -101,7 +101,10 @@ if __name__ == "__main__":
                 print(f"{current_checksum} == {ioc_checksum}")
                 print("No changes in the .ioc file. Code generation skipped.")
                 exit(0)
-
+            else:
+                print("Checksum not matching, generating new checksum")
+    else:
+        print("file not found, generating new checksum")
     generate_cubemx_code(
         args.board,
         args.ioc,
