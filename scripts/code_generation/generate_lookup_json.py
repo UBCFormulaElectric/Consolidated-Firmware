@@ -81,7 +81,7 @@ def main():
     additional_data_list = [load_json(file) for file in merge_partially_json if os.path.exists(file)]
     merged_json = merge_additional_data(merged_json, additional_data_list,merge_partially_json, master_messages)
     # Save the merged data to a new file
-    save_json(merged_json, 'scripts/code_generation/lookup.json')
+    save_json(merged_json, 'software/tracksight/backend/app/process/lookup.json')
 
 if __name__ == "__main__":
     main()
