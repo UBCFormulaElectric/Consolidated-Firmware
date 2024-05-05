@@ -13,8 +13,6 @@
 #include "io_tsms.h"
 #include "io_log.h"
 
-#define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
-
 static void initStateRunOnEntry(void)
 {
     LOG_INFO("init entry");
@@ -43,7 +41,6 @@ static void initStateRunOnTick100Hz(void)
 
     if (is_key_turned && all_states_ok)
     {
-        LOG_INFO("Going to inverter on state");
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
 }
@@ -52,14 +49,13 @@ static void initStateRunOnTick1Hz(void)
 {
     app_allStates_runOnTick1Hz();
 
-    if (app_canRx_Debug_SetCoolantPump_CustomEnable_get())
-    {
-        app_pumpControl_setFlowRate(app_canRx_Debug_SetCoolantPump_CustomVal_get());
-    }
-    else
-    {
-        app_pumpControl_setFlowRate(DEFAULT_FLOW_RATE);
-    }
+    app_pumpControl_setFlowRate(
+        app_canRx_Debug_SetCoolantPump_CustomEnable_get() ? app_canRx_Debug_SetCoolantPump_CustomVal_get() : 600.0f);
+}
+
+static void initStateRunOnExit(void)
+{
+    LOG_INFO("init exit");
 }
 
 const State *app_initState_get(void)
@@ -69,7 +65,7 @@ const State *app_initState_get(void)
         .run_on_entry      = initStateRunOnEntry,
         .run_on_tick_1Hz   = initStateRunOnTick1Hz,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
-        .run_on_exit       = NULL,
+        .run_on_exit       = initStateRunOnExit,
     };
 
     return &init_state;

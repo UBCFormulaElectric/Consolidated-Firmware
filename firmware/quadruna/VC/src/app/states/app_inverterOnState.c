@@ -1,20 +1,18 @@
 #include "states/app_driveState.h"
-#include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "app_powerManager.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_utils.h"
-#include "app_canAlerts.h"
 #include "app_faultCheck.h"
 #include <stddef.h>
 #include "io_log.h"
-#include "io_time.h"
 
 static void inverterOnStateRunOnEntry(void)
 {
-    LOG_INFO("Transitioning to INVERTER_ON state");
+    LOG_INFO("inverter on entry");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
+    LOG_INFO("inverter on entry done");
 }
 
 static void inverterOnStateRunOnTick100Hz(void)
@@ -47,12 +45,10 @@ static void inverterOnStateRunOnTick100Hz(void)
 
         // TODO: Could not thoroughly validate VC refactor without a working BMS.
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
-        LOG_INFO("Transitioning to DRIVE state");
         app_stateMachine_setNextState(app_driveState_get());
     }
     else if (inverters_off_exit)
     {
-        LOG_INFO("Transitioning to INIT state");
         app_stateMachine_setNextState(app_initState_get());
     }
 
@@ -81,6 +77,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     // }
 }
 
+static void inverterOnStateRunOnExit(void)
+{
+    LOG_INFO("inverter on exit");
+}
+
 const State *app_inverterOnState_get(void)
 {
     static State inverter_on_state = {
@@ -88,7 +89,7 @@ const State *app_inverterOnState_get(void)
         .run_on_entry      = inverterOnStateRunOnEntry,
         .run_on_tick_1Hz   = NULL,
         .run_on_tick_100Hz = inverterOnStateRunOnTick100Hz,
-        .run_on_exit       = NULL,
+        .run_on_exit       = inverterOnStateRunOnExit,
     };
 
     return &inverter_on_state;
