@@ -11,7 +11,6 @@
 #include "app_suspension.h"
 #include "app_loadCell.h"
 #include "app_shdnLoop.h"
-
 #include "app_heartbeatMonitor.h"
 
 void mainStateRunOnTick100Hz(void)

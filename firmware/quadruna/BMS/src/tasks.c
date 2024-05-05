@@ -290,12 +290,12 @@ const AdcChannel id_to_adc[] = {
 static UART debug_uart = { .handle = &huart1 };
 
 static const BmsShdnConfig bms_shdn_pin_config = {
-    2,
-    ts_ilck_shdn_pin,
-    { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
+    .bms_num_nodes = 2,
+    .ts_ilck_ok_gpio = ts_ilck_shdn_pin,
+    .hvd_ok_gpio = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin }
 };
 
-static BoardShdnNode bmsBshdnNodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
+static BoardShdnNode bms_bshdn_nodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
                                           { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
 
 void tasks_preInit(void)
@@ -343,7 +343,7 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
-    app_shdn_loop_init(bmsBshdnNodes, io_bms_num_shdn_nodes());
+    app_shdn_loop_init(bms_bshdn_nodes, io_bms_num_shdn_nodes());
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,

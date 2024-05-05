@@ -182,9 +182,12 @@ void tasks_preInit(void)
     LOG_INFO("FSM reset!");
 }
 
-static const FsmShdnConfig fsm_shdn_pin_config = { 1, fsm_shdn };
+static const FsmShdnConfig fsm_shdn_pin_config = { 
+    .fsm_num_nodes = 1, 
+    .fsm_shdn_ok_gpio = fsm_shdn 
+};
 
-static BoardShdnNode fsmBshdnNodes[1] = { { &io_get_FSM_SHDN_OK, &app_canTx_FSM_FSMShdnOKStatus_set } };
+static BoardShdnNode fsm_bshdn_nodes[1] = { { &io_get_FSM_SHDN_OK, &app_canTx_FSM_FSMShdnOKStatus_set } };
 
 void tasks_init(void)
 {
@@ -205,7 +208,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(fsmBshdnNodes, io_fsm_num_shdn_nodes());
+    app_shdn_loop_init(fsm_bshdn_nodes, io_fsm_num_shdn_nodes());
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
