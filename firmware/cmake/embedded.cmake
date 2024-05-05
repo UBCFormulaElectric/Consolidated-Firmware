@@ -254,8 +254,6 @@ function(generate_stm32cube_code
 )
     set(GENERATE_CUBE_CODE_SCRIPT_PY
             ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
-    set(FIX_FORMATTING_SCRIPT_PY
-            ${SCRIPTS_DIR}/clang_format/fix_formatting.py)
     get_filename_component(IOC_DIR ${IOC_PATH} DIRECTORY)
     get_filename_component(IOC_FILE_NAME ${IOC_PATH} NAME)
     set(TRACKED_MD5_LOCATION "${IOC_PATH}.md5")
@@ -271,9 +269,6 @@ function(generate_stm32cube_code
             --codegen_output_dir ${IOC_DIR}
             --cube_bin ${STM32CUBEMX_BIN_PATH}
             --md5 ${TRACKED_MD5_LOCATION}
-            WORKING_DIRECTORY ${REPO_ROOT_DIR}
-
-            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT_PY}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
 
             COMMAND ${CMAKE_COMMAND} -E copy ${TRACKED_MD5_LOCATION} ${OUTPUT_MD5_LOCATION}

@@ -48,7 +48,7 @@ IF ("${TARGET}" STREQUAL "deploy")
 	# arm binary
 #	CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9 DOWNLOAD_ONLY)
 #	message("🔖 ARM Compiler Installed At ${gcc-arm-none-eabi-9_SOURCE_DIR}")
-#	set(TOOLCHAIN_PREFIX ${gcc-arm-none-eabi-9_SOURCE_DIR}/bin/)
+	set(TOOLCHAIN_PREFIX "")
 	IF (WIN32)
 		# openocd
 		CPMAddPackage(URL "https://github.com/openocd-org/openocd/releases/download/v0.12.0/openocd-v0.12.0-i686-w64-mingw32.tar.gz"
