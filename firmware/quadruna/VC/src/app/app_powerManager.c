@@ -23,7 +23,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
         },
         .pcm = false,
     },
-    [POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS] = {
+        [POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS] = {
         .efuses = {
             [EFUSE_CHANNEL_SHDN] = true,
             [EFUSE_CHANNEL_LV] = true,

@@ -8,6 +8,8 @@
 #include "app_canAlerts.h"
 #include "app_faultCheck.h"
 #include <stddef.h>
+#include "io_log.h"
+#include "io_time.h"
 
 static void inverterOnStateRunOnEntry(void)
 {
@@ -32,10 +34,17 @@ static void inverterOnStateRunOnTick100Hz(void)
                                       app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
     const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
 
-    if (bms_in_drive_state)
-        app_powerManager_setState(POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS);
+    PowerManagerState nextState;
+    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
+        nextState = POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS;
     else
-        app_powerManager_setState(POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS);
+        nextState = POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS;
+
+    if (io_time_getCurrentMs() % 100 == 0)
+    {
+        LOG_INFO("State Changed, from %d", nextState);
+    }
+    app_powerManager_setState(nextState);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
