@@ -27,6 +27,8 @@
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
+#include "io_pcm.h"
+#include "io_tsms.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -220,6 +222,15 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     }
 };
 
+static const PcmConfig pcm_config = {
+    .pcm_gpio = &npcm_en
+};
+
+static const TSMSConfig tsms_config = {
+    .tsms_gpio = &tsms_shdn_sns
+};
+
+
 static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
     [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
@@ -327,6 +338,8 @@ void tasks_init(void)
     io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+    io_pcm_init(&pcm_config);
+    io_tsms_init(&tsms_config);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
@@ -404,6 +417,8 @@ _Noreturn void tasks_run100Hz(void)
     {
         //        const uint32_t start_time_ms = osKernelGetTickCount();
 
+        bool state = hw_gpio_readPin(&pgood);
+        app_canTx_VC_Fault_BoostControllerFault_set(state);
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();

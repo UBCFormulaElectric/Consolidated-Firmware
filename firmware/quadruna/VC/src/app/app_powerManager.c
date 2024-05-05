@@ -1,10 +1,12 @@
 #include "io_efuse.h"
 #include "app_powerManager.h"
 #include "app_canRx.h"
+#include "io_pcm.h"
 
 typedef struct
 {
     bool efuses[NUM_EFUSE_CHANNELS];
+    bool pcm;
 } PowerStateConfig;
 
 static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
@@ -18,7 +20,8 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
             [EFUSE_CHANNEL_INV_L] = false,
             [EFUSE_CHANNEL_TELEM] = true,
             [EFUSE_CHANNEL_BUZZER] = false,
-        }
+        },
+        .pcm = false,
     },
     [POWER_MANAGER_DRIVE] = {
         .efuses = {
@@ -30,7 +33,8 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
             [EFUSE_CHANNEL_INV_L] = true,
             [EFUSE_CHANNEL_TELEM] = true,
             [EFUSE_CHANNEL_BUZZER] = true,
-        }
+        },
+        .pcm = true,
     }
 };
 
@@ -44,6 +48,7 @@ void app_powerManager_setState(PowerManagerState state)
     {
         io_efuse_setChannel((EfuseChannel)efuse, power_states_config[state].efuses[efuse]);
     }
+    io_pcm_set(power_states_config[state].pcm);
 }
 
 PowerManagerState app_powerManager_getState(void)

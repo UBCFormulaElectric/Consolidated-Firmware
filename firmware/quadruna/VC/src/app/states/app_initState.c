@@ -10,6 +10,7 @@
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
 #include "io_buzzer.h"
+#include "io_tsms.h"
 
 #define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 
@@ -35,11 +36,9 @@ static void initStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    bool is_bms_in_correct_state = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
-                                   app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
-                                   app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-
-    if (is_bms_in_correct_state && all_states_ok)
+    const bool is_key_turned = io_tsms_read();
+    
+    if (is_key_turned && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
