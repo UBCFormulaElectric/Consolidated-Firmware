@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <math.h>
 #include "io_log.h"
 #include "app_canTx.h"
@@ -51,7 +50,7 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
-    LOG_INFO("Entering drive state");
+    LOG_INFO("drive state entry");
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     // Enable buzzer on transition to drive, and start 2s timer.
     io_buzzer_enable(true);
@@ -76,7 +75,7 @@ static void driveStateRunOnEntry(void)
     {
         app_torqueVectoring_init();
     }
-    LOG_INFO("Drive state entry done");
+    LOG_INFO("drive state entry done");
 }
 
 static void driveStateRunOnTick1Hz(void)
@@ -149,7 +148,7 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
-    LOG_INFO("Leaving drive state");
+    LOG_INFO("drive state exit");
     // Disable inverters and apply zero torque upon exiting drive state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -160,7 +159,7 @@ static void driveStateRunOnExit(void)
     // Disable buzzer on exit drive.
     io_buzzer_enable(false);
     app_canTx_VC_BuzzerOn_set(false);
-    LOG_INFO("Drive state exit done");
+    LOG_INFO("drive state exit done");
 }
 
 const State *app_driveState_get(void)
