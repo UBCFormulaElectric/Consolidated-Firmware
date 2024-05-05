@@ -7,6 +7,7 @@ import argparse
 import os
 import subprocess
 
+from fix_formatting import fix_formatting
 from generate_md5_checksum import generate_md5_checksum
 
 CUBE_SCRIPT = """\
@@ -122,3 +123,6 @@ if __name__ == "__main__":
         f.write(new_ioc_md5)
         print(f"MD5 checksum of {args.ioc} written to {args.md5}")
         f.close()
+
+    # reformat code
+    fix_formatting(None)
