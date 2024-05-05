@@ -20,7 +20,7 @@ EMPTY_STRUCT(BrakeConfig)
  * Sets up configuration for ADC pins in brake io layer
  * @param brake_config wrapper around brake adc pins
  */
-void io_brake_init(BrakeConfig *brake_config);
+void io_brake_init(const BrakeConfig *brake_config);
 
 /**
  * Check if the brake is actuated, by getting the digital signal from the comparator on the FSM

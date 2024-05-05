@@ -19,7 +19,7 @@ EMPTY_STRUCT(AppsConfig)
  * Performs initial calculations for the rest and max angle of PAPPS and SAPPS
  * @param apps_config a pointer to a struct w/ adc pins for apps1 and apps2
  */
-void io_apps_init(AppsConfig *apps_config);
+void io_apps_init(const AppsConfig *apps_config);
 
 /**
  * Calculates pedal percentage by comparing the current angle to the max angle

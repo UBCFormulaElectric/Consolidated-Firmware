@@ -10,7 +10,7 @@
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
 #define BRAKE_PRESSURE_SENSOR_MAX_V (5.0f)
 
-static BrakeConfig *config;
+static const BrakeConfig *config;
 
 static bool pressureSensorOCSC(float pressure_voltage)
 {
@@ -33,7 +33,7 @@ static float pressureFromVoltage(float voltage)
     return psi_per_volt * (voltage - min_input_voltage);
 }
 
-void io_brake_init(BrakeConfig *brake_config)
+void io_brake_init(const BrakeConfig *brake_config)
 {
     config = brake_config;
 }
