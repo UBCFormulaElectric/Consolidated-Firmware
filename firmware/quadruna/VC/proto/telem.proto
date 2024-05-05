@@ -1,8 +1,10 @@
-// Test tracksight message
+// Tracksight Message
+
 syntax = "proto3";
+import "nanopb.proto";
 
 message TelemMessage {
     int32 can_id = 1;
-    int32 data = 2;
+    repeated int32 message = 2 [(nanopb).max_count = 8];
     int32 time_stamp = 3;
 }
