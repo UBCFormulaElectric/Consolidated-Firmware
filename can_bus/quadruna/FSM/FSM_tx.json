@@ -172,7 +172,7 @@
         "cycle_time": 100,
         "description": "FSM Shutdown Node Status",
         "signals": {
-            "FSMShdnOKStatus": {
+            "BOTSOKStatus": {
                 "bits": 1
             }
         }

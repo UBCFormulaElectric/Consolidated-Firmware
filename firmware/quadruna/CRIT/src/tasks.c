@@ -15,7 +15,7 @@
 #include "io_chimera.h"
 #include "io_led.h"
 #include "io_switch.h"
-#include "io_rgbLed.h"
+#include "hw_rgbLed.h"
 #include "io_critShdn.h"
 #include "io_leds.h"
 #include "io_switches.h"
@@ -403,12 +403,12 @@ static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-static const CritShdnConfig crit_shdn_pin_config = { .shdn_sen_ok_gpio    = shdn_sen_pin,
+static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
 static const BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
     { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
-    { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_ShdnSenOKStatus_set }
+    { &io_get_COCKPIT_ESTOP_OK, &app_canTx_CRIT_CockpitEStopOKStatus_set }
 };
 
 void tasks_preInit(void)

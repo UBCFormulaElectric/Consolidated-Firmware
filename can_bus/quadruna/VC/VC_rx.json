@@ -21,6 +21,10 @@
         "BMS_TractiveSystem",
         "BMS_CellTemperatures",
         "BMS_CellVoltages",
-        "Debug_SetCoolantPump"
+        "Debug_SetCoolantPump",
+        "BMS_BMSShdnNodeStatus",
+        "BMS_OkStatuses",
+        "CRIT_CRITShdnNodeStatus",
+        "FSM_FSMShdnNodeStatus"
     ]
 }

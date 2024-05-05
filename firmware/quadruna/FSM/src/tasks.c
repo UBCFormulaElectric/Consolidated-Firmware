@@ -185,7 +185,7 @@ void tasks_preInit(void)
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
 
 static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_FSM_SHDN_OK_get,
-                                                                   &app_canTx_FSM_FSMShdnOKStatus_set } };
+                                                                   &app_canTx_FSM_BOTSOKStatus_set } };
 
 void tasks_init(void)
 {
