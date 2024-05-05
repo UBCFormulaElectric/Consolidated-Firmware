@@ -51,6 +51,7 @@ bool hw_can_transmit(const CanMsg *msg);
 
 /**
  * Receive a CAN msg from the bus, returning whether or not a message is available.
+ * This function also passes up the CanMsg to a callback function.
  * @param msg CAN msg to be RXed.
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
