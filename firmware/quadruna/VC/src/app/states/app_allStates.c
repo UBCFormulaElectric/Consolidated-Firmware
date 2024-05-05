@@ -8,7 +8,7 @@
 #include "app_efuse.h"
 #include "app_pumpControl.h"
 #include "app_shdnLoop.h"
-#include "app_shdnFirst.h"
+#include "app_shdnLast.h"
 // io
 #include "io_sbgEllipse.h"
 
@@ -22,7 +22,7 @@ void app_allStates_runOnTick100Hz(void)
     app_shdn_loop_broadcast();
     app_currentSensing_broadcast();
     app_efuse_broadcast();
-    app_shdnFirst_broadcast();
+    app_shdnLast_broadcast();
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();

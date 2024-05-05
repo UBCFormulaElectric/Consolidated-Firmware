@@ -1,13 +1,18 @@
 #include <math.h>
 #include "io_log.h"
+// can
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_vehicleDynamicsConstants.h"
+#include "app_canAlerts.h"
+// states
 #include "states/app_allStates.h"
-#include "app_powerManager.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
+// vehicle dynamics
+#include "app_vehicleDynamicsConstants.h"
+// app
+#include "app_powerManager.h"
 #include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
@@ -119,6 +124,10 @@ static void driveStateRunOnTick100Hz(void)
     if (exit_drive_to_init)
     {
         LOG_INFO("4 %d %d", any_board_has_fault, inverter_has_fault);
+        Fault_Warning_Info buffer[20] = { 0 };
+        uint8_t            num        = app_canAlerts_FaultInfo(buffer);
+        for (int i = 0; i < num; i++)
+            LOG_INFO("%s", buffer[i].name);
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
