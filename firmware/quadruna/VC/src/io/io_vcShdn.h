@@ -17,7 +17,7 @@ typedef struct
 EMPTY_STRUCT(VcShdnConfig);
 #endif
 
-#define VcShdnNodeCount 5
+#define VcShdnNodeCount 4
 
 /*
  * Initialize config for shutdown gpio pins
@@ -30,12 +30,6 @@ void io_vcShdn_init(const VcShdnConfig *shutdown_config);
  * @return the status of the tsms pin set in the shutdown config
  */
 bool io_vcShdn_TsmsFault_get(void);
-
-/*
- * Get the status of the pcm shutdown pin
- * @return the status of the pcm pin set in the shutdown config
- */
-bool io_vcShdn_PcmFault_get(void);
 
 /*
  * Get the status of the LEStop shutdown pin
