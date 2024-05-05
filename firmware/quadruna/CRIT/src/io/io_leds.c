@@ -38,11 +38,6 @@ void io_led_torquevec_set(bool val)
     io_led_enable(leds->torquevec_led, val);
 }
 
-void io_led_shutdown_set(bool val)
-{
-    io_led_enable(leds->shdn_led, val);
-}
-
 void cringe(const RgbLed *led, const BoardLEDStatus status)
 {
     switch (status)
@@ -60,6 +55,11 @@ void cringe(const RgbLed *led, const BoardLEDStatus status)
             io_rgbLed_enable(led, true, true, true);
             break;
     }
+}
+
+void io_led_shutdown_set(const BoardLEDStatus status)
+{
+    cringe(leds->shdn_led, status);
 }
 
 void io_led_bms_status_set(const BoardLEDStatus status)
