@@ -9,7 +9,7 @@
             },
             "State": {
                 "enum": "BmsState"
-            }            
+            }
         }
     },
     "AlertsContext": {
@@ -157,13 +157,13 @@
                 "max": 100,
                 "unit": "degC"
             },
-            "Seg4Cell2Temp":{
+            "Seg4Cell2Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
             },
-            "Seg4Cell8Temp":{
+            "Seg4Cell8Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100,
@@ -272,7 +272,7 @@
             },
             "TractiveSystemPower": {
                 "resolution": 0.001,
-                "min": -100, 
+                "min": -100,
                 "max": 100,
                 "unit": "kW"
             }
@@ -348,17 +348,17 @@
         }
     },
     "CommitInfo": {
-      "msg_id": 140,
-      "cycle_time": 100,
-      "description": "BMS Current Running Git Commit Info",
-      "signals": {
-          "Hash": {
-              "bits": 32
-          },
-          "Clean": {
-              "bits": 1
-          }
-      }
+        "msg_id": 140,
+        "cycle_time": 100,
+        "description": "BMS Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
     },
     "OWC_Segment0to2_Status": {
         "msg_id": 141,
@@ -386,6 +386,19 @@
             },
             "Segment4_OWC_Cells_Status": {
                 "bits": 16
+            }
+        }
+    },
+    "BMSShdnNodeStatus": {
+        "msg_id": 143,
+        "cycle_time": 100,
+        "description": "BMS Shutdown Node Status",
+        "signals": {
+            "HVDShdnOKStatus": {
+                "bits": 1
+            },
+            "TSIlckOKStatus": {
+                "bits": 1
             }
         }
     }

@@ -12,43 +12,45 @@ typedef struct
     const Gpio LE_stop_gpio;
     const Gpio RE_stop_gpio;
     const Gpio splitter_box_interlock_gpio;
-} ShutdownConfig;
+} VcShdnConfig;
 #else
-EMPTY_STRUCT(ShutdownConfig);
+EMPTY_STRUCT(VcShdnConfig);
 #endif
+
+#define VcShdnNodeCount 5
 
 /*
  * Initialize config for shutdown gpio pins
  * @param config with shutdown gpio pins
  */
-void io_shutdown_init(const ShutdownConfig *shutdown_config);
+void io_vcShdn_init(const VcShdnConfig *shutdown_config);
 
 /*
  * Get the status of the tsms shutdown pin
  * @return the status of the tsms pin set in the shutdown config
  */
-bool io_shutdown_hasTsmsFault(void);
+bool io_vcShdn_TsmsFault_get(void);
 
 /*
  * Get the status of the pcm shutdown pin
  * @return the status of the pcm pin set in the shutdown config
  */
-bool io_shutdown_hasPcmFault(void);
+bool io_vcShdn_PcmFault_get(void);
 
 /*
  * Get the status of the LEStop shutdown pin
  * @return the status of the LEStop pin set in the shutdown config
  */
-bool io_shutdown_hasLEStopFault(void);
+bool io_vcShdn_LEStopFault_get(void);
 
 /*
  * Get the status of the REStop shutdown pin
  * @return the status of the REStop pin set in the shutdown config
  */
-bool io_shutdown_hasREStopFault(void);
+bool io_vcShdn_REStopFault_get(void);
 
 /*
  * Get the status of the splitter box interlock shutdown pin
  * @return the status of the splitter box interlock shutdown pin set in the shutdown config
  */
-bool io_shutdown_hasSplitterBoxInterlockFault(void);
+bool io_vcShdn_SplitterBoxInterlockFault_get(void);

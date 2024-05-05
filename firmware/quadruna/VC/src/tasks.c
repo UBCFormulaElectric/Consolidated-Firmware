@@ -12,6 +12,7 @@
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
+#include "app_shdnLoop.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -20,7 +21,7 @@
 #include "io_chimera.h"
 #include "io_efuse.h"
 #include "io_lowVoltageBattery.h"
-#include "io_shutdown.h"
+#include "io_vcShdn.h"
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
@@ -155,11 +156,19 @@ static const CurrentSensingConfig current_sensing_config = {
     .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
 };
 
-static const ShutdownConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                                .pcm_gpio                    = npcm_en,
-                                                .LE_stop_gpio                = l_shdn_sns,
-                                                .RE_stop_gpio                = r_shdn_sns,
-                                                .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
+static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
+                                              .pcm_gpio                    = npcm_en,
+                                              .LE_stop_gpio                = l_shdn_sns,
+                                              .RE_stop_gpio                = r_shdn_sns,
+                                              .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
+
+static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
+    { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
+    { io_vcShdn_PcmFault_get, &app_canTx_VC_PCMInterlockOKStatus_set },
+    { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
+    { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
+    { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
+};
 
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
@@ -315,7 +324,7 @@ void tasks_init(void)
 
     io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_shutdown_init(&shutdown_config);
+    io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
 
@@ -340,7 +349,8 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_shutdown_init(&shutdown_config);
+    io_vcShdn_init(&shutdown_config);
+    app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);

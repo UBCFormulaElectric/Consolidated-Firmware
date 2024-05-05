@@ -1,5 +1,6 @@
 #include "app_mainState.h"
 #include "app_driveMode.h"
+#include "app_shdnLoop.h"
 #include "app_heartbeatMonitor.h"
 #include "app_leds.h"
 #include "app_switches.h"
@@ -9,6 +10,8 @@ static void mainStateRunOnTick100Hz(void)
     app_leds_update();
     app_switches_broadcast();
     app_driveMode_broadcast();
+
+    app_shdn_loop_broadcast();
 
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_tick();

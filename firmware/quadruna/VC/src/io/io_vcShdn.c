@@ -1,34 +1,33 @@
-#include <stddef.h>
-#include "io_shutdown.h"
+#include "io_vcShdn.h"
 
-static const ShutdownConfig *config;
+static const VcShdnConfig *config;
 
-void io_shutdown_init(const ShutdownConfig *shutdown_config)
+void io_vcShdn_init(const VcShdnConfig *shutdown_config)
 {
     config = shutdown_config;
 }
 
-bool io_shutdown_hasTsmsFault()
+bool io_vcShdn_TsmsFault_get(void)
 {
     return hw_gpio_readPin(&config->tsms_gpio);
 }
 
-bool io_shutdown_hasPcmFault()
+bool io_vcShdn_PcmFault_get(void)
 {
     return hw_gpio_readPin(&config->pcm_gpio);
 }
 
-bool io_shutdown_hasLEStopFault()
+bool io_vcShdn_LEStopFault_get(void)
 {
     return hw_gpio_readPin(&config->RE_stop_gpio);
 }
 
-bool io_shutdown_hasREStopFault()
+bool io_vcShdn_REStopFault_get(void)
 {
     return hw_gpio_readPin(&config->LE_stop_gpio);
 }
 
-bool io_shutdown_hasSplitterBoxInterlockFault()
+bool io_vcShdn_SplitterBoxInterlockFault_get(void)
 {
     return hw_gpio_readPin(&config->splitter_box_interlock_gpio);
 }

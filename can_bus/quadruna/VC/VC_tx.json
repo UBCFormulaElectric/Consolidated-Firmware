@@ -737,5 +737,27 @@
                 "unit": "L/H"
             }
         }
+    },
+    "VCShdnNodeStatus": {
+        "msg_id": 228,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "LEStopOKStatus": {
+                "bits": 1
+            },
+            "REStopOKStatus": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "PCMInterlockOKStatus": {
+                "bits": 1
+            },
+            "SplitterBoxInterlockOKStatus": {
+                "bits": 1
+            }
+        }
     }
 }
