@@ -295,8 +295,8 @@ static const BmsShdnConfig bms_shdn_pin_config = {
     { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
 };
 
-static BoardShdnNode bmsBshdnNodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TS_ILCK_OK_Status_set },
-                                          { &io_get_HVD_OK, &app_canTx_BMS_HVD_SHDN_OK_Status_set } };
+static BoardShdnNode bmsBshdnNodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
+                                          { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
 
 void tasks_preInit(void)
 {

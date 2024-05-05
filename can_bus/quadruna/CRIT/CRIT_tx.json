@@ -72,10 +72,10 @@
         "cycle_time": 100,
         "description": "CRIT Shutdown Node Status",
         "signals": {
-            "SHDN_SEN_OK_Status": {
+            "ShdnSenOKStatus": {
                 "bits": 1
             },
-            "INERTIA_SEN_OK_Status": {
+            "InertiaSenOKStatus": {
                 "bits": 1
             }
         }

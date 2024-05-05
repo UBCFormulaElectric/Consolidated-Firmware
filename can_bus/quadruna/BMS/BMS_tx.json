@@ -394,10 +394,10 @@
         "cycle_time": 100,
         "description": "BMS Shutdown Node Status",
         "signals": {
-            "HVD_SHDN_OK_Status": {
+            "HVDShdnOKStatus": {
                 "bits": 1
             },
-            "TS_ILCK_OK_Status": {
+            "TSIlckOKStatus": {
                 "bits": 1
             }
         }
