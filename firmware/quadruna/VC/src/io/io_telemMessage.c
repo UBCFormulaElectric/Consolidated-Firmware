@@ -37,7 +37,7 @@ bool io_telemMessage_broadcast(CanMsg *rx_msg)
     // filling in fields
     t_message.can_id = (int32_t)(rx_msg->std_id);
     for (uint8_t i = 0; i < CAN_DATA_LENGTH; i++)
-    { // TODO fix the magic numbers
+    { 
         t_message.message[i] = rx_msg->data[i];
     }
     t_message.time_stamp = (int32_t)io_time_getCurrentMs();
