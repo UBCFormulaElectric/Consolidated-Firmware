@@ -99,7 +99,7 @@ float app_soc_getSocFromOcv(float voltage)
     return LUT_BASE_SOC + lut_index * 0.5f;
 }
 
-//this function will replace the original LUT implementation
+// this function will replace the original LUT implementation
 float app_soc_getSocFromOcvNew(float voltage)
 {
     float x = voltage;
@@ -144,7 +144,7 @@ float app_soc_getOcvFromSoc(float soc_percent)
     return ocv_soc_lut[lut_index];
 }
 
-//this function will replace the original LUT implementation
+// this function will replace the original LUT implementation
 float app_soc_getOcvFromSocNew(float soc_percent)
 {
     float x = soc_percent;
