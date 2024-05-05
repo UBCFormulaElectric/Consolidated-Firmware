@@ -18,4 +18,4 @@ typedef struct
 
 extern Globals *const globals;
 
-void app_globals_init();
+void app_globals_init(const GlobalsConfig *config);
