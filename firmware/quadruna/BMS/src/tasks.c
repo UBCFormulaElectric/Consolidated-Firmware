@@ -162,7 +162,7 @@ static const AirsConfig airs_config = { .air_p_gpio = {
 // TODO: Test differential ADC for voltage measurement
 static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
                                                 .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
-                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
+                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_75A,
                                                 .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
 };
@@ -278,7 +278,7 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
 
 const AdcChannel id_to_adc[] = {
     [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
+    [BMS_AdcNetName_TS_ISENSE_75A] = ADC1_IN5_TS_ISENSE_75A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
     [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
 };
 
@@ -329,6 +329,8 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
 
     app_inverterOnState_init();
     app_accumulator_init();
