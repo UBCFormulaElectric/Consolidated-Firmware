@@ -11,7 +11,7 @@ typedef struct
     const BinaryLed *const start_led;
     const BinaryLed *const regen_led;
     const BinaryLed *const torquevec_led;
-    const BinaryLed *const shdn_led;
+    const RgbLed *const    shdn_led;
     const RgbLed *const    bms_status_led;
     const RgbLed *const    fsm_status_led;
     const RgbLed *const    vc_status_led;
@@ -28,7 +28,6 @@ void io_led_ams_set(bool val);
 void io_led_start_set(bool val);
 void io_led_regen_set(bool val);
 void io_led_torquevec_set(bool val);
-void io_led_shutdown_set(bool val);
 
 typedef enum
 {
@@ -38,6 +37,7 @@ typedef enum
     WHITE
 } BoardLEDStatus;
 
+void io_led_shutdown_set(BoardLEDStatus status);
 void io_led_bms_status_set(BoardLEDStatus status);
 void io_led_fsm_status_set(BoardLEDStatus status);
 void io_led_vc_status_set(BoardLEDStatus status);

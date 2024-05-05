@@ -100,10 +100,6 @@ static const BinaryLed torquevec_led = { .gpio = {
                                              .port = TORQUE_VECTORING_LED_GPIO_Port,
                                              .pin  = TORQUE_VECTORING_LED_Pin,
                                          } };
-static const BinaryLed shdn_led      = { .gpio = {
-                                             .port = SHDN_R_GPIO_Port,
-                                             .pin  = SHDN_R_Pin,
-                                    } };
 
 static const Switch start_switch = {
     .gpio = {
@@ -126,6 +122,21 @@ static const Switch torquevec_switch = {
         .pin = TORQUE_VECTORING_SIG_Pin,
     },
     .closed_state = true,
+};
+
+static const RgbLed shdn_led = {
+    .red_gpio = {
+        .port = SHDN_R_GPIO_Port,
+        .pin  = SHDN_R_Pin,
+    },
+    .green_gpio = {
+        .port = SHDN_G_GPIO_Port,
+        .pin  = SHDN_G_Pin,
+    },
+    .blue_gpio = {
+        .port = 0,
+        .pin  = MAX_8_BITS_VALUE,
+    },
 };
 
 static const RgbLed vc_status_led = {
