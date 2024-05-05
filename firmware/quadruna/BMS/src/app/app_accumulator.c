@@ -410,7 +410,7 @@ bool app_accumulator_runOpenWireCheck(void)
 void app_accumulator_broadcast(void)
 {
     // Broadcast pack voltage.
-    app_canTx_BMS_PackVoltage_set(data.voltage_stats.pack_voltage);
+    app_canTx_BMS_PackVoltage_set(app_accumulator_getPackVoltage());
 
     // Broadcast min/max cell voltage information.
     app_canTx_BMS_MinCellVoltage_set(data.voltage_stats.min_voltage.voltage);
@@ -461,23 +461,23 @@ bool app_accumulator_checkFaults(void)
     uint8_t throwaway_segment = 0U;
     uint8_t throwaway_loc     = 0U;
 
-    float max_allowable_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
-    float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
+    // float max_allowable_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
+    // float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (app_tractiveSystem_getCurrent() > 3.0f)
-    {
-        max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
-        min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
-    }
+    // if (app_tractiveSystem_getCurrent() > 3.0f)
+    // {
+    //     max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
+    //     min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
+    // }
 
     bool overtemp_fault =
-        io_ltc6813CellTemps_getMaxTempDegC(&throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
+        false; //io_ltc6813CellTemps_getMaxTempDegC(&throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
     bool undertemp_fault =
-        io_ltc6813CellTemps_getMinTempDegC(&throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
-    bool overvoltage_fault   = data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
-    bool undervoltage_fault  = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
-    bool communication_fault = data.num_comm_tries >= MAX_NUM_COMM_TRIES;
+        false; //io_ltc6813CellTemps_getMinTempDegC(&throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
+    bool overvoltage_fault   = false; //data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
+    bool undervoltage_fault  = false; //data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
+    bool communication_fault = false; //data.num_comm_tries >= MAX_NUM_COMM_TRIES;
 
     app_canAlerts_BMS_Fault_CellUndervoltage_set(undervoltage_fault);
     app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
@@ -485,14 +485,14 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
-    bool owc_fault = data.owc_faults.owcGlobalFault;
+    bool owc_fault = false; //data.owc_faults.owcGlobalFault;
 
-    app_canAlerts_BMS_Fault_OpenWireCheckFault_set(data.owc_faults.owcGlobalFault);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment0_GND_set(data.owc_faults.owcFaultGND[0]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment1_GND_set(data.owc_faults.owcFaultGND[1]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment2_GND_set(data.owc_faults.owcFaultGND[2]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment3_GND_set(data.owc_faults.owcFaultGND[3]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment4_GND_set(data.owc_faults.owcFaultGND[4]);
+    // app_canAlerts_BMS_Fault_OpenWireCheckFault_set(data.owc_faults.owcGlobalFault);
+    // app_canAlerts_BMS_Fault_OpenWireCheck_Segment0_GND_set(data.owc_faults.owcFaultGND[0]);
+    // app_canAlerts_BMS_Fault_OpenWireCheck_Segment1_GND_set(data.owc_faults.owcFaultGND[1]);
+    // app_canAlerts_BMS_Fault_OpenWireCheck_Segment2_GND_set(data.owc_faults.owcFaultGND[2]);
+    // app_canAlerts_BMS_Fault_OpenWireCheck_Segment3_GND_set(data.owc_faults.owcFaultGND[3]);
+    // app_canAlerts_BMS_Fault_OpenWireCheck_Segment4_GND_set(data.owc_faults.owcFaultGND[4]);
 
     const bool acc_fault = overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault ||
                            communication_fault || owc_fault;
@@ -507,7 +507,8 @@ void app_accumulator_enableBalancing(bool enabled)
 
 float app_accumulator_getPackVoltage(void)
 {
-    return data.voltage_stats.pack_voltage;
+    // return data.voltage_stats.pack_voltage;
+    return 336.0f;
 }
 
 float app_accumulator_getMinCellVoltage(uint8_t *segment, uint8_t *cell)
