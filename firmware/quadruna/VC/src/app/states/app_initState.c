@@ -37,7 +37,7 @@ static void initStateRunOnTick100Hz(void)
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool is_key_turned = io_tsms_read();
-    
+
     if (is_key_turned && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
