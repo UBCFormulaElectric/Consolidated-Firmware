@@ -416,9 +416,6 @@ _Noreturn void tasks_run100Hz(void)
     for (;;)
     {
         //        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        bool state = hw_gpio_readPin(&pgood);
-        app_canTx_VC_Fault_BoostControllerFault_set(state);
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
