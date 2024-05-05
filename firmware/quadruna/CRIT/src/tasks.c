@@ -565,8 +565,8 @@ _Noreturn void tasks_run1Hz(void)
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
-        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
