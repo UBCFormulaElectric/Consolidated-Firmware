@@ -100,13 +100,11 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
-        PC1     ------> ADC1_INN10
-        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        GPIO_InitStruct.Pin  = TS_VSENSE_P_Pin | TS_VSENSE_N_Pin | AUX_TSENSE_Pin;
+        GPIO_InitStruct.Pin  = TS_VSENSE_P_Pin | AUX_TSENSE_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -159,13 +157,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
-        PC1     ------> ADC1_INN10
-        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        HAL_GPIO_DeInit(GPIOC, TS_VSENSE_P_Pin | TS_VSENSE_N_Pin | AUX_TSENSE_Pin);
+        HAL_GPIO_DeInit(GPIOC, TS_VSENSE_P_Pin | AUX_TSENSE_Pin);
 
         HAL_GPIO_DeInit(GPIOB, TS_ISENSE_400A_Pin | TS_ISENSE_50A_Pin);
 

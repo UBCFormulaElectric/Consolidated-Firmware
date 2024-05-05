@@ -77,8 +77,6 @@ extern "C"
 #define nPROGRAM_3V3_GPIO_Port GPIOC
 #define TS_VSENSE_P_Pin GPIO_PIN_0
 #define TS_VSENSE_P_GPIO_Port GPIOC
-#define TS_VSENSE_N_Pin GPIO_PIN_1
-#define TS_VSENSE_N_GPIO_Port GPIOC
 #define AIR_P_EN_Pin GPIO_PIN_2
 #define AIR_P_EN_GPIO_Port GPIOC
 #define PRE_CHARGE_EN_Pin GPIO_PIN_3
