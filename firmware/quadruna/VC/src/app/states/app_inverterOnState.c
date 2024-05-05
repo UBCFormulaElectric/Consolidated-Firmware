@@ -17,6 +17,7 @@ static void inverterOnStateRunOnEntry(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
+    PowerManagerState nextState;
     const bool any_board_has_fault = app_boardFaultCheck();
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
@@ -31,11 +32,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     const bool inverters_off_exit         = !all_states_ok;
 
-    PowerManagerState nextState;
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
         nextState = POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS;
     else
         nextState = POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS;
+        
     app_powerManager_setState(nextState);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)

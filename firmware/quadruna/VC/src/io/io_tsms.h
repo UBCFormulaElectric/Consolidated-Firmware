@@ -11,4 +11,4 @@ EMPTY_STRUCT(PcmConfig)
 
 void io_tsms_init(const TSMSConfig *const in_config);
 
-bool io_tsms_read();
+bool io_tsms_read(void);

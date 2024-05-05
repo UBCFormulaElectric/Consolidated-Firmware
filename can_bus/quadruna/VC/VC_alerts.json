@@ -89,22 +89,6 @@
         "BoostControllerFault": {
             "id": 560,
             "description": "Example"
-        },
-        "LEStopFault": {
-            "id": 561,
-            "description": "Example"
-        },
-        "REStopFault": {
-            "id": 562,
-            "description": "Example"
-        },
-        "TSMSFault": {
-            "id": 563,
-            "description": "Example"
-        },
-        "PCMInterlockFault": {
-            "id": 564,
-            "description": "Example"
         }
     }
 }
