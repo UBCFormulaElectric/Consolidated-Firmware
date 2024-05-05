@@ -159,7 +159,7 @@ static const CurrentSensingConfig current_sensing_config = {
 };
 
 static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                              .pcm_gpio                    = npcm_en,
+                                              .npcm_gpio                   = npcm_en,
                                               .LE_stop_gpio                = l_shdn_sns,
                                               .RE_stop_gpio                = r_shdn_sns,
                                               .splitter_box_interlock_gpio = sb_ilck_shdn_sns };

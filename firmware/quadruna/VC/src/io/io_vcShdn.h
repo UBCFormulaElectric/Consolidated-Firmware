@@ -8,7 +8,7 @@
 typedef struct
 {
     const Gpio tsms_gpio;
-    const Gpio pcm_gpio;
+    const Gpio npcm_gpio;
     const Gpio LE_stop_gpio;
     const Gpio RE_stop_gpio;
     const Gpio splitter_box_interlock_gpio;
