@@ -7,6 +7,7 @@
 #include "fake_io_led.hpp"
 #include "fake_io_airs.hpp"
 #include "fake_io_charger.hpp"
+#include "fake_io_sd.hpp"
 #include "fake_io_faultLatch.hpp"
 #include "fake_io_imd.hpp"
 #include "fake_io_ltc6813CellTemps.hpp"
