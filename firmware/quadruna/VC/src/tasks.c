@@ -159,14 +159,12 @@ static const CurrentSensingConfig current_sensing_config = {
 };
 
 static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                              .npcm_gpio                   = npcm_en,
                                               .LE_stop_gpio                = l_shdn_sns,
                                               .RE_stop_gpio                = r_shdn_sns,
                                               .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
 
 static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
     { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
-    { io_vcShdn_PcmFault_get, &app_canTx_VC_PCMInterlockOKStatus_set },
     { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
     { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
     { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
