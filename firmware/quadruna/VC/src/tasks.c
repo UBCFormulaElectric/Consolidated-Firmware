@@ -50,6 +50,7 @@ extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
+extern SD_HandleTypeDef    hsd1;
 
 static void can_msg_received_callback(CanMsg *rx_msg);
 
@@ -514,7 +515,7 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-void tasks_runLogging(void)
+_Noreturn void tasks_runLogging(void)
 {
     static uint32_t count = 0;
     for (;;)

@@ -146,7 +146,7 @@ if ("${TARGET}" STREQUAL "deploy")
     # Add your replacement function source file to the littlefs_cm7 library
     target_compile_definitions(littlefs_cm7_vc PRIVATE LFS_ASSERT=io_custom_lfs_assert)
     target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "littlefs_cm7_vc" "debug_modules" "m")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "littlefs_cm7_vc" "debug_modules" "m" "telem_proto")
 
     # Build bootloader.
     stm32h7_boot_binary(
