@@ -11,11 +11,13 @@
 #include "app_faultCheck.h"
 #include "io_buzzer.h"
 #include "io_tsms.h"
+#include "io_log.h"
 
 #define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 
 static void initStateRunOnEntry(void)
 {
+    LOG_INFO("init entry");
     app_allStates_runOnTick100Hz();
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
@@ -28,6 +30,7 @@ static void initStateRunOnEntry(void)
     // Disable buzzer on transition to init.
     io_buzzer_enable(false);
     app_canTx_VC_BuzzerOn_set(false);
+    LOG_INFO("init entry done");
 }
 
 static void initStateRunOnTick100Hz(void)
@@ -40,6 +43,7 @@ static void initStateRunOnTick100Hz(void)
 
     if (is_key_turned && all_states_ok)
     {
+        LOG_INFO("Going to inverter on state");
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
 

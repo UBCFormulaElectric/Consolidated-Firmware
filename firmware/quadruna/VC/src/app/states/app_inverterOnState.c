@@ -13,6 +13,7 @@
 
 static void inverterOnStateRunOnEntry(void)
 {
+    LOG_INFO("Transitioning to INVERTER_ON state");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
 }
 
@@ -30,20 +31,13 @@ static void inverterOnStateRunOnTick100Hz(void)
     prev_start_switch_pos                 = curr_start_switch_pos;
     const bool is_brake_actuated          = app_canRx_FSM_BrakeActuated_get();
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool bms_in_correct_state       = bms_in_drive_state || app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
-                                      app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
-    const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
+    const bool inverters_off_exit         = !all_states_ok;
 
     PowerManagerState nextState;
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
         nextState = POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS;
     else
         nextState = POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS;
-
-    if (io_time_getCurrentMs() % 100 == 0)
-    {
-        LOG_INFO("State Changed, from %d", nextState);
-    }
     app_powerManager_setState(nextState);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
@@ -53,10 +47,12 @@ static void inverterOnStateRunOnTick100Hz(void)
 
         // TODO: Could not thoroughly validate VC refactor without a working BMS.
         // Thus, re-test IO, app, and vehicle dynamics before going HV up or driving again.
+        LOG_INFO("Transitioning to DRIVE state");
         app_stateMachine_setNextState(app_driveState_get());
     }
     else if (inverters_off_exit)
     {
+        LOG_INFO("Transitioning to INIT state");
         app_stateMachine_setNextState(app_initState_get());
     }
 }

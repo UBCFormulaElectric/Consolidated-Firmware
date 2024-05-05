@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <math.h>
+#include "io_log.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "states/app_allStates.h"
 #include "app_powerManager.h"
@@ -51,6 +51,7 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
+    LOG_INFO("Entering drive state");
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     // Enable buzzer on transition to drive, and start 2s timer.
     io_buzzer_enable(true);
@@ -75,6 +76,7 @@ static void driveStateRunOnEntry(void)
     {
         app_torqueVectoring_init();
     }
+    LOG_INFO("Drive state entry done");
 }
 
 static void driveStateRunOnTick1Hz(void)
@@ -99,6 +101,7 @@ static void driveStateRunOnTick100Hz(void)
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
+        LOG_INFO("2");
         io_buzzer_enable(false);
         app_canTx_VC_BuzzerOn_set(false);
     }
@@ -107,6 +110,7 @@ static void driveStateRunOnTick100Hz(void)
 
     if (regen_switch_enabled)
     {
+        LOG_INFO("3");
         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
         apps_pedal_percentage = apps_pedal_percentage < 0.0f
                                     ? apps_pedal_percentage / PEDAL_SCALE
@@ -115,31 +119,37 @@ static void driveStateRunOnTick100Hz(void)
 
     if (exit_drive_to_init)
     {
+        LOG_INFO("4 %d %d", any_board_has_fault, inverter_has_fault);
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
     else if (exit_drive_to_inverterOn)
     {
+        LOG_INFO("5");
         app_stateMachine_setNextState(app_inverterOnState_get());
         return;
     }
 
     if (apps_pedal_percentage < 0.0f)
     {
+        LOG_INFO("6");
         app_regen_run(apps_pedal_percentage);
     }
     else if (torque_vectoring_switch_is_on)
     {
+        LOG_INFO("7");
         app_torqueVectoring_run(apps_pedal_percentage);
     }
     else
     {
-        transmitTorqueRequests(apps_pedal_percentage);
+        LOG_INFO("8");
+        //        transmitTorqueRequests(apps_pedal_percentage);
     }
 }
 
 static void driveStateRunOnExit(void)
 {
+    LOG_INFO("Leaving drive state");
     // Disable inverters and apply zero torque upon exiting drive state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -150,6 +160,7 @@ static void driveStateRunOnExit(void)
     // Disable buzzer on exit drive.
     io_buzzer_enable(false);
     app_canTx_VC_BuzzerOn_set(false);
+    LOG_INFO("Drive state exit done");
 }
 
 const State *app_driveState_get(void)
