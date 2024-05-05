@@ -29,15 +29,15 @@
         }
     },
     "DriveMode": {
-		"msg_id": 504,
-		"cycle_time": 100,
-		"description": "Drive Mode.",
-		"signals": {
-			"DriveMode": {
-				"bits": 4
-			}
-		}
-	},
+        "msg_id": 504,
+        "cycle_time": 100,
+        "description": "Drive Mode.",
+        "signals": {
+            "DriveMode": {
+                "bits": 4
+            }
+        }
+    },
     "AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,
@@ -67,7 +67,7 @@
             }
         }
     },
-    "CRIT_Shdn_Node_Status": {
+    "CRITShdnNodeStatus": {
         "msg_id": 507,
         "cycle_time": 100,
         "description": "CRIT Shutdown Node Status",
