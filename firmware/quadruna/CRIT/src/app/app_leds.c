@@ -27,7 +27,7 @@ void app_leds_update(void)
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     io_led_torquevec_set(torquevec_light_on);
 
-    const BoardLEDStatus shutdown_sensor = OK; // TODO implement when SigmaWrath's changes are in
+    const BoardLEDStatus shutdown_sensor = OK; // TODO implement VC last shutdown node code is in
     io_led_shutdown_set(shutdown_sensor);
 
     const BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
