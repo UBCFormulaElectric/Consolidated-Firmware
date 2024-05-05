@@ -1,19 +1,15 @@
-#include <math.h>
-#include "states/app_initState.h"
-#include "states/app_inverterOnState.h"
-#include "app_canUtils.h"
-#include "app_powerManager.h"
 #include <stddef.h>
-#include "states/app_allStates.h"
-#include "states/app_driveState.h"
+// states
+#include "app_states.h"
+// jsoncan
+#include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
-#include "io_buzzer.h"
-#include "app_globals.h"
-#include "app_faultCheck.h"
 
+#include "app_powerManager.h"
 #include "app_pumpControl.h"
+#include "app_faultCheck.h"
+#include "io_buzzer.h"
 
 #define DEFAULT_FLOW_RATE 600 // 10 Liters/Hour
 

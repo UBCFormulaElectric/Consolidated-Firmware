@@ -3,7 +3,17 @@ include(cmake/tests.cmake)
 include(cmake/shared.cmake)
 
 # ======== Libraries ========
-if("${TARGET}" STREQUAL "deploy")
+# protobufs
+CPMAddPackage(
+        NAME NANOPB_REPO
+        GITHUB_REPOSITORY nanopb/nanopb
+        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+)
+list(APPEND CMAKE_MODULE_PATH ${NANOPB_REPO_SOURCE_DIR}/extra)
+find_package(Nanopb REQUIRED)
+if ("${TARGET}" STREQUAL "deploy")
     add_compile_definitions(TARGET_EMBEDDED)
 
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
@@ -29,51 +39,33 @@ if("${TARGET}" STREQUAL "deploy")
         GIT_TAG v2.8.0
         GIT_SHALLOW TRUE
     )
-    set(LITTLEFS_SRCS 
-        "${LITTLEFS_SOURCE_DIR}/lfs.c"
-        "${LITTLEFS_SOURCE_DIR}/lfs_util.c"
+    set(LITTLEFS_SRCS
+            "${LITTLEFS_SOURCE_DIR}/lfs.c"
+            "${LITTLEFS_SOURCE_DIR}/lfs_util.c"
     )
     embedded_library(
-        "littlefs_cm4"
-        "${LITTLEFS_SRCS}"
-        "${LITTLEFS_SOURCE_DIR}"
-        "cm4"
-        TRUE
+            "littlefs_cm4"
+            "${LITTLEFS_SRCS}"
+            "${LITTLEFS_SOURCE_DIR}"
+            "cm4"
+            TRUE
     )
 
     embedded_library(
-        "littlefs_cm7"
-        "${LITTLEFS_SRCS}"
-        "${LITTLEFS_SOURCE_DIR}"
-        "cm4"
-        TRUE
+            "littlefs_cm7"
+            "${LITTLEFS_SRCS}"
+            "${LITTLEFS_SOURCE_DIR}"
+            "cm4"
+            TRUE
     )
-
-    # protobufs
-    CPMAddPackage(
-        NAME NANOPB
-        GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
-        GIT_SHALLOW TRUE
-    )
-    list(APPEND CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-    find_package(Nanopb REQUIRED)
-elseif("${TARGET}" STREQUAL "test")
+elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions(TARGET_TEST)
-    # protobufs
-    CPMAddPackage(
-        NAME NANOPB
-        GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
-        GIT_SHALLOW TRUE
-    )
-    list(APPEND CMAKE_MODULE_PATH ${nanopb_SOURCE_DIR}/extra)
-    find_package(Nanopb REQUIRED)
+    add_compile_definitions(_USE_MATH_DEFINES)
     # We assume this cmake is running on a x86 TARGET, so the
     # *default compiler* settings should be fine
 
     # If compiling on x86, fetch GoogleTest for unit testing.
-    CPMAddPackage(GITHUB_REPOSITORY "google/googletest" GIT_TAG "release-1.12.1")
+    CPMAddPackage(GITHUB_REPOSITORY "google/googletest" GIT_TAG "release-1.12.1" GIT_SHALLOW TRUE)
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
@@ -87,16 +79,15 @@ elseif("${TARGET}" STREQUAL "test")
     include(CTest)
     enable_testing()
     message("✅ GTest Included")
-endif()
-
+endif ()
 
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
 
-if("${TARGET}" STREQUAL "deploy")
+if ("${TARGET}" STREQUAL "deploy")
     add_subdirectory(chimera)
-endif()
+endif ()
 
 add_subdirectory(logfs)
 add_subdirectory(quadruna)

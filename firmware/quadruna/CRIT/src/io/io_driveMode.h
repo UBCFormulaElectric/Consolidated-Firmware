@@ -18,6 +18,7 @@ typedef struct
 EMPTY_STRUCT(DriveMode);
 #endif
 
+void io_driveMode_init(const DriveMode *config);
 /**
  * Readings drive modes from the pins.
  */

@@ -101,6 +101,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
         PC1     ------> ADC1_INN10
+        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
@@ -159,6 +160,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC0     ------> ADC1_INP10
         PC1     ------> ADC1_INN10
+        PC1     ------> ADC1_INP11
         PC4     ------> ADC1_INP4
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5

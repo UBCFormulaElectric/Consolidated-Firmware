@@ -345,19 +345,67 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LVPWR_EN_GPIO_Port, LVPWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        GPIOE,
+        INV_R_PWR_EN_Pin | INV_R_PROGRA_Pin | INV_L_PROGR_Pin | SHDN_PWR_EN_Pin | INV_L_PWR_EN_Pin | FR_STBY3E1_Pin,
+        GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : LVPWR_EN_Pin */
-    GPIO_InitStruct.Pin   = LVPWR_EN_Pin;
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOC, FR_STBY3_Pin | LV_PWR_EN_Pin | FR_STBY2_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, BUZZER_PWR_EN_Pin | LED_Pin | TELEM_PWR_EN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(nPCM_EN_GPIO_Port, nPCM_EN_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOD, PUMP_PWR_E_Pin | _900K_GPI_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pins : INV_R_PWR_EN_Pin INV_R_PROGRA_Pin INV_L_PROGR_Pin SHDN_PWR_EN_Pin
+                             INV_L_PWR_EN_Pin FR_STBY3E1_Pin */
+    GPIO_InitStruct.Pin =
+        INV_R_PWR_EN_Pin | INV_R_PROGRA_Pin | INV_L_PROGR_Pin | SHDN_PWR_EN_Pin | INV_L_PWR_EN_Pin | FR_STBY3E1_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LVPWR_EN_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : FR_STBY3_Pin LV_PWR_EN_Pin FR_STBY2_Pin */
+    GPIO_InitStruct.Pin   = FR_STBY3_Pin | LV_PWR_EN_Pin | FR_STBY2_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BUZZER_PWR_EN_Pin LED_Pin TELEM_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = BUZZER_PWR_EN_Pin | LED_Pin | TELEM_PWR_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : nPCM_EN_Pin */
+    GPIO_InitStruct.Pin   = nPCM_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(nPCM_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PUMP_PWR_E_Pin _900K_GPI_Pin AUX_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = PUMP_PWR_E_Pin | _900K_GPI_Pin | AUX_PWR_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nBOOT_EN_Pin */
     GPIO_InitStruct.Pin  = nBOOT_EN_Pin;

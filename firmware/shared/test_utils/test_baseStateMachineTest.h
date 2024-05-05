@@ -13,7 +13,7 @@ extern "C"
 class BaseStateMachineTest : public testing::Test
 {
   protected:
-    void SetUp(void) override
+    void SetUp() override
     {
         // At t = 0ms, every on-tick function will be executed because of how we
         // decide which on-tick function(s) to run at each tick:
