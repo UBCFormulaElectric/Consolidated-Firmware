@@ -5,7 +5,6 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_can.h"
 #endif
-// TODO: Update documentation
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
