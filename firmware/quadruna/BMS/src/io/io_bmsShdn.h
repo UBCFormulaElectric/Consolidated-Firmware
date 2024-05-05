@@ -8,7 +8,6 @@
 
 typedef struct
 {
-    const int  bms_num_nodes;
     const Gpio ts_ilck_ok_gpio;
     const Gpio hvd_ok_gpio;
 } BmsShdnConfig;
@@ -16,10 +15,10 @@ typedef struct
 EMPTY_STRUCT(BmsShdnConfig);
 #endif
 
+#define BmsShdnNodeCount 2
+
 void io_bmsShdn_init(const BmsShdnConfig *bms_shdn_config);
 
-int io_bms_num_shdn_nodes();
+bool io_get_TS_ILCK_OK(void);
 
-bool io_get_TS_ILCK_OK();
-
-bool io_get_HVD_OK();
+bool io_get_HVD_OK(void);

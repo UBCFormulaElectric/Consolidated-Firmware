@@ -8,15 +8,14 @@
 
 typedef struct
 {
-    const int  fsm_num_nodes;
     const Gpio fsm_shdn_ok_gpio;
 } FsmShdnConfig;
 #else
 EMPTY_STRUCT(FsmShdnConfig);
 #endif
 
+#define FsmShdnNodeCount 1
+
 void io_fsmShdn_init(const FsmShdnConfig *fsm_shdn_config);
 
-int io_fsm_num_shdn_nodes();
-
-bool io_get_FSM_SHDN_OK();
+bool io_get_FSM_SHDN_OK(void);

@@ -10,7 +10,7 @@ void app_shdn_loop_init(BoardShdnNode *nodes, int num_nodes)
     board_nodes = nodes;
 }
 
-void app_shdn_loop_broadcast()
+void app_shdn_loop_broadcast(void)
 {
     for (int i = 0; i < length; i++)
     {

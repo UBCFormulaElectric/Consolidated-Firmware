@@ -18,11 +18,8 @@
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
-#include "io_led.h"
-#include "io_time.h"
 #include "io_can.h"
 #include "io_airs.h"
-#include "io_charger.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
 #include "ltc6813/io_ltc6813Shared.h"
@@ -36,12 +33,10 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_timer.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_soc.h"
 #include "app_globals.h"
-#include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
@@ -71,12 +66,12 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_BMS_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_BMS_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_BMS_Warning_RxOverflow_set(false);
 }
@@ -222,12 +217,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = NULL,
-                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = NULL,
@@ -248,7 +243,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = NULL,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
@@ -290,13 +285,12 @@ const AdcChannel id_to_adc[] = {
 static UART debug_uart = { .handle = &huart1 };
 
 static const BmsShdnConfig bms_shdn_pin_config = {
-    .bms_num_nodes = 2,
     .ts_ilck_ok_gpio = ts_ilck_shdn_pin,
-    .hvd_ok_gpio = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin }
+    .hvd_ok_gpio     = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
 };
 
-static BoardShdnNode bms_bshdn_nodes[2] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
-                                          { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
+static BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
+                                                           { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
 
 void tasks_preInit(void)
 {
@@ -343,7 +337,7 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
-    app_shdn_loop_init(bms_bshdn_nodes, io_bms_num_shdn_nodes());
+    app_shdn_loop_init(bms_bshdn_nodes, BmsShdnNodeCount);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,

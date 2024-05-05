@@ -388,14 +388,13 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
-static const CritShdnConfig crit_shdn_pin_config = {
-    .crit_num_nodes = 2,
-    .shdn_sen_ok_gpio = shdn_sen_pin,
-    .inertia_sen_ok_gpio = inertia_sen_pin
-};
+static const CritShdnConfig crit_shdn_pin_config = { .shdn_sen_ok_gpio    = shdn_sen_pin,
+                                                     .inertia_sen_ok_gpio = inertia_sen_pin };
 
-static BoardShdnNode crit_bshdn_nodes[2] = { { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
-                                           { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_ShdnSenOKStatus_set } };
+static BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
+    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_ShdnSenOKStatus_set }
+};
 
 void tasks_preInit(void)
 {
@@ -433,7 +432,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(crit_bshdn_nodes, io_crit_num_shdn_nodes());
+    app_shdn_loop_init(crit_bshdn_nodes, CritShdnNodeCount);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
