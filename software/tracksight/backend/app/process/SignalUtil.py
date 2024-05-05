@@ -65,9 +65,14 @@ class SignalUtil:
         return {'description': 'Unknown', 'unit': 'N/A'}  
     # returns all signals in data
     def get_all_signals(self):
-        return self.df.iloc[:, 0:]
+         return self.df.copy()
 
     # return target signal
-    def get_signal(self, s_id):
-        return self.df[s_id]
+    def get_signal(self, can_id):
+        return self.df[self.df['can_id'] == can_id] #Searches can_id collum and returns that row
+
+    # def get_signal(self, s_id):
+    #     return self.df[s_id]
+
+
     
