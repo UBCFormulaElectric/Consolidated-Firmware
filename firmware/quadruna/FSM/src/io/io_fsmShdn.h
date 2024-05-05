@@ -18,4 +18,4 @@ EMPTY_STRUCT(FsmShdnConfig);
 
 void io_fsmShdn_init(const FsmShdnConfig *fsm_shdn_config);
 
-bool io_get_FSM_SHDN_OK(void);
+bool io_fsmShdn_FSM_SHDN_OK_get(void);
