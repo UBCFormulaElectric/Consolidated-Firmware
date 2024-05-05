@@ -12,7 +12,6 @@
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_powerManager_setState(POWER_MANAGER_DRIVE);
 }
 
 static void inverterOnStateRunOnTick100Hz(void)
@@ -32,6 +31,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool bms_in_correct_state       = bms_in_drive_state || app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                       app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
     const bool inverters_off_exit = !all_states_ok || !bms_in_correct_state;
+
+    if (bms_in_drive_state)
+        app_powerManager_setState(POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS);
+    else
+        app_powerManager_setState(POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {

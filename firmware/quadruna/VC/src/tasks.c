@@ -222,14 +222,9 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     }
 };
 
-static const PcmConfig pcm_config = {
-    .pcm_gpio = &npcm_en
-};
+static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
 
-static const TSMSConfig tsms_config = {
-    .tsms_gpio = &tsms_shdn_sns
-};
-
+static const TSMSConfig tsms_config = { .tsms_gpio = &tsms_shdn_sns };
 
 static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
