@@ -5,7 +5,7 @@
 // EV.6.6.1
 #define PRECHARGE_ACC_V_THRESHOLD (0.90f)
 
-#define MAX_PRECHARGE_ATTEMPTS 3U
+#define MAX_PRECHARGE_ATTEMPTS 1U
 
 static bool checkPrechargeFaults(
     bool is_charger_connected,

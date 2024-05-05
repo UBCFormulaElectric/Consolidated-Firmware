@@ -265,7 +265,7 @@
                 "unit": "V"
             },
             "TractiveSystemCurrent": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -300,
                 "max": 300,
                 "unit": "A"
