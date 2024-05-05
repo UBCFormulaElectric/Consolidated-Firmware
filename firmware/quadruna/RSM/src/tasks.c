@@ -37,7 +37,7 @@ extern TIM_HandleTypeDef  htim3;
 extern CAN_HandleTypeDef  hcan1;
 extern UART_HandleTypeDef huart1;
 
-const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -61,7 +61,7 @@ void canRxQueueOverflowClearCallback(void)
     app_canAlerts_RSM_Warning_RxOverflow_set(false);
 }
 
-const CanConfig can_config = {
+static const CanConfig can_config = {
     .rx_msg_filter              = io_canRx_filterMessageId,
     .tx_overflow_callback       = canTxQueueOverflowCallBack,
     .rx_overflow_callback       = canRxQueueOverflowCallBack,
@@ -93,12 +93,7 @@ const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_p
                              [RSM_GpioNetName_ACC_FAN_EN]         = &acc_fan_en_pin,
                              [RSM_GpioNetName_NProgram_3V3]       = &n_program_pin };
 
-static const BinaryLed brake_light = { .gpio = {
-                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
-                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
-                                       } };
-
-AdcChannel id_to_adc[] = {
+const AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_ACC_FAN_I_SNS]        = ADC1_IN15_ACC_FAN_I_SNS,
     [RSM_AdcNetName_RAD_FAN_I_SNS]        = ADC1_IN14_RAD_FAN_I_SNS,
     [RSM_AdcNetName_CoolantPressure1_3V3] = ADC1_IN12_COOLANT_PRESSURE_1,
@@ -111,13 +106,22 @@ AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
 };
 
-PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
-                                          .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
-                                          .tim_channel         = TIM_CHANNEL_1,
-                                          .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
-                                          .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+static const BinaryLed brake_light = { .gpio = {
+                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
+                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
+                                       } };
 
-static UART debug_uart = { .handle = &huart1 };
+static const GlobalsConfig config = { .brake_light = &brake_light,
+                                      .acc_fan     = &acc_fan_en_pin,
+                                      .rad_fan     = &rad_fan_en_pin };
+
+static const PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
+                                                       .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                                       .tim_channel         = TIM_CHANNEL_1,
+                                                       .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                                       .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+
+static const UART debug_uart = { .handle = &huart1 };
 
 // config for heartbeat monitor
 /// RSM rellies on BMS
@@ -291,6 +295,48 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+_Noreturn void tasks_run1kHz(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
+    static const TickType_t period_ms   = 1U;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    for (;;)
+    {
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
+
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+_Noreturn void tasks_run1Hz(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
+    static const TickType_t period_ms   = 1000U;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    for (;;)
+    {
+        hw_stackWaterMarkConfig_check();
+        app_stateMachine_tick1Hz();
+
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 

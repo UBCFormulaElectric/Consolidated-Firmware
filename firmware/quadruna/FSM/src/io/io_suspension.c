@@ -5,9 +5,9 @@
 #define MIN_SUSPENSION_VOLTAGE (0.2f)
 #define MAX_SUSPENSION_VOLTAGE (3.5f)
 
-SuspensionConfig *config;
+static const SuspensionConfig *config;
 
-void io_suspension_init(SuspensionConfig *suspension_config)
+void io_suspension_init(const SuspensionConfig *suspension_config)
 {
     config = suspension_config;
 }

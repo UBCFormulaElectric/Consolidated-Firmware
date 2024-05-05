@@ -4,9 +4,9 @@
 #define MIN_STEERING_VOLTAGE (0.2f)
 #define MAX_STEERING_VOLTAGE (3.5f)
 
-static SteeringConfig *config;
+static const SteeringConfig *config;
 
-void io_steering_init(SteeringConfig *steering_config)
+void io_steering_init(const SteeringConfig *steering_config)
 {
     config = steering_config;
 }

@@ -50,7 +50,7 @@ extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 
 // extern IWDG_HandleTypeDef  hiwdg1;
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -138,7 +138,7 @@ const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_SB_ILCK_SHDN_SNS] = &sb_ilck_shdn_sns,
                              [VC_GpioNetName_TSMS_SHDN_SNS]    = &tsms_shdn_sns };
 
-static const AdcChannel id_to_adc[] = {
+const AdcChannel id_to_adc[] = {
     [VC_AdcNetName_INV_R_PWR_I_SNS]  = ADC1_IN10_INV_R_PWR_I_SNS,
     [VC_AdcNetName_INV_L_PWR_I_SNS]  = ADC1_IN11_INV_L_PWR_I_SNS,
     [VC_AdcNetName_AUX_PWR_I_SNS]    = ADC3_IN0_AUX_PWR_I_SNS,
@@ -226,7 +226,7 @@ static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
 
 static const TSMSConfig tsms_config = { .tsms_gpio = &tsms_shdn_sns };
 
-static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
+static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
     [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
     [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
@@ -237,7 +237,7 @@ static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
 
-static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
+static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
     [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
     [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
@@ -247,38 +247,40 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static Buzzer buzzer        = { .gpio = buzzer_pwr_en };
-static UART   debug_uart    = { .handle = &huart7 };
-static UART   imu_uart      = { .handle = &huart2 };
-static UART   modem2G4_uart = { .handle = &huart3 };
-static UART   modem900_uart = { .handle = &huart1 };
-static Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
+static const Buzzer buzzer        = { .gpio = buzzer_pwr_en };
+static const UART   debug_uart    = { .handle = &huart7 };
+static const UART   imu_uart      = { .handle = &huart2 };
+static const UART   modem2G4_uart = { .handle = &huart3 };
+static const UART   modem900_uart = { .handle = &huart1 };
+static const Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
     [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = true
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                          [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
+bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                                [VC_HEARTBEAT_BOARD]   = NULL,
+                                                                [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                                [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                                [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                                [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update };
+void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
+};
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
@@ -288,7 +290,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,

@@ -1,5 +1,6 @@
 #include "io_leds.h"
 #include "app_canRx.h"
+#include <assert.h>
 
 static const Leds *leds = NULL;
 
@@ -59,6 +60,7 @@ void cringe(const RgbLed *led, const BoardLEDStatus status)
 
 void io_led_shutdown_set(const BoardLEDStatus status)
 {
+    assert(status != WHITE && status != WARNING);
     cringe(leds->shdn_led, status);
 }
 
