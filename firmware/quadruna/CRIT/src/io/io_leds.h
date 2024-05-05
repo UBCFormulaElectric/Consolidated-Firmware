@@ -1,6 +1,7 @@
 #pragma once
 
-#include "io_rgbLed.h"
+#ifdef TARGET_EMBEDDED
+#include "hw_rgbLed.h"
 #include "io_led.h"
 
 typedef struct
@@ -21,6 +22,7 @@ typedef struct
 } Leds;
 
 void io_led_init(const Leds *in_leds);
+#endif
 
 void io_led_imd_set(bool val);
 void io_led_bspd_set(bool val);

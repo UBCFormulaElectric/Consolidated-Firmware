@@ -7,7 +7,7 @@ void io_tsms_init(const TSMSConfig *const in_config)
     config = in_config;
 }
 
-bool io_tsms_read()
+bool io_tsms_read(void)
 {
     return hw_gpio_readPin(config->tsms_gpio);
 }

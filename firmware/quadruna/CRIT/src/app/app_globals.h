@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io_switch.h"
-#include "io_rgbLed.h"
+#include "hw_rgbLed.h"
 #include "io_led.h"
 #include "io_driveMode.h"
 

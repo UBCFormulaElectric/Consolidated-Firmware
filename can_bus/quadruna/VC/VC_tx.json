@@ -759,5 +759,15 @@
                 "bits": 1
             }
         }
+    },
+    "GlobalShdnNodeStatus": {
+        "msg_id": 229,
+        "cycle_time": 100,
+        "description": "Global Shutdown Node Status",
+        "signals": {
+            "FirstFaultNode": {
+                "enum": "ShutdownNode"
+            }
+        }
     }
 }
