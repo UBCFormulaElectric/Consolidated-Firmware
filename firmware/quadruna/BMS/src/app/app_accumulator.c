@@ -246,7 +246,7 @@ void app_accumulator_init(void)
     data.owc_state        = START_OPEN_WIRE_CHECK;
 }
 
-void app_accumulator_writeDefaultConfig()
+void app_accumulator_writeDefaultConfig(void)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     io_ltc6813Shared_setCfgRegsToDefaultSettings();
@@ -418,7 +418,7 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MinCellVoltageSegment_set(data.voltage_stats.min_voltage.segment);
     app_canTx_BMS_MaxCellVoltageSegment_set(data.voltage_stats.max_voltage.segment);
     app_canTx_BMS_MinCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
-    app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
+    app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.max_voltage.cell);
 
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
