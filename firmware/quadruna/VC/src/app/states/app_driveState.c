@@ -27,7 +27,7 @@
 static bool         torque_vectoring_switch_is_on;
 static TimerChannel buzzer_timer;
 
-const static PowerStateConfig power_manager_drive_init = {
+static const PowerStateConfig power_manager_drive_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,

@@ -13,7 +13,7 @@
 #include "io_tsms.h"
 #include "io_log.h"
 
-const static PowerStateConfig power_manager_shutdown_init = {
+static const PowerStateConfig power_manager_shutdown_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
