@@ -86,6 +86,8 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(FSM_PappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(FSM_SappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(BMS_Soc, float)
+    REGISTER_CAN_MESSAGE(FSM_FrontBrakePressure, int)
+    REGISTER_CAN_MESSAGE(FSM_RearBrakePressure, int)
 
   public slots:
     void fault_poll();

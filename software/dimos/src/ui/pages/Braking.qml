@@ -1,12 +1,16 @@
 import QtQuick
 import canqml
 import constants
+import components
 import Qt5Compat.GraphicalEffects
 
 Item {
     anchors.fill: parent
+
     property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
-    property int speedRatio: (60/CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed)*5
+    property int targetSpeed: 60
+    property real speedRatio: speed/targetSpeed
+    property int defaultSize: 200
 
     Text {
         id: speedString
@@ -31,24 +35,33 @@ Item {
         color: "#868686"
     }
 
-    Rectangle {
-        id: speedRing
-        anchors.centerIn: speedString
-        height: speedRatio + 200
-        width: speedRatio + 200
-        radius: (speedRatio + 200)/2
-        border.color: "#36FB61"
-        color: "transparent"
-        border.width: 20
+    // Inner ring
+    BrakeRing {
+        anchors.horizontalCenter: speedString.horizontalCenter
+        anchors.verticalCenter: speedString.verticalCenter
+        anchors.verticalCenterOffset: 10
+        size: defaultSize
+        colorFraction: speedRatio
     }
 
-    Glow {
-         // set visible true when mark is hit
-         anchors.fill: speedRing
-         radius: 10
-         samples: 20
-         color: "#36FB61"
-         source: speedRing
+    // Outer ring (moves)
+    BrakeRing {
+        anchors.horizontalCenter: speedString.horizontalCenter
+        anchors.verticalCenter: speedString.verticalCenter
+        anchors.verticalCenterOffset: 10
+        size: defaultSize + speedRatio * 100
+        colorFraction: speedRatio
+    }
+
+    // Debug
+    Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: speedString.bottom
+        anchors.topMargin: 30
+        font.family: "Roboto"
+        font.pointSize: 16
+        text: speedRatio
+        color: "#ffffff"
     }
 
 }
