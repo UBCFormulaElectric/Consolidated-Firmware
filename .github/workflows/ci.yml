@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Format code
-        run: python3 scripts/clang_format/fix_formatting.py
+        run: python3 scripts/utilities/fix_formatting.py
 
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
