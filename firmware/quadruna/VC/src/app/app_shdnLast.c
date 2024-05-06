@@ -6,29 +6,29 @@ void app_shdnLast_broadcast(void)
 {
     ShutdownNode shdn;
     if (!app_canRx_BMS_HVDShdnOKStatus_get())
-        shdn = SHDN_BMS_HVD_ILCK;
+        shdn = SHDN_HVD_ILCK;
     else if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
-        shdn = SHDN_VC_SB_ILCK;
+        shdn = SHDN_SB_ILCK;
     else if (!app_canTx_VC_TSMSOKStatus_get())
-        shdn = SHDN_VC_TSMS;
+        shdn = SHDN_TSMS;
     else if (!app_canTx_VC_REStopOKStatus_get())
-        shdn = SHDN_VC_REstop;
+        shdn = SHDN_REstop;
     else if (!app_canTx_VC_LEStopOKStatus_get())
-        shdn = SHDN_VC_LEstop;
+        shdn = SHDN_LEstop;
     else if (!app_canRx_FSM_BOTSOKStatus_get())
-        shdn = SHDN_FSM_BOTS;
+        shdn = SHDN_BOTS;
     else if (!app_canRx_CRIT_InertiaSenOKStatus_get())
-        shdn = SHDN_CRIT_Inertia;
+        shdn = SHDN_Inertia;
     else if (!app_canRx_CRIT_CockpitEStopOKStatus_get())
-        shdn = SHDN_CRIT_Cockpit_EStop;
+        shdn = SHDN_Cockpit_EStop;
     else if (!app_canRx_BMS_TSIlckOKStatus_get())
-        shdn = SHDN_BMS_TS_Ilck;
+        shdn = SHDN_TS_Ilck;
     else if (!app_canRx_BMS_ImdOk_get())
-        shdn = SHDN_BMS_IMD;
+        shdn = SHDN_IMD_OK;
     else if (!app_canRx_BMS_BmsOk_get())
         shdn = SHDN_BMS_OK;
     else if (!app_canRx_BMS_BspdOk_get())
-        shdn = SHDN_BMS_BSPD;
+        shdn = SHDN_BSPD_OK;
     else
         shdn = SHDN_OK;
     app_canTx_VC_FirstFaultNode_set(shdn);
