@@ -151,7 +151,7 @@ static void driveStateRunOnTick100Hz(void)
     else
     {
         LOG_INFO("8");
-        //        transmitTorqueRequests(apps_pedal_percentage);
+        transmitTorqueRequests(apps_pedal_percentage);
     }
 }
 
