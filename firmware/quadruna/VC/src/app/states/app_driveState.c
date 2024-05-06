@@ -27,6 +27,20 @@
 static bool         torque_vectoring_switch_is_on;
 static TimerChannel buzzer_timer;
 
+static PowerStateConfig power_manager_drive = {
+    .efuses = {
+        [EFUSE_CHANNEL_SHDN] = true,
+        [EFUSE_CHANNEL_LV] = true,
+        [EFUSE_CHANNEL_PUMP] = true,
+        [EFUSE_CHANNEL_AUX] = false,
+        [EFUSE_CHANNEL_INV_R] = true,
+        [EFUSE_CHANNEL_INV_L] = true,
+        [EFUSE_CHANNEL_TELEM] = true,
+        [EFUSE_CHANNEL_BUZZER] = true,
+    },
+    .pcm = true,
+};
+
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
     const float bms_available_power   = app_canRx_BMS_AvailablePower_get();
@@ -63,7 +77,7 @@ static void driveStateRunOnEntry(void)
     app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_setState(POWER_MANAGER_DRIVE);
+    app_powerManager_setState(power_manager_drive);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);

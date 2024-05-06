@@ -13,12 +13,27 @@
 #include "io_tsms.h"
 #include "io_log.h"
 
+
+static PowerStateConfig power_manager_shutdown = {
+    .efuses = {
+        [EFUSE_CHANNEL_SHDN] = true,
+        [EFUSE_CHANNEL_LV] = true,
+        [EFUSE_CHANNEL_PUMP] = false,
+        [EFUSE_CHANNEL_AUX] = false,
+        [EFUSE_CHANNEL_INV_R] = false,
+        [EFUSE_CHANNEL_INV_L] = false,
+        [EFUSE_CHANNEL_TELEM] = true,
+        [EFUSE_CHANNEL_BUZZER] = false,
+    },
+    .pcm = false,
+};
+
 static void initStateRunOnEntry(void)
 {
     LOG_INFO("init entry");
     app_allStates_runOnTick100Hz();
     app_canTx_VC_State_set(VC_INIT_STATE);
-    app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
+    app_powerManager_setState(power_manager_shutdown);
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
