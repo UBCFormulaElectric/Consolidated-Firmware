@@ -55,18 +55,18 @@
         "INVERTER_WRITE_COMMAND": 1
     },
     "ShutdownNode": {
-        "SHDN_BMS_BSPD": 0,
+        "SHDN_BSPD_OK": 0,
         "SHDN_BMS_OK": 1,
-        "SHDN_BMS_IMD": 2,
-        "SHDN_BMS_TS_Ilck": 3,
-        "SHDN_CRIT_Cockpit_EStop": 4,
-        "SHDN_CRIT_Inertia": 5,
-        "SHDN_FSM_BOTS": 6,
-        "SHDN_VC_LEstop": 7,
-        "SHDN_VC_REstop": 8,
-        "SHDN_VC_TSMS": 9,
-        "SHDN_BMS_HVD_ILCK": 10,
-        "SHDN_VC_SB_ILCK": 11,
+        "SHDN_IMD_OK": 2,
+        "SHDN_TS_Ilck": 3,
+        "SHDN_Cockpit_EStop": 4,
+        "SHDN_Inertia": 5,
+        "SHDN_BOTS": 6,
+        "SHDN_LEstop": 7,
+        "SHDN_REstop": 8,
+        "SHDN_TSMS": 9,
+        "SHDN_SB_ILCK": 10,
+        "SHDN_HVD_ILCK": 11,
         "SHDN_OK": 12
     }
 }
