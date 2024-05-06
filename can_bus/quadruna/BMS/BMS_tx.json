@@ -401,5 +401,18 @@
                 "bits": 1
             }
         }
+    },
+    "ModuleCommunication": {
+        "msg_id": 144,
+        "cycle_time": 10,
+        "description": "BMS Module Communication Status",
+        "signals": {
+            "NumCommTries": {
+                "bits": 16
+            },
+            "AccumulatorMonitorState": {
+                "enum": "CAN_AccumulatorMonitorState"
+            }
+        }
     }
 }

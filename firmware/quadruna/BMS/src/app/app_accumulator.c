@@ -92,7 +92,7 @@ typedef struct
 typedef struct
 {
     // Cells information
-    uint8_t                 num_comm_tries;
+    uint32_t                num_comm_tries;
     VoltageStats            voltage_stats;
     AccumulatorMonitorState state;
 
@@ -483,6 +483,8 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
     app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
+    app_canTx_BMS_NumCommTries_set(data.num_comm_tries);
+    app_canTx_BMS_AccumulatorMonitorState_set((CAN_AccumulatorMonitorState)data.state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
     bool owc_fault = data.owc_faults.owcGlobalFault;
