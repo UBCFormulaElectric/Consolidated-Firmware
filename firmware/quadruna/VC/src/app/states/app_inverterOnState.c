@@ -8,8 +8,7 @@
 #include <stddef.h>
 #include "io_log.h"
 
-
-static PowerStateConfig power_manager_inverter = {
+const static PowerStateConfig power_manager_inverter = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
@@ -27,15 +26,16 @@ static void inverterOnStateRunOnEntry(void)
 {
     LOG_INFO("inverter on entry");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
+    app_powerManager_updateState(power_manager_inverter);
     LOG_INFO("inverter on entry done");
 }
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
     PowerManagerState nextState;
-    const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault  = app_inverterFaultCheck();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
+    const bool        any_board_has_fault = app_boardFaultCheck();
+    const bool        inverter_has_fault  = app_inverterFaultCheck();
+    const bool        all_states_ok       = !(any_board_has_fault || inverter_has_fault);
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
     static bool prev_start_switch_pos = true;
@@ -47,15 +47,16 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     const bool inverters_off_exit         = !all_states_ok;
 
-    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE){
-        power_manager_inverter.pcm = true;
-        power_manager_inverter.efuses[EFUSE_CHANNEL_PUMP] = true;
+    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
+    {
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_PUMP, true);
+        app_powerManager_updatePcm(true);
     }
-    else{
-        power_manager_inverter.pcm = false;
-        power_manager_inverter.efuses[EFUSE_CHANNEL_PUMP] = false;
+    else
+    {
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_PUMP, false);
+        app_powerManager_updatePcm(false);
     }
-    app_powerManager_setState(power_manager_inverter);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
