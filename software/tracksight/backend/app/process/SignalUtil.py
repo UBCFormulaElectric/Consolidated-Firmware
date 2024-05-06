@@ -7,7 +7,7 @@ from pathlib import Path
 import serial
 import json 
 #need to change below to telem.proto file
-# import telem2_pb2
+import telem2_pb2
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
 #Dont worry abt rn i am changing things

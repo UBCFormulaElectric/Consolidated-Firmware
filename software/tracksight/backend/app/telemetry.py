@@ -77,12 +77,12 @@ def compile_proto_files():
 if __name__ == '__main__':
 
     #Path to generate lookup script
-    script_path = 'scripts/code_generation/generate_lookup_json.py'
-    os.system(f'python {script_path}')
+    #script_path = 'scripts/code_generation/generate_lookup_json.py'
+    #os.system(f'python3.11 {script_path}')
 
     #Compile proto files
     compile_proto_files()
 
-    socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
-    socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
+#    socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
+ #   socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
 
