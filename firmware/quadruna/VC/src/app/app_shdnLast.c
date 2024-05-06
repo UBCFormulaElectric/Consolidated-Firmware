@@ -5,10 +5,10 @@
 void app_shdnLast_broadcast(void)
 {
     ShutdownNode shdn;
-    if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
-        shdn = SHDN_VC_SB_ILCK;
-    else if (!app_canRx_BMS_HVDShdnOKStatus_get())
+    if (!app_canRx_BMS_HVDShdnOKStatus_get())
         shdn = SHDN_BMS_HVD_ILCK;
+    else if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
+        shdn = SHDN_VC_SB_ILCK;
     else if (!app_canTx_VC_TSMSOKStatus_get())
         shdn = SHDN_VC_TSMS;
     else if (!app_canTx_VC_REStopOKStatus_get())
