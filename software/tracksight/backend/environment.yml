@@ -11,4 +11,4 @@ dependencies:
     - python-dateutil
     - requests
     - flask
-    - serial 
+    - pyserial 
