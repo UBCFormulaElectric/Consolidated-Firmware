@@ -16,6 +16,10 @@ typedef struct
     bool pcm;
 } PowerStateConfig;
 
-void app_powerManager_setState(PowerStateConfig state);
+void app_powerManager_updateState(PowerStateConfig state);
 
 PowerManagerState app_powerManager_getState(void);
+
+void app_powerManager_updateEfuse(EfuseChannel channel, bool val);
+
+void app_powerManager_updatePcm(bool val);
