@@ -51,7 +51,7 @@ static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
     },
     [POWER_MANAGER_DRIVE] = {
         .efuses = {
-            [EFUSE_CHANNEL_SHDN] = false,
+            [EFUSE_CHANNEL_SHDN] = true,
             [EFUSE_CHANNEL_LV] = true,
             [EFUSE_CHANNEL_PUMP] = true,
             [EFUSE_CHANNEL_AUX] = false,

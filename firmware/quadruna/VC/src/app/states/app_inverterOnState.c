@@ -36,7 +36,6 @@ static void inverterOnStateRunOnTick100Hz(void)
         nextState = POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS;
     else
         nextState = POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS;
-        
     app_powerManager_setState(nextState);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
