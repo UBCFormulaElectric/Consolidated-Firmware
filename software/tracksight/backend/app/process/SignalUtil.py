@@ -7,7 +7,7 @@ from pathlib import Path
 import serial
 import json 
 #need to change below to telem.proto file
-import telem2_pb2
+# import telem2_pb2
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
 #Dont worry abt rn i am changing things
@@ -20,7 +20,7 @@ class SignalUtil:
     def __init__(self):
         # Load the lookup table from a JSON file, get path of json
         with open('software/tracksight/backend/app/process/lookup.json', 'r') as file:
-            self.lookup_table = json.load(file) # Parses the JSON into a Python dictionary
+            self.lookup_table = json.load(file) # Parses the JSON into a Python dictionary #TODO throw a proper error
 
         self.df = pd.DataFrame(columns=['can_id', 'data', 'time_stamp', 'description', 'unit'])
         self.ser = serial.Serial("/dev/ttyUSB0", baudrate=57600, timeout=1)
@@ -73,6 +73,3 @@ class SignalUtil:
 
     # def get_signal(self, s_id):
     #     return self.df[s_id]
-
-
-    

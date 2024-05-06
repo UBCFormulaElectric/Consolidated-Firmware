@@ -51,13 +51,13 @@ def merge_additional_data(existing_data, additional_data_list, additional_data_f
     return existing_data
 
 def save_json(data, file_path):
-   #Save dictionary to JSON in new file
+   #Save dictionary to JSON in new filecd
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
 
 def main():
     #Use master data to only extract relevant info
-    master_data = load_json('can_bus/quadruna/VC/VC_rx.json') 
+    master_data = load_json('can_bus/quadruna/VC/VC_rx.json') # TODO: handle the generality better
 
     master_messages = master_data['messages']
     # List of JSON file paths to load
