@@ -10,6 +10,12 @@ typedef enum
     NUM_POWER_STATES
 } PowerManagerState;
 
-void app_powerManager_setState(PowerManagerState state);
+typedef struct
+{
+    bool efuses[NUM_EFUSE_CHANNELS];
+    bool pcm;
+} PowerStateConfig;
+
+void app_powerManager_setState(PowerStateConfig state);
 
 PowerManagerState app_powerManager_getState(void);

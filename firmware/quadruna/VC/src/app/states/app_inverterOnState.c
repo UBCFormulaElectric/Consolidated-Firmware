@@ -8,6 +8,21 @@
 #include <stddef.h>
 #include "io_log.h"
 
+
+static PowerStateConfig power_manager_inverter = {
+    .efuses = {
+        [EFUSE_CHANNEL_SHDN] = true,
+        [EFUSE_CHANNEL_LV] = true,
+        [EFUSE_CHANNEL_PUMP] = false,
+        [EFUSE_CHANNEL_AUX] = false,
+        [EFUSE_CHANNEL_INV_R] = false,
+        [EFUSE_CHANNEL_INV_L] = false,
+        [EFUSE_CHANNEL_TELEM] = true,
+        [EFUSE_CHANNEL_BUZZER] = false,
+    },
+    .pcm = false,
+};
+
 static void inverterOnStateRunOnEntry(void)
 {
     LOG_INFO("inverter on entry");
@@ -32,11 +47,15 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool bms_in_drive_state         = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
     const bool inverters_off_exit         = !all_states_ok;
 
-    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE)
-        nextState = POWER_MANAGER_INVERTER_ON_POST_AIR_PLUS;
-    else
-        nextState = POWER_MANAGER_INVERTER_ON_PRE_AIR_PLUS;
-    app_powerManager_setState(nextState);
+    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE){
+        power_manager_inverter.pcm = true;
+        power_manager_inverter.efuses[EFUSE_CHANNEL_PUMP] = true;
+    }
+    else{
+        power_manager_inverter.pcm = false;
+        power_manager_inverter.efuses[EFUSE_CHANNEL_PUMP] = false;
+    }
+    app_powerManager_setState(power_manager_inverter);
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
     {
