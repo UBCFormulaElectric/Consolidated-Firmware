@@ -27,7 +27,7 @@
 static bool         torque_vectoring_switch_is_on;
 static TimerChannel buzzer_timer;
 
-const static PowerStateConfig power_manager_drive = {
+const static PowerStateConfig power_manager_drive_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
@@ -77,7 +77,7 @@ static void driveStateRunOnEntry(void)
     app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateState(power_manager_drive);
+    app_powerManager_updateState(power_manager_drive_init);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);

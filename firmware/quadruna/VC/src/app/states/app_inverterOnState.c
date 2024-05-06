@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include "io_log.h"
 
-const static PowerStateConfig power_manager_inverter = {
+const static PowerStateConfig power_manager_inverter_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
@@ -26,7 +26,7 @@ static void inverterOnStateRunOnEntry(void)
 {
     LOG_INFO("inverter on entry");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_powerManager_updateState(power_manager_inverter);
+    app_powerManager_updateState(power_manager_inverter_init);
     LOG_INFO("inverter on entry done");
 }
 
