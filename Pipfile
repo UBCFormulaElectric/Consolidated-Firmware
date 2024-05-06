@@ -21,6 +21,13 @@ python-can = "*"
 rich = "*"
 PyGithub = "*"
 black = "*"
+flask-socketio = "*"
+pandas = "*"
+pytest = "*"
+asammdf = "*"
+python-dateutil = "*"
+requests = "*"
+flask = "*"
 
 [dev-packages]
 setuptools = "*"
