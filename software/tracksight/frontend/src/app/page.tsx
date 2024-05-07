@@ -9,7 +9,7 @@ import Dashboard from './components/dashboard';
 import Visualize from './components/visualize';
 
 //const FLASK_URL = "http://evanyl.pythonanywhere.com";
-const FLASK_URL = "http://206.12.160.196:5000";
+const FLASK_URL = "localhost:5000";
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize'); 
     const [socketInstance, setSocketInstance] = useState<Socket | null>(null); 
@@ -40,27 +40,28 @@ const Home = () => {
     };
 
     useEffect(() => {
-        // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
-        const socket = io(FLASK_URL, {
-            transports: ["websocket"],
-            transportOptions: {
-                origin: "http://localhost:3000/",
-            },
-        });
-
-        setSocketInstance(socket)
-
-        socket.on("connect", () => {
+        if(socketInstance == null) return;
+        socketInstance.on("connect", () => {
             setLoading(false);
         });
 
 
-        socket.on("disconnect", () => {
+        socketInstance.on("disconnect", () => {
             setLoading(true);
         });
         return () => {
-            socket.disconnect();
+            socketInstance.disconnect();
         };
+    }, [socketInstance])
+
+    useEffect(() => {
+        // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
+        setSocketInstance(io(FLASK_URL, {
+            transports: ["websocket"],
+            transportOptions: {
+                origin: "http://localhost:3000/",
+            },
+        }))
     }, []);
 
     return (

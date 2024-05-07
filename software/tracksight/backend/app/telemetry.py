@@ -15,6 +15,7 @@ JSON_FILE = './dashboards.json'
 
 def read_json_file():
     if not os.path.exists(JSON_FILE):
+        print("JSON File does not exist")
         return {}
     with open(JSON_FILE, 'r') as file:
         return json.load(file)
@@ -81,8 +82,8 @@ if __name__ == '__main__':
     #os.system(f'python3.11 {script_path}')
 
     #Compile proto files
-    compile_proto_files()
-
-#    socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
- #   socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
+  #  compile_proto_files()
+     
+    socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
+    socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
 

@@ -1,14 +1,13 @@
 #This file stores messages received over radio into a data frame so that the front end can access it and display it.
 
 import pandas as pd
-import os
+# import os
 import sys
-from pathlib import Path
+# from pathlib import Path
 import serial
 import json 
 #need to change below to telem.proto file
-import telem2_pb2
-
+from process import telem2_pb2 # TODO: fix this
 DEBUG_SIZE_MSG_BUF_SIZE = 1
 #Dont worry abt rn i am changing things
 # project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,6 +26,7 @@ class SignalUtil:
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
 
+    def read_messages(self):
         try:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
