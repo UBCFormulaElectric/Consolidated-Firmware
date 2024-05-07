@@ -56,7 +56,7 @@ void io_can_init(const CanConfig *can_config);
  * Does not block, calls `tx_overflow_callback` if queue is full.
  * @param msg CAN msg to be TXed.
  */
-void io_can_pushTxMsgToQueue(const CanMsgIo *msg);
+void io_can_pushTxMsgToQueue(const CanMsg *msg);
 
 /**
  * Transmit a single CAN msg onto the bus from the TX queue. Blocks until a msg exists in the queue.
@@ -67,7 +67,7 @@ void io_can_transmitMsgFromQueue(void);
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
  * @param rx_fifo Which RX FIFO to receive a message from.
  */
-void io_can_popRxMsgFromQueue(CanMsgIo *msg);
+void io_can_popRxMsgFromQueue(CanMsg *msg);
 
 #ifdef TARGET_EMBEDDED
 /**
