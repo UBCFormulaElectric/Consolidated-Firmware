@@ -4,8 +4,10 @@ import os
 # from flask_cors import CORS
 from process.http_app import app as http_app
 from process.socket_app import socketio as socket_app
+from process import SignalUtil #for starting threads TODO:fix ig?
 
 import subprocess #For compiling telem2.proto
+import threading
 
 app = Flask(__name__)
 # CORS(app)
@@ -83,7 +85,13 @@ if __name__ == '__main__':
 
     #Compile proto files
   #  compile_proto_files()
-     
+
     socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
-    socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
+    #Create app Thread
+    appThread = threading.Thread (socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0'))
+    #Create read messages thread
+    readThread = threading.Thread (SignalUtil.read_messages())
+    #Start threads
+    appThread.start()
+    readThread.start()
 
