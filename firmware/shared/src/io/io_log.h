@@ -45,3 +45,5 @@ Notes
 
 #define _LOG(level, format, ...) \
     _LOG_PRINTF("[" level ANSI_RESET "] (%s:%u) " format "\n", __BASENAME__(__FILE__), __LINE__, ##__VA_ARGS__)
+
+void LOG_ALL_FAULTS();
