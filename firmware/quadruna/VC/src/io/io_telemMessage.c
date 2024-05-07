@@ -2,8 +2,6 @@
 #include "telem.pb.h"
 #include "pb_encode.h"
 #include "pb_decode.h"
-// #include "cmsis_os.h"
-// #include "queue.h" TODO this was for the queue
 #include "io_time.h"
 
 // create the truth table for now to decide which amount of things to use
@@ -13,11 +11,8 @@
 static bool   modem_900_choice;
 static Modem *modem;
 
-#define QUEUE_SIZE 12
-#define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
-static bool   modem_900_choice;
-static Modem *modem;
-
+#define CAN_DATA_LENGTH 8
+#define UART_LENGTH 1
 #define QUEUE_SIZE 12
 #define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
 
@@ -32,15 +27,15 @@ void io_telemMessage_init(Modem *m)
     modem            = m;
 }
 
-bool io_telemMessage_broadcast(CanMsgIo *rx_msg)
+bool io_telemMessage_broadcast(CanMsg *rx_msg)
 {
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
     // filling in fields
     t_message.can_id = (int32_t)(rx_msg->std_id);
-    for (uint8_t i = 0; i < 8; i++)
-    { // TODO fix the magic numbers
+    for (uint8_t i = 0; i < CAN_DATA_LENGTH; i++)
+    {
         t_message.message[i] = rx_msg->data[i];
     }
     t_message.time_stamp = (int32_t)io_time_getCurrentMs();
@@ -51,13 +46,13 @@ bool io_telemMessage_broadcast(CanMsgIo *rx_msg)
 
     if (modem_900_choice == true)
     {
-        hw_uart_transmitPoll(modem->modem900M, &proto_msg_length, 1, 1);
-        hw_uart_transmitPoll(modem->modem900M, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
+        hw_uart_transmitPoll(modem->modem900M, &proto_msg_length, UART_LENGTH, UART_LENGTH);
+        hw_uart_transmitPoll(modem->modem900M, proto_buffer, (uint8_t)sizeof(proto_buffer), UART_LENGTH);
     }
     else
     {
-        hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, 1, 1);
-        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), 1);
+        hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
+        hw_uart_transmitPoll(modem->modem2_4G, proto_buffer, (uint8_t)sizeof(proto_buffer), UART_LENGTH);
     }
     return true;
 }

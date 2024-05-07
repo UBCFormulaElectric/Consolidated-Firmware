@@ -2,9 +2,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-// #include "hw_hal.h" // TODO remove
-
-// TODO: Update documentation
+#ifdef TARGET_EMBEDDED
+#include "hw_can.h"
+#endif
 
 /**
  * This module is a CAN driver which manages CAN msg transmission (TX) and reception (RX) via FreeRTOS queues: One for
@@ -36,12 +36,14 @@ typedef struct
 
 #define CAN_PAYLOAD_BYTES 8 // TODO: grab from the same place perhaps
 
+#ifdef TARGET_TEST
 typedef struct
 {
     uint32_t std_id;
     uint32_t dlc; // data length range : [0, 8]
     uint8_t  data[CAN_PAYLOAD_BYTES];
-} CanMsgIo;
+} CanMsg;
+#endif
 
 /**
  * Initialize and start the CAN peripheral.
@@ -68,7 +70,6 @@ void io_can_transmitMsgFromQueue(void);
 void io_can_popRxMsgFromQueue(CanMsgIo *msg);
 
 #ifdef TARGET_EMBEDDED
-#include "hw_can.h"
 /**
  * Callback fired by config-specific interrupts to receive a message from a given FIFO.
  * @param msg CAN msg to be populated by RXed msg.

@@ -9,6 +9,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
     "${SHARED_APP_INCLUDE_DIR}/app_math.c"
     "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -42,6 +43,8 @@ list(APPEND HW_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+    "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
@@ -94,6 +97,8 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_hal_uart_ex.c"
         "stm32h7xx_hal_uart.c"
         "stm32h7xx_hal_sd.c"
+        "stm32h7xx_hal_crc.c"
+        "stm32h7xx_hal_crc_ex.c"
         "stm32h7xx_ll_sdmmc.c"
         "stm32h7xx_hal.c"
     )
@@ -158,6 +163,7 @@ set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_thermistors.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sd.h"
     )
     create_fake_library(
         "quadruna_BMS_fakes"

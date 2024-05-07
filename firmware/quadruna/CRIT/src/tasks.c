@@ -9,14 +9,16 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
-#include "io_leds.h"
-#include "io_switches.h"
+#include "app_shdnLoop.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
+#include "io_critShdn.h"
+#include "io_leds.h"
+#include "io_switches.h"
 // can
 #include "io_jsoncan.h"
 #include "io_can.h"
@@ -386,6 +388,14 @@ bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
+static const CritShdnConfig crit_shdn_pin_config = { .shdn_sen_ok_gpio    = shdn_sen_pin,
+                                                     .inertia_sen_ok_gpio = inertia_sen_pin };
+
+static BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
+    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_ShdnSenOKStatus_set }
+};
+
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -413,6 +423,7 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_critShdn_init(&crit_shdn_pin_config);
 
     io_led_init(&led_config);
     io_switches_init(&switch_config);
@@ -420,6 +431,8 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    app_shdn_loop_init(crit_bshdn_nodes, CritShdnNodeCount);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,

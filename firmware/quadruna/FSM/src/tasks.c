@@ -13,6 +13,7 @@
 #include "app_brake.h"
 #include "app_suspension.h"
 #include "app_loadCell.h"
+#include "app_shdnLoop.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -25,6 +26,7 @@
 #include "io_brake.h"
 #include "io_suspension.h"
 #include "io_loadCell.h"
+#include "io_fsmShdn.h"
 #include "io_apps.h"
 
 #include "hw_bootup.h"
@@ -63,12 +65,12 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_FSM_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_FSM_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_FSM_Warning_RxOverflow_set(false);
 }
@@ -136,12 +138,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = NULL,
-                                                      [RSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = NULL,
+                                                          [RSM_HEARTBEAT_BOARD]  = NULL,
+                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
@@ -162,7 +164,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
@@ -180,6 +182,11 @@ void tasks_preInit(void)
     LOG_INFO("FSM reset!");
 }
 
+static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
+
+static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_FSM_SHDN_OK_get,
+                                                                   &app_canTx_FSM_FSMShdnOKStatus_set } };
+
 void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -195,9 +202,11 @@ void tasks_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_fsm_net_name_tag, AdcNetName_fsm_net_name_tag, &n_chimera_pin);
-
+    io_fsmShdn_init(&fsm_shdn_pin_config);
     app_canTx_init();
     app_canRx_init();
+
+    app_shdn_loop_init(fsm_bshdn_nodes, FsmShdnNodeCount);
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
