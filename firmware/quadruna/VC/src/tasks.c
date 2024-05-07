@@ -23,7 +23,6 @@
 #include "io_lowVoltageBattery.h"
 #include "io_vcShdn.h"
 #include "io_currentSensing.h"
-#include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
