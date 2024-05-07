@@ -5,7 +5,7 @@
 extern "C"
 {
 #include "app_heartbeatBoardsEnum.h"
-#include "app_heartbeatMonitor.c"
+#include "app_heartbeatMonitor.h"
 }
 
 // fake can states
@@ -238,7 +238,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
     // assert nothing changed (0 ms)
-    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_checkIn();
     //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
@@ -278,7 +278,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
 
     // progress to timeout period and verify all good (300 ms)
     fake_io_time_getCurrentMs_returns(300);
-    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_checkIn();
 
     //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 300);
 
@@ -312,7 +312,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
 
     // progress to timeout period and verify A missing (600 ms)
     fake_io_time_getCurrentMs_returns(600);
-    app_heartbeatMonitor_tick();
+    app_heartbeatMonitor_checkIn();
 
     //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 600);
 

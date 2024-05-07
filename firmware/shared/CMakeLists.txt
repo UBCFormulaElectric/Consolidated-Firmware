@@ -1,9 +1,7 @@
 if("${TARGET}" STREQUAL "test")
     list(APPEND HDRS_TO_FAKE 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_buzzer.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_led.h"
-        "src/hw/hw_rgbLed.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switch.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_time.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_mechanicalLoad.h"
