@@ -9,6 +9,8 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_globals.h"
+#include "app_coolant.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -188,8 +190,7 @@ void tasks_init(void)
     app_canRx_init();
 
     io_coolant_init(&coolant_config);
-    io_fan_init(&acc_fan_pin, &rad_fan_pin);
-    io_brake_light_init(&brake_light);
+    app_coolant_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
