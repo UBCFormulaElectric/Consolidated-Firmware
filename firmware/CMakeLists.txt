@@ -7,7 +7,7 @@ include(cmake/shared.cmake)
 CPMAddPackage(
         NAME NANOPB_REPO
         GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG f6187b05a5eaf753faa0e29a5acd77dd0544d474
+        GIT_TAG master
         GIT_SHALLOW TRUE
         DOWNLOAD_ONLY TRUE
 )
