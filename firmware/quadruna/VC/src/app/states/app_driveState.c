@@ -70,10 +70,8 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 static void driveStateRunOnEntry(void)
 {
     LOG_INFO("drive state entry");
-    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     // Enable buzzer on transition to drive, and start 2s timer.
-    io_buzzer_enable(true);
-    app_canTx_VC_BuzzerOn_set(true);
+    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
@@ -119,8 +117,7 @@ static void driveStateRunOnTick100Hz(void)
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
-        LOG_INFO("2");
-        io_buzzer_enable(false);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
         app_canTx_VC_BuzzerOn_set(false);
     }
 
@@ -128,7 +125,6 @@ static void driveStateRunOnTick100Hz(void)
 
     if (regen_switch_enabled)
     {
-        LOG_INFO("3");
         apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
         apps_pedal_percentage = apps_pedal_percentage < 0.0f
                                     ? apps_pedal_percentage / PEDAL_SCALE
@@ -147,24 +143,20 @@ static void driveStateRunOnTick100Hz(void)
     }
     else if (exit_drive_to_inverterOn)
     {
-        LOG_INFO("5");
         app_stateMachine_setNextState(app_inverterOnState_get());
         return;
     }
 
     if (apps_pedal_percentage < 0.0f)
     {
-        LOG_INFO("6");
         app_regen_run(apps_pedal_percentage);
     }
     else if (torque_vectoring_switch_is_on)
     {
-        LOG_INFO("7");
         app_torqueVectoring_run(apps_pedal_percentage);
     }
     else
     {
-        LOG_INFO("8");
         transmitTorqueRequests(apps_pedal_percentage);
     }
 }
@@ -180,8 +172,7 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on exit drive.
-    io_buzzer_enable(false);
-    app_canTx_VC_BuzzerOn_set(false);
+    app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
     LOG_INFO("drive state exit done");
 }
 

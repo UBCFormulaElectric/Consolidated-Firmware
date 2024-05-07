@@ -9,7 +9,6 @@
 #include "app_powerManager.h"
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
-#include "io_buzzer.h"
 #include "io_tsms.h"
 #include "io_log.h"
 
@@ -40,8 +39,7 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on transition to init.
-    io_buzzer_enable(false);
-    app_canTx_VC_BuzzerOn_set(false);
+    app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
     LOG_INFO("init entry done");
 }
 
