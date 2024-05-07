@@ -8,16 +8,26 @@
 #define ERASE_SECTOR_ID 1000
 #define PROGRAM_ID 1001
 #define VERIFY_ID 1002
+#define LOST_PACKET_ID 1003
 
 // Reply IDs.
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
 
+<<<<<<< HEAD
 void           bootloader_preInit(void);
 void           bootloader_init(void);
 _Noreturn void bootloader_runInterfaceTask(void);
 _Noreturn void bootloader_runTickTask(void);
 _Noreturn void bootloader_runCanTxTask(void);
+=======
+void bootloader_preInit(void);
+void bootloader_init(void);
+void bootloader_runInterfaceTask(void);
+void bootloader_runTickTask(void);
+void bootloader_runCanTxTask(void);
+void bootloader_sendUnreceivedPackets(void);
+>>>>>>> 0236da86 (resend packet loss)
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);

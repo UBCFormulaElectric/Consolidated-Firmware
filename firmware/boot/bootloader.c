@@ -134,7 +134,10 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_preInit(void)
+#define PACKET_BUFFER_SIZE 64 // is 64 enough?
+static bool received_packets[PACKET_BUFFER_SIZE];
+
+void bootloader_preInit()
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
@@ -212,6 +215,23 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // No reply for program command to reduce latency.
             bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
             current_address += sizeof(uint64_t);
+
+            uint32_t packet_index          = (current_address - __app_metadata_start__) / 8;
+            received_packets[packet_index] = true;
+
+            bootloader_sendUnreceivedPackets();
+        }
+        else if (command.std_id == LOST_PACKET_ID)
+        {
+            for (uint32_t i = 0; i < PACKET_BUFFER_SIZE; i++)
+            {
+                if (!received_packets[i])
+                {
+                    uint32_t address = __app_metadata_start__ + 8 * i; // assuming it is consecutive addresses
+                    bootloader_boardSpecific_program(address, *(uint64_t *)command.data);
+                    break;
+                }
+            }
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
@@ -229,7 +249,29 @@ _Noreturn void bootloader_runInterfaceTask(void)
     }
 }
 
-_Noreturn void bootloader_runTickTask(void)
+void bootloader_sendUnreceivedPackets()
+{
+    for (uint32_t i = 0; i < PACKET_BUFFER_SIZE; i++)
+    {
+        if (!received_packets[i])
+        {
+            uint32_t address = __app_metadata_start__ + i * 8;
+            CanMsg lost_packet_msg = {
+                .std_id = LOST_PACKET_ID,
+                .dlc    = 4,
+                .data   = { 
+                    (uint8_t)(address & 0xFF),           // LSB of address
+                    (uint8_t)((address >> 8) & 0xFF),    // Next byte of address
+                    (uint8_t)((address >> 16) & 0xFF),   // Next byte of address
+                    (uint8_t)((address >> 24) & 0xFF)    // MSB of address
+                } // not sure if this is correct???
+            };
+            io_can_pushTxMsgToQueue(&lost_packet_msg);
+        }
+    }
+}
+
+void bootloader_runTickTask()
 {
     uint32_t start_ticks = osKernelGetTickCount();
 
