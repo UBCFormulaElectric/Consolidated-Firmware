@@ -29,8 +29,9 @@ uint32_t    iso_spi_state_counter = 0;
 
 void app_allStates_runOnTick1Hz(void)
 {
-    bool charger_is_connected = io_charger_isConnected();
-    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+    bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
+    // Feel like this wouldn't be needed if the BRUSA broadcasts over CAN
+    // app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
     const float min_soc = app_soc_getMinSocCoulombs();
 

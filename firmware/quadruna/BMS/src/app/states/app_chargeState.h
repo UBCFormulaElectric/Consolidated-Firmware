@@ -8,6 +8,12 @@
 
 // Time to allow charger to disable before opening airs
 #define CHARGER_SHUTDOWN_TIMEOUT (100U)
+#define PREMATURE_EXIT_FILTER_THRESHOLD (20U)
+
+// Setting these to testing, will need to be changed later.
+#define INITIAL_CHARGING_VOLTAGE (330.0f)
+#define INITIAL_CHARGING_CURRENT (8.0f)
+#define INITIAL_MAX_MAINS_CURRENT (8.0f)
 
 /**
  * Get a pointer to the Charge State.
