@@ -29,7 +29,7 @@ void hw_can_init(const CanHandle *can_handle)
     assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
 }
 
-void hw_can_deinit()
+void hw_can_deinit(void)
 {
     assert(HAL_FDCAN_Stop(handle->can) == HAL_OK);
     assert(HAL_FDCAN_DeInit(handle->can) == HAL_OK);
@@ -70,6 +70,8 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 {
+    UNUSED(hcan);
+    UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
     if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg) && handle->can_msg_received_callback != NULL)
     {
@@ -82,6 +84,8 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
 
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
 {
+    UNUSED(hcan);
+    UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
     if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg) && handle->can_msg_received_callback != NULL)
     {
