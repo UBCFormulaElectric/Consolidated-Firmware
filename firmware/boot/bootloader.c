@@ -134,7 +134,7 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-#define PACKET_BUFFER_SIZE 64 // is 64 enough?
+#define PACKET_BUFFER_SIZE 32 // is this enough?
 static bool received_packets[PACKET_BUFFER_SIZE];
 
 void bootloader_preInit()
