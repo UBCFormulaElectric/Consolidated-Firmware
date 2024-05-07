@@ -1,7 +1,7 @@
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatBoardsEnum.h"
 #include "app_timer.h"
-// requirements
+#include <assert.h>
 #include <stdlib.h>
 
 typedef struct
@@ -44,7 +44,7 @@ typedef struct
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 400U
 
-TimerChannel timers[HEARTBEAT_BOARD_COUNT];
+static TimerChannel timers[HEARTBEAT_BOARD_COUNT];
 
 static HeartbeatMonitor hb_monitor;
 
