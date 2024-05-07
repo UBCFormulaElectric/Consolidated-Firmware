@@ -10,6 +10,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_globals.h"
+#include "app_coolant.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -182,6 +183,7 @@ void tasks_init(void)
     app_globals_init(&config);
 
     io_coolant_init(&coolant_config);
+    app_coolant_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
