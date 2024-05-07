@@ -15,7 +15,6 @@ void mainStateRunOnTick100Hz(void)
     app_loadcell_broadcast();
     app_suspension_broadcast();
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
     const bool brake_actuated = app_canRx_FSM_BrakeActuated_get();
@@ -25,7 +24,7 @@ void mainStateRunOnTick100Hz(void)
     hw_gpio_writePin(globals->config->acc_fan, hv_on);
     hw_gpio_writePin(globals->config->rad_fan, hv_on);
 
-    bool missing_hb = app_heartbeatMonitor_checkFaults();
+    bool missing_hb = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
 }
 
 const State *app_mainState_get(void)
