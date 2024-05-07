@@ -473,7 +473,7 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-        io_telemMessage_broadcast(&rx_msg);
+        //        io_telemMessage_broadcast(&rx_msg);
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
