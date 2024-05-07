@@ -247,12 +247,11 @@ static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static const Buzzer buzzer        = { .gpio = buzzer_pwr_en };
-static const UART   debug_uart    = { .handle = &huart7 };
-static const UART   imu_uart      = { .handle = &huart2 };
-static const UART   modem2G4_uart = { .handle = &huart3 };
-static const UART   modem900_uart = { .handle = &huart1 };
-static const Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
+static const UART  debug_uart    = { .handle = &huart7 };
+static const UART  imu_uart      = { .handle = &huart2 };
+static const UART  modem2G4_uart = { .handle = &huart3 };
+static const UART  modem900_uart = { .handle = &huart1 };
+static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
@@ -330,7 +329,6 @@ void tasks_init(void)
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
-    io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
     io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
