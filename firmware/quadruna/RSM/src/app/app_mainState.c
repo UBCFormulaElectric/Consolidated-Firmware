@@ -15,7 +15,6 @@ void mainStateRunOnTick100Hz(void)
     app_loadcell_broadcast();
     app_suspension_broadcast();
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
     io_brake_light_set(app_canRx_FSM_BrakeActuated_get());

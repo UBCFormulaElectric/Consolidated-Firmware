@@ -14,7 +14,7 @@
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
-static uint16_t num_cycles = 0;
+static uint16_t heartbeat_cycles = 0;
 
 void app_allStates_runOnTick100Hz(void)
 {
@@ -25,21 +25,12 @@ void app_allStates_runOnTick100Hz(void)
     app_shdnLast_broadcast();
 
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
-    app_heartbeatMonitor_broadcastFaults();
 
-    if (num_cycles <= IGNORE_HEARTBEAT_CYCLES)
-    {
-        num_cycles++;
-    }
-
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
-
-    if (num_cycles > IGNORE_HEARTBEAT_CYCLES)
-    {
+    if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
+        heartbeat_cycles++;
+    else
         app_heartbeatMonitor_broadcastFaults();
-    }
+
     io_sbgEllipse_handleLogs();
     app_sbgEllipse_broadcast();
 
