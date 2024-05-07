@@ -68,8 +68,8 @@ class SignalUtil:
          return self.df.copy()
 
     # return target signal
-    def get_signal(self, can_id):
-        return self.df[self.df['can_id'] == can_id] #Searches can_id collum and returns that row
+    def get_signal(self, descriptor):
+        return self.df[self.df['description'] == descriptor] #Searches can_id collum and returns that row
 
     # def get_signal(self, s_id):
     #     return self.df[s_id]
