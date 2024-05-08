@@ -134,10 +134,7 @@ static void driveStateRunOnTick100Hz(void)
     if (exit_drive_to_init)
     {
         LOG_INFO("4 %d %d", any_board_has_fault, inverter_has_fault);
-        Fault_Warning_Info buffer[20] = { 0 };
-        uint8_t            num        = app_canAlerts_FaultInfo(buffer);
-        for (int i = 0; i < num; i++)
-            LOG_INFO("%s", buffer[i].name);
+        LOG_ALL_FAULTS();
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
