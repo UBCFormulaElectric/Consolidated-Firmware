@@ -50,11 +50,15 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         app_powerManager_updateEfuse(EFUSE_CHANNEL_PUMP, true);
         app_powerManager_updatePcm(true);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_INV_L, true);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_INV_R, true);
     }
     else
     {
         app_powerManager_updateEfuse(EFUSE_CHANNEL_PUMP, false);
         app_powerManager_updatePcm(false);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_INV_L, false);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_INV_R, false);
     }
 
     if (bms_in_drive_state && is_brake_actuated && was_start_switch_pulled_up && all_states_ok)
@@ -68,6 +72,8 @@ static void inverterOnStateRunOnTick100Hz(void)
     }
     else if (inverters_off_exit)
     {
+        LOG_INFO("Board Has Fault: %d, Inverters Has Fault: %d", any_board_has_fault, inverter_has_fault);
+        LOG_ALL_FAULTS();
         app_stateMachine_setNextState(app_initState_get());
     }
 
