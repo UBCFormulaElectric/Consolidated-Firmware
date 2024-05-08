@@ -85,7 +85,7 @@ const osThreadAttr_t TaskCanTx_attributes = {
     .cb_size    = sizeof(canTxTaskControlBlock),
     .stack_mem  = &canTxTaskBuffer[0],
     .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for TaskCanRx */
 osThreadId_t         TaskCanRxHandle;
@@ -97,7 +97,7 @@ const osThreadAttr_t TaskCanRx_attributes = {
     .cb_size    = sizeof(canRxTaskControlBlock),
     .stack_mem  = &canRxTaskBuffer[0],
     .stack_size = sizeof(canRxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* Definitions for Task1kHz */
 osThreadId_t         Task1kHzHandle;
