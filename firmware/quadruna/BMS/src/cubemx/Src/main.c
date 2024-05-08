@@ -373,7 +373,7 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel                = ADC_CHANNEL_4;
     sConfig.Rank                   = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime           = ADC_SAMPLETIME_8CYCLES_5;
+    sConfig.SamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
     sConfig.SingleDiff             = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
@@ -385,9 +385,8 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_5;
-    sConfig.Rank         = ADC_REGULAR_RANK_2;
-    sConfig.SamplingTime = ADC_SAMPLETIME_64CYCLES_5;
+    sConfig.Channel = ADC_CHANNEL_5;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -395,18 +394,18 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_9;
-    sConfig.Rank         = ADC_REGULAR_RANK_3;
+    sConfig.Channel = ADC_CHANNEL_9;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_10;
+    sConfig.Rank         = ADC_REGULAR_RANK_4;
     sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES_5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure Regular Channel
-     */
-    sConfig.Channel = ADC_CHANNEL_10;
-    sConfig.Rank    = ADC_REGULAR_RANK_4;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -561,7 +560,7 @@ static void MX_SPI2_Init(void)
     hspi2.Init.CLKPolarity                = SPI_POLARITY_HIGH;
     hspi2.Init.CLKPhase                   = SPI_PHASE_2EDGE;
     hspi2.Init.NSS                        = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_64;
+    hspi2.Init.BaudRatePrescaler          = SPI_BAUDRATEPRESCALER_128;
     hspi2.Init.FirstBit                   = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode                     = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation             = SPI_CRCCALCULATION_DISABLE;
@@ -619,8 +618,8 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
-    sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
-    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI2FP2;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
     sSlaveConfig.TriggerFilter   = 0;
     if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
     {
@@ -859,7 +858,7 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin : BSPD_TEST_EN_Pin */
     GPIO_InitStruct.Pin   = BSPD_TEST_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BSPD_TEST_EN_GPIO_Port, &GPIO_InitStruct);
 
