@@ -79,8 +79,8 @@ static void driveStateRunOnEntry(void)
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
-
-    // Set inverter directions.
+    app_canTx_VC_LeftInverterTorqueLimit_set(5.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(5.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
 
@@ -109,8 +109,8 @@ static void driveStateRunOnTick100Hz(void)
 
     const bool start_switch_off         = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive         = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init       = bms_not_in_drive || !all_states_ok;
-    bool       exit_drive_to_inverterOn = start_switch_off;
+    bool       exit_drive_to_init       = !all_states_ok;
+    bool       exit_drive_to_inverterOn = bms_not_in_drive || start_switch_off;
     bool       regen_switch_enabled     = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
@@ -170,6 +170,8 @@ static void driveStateRunOnExit(void)
 
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
 
     // Disable buzzer on exit drive.
     app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
