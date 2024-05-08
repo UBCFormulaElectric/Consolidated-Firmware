@@ -109,8 +109,8 @@ static void driveStateRunOnTick100Hz(void)
 
     const bool start_switch_off         = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive         = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init       = !all_states_ok;
-    bool       exit_drive_to_inverterOn = bms_not_in_drive || start_switch_off;
+    bool       exit_drive_to_init       = bms_not_in_drive || !all_states_ok;
+    bool       exit_drive_to_inverterOn = start_switch_off;
     bool       regen_switch_enabled     = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
