@@ -18,10 +18,10 @@
         "description": "Context info for BMS alerts",
         "signals": {
             "TxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "RxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
@@ -404,7 +404,7 @@
     },
     "ModuleCommunication": {
         "msg_id": 144,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "BMS Module Communication Status",
         "signals": {
             "NumCommTries": {
