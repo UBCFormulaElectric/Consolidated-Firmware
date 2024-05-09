@@ -11,6 +11,8 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
 #include "hw_crc.h"
+#include "main.h"
+#include "hw_gpio.h"
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
