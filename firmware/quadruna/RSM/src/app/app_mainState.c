@@ -6,6 +6,7 @@
 #include "app_loadCell.h"
 #include "app_suspension.h"
 #include "app_globals.h"
+#include "io_fans.h"
 
 #include "app_heartbeatMonitor.h"
 
@@ -21,10 +22,10 @@ void mainStateRunOnTick100Hz(void)
     io_led_enable(globals->config->brake_light, brake_actuated);
 
     const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    hw_gpio_writePin(globals->config->acc_fan, hv_on);
-    hw_gpio_writePin(globals->config->rad_fan, hv_on);
+    io_fans_accfan_set(hv_on);
+    io_fans_radfan_set(hv_on);
 
-    bool missing_hb = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
+    // bool missing_hb = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
 }
 
 const State *app_mainState_get(void)
