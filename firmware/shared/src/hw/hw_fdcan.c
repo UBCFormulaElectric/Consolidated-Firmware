@@ -1,6 +1,7 @@
 #include "hw_can.h"
 #include "io_can.h"
 #include <assert.h>
+#include "io_log.h"
 
 static const CanHandle *handle;
 
@@ -24,6 +25,7 @@ void hw_can_init(const CanHandle *can_handle)
     assert(
         HAL_FDCAN_ActivateNotification(handle->can, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0) ==
         HAL_OK);
+    assert(HAL_FDCAN_ActivateNotification(handle->can, FDCAN_IT_BUS_OFF, 0) == HAL_OK);
 
     // Start the FDCAN peripheral.
     assert(HAL_FDCAN_Start(handle->can) == HAL_OK);
@@ -68,9 +70,9 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     return true;
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
-    UNUSED(hcan);
+    assert(hfdcan == handle->can);
     UNUSED(RxFifo0ITs);
     CanMsg rx_msg;
     if (!hw_can_receive(FDCAN_RX_FIFO0, &rx_msg) && handle->can_msg_received_callback != NULL)
@@ -82,9 +84,9 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo0ITs)
     handle->can_msg_received_callback(&rx_msg);
 }
 
-void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
-    UNUSED(hcan);
+    assert(hfdcan == handle->can);
     UNUSED(RxFifo1ITs);
     CanMsg rx_msg;
     if (!hw_can_receive(FDCAN_RX_FIFO1, &rx_msg) && handle->can_msg_received_callback != NULL)
@@ -94,4 +96,19 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hcan, uint32_t RxFifo1ITs)
     }
 
     handle->can_msg_received_callback(&rx_msg);
+}
+
+void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
+{
+    assert(hfdcan == handle->can);
+    LOG_INFO("FDCAN detected an error");
+    if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
+    {
+        FDCAN_ProtocolStatusTypeDef protocolStatus;
+        HAL_FDCAN_GetProtocolStatus(hfdcan, &protocolStatus);
+        if (protocolStatus.BusOff)
+        {
+            CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
+        }
+    }
 }
