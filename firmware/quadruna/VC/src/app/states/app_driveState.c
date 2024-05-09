@@ -79,8 +79,6 @@ static void driveStateRunOnEntry(void)
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
-    app_canTx_VC_LeftInverterTorqueLimit_set(5.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(5.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
 
@@ -167,8 +165,6 @@ static void driveStateRunOnExit(void)
 
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
-    app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
 
     // Disable buzzer on exit drive.
     app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
