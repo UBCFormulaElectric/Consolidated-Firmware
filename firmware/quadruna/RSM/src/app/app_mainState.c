@@ -7,6 +7,9 @@
 #include "app_coolant.h"
 #include "app_loadCell.h"
 #include "app_suspension.h"
+#include "app_globals.h"
+#include "io_fans.h"
+
 #include "app_heartbeatMonitor.h"
 
 void mainStateRunOnTick100Hz(void)

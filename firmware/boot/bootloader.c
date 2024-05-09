@@ -1,7 +1,6 @@
 #include "bootloader.h"
 #include "bootloaderConfig.h"
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
@@ -12,8 +11,6 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
 #include "hw_crc.h"
-#include "main.h"
-#include "hw_gpio.h"
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -43,15 +40,17 @@ typedef enum
 
 static void canRxOverflow(uint32_t unused)
 {
+    UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
+    UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-static void modifyStackPointerAndStartApp(uint32_t *address)
+_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -91,7 +90,7 @@ static void modifyStackPointerAndStartApp(uint32_t *address)
     app_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
     for (;;)
     {
     }
@@ -132,14 +131,14 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-void bootloader_preInit()
+void bootloader_preInit(void)
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("Bootloader reset!");
 }
 
-void bootloader_init()
+void bootloader_init(void)
 {
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
@@ -174,7 +173,7 @@ void bootloader_init()
     }
 }
 
-void bootloader_runInterfaceTask()
+_Noreturn void bootloader_runInterfaceTask(void)
 {
     for (;;)
     {
@@ -218,7 +217,7 @@ void bootloader_runInterfaceTask()
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-            reply.data[0] = verifyAppCodeChecksum();
+            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
@@ -227,7 +226,7 @@ void bootloader_runInterfaceTask()
     }
 }
 
-void bootloader_runTickTask()
+_Noreturn void bootloader_runTickTask(void)
 {
     uint32_t start_ticks = osKernelGetTickCount();
 
@@ -235,7 +234,7 @@ void bootloader_runTickTask()
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
         CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0] = verifyAppCodeChecksum();
+        status_msg.data[0] = (uint8_t)verifyAppCodeChecksum();
         io_can_pushTxMsgToQueue(&status_msg);
 
         bootloader_boardSpecific_tick();
@@ -245,7 +244,7 @@ void bootloader_runTickTask()
     }
 }
 
-void bootloader_runCanTxTask()
+_Noreturn void bootloader_runCanTxTask(void)
 {
     for (;;)
     {
@@ -253,6 +252,6 @@ void bootloader_runCanTxTask()
     }
 }
 
-__WEAK void bootloader_boardSpecific_init() {}
+__WEAK void bootloader_boardSpecific_init(void) {}
 
-__WEAK void bootloader_boardSpecific_tick() {}
+__WEAK void bootloader_boardSpecific_tick(void) {}

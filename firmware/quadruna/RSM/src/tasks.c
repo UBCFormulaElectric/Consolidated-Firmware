@@ -113,9 +113,7 @@ static const BinaryLed brake_light = { .gpio = {
                                            .pin  = BRAKE_LIGHT_EN_3V3_Pin,
                                        } };
 
-static const GlobalsConfig config = { .brake_light = &brake_light,
-                                      .acc_fan     = &acc_fan_en_pin,
-                                      .rad_fan     = &rad_fan_en_pin };
+static const GlobalsConfig config = { .brake_light = &brake_light };
 
 static const PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
                                                        .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
@@ -191,6 +189,8 @@ void tasks_init(void)
 
     io_coolant_init(&coolant_config);
     app_coolant_init();
+
+    io_fans_init(&acc_fan_en_pin, &rad_fan_en_pin);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
