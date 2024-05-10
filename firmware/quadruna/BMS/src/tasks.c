@@ -100,6 +100,7 @@ static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin =
 static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
 static const Gpio n_program_pin               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
 static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
+static const Gpio hvd_ok_shdn_pin = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin };
 static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_Port, .pin = TS_ISENSE_OCSC_OK_3V3_Pin };
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
@@ -310,7 +311,7 @@ static const UART debug_uart = { .handle = &huart1 };
 
 static const BmsShdnConfig bms_shdn_pin_config = {
     .ts_ilck_ok_gpio = ts_ilck_shdn_pin,
-    .hvd_ok_gpio     = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
+    .hvd_ok_gpio     = hvd_ok_shdn_pin,
 };
 
 static const BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = {

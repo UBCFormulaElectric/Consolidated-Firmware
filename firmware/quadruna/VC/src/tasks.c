@@ -356,7 +356,6 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_vcShdn_init(&shutdown_config);
     app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
