@@ -7,8 +7,8 @@ import sys
 import serial
 import json 
 #need to change below to telem.proto file
-#from process import telem2_pb2 # TODO: fix this, for when running from telem.py
-import telem2_pb2 #For when running signal_util file on own
+from process import telem2_pb2 # TODO: fix this, for when running from telem.py
+#import telem2_pb2 #For when running signal_util file on own
 
 DEBUG_SIZE_MSG_BUF_SIZE = 1
 #Dont worry abt rn i am changing things
@@ -20,7 +20,7 @@ DEBUG_SIZE_MSG_BUF_SIZE = 1
 class SignalUtil:
     def __init__(self):
         # Load the lookup table from a JSON file, get path of json
-        with open('software/tracksight/backend/app/process/lookup.json', 'r') as file:
+        with open('process/lookup.json', 'r') as file:
             self.lookup_table = json.load(file) # Parses the JSON into a Python dictionary #TODO throw a proper error
 
         self.df = pd.DataFrame(columns=['can_id', 'data', 'time_stamp', 'description', 'unit'])
@@ -81,7 +81,7 @@ class SignalUtil:
         return {'description': 'Unknown', 'unit': 'N/A'}  
     # returns all signals in data
     def get_all_signals(self):
-         return self.df.copy()
+        return self.df['description'].copy()
 
     # return target signal
     def get_signal(self, descriptor):
