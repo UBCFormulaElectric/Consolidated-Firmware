@@ -52,7 +52,7 @@ static void initStateRunOnTick100Hz(void)
 
     if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && is_key_turned && all_states_ok) // just as a sanity check
     {
-        app_stateMachine_setNextState(app_driveState_get());
+        app_stateMachine_setNextState(app_inverterOnState_get());
     }
 }
 
