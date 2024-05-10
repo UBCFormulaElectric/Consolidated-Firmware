@@ -36,6 +36,8 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterEnable_set(false);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
 
     // Disable buzzer on transition to init.
     app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
