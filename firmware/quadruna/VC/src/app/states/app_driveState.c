@@ -3,7 +3,6 @@
 // can
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
 // states
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
