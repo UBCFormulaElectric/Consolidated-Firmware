@@ -60,6 +60,7 @@ extern "C"
     void TIM1_CC_IRQHandler(void);
     void TIM3_IRQHandler(void);
     void USART1_IRQHandler(void);
+    void SDMMC1_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

@@ -5,19 +5,19 @@
 #include "hw_utils.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
+extern bool          sd_inited;
 static volatile bool dma_tx_completed = true;
+static SdCard       *sd;
 
-static const SdCard *sd = NULL; // golbal singleton for sd card
-
-void hw_sd_init(const SdCard *sd_in)
+void hw_sd_init(SdCard *sd_config)
 {
-    if (sd != NULL)
+    sd = sd_config;
+    if (sd_inited)
     {
-        return;
+        sd->sd_init_complete = true;
     }
-
-    sd = sd_in;
 }
 
 SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks)
