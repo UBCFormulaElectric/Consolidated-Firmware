@@ -14,12 +14,12 @@ bool io_vcShdn_TsmsFault_get(void)
 
 bool io_vcShdn_LEStopFault_get(void)
 {
-    return hw_gpio_readPin(&config->RE_stop_gpio);
+    return hw_gpio_readPin(&config->LE_stop_gpio);
 }
 
 bool io_vcShdn_REStopFault_get(void)
 {
-    return hw_gpio_readPin(&config->LE_stop_gpio);
+    return hw_gpio_readPin(&config->RE_stop_gpio);
 }
 
 bool io_vcShdn_SplitterBoxInterlockFault_get(void)
