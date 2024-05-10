@@ -1,4 +1,3 @@
-// TODO add grace period for heartbeat monitor checking
 #pragma once
 
 #include <stdbool.h>
