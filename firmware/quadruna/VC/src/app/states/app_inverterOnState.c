@@ -30,9 +30,6 @@ static void inverterOnStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_powerManager_updateState(power_manager_inverter_init);
 
-    app_canTx_VC_LeftInverterTorqueLimit_set(20.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(20.0f);
-
     prev_start_switch_pos = true;
     LOG_INFO("inverter on entry done");
 }
@@ -92,8 +89,6 @@ static void inverterOnStateRunOnTick100Hz(void)
 
 static void inverterOnStateRunOnExit(void)
 {
-    app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     LOG_INFO("inverter on exit");
 }
 
