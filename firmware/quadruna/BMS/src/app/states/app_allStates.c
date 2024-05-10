@@ -7,6 +7,7 @@
 #include "app_imd.h"
 #include "app_airs.h"
 #include "app_soc.h"
+#include "app_shdnLoop.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 
@@ -31,23 +32,20 @@ void app_allStates_runOnTick1Hz(void)
     bool charger_is_connected = io_charger_isConnected();
     app_canTx_BMS_ChargerConnected_set(charger_is_connected);
 
-    // const float    min_soc  = app_soc_getMinSocCoulombs();
-    // const uint16_t soc_addr = app_soc_getSocAddress();
-
-    // TODO: Update to SD Card Logic
+    const float min_soc = app_soc_getMinSocCoulombs();
 
     // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
-    // if (min_soc < 0)
-    // {
-    //     if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
-    //     {
-    //          app_soc_resetSocFromVoltage();
-    //     }
-    // }
-    // else
-    // {
-    //     app_eeprom_writeMinSoc(min_soc, soc_addr);
-    // }
+    if (min_soc < 0)
+    {
+        if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
+        {
+            app_soc_resetSocFromVoltage();
+        }
+    }
+    else
+    {
+        app_soc_writeSocToSd(min_soc);
+    }
 }
 
 bool app_allStates_runOnTick100Hz(void)
@@ -129,6 +127,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_imd_broadcast();
     app_airs_broadcast();
     app_thermistors_broadcast();
+    app_shdn_loop_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {

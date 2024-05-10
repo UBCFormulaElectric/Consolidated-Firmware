@@ -9,6 +9,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -53,8 +54,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_CRIT_can"
+    jsoncan_sources(
         "CRIT"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
@@ -98,7 +98,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+        "${MD5_LOCATION}"
     )
 
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
@@ -140,5 +140,31 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-    # TODO: Set up tests
+    jsoncan_sources(
+        "CRIT"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
+        "quadruna"
+    )
+    add_library(quadruna_CRIT_can STATIC "${CAN_SRCS}")
+    target_include_directories(quadruna_CRIT_can PUBLIC "${CAN_INCLUDE_DIRS}")
+
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+    )
+    create_fake_library(
+        "quadruna_CRIT_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+
+    set(SRCS ${APP_SRCS} ${TEST_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+    compile_gtest_executable(
+        "quadruna_CRIT_test"
+        "${SRCS}"
+        "${INCLUDE_DIRS}"
+    )
+    target_link_libraries("quadruna_CRIT_test" "quadruna_CRIT_can" "quadruna_CRIT_fakes" "shared_fakes" "m")
 endif()

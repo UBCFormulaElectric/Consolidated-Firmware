@@ -84,6 +84,7 @@
 	},
 	"LoadCell":{
 		"msg_id" : 409,
+		"cycle_time": null,
 		"description" : "Mechanical load on load cell",
 		"signals" : {
 			"LoadCell3" : {

@@ -27,6 +27,7 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "hw_uart.h"
+#include "hw_pwmInputFreqOnly.h"
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
@@ -106,6 +107,12 @@ static const GlobalsConfig config = { .brake_light = &brake_light,
                                       .acc_fan     = &acc_fan_en_pin,
                                       .rad_fan     = &rad_fan_en_pin };
 
+PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
+                                          .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                          .tim_channel         = TIM_CHANNEL_1,
+                                          .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                          .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+
 static UART debug_uart = { .handle = &huart1 };
 
 // config for heartbeat monitor
@@ -177,6 +184,8 @@ void tasks_init(void)
 
     app_globals_init(&config);
 
+    io_coolant_init(&coolant_config);
+
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
@@ -188,7 +197,7 @@ void tasks_init(void)
     // TODO: Re-enable watchdog.
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -208,7 +217,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -218,7 +227,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -233,7 +242,7 @@ void tasks_runCanRx(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -253,7 +262,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 

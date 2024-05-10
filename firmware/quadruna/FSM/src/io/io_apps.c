@@ -57,6 +57,8 @@ static float papps_max_angle;
 static float sapps_rest_angle;
 static float sapps_max_angle;
 
+static AppsConfig *config;
+
 // max and min angle calculation for PAPPS/SAPPS
 static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_law_denominator)
 {
@@ -68,8 +70,10 @@ static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_la
     return angle;
 }
 
-void io_apps_init(void)
+void io_apps_init(AppsConfig *apps_config)
 {
+    config = apps_config;
+
     papps_rest_angle = calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_UNPRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
     papps_max_angle =
         papps_rest_angle -
@@ -83,7 +87,7 @@ void io_apps_init(void)
 
 float io_apps_getPrimary(void)
 {
-    float pedal_voltage = hw_adc_getVoltage(ADC1_IN12_APPS1);
+    float pedal_voltage = hw_adc_getVoltage(config->papps);
 
     // Length calculated via voltage reading from PAPPS
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
@@ -105,14 +109,14 @@ float io_apps_getPrimary(void)
 
 bool io_apps_isPrimaryOCSC(void)
 {
-    float pedal_voltage = hw_adc_getVoltage(ADC1_IN12_APPS1);
+    float pedal_voltage = hw_adc_getVoltage(config->papps);
 
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
 }
 
 float io_apps_getSecondary(void)
 {
-    float pedal_voltage = hw_adc_getVoltage(ADC1_IN5_APPS2);
+    float pedal_voltage = hw_adc_getVoltage(config->sapps);
 
     // length calc from SAPPS voltage reading
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
@@ -136,7 +140,7 @@ float io_apps_getSecondary(void)
 
 bool io_apps_isSecondaryOCSC(void)
 {
-    float pedal_voltage = hw_adc_getVoltage(ADC1_IN5_APPS2);
+    float pedal_voltage = hw_adc_getVoltage(config->sapps);
 
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }

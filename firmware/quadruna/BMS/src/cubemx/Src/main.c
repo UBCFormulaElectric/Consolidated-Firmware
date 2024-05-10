@@ -23,7 +23,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
 #include "tasks.h"
+#include "hw_gpio.h"
 #include "hw_error.h"
 /* USER CODE END Includes */
 
@@ -52,7 +54,11 @@ typedef StaticTask_t osStaticThreadDef_t;
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+CRC_HandleTypeDef hcrc;
+
 FDCAN_HandleTypeDef hfdcan1;
+
+SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi2;
 
@@ -123,6 +129,12 @@ const osThreadAttr_t Task1Hz_attributes = {
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
 /* USER CODE BEGIN PV */
+
+const Gpio sd_cd = {
+    .pin  = GPIO_PIN_8,
+    .port = GPIOA,
+};
+bool sd_inited;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,6 +148,8 @@ static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_SDMMC1_SD_Init(void);
+static void MX_CRC_Init(void);
 void        RunTask100Hz(void *argument);
 void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
@@ -184,6 +198,8 @@ int main(void)
     MX_TIM1_Init();
     MX_USART1_UART_Init();
     MX_TIM3_Init();
+    MX_SDMMC1_SD_Init();
+    MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -332,7 +348,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
-    hadc1.Init.NbrOfConversion          = 4;
+    hadc1.Init.NbrOfConversion          = 5;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
     hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -389,8 +405,16 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel      = ADC_CHANNEL_10;
     sConfig.Rank         = ADC_REGULAR_RANK_4;
-    sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-    sConfig.SingleDiff   = ADC_DIFFERENTIAL_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES_5;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_11;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -398,6 +422,35 @@ static void MX_ADC1_Init(void)
     /* USER CODE BEGIN ADC1_Init 2 */
 
     /* USER CODE END ADC1_Init 2 */
+}
+
+/**
+ * @brief CRC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CRC_Init(void)
+{
+    /* USER CODE BEGIN CRC_Init 0 */
+
+    /* USER CODE END CRC_Init 0 */
+
+    /* USER CODE BEGIN CRC_Init 1 */
+
+    /* USER CODE END CRC_Init 1 */
+    hcrc.Instance                     = CRC;
+    hcrc.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
+    hcrc.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
+    hcrc.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
+    hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+    hcrc.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
+    if (HAL_CRC_Init(&hcrc) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CRC_Init 2 */
+
+    /* USER CODE END CRC_Init 2 */
 }
 
 /**
@@ -449,6 +502,40 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief SDMMC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SDMMC1_SD_Init(void)
+{
+    /* USER CODE BEGIN SDMMC1_Init 0 */
+    if (hw_gpio_readPin(&sd_cd))
+    {
+        sd_inited = false;
+        return;
+    }
+    /* USER CODE END SDMMC1_Init 0 */
+
+    /* USER CODE BEGIN SDMMC1_Init 1 */
+
+    /* USER CODE END SDMMC1_Init 1 */
+    hsd1.Instance                 = SDMMC1;
+    hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+    hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
+    hsd1.Init.ClockDiv            = 9;
+    if (HAL_SD_Init(&hsd1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SDMMC1_Init 2 */
+    sd_inited = true;
+    // HAL_SD_ConfigWideBusOperation(&hsd1, SDMMC_BUS_WIDE_4B);
+    /* USER CODE END SDMMC1_Init 2 */
 }
 
 /**

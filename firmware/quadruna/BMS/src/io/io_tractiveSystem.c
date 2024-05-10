@@ -10,19 +10,19 @@
 // Voltage divider for the TS+ voltage sensing
 #define TS_VOLTAGE_DIV (20e+3f / (6 * 1e+6f + 30e3f + 20e3f))
 
-// Offset voltage of output 1. Found to be 2.45V through testing
-#define OUTPUT_1_OFFSET (2.45f)
-// Sensitivity of output 1: 40mV/A
-#define OUTPUT_1_SENSITIVITY (1.0f / 40e-3f)
+// Offset voltage of output 1. Found through testing
+#define OUTPUT_1_OFFSET (2.593f)
+// Sensitivity of output 1: 26.7mV/A
+#define OUTPUT_1_SENSITIVITY (1.0f / 26.7e-3f)
 // Voltage divider from adc --> current sensor output
-#define OUTPUT_1_DIV ((1.0f + 2.2f) / (2.2f))
+#define OUTPUT_1_DIV ((33.0f + 60.4f) / (60.4f))
 
-// Offset voltage of output 2. Found to be 2.45V through testing
-#define OUTPUT_2_OFFSET (2.45f)
-// Sensitivity of output 2: 6.67mV/A
-#define OUTPUT_2_SENSITIVITY (1.0f / 6.67e-3f)
+// Offset voltage of output 2. Found through testing
+#define OUTPUT_2_OFFSET (2.558f)
+// Sensitivity of output 2: 4.0mV/A
+#define OUTPUT_2_SENSITIVITY (1.0f / 4.0e-3f)
 // Voltage divider from adc --> current sensor output
-#define OUTPUT_2_DIV ((1.0f + 2.2f) / (2.2f))
+#define OUTPUT_2_DIV ((33.0f + 60.4f) / (60.4f))
 
 static const TractiveSystemConfig *config;
 
@@ -62,7 +62,9 @@ float io_tractiveSystem_getVoltage()
     //                Voltage Ratio x Amplifier Gain
 
     // TODO: Test differential ADC for voltage measurement
-    const float ts_vsense = hw_adc_getVoltage(config->ts_vsense_channel);
+    const float ts_vsense_P = hw_adc_getVoltage(config->ts_vsense_channel_P);
+    const float ts_vsense_N = hw_adc_getVoltage(config->ts_vsense_channel_N);
+    const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
     if (ts_vsense < 0.0f)
     {
@@ -70,7 +72,8 @@ float io_tractiveSystem_getVoltage()
     }
     else
     {
-        return ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        return real_voltage;
     }
 }
 
@@ -83,26 +86,26 @@ float io_tractiveSystem_getCurrentHighResolution()
         return NAN;
     }
 
-    // HSNBV-D06 Output 1 (+/- 50A):
+    // DHAB S/124 Output 1 (+/- 75A):
     //
     // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1k>---+---| ADC Channel |
-    // | Output 1 Voltage |            |   +-------------+
+    // | DHAB S/124       |---<33k>---+---| ADC Channel |
+    // | Output 2 Voltage |            |   +-------------+
     // +------------------+            |
-    //                               <2.2k>
+    //                              <60.4k>
     //                                 |
     //                                ===
     //                                GND
     //
-    //                                                                 1
-    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+    //                                                                  1
+    // Current = (DHAB S/124 Output 1 Voltage - Offset Voltage) x ---------------
     //                                                             Sensitivity
-    //                                              1k + 2.2k
-    // HSNBV-D06 Output 1 Voltage = ADC Voltage x --------------
-    //                                                 2.2k
-    // Offset Voltage = 2.5V
+    //                                              33k + 60.4k
+    // DHAB S/124 Output 2 Voltage = ADC Voltage x --------------
+    //                                                 60.4k
+    // Offset Voltage = 2.5V (Datasheet)
     //
-    // Sensitivity = 40mV/A
+    // Sensitivity = 26.7mV/A
 
     // Output from current sensor:
     const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
@@ -120,26 +123,26 @@ float io_tractiveSystem_getCurrentLowResolution()
         return NAN;
     }
 
-    // HSNBV-D06 Output 2 (+/- 300A):
+    // DHAB S/124 Output 2 (+/- 500A):
     //
     // +------------------+                +-------------+
-    // | HSNBV-D06        |---<1k>---+---| ADC Channel |
+    // | DHAB S/124       |---<33k>---+---| ADC Channel |
     // | Output 2 Voltage |            |   +-------------+
     // +------------------+            |
-    //                               <2.2k>
+    //                              <60.4k>
     //                                 |
     //                                ===
     //                                GND
     //
-    //                                                                 1
-    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+    //                                                                  1
+    // Current = (DHAB S/124 Output 1 Voltage - Offset Voltage) x ---------------
     //                                                             Sensitivity
-    //                                              1k + 2.2k
-    // HSNBV-D06 Output 2 Voltage = ADC Voltage x --------------
-    //                                                 2.2k
-    // Offset Voltage = 2.5V
+    //                                              33k + 60.4k
+    // DHAB S/124 Output 2 Voltage = ADC Voltage x --------------
+    //                                                 60.4k
+    // Offset Voltage = 2.5V (Datasheet)
     //
-    // Sensitivity = 6.67mV/A
+    // Sensitivity = 4.0mV/A
 
     // Output from current sensor:
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
