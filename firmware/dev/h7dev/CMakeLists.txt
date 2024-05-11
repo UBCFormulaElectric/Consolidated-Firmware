@@ -88,7 +88,6 @@ if("${TARGET}" STREQUAL "deploy")
         TRUE
     )
 
-    add_compile_definitions(PRIVATE LFS_ASSERT=io_custom_lfs_assert)
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
 
     # Build bootloader.
