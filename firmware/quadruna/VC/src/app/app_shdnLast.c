@@ -12,9 +12,9 @@ void app_shdnLast_broadcast(void)
     else if (!app_canTx_VC_TSMSOKStatus_get())
         shdn = SHDN_TSMS;
     else if (!app_canTx_VC_REStopOKStatus_get())
-        shdn = SHDN_REstop;
+        shdn = SHDN_R_EStop;
     else if (!app_canTx_VC_LEStopOKStatus_get())
-        shdn = SHDN_LEstop;
+        shdn = SHDN_L_EStop;
     else if (!app_canRx_FSM_BOTSOKStatus_get())
         shdn = SHDN_BOTS;
     else if (!app_canRx_CRIT_InertiaSenOKStatus_get())
