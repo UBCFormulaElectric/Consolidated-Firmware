@@ -42,8 +42,6 @@ typedef struct
     bool (*fault_getters[HEARTBEAT_BOARD_COUNT])(void);
 } HeartbeatMonitor;
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
-
 static TimerChannel timers[HEARTBEAT_BOARD_COUNT];
 
 static HeartbeatMonitor hb_monitor;

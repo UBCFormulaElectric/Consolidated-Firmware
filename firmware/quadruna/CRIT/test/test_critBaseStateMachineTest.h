@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include "test_baseStateMachineTest.h"
 
-// #include "fake_io_led.hpp"
-// #include "fake_io_rgbLed.hpp"
-// #include "fake_io_switch.hpp"
 #include "fake_io_leds.hpp"
 #include "fake_io_switches.hpp"
 
@@ -48,7 +45,6 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     {
         // Reset fakes.
         fake_io_time_getCurrentMs_reset();
-        fake_io_led_init_reset();
         fake_io_led_imd_set_reset();
         fake_io_led_bspd_set_reset();
         fake_io_led_ams_set_reset();

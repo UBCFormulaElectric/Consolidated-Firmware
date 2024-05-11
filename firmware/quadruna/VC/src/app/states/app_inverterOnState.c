@@ -28,7 +28,7 @@ static void inverterOnStateRunOnEntry(void)
 {
     LOG_INFO("inverter on entry");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_powerManager_updateState(power_manager_inverter_init);
+    app_powerManager_updateConfig(power_manager_inverter_init);
 
     prev_start_switch_pos = true;
     LOG_INFO("inverter on entry done");
