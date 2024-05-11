@@ -30,10 +30,6 @@ Notes
 #define ANSI_BOLD_RED "\x1B[1;31m"
 #define ANSI_RESET "\x1B[1;0m"
 
-#define LOG_INFO(format, ...) _LOG(ANSI_BOLD_GREEN "INFO ", format, ##__VA_ARGS__)
-#define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
-#define LOG_ERROR(format, ...) _LOG(ANSI_BOLD_RED "ERROR", format, ##__VA_ARGS__)
-
 // Do not use these macros directly!
 #ifdef TARGET_EMBEDDED
 #include "SEGGER_RTT.h"
@@ -45,5 +41,9 @@ Notes
 
 #define _LOG(level, format, ...) \
     _LOG_PRINTF("[" level ANSI_RESET "] (%s:%u) " format "\n", __BASENAME__(__FILE__), __LINE__, ##__VA_ARGS__)
+
+#define LOG_INFO(format, ...) _LOG(ANSI_BOLD_GREEN "INFO ", format, ##__VA_ARGS__)
+#define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...) _LOG(ANSI_BOLD_RED "ERROR", format, ##__VA_ARGS__)
 
 void LOG_ALL_FAULTS();

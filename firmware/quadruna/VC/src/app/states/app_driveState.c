@@ -74,7 +74,7 @@ static void driveStateRunOnEntry(void)
     app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateState(power_manager_drive_init);
+    app_powerManager_updateConfig(power_manager_drive_init);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);

@@ -28,9 +28,8 @@ static const PowerStateConfig power_manager_shutdown_init = {
 static void initStateRunOnEntry(void)
 {
     LOG_INFO("init entry");
-    app_allStates_runOnTick100Hz();
     app_canTx_VC_State_set(VC_INIT_STATE);
-    app_powerManager_updateState(power_manager_shutdown_init);
+    app_powerManager_updateConfig(power_manager_shutdown_init);
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -46,6 +45,7 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
+    app_allStates_runOnTick100Hz();
     const bool any_board_has_fault = app_boardFaultCheck();
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);

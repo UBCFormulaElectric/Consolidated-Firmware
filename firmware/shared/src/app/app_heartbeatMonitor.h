@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "app_heartbeatBoardsEnum.h"
 
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
+
 void app_heartbeatMonitor_init(
     const bool boards_to_check[HEARTBEAT_BOARD_COUNT],
     bool (*const getters[HEARTBEAT_BOARD_COUNT])(),
