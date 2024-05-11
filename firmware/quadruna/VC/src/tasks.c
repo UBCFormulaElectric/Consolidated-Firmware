@@ -53,16 +53,17 @@ extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
 // extern IWDG_HandleTypeDef  hiwdg1;
 
-static bool sd_functional(void); // TODO make this a general io logging happy function
+static bool logging_functional(void); // TODO make this a general io logging happy function
 
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
 static uint32_t write_count                = 0; // TODO debugging variables
+static bool     can_logging_enable         = true;
 
 static void tasks_canRx_callback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
-    if (sd_functional())
+    if (logging_functional())
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
@@ -152,9 +153,9 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static bool sd_functional(void)
+static bool logging_functional(void)
 {
-    return !hw_gpio_readPin(&sd_present);
+    return !hw_gpio_readPin(&sd_present) && can_logging_enable;
 }
 
 const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
@@ -387,10 +388,16 @@ void tasks_init(void)
         Error_Handler();
     }
 
-    if (sd_functional())
+    if (logging_functional())
     {
-        io_fileSystem_init();
-        io_canLogging_init(&canLogging_config);
+        if (io_fileSystem_init() == FILE_OK) 
+        {
+            io_canLogging_init(&canLogging_config);
+        }
+        else
+        {
+            can_logging_enable = false;
+        }
     }
 
     if (!io_imu_init())
@@ -541,11 +548,10 @@ _Noreturn void tasks_runLogging(void)
     static uint32_t message_batch_count = 0;
     for (;;)
     {
-        // TODO suspend the thread
-        if (!sd_functional())
+        
+        if (!logging_functional())
         {
-            osDelay(1000);
-            continue;
+            osThreadSuspend(osThreadGetId());
         }
 
         io_canLogging_recordMsgFromQueue();
