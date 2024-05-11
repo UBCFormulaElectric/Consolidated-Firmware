@@ -23,12 +23,13 @@
 #include "io_lowVoltageBattery.h"
 #include "io_vcShdn.h"
 #include "io_currentSensing.h"
-#include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
+#include "io_pcm.h"
+#include "io_tsms.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -57,19 +58,21 @@ static void can_msg_received_callback(CanMsg *rx_msg);
 // check if the SD peripiral is functional
 static bool sd_functional(void);
 // extern IWDG_HandleTypeDef  hiwdg1;
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = can_msg_received_callback };
 SdCard    sd  = { .hsd = &hsd1, .timeout = 1000 };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = can_msg_received_callback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_VC_RxOverflowCount_set(overflow_count);
     app_canAlerts_VC_Warning_RxOverflow_set(true);
+    LOG_INFO("CAN RX OVERFLOW");
 }
 
 void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_VC_TxOverflowCount_set(overflow_count);
     app_canAlerts_VC_Warning_TxOverflow_set(true);
+    LOG_INFO("CAN TX OVERFLOW");
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -190,14 +193,12 @@ static const CurrentSensingConfig current_sensing_config = {
 };
 
 static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                              .pcm_gpio                    = npcm_en,
                                               .LE_stop_gpio                = l_shdn_sns,
                                               .RE_stop_gpio                = r_shdn_sns,
                                               .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
 
 static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
     { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
-    { io_vcShdn_PcmFault_get, &app_canTx_VC_PCMInterlockOKStatus_set },
     { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
     { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
     { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
@@ -253,7 +254,11 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
     }
 };
 
-static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
+static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
+
+static const TSMSConfig tsms_config = { .tsms_gpio = &tsms_shdn_sns };
+
+static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
     [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
     [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
@@ -264,7 +269,7 @@ static void (*efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
 
-static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
+static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
     [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
     [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
@@ -274,38 +279,39 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static Buzzer buzzer        = { .gpio = buzzer_pwr_en };
-static UART   debug_uart    = { .handle = &huart7 };
-static UART   imu_uart      = { .handle = &huart2 };
-static UART   modem2G4_uart = { .handle = &huart3 };
-static UART   modem900_uart = { .handle = &huart1 };
-static Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
+static const UART  debug_uart    = { .handle = &huart7 };
+static const UART  imu_uart      = { .handle = &huart2 };
+static const UART  modem2G4_uart = { .handle = &huart3 };
+static const UART  modem900_uart = { .handle = &huart1 };
+static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
-    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = true
+const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
+    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                          [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
+bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                                [VC_HEARTBEAT_BOARD]   = NULL,
+                                                                [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                                [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                                [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                                [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update };
+void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
+};
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
@@ -315,7 +321,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
@@ -356,11 +362,12 @@ void tasks_init(void)
     io_can_init(&can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
-    io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
     io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+    io_pcm_init(&pcm_config);
+    io_tsms_init(&tsms_config);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
@@ -389,7 +396,6 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_vcShdn_init(&shutdown_config);
     app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
@@ -397,6 +403,10 @@ void tasks_init(void)
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+
+    // TODO enable these for inverter programming
+    //    hw_gpio_writePin(&inv_l_program, true);
+    //    hw_gpio_writePin(&inv_r_program, true);
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -415,9 +425,8 @@ _Noreturn void tasks_run1Hz(void)
         hw_stackWaterMarkConfig_check();
         app_stateMachine_tick1Hz();
 
-        // TODO: setup can debug
-        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
@@ -443,7 +452,6 @@ _Noreturn void tasks_run100Hz(void)
     for (;;)
     {
         //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
@@ -508,7 +516,7 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-        io_telemMessage_broadcast(&rx_msg);
+        //        io_telemMessage_broadcast(&rx_msg);
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);

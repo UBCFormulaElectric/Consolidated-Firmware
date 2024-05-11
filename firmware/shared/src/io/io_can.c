@@ -1,9 +1,7 @@
 #include "io_can.h"
-#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include "cmsis_os.h"
-#include "queue.h"
 
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128

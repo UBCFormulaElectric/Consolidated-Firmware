@@ -15,7 +15,6 @@ set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/io_rgbLed.c"
     "${SHARED_IO_INCLUDE_DIR}/io_led.c"
     "${SHARED_IO_INCLUDE_DIR}/io_switch.c"
     "${SHARED_IO_INCLUDE_DIR}/io_can.c"
@@ -30,7 +29,8 @@ file(GLOB_RECURSE HW_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND HW_SRCS 
+list(APPEND HW_SRCS
+    "${SHARED_HW_INCLUDE_DIR}/hw_rgbLed.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"

@@ -19,8 +19,8 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
     "${SHARED_IO_INCLUDE_DIR}/io_led.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_buzzer.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_log.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -177,6 +177,7 @@ elseif ("${TARGET}" STREQUAL "test")
     target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE
+        "${SHARED_IO_INCLUDE_DIR}/io_log.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
@@ -186,6 +187,8 @@ elseif ("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tsms.h"
     )
 
     create_fake_library(

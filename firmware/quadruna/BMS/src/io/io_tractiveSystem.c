@@ -11,14 +11,14 @@
 #define TS_VOLTAGE_DIV (20e+3f / (6 * 1e+6f + 30e3f + 20e3f))
 
 // Offset voltage of output 1. Found through testing
-#define OUTPUT_1_OFFSET (2.593f)
+#define OUTPUT_1_OFFSET (2.5052f)
 // Sensitivity of output 1: 26.7mV/A
 #define OUTPUT_1_SENSITIVITY (1.0f / 26.7e-3f)
 // Voltage divider from adc --> current sensor output
 #define OUTPUT_1_DIV ((33.0f + 60.4f) / (60.4f))
 
 // Offset voltage of output 2. Found through testing
-#define OUTPUT_2_OFFSET (2.558f)
+#define OUTPUT_2_OFFSET (2.492f)
 // Sensitivity of output 2: 4.0mV/A
 #define OUTPUT_2_SENSITIVITY (1.0f / 4.0e-3f)
 // Voltage divider from adc --> current sensor output

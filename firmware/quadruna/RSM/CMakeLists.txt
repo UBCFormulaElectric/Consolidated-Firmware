@@ -141,9 +141,7 @@ if("${TARGET}" STREQUAL "deploy")
     
 elseif("${TARGET}" STREQUAL "test")
 set(HEADERS_TO_FAKE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brakeLight.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_load.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
 )
 

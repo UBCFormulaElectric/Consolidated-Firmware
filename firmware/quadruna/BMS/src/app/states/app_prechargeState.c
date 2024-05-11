@@ -5,7 +5,11 @@
 // EV.6.6.1
 #define PRECHARGE_ACC_V_THRESHOLD (0.90f)
 
+#ifdef TARGET_EMBEDDED
+#define MAX_PRECHARGE_ATTEMPTS 1U
+#elif TARGET_TEST
 #define MAX_PRECHARGE_ATTEMPTS 3U
+#endif
 
 static bool checkPrechargeFaults(
     bool is_charger_connected,

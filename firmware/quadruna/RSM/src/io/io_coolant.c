@@ -1,10 +1,10 @@
 #include "io_coolant.h"
-#include <assert.h>
-#include "main.h"
+
+#include <math.h>
+
 #include "hw_pwmInputFreqOnly.h"
 #include "hw_adc.h"
 #include "app_utils.h"
-#include <math.h>
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
 #define FLOW_RATE_CONVERSION_FACTOR (7.5f)
@@ -27,11 +27,11 @@
 #define RTHERM(voltage_out) (VIN * R2 / voltage_out - R2)
 
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
-#define BTERM_STEIN_EQN(rtherm) ((float)log(rtherm / R0) / B_COEFFIECNT)
+#define BTERM_STEIN_EQN(rtherm) ((float)log((double)(rtherm / R0)) / B_COEFFIECNT)
 
 static PwmInputFreqOnly flow_meter;
 
-void io_coolant_init(PwmInputFreqOnlyConfig *config)
+void io_coolant_init(const PwmInputFreqOnlyConfig *config)
 {
     hw_pwmInputFreqOnly_init(&flow_meter, config);
 }
@@ -60,7 +60,7 @@ float io_coolant_getTemperatureA(void)
     float const v_out =
         CLAMP(hw_adc_getVoltage(ADC1_IN2_COOLANT_TEMP_1), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
     float const r_thermistor = RTHERM(v_out);
-    float       b_term       = (float)BTERM_STEIN_EQN(r_thermistor);
+    float       b_term       = BTERM_STEIN_EQN(r_thermistor);
     float       coolant_temp =
         (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
     float coolant_temp_cel = coolant_temp - 273.15f;
@@ -73,7 +73,7 @@ float io_coolant_getTemperatureB(void)
     float const v_out =
         CLAMP(hw_adc_getVoltage(ADC1_IN3_COOLANT_TEMP_2), TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
     float const r_thermistor = RTHERM(v_out);
-    float       b_term       = (float)BTERM_STEIN_EQN(r_thermistor);
+    float       b_term       = BTERM_STEIN_EQN(r_thermistor);
     float       coolant_temp =
         (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
     float coolant_temp_cel = coolant_temp - 273.15f;
