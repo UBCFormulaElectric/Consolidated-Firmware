@@ -6,6 +6,8 @@
 #include "fake_io_efuse.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_sbgEllipse.hpp"
+#include "fake_io_tsms.hpp"
+#include "fake_io_pcm.hpp"
 
 extern "C"
 {
@@ -68,6 +70,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_isChannelEnabled_reset();
         fake_io_efuse_getChannelCurrent_reset();
         fake_io_efuse_standbyReset_reset();
+        fake_io_tsms_read_reset();
+        fake_io_pcm_set_reset();
     }
 
     void SetInitialState(const State *const initial_state)
