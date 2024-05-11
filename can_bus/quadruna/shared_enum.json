@@ -62,7 +62,7 @@
         "SHDN_Cockpit_EStop": 4,
         "SHDN_Inertia": 5,
         "SHDN_BOTS": 6,
-        "SHDN_LEstop": 7,
+        "SHDN_L_EStop": 7,
         "SHDN_REstop": 8,
         "SHDN_TSMS": 9,
         "SHDN_SB_ILCK": 10,
