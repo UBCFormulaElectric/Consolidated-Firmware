@@ -1,5 +1,4 @@
 #pragma GCC diagnostic ignored "-Wconversion"
-// #pragma GCC diagnostic ignored "-Wint-conversion"
 
 #include <string.h>
 #include <stdbool.h>
