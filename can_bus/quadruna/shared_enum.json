@@ -63,7 +63,7 @@
         "SHDN_Inertia": 5,
         "SHDN_BOTS": 6,
         "SHDN_L_EStop": 7,
-        "SHDN_REstop": 8,
+        "SHDN_R_EStop": 8,
         "SHDN_TSMS": 9,
         "SHDN_SB_ILCK": 10,
         "SHDN_HVD_ILCK": 11,
