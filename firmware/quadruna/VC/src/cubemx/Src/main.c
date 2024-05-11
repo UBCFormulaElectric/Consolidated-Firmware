@@ -1141,13 +1141,13 @@ void RunTask1Hz(void *argument)
     /* USER CODE END RunTask1Hz */
 }
 
-/* USER CODE BEGIN Header_StartTask06 */
+/* USER CODE BEGIN Header_RunTaskLogging */
 /**
  * @brief Function implementing the TaskLogging thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartTask06 */
+/* USER CODE END Header_RunTaskLogging */
 void RunTaskLogging(void *argument)
 {
     /* USER CODE BEGIN RunTaskLogging */
