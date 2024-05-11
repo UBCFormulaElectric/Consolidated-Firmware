@@ -14,7 +14,6 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
     )
 
