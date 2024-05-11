@@ -90,7 +90,7 @@ static const CanConfig can_config = {
     .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
-static bool dummyFilter(uint32_t msg_id)
+static bool canLoggingFilter(uint32_t msg_id)
 {
     return true;
 }
@@ -99,15 +99,15 @@ static uint32_t overflow_count = 0;
 static uint32_t read_count     = 0;
 static uint32_t write_count    = 0;
 
-static void dummyOverflow(uint32_t f)
+static void canLoggingOverflowCallback(uint32_t f)
 {
     overflow_count++;
 }
 
 static const CanConfig canLogging_config = {
-    .rx_msg_filter              = dummyFilter,
-    .tx_overflow_callback       = dummyOverflow,
-    .rx_overflow_callback       = dummyOverflow,
+    .rx_msg_filter              = canLoggingFilter,
+    .tx_overflow_callback       = canLoggingOverflowCallback,
+    .rx_overflow_callback       = canLoggingOverflowCallback,
     .tx_overflow_clear_callback = NULL,
     .rx_overflow_clear_callback = NULL,
 
@@ -539,7 +539,6 @@ _Noreturn void tasks_runLogging(void)
 
 static void can_msg_received_callback(CanMsg *rx_msg)
 {
-    // TODO: check gpio present
     io_can_msgReceivedCallback(rx_msg); // push to queue
     if (sd_functional())
     {
