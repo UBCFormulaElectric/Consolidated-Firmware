@@ -42,7 +42,7 @@ typedef struct
     bool (*fault_getters[HEARTBEAT_BOARD_COUNT])(void);
 } HeartbeatMonitor;
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 400U
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
 
 static TimerChannel timers[HEARTBEAT_BOARD_COUNT];
 
@@ -142,12 +142,12 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void)
     return res;
 }
 
+#ifdef TARGET_TEST
 void app_heartbeatMonitor_blockFaults(bool block_faults)
 {
     hb_monitor.block_faults = block_faults;
 }
 
-#ifdef TARGET_TEST
 HeartbeatMonitor *app_heartbeatMonitor_get(void)
 {
     return &hb_monitor;
