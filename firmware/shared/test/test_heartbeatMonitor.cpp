@@ -137,8 +137,6 @@ TEST(HeartbeatMonitor, test_create)
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
-    //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
-
     // check self heartbeat setter
     ASSERT_EQ(heartbeat_monitor->self_checkin, &D_fakeCanHeartbeatSetter);
 
@@ -239,7 +237,6 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
 
     // assert nothing changed (0 ms)
     app_heartbeatMonitor_checkIn();
-    //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 0U);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
@@ -280,8 +277,6 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     fake_io_time_getCurrentMs_returns(300);
     app_heartbeatMonitor_checkIn();
 
-    //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 300);
-
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[C_HEARTBEAT_BOARD]);
@@ -313,8 +308,6 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     // progress to timeout period and verify A missing (600 ms)
     fake_io_time_getCurrentMs_returns(650);
     app_heartbeatMonitor_checkIn();
-
-    //    ASSERT_EQ(heartbeat_monitor->previous_timeout_ms, 600);
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
