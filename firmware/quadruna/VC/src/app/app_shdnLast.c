@@ -23,12 +23,12 @@ void app_shdnLast_broadcast(void)
         shdn = SHDN_Cockpit_EStop;
     else if (!app_canRx_BMS_TSIlckOKStatus_get())
         shdn = SHDN_TS_Ilck;
-    else if (!app_canRx_BMS_ImdOk_get())
-        shdn = SHDN_IMD_OK;
     else if (!app_canRx_BMS_BmsOk_get())
         shdn = SHDN_BMS_OK;
     else if (!app_canRx_BMS_BspdOk_get())
         shdn = SHDN_BSPD_OK;
+    else if (!app_canRx_BMS_ImdOk_get())
+        shdn = SHDN_IMD_OK;
     else
         shdn = SHDN_OK;
     app_canTx_VC_FirstFaultNode_set(shdn);
