@@ -854,8 +854,8 @@
                 "signed": false,
                 "scale": 0.01,
                 "offset": 0,
-                "min":0,
-                "max":65536
+                "min": 0,
+                "max": 65536
             },
             "FluxWeakeningOutput": {
                 "start_bit": 16,
@@ -896,31 +896,31 @@
             "EEPROMVersion": {
                 "start_bit": 0,
                 "bits": 16,
-                "min":0,
-                "max":65536
+                "min": 0,
+                "max": 65535
             },
             "SoftwareVersion": {
                 "start_bit": 16,
                 "bits": 16,
-                "min":0,
-                "max":65536
+                "min": 0,
+                "max": 65535
             },
             "DateCodeDayMonth": {
                 "start_bit": 32,
                 "bits": 16,
-                "min":0,
-                "max":65536
+                "min": 0,
+                "max": 65535
             },
             "DateCodeYear": {
                 "start_bit": 48,
                 "bits": 16,
-                "min":0,
-                "max":65536
+                "min": 0,
+                "max": 65535
             }
         }
     },
     "DebugReadWriteParamCommand": {
-        "msg_id": 33, 
+        "msg_id": 33,
         "cycle_time": null,
         "signals": {
             "CommandParameterAddress": {
@@ -938,7 +938,7 @@
         }
     },
     "DebugReadWriteParamResponse": {
-        "msg_id": 34, 
+        "msg_id": 34,
         "cycle_time": null,
         "signals": {
             "ResponseParameterAddress": {
