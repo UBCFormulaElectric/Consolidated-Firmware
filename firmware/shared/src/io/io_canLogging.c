@@ -35,7 +35,7 @@ static const osMessageQueueAttr_t queue_attr = {
 };
 
 // assume the filesystem is already inited
-static int initLoggingFileSystem()
+static int initLoggingFileSystem(void)
 {
     // early return
     uint32_t bootcount = 0;
@@ -60,7 +60,7 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
     memcpy(log->data, msg->data, 8);
 }
 
-static bool isLoggingEnabled()
+static bool isLoggingEnabled(void)
 {
     return (logging_error_remaining > 0);
 }
@@ -114,7 +114,7 @@ int io_canLogging_recordMsgFromQueue(void)
     return 0;
 }
 
-void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
+void io_canLogging_loggingQueuePush(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
     CanMsgLog       msg;
@@ -138,7 +138,7 @@ void io_canLogging_msgReceivedCallback(CanMsg *rx_msg)
     }
 }
 
-int io_canLogging_sync()
+int io_canLogging_sync(void)
 {
     // SAVe the seek before close
     int err = io_fileSystem_sync(log_fd);

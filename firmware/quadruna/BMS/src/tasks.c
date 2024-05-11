@@ -120,7 +120,7 @@ static const PwmInputConfig imd_pwm_input_config = {
     .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
 
-static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
