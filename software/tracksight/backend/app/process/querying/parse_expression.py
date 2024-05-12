@@ -1,12 +1,12 @@
+import json
 import os
 import sys
 from pathlib import Path
-import json
 
-import Definitions
 from interpreter import Interpreter
-from parser import Parser
 from lexer import Lexer
+from parser import Parser
+from ... import Definitions
 
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(project_root)
