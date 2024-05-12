@@ -39,7 +39,7 @@ extern TIM_HandleTypeDef  htim3;
 extern CAN_HandleTypeDef  hcan1;
 extern UART_HandleTypeDef huart1;
 
-static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
