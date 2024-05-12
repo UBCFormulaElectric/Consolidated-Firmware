@@ -2,6 +2,8 @@
 Entrypoint to the telemetry backend
 """
 
+import threading
+
 from flask import Flask
 
 from process.flask_apps.database_app import app as database_app
@@ -15,5 +17,20 @@ app.register_blueprint(http_app)
 app.register_blueprint(database_app)
 # CORS(app)
 
-socketio.init_app(app)  # Initialize the Socket.IO app with the main app
-socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0")
+
+def thread_function(a):
+    pass
+
+
+modem_thread = threading.Thread(
+    target=thread_function, args=(1,), daemon=True
+)  # TODO for Lara: Make this the function that is monitoring the UART
+try:
+    modem_thread.start()
+    socketio.init_app(app)  # Initialize the Socket.IO app with the main app
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0")
+except KeyboardInterrupt:
+    print("Exiting")
+    if modem_thread is not None:
+        modem_thread.join()
+    print("Thread stopped")
