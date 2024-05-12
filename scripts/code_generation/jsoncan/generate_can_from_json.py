@@ -3,17 +3,18 @@ Entry point for generating CAN drivers and DBC from JSON data, as a command line
 TODO: Generate callback functions for received messages? Could be cool
 TODO: Why do we need start values???
 """
+
 import argparse
-from src.json_parsing.json_can_parsing import JsonCanParser
-from src.utils import write_text
-from src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
-from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
+
+from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
 from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
+from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
+from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
 from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
-from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
-
+from src.codegen.dbc_generation.dbc_generation import DbcGenerator
+from src.json_parsing.json_can_parsing import JsonCanParser
+from src.utils import write_text
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

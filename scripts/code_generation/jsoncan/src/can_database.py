@@ -131,6 +131,26 @@ class CanSignal:
         else:
             return CanSignalDatatype.FLOAT
 
+    @staticmethod
+    def from_series(series: DataFrame):
+        """
+        Create a CanSignal from a pandas Series.
+        """
+        return CanSignal(
+            name=series["name"],
+            start_bit=series["start_bit"],
+            bits=series["bits"],
+            scale=series["scale"],
+            offset=series["offset"],
+            min_val=series["min_val"],
+            max_val=series["max_val"],
+            start_val=series["start_val"],
+            enum=series["enum"],
+            unit=series["unit"],
+            signed=series["signed"],
+            description=series["description"],
+        )
+
     def __str__(self):
         return self.name
 
@@ -183,6 +203,22 @@ class CanMessage:
             "rx_nodes": self.rx_nodes,
             "modes": self.modes,
         }
+
+    @staticmethod
+    def from_series(series: DataFrame):
+        """
+        Create a CanMessage from a pandas Series.
+        """
+        return CanMessage(
+            name=series["name"],
+            id=series["id"],
+            description=series["description"],
+            cycle_time=series["cycle_time"],
+            signals=[CanSignal.from_series(signal) for signal in series["signals"]],
+            tx_node=series["tx_node"],
+            rx_nodes=series["rx_nodes"],
+            modes=series["modes"],
+        )
 
 
 @dataclass(frozen=True)
