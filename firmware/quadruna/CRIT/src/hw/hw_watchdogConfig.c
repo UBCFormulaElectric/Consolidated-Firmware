@@ -7,11 +7,11 @@
 #include "hw_utils.h"
 
 // TODO: Re-enable watchdog.
-// extern IWDG_HandleTypeDef hiwdg;
+extern IWDG_HandleTypeDef hiwdg;
 
 void hw_watchdogConfig_refresh(void)
 {
-    // HAL_IWDG_Refresh(&hiwdg);
+    HAL_IWDG_Refresh(&hiwdg);
 }
 
 void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)

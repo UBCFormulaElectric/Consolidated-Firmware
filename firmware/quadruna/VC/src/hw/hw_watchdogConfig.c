@@ -9,11 +9,11 @@
 #include "hw_utils.h"
 
 // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-// extern IWDG_HandleTypeDef hiwdg1;
+extern IWDG_HandleTypeDef hiwdg1;
 
 void hw_watchdogConfig_refresh(void)
 {
-    // HAL_IWDG_Refresh(&hiwdg1);
+    HAL_IWDG_Refresh(&hiwdg1);
 }
 
 void hw_watchdogConfig_timeoutCallback(WatchdogHandle *watchdog)

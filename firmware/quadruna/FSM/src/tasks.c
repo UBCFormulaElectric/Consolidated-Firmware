@@ -45,9 +45,9 @@ extern TIM_HandleTypeDef htim3;
 extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim12;
 
-static const CanHandle    can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
-extern UART_HandleTypeDef huart1;
-// extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
+static const CanHandle     can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
+extern UART_HandleTypeDef  huart1;
+extern IWDG_HandleTypeDef *hiwdg;
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
