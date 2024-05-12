@@ -7,11 +7,11 @@ import flask_socketio
 from .. import SignalUtil
 
 # SocketIO processes for live data
-socketio = flask_socketio.SocketIO(cors_allowed_origins="*")
+socket_app = flask_socketio.SocketIO(cors_allowed_origins="*")
 signal_util = SignalUtil.SignalUtil()
 
 
-@socketio.on("connect")
+@socket_app.on("connect")
 def handle_connect():
     """
     Handles the socket connection when the client connects
@@ -20,7 +20,7 @@ def handle_connect():
     flask_socketio.emit("message", "You are connected to the server connect")
 
 
-@socketio.on("disconnect")
+@socket_app.on("disconnect")
 def handle_disconnect():
     """
     Handles the socket connection when the client disconnects
@@ -29,17 +29,17 @@ def handle_disconnect():
     flask_socketio.emit("message", "You are disconnected from the server disconnect")
 
 
-@socketio.on("data")
+@socket_app.on("data")
 def handle_message(message):
     """
     Handles the socket connection when the client sends a message
     :param message: Message that the client sent
     :return: None
     """
-    socketio.emit("message_from_server", f"Server received: {message}")
+    socket_app.emit("message_from_server", f"Server received: {message}")
 
 
-@socketio.on("available_signals")
+@socket_app.on("available_signals")
 def handle_available_signals(_message):
     """
     Handles the "available signals" request from the client
@@ -47,12 +47,12 @@ def handle_available_signals(_message):
     """
     signals = signal_util.get_all_signals()
     signal_names = list(signals.keys())  # returns list of keys
-    socketio.emit(
+    socket_app.emit(
         "available_signals_response", signal_names
     )  # Emit the signal names to the client
 
 
-@socketio.on("signal")
+@socket_app.on("signal")
 def handle_signal_message(message):
     """
     Handles the "signal" request from the client
@@ -68,4 +68,4 @@ def handle_signal_message(message):
 
 
 if __name__ == "__main__":
-    socketio.run(app=None, debug=True)
+    socket_app.run(app=None, debug=True)
