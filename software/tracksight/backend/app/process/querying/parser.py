@@ -1,4 +1,5 @@
-from AST import  BinaryOperatorNode, NumberNode
+from AST import BinaryOperatorNode, NumberNode
+
 
 class Parser:
     def __init__(self, tokens):
@@ -11,7 +12,7 @@ class Parser:
 
     def expression(self):
         node = self.term()
-        while self.current_token and self.current_token[0] in ('PLUS', 'MINUS'):
+        while self.current_token and self.current_token[0] in ("PLUS", "MINUS"):
             operator = self.current_token[0]
             self.next_token()
             node = BinaryOperatorNode(node, operator, self.term())
@@ -19,7 +20,7 @@ class Parser:
 
     def term(self):
         node = self.factor()
-        while self.current_token and self.current_token[0] in ('MULTIPLY', 'DIVIDE'):
+        while self.current_token and self.current_token[0] in ("MULTIPLY", "DIVIDE"):
             operator = self.current_token[0]
             self.next_token()
             node = BinaryOperatorNode(node, operator, self.factor())
@@ -27,16 +28,15 @@ class Parser:
 
     def factor(self):
         token = self.current_token
-        if token[0] == 'NUMBER':
+        if token[0] == "NUMBER":
             self.next_token()
             return NumberNode(float(token[1]))
-        elif token[0] == 'LPAREN':
+        elif token[0] == "LPAREN":
             self.next_token()
             node = self.expression()
-            if not self.current_token or self.current_token[0] != 'RPAREN':
+            if not self.current_token or self.current_token[0] != "RPAREN":
                 raise SyntaxError("Expected ')'")
             self.next_token()
             return node
         else:
             raise SyntaxError(f"Unexpected token {token[0]}")
- 
