@@ -57,8 +57,3 @@ void io_canTx_enqueue100HzMsgs(void);
  */
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
-/**
- * Pack and send the aperiodic TX msg JCT_WarningsTest.
- */
-void io_canTx_JCT_WarningsTest_sendAperiodic(void);
-

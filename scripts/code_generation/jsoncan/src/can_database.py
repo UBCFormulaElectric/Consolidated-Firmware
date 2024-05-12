@@ -2,6 +2,7 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
+from cmath import isnan
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
@@ -138,8 +139,8 @@ class CanSignal:
         """
         return CanSignal(
             name=series["name"],
-            start_bit=series["start_bit"],
-            bits=series["bits"],
+            start_bit=int(series["start_bit"]),
+            bits=int(series["bits"]),
             scale=series["scale"],
             offset=series["offset"],
             min_val=series["min_val"],
@@ -211,9 +212,11 @@ class CanMessage:
         """
         return CanMessage(
             name=series["name"],
-            id=series["id"],
+            id=int(series["id"]),
             description=series["description"],
-            cycle_time=series["cycle_time"],
+            cycle_time=(
+                None if isnan(series["cycle_time"]) else int(series["cycle_time"])
+            ),
             signals=[CanSignal.from_series(signal) for signal in series["signals"]],
             tx_node=series["tx_node"],
             rx_nodes=series["rx_nodes"],
@@ -270,13 +273,21 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        return self.msgs[self.msgs["tx_node"] == tx_node]
+        return [
+            CanMessage.from_series(msg)
+            for _, msg in self.msgs[self.msgs["tx_node"] == tx_node].iterrows()
+        ]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        return self.msgs[self.msgs["rx_nodes"].apply(lambda x: rx_node in x)]
+        return [
+            CanMessage.from_series(msg)
+            for _, msg in self.msgs[
+                self.msgs["rx_nodes"].apply(lambda x: rx_node in x)
+            ].iterrows()
+        ]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """

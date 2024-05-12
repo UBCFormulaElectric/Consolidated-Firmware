@@ -39,6 +39,7 @@
 
 // Periodic msg cycle times (in MS)
 #define CAN_MSG_JCT_VITALS_CYCLE_TIME_MS (1000)
+#define CAN_MSG_JCT_WARNINGS_TEST_CYCLE_TIME_MS (1000)
 #define CAN_MSG_JCT_AIR_SHUTDOWN_ERRORS_CYCLE_TIME_MS (1000)
 #define CAN_MSG_JCT_MOTOR_SHUTDOWN_ERRORS_CYCLE_TIME_MS (100)
 #define CAN_MSG_JCT_STATUS_CYCLE_TIME_MS (100)
@@ -258,6 +259,7 @@ typedef struct
  */
 typedef struct
 {
+    uint8_t _unused;
 } JCT_Faults_Signals;
 
 /**
@@ -276,6 +278,7 @@ typedef struct
  */
 typedef struct
 {
+    uint8_t _unused;
 } JCT_FaultsCounts_Signals;
 
 /**

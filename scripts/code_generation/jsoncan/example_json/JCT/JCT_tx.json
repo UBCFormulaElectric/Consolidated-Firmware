@@ -1,50 +1,60 @@
 {
     "Vitals": {
         "msg_id": 601,
-        "cycle_time": 1000, 
+        "cycle_time": 1000,
         "description": "Heartbeat signal.",
-        "allowed_modes": ["default", "debug"],
         "signals": {
-            "Heartbeat": { 
+            "Heartbeat": {
                 "min": 0,
                 "max": 1,
-                "bits": 1 
+                "bits": 1
             },
-            "Timestamp": { "bits": 32 }
+            "Timestamp": {
+                "bits": 32
+            }
         }
-    },  
+    },
     "WarningsTest": {
         "msg_id": 602,
         "description": "Non-critical errors.",
-        "num_bytes": 8,
-        "allowed_modes": ["debug"],
+        "cycle_time": 1000,
         "signals": {
-            "WatchdogTimeout": { "bits": 1 },
-            "BoardOvertemp": { "bits": 1 },
-            "BoardOvervoltage": { "bits": 1 }
+            "WatchdogTimeout": {
+                "bits": 1
+            },
+            "BoardOvertemp": {
+                "bits": 1
+            },
+            "BoardOvervoltage": {
+                "bits": 1
+            }
         }
     },
     "AirShutdownErrors": {
         "msg_id": 603,
-        "cycle_time": 1000, 
+        "cycle_time": 1000,
         "description": "AIR shutdown.",
         "num_bytes": 8,
         "signals": {
-            "DummyAirShutdown": { "bits": 1 }
+            "DummyAirShutdown": {
+                "bits": 1
+            }
         }
     },
     "MotorShutdownErrors": {
         "msg_id": 604,
-        "cycle_time": 100, 
+        "cycle_time": 100,
         "description": "Motor shutdown.",
         "num_bytes": 8,
         "signals": {
-            "DummyMotorShutdown": { "bits": 1 }
+            "DummyMotorShutdown": {
+                "bits": 1
+            }
         }
     },
     "Status": {
         "msg_id": 608,
-        "cycle_time": 100, 
+        "cycle_time": 100,
         "description": "Message for debugging.",
         "signals": {
             "ContactorsClosed": {

@@ -39,7 +39,8 @@ bool io_telemMessage_broadcast(CanMsg *rx_msg)
     proto_msg_length = (uint8_t)stream.bytes_written;
     // LOG_INFO("%d, %d", t_message.can_id, t_message.time_stamp);
     // LOG_INFO("%d %d %d %d %d %d %d %d", t_message.message[0], t_message.message[1], t_message.message[2],
-    //     t_message.message[3], t_message.message[4], t_message.message[5], t_message.message[6], t_message.message[7]);
+    //     t_message.message[3], t_message.message[4], t_message.message[5], t_message.message[6],
+    //     t_message.message[7]);
     if (modem_900_choice == true)
     {
         hw_uart_transmitPoll(modem->modem900M, &proto_msg_length, UART_LENGTH, 100);

@@ -24,7 +24,7 @@ static void (*transmit_func)(const JsonCanMsg* tx_msg);
 
 static void io_canTx_JCT_Vitals_sendPeriodic()
 {
-    if (can_mode & (CAN_MODE_DEFAULT | CAN_MODE_DEBUG))
+    if (can_mode & (CAN_MODE_DEFAULT))
     {
         // Prepare msg header
         JsonCanMsg tx_msg;
@@ -37,6 +37,30 @@ static void io_canTx_JCT_Vitals_sendPeriodic()
         vPortEnterCritical();
         #endif
         app_canUtils_JCT_Vitals_pack(app_canTx_JCT_Vitals_getData(), tx_msg.data);
+        #ifndef THREAD_SAFE_CAN_PACKING
+        vPortExitCritical();
+        #endif
+        
+        // Append msg to TX FIFO
+        transmit_func(&tx_msg);
+    }
+}
+
+static void io_canTx_JCT_WarningsTest_sendPeriodic()
+{
+    if (can_mode & (CAN_MODE_DEFAULT))
+    {
+        // Prepare msg header
+        JsonCanMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(JsonCanMsg));
+        tx_msg.std_id = CAN_MSG_JCT_WARNINGS_TEST_ID;
+        tx_msg.dlc = CAN_MSG_JCT_WARNINGS_TEST_BYTES;
+        
+        // Prepare CAN msg payload (The packing function isn't thread-safe so we must guard it)
+        #ifndef THREAD_SAFE_CAN_PACKING
+        vPortEnterCritical();
+        #endif
+        app_canUtils_JCT_WarningsTest_pack(app_canTx_JCT_WarningsTest_getData(), tx_msg.data);
         #ifndef THREAD_SAFE_CAN_PACKING
         vPortExitCritical();
         #endif
@@ -237,6 +261,7 @@ void io_canTx_enableMode(CanMode mode, bool enable)
 void io_canTx_enqueue1HzMsgs()
 {
     io_canTx_JCT_Vitals_sendPeriodic();
+    io_canTx_JCT_WarningsTest_sendPeriodic();
     io_canTx_JCT_AirShutdownErrors_sendPeriodic();
     io_canTx_JCT_Warnings_sendPeriodic();
     io_canTx_JCT_WarningsCounts_sendPeriodic();
@@ -268,29 +293,5 @@ void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
         io_canTx_JCT_FaultsCounts_sendPeriodic();
     }
     
-}
-
-void io_canTx_JCT_WarningsTest_sendAperiodic()
-{
-    if (can_mode & (CAN_MODE_DEBUG))
-    {
-        // Prepare msg header
-        JsonCanMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(JsonCanMsg));
-        tx_msg.std_id = CAN_MSG_JCT_WARNINGS_TEST_ID;
-        tx_msg.dlc = CAN_MSG_JCT_WARNINGS_TEST_BYTES;
-        
-        // Prepare CAN msg payload (The packing function isn't thread-safe so we must guard it)
-        #ifndef THREAD_SAFE_CAN_PACKING
-        vPortEnterCritical();
-        #endif
-        app_canUtils_JCT_WarningsTest_pack(app_canTx_JCT_WarningsTest_getData(), tx_msg.data);
-        #ifndef THREAD_SAFE_CAN_PACKING
-        vPortExitCritical();
-        #endif
-        
-        // Append msg to TX FIFO
-        transmit_func(&tx_msg);
-    }
 }
 
