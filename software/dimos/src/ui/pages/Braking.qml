@@ -9,7 +9,7 @@ Item {
 
     property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
     property int targetSpeed: 60
-    property real speedRatio: speed/targetSpeed
+    property real speedRatio: 1 - (speed % targetSpeed)/targetSpeed
     property int defaultSize: 200
 
     Text {
@@ -39,7 +39,6 @@ Item {
     BrakeRing {
         anchors.horizontalCenter: speedString.horizontalCenter
         anchors.verticalCenter: speedString.verticalCenter
-        anchors.verticalCenterOffset: 10
         size: defaultSize
         colorFraction: speedRatio
     }
@@ -48,8 +47,7 @@ Item {
     BrakeRing {
         anchors.horizontalCenter: speedString.horizontalCenter
         anchors.verticalCenter: speedString.verticalCenter
-        anchors.verticalCenterOffset: 10
-        size: defaultSize + speedRatio * 100
+        size: defaultSize + speedRatio * 200
         colorFraction: speedRatio
     }
 
@@ -57,7 +55,7 @@ Item {
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: speedString.bottom
-        anchors.topMargin: 30
+        anchors.topMargin: 60
         font.family: "Roboto"
         font.pointSize: 16
         text: speedRatio

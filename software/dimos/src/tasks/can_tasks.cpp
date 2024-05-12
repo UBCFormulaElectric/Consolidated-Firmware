@@ -110,11 +110,11 @@ void CanRxTask::run()
         can_table_mutex->lock();
         io_canRx_updateRxTableWithMessage(&message);
 #ifdef USING_TARGET_dev
-        app_canRx_FSM_LeftWheelSpeed_update(10 - app_canRx_FSM_LeftWheelSpeed_get());
+        app_canRx_FSM_LeftWheelSpeed_update(7);
         app_canRx_FSM_SappsMappedPedalPercentage_update(50);
         app_canRx_FSM_PappsMappedPedalPercentage_update(30);
-        app_canRx_FSM_FrontBrakePressure_update(100);
-        app_canRx_FSM_RearBrakePressure_update(100);
+        app_canRx_FSM_FrontBrakePressure_update(1000);
+        app_canRx_FSM_RearBrakePressure_update(1000);
         app_canRx_BMS_Soc_update(79);
         // qInfo("New Dummy Fault Value: %d", app_canRx_VC_Fault_DummyFault_get());
 #endif
