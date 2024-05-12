@@ -123,6 +123,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskTelem */
+osThreadId_t         TaskTelemHandle;
+uint32_t             TaskTelemBuffer[256];
+osStaticThreadDef_t  TaskTelemControlBlock;
+const osThreadAttr_t TaskTelem_attributes = {
+    .name       = "TaskTelem",
+    .cb_mem     = &TaskTelemControlBlock,
+    .cb_size    = sizeof(TaskTelemControlBlock),
+    .stack_mem  = &TaskTelemBuffer[0],
+    .stack_size = sizeof(TaskTelemBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -150,6 +162,7 @@ void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunTaskTelem(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -238,6 +251,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskTelem */
+    TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1123,6 +1139,21 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskTelem */
+/**
+ * @brief Function implementing the TaskTelem thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskTelem */
+void RunTaskTelem(void *argument)
+{
+    /* USER CODE BEGIN RunTaskTelem */
+    /* Infinite loop */
+    tasks_runTelem();
+    /* USER CODE END RunTaskTelem */
 }
 
 /**
