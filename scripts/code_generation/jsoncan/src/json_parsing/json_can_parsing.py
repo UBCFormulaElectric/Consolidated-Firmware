@@ -7,6 +7,8 @@ import os
 from math import ceil
 from typing import Tuple, Any
 
+import pandas as pd
+
 from .schema_validation import (
     validate_bus_json,
     validate_enum_json,
@@ -59,10 +61,11 @@ class JsonCanParser:
         """
         Make and return CanDatabase object form the parsed data.
         """
+        msgs = pd.DataFrame.from_records([m.to_dict() for m in self._messages.values()])
         return CanDatabase(
             nodes=self._nodes,
             bus_config=self._bus_cfg,
-            msgs=list(self._messages.values()),
+            msgs=msgs,
             shared_enums=self._shared_enums,
             alerts=self._alerts,
         )
