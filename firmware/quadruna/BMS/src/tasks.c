@@ -51,14 +51,14 @@
 
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
-// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
-extern SPI_HandleTypeDef  hspi2;
-extern TIM_HandleTypeDef  htim1;
-extern TIM_HandleTypeDef  htim3;
-extern TIM_HandleTypeDef  htim15;
-extern UART_HandleTypeDef huart1;
-extern SD_HandleTypeDef   hsd1;
-extern CRC_HandleTypeDef  hcrc;
+extern IWDG_HandleTypeDef  hiwdg;
+extern SPI_HandleTypeDef   hspi2;
+extern TIM_HandleTypeDef   htim1;
+extern TIM_HandleTypeDef   htim3;
+extern TIM_HandleTypeDef   htim15;
+extern UART_HandleTypeDef  huart1;
+extern SD_HandleTypeDef    hsd1;
+extern CRC_HandleTypeDef   hcrc;
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
