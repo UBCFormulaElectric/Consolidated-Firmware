@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .. import Definitions
+from . import Definitions
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

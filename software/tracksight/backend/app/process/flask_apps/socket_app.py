@@ -4,7 +4,7 @@ Socket app for handling live data
 
 import flask_socketio
 
-from software.tracksight.backend.app.process import SignalUtil
+from .. import SignalUtil
 
 # SocketIO processes for live data
 socketio = flask_socketio.SocketIO(cors_allowed_origins="*")

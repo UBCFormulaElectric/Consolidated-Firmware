@@ -4,11 +4,11 @@ Main REST component of the backend
 
 from flask import Blueprint, jsonify, request
 
-from software.tracksight.backend.app.process import SignalUtil
-from software.tracksight.backend.app.process.influx_handler import (
+from .. import SignalUtil
+from ..influx_handler import (
     InfluxHandler as influx,
 )
-from software.tracksight.backend.app.process.influx_handler import (
+from ..influx_handler import (
     NoDataForQueryException,
 )
 
