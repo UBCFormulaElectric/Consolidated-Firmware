@@ -24,6 +24,8 @@
 #include "io_vcShdn.h"
 #include "io_currentSensing.h"
 #include "io_sbgEllipse.h"
+#include "io_canLogging.h"
+#include "io_fileSystem.h"
 #include "io_imu.h"
 #include "io_telemMessage.h"
 #include "io_pcm.h"
@@ -38,6 +40,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
+#include "hw_sd.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -47,9 +50,29 @@ extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
-
+extern SD_HandleTypeDef    hsd1;
 // extern IWDG_HandleTypeDef  hiwdg1;
-static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+
+static bool io_logging_functional(void); // TODO make this a general io logging happy function
+
+static uint32_t can_logging_overflow_count = 0;
+static uint32_t read_count                 = 0; // TODO debugging variables
+static uint32_t write_count                = 0; // TODO debugging variables
+static bool     can_logging_enable         = true;
+
+static void tasks_canRx_callback(CanMsg *rx_msg)
+{
+    io_can_pushRxMsgToQueue(rx_msg); // push to queue
+    if (io_logging_functional())
+    {
+        io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
+        read_count++;
+    }
+    // TODO all telemetry here
+}
+
+SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = tasks_canRx_callback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -75,7 +98,7 @@ void canRxQueueOverflowClearCallback(void)
     app_canAlerts_VC_Warning_RxOverflow_set(false);
 }
 
-static const CanConfig can_config = {
+static const CanConfig io_can_config = {
     .rx_msg_filter              = io_canRx_filterMessageId,
     .tx_overflow_callback       = canTxQueueOverflowCallBack,
     .rx_overflow_callback       = canRxQueueOverflowCallBack,
@@ -83,6 +106,25 @@ static const CanConfig can_config = {
     .rx_overflow_clear_callback = canRxQueueOverflowClearCallback,
 };
 
+static bool canLoggingFilter(uint32_t msg_id)
+{
+    return true;
+}
+
+static void canLoggingQueueOverflowCallback(uint32_t f)
+{
+    can_logging_overflow_count++;
+}
+
+static const CanConfig canLogging_config = {
+    .rx_msg_filter              = canLoggingFilter,
+    .tx_overflow_callback       = canLoggingQueueOverflowCallback,
+    .rx_overflow_callback       = canLoggingQueueOverflowCallback,
+    .tx_overflow_clear_callback = NULL,
+    .rx_overflow_clear_callback = NULL,
+};
+
+extern Gpio            sd_present;
 static const Gpio      buzzer_pwr_en    = { .port = BUZZER_PWR_EN_GPIO_Port, .pin = BUZZER_PWR_EN_Pin };
 static const Gpio      bat_i_sns_nflt   = { .port = BAT_I_SNS_nFLT_GPIO_Port, .pin = BAT_I_SNS_nFLT_Pin };
 static const BinaryLed led              = { .gpio = { .port = LED_GPIO_Port, .pin = LED_Pin } };
@@ -110,6 +152,11 @@ static const Gpio      n_chimera_pin    = { .port = NCHIMERA_GPIO_Port, .pin = N
 static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
+
+static bool io_logging_functional(void)
+{
+    return !hw_gpio_readPin(&sd_present) && can_logging_enable;
+}
 
 const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
@@ -312,6 +359,7 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
+    hw_sd_init(&sd);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -325,7 +373,7 @@ void tasks_init(void)
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io_can_init(&can_config);
+    io_can_init(&io_can_config);
     io_chimera_init(&debug_uart, GpioNetName_vc_net_name_tag, AdcNetName_vc_net_name_tag, &n_chimera_pin);
 
     io_lowVoltageBattery_init(&lv_battery_config);
@@ -338,6 +386,18 @@ void tasks_init(void)
     if (!io_sbgEllipse_init(&imu_uart))
     {
         Error_Handler();
+    }
+
+    if (io_logging_functional())
+    {
+        if (io_fileSystem_init() == FILE_OK)
+        {
+            io_canLogging_init(&canLogging_config);
+        }
+        else
+        {
+            can_logging_enable = false;
+        }
     }
 
     if (!io_imu_init())
@@ -480,6 +540,27 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+_Noreturn void tasks_runLogging(void)
+{
+    static uint32_t message_batch_count = 0;
+    for (;;)
+    {
+        if (!io_logging_functional())
+        {
+            osThreadSuspend(osThreadGetId());
+        }
+
+        io_canLogging_recordMsgFromQueue();
+        message_batch_count++;
+        write_count++;
+        if (message_batch_count > 256)
+        {
+            io_canLogging_sync();
+            message_batch_count = 0;
+        }
     }
 }
 

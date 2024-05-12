@@ -2,8 +2,7 @@
 #include "io_fileSystem.h"
 #include "io_lfsConfig.h"
 
-#define LFS_NO_MALLOC 1
-#define MAX_FILE_NUMBER 5
+#define MAX_FILE_NUMBER 3
 static lfs_t lfs;
 
 static lfs_file_t files[MAX_FILE_NUMBER];
