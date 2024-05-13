@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hw_hal.h"
+#include "hw_gpio.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -13,7 +14,9 @@ typedef struct
 {
     SD_HandleTypeDef *hsd;     // the HAL SD handle that will hold the state of the SD card
     uint32_t          timeout; // the timeout for the SD card operations
-} SdCard;                      // struct that included all the state about SDIO and SD card
+    // const Gpio        sd_present; // GPIO to detect if SD card installed
+    bool sd_init_complete;
+} SdCard; // struct that included all the state about SDIO and SD card
 
 typedef enum
 {
@@ -23,9 +26,11 @@ typedef enum
     SD_CARD_TIMEOUT = HAL_TIMEOUT
 } SdCardStatus; // wrapper of HAL status for better interface
 
-/* Assume sdio and sd card is initilized, SdCard have desired member*/
-
-void hw_sd_init(const SdCard *sd);
+/**
+ * @brief Initialize Static SD Card structure
+ * @param sd_config SD Card Configuration
+ */
+void hw_sd_init(SdCard *sd_config);
 
 /**
  * @brief   Read from sd card. The data size will be num_blocks * BlockSize

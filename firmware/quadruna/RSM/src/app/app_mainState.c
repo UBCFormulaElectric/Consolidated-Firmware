@@ -1,11 +1,10 @@
-#include "app_mainState.h"
 #include <stddef.h>
 #include "io_led.h"
 #include "io_fan.h"
 #include "app_utils.h"
 #include "app_canTx.h"
+#include "app_mainState.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
 #include "app_coolant.h"
 #include "app_globals.h"
 #include "app_loadCell.h"
@@ -25,8 +24,10 @@ void mainStateRunOnTick100Hz(void)
 
     const bool brake_actuated = app_canRx_FSM_BrakeActuated_get();
     io_led_enable(globals->config->brake_light, brake_actuated);
-    io_fan_enable(globals->config->acc_fan, true);
-    io_fan_enable(globals->config->rad_fan, true);
+  
+    const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    io_fan_enable(globals->config->acc_fan, hv_on);
+    io_fan_enable(globals->config->rad_fan, hv_on);
 }
 
 const State *app_mainState_get(void)

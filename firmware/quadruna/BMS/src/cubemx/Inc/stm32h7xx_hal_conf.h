@@ -41,7 +41,7 @@ extern "C"
 /* #define HAL_CEC_MODULE_ENABLED   */
 /* #define HAL_COMP_MODULE_ENABLED   */
 /* #define HAL_CORDIC_MODULE_ENABLED   */
-/* #define HAL_CRC_MODULE_ENABLED   */
+#define HAL_CRC_MODULE_ENABLED
 /* #define HAL_CRYP_MODULE_ENABLED   */
 /* #define HAL_DAC_MODULE_ENABLED   */
 /* #define HAL_DCMI_MODULE_ENABLED   */
@@ -71,7 +71,7 @@ extern "C"
 /* #define HAL_RNG_MODULE_ENABLED   */
 /* #define HAL_RTC_MODULE_ENABLED   */
 /* #define HAL_SAI_MODULE_ENABLED   */
-/* #define HAL_SD_MODULE_ENABLED   */
+#define HAL_SD_MODULE_ENABLED
 /* #define HAL_MMC_MODULE_ENABLED   */
 /* #define HAL_SPDIFRX_MODULE_ENABLED   */
 #define HAL_SPI_MODULE_ENABLED

@@ -1,45 +1,85 @@
-#include <math.h>
 #include "app_soc.h"
+#include "app_math.h"
+#include "app_tractiveSystem.h"
+#include "lut/app_cellVoltageToSocLut.h"
+#include "io_sd.h"
+
+#ifdef TARGET_EMBEDDED
+#include "hw_sd.h"
+#include "hw_crc.h"
+#endif
+
 #include <stdint.h>
 #include <float.h>
-#include "app_math.h"
-#include "lut/app_cellVoltageToSocLut.h"
-#include "app_tractiveSystem.h"
+#include <string.h>
+#include <math.h>
 
 #define MS_TO_S (0.001)
 #define SOC_TIMER_DURATION (110U)
 
-// TODO: Update to SD card logic
+#define NUM_SOC_BYTES (4U)
+#define NUM_SOC_CRC_BYTES (4U)
+
 #define DEFAULT_SOC_ADDR (0U)
+#define SD_SECTOR_SIZE (512)
+// Macro to convert a uint8_t array to a uint32_t variable
+#define ARRAY_TO_UINT32(array) \
+    (((uint32_t)(array)[0] << 24) | ((uint32_t)(array)[1] << 16) | ((uint32_t)(array)[2] << 8) | ((uint32_t)(array)[3]))
+
+// Macro to convert a uint32_t variable to a uint8_t array
+#define UINT32_TO_ARRAY(value, array)          \
+    do                                         \
+    {                                          \
+        (array)[0] = (uint8_t)((value) >> 24); \
+        (array)[1] = (uint8_t)((value) >> 16); \
+        (array)[2] = (uint8_t)((value) >> 8);  \
+        (array)[3] = (uint8_t)(value);         \
+    } while (0)
 
 typedef struct
 {
-    // Address in EEPROM where SOC is being stored (address changes for wear levelling reasons, address always stored in
-    // address 0 of EEPROM)
-    uint16_t soc_address;
-
     // charge in cell in coulombs
     double charge_c;
 
     // Charge loss at time t-1
     float prev_current_A;
 
-    // Indicates if SOC from EEPROM was corrupt at startup
+    // Indicates if SOC from SD was corrupt at startup
     bool is_corrupt;
 
     TimerChannel soc_timer;
 } SocStats;
 
 static SocStats stats;
+extern bool     sd_inited;
 
 #ifndef TARGET_EMBEDDED
 
+// ONLY FOR USE IN OFF-TARGET TESTING
 void app_soc_setPrevCurrent(float current)
 {
     stats.prev_current_A = current;
 }
 
 #endif
+
+static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
+{
+    memcpy(byte_array, (uint8_t *)(&float_to_convert), sizeof(float));
+}
+
+static float convert_bytes_to_float(uint8_t *byte_array)
+{
+    float converted_float;
+    memcpy(&converted_float, byte_array, sizeof(float));
+    return converted_float;
+}
+
+static bool sdCardReady()
+{
+    // return sd_inited && io_sdGpio_checkSdPresent();
+    return io_sdGpio_checkSdPresent();
+}
 
 float app_soc_getSocFromOcv(float voltage)
 {
@@ -79,46 +119,29 @@ float app_soc_getOcvFromSoc(float soc_percent)
 void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
-    stats.soc_address    = DEFAULT_SOC_ADDR;
 
     // Asoc assumed corrupt until proven otherwise
     stats.is_corrupt = true;
     stats.charge_c   = -1;
 
     // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
-    // float saved_soc_c = -1.0f;
+    float saved_soc_c = -1.0f;
 
-    // TODO: Update to SD Card logic
-    // if (app_eeprom_readSocAddress(&stats.soc_address) == EXIT_CODE_OK)
-    // {
-    //     if (app_eeprom_readMinSoc(stats.soc_address, &saved_soc_c) == EXIT_CODE_OK)
-    //     {
-    //         if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
-    //         {
-    //             stats.charge_c   = (double)saved_soc_c;
-    //             stats.is_corrupt = false;
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     // If address corrupted, revert to default SOC address location
-    //     stats.soc_address = DEFAULT_SOC_ADDR;
-    // }
+#ifdef TARGET_EMBEDDED
 
-    // Update the active address that SOC is stored at
-    // if (app_eeprom_updateSavedSocAddress(&stats.soc_address) != EEPROM_STATUS_OK)
-    // {
-    //     stats.soc_address = DEFAULT_SOC_ADDR;
-    // }
+    if (app_soc_readSocFromSd(&saved_soc_c))
+    {
+        if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+        {
+            stats.charge_c   = (double)saved_soc_c;
+            stats.is_corrupt = false;
+        }
+    }
+
+#endif
 
     app_timer_init(&stats.soc_timer, SOC_TIMER_DURATION);
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
-}
-
-uint16_t app_soc_getSocAddress(void)
-{
-    return stats.soc_address;
 }
 
 bool app_soc_getCorrupt(void)
@@ -179,4 +202,84 @@ void app_soc_resetSocCustomValue(float soc_percent)
     // Mark SOC as corrupt anytime SOC is reset
     stats.is_corrupt = true;
     app_canTx_BMS_SocCorrupt_set(stats.is_corrupt);
+}
+
+bool app_soc_readSocFromSd(float *saved_soc_c)
+{
+    uint8_t sd_read_data[SD_SECTOR_SIZE];
+    uint8_t sd_read_soc_bytes[NUM_SOC_BYTES];
+    uint8_t sd_read_crc_bytes[NUM_SOC_CRC_BYTES];
+
+    uint32_t sd_read_soc;
+    uint32_t sd_read_crc;
+    float    soc;
+    uint32_t calculated_crc;
+    *saved_soc_c = -1.0f;
+
+#ifdef TARGET_EMBEDDED
+
+    if (!sdCardReady())
+    {
+        return false;
+    }
+    if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
+    {
+        memcpy(sd_read_soc_bytes, sd_read_data, sizeof(uint32_t));
+        sd_read_soc = ARRAY_TO_UINT32(sd_read_soc_bytes);
+        soc         = convert_bytes_to_float(sd_read_soc_bytes);
+    }
+    else
+    {
+        *saved_soc_c = -1.0f;
+        return false;
+    }
+
+    // CRC bytes are stored right after the SOC bytes
+    if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR + NUM_SOC_BYTES, 1) == SD_CARD_OK)
+    {
+        memcpy(sd_read_crc_bytes, sd_read_data, sizeof(uint32_t));
+        sd_read_crc = ARRAY_TO_UINT32(sd_read_crc_bytes);
+    }
+    else
+    {
+        *saved_soc_c = -1.0f;
+        return false;
+    }
+
+    calculated_crc = hw_crc_calculate(&sd_read_soc, 1);
+
+#endif
+
+    if (calculated_crc == sd_read_crc)
+    {
+        *saved_soc_c = soc;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool app_soc_writeSocToSd(float soc)
+{
+#ifdef TARGET_EMBEDDED
+    if (!sdCardReady())
+    {
+        return false;
+    }
+
+    uint8_t sd_write_data[SD_SECTOR_SIZE];
+    convert_float_to_bytes(sd_write_data, soc);
+    uint32_t soc_value = ARRAY_TO_UINT32(sd_write_data);
+
+    uint32_t crc_calculated = hw_crc_calculate(&soc_value, 1);
+    uint8_t  crc_bytes[4];
+    UINT32_TO_ARRAY(crc_calculated, crc_bytes);
+
+    hw_sd_write(sd_write_data, DEFAULT_SOC_ADDR, 1);
+    hw_sd_write(crc_bytes, DEFAULT_SOC_ADDR + 4, 1);
+
+#endif
+    return true;
 }

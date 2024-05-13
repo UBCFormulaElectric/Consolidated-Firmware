@@ -313,14 +313,68 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOC, SHDN_G_Pin | VC_G_Pin | RSM_G_Pin | RSM_R_Pin | FSM_B_Pin | FSM_G_Pin | IMD_R_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOA, SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BPSD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOB,
+        VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin | CRIT_DB_R_Pin |
+            RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(AMS_R_GPIO_Port, AMS_R_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pins : SHDN_G_Pin VC_G_Pin RSM_G_Pin RSM_R_Pin
+                             FSM_B_Pin FSM_G_Pin IMD_R_Pin */
+    GPIO_InitStruct.Pin   = SHDN_G_Pin | VC_G_Pin | RSM_G_Pin | RSM_R_Pin | FSM_B_Pin | FSM_G_Pin | IMD_R_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : SHDN_R_Pin BMS_B_Pin BMS_G_Pin BPSD_R_Pin
+                             BMS_R_Pin FSM_R_Pin VC_B_Pin LED_Pin */
+    GPIO_InitStruct.Pin  = SHDN_R_Pin | BMS_B_Pin | BMS_G_Pin | BPSD_R_Pin | BMS_R_Pin | FSM_R_Pin | VC_B_Pin | LED_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : VC_R_Pin AUX_DB_B_Pin AUX_DB_G_Pin AUX_DB_R_Pin
+                             CRIT_DB_B_Pin CRIT_DB_G_Pin CRIT_DB_R_Pin RSM_B_Pin
+                             START_LED_Pin TORQUE_VECTORING_LED_Pin REGEN_LED_Pin */
+    GPIO_InitStruct.Pin = VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin |
+                          CRIT_DB_R_Pin | RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nBOOT_EN_Pin */
     GPIO_InitStruct.Pin  = nBOOT_EN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(nBOOT_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : AMS_R_Pin */
+    GPIO_InitStruct.Pin   = AMS_R_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(AMS_R_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */

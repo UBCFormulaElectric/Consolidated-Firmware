@@ -33,12 +33,12 @@ typedef struct
 } HeartbeatMonitor;
 
 void app_heartbeatMonitor_init(
-    bool boards_to_check[HEARTBEAT_BOARD_COUNT],
-    bool (*heartbeat_getters[HEARTBEAT_BOARD_COUNT])(),
-    void (*heartbeat_updaters[HEARTBEAT_BOARD_COUNT])(bool),
-    void (*heartbeat_setter)(bool),
-    void (*heartbeat_fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
-    bool (*heartbeat_fault_getters[HEARTBEAT_BOARD_COUNT])());
+    const bool boards_to_check[HEARTBEAT_BOARD_COUNT],
+    bool (*const getters[HEARTBEAT_BOARD_COUNT])(),
+    void (*const updaters[HEARTBEAT_BOARD_COUNT])(bool),
+    void (*setter)(bool),
+    void (*const fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
+    bool (*const fault_getters[HEARTBEAT_BOARD_COUNT])());
 
 void app_heartbeatMonitor_tick(void);
 

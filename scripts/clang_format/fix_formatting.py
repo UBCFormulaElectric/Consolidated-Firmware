@@ -1,8 +1,8 @@
-import os
-import sys
-import multiprocessing
 import argparse
 import functools
+import multiprocessing
+import os
+import sys
 
 
 def _get_platform() -> str:
@@ -87,11 +87,7 @@ def build_cmd(bin: str) -> str:
     return bin + CLANG_FORMAT_OPTIONS
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--local", "-l", type=str, required=False, default=None)
-    args = parser.parse_args()
-
+def fix_formatting(local: str | None):
     # Change into the DIRECTORY OF THIS PYTHON FILE is in so we can use relative paths
     PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
@@ -118,8 +114,8 @@ if __name__ == "__main__":
     source_files += find_all_files("software/dimos", [], [])
 
     # Build clang-format command.
-    if args.local != None:
-        cmd = build_cmd(args.local)
+    if local is not None:
+        cmd = build_cmd(local)
     else:
         cmd = build_cmd(CLANG_FORMAT_BINARY)
 
@@ -144,3 +140,10 @@ if __name__ == "__main__":
     else:
         print("ERROR: clang-format encountered issues!")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--local", "-l", type=str, required=False, default=None)
+    args = parser.parse_args()
+    fix_formatting(args.local)

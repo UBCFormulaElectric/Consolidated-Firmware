@@ -20,9 +20,6 @@
             "StartSwitch": {
                 "enum": "SwitchState"
             },
-            "AuxSwitch": {
-                "enum": "SwitchState"
-            },
             "RegenSwitch": {
                 "enum": "SwitchState"
             },
@@ -32,15 +29,15 @@
         }
     },
     "DriveMode": {
-		"msg_id": 504,
-		"cycle_time": 100,
-		"description": "Drive Mode.",
-		"signals": {
-			"DriveMode": {
-				"bits": 4
-			}
-		}
-	},
+        "msg_id": 504,
+        "cycle_time": 100,
+        "description": "Drive Mode.",
+        "signals": {
+            "DriveMode": {
+                "bits": 4
+            }
+        }
+    },
     "AlertsContext": {
         "msg_id": 505,
         "cycle_time": 1000,
@@ -66,6 +63,19 @@
                 "bits": 32
             },
             "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "CRITShdnNodeStatus": {
+        "msg_id": 507,
+        "cycle_time": 100,
+        "description": "CRIT Shutdown Node Status",
+        "signals": {
+            "ShdnSenOKStatus": {
+                "bits": 1
+            },
+            "InertiaSenOKStatus": {
                 "bits": 1
             }
         }

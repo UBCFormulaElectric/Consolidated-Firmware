@@ -1,45 +1,43 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
-
-#include "io_log.h"
-#include "io_chimera.h"
-
-#include "hw_gpio.h"
-#include "hw_adc.h"
-#include "hw_uart.h"
-
-#include "io_jsoncan.h"
+// protobufs
+#include "shared.pb.h"
+#include "CRIT.pb.h"
+// app
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
-
-#include "shared.pb.h"
-#include "CRIT.pb.h"
-
+#include "app_shdnLoop.h"
+// io
+#include "io_log.h"
+#include "io_chimera.h"
 #include "io_led.h"
 #include "io_switch.h"
 #include "io_rgbLed.h"
+#include "io_critShdn.h"
+#include "io_leds.h"
+#include "io_switches.h"
+// can
+#include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_canRx.h"
-#include "io_shutdownSensor.h"
 #include "io_driveMode.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-
+// hw
+#include "hw_gpio.h"
+#include "hw_adc.h"
+#include "hw_uart.h"
 #include "hw_utils.h"
 #include "hw_bootup.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
-#include "hw_adc.h"
-#include "hw_gpio.h"
-#include "hw_uart.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
@@ -52,22 +50,22 @@ void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canRxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_CRIT_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_CRIT_Warning_RxOverflow_set(false);
 }
@@ -271,11 +269,10 @@ static const Gpio shdn_sen_pin    = { .port = SHDN_SEN_GPIO_Port, .pin = SHDN_SE
 static const Gpio inertia_sen_pin = { .port = INERTIA_SEN_GPIO_Port, .pin = INERTIA_SEN_Pin };
 // clang-format on
 
-static const ShutdownSensor shdn_sen   = { .shdn_sen_pin = &shdn_sen_pin };
-static const DriveMode      drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
-                                           .n_drive_mode_1_pin = &n_drive_mode_1_pin,
-                                           .n_drive_mode_2_pin = &n_drive_mode_2_pin,
-                                           .n_drive_mode_3_pin = &n_drive_mode_3_pin };
+static const DriveMode drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
+                                      .n_drive_mode_1_pin = &n_drive_mode_1_pin,
+                                      .n_drive_mode_2_pin = &n_drive_mode_2_pin,
+                                      .n_drive_mode_3_pin = &n_drive_mode_3_pin };
 
 const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
@@ -324,24 +321,29 @@ AdcChannel id_to_adc[] = {
 
 static UART debug_uart = { .handle = &huart2 };
 
-static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
-                                              .bspd_led         = &bspd_led,
-                                              .ams_led          = &ams_led,
-                                              .shdn_led         = &shdn_led,
-                                              .start_led        = &start_led,
-                                              .start_switch     = &start_switch,
-                                              .regen_led        = &regen_led,
-                                              .regen_switch     = &regen_switch,
-                                              .torquevec_led    = &torquevec_led,
-                                              .torquevec_switch = &torquevec_switch,
-                                              .aux_status_led   = &aux_status_led,
-                                              .bms_status_led   = &bms_status_led,
-                                              .crit_status_led  = &crit_status_led,
-                                              .fsm_status_led   = &fsm_status_led,
-                                              .rsm_status_led   = &rsm_status_led,
-                                              .vc_status_led    = &vc_status_led,
-                                              .shdn_sen         = &shdn_sen,
-                                              .drive_mode       = &drive_mode };
+static const GlobalsConfig globals_config = { .drive_mode = &drive_mode };
+
+static const Leds led_config = {
+    .imd_led         = &imd_led,
+    .bspd_led        = &bspd_led,
+    .ams_led         = &ams_led,
+    .shdn_led        = &shdn_led,
+    .start_led       = &start_led,
+    .regen_led       = &regen_led,
+    .torquevec_led   = &torquevec_led,
+    .aux_status_led  = &aux_status_led,
+    .bms_status_led  = &bms_status_led,
+    .crit_status_led = &crit_status_led,
+    .fsm_status_led  = &fsm_status_led,
+    .rsm_status_led  = &rsm_status_led,
+    .vc_status_led   = &vc_status_led,
+};
+
+static const Switches switch_config = {
+    .start_switch     = &start_switch,
+    .regen_switch     = &regen_switch,
+    .torquevec_switch = &torquevec_switch,
+};
 
 // TODO: add heartbeat for VC and RSM
 // CRIT rellies on BMS, VC, RSM, FSM
@@ -351,12 +353,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
@@ -377,13 +379,21 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
+};
+
+static const CritShdnConfig crit_shdn_pin_config = { .shdn_sen_ok_gpio    = shdn_sen_pin,
+                                                     .inertia_sen_ok_gpio = inertia_sen_pin };
+
+static BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
+    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_get_SHDN_SEN_OK, &app_canTx_CRIT_ShdnSenOKStatus_set }
 };
 
 void tasks_preInit(void)
@@ -413,9 +423,16 @@ void tasks_init(void)
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
+    io_critShdn_init(&crit_shdn_pin_config);
+
+    io_led_init(&led_config);
+    io_switches_init(&switch_config);
+    io_driveMode_init(&drive_mode);
 
     app_canTx_init();
     app_canRx_init();
+
+    app_shdn_loop_init(crit_bshdn_nodes, CritShdnNodeCount);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
@@ -429,7 +446,7 @@ void tasks_init(void)
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -455,7 +472,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -466,7 +483,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -482,7 +499,7 @@ void tasks_runCanRx(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -516,7 +533,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
