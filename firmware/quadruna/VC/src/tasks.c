@@ -428,7 +428,7 @@ void tasks_init(void)
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
 
-    // TODO enable these for inverter programming
+    // enable these for inverter programming
     //    hw_gpio_writePin(&inv_l_program, true);
     //    hw_gpio_writePin(&inv_r_program, true);
 }
