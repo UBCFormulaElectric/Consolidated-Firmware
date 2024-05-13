@@ -1,15 +1,16 @@
 import re
 
+
 class Lexer:
     TOKEN_REGEX = {
-            'NUMBER': r'\d+(\.\d+)?',
-            'PLUS': r'\+',
-            'MINUS': r'-',
-            'MULTIPLY': r'\*',
-            'DIVIDE': r'\/',
-            'LPAREN': r'\(',
-            'RPAREN': r'\)',
-            }
+        "NUMBER": r"\d+(\.\d+)?",
+        "PLUS": r"\+",
+        "MINUS": r"-",
+        "MULTIPLY": r"\*",
+        "DIVIDE": r"\/",
+        "LPAREN": r"\(",
+        "RPAREN": r"\)",
+    }
 
     def __init__(self):
         pass
@@ -29,7 +30,7 @@ class Lexer:
                     tokens.append((token_type, token_value))
                     i += len(token_value)
                     break
-            if found_match is False: 
+            if found_match is False:
                 i += 1
 
         return tokens

@@ -11,7 +11,7 @@ class Interpreter:
         if node.value:
             return node.value
         # To do look up the signal data
-    
+
     def visit_BinaryOperatorNode(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
