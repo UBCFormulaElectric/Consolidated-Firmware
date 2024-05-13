@@ -9,7 +9,7 @@ import Dashboard from './components/dashboard';
 import Visualize from './components/visualize';
 
 //const FLASK_URL = "http://evanyl.pythonanywhere.com";
-const FLASK_URL = "http://206.12.64.88:5000";
+const FLASK_URL = "/:5000";
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize'); 
     const [socketInstance, setSocketInstance] = useState<Socket | null>(null); 
