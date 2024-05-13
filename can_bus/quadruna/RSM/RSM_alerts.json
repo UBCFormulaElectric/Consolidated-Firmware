@@ -4,67 +4,71 @@
     "warnings_counts_id": 492,
     "faults_counts_id": 493,
     "warnings": {
-        "TxOverflow": {
+        "WatchdogTimeout": {
             "id" :401,
-            "description" : "Example"
+            "description" : "Watchdog timeout"
+        },
+        "TxOverflow": {
+            "id" :402,
+            "description" : "canTX overflow"
         },
         "RxOverflow": {
-            "id" :402,
-            "description" : "Example"
+            "id" :403,
+            "description" : "canRX overflow"
         },
         "StackWaterMarkHighTask1Hz": {
-            "id" :403,
-            "description" : "Example"
+            "id" :404,
+            "description" : "Stack Watermark mark failed for 1Hz"
         },
         "StackWaterMarkHighTask100Hz": {
-            "id" :404,
-            "description" : "Example"
+            "id" :405,
+            "description" : "Stack Watermark mark failed for 100Hz"
         },
         "StackWaterMarkHighTask1kHz": {
-            "id" :405,
-            "description" : "Example"
+            "id" :406,
+            "description" : "Stack Watermark mark failed for 1kHz"
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id" :406,
-            "description" : "Example"
+            "id" :407,
+            "description" : "Stack Watermark failed on canRx"
         },
         "StackWaterMarkHighTaskCanTx": {
-            "id" :407,
-            "description" : "Example"
+            "id" :408,
+            "description" : "Stack Watermark failed on CanTx"
         },
         "FlowRateOutOfRange": {
-            "id" :408,
-            "description" : "Example"
+            "id" :409,
+            "description" : "Coolant flow out of range"
         },
         "LeftSuspensionOCSC": {
-            "id" :409,
-            "description" : "Example"
+            "id" :410,
+            "description" : "Rear left suspension open or short circuit"
         },
         "RightSuspensionOCSC": {
-            "id" :410,
-            "description" : "Example"
+            "id" :411,
+            "description" : "Rear right suspension open or short circuit"
         },
         "LoadCell3OCSC": {
-            "id" :411,
-            "description" : "Example"
+            "id" :412,
+            "description" : "Load cell 3 open or short circuit"
         },
         "LoadCell4OCSC": {
-            "id" :412,
-            "description" : "Example"
+            "id" :413,
+            "description" : "Load cell 4 open or short circuit"
         }
     },
     "faults": {
         "FlowMeterUnderflow": {
             "id" :451,
-            "description" : "Example"
+            "description" : "Coolant flow meter underflow"
         },
-        "MissingBMSHeartbeat": {
+        "MissingVCHeartbeat": {
             "id" :452,
-            "description" : "Example"
+            "description" : "VC Missing Heart beat"
         },
         "MissingFSMHeartbeat": {
             "id" :453,
-            "description" : "Example"
+            "description" : "FSM Missing Heart beat"
         }
         
     }

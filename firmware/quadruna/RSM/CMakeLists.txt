@@ -140,23 +140,36 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-set(HEADERS_TO_FAKE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
-)
+    jsoncan_sources(
+        "RSM"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        FALSE
+        "quadruna"
+    )
 
-create_fake_library(
-    "quadruna_RSM_fakes"
-    "${HEADERS_TO_FAKE}"
-)
+    add_library(quadruna_RSM_can STATIC "${CAN_SRCS}")
+    target_include_directories(quadruna_RSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
-set(SRCS ${APP_SRCS} ${TEST_SRCS})
-set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
-compile_gtest_executable(
-    "quadruna_RSM_test"
-    "${SRCS}"
-    "${INCLUDE_DIRS}"
-)
-target_link_libraries("quadruna_RSM_test" "quadruna_RSM_can" "quadruna_RSM_fakes" "shared_fakes" "m")
+    set(HEADERS_TO_FAKE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_loadCell.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fan.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake_light.h"
+    )
+
+    create_fake_library(
+        "quadruna_RSM_fakes"
+        "${HEADERS_TO_FAKE}"
+    )
+
+    set(SRCS ${APP_SRCS} ${TEST_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+    compile_gtest_executable(
+        "quadruna_RSM_test"
+        "${SRCS}"
+        "${INCLUDE_DIRS}"
+    )
+    target_link_libraries("quadruna_RSM_test" "quadruna_RSM_can" "quadruna_RSM_fakes" "shared_fakes" "m")
 
 endif()
