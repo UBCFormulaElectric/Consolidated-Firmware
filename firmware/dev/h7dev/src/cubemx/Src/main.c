@@ -21,8 +21,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "../../nanopb/pb_encode.h"
-#include "../../nanopb/pb_decode.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
 #include "sample.pb.h"
 #include "string.h"
 #include "string.h"

@@ -3,11 +3,11 @@
 #include "main.h"
 
 Gpio lvpwr_enable_pin = {
-    .port = LVPWR_EN_GPIO_Port,
-    .pin  = LVPWR_EN_Pin,
+    .port = LV_PWR_EN_GPIO_Port,
+    .pin  = LV_PWR_EN_Pin,
 };
 
-void bootloader_boardSpecific_init()
+void bootloader_boardSpecific_init(void)
 {
     // Must enable the LVPWR load switch so the VC will power the rest of the car, even while in the bootloader.
     hw_gpio_writePin(&lvpwr_enable_pin, true);

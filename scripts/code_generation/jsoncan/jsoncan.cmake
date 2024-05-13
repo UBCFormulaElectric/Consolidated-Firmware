@@ -1,6 +1,6 @@
-function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
+function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
-    message("📚 Creating JSONCAN Library ${LIB_NAME} to ${OUTPUT_DIR_RELATIVE}")
+    message("📚 Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canTx.c")
     set(APP_CAN_TX_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canTx.h")
     set(IO_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/io/io_canTx.c")
@@ -17,7 +17,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
     set(DBC_OUTPUT ${CAN_DIR}/dbcs/${CAR}.dbc)
     set(CAN_JSON_DIR ${CAN_DIR}/${CAR})
-    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)   
+    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
     file(GLOB_RECURSE CAN_JSON_PY_SRCS ${SCRIPTS_DIR}/code_generation/jsoncan/**/*.py)
     add_custom_command(
             OUTPUT ${APP_CAN_TX_SRC_OUTPUT}
@@ -34,7 +34,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
             ${APP_CAN_ALERTS_HEADER_OUTPUT}
             COMMAND ${PYTHON_COMMAND}
             ${SCRIPTS_DIR}/code_generation/jsoncan/generate_can_from_json.py
-            --board ${TARGET_NAME}
+            --board ${JSONCAN_PY_BOARD}
             --can_data_dir ${CAN_JSON_DIR}
             --app_can_tx_header_output ${APP_CAN_TX_HEADER_OUTPUT}
             --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
@@ -53,7 +53,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    if(${USE_IO})
+    if (${USE_IO})
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -77,7 +77,7 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
                 ${SHARED_HW_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    else()
+    else ()
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -94,5 +94,5 @@ function(jsoncan_library LIB_NAME TARGET_NAME OUTPUT_DIR USE_IO CAR)
                 ${SHARED_APP_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    endif()
+    endif ()
 endfunction()

@@ -10,4 +10,4 @@ typedef enum
 
 void app_powerManager_setState(PowerManagerState state);
 
-PowerManagerState app_powerManager_getState();
+PowerManagerState app_powerManager_getState(void);

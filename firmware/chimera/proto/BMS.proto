@@ -34,5 +34,6 @@ enum AdcNetName {
   AUX_TSENSE = 1;
   TS_ISENSE_400A = 2;
   TS_ISENSE_50A = 3;
-  TS_VSENSE = 4;
+  TS_VSENSE_P = 4;
+  TS_VSENSE_N = 5;
 }

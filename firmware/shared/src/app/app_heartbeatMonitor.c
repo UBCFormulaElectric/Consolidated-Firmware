@@ -8,12 +8,12 @@
 static HeartbeatMonitor hb_monitor;
 
 void app_heartbeatMonitor_init(
-    bool boards_to_check[HEARTBEAT_BOARD_COUNT],
-    bool (*getters[HEARTBEAT_BOARD_COUNT])(),
-    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool),
+    const bool boards_to_check[HEARTBEAT_BOARD_COUNT],
+    bool (*const getters[HEARTBEAT_BOARD_COUNT])(),
+    void (*const updaters[HEARTBEAT_BOARD_COUNT])(bool),
     void (*setter)(bool),
-    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
-    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])())
+    void (*const fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
+    bool (*const fault_getters[HEARTBEAT_BOARD_COUNT])())
 {
     hb_monitor.setter              = setter;
     hb_monitor.previous_timeout_ms = 0U;
