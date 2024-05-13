@@ -201,20 +201,23 @@ function(embedded_binary
     )
 
     set(HEX_FILE "${BIN_NAME}.hex")
-    set(ASM_FILE "${BIN_NAME}.asm")
     set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
-    set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
     # objcopy is used to create a hex, and assembly file from the elf.
     add_custom_target(${HEX_FILE} ALL
             COMMENT "[Binary] Building ${HEX_FILE}"
             COMMAND ${CMAKE_OBJCOPY} -Oihex ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} ${HEX_PATH}
             DEPENDS ${ELF_NAME}
     )
-    add_custom_target(${ASM_FILE} ALL
-            COMMENT " [Binary] Building ${ASM_FILE}"
-            COMMAND ${CMAKE_OBJDUMP} -DS ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} > ${ASM_PATH}
-            DEPENDS ${ELF_NAME}
-    )
+
+    if(${BUILD_ASM})
+        set(ASM_FILE "${BIN_NAME}.asm")
+        set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
+        add_custom_target(${ASM_FILE} ALL
+                COMMENT " [Binary] Building ${ASM_FILE}"
+                COMMAND ${CMAKE_OBJDUMP} -DS ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} > ${ASM_PATH}
+                DEPENDS ${ELF_NAME}
+        )
+    endif()
 endfunction()
 
 # Generate firmware image package (merged app + bootloader).
