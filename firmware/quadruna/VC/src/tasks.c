@@ -399,6 +399,10 @@ void tasks_init(void)
             can_logging_enable = false;
         }
     }
+    else
+    {
+        can_logging_enable = false;
+    }
 
     if (!io_imu_init())
     {
