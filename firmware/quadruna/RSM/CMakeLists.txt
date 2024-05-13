@@ -140,7 +140,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-    jsoncan_library(
+    jsoncan_sources(
         "quadruna_RSM_can"
         "RSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
