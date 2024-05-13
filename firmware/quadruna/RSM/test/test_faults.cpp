@@ -12,41 +12,30 @@ TEST_F(RsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
 {
     // Test that a missing heartbeat will put the RSM into fault state. The RSM monitors the BMS and FSM heartbeat.
     app_heartbeatMonitor_blockFaults(false);
-    int time_ms = 0;
     // Check in all heartbeats within timeout period
-    time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
-    fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());  // no missing heartbeat now
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get()); // no missing heartbeat now
 
-    app_canRx_VC_Heartbeat_update(true); // Check in VC heartbeat
-    app_canRx_VC_Heartbeat_update(true); // check in FSM heartbeat
-    time_ms += 10;
-    fake_io_time_getCurrentMs_returns(time_ms);
+    app_canRx_VC_Heartbeat_update(true);  // Check in VC heartbeat
+    app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat
     LetTimePass(10);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
 
     // Fail to check heartbeat, FSM and VC should fault
-    time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
-    fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
 
-    time_ms += 20;
-    fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(20);
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
 
     // Stay faulted indefinitely
-    time_ms += 1000;
-    fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(1000);
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
@@ -54,8 +43,6 @@ TEST_F(RsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     // Check heartbeat back in, fault should clear and transition back to init
     app_canRx_VC_Heartbeat_update(true);  // Check in heartbeat
     app_canRx_FSM_Heartbeat_update(true); // Check in heartbeat
-    time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
-    fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());

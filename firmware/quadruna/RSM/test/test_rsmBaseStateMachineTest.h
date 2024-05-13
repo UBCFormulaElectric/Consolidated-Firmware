@@ -6,6 +6,7 @@
 #include "fake_io_suspension.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_fan.hpp"
+#include "fake_io_brake_light.hpp"
 
 extern "C"
 {
@@ -18,7 +19,6 @@ extern "C"
 #include "app_utils.h"
 #include "app_mainState.h"
 #include "app_coolant.h"
-#include "app_globals.h"
 #include "app_loadCell.h"
 #include "app_suspension.h"
 }
@@ -38,8 +38,6 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
-
-        app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -65,11 +63,12 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
         fake_io_suspension_getRearRightTravel_reset();
         fake_io_suspension_leftSensorOCSC_reset();
         fake_io_suspension_rightSensorOCSC_reset();
-    }
 
-    const BinaryLed brake_light = {};
-    const BinaryFan acc_fan     = {};
-    const BinaryFan rad_fan     = {};
+        fake_io_acc_fan_set_reset();
+        fake_io_rad_fan_set_reset();
+
+        fake_io_brake_light_set_reset();
+    }
 
     // config for heartbeat monitor (can funcs and flags)
     // RSM rellies on BMS and FSM
@@ -80,35 +79,29 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
 
     // heartbeatGetters - get heartbeat signals from other boards
     bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = {
-        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get,
+        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canRx_VC_Heartbeat_get,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_get,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
     void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_update,
+        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canRx_VC_Heartbeat_update,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canRx_FSM_Heartbeat_update,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
     void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
+        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
-        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
+        [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
-    };
-
-    const GlobalsConfig globals_config = {
-        .brake_light = &brake_light,
-        .acc_fan     = &acc_fan,
-        .rad_fan     = &rad_fan,
     };
 };

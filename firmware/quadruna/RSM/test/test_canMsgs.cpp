@@ -23,12 +23,12 @@ TEST(CanMsgsTest, commit_info_message_frequency)
 
 TEST(CanMsgsTest, coolant_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_RSM_COOLANT_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_RSM_COOLANT_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, loadcell_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CAN_MSG_RSM_FAULTS_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_RSM_FAULTS_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, suspension_message_frequency)

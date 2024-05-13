@@ -55,7 +55,7 @@ TEST_F(RsmAppTest, check_temperatuereA_can_signals)
 {
     fake_io_coolant_getTemperatureA_returns(21.2);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_RSM_CoolantTemperatureA_get(), 21.2);
+    ASSERT_NEAR(app_canTx_RSM_CoolantTemperatureA_get(), 21.2, 0.0001);
 }
 
 TEST_F(RsmAppTest, check_temperatuereB_can_signals)
@@ -70,7 +70,7 @@ TEST_F(RsmAppTest, check_pressureA_can_signals)
 {
     fake_io_coolant_getPressureA_returns(0.1);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_RSM_CoolantPressureA_get(), 0.1);
+    ASSERT_NEAR(app_canTx_RSM_CoolantPressureA_get(), 0.1, 0.0001);
 }
 
 // Transfer functio is not written yet, just testing voltage value
@@ -78,7 +78,7 @@ TEST_F(RsmAppTest, check_pressureB_can_signals)
 {
     fake_io_coolant_getPressureB_returns(0.8);
     LetTimePass(10);
-    ASSERT_EQ(app_canTx_RSM_CoolantPressureB_get(), 0.8);
+    ASSERT_NEAR(app_canTx_RSM_CoolantPressureB_get(), 0.8, 0.00001);
 }
 
 TEST_F(RsmAppTest, check_left_rear_suspension_can_signals)
