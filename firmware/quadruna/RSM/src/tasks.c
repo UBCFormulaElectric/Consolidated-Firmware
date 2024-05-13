@@ -17,7 +17,7 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
-#include "io_fan.h"
+#include "io_fans.h"
 #include "io_brake_light.h"
 
 #include "hw_bootup.h"
@@ -86,6 +86,11 @@ static const Gpio rad_fan_pin = {
     .port = RAD_FAN_EN_GPIO_Port,
     .pin  = ACC_FAN_EN_Pin,
 };
+
+static const BinaryLed brake_light = { .gpio = {
+                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
+                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
+                                       } };
 
 const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_pin,
                              [RSM_GpioNetName_LED]                = &led_pin,

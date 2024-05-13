@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include "io_fan.h"
+#include "io_fans.h"
 #include "io_brake_light.h"
 #include "app_canTx.h"
 #include "app_mainState.h"
