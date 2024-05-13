@@ -15,7 +15,11 @@ MOCK_DATA_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "data" / "sample_dat
 
 
 class SignalUtil:
-    def __init__(self, is_mock=True):
+    """
+    SignalUtil class for handling signals
+    """
+
+    def __init__(self, is_mock=False):
         if is_mock:
             try:
                 self.df = pd.read_csv(MOCK_DATA_PATH)
@@ -27,8 +31,17 @@ class SignalUtil:
 
     # returns all signals in data
     def get_all_signals(self):
+        """
+
+        :return:
+        """
         return self.df.iloc[:, 0:]
 
     # return target signal
     def get_signal(self, s_id):
+        """
+
+        :param s_id:
+        :return:
+        """
         return self.df[s_id]

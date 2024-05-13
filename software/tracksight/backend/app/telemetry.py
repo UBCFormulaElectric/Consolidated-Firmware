@@ -19,7 +19,7 @@ app.register_blueprint(database_app)
 
 
 def thread_function(a):
-    pass
+    print(f"[THREAD FUNCTION] thread function called with argument {a}")
 
 
 modem_thread = threading.Thread(

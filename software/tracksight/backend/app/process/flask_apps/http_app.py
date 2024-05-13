@@ -4,17 +4,17 @@ Main REST component of the backend
 
 from flask import Blueprint, jsonify, request
 
-from .. import signal_util
 from ..influx_handler import (
     InfluxHandler as influx,
 )
 from ..influx_handler import (
     NoDataForQueryException,
 )
+from ..signal_util import SignalUtil
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
-signal_util = signal_util.SignalUtil()
+signal_util = SignalUtil()
 
 
 @app.route("/")
