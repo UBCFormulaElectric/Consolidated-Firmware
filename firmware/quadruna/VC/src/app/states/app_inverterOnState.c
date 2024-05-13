@@ -28,6 +28,12 @@ static void inverterOnStateRunOnEntry(void)
 {
     LOG_INFO("inverter on entry");
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
+    app_canTx_VC_LeftInverterEnable_set(false);
+    app_canTx_VC_RightInverterEnable_set(false);
+    app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
+    app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_powerManager_updateConfig(power_manager_inverter_init);
 
     prev_start_switch_pos = true;
