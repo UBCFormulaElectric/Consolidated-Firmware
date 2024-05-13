@@ -16,7 +16,7 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
-#include "io_fan.h"
+#include "io_fans.h"
 #include "io_brake_light.h"
 
 #include "hw_bootup.h"
@@ -86,6 +86,11 @@ static const Gpio rad_fan_pin = {
     .pin  = ACC_FAN_EN_Pin,
 };
 
+static const BinaryLed brake_light = { .gpio = {
+                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
+                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
+                                       } };
+
 const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_pin,
                              [RSM_GpioNetName_LED]                = &led_pin,
                              [RSM_GpioNetName_RAD_FAN_EN]         = &rad_fan_en_pin,
@@ -108,10 +113,10 @@ const AdcChannel id_to_adc[] = {
 };
 
 PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
-                                                       .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
-                                                       .tim_channel         = TIM_CHANNEL_1,
-                                                       .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
-                                                       .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+                                          .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                          .tim_channel         = TIM_CHANNEL_1,
+                                          .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                          .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
 static const UART debug_uart = { .handle = &huart1 };
 

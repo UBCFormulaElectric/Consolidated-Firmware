@@ -154,7 +154,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_loadCell.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fan.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake_light.h"
     )
 
