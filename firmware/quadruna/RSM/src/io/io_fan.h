@@ -5,17 +5,9 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpio.h"
-
-typedef struct
-{
-    const Gpio gpio;
-} BinaryFan;
-#else
-EMPTY_STRUCT(BinaryFan);
+void io_fan_init(const Gpio *acc_fan_in, const Gpio *rad_fan_in);
 #endif
 
-/**
- * Turn an LED on or off.
- * @param on Whether or not to turn LED on.
- */
-void io_fan_enable(const BinaryFan *fan, bool on);
+void io_acc_fan_set(bool on);
+
+void io_rad_fan_set(bool on);
