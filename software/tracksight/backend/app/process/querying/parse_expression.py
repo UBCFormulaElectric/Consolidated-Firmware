@@ -6,14 +6,14 @@ from pathlib import Path
 from interpreter import Interpreter
 from lexer import Lexer
 from parser import Parser
-from .. import Definitions
+from .. import definitions
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 sys.path.append(project_root)
-MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
-SIGNAL_DEF_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "customSignals"
+MOCK_DATA_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
+SIGNAL_DEF_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "customSignals"
 
 
 class ExpressionParser:

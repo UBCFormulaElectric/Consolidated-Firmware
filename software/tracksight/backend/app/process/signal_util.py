@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import Definitions
+from . import definitions
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 sys.path.append(project_root)
 
-MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
+MOCK_DATA_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
 
 
 class SignalUtil:
