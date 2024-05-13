@@ -5,19 +5,20 @@ from pathlib import Path
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../process"))
 )
+sys.path.append("..")
 
-import Definitions
-from lexer import Lexer
-from parser import Parser
-from interpreter import Interpreter
-from parse_expression import ExpressionParser
+import definitions
+from querying.lexer import Lexer
+from querying.parser import Parser
+from querying.interpreter import Interpreter
+from querying.parse_expression import ExpressionParser
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 sys.path.append(project_root)
-MOCK_DATA_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
-SIGNAL_DEF_PATH = Path(Definitions.ROOT_DIR) / "mock_data" / "customSignals"
+MOCK_DATA_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
+SIGNAL_DEF_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "customSignals"
 
 
 class TestParseExpression:
@@ -43,7 +44,7 @@ class TestParseExpression:
         expParse.add_signal("sig1", s)
         expParse.save_signals()
         file_path = (
-            Path(Definitions.ROOT_DIR)
+            Path(definitions.ROOT_DIR)
             / "mock_data"
             / "customSignals"
             / "test_cust_sig.json"
@@ -59,7 +60,7 @@ class TestParseExpression:
         expParse.add_signal("sig1", s)
         expParse.save_signals()
         file_path = (
-            Path(Definitions.ROOT_DIR)
+            Path(definitions.ROOT_DIR)
             / "mock_data"
             / "customSignals"
             / "test_cust_sig.json"

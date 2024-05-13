@@ -3,10 +3,12 @@ import os
 import sys
 from pathlib import Path
 
-from interpreter import Interpreter
-from lexer import Lexer
-from parser import Parser
-from .. import definitions
+from .interpreter import Interpreter
+from .lexer import Lexer
+from .parser import Parser
+
+sys.path.append("..")
+import definitions
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
