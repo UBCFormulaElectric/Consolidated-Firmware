@@ -8,8 +8,8 @@ Item {
     anchors.fill: parent
 
     property int speed: CanQML.FSM_LeftWheelSpeed*1000*Constants.rpmToSpeed
-    property int targetSpeed: 61
-    property real speedRatio: 1 - (speed % targetSpeed)/targetSpeed
+    property int targetSpeed: 60
+    property real speedRatio: 1 - (speed > targetSpeed ? (2*targetSpeed - speed): speed)/targetSpeed
     property int defaultSize: 200
 
     Keys.onSpacePressed: speed++;
