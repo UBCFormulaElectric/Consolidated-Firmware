@@ -429,8 +429,8 @@ void tasks_init(void)
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
 
     // enable these for inverter programming
-    //    hw_gpio_writePin(&inv_l_program, true);
-    //    hw_gpio_writePin(&inv_r_program, true);
+    // hw_gpio_writePin(&inv_l_program, true);
+    // hw_gpio_writePin(&inv_r_program, true);
 }
 
 _Noreturn void tasks_run1Hz(void)
