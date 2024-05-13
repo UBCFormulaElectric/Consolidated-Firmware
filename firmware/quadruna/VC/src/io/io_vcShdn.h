@@ -7,10 +7,10 @@
 
 typedef struct
 {
-    const Gpio tsms_gpio;
-    const Gpio LE_stop_gpio;
-    const Gpio RE_stop_gpio;
-    const Gpio splitter_box_interlock_gpio;
+    const Gpio *tsms_gpio;
+    const Gpio *LE_stop_gpio;
+    const Gpio *RE_stop_gpio;
+    const Gpio *splitter_box_interlock_gpio;
 } VcShdnConfig;
 #else
 EMPTY_STRUCT(VcShdnConfig);

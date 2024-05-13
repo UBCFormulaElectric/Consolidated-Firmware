@@ -206,10 +206,10 @@ static const CurrentSensingConfig current_sensing_config = {
     .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
 };
 
-static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                              .LE_stop_gpio                = l_shdn_sns,
-                                              .RE_stop_gpio                = r_shdn_sns,
-                                              .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
+static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &tsms_shdn_sns,
+                                              .LE_stop_gpio                = &l_shdn_sns,
+                                              .RE_stop_gpio                = &r_shdn_sns,
+                                              .splitter_box_interlock_gpio = &sb_ilck_shdn_sns };
 
 static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
     { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
