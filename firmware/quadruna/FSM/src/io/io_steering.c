@@ -13,8 +13,8 @@ void io_steering_init(const SteeringConfig *steering_config)
 
 float io_steering_getAngleDegrees(void)
 {
-    // Steering angle = (ADC Voltage - V    oltage Offset) * Degree Per Volt
-    const float STEERING_ANGLE_VOLTAGE_OFFSET = 1.85f;
+    // Steering angle = (ADC Voltage - Voltage Offset) * Degree Per Volt
+    const float STEERING_ANGLE_VOLTAGE_OFFSET = 2.0f;
     const float DEGREE_PER_VOLT               = 360.0f / 3.3f;
     float       steering_voltage              = hw_adc_getVoltage(config->steering);
     return DEGREE_PER_VOLT * (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET);
