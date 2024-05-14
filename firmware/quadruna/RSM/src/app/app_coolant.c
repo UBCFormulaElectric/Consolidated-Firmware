@@ -32,8 +32,10 @@ void app_coolant_broadcast(void)
     app_canTx_RSM_CoolantFlowRate_set(coolant_flow);
     app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status != VALUE_IN_RANGE);
 
-    // flow rate check
-    SignalState flow_in_range_signal_state =
-        app_signal_getState(&flow_in_range_signal, coolant_status == VALUE_UNDERFLOW, coolant_status == VALUE_IN_RANGE);
+    // motor shutdown in flow rate check
+    const bool  in_drive_state             = app_canRx_VC_State_get() == VC_DRIVE_STATE;
+    SignalState flow_in_range_signal_state = app_signal_getState(
+        &flow_in_range_signal, coolant_status == VALUE_UNDERFLOW && in_drive_state,
+        coolant_status == VALUE_IN_RANGE || !in_drive_state);
     app_canAlerts_RSM_Fault_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
