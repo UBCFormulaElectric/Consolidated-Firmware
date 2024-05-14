@@ -13,7 +13,7 @@ static const RangeCheck rear_pressure_in_range_check  = { .get_value = io_brake_
                                                           .min_value = MIN_BRAKE_PRESSURE_PSI,
                                                           .max_value = MAX_BRAKE_PRESSURE_PSI };
 
-void app_brake_broadcast()
+void app_brake_broadcast(void)
 {
     const bool brake_pressed = io_brake_isActuated();
     app_canTx_FSM_BrakeActuated_set(brake_pressed);
@@ -28,6 +28,7 @@ void app_brake_broadcast()
     app_canTx_FSM_RearBrakePressure_set((uint32_t)rear_pressure);
     app_canAlerts_FSM_Warning_RearBrakePressureOutOfRange_set(rear_pressure_status != VALUE_IN_RANGE);
 
-    const bool brake_pressure_ocsc = io_brake_frontPressureSensorOCSC() || io_brake_rearPressureSensorOCSC();
+    const bool brake_pressure_ocsc =
+        io_brake_frontPressureSensorOCSC() || io_brake_rearPressureSensorOCSC() || io_brake_hwOCSC();
     app_canAlerts_FSM_Warning_BrakePressureSensorOCSC_set(brake_pressure_ocsc);
 }

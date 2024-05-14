@@ -109,7 +109,10 @@ const AdcChannel id_to_adc[] = {
 static const UART debug_uart = { .handle = &huart1 };
 
 static const AppsConfig       apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
-static const BrakeConfig      brake_config      = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
+static const BrakeConfig      brake_config      = { .rear_brake          = ADC1_IN15_BPS_B,
+                                                    .front_brake         = ADC1_IN7_BPS_F,
+                                                    .brake_hardware_ocsc = &brake_ocsc_ok_3v3,
+                                                    .nbspd_brake_pressed = &nbspd_brake_pressed_3v3 };
 static const LoadCellConfig   load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
 static const SteeringConfig   steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
 static const SuspensionConfig suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
