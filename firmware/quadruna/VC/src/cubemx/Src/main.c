@@ -1151,7 +1151,6 @@ void RunTask1Hz(void *argument)
 void RunTaskTelem(void *argument)
 {
     /* USER CODE BEGIN RunTaskTelem */
-    /* Infinite loop */
     tasks_runTelem();
     /* USER CODE END RunTaskTelem */
 }

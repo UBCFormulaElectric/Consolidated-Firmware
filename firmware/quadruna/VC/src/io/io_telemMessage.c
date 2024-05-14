@@ -5,6 +5,7 @@
 #include "io_time.h"
 #include "cmsis_os.h"
 #include "queue.h"
+#include "io_log.h"
 
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
@@ -70,7 +71,6 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     // proto_msg_length = (uint8_t)stream.bytes_written;
     if (osMessageQueuePut(message_queue_id, &proto_buffer, 0, 0) != osOK)
     {
-        // config->tx_overflow_callbacl(++tx_overflow_count);
         return true;
     }
     return false;
@@ -81,6 +81,7 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     static uint8_t proto_out[QUEUE_SIZE];
     static uint8_t proto_msg_length = 9;
     osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
+    LOG_INFO("proto popped and on to uart");
     if (modem_900_choice == true)
     {
         hw_uart_transmitPoll(modem->modem900M, &proto_msg_length, UART_LENGTH, UART_LENGTH);
