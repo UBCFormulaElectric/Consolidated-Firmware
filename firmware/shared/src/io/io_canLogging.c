@@ -68,6 +68,11 @@ static bool isLoggingEnabled(void)
 int io_canLogging_init(const CanConfig *can_config)
 {
     assert(can_config != NULL);
+    if(config != NULL) 
+    {
+        return 1; // return 1 if already initialized
+    }
+
     config = can_config;
 
     message_queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &queue_attr);
