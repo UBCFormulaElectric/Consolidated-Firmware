@@ -8,7 +8,7 @@
 #define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 #define CURRENT_AT_MAX_CHARGE (C_RATE_FOR_MAX_CHARGE * C_RATE_TO_AMPS)
 
-static uint16_t sixteenByteEndianSwap(uint16_t can_signal)
+static uint16_t canMsgEndianSwap(uint16_t can_signal)
 {
     uint16_t swapped_signal = (uint16_t)(can_signal >> 8) | (uint16_t)(can_signal << 8);
 
@@ -20,7 +20,7 @@ static float translateChargingParams(float charging_value)
     charging_value              = charging_value * 10.0f;
     uint16_t charging_value_int = (uint16_t)charging_value;
 
-    charging_value_int = sixteenByteEndianSwap(charging_value_int);
+    charging_value_int = canMsgEndianSwap(charging_value_int);
 
     float charging_value_translated = (float)charging_value_int / 10.0f;
 
@@ -73,11 +73,26 @@ static void chargeStateRunOnTick100Hz(void)
             app_stateMachine_setNextState(app_faultState_get());
         }
 
-        // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
-        if (!is_charger_connected || external_shutdown_occurred)
+        globals->charger_connected_counter++;
+        if (globals->charger_connected_counter >= 100)
         {
+            app_canRx_BRUSA_IsConnected_update(false);
+            globals->charger_connected_counter = 0;
+        }
+        else if(globals->charger_connected_counter >= 50)
+        {
+            if (!is_charger_connected)
+            {
             app_stateMachine_setNextState(app_faultState_get());
             app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(!is_charger_connected);
+            }
+        }
+        
+
+        // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
+        if (external_shutdown_occurred)
+        {
+            app_stateMachine_setNextState(app_faultState_get());
             app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(external_shutdown_occurred);
         }
         // If charging is disabled over CAN go back to init state.
@@ -99,6 +114,9 @@ static void chargeStateRunOnTick100Hz(void)
 
 static void chargeStateRunOnExit(void)
 {
+    globals->charger_connected_counter      = 0;
+    globals->charger_exit_counter           = 0;
+    globals->ignore_charger_fault_counter   = 0;
     io_charger_enable(false);
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);

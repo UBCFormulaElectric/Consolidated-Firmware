@@ -27,6 +27,7 @@ typedef struct
     TimerChannel precharge_upper_bound_timer;
     uint32_t     ignore_charger_fault_counter;
     uint32_t     charger_exit_counter;
+    uint32_t     charger_connected_counter;
 } Globals;
 
 extern Globals *const globals;
