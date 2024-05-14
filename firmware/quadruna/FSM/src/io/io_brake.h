@@ -5,11 +5,14 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
+#include "hw_gpio.h"
 
 typedef struct
 {
-    AdcChannel rear_brake;
-    AdcChannel front_brake;
+    AdcChannel  rear_brake;
+    AdcChannel  front_brake;
+    const Gpio *brake_hardware_ocsc;
+    const Gpio *nbspd_brake_pressed;
 } BrakeConfig;
 
 #else
@@ -49,3 +52,9 @@ float io_brake_getRearPressurePsi(void);
  * @return whether or not the rear pressure sensor is open or short circuit
  */
 bool io_brake_rearPressureSensorOCSC(void);
+
+/**
+ *
+ * @return
+ */
+bool io_brake_hwOCSC(void);
