@@ -90,10 +90,6 @@
         }
     },
     "faults": {
-        "DummyFault": {
-            "id": 351,
-            "description": "Placeholder."
-        },
         "PappsOCSC": {
             "id": 352,
             "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
