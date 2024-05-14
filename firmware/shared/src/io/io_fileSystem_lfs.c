@@ -39,8 +39,8 @@ int io_fileSystem_init(void)
         return FILE_ERROR; // return error if already initialized
     }
     is_initialized = true;
-    int err = io_lfsConfig(&cfg);
-    err     = lfs_mount(&lfs, &cfg);
+    int err        = io_lfsConfig(&cfg);
+    err            = lfs_mount(&lfs, &cfg);
     if (err)
     {
         lfs_format(&lfs, &cfg);
