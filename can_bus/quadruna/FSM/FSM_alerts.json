@@ -32,7 +32,7 @@
             "id": 307,
             "description": "Stack watermark failed on canRx task."
         },
-        "StackWaterMarkHighTaskCanTx":{
+        "StackWaterMarkHighTaskCanTx": {
             "id": 308,
             "description": "Stack watermark failed on canTx task."
         },
@@ -44,11 +44,11 @@
             "id": 310,
             "description": "Steering angle out of range."
         },
-        "LeftWheelSpeedOutOfRange": {
+        "LeftWheelSpeedOCSC": {
             "id": 311,
             "description": "Left wheel speed out of range."
         },
-        "RightWheelSpeedOutOfRange": {
+        "RightWheelSpeedOCSC": {
             "id": 312,
             "description": "Right wheel speed out of range."
         },

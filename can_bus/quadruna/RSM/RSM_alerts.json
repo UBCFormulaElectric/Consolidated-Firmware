@@ -5,71 +5,86 @@
     "faults_counts_id": 493,
     "warnings": {
         "WatchdogTimeout": {
-            "id" :401,
-            "description" : "Watchdog timeout"
+            "id": 401,
+            "description": "Watchdog timeout"
         },
         "TxOverflow": {
-            "id" :402,
-            "description" : "canTX overflow"
+            "id": 402,
+            "description": "canTX overflow"
         },
         "RxOverflow": {
-            "id" :403,
-            "description" : "canRX overflow"
+            "id": 403,
+            "description": "canRX overflow"
         },
         "StackWaterMarkHighTask1Hz": {
-            "id" :404,
-            "description" : "Stack Watermark mark failed for 1Hz"
+            "id": 404,
+            "description": "Stack Watermark mark failed for 1Hz"
         },
         "StackWaterMarkHighTask100Hz": {
-            "id" :405,
-            "description" : "Stack Watermark mark failed for 100Hz"
+            "id": 405,
+            "description": "Stack Watermark mark failed for 100Hz"
         },
         "StackWaterMarkHighTask1kHz": {
-            "id" :406,
-            "description" : "Stack Watermark mark failed for 1kHz"
+            "id": 406,
+            "description": "Stack Watermark mark failed for 1kHz"
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id" :407,
-            "description" : "Stack Watermark failed on canRx"
+            "id": 407,
+            "description": "Stack Watermark failed on canRx"
         },
         "StackWaterMarkHighTaskCanTx": {
-            "id" :408,
-            "description" : "Stack Watermark failed on CanTx"
+            "id": 408,
+            "description": "Stack Watermark failed on CanTx"
         },
         "FlowRateOutOfRange": {
-            "id" :409,
-            "description" : "Coolant flow out of range"
+            "id": 409,
+            "description": "Coolant flow out of range"
         },
         "LeftSuspensionOCSC": {
-            "id" :410,
-            "description" : "Rear left suspension open or short circuit"
+            "id": 410,
+            "description": "Rear left suspension open or short circuit"
         },
         "RightSuspensionOCSC": {
-            "id" :411,
-            "description" : "Rear right suspension open or short circuit"
+            "id": 411,
+            "description": "Rear right suspension open or short circuit"
         },
         "LoadCell3OCSC": {
-            "id" :412,
-            "description" : "Load cell 3 open or short circuit"
+            "id": 412,
+            "description": "Load cell 3 open or short circuit"
         },
         "LoadCell4OCSC": {
-            "id" :413,
-            "description" : "Load cell 4 open or short circuit"
+            "id": 413,
+            "description": "Load cell 4 open or short circuit"
+        },
+        "CoolantTempAOCSC": {
+            "id": 414,
+            "description": "Coolant temperature A open or short circuit"
+        },
+        "CoolantTempBOCSC": {
+            "id": 415,
+            "description": "Coolant temperature B open or short circuit"
+        },
+        "CoolantPressureAOCSC": {
+            "id": 416,
+            "description": "Coolant pressure A open or short circuit"
+        },
+        "CoolantPressureBOCSC": {
+            "id": 417,
+            "description": "Coolant pressure B open or short circuit"
         }
     },
     "faults": {
         "FlowMeterUnderflow": {
-            "id" :451,
-            "description" : "Coolant flow meter underflow"
+            "id": 451,
+            "description": "Coolant flow meter underflow"
         },
         "MissingVCHeartbeat": {
-            "id" :452,
-            "description" : "VC Missing Heart beat"
+            "id": 452,
+            "description": "VC Missing Heart beat"
         },
         "MissingFSMHeartbeat": {
-            "id" :453,
-            "description" : "FSM Missing Heart beat"
+            "id": 453,
+            "description": "FSM Missing Heart beat"
         }
-        
     }
 }
