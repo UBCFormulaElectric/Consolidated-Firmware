@@ -33,6 +33,12 @@ static int lfsErrorToFsError(int err)
 
 int io_fileSystem_init(void)
 {
+    static bool is_initialized = false;
+    if (is_initialized)
+    {
+        return FILE_ERROR; // return error if already initialized
+    }
+    is_initialized = true;
     int err = io_lfsConfig(&cfg);
     err     = lfs_mount(&lfs, &cfg);
     if (err)
