@@ -1,4 +1,3 @@
-#include "main.h"
 #include "io_brake.h"
 #include "hw_adc.h"
 
