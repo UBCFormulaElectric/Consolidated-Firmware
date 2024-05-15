@@ -80,8 +80,8 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
-    app_canTx_VC_LeftInverterTorqueLimit_set(5.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(5.0f);
+    app_canTx_VC_LeftInverterTorqueLimit_set(90.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(90.0f);
 
     // Read torque vectoring switch only when entering drive state, not during driving
 
