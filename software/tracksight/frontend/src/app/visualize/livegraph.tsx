@@ -37,34 +37,29 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 };
 
-function LiveDropdownMenu({ setWatchSignals, isSocketInitialized, validSignals }: {
-    setWatchSignals: Dispatch<SetStateAction<string[]>>,
-    validSignals: string[],
-    isSocketInitialized: boolean,
-}) {
-    return (
-        <DropdownMenu
-            options={validSignals}
-            setSelectedOptions={setWatchSignals}
-            placeholder="Signals"
-            loading={isSocketInitialized}
-            disabled={isSocketInitialized}
-        />
-    );
-};
-
-
+/**
+ * 
+ * Websockets that are used
+ *  - sub_signal (emit), unsub_signal (emit)
+ *  - signal_response
+ *  - signal_stopped
+ *  - sub_available_signals (emit)
+ *  - available_signals_response
+ * @param props 
+ * @returns 
+ */
 export default function LiveGraph(props: {
     id: number,
     onDelete: MouseEventHandler<HTMLElement>,
 }) {
+    const { socket, loading } = useSocket(FLASK_URL);
     // Plot Data 
     const [plotData, setPlotData] = useState<FormattedData[]>([]);
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
     const setGraphTitle = (t: string) => setGraphLayout(p => ({ ...p, title: t, }))
 
-    const { socket, loading } = useSocket(FLASK_URL);
-    const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+    // handles live data
+    const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
     useEffect(() => {
         if (!socket) return;
         if(!isSubscribed) return;
@@ -90,15 +85,19 @@ export default function LiveGraph(props: {
                 return [...p.filter(d => d.name != packet.id), existingSignal];
             });
         })
+        socket.on("signal_stopped", (data) => {
+            // TODO display that a signal has stopped broadcasting
+            console.log(`Signal ${data.id} stopped`)
+        })
 
         return () => {
             socket.off("signal_response");
         };
     }, [socket, isSubscribed])
 
-    const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]);
+    // Handles which signals we care about
+    const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]); // technically an anti-pattern but the handler is inside an opaque component
     const [watchSignals, setWatchSignals] = useState<string[]>([]);
-
     useEffect(() => {
         if (watchSignals.length === 0) return;
         if (!socket || loading) throw new Error("Socket not initialized");
@@ -109,14 +108,17 @@ export default function LiveGraph(props: {
             if (!(s in watchSignals)) socket.emit("unsub_signal", { signal: s });
         });
         // cleanup
-        setPrevWatchSignals(watchSignals);
         setGraphTitle(Object.keys(watchSignals).join(" + "));
+        return () => {
+            setPrevWatchSignals(watchSignals);
+        }
     }, [watchSignals]);
 
+    // Handles all available signals
     const [validSignals, setValidSignals] = useState<string[]>([]);
     useEffect(() => {
         if(!socket) return;
-        socket.emit("available_signals", { "ids": [] });
+        socket.emit("sub_available_signals");
         socket.on("available_signals_response", (signalNames) => {
             setValidSignals(signalNames);
         });
@@ -128,17 +130,14 @@ export default function LiveGraph(props: {
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
             <div className="flex flex-row items-center gap-x-2 mb-2">
-                <p>Turn live signal on/off</p>
+                <p>Live</p>
                 <Switch onChange={setIsSubscribed} checked={isSubscribed} />
             </div>
             <div className="flex flex-row gap-x-2">
-                <LiveDropdownMenu setWatchSignals={setWatchSignals} validSignals={validSignals} isSocketInitialized={!loading} />
-                <Button onClick={() => {
-                    if (!socket) return; // TODO throw error if submit button is clicked before the socket is established
-                    // socket.emit("signal", { "graph": props.id, "ids": props.signals });
-                }}>
-                    Submit
-                </Button>
+                <DropdownMenu options={validSignals} setSelectedOptions={setWatchSignals}
+                    loading={!loading} disabled={!loading}
+                    placeholder="Signals"
+                />
             </div>
             <Plot data={plotData as Partial<PlotData>[]} layout={graphLayout} />
             <Space.Compact size={"middle"}>
