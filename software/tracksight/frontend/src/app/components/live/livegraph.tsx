@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
+import React, { useState, useEffect, MouseEventHandler } from 'react';
 import dynamic from "next/dynamic";
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 import { Button, Card, Switch, Space } from 'antd';
