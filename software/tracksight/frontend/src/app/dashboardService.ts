@@ -1,4 +1,4 @@
-const FLASK_URL = "http://206.12.160.196:5000";
+import { FLASK_URL } from "./constants";
 
 // Function for getting data
 const getRealtimeData = async (path: string) => {

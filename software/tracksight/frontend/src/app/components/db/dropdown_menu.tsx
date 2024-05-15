@@ -2,15 +2,14 @@ import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { Select } from 'antd';
 import React from 'react';
 
-export interface DropdownMenuProps {
+const DropdownMenu = (props: {
     setOption: Dispatch<SetStateAction<string[]>>,
     selectedOptions: string[],
     options: string[],
     single: boolean,
     name: string,
-}
-
-const DropdownMenu = (props: DropdownMenuProps) => {
+    disabled?: boolean
+}) => {
     const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
 
     useEffect(() => {
@@ -38,6 +37,7 @@ const DropdownMenu = (props: DropdownMenuProps) => {
             style={{width: "100%"}}
             options={items}
             maxTagCount="responsive"
+            disabled={props.disabled ?? false}
         />
     );
 };

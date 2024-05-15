@@ -1,14 +1,12 @@
 'use client';
 import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import dynamic from "next/dynamic";
 import { PlotRelayoutEvent } from 'plotly.js';
-import { Card, Button, Space } from 'antd';
+import { Button } from 'antd';
 import { GraphI } from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import { FLASK_URL } from '@/app/constants';
-
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+import Plot from 'react-plotly.js';
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
@@ -26,160 +24,174 @@ const getRandomColor = () => {
     return `rgb(${r},${g},${b})`;
 };
 
-const Graph = (props: {
-    graphInfo: GraphI,
-    sync: boolean,
-    sharedZoomData: PlotRelayoutEvent,
-    setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    onDelete: MouseEventHandler<HTMLInputElement>,
+
+const MeasurementDropdown = ({ measurement, setMeasurement }: {
+    measurement: string[],
+    setMeasurement: Dispatch<SetStateAction<string[]>>
 }) => {
-    const [data, setData] = useState<Record<string, { times: Array<string>, values: Array<number> }>>({});
-    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
 
-    //default graph layout
-    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
-
-    // resets data on graph
-    const clearData = () => {
-        setFormattedData([]);
-        setGraphLayout(DEFAULT_LAYOUT);
-        setData({});
-    }
-
-
-    // creates a new graph with request signals
-    // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
-    // suggestions for improvements appreciated. 
-    useEffect(() => {
-        const tempFormattedData: Plotly.Data[] = [];
-        for (const name in data) {
-            let signalData = data[name];
-            let xData = signalData["time"];
-            let yData = signalData["value"];
-
-            const formattedObj: Plotly.Data = {
-                x: xData,
-                y: yData,
-                type: 'scatter',
-                mode: 'lines+markers',
-                name: name,
-                line: { color: getRandomColor() }
-            };
-
-            tempFormattedData.push(formattedObj);
-        }
-
-        const newGraphName = Object.keys(data).join(" + ");
-
-        setGraphLayout(prevLayout => ({
-            ...prevLayout,
-            title: newGraphName,
-        }));
-        setFormattedData(tempFormattedData);
-    }, [data]);
-
-
-    // updates graph layout when zoomed 
-    useEffect(() => {
-        if (props.sharedZoomData && 'xaxis.range[0]' in props.sharedZoomData) {
-            const xaxisRange0 = props.sharedZoomData['xaxis.range[0]'];
-            const xaxisRange1 = props.sharedZoomData['xaxis.range[1]'];
-            const yaxisRange0 = props.sharedZoomData['yaxis.range[0]'];
-            const yaxisRange1 = props.sharedZoomData['yaxis.range[1]'];
-
-            // Update the graph's layout with the new axis ranges
-            setGraphLayout(prevLayout => ({
-                ...prevLayout,
-                xaxis: {
-                    range: [xaxisRange0, xaxisRange1],
-                },
-                yaxis: {
-                    range: [yaxisRange0, yaxisRange1],
-                },
-            }));
-        }
-    }, [props.sharedZoomData]);
-
-
-    const [measurement, setMeasurement] = useState<string[]>([]);
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
-
-    const [fields, setFields] = useState<string[]>([]);
-    const [allFields, setAllFields] = useState<string[]>([]);
-
-    const [startEpoch, setStartEpoch] = useState<string>("");
-    const [endEpoch, setEndEpoch] = useState<string>("");
-
     useEffect(() => {
-        fetch(FLASK_URL + "/signal/measurement", {
-            method: 'get',
-        }).then((response) => response.json())
-            .then((data) => setAllMeasurements(data))
-            .catch((error) => console.log(error));
+        (async () => {
+            const fetchURL = `${FLASK_URL}/signal/measurement`
+            const res = await fetch(fetchURL, {
+                method: 'get',
+            })
+            if (!res.ok) {
+                console.error(await res.text())
+                // TODO messages fetch error
+                return;
+            }
+            const data = await res.json()
+            setAllMeasurements(data)
+        })()
     }, []);
 
-    useEffect(() => {
-        if (!measurement.length) {
-            return;
-        }
+    return (
+        <DropdownMenu
+            setOption={setMeasurement}
+            selectedOptions={measurement}
+            options={allMeasurements}
+            single={true}
+            name={"Measurements"}
+        />
+    )
+}
 
-        const measurement_name = measurement[0];
-        fetch(FLASK_URL + "/signal/fields/" + measurement_name, {
+const FieldDropdown = ({ measurement, fields, setFields }: {
+    measurement: string[],
+    fields: string[],
+    setFields: Dispatch<SetStateAction<string[]>>
+}) => {
+    const [allFields, setAllFields] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (measurement.length <=0) return;
+        if(measurement.length > 1) throw new Error("Multiple measurements selected")
+        fetch(new URL(`/signal/fields/${measurement[0]}`, FLASK_URL), {
             method: 'get',
         }).then((response) => response.json())
             .then((data) => setAllFields(data))
             .catch((error) => console.log(error));
     }, [measurement]);
 
-
     return (
-        <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="flex flex-col">
-                <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"} />
-                <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} single={false} name={"Fields"} />
-                <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
-                <Button onClick={(e) => {
-                    if (!startEpoch || !endEpoch || !measurement || !fields.length) {
-                        // TODO add message
-                        // props.messageApi.open({type: "error", content: "Please fill out all fields properly"});
-                        return;
-                    }
-                    const newParams = new URLSearchParams({ measurement: measurement[0], start_epoch: startEpoch, end_epoch: endEpoch });
-                    for (const field in fields) {
-                        newParams.append('fields', fields[field]);
-                    }
-                    fetch(FLASK_URL + "/query?" + newParams)
-                        .then((response) => {
-                            if (!response.ok) {
-                                return response.json().then(json => { throw new Error(json["error"]) });
-                            } else {
-                                return response.json()
-                            }
-                        })
-                        .then((data) => props.setData(data))
-                        .catch((error) => { })// TODO props.messageApi.open({type: "error", content: error.toString()}));
-                }}>
-                    submit
-                </Button>
-            </div>
-            <Plot
-                data={formattedData} // Pass the array of formatted data objects
-                layout={graphLayout}
-                config={{
-                    displayModeBar: true,
-                    displaylogo: false,
-                    scrollZoom: true,
-                }}
-                onRelayout={(e: Readonly<PlotRelayoutEvent>) => {
-                    if (props.sync) props.setSharedZoomData(e);
-                }}
-            />
-            <Space.Compact size={"middle"}>
-                <Button block={true} className="clear" onClick={clearData}>Clear</Button>
-                <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
-            </Space.Compact>
-        </Card>
-    );
+        <DropdownMenu
+            disabled={measurement.length === 0}
+            setOption={setFields}
+            selectedOptions={fields}
+            options={allFields}
+            single={false}
+            name={"Fields"}
+        />
+    )
 }
 
-export default Graph;
+function usePlotlyFormat(setGraphTitle: (title: string)=>void): [Plotly.Data[], Dispatch<SetStateAction<Record<string, { times: Array<string>, values: Array<number> }>>>] {
+    const [data, setData] = useState<Record<string, { times: Array<string>, values: Array<number> }>>({});
+    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
+    useEffect(() => {
+        setGraphTitle(Object.keys(data).join(" + "))
+        setFormattedData(Object.entries(data).map(([graphName, { times, values }]) => ({
+            name: graphName,
+            x: times, y: values,
+            type: 'scatter', mode: 'lines+markers', line: { color: getRandomColor() }
+        } as Plotly.Data)));
+    }, [data]);
+
+    return [formattedData, setData];
+}
+
+export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, handleDelete }: {
+    graphInfo: GraphI,
+    syncZoom: boolean,
+    sharedZoomData: PlotRelayoutEvent,
+    setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
+    handleDelete: MouseEventHandler<HTMLInputElement>,
+}) {
+    //default graph layout
+    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
+    // updates graph layout when zoomed 
+    useEffect(() => {
+        if (!(sharedZoomData && 'xaxis.range[0]' in sharedZoomData)) {
+            // TODO error in some way
+            return;
+        }
+        // Update the graph's layout with the new axis ranges
+        setGraphLayout(prevLayout => ({
+            ...prevLayout,
+            xaxis: {
+                range: [sharedZoomData['xaxis.range[0]'], sharedZoomData['xaxis.range[1]']],
+            },
+            yaxis: {
+                range: [sharedZoomData['yaxis.range[0]'], sharedZoomData['yaxis.range[1]']],
+            },
+        }));
+    }, [sharedZoomData]);
+
+    const [plotData, setPlotData] = usePlotlyFormat((t) => setGraphLayout(p => ({ ...p, title: t, })))
+
+    // Top Form Information
+    const [measurement, setMeasurement] = useState<string[]>([]);
+    const [fields, setFields] = useState<string[]>([]);
+    const [startEpoch, setStartEpoch] = useState<string>("");
+    const [endEpoch, setEndEpoch] = useState<string>("");
+
+    return (
+        <div className="flex flex-col p-4 border-[1.5px] rounded-xl">
+            {/* Measurement Selector */}
+            <div className="flex flex-col gap-y-2">
+                <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
+                <FieldDropdown measurement={measurement} fields={fields} setFields={setFields} />
+                <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
+                <Button onClick={async (e) => {
+                    const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
+                    if (missingQueryEls) {
+                        // TODO add message
+                        // "Please fill out all fields properly"
+                        return;
+                    }
+                    const fetchUrl = new URL("/query", FLASK_URL);
+                    fetchUrl.search = new URLSearchParams({
+                        measurement: measurement[0],
+                        start_epoch: startEpoch, end_epoch: endEpoch,
+                        fields: fields.join(",")
+                    }).toString();
+                    console.log(fetchUrl.toString()) // TODO remove after testing
+
+                    try {
+                        const res = await fetch(fetchUrl, { method: 'get' })
+                        if (!res.ok) {
+                            // TODO add message
+                            console.error(await res.text())
+                            return;
+                        }
+                        setPlotData(await res.json())
+                    } catch (error) {
+                        console.error(error)
+                    }
+                }}>
+                    Submit
+                </Button>
+            </div>
+
+            {/* TODO better plotting library :(()) */}
+            <Plot layout={graphLayout} data={plotData} // Pass the array of formatted data objects
+                config={{ displayModeBar: true, displaylogo: false, scrollZoom: true, }}
+                onRelayout={(e) => { if (syncZoom) setSharedZoomData(e) }}
+            />
+
+            <div className="flex flex-row gap-x-2">
+                <Button block={true} className="clear" onClick={() => {
+                    setGraphLayout(DEFAULT_LAYOUT);
+                    setPlotData({});
+                }}>
+                    Clear Data
+                </Button>
+                <Button block={true} danger={true} ghost={false} onClick={handleDelete}>
+                    Delete This Graph
+                </Button>
+            </div>
+        </div>
+    );
+}

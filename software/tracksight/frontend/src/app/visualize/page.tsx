@@ -4,20 +4,7 @@ import { Button, Switch } from 'antd';
 import Graph from '../components/db/graph';
 import LiveGraph from '../components/live/livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
-import { GraphI } from '@/types/Graph';
-
-function addGraph(setGraphFunc: Dispatch<SetStateAction<GraphI[]>>) {
-    const newGraphId = Date.now();
-    setGraphFunc(prevGraphs => [...prevGraphs, {
-        id: newGraphId,
-        timestamp: new Date()
-    }]);
-};
-
-//delete a graph
-function deleteGraph(setGraphFunc: Dispatch<SetStateAction<GraphI[]>>, gid: number) {
-    setGraphFunc(prevGraphs => prevGraphs.filter(graph => graph.id !== gid));
-};
+import { GraphI, GraphType } from '@/types/Graph';
 
 export default function Visualize() {
     // const [graphSignals, setGraphSignals] = useState<Record<string, string[]>>({});
@@ -65,10 +52,23 @@ export default function Visualize() {
     // };
 
 
-    const [sync, setSync] = useState<boolean>(false);
+    const [shouldSyncZoom, setShouldSyncZoom] = useState<boolean>(false);
     const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
     const [graphs, setGraphs] = useState<GraphI[]>([]);
-    const [liveGraphs, setLiveGraphs] = useState<GraphI[]>([]);
+
+
+    function addGraph(graphType: GraphType) {
+        setGraphs(prevGraphs => [...prevGraphs, {
+            id: Date.now(),
+            timestamp: new Date(),
+            type: graphType
+        }]);
+    };
+
+    //delete a graph
+    function deleteGraph(gid: number) {
+        setGraphs(prevGraphs => prevGraphs.filter(graph => graph.id !== gid));
+    };
 
     return (
         <div id="visualize-page" className="p-8">
@@ -79,9 +79,9 @@ export default function Visualize() {
                 </div>
                 <div className="flex flex-row gap-x-2 items-center">
                     <p>Sync Zoom</p>
-                    <Switch onChange={(checked: boolean) => setSync(checked)} checked={sync} />
-                    <Button onClick={(e) => addGraph(setGraphs)}>Add Influx Graph</Button>
-                    <Button onClick={(e) => addGraph(setLiveGraphs)}>Add Live Graph</Button>
+                    <Switch onChange={(checked: boolean) => setShouldSyncZoom(checked)} checked={shouldSyncZoom} />
+                    <Button onClick={(e) => addGraph(GraphType.HISTORICAL)}>Add Influx Graph</Button>
+                    <Button onClick={(e) => addGraph(GraphType.LIVE)}>Add Live Graph</Button>
                     {/* TODO reenable modal */}
                     {/* <Button onClick={() => setModalOpen(true)}>Save Current Loadout</Button>
                     <Modal open={modalOpen} closeIcon={false} title='Save Dashboard'
@@ -93,26 +93,36 @@ export default function Visualize() {
 
             </div>
 
-            <div id="graph-container" className="flex flex-wrap gap-10 mt-6">
-                {graphs.map((graph) => (
-                    <Graph
-                        key={graph.id}
-                        graphInfo={graph}
-                        onDelete={(e) => deleteGraph(setGraphs, graph.id)}
-                        sync={sync}
-                        sharedZoomData={zoomData}
-                        setSharedZoomData={setZoomData}
-                    />
-                ))}
-                {liveGraphs.map((liveGraph) => (
-                    <LiveGraph
-                        key={liveGraph.id}
-                        id={liveGraph.id}
-                        onDelete={(e) => deleteGraph(setLiveGraphs, liveGraph.id)}
-                    // updateGraphSignals={updateGraphSignals}
-                    // socket={props.socket}
-                    />
-                ))}
+            <div id="graph-container" className="flex flex-wrap gap-4 mt-6">
+                {graphs.map((graph) => {
+                    if(graph.type == GraphType.HISTORICAL) {
+                        return (
+                            <Graph
+                                key={graph.id}
+                                graphInfo={graph}
+                                handleDelete={(e) => deleteGraph(graph.id)}
+                                syncZoom={shouldSyncZoom}
+                                sharedZoomData={zoomData}
+                                setSharedZoomData={setZoomData}
+                            />
+                        )
+                    }
+                    // TODO reconsider whether we need a different component for live and non live graph data
+                    // else if (graph.type == GraphType.LIVE) {
+                    //     return (
+                    //         <LiveGraph
+                    //             key={liveGraph.id}
+                    //             id={liveGraph.id}
+                    //             onDelete={(e) => deleteGraph(graph.id)}
+                    //             // updateGraphSignals={updateGraphSignals}
+                    //             // socket={props.socket}
+                    //         />
+                    //     )
+                    // }
+                    else {
+                        throw new Error("Invalid graph type");
+                    }
+                })}
             </div>
         </div>
     );
