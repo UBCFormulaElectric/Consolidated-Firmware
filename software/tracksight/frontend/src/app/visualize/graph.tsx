@@ -7,7 +7,6 @@ import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import { FLASK_URL } from '@/app/constants';
 import Plot from 'react-plotly.js';
-import { usePlotlyFormat } from './usePlotlyFormat';
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
@@ -101,6 +100,22 @@ const FieldDropdown = ({ setFields, measurement }: {
         />
     )
 }
+
+function usePlotlyFormat(setGraphTitle: (title: string) => void): [Plotly.Data[], Dispatch<SetStateAction<Record<string, { times: Array<string>; values: Array<number>; }>>>] {
+    const [data, setData] = useState<Record<string, { times: Array<string>; values: Array<number>; }>>({});
+    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
+    useEffect(() => {
+        setGraphTitle(Object.keys(data).join(" + "));
+        setFormattedData(Object.entries(data).map(([graphName, { times, values }]) => ({
+            name: graphName,
+            x: times, y: values,
+            type: 'scatter', mode: 'lines+markers', line: { color: getRandomColor() }
+        } as Plotly.Data)));
+    }, [data]);
+
+    return [formattedData, setData];
+}
+
 
 export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, handleDelete }: {
     graphInfo: GraphI,
