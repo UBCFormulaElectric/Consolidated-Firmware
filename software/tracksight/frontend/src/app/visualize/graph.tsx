@@ -116,7 +116,6 @@ function usePlotlyFormat(setGraphTitle: (title: string) => void): [Plotly.Data[]
     return [formattedData, setData];
 }
 
-
 export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, handleDelete }: {
     graphInfo: GraphI,
     syncZoom: boolean,
