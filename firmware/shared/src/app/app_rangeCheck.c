@@ -3,10 +3,10 @@
 
 #include "app_rangeCheck.h"
 
-RangeCheckStatus app_rangeCheck_getValue(const RangeCheck *check, float *returned_value)
+RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value)
 {
-    const float      value  = check->get_value();
     RangeCheckStatus status = VALUE_IN_RANGE;
+    RangeCheckStatusMetaData return_value;
 
     if (value < check->min_value)
     {
@@ -21,7 +21,8 @@ RangeCheckStatus app_rangeCheck_getValue(const RangeCheck *check, float *returne
         status = VALUE_IN_RANGE;
     }
 
-    *returned_value = value;
+    return_value.value = value;
+    return_value.status = status;
 
-    return status;
+    return return_value;
 }

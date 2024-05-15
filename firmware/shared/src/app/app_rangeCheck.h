@@ -2,7 +2,6 @@
 
 typedef struct
 {
-    float (*get_value)(void);
     float min_value;
     float max_value;
 } RangeCheck;
@@ -13,6 +12,13 @@ typedef enum
     VALUE_UNDERFLOW,
     VALUE_OVERFLOW,
 } RangeCheckStatus;
+
+typedef struct
+{
+    float value;
+    RangeCheckStatus status;
+} RangeCheckStatusMetaData;
+
 
 /**
  * Get the value for the given in-range check
@@ -26,4 +32,4 @@ typedef enum
  *         VALUE_UNDERFLOW if the value is below the specified range
  *         VALUE_OVERFLOW if the value is above the specified range
  */
-RangeCheckStatus app_rangeCheck_getValue(const RangeCheck *check, float *returned_value);
+RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value);
