@@ -38,15 +38,12 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
 };
 
 /**
- * 
  * Websockets that are used (handling signals, and handling available signals)
  *  - signal_sub (emit), signal_unsub (emit)
  *  - signal_response
  *  - signal_stopped
  *  - available_signals_sub (emit)
  *  - available_signals_response
- * @param props 
- * @returns 
  */
 export default function LiveGraph(props: {
     id: number,
