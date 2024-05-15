@@ -1,45 +1,30 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'; 
+import { Dispatch, SetStateAction } from 'react'; 
 import { Select } from 'antd';
 import React from 'react';
 
-const DropdownMenu = (props: {
-    setOption: Dispatch<SetStateAction<string[]>>,
-    selectedOptions: string[],
+export default function DropdownMenu(props: {
     options: string[],
-    single: boolean,
-    name: string,
-    disabled?: boolean
-}) => {
-    const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
-
-    useEffect(() => {
-        const updatedItems = props.options.map((name, index) => ({
-            value: name,
-            label: name,
-        }));
-        setItems(updatedItems);
-    }, [props.options, props.selectedOptions]);
-    
-    const handleChange = (value: string[]) => {
-        props.setOption(value);
-    };
-
+    setSelectedOptions: Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<string[]>>,
+    placeholder?: string,
+    single?: boolean,
+    loading?: boolean,
+    disabled?: boolean,
+}) {
     const filterOption = (input: string, option?: { label: string; value: string }) =>
       (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <Select
+            className="w-full"
             showSearch
-            mode="multiple"
-            placeholder={props.name}
+            mode={props.single ? undefined : "multiple"}
+            placeholder={props.placeholder ?? "Placeholder Text..."}
             filterOption={filterOption}
-            onChange={handleChange}
-            style={{width: "100%"}}
-            options={items}
+            onChange={(v) => props.setSelectedOptions(v)}
+            options={props.options.map(n => ({ value: n, label: n, }))}
             maxTagCount="responsive"
             disabled={props.disabled ?? false}
+            loading={props.loading ?? false}
         />
     );
 };
-
-export default DropdownMenu;

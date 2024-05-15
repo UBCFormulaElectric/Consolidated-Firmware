@@ -7,6 +7,7 @@ import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import { FLASK_URL } from '@/app/constants';
 import Plot from 'react-plotly.js';
+import { usePlotlyFormat } from './usePlotlyFormat';
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
@@ -17,20 +18,18 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 }
 
-const getRandomColor = () => {
+export const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
     const b = Math.floor(Math.random() * 256);
     return `rgb(${r},${g},${b})`;
 };
 
-
-const MeasurementDropdown = ({ measurement, setMeasurement }: {
-    measurement: string[],
-    setMeasurement: Dispatch<SetStateAction<string[]>>
+const MeasurementDropdown = ({ setMeasurement }: {
+    setMeasurement: Dispatch<SetStateAction<string>>
 }) => {
-
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         (async () => {
             const fetchURL = `${FLASK_URL}/signal/measurement`
@@ -44,62 +43,63 @@ const MeasurementDropdown = ({ measurement, setMeasurement }: {
             }
             const data = await res.json()
             setAllMeasurements(data)
+            setLoading(false)
         })()
     }, []);
 
     return (
         <DropdownMenu
-            setOption={setMeasurement}
-            selectedOptions={measurement}
+            setSelectedOptions={setMeasurement}
             options={allMeasurements}
             single={true}
-            name={"Measurements"}
+            placeholder={"Measurements"}
+            disabled={loading}
+            loading={loading}
         />
     )
 }
 
-const FieldDropdown = ({ measurement, fields, setFields }: {
-    measurement: string[],
-    fields: string[],
+const FieldDropdown = ({ setFields, measurement }: {
     setFields: Dispatch<SetStateAction<string[]>>
+    measurement: string, 
 }) => {
     const [allFields, setAllFields] = useState<string[]>([]);
+    const [fetchedFields, setFetchedFields] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (measurement.length <=0) return;
-        if(measurement.length > 1) throw new Error("Multiple measurements selected")
-        fetch(new URL(`/signal/fields/${measurement[0]}`, FLASK_URL), {
-            method: 'get',
-        }).then((response) => response.json())
-            .then((data) => setAllFields(data))
-            .catch((error) => console.log(error));
+        if(measurement.length == 0) return;
+        (async () => {
+            setLoading(true);
+            setFetchedFields(false)
+            try {
+                const res = await fetch(new URL(`/signal/fields/${measurement}`, FLASK_URL), {
+                    method: 'get',
+                })
+                if(!res.ok) {
+                    console.error(await res.text())
+                    return;
+                }
+                setAllFields(await res.json())
+                setFetchedFields(true)
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setLoading(false)
+            }
+        })()
     }, [measurement]);
 
     return (
         <DropdownMenu
-            disabled={measurement.length === 0}
-            setOption={setFields}
-            selectedOptions={fields}
+            disabled={!fetchedFields}
+            loading={loading}
+            setSelectedOptions={setFields}
             options={allFields}
             single={false}
-            name={"Fields"}
+            placeholder="Fields"
         />
     )
-}
-
-function usePlotlyFormat(setGraphTitle: (title: string)=>void): [Plotly.Data[], Dispatch<SetStateAction<Record<string, { times: Array<string>, values: Array<number> }>>>] {
-    const [data, setData] = useState<Record<string, { times: Array<string>, values: Array<number> }>>({});
-    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
-    useEffect(() => {
-        setGraphTitle(Object.keys(data).join(" + "))
-        setFormattedData(Object.entries(data).map(([graphName, { times, values }]) => ({
-            name: graphName,
-            x: times, y: values,
-            type: 'scatter', mode: 'lines+markers', line: { color: getRandomColor() }
-        } as Plotly.Data)));
-    }, [data]);
-
-    return [formattedData, setData];
 }
 
 export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, handleDelete }: {
@@ -132,7 +132,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
     const [plotData, setPlotData] = usePlotlyFormat((t) => setGraphLayout(p => ({ ...p, title: t, })))
 
     // Top Form Information
-    const [measurement, setMeasurement] = useState<string[]>([]);
+    const [measurement, setMeasurement] = useState<string>("");
     const [fields, setFields] = useState<string[]>([]);
     const [startEpoch, setStartEpoch] = useState<string>("");
     const [endEpoch, setEndEpoch] = useState<string>("");
@@ -141,8 +141,8 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
         <div className="flex flex-col p-4 border-[1.5px] rounded-xl">
             {/* Measurement Selector */}
             <div className="flex flex-col gap-y-2">
-                <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
-                <FieldDropdown measurement={measurement} fields={fields} setFields={setFields} />
+                <MeasurementDropdown setMeasurement={setMeasurement} />
+                <FieldDropdown setFields={setFields} measurement={measurement} />
                 <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
                 <Button onClick={async (e) => {
                     const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
@@ -175,7 +175,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
                 </Button>
             </div>
 
-            {/* TODO better plotting library :(()) */}
+            {/* TODO better plotting library :(((( */}
             <Plot layout={graphLayout} data={plotData} // Pass the array of formatted data objects
                 config={{ displayModeBar: true, displaylogo: false, scrollZoom: true, }}
                 onRelayout={(e) => { if (syncZoom) setSharedZoomData(e) }}

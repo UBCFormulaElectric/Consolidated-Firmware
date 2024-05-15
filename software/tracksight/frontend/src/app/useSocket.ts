@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from "react";
-import { FLASK_URL } from "./constants";
 import { io, Socket } from "socket.io-client";
 
 export const useSocket = (url: string) => {
@@ -9,13 +8,12 @@ export const useSocket = (url: string) => {
     
     useEffect(() => {
         if(socket == null) return;
+        setLoading(true);
         socket.on("connect", () => {
             setLoading(false);
         });
-
-
         socket.on("disconnect", () => {
-            setLoading(true);
+            console.log("disconnected");
         });
         return () => {
             socket.disconnect();
@@ -24,7 +22,7 @@ export const useSocket = (url: string) => {
 
     useEffect(() => {
         // NOTE -> mac users may need to turn airplay reciever off in order to connect to the server
-        setSocket(io(FLASK_URL, {
+        setSocket(io(url, {
             transports: ["websocket"],
             transportOptions: {
                 origin: new URL(window.location as unknown as string),
@@ -32,8 +30,5 @@ export const useSocket = (url: string) => {
         }))
     }, []);
 
-    return {
-        socket,
-        loading
-    }
+    return {socket, loading};
 }

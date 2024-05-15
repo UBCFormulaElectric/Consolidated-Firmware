@@ -4,7 +4,7 @@ import { getRealtimeData, deleteDashboardData } from '../dashboardService';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Select, Space, Button, Modal, Checkbox, List, message } from 'antd';
 import { Socket } from "socket.io-client";
-import LiveGraph from '../components/live/livegraph';
+import LiveGraph from '../visualize/livegraph';
 
 // currently a bug where loading dashboards only loads SOME of the signals on graphs (seems indeterministic)
 // found error occurs in livegraphs where it checks if data['id'] == graphId, and thus does not update graph,

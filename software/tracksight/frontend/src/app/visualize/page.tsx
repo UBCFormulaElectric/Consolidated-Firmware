@@ -1,8 +1,8 @@
 'use client';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Button, Switch } from 'antd';
 import Graph from './graph';
-import LiveGraph from '../components/live/livegraph';
+import LiveGraph from './livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { GraphI, GraphType } from '@/types/Graph';
 
@@ -108,17 +108,17 @@ export default function Visualize() {
                         )
                     }
                     // TODO reconsider whether we need a different component for live and non live graph data
-                    // else if (graph.type == GraphType.LIVE) {
-                    //     return (
-                    //         <LiveGraph
-                    //             key={liveGraph.id}
-                    //             id={liveGraph.id}
-                    //             onDelete={(e) => deleteGraph(graph.id)}
-                    //             // updateGraphSignals={updateGraphSignals}
-                    //             // socket={props.socket}
-                    //         />
-                    //     )
-                    // }
+                    else if (graph.type == GraphType.LIVE) {
+                        return (
+                            <LiveGraph
+                                key={graph.id}
+                                id={graph.id}
+                                onDelete={(e) => deleteGraph(graph.id)}
+                                // updateGraphSignals={updateGraphSignals}
+                                // socket={props.socket}
+                            />
+                        )
+                    }
                     else {
                         throw new Error("Invalid graph type");
                     }
