@@ -3,27 +3,32 @@ Entrypoint to the telemetry backend
 """
 
 import threading
-
 from flask import Flask
+from flask_cors import CORS
+import logging
+import time
 
 from process.flask_apps.database_app import app as database_app
 from process.flask_apps.http_app import app as http_app
 from process.flask_apps.socket_app import socketio
 
-# from flask_cors import CORS
-
 app = Flask(__name__)
 app.register_blueprint(http_app)
 app.register_blueprint(database_app)
-# CORS(app)
+CORS(app)
 
+logger = logging.getLogger("telemetry_logger")
+logging.basicConfig(filename=f'telemetry.{time.time()}.log', level=logging.INFO)
 
 def thread_function(a):
-    print(f"[THREAD FUNCTION] thread function called with argument {a}")
+    logger.info(f"Thread {a} starting")
 
 
 modem_thread = threading.Thread(
     target=thread_function, args=(1,), daemon=True
+)  # TODO for Lara: Make this the function that is monitoring the UART
+messages_thread = threading.Thread(
+    target=thread_function, args=(2,), daemon=True
 )  # TODO for Lara: Make this the function that is monitoring the UART
 try:
     modem_thread.start()

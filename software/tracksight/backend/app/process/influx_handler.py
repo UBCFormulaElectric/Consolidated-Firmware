@@ -5,15 +5,12 @@ Influx Handler
 import requests
 from dateutil.parser import parse
 
-URL = "https://us-east-1-1.aws.cloud2.influxdata.com"
+INFLUX_DB_URL = "https://us-east-1-1.aws.cloud2.influxdata.com"
 BUCKET = "testing"
-
 TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
-
 
 class NoDataForQueryException(Exception):
     """Raised when no data was found for a specific query"""
-
     pass
 
 
@@ -32,6 +29,7 @@ class InfluxHandler:
         }
         return headers
 
+    # NOTE unused
     @staticmethod
     def get_bucket_names_and_ids():
         """
@@ -40,7 +38,7 @@ class InfluxHandler:
         """
         headers = InfluxHandler._gen_headers()
         params = {}
-        response = requests.get(f"{URL}/api/v2/buckets", headers=headers, params=params)
+        response = requests.get(f"{INFLUX_DB_URL}/api/v2/buckets", headers=headers, params=params)
 
         response_json = response.json()
         return [
@@ -61,7 +59,7 @@ class InfluxHandler:
             "db": db,
             "q": f"SHOW MEASUREMENTS ON {db}",
         }
-        response = requests.get(f"{URL}/query", headers=headers, params=params)
+        response = requests.get(f"{INFLUX_DB_URL}/query", headers=headers, params=params)
 
         results = response.json()["results"][0]
         # Very jank, not sure if this is correct
@@ -80,7 +78,7 @@ class InfluxHandler:
             "db": db,
             "q": f"SHOW FIELD KEYS ON {db} FROM {measurement}",
         }
-        response = requests.get(f"{URL}/query", headers=headers, params=params)
+        response = requests.get(f"{INFLUX_DB_URL}/query", headers=headers, params=params)
 
         # lol
         results = response.json()["results"][0]["series"][0]["values"]
@@ -107,7 +105,7 @@ class InfluxHandler:
             "db": db,
             "q": query,
         }
-        response = requests.get(f"{URL}/query", headers=headers, params=params)
+        response = requests.get(f"{INFLUX_DB_URL}/query", headers=headers, params=params)
 
         results = response.json()["results"][0]
         if "series" not in results:

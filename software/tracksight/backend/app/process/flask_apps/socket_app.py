@@ -3,12 +3,16 @@ Socket app for handling live data
 """
 
 import flask_socketio
+from flask import request
 
-from .. import signal_util
+import logging
+logger = logging.getLogger("telemetry_logger")
+
+from ..signal_util import SignalUtil
+signal_util = SignalUtil()
 
 # SocketIO processes for live data
 socketio = flask_socketio.SocketIO(cors_allowed_origins="*")
-signal_util = signal_util.SignalUtil()
 
 
 @socketio.on("connect")
@@ -16,8 +20,8 @@ def handle_connect():
     """
     Handles the socket connection when the client connects
     """
-    print("Client Connected")
-    flask_socketio.emit("message", "You are connected to the server connect")
+    logger.info(f"Client {request.sid} Connected")
+    flask_socketio.emit("message", "Successfully connected to the server")
 
 
 @socketio.on("disconnect")
@@ -25,47 +29,34 @@ def handle_disconnect():
     """
     Handles the socket connection when the client disconnects
     """
-    print("Client Disconnected")
-    flask_socketio.emit("message", "You are disconnected from the server disconnect")
+    # TODO SignalUtil.disconnectClient(request.sid)
+    logger.info(f"Client {request.sid} Disconnected")
+    flask_socketio.emit("message", "Successfully Disconnected from the server")
 
 
-@socketio.on("data")
-def handle_message(message):
-    """
-    Handles the socket connection when the client sends a message
-    :param message: Message that the client sent
-    :return: None
-    """
-    socketio.emit("message_from_server", f"Server received: {message}")
-
-
-@socketio.on("available_signals")
-def handle_available_signals(_message):
+@socketio.on("available_signals_sub")
+def handle_available_signals():
     """
     Handles the "available signals" request from the client
     :returns all available signals to the client
     """
-    signals = signal_util.get_all_signals()
-    signal_names = list(signals.keys())  # returns list of keys
-    socketio.emit(
-        "available_signals_response", signal_names
-    )  # Emit the signal names to the client
+    # TODO SignalUtil.connectClientToAvailableSignals(client)
+    logger.info(f"Client {request.sid} requested available signals")
 
-
-@socketio.on("signal")
-def handle_signal_message(message):
+@socketio.on("signal_sub")
+def handle_signal_subscription(message):
     """
     Handles the "signal" request from the client
     :param message:
     :returns signal data to client based on signal name
     """
-    signals = {}
-    for id_ in message["ids"]:
-        signal_data = signal_util.get_signal(id_).to_dict()
-        signals[id_] = signal_data
-    ret = {"id": message["graph"], "signals": signals}
-    flask_socketio.emit("signal_response", ret)
+    # TODO SignalUtil.connectClientToSignal(request.sid, message.signal_name)
+    logger.info(f"Client {request.sid} requested signal {message.signal_name}")
 
+@socketio.on("signal_unsub")
+def handle_signal_unsubscrption(message):
+    # TODO SignalUtil.disconnectClientFromSignal(request.sid, message.signal_name)
+    logger.info(f"Client {request.sid} unsubscribed from signal {message.signal_name}")
 
 if __name__ == "__main__":
     socketio.run(app=None, debug=True)
