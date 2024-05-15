@@ -29,7 +29,7 @@ export default function RootLayout({ children, }: {
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <div className={`flex flex-col justify-between p-0 m-0 min-h-screen dark:bg-black dark:text-white`}>
+          <div className="flex flex-col justify-between p-0 m-0 min-h-screen dark:bg-black dark:text-white">
             <div className="p-0">
               <NavBar />
             </div>

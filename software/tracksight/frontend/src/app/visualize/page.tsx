@@ -6,57 +6,58 @@ import LiveGraph from './livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { GraphI, GraphType } from '@/types/Graph';
 
+// const [graphSignals, setGraphSignals] = useState<Record<string, string[]>>({});
+// const [dbName, setDbName] = useState<string>("test");
+// const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+// const updateGraphSignals = (graphId: number, signals: string) => {
+//     setGraphSignals(prev => ({ ...prev, [graphId]: signals }));
+// };
+
+// const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     setDbName(event.target.value);
+// }
+
+// const saveDashboard = async () => {
+//     //error handling for cases where these goblins try to save dashboard without a name or without any data
+//     if (!dbName.trim()) {
+//         message.error('name your dashboard before saving brother');
+//         return;
+//     }
+//     const hasData = Object.keys(graphSignals).some(graphId => graphSignals[graphId].length > 0);
+//     if (!hasData) {
+//         message.warning('stop trying to save a dashboard without any graphs brother');
+//         return;
+//     }
+
+//     const data: { dbname: string; graphs: Record<string, string[]> } = {
+//         dbname: dbName,
+//         graphs: {}
+//     };
+//     for (let graphId in graphSignals) {
+//         data.graphs[graphId] = graphSignals[graphId];
+//     }
+
+//     const path = `dashboards/${dbName}`;
+//     const success = await saveDashboardData(path, data);
+
+//     if (success) {
+//         message.success('Dashboard saved successfully!');
+//         setModalOpen(false);
+//     } else {
+//         message.error('Error saving the dashboard.');
+//     }
+//     setModalOpen(false);
+// };
+
+
 export default function Visualize() {
-    // const [graphSignals, setGraphSignals] = useState<Record<string, string[]>>({});
-    // const [dbName, setDbName] = useState<string>("test");
-    // const [modalOpen, setModalOpen] = useState<boolean>(false);
-
-    // const updateGraphSignals = (graphId: number, signals: string) => {
-    //     setGraphSignals(prev => ({ ...prev, [graphId]: signals }));
-    // };
-
-    // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setDbName(event.target.value);
-    // }
-
-    // const saveDashboard = async () => {
-    //     //error handling for cases where these goblins try to save dashboard without a name or without any data
-    //     if (!dbName.trim()) {
-    //         message.error('name your dashboard before saving brother');
-    //         return;
-    //     }
-    //     const hasData = Object.keys(graphSignals).some(graphId => graphSignals[graphId].length > 0);
-    //     if (!hasData) {
-    //         message.warning('stop trying to save a dashboard without any graphs brother');
-    //         return;
-    //     }
-
-    //     const data: { dbname: string; graphs: Record<string, string[]> } = {
-    //         dbname: dbName,
-    //         graphs: {}
-    //     };
-    //     for (let graphId in graphSignals) {
-    //         data.graphs[graphId] = graphSignals[graphId];
-    //     }
-
-    //     const path = `dashboards/${dbName}`;
-    //     const success = await saveDashboardData(path, data);
-
-    //     if (success) {
-    //         message.success('Dashboard saved successfully!');
-    //         setModalOpen(false);
-    //     } else {
-    //         message.error('Error saving the dashboard.');
-    //     }
-    //     setModalOpen(false);
-    // };
-
-
+    // shared layout
     const [shouldSyncZoom, setShouldSyncZoom] = useState<boolean>(false);
-    const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
+    const [sharedZoomData, setSharedZoomData] = useState<PlotRelayoutEvent>({});
+    
+    // graph management
     const [graphs, setGraphs] = useState<GraphI[]>([]);
-
-
     function addGraph(graphType: GraphType) {
         setGraphs(prevGraphs => [...prevGraphs, {
             id: Date.now(),
@@ -64,15 +65,14 @@ export default function Visualize() {
             type: graphType
         }]);
     };
-
     //delete a graph
     function deleteGraph(gid: number) {
         setGraphs(prevGraphs => prevGraphs.filter(graph => graph.id !== gid));
     };
 
     return (
-        <div id="visualize-page" className="p-8">
-            <div>
+        <div className="p-8">
+            <div id="visualize-main">
                 <div>
                     <h1 className="text-4xl font-bold">Visualize</h1>
                     <p>Select a graph to provide live data or data from InfluxDB.</p>
@@ -90,10 +90,8 @@ export default function Visualize() {
                         <Input placeholder='Name of dashboard...' onChange={handleInputChange}></Input>
                     </Modal> */}
                 </div>
-
             </div>
-
-            <div className="flex flex-wrap gap-4 mt-6">
+            <div id="graph-container" className="flex flex-wrap gap-4 mt-6">
                 {graphs.map((graph) => {
                     if(graph.type == GraphType.HISTORICAL) {
                         return (
@@ -102,20 +100,20 @@ export default function Visualize() {
                                 graphInfo={graph}
                                 handleDelete={(e) => deleteGraph(graph.id)}
                                 syncZoom={shouldSyncZoom}
-                                sharedZoomData={zoomData}
-                                setSharedZoomData={setZoomData}
+                                sharedZoomData={sharedZoomData}
+                                setSharedZoomData={setSharedZoomData}
                             />
                         )
                     }
                     // TODO reconsider whether we need a different component for live and non live graph data
+                    // at the very least, the wrapper we can reuse, and the innards we can swap out
+                    // hinged on the wider design
                     else if (graph.type == GraphType.LIVE) {
                         return (
                             <LiveGraph
                                 key={graph.id}
                                 id={graph.id}
                                 onDelete={(e) => deleteGraph(graph.id)}
-                                // updateGraphSignals={updateGraphSignals}
-                                // socket={props.socket}
                             />
                         )
                     }
