@@ -39,11 +39,11 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
 
 /**
  * 
- * Websockets that are used
- *  - sub_signal (emit), unsub_signal (emit)
+ * Websockets that are used (handling signals, and handling available signals)
+ *  - signal_sub (emit), signal_unsub (emit)
  *  - signal_response
  *  - signal_stopped
- *  - sub_available_signals (emit)
+ *  - available_signals_sub (emit)
  *  - available_signals_response
  * @param props 
  * @returns 
@@ -102,10 +102,10 @@ export default function LiveGraph(props: {
         if (watchSignals.length === 0) return;
         if (!socket || loading) throw new Error("Socket not initialized");
         watchSignals.forEach(s => {
-            if (!(s in prevWatchSignals)) socket.emit("sub_signal", { signal: s });
+            if (!(s in prevWatchSignals)) socket.emit("signal_sub", { signal: s });
         })
         prevWatchSignals.forEach(s => {
-            if (!(s in watchSignals)) socket.emit("unsub_signal", { signal: s });
+            if (!(s in watchSignals)) socket.emit("signal_unsub", { signal: s });
         });
         // cleanup
         setGraphTitle(Object.keys(watchSignals).join(" + "));
@@ -118,7 +118,7 @@ export default function LiveGraph(props: {
     const [validSignals, setValidSignals] = useState<string[]>([]);
     useEffect(() => {
         if(!socket) return;
-        socket.emit("sub_available_signals");
+        socket.emit("available_signals_sub");
         socket.on("available_signals_response", (signalNames) => {
             setValidSignals(signalNames);
         });
