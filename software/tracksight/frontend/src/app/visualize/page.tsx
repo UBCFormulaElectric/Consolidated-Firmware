@@ -93,7 +93,7 @@ export default function Visualize() {
 
             </div>
 
-            <div id="graph-container" className="flex flex-wrap gap-4 mt-6">
+            <div className="flex flex-wrap gap-4 mt-6">
                 {graphs.map((graph) => {
                     if(graph.type == GraphType.HISTORICAL) {
                         return (

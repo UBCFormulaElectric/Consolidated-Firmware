@@ -196,13 +196,13 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
             />
 
             <div className="flex flex-row gap-x-2">
-                <Button block={true} className="clear" onClick={() => {
+                <Button block={true} className="bg-[#1890ff] text-white border-0" onClick={() => {
                     setGraphLayout(DEFAULT_LAYOUT);
                     setPlotData({});
                 }}>
                     Clear Data
                 </Button>
-                <Button block={true} danger={true} ghost={false} onClick={handleDelete}>
+                <Button block={true} className="bg-[#ff4d4f] !text-white border-0" danger={true} ghost={false} onClick={handleDelete}>
                     Delete This Graph
                 </Button>
             </div>

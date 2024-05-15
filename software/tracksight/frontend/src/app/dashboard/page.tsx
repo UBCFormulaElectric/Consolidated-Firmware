@@ -134,7 +134,7 @@ export default function Dashboard(props: {
                     />
                 </Modal>
             </Space>
-            <div className="graph-container">
+            <div className="flex flex-wrap gap-4 mt-6">
                 {Object.entries(graphs).map(([graphId, signals]) => (
                     <LiveGraph
                         key={graphId}
