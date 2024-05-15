@@ -17,7 +17,6 @@ class PythonCanUtils:
     """
     def __init__(self):
         self.can_database = vc_can_db # assuming this is already populated with the vc rx and tx and all that jazz
-        # self.decoded_values = {}
 
     def unpack_message(self, message_id, raw_data):
         """
@@ -33,14 +32,13 @@ class PythonCanUtils:
 
         # Iterate over signals in the message
         for signal in message.signals:
-            # Need to get the signals meta data lets call it 
+            
+            # Extract the 'meta data' from the can data base
             start_byte, start_bit = divmod(signal.start_bit, 8)
             end_byte, end_bit = divmod(signal.start_bit + signal.bits - 1, 8)
             signal_bytes = raw_data[start_byte:end_byte + 1]
-            extracted_bits = 0
-            for i, byte in enumerate(signal_bytes):
-                extracted_bits |= byte << (8 * i)
-            extracted_bits >>= start_bit # TODO: get this so that it can use pack shift or pack left options 
+
+            extracted_bits = self.extract_bits(signal_bytes, start_bit)
 
             # Apply scaling and offset to get signal value
             raw_value = extracted_bits * signal.scale + signal.offset
@@ -50,6 +48,21 @@ class PythonCanUtils:
 
         return decoded_values
     
+    def extract_bits(self, signal_bytes, start_bit):
+        """
+        Extract bits from signal bytes and return these bits    
+        """
+        byte_mask = 0xFF
+
+        for i, byte in enumerate(signal_bytes):
+            bits = byte & byte_mask 
+            shifted_bits = self.unpack_left(bits, byte_mask,8*i)
+            extracted_bits |= shifted_bits
+
+        extracted_bits >>= start_bit
+
+        return extracted_bits
+
     def unpack_left(self, input, mask,shift):
         """
         Unpack left
