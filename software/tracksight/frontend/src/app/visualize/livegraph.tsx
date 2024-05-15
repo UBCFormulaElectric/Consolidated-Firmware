@@ -115,17 +115,15 @@ export default function LiveGraph(props: {
 
     const [validSignals, setValidSignals] = useState<string[]>([]);
     useEffect(() => {
-        useEffect(() => {
-            if(!socket) return;
-            socket.emit("available_signals", { "ids": [] });
-            socket.on("available_signals_response", (signalNames) => {
-                setValidSignals(signalNames);
-            });
-            return () => {
-                socket.off("available_signals_response");
-            };
-        }, [socket]);
-    }, [])
+        if(!socket) return;
+        socket.emit("available_signals", { "ids": [] });
+        socket.on("available_signals_response", (signalNames) => {
+            setValidSignals(signalNames);
+        });
+        return () => {
+            socket.off("available_signals_response");
+        };
+    }, [socket]);
 
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
