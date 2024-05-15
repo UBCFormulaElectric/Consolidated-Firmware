@@ -1,3 +1,8 @@
+// used api endpoints
+// /signal/measurement
+// /signal/fields/<measurement>
+// /query
+
 'use client';
 import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
 import { PlotRelayoutEvent } from 'plotly.js';
@@ -31,7 +36,7 @@ const MeasurementDropdown = ({ setMeasurement }: {
     const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         (async () => {
-            const fetchURL = `${FLASK_URL}/signal/measurement`
+            const fetchURL = `${FLASK_URL}/signal/measurements`
             const res = await fetch(fetchURL, {
                 method: 'get',
             })
@@ -72,7 +77,7 @@ const FieldDropdown = ({ setFields, measurement }: {
             setLoading(true);
             setFetchedFields(false)
             try {
-                const res = await fetch(new URL(`/signal/fields/${measurement}`, FLASK_URL), {
+                const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
                     method: 'get',
                 })
                 if(!res.ok) {
@@ -165,7 +170,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
                         // "Please fill out all fields properly"
                         return;
                     }
-                    const fetchUrl = new URL("/query", FLASK_URL);
+                    const fetchUrl = new URL("/signal/query", FLASK_URL);
                     fetchUrl.search = new URLSearchParams({
                         measurement: measurement[0],
                         start_epoch: startEpoch, end_epoch: endEpoch,
@@ -177,7 +182,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
                         const res = await fetch(fetchUrl, { method: 'get' })
                         if (!res.ok) {
                             // TODO add message
-                            console.error(await res.text())
+                            console.error(await res.json())
                             return;
                         }
                         setPlotData(await res.json())

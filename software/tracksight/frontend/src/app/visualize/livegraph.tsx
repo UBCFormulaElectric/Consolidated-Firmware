@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, MouseEventHandler, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, MouseEventHandler } from 'react';
 import Plot from 'react-plotly.js';
 import { Button, Card, Switch, Space } from 'antd';
 import { useSocket } from '@/app/useSocket';
