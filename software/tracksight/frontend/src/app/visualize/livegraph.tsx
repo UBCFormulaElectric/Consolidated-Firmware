@@ -140,7 +140,6 @@ export default function LiveGraph(props: {
             <Space.Compact size={"middle"}>
                 <Button block={true} className="clear" onClick={() => {
                     setGraphLayout(DEFAULT_LAYOUT);
-                    // setData({ id: 0, signals: {} });
                     setPlotData([]);
                 }}>
                     Clear
