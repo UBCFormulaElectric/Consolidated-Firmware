@@ -1,7 +1,7 @@
 'use client';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Button, Switch } from 'antd';
-import Graph from '../components/db/graph';
+import Graph from './graph';
 import LiveGraph from '../components/live/livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { GraphI, GraphType } from '@/types/Graph';
