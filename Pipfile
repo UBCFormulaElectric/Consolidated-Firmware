@@ -23,6 +23,7 @@ PyGithub = "*"
 black = "*"
 flask = "*"
 Definitions = "*"
+flask_cors = "*"
 
 [dev-packages]
 setuptools = "*"
