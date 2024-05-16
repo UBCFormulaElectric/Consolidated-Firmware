@@ -26,9 +26,10 @@ Definitions = "*"
 flask_cors = "*"
 pandas = "*"
 flask_socketio = "*"
-pyteipst = "*"
+pytest = "*"
 asammdf = "*"
 requests = "*"
+gunicorn = "*"
 
 [dev-packages]
 setuptools = "*"
