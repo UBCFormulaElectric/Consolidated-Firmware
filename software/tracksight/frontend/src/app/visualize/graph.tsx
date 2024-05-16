@@ -198,7 +198,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
             {/* TODO better plotting library :(((( */}
             <Plot layout={graphLayout} data={plotData} // Pass the array of formatted data objects
                 config={{ displayModeBar: true, displaylogo: false, scrollZoom: true, }}
-                onRelayout={(e) => { if (syncZoom) setSharedZoomData(e) }}
+                onRelayout={(e: PlotRelayoutEvent) => { if (syncZoom) setSharedZoomData(e) }}
             />
 
             <div className="flex flex-row gap-x-2">
