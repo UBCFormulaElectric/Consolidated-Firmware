@@ -7,7 +7,7 @@ import DropdownMenu from './dropdown_menu';
 import {assertType} from '@/types/Assert';
 import {PlotData} from 'plotly.js';
 
-const Plot = require('react-plotly.js').default;
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
 interface FormattedData {
     x: Date[];

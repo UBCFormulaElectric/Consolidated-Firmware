@@ -12,7 +12,7 @@ import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import {FLASK_URL} from '@/app/constants';
 
-const Plot = require('react-plotly.js').default;
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
