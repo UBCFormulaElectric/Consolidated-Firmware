@@ -6,6 +6,7 @@ import requests
 from dateutil.parser import parse
 
 INFLUX_DB_URL = "https://us-east-1-1.aws.cloud2.influxdata.com"
+# INFLUX_DB_URL = "http://localhost:8086"
 BUCKET = "testing"
 TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
 
