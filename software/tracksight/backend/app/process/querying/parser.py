@@ -1,4 +1,4 @@
-from .AST import BinaryOperatorNode, NumberNode
+from .ast_node import BinaryOperatorNode, NumberNode
 
 
 class Parser:
