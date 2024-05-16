@@ -44,10 +44,16 @@ TEST_F(RsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     // Check heartbeat back in, fault should clear and transition back to init
     app_canRx_VC_Heartbeat_update(true);  // Check in heartbeat
     app_canRx_FSM_Heartbeat_update(true); // Check in heartbeat
-    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
+    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 20U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+
+    app_canRx_FSM_Heartbeat_update(false); // do not check in FSM
+
+    LetTimePass(20); // here VC shouldnt fault but FSM should
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
 }
 
 TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault)

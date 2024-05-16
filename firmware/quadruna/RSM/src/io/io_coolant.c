@@ -14,9 +14,21 @@
 // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)
 #define TEMPERATURE_VOLTAGE_MAX (4.0f)
-#define T0 (298.15f)           // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
-#define R0 (10000.f)           // resistance at T0
-#define B_COEFFICIENT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
+// TODO set these values
+#define PRESSURE_TOP_RESISTOR (28.0f)
+#define PRESSURE_BOT_RESISTOR (56.0f)
+// from the schematic we see that the voltage value coming is passes through a voltage dividor before it is read at the
+// ADC PIN.
+#define PRESSURE_VOLTAGE_DIVIDOR (PRESSURE_BOT_RESISTOR / (PRESSURE_BOT_RESISTOR + PRESSURE_TOP_RESISTOR))
+#define PRESSURE_VOLTAGE_MIN (0.5f * PRESSURE_VOLTAGE_DIVIDOR)
+#define PRESSURE_VOLTAGE_MAX (4.5f * PRESSURE_VOLTAGE_DIVIDOR)
+#define PRESSURE_PSI_MAX (100.0f)
+#define VOLTAGE_PRESSURE_CONVERSION(voltage) \
+    (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
+
+#define T0 (298.15f)          // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
+#define R0 (10000.f)          // resistance at T0
+#define B_COEFFIECNT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define VIN (5.0f)
 #define R2 (2200.f) // bottom resistor in the coolant temp sensor circuit
 // the coolant temp sensor circuit is made of a voltage divider where the thermistor which we use for the temperature
@@ -103,16 +115,22 @@ bool pressure_ocsc(float v)
 
 float io_coolant_getPressureA(void)
 {
-    const float v_read = hw_adc_getVoltage(ADC1_IN12_COOLANT_PRESSURE_1);
-    app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(v_read));
-    const float press_a = (v_read - PRESSURE_VOLTAGE_MIN) * PSI_PER_VOLT + MIN_PRESSURE_PSI;
-    return press_a;
+    return CLAMP(VOLTAGE_PRESSURE_CONVERSION(ADC1_IN12_COOLANT_PRESSURE_1), PRESSURE_VOLTAGE_MIN, PRESSURE_PSI_MAX);
+}
+
+bool io_coolant_PressureAOCSC(void)
+{
+    return (
+        PRESSURE_VOLTAGE_MIN > (ADC1_IN12_COOLANT_PRESSURE_1) || PRESSURE_VOLTAGE_MAX < (ADC1_IN12_COOLANT_PRESSURE_1));
 }
 
 float io_coolant_getPressureB(void)
 {
-    const float v_read = hw_adc_getVoltage(ADC1_IN11_COOLANT_PRESSURE_2);
-    app_canTx_RSM_Warning_CoolantPressureBOCSC_set(pressure_ocsc(v_read));
-    const float press_b = (v_read - PRESSURE_VOLTAGE_MIN) * PSI_PER_VOLT + MIN_PRESSURE_PSI;
-    return press_b;
+    return CLAMP(VOLTAGE_PRESSURE_CONVERSION(ADC1_IN11_COOLANT_PRESSURE_2), PRESSURE_VOLTAGE_MIN, PRESSURE_VOLTAGE_MAX);
+}
+
+bool io_coolant_PressureBOCSC(void)
+{
+    return (
+        PRESSURE_VOLTAGE_MIN > (ADC1_IN11_COOLANT_PRESSURE_2) || PRESSURE_VOLTAGE_MAX < (ADC1_IN12_COOLANT_PRESSURE_1));
 }
