@@ -16,6 +16,6 @@ WORKDIR /backend
 COPY ./software/tracksight/backend/ .
 
 USER root
-WORKDIR /backend/app
+WORKDIR /backend
 EXPOSE 5000
-CMD ["python", "telemetry.py"]
+CMD ["python", "app/telemetry.py"]
