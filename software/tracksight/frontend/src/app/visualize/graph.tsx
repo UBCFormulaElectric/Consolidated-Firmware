@@ -4,14 +4,15 @@
 // /query
 
 'use client';
-import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
-import { PlotRelayoutEvent } from 'plotly.js';
-import { Button } from 'antd';
-import { GraphI } from '@/types/Graph';
+import {Dispatch, MouseEventHandler, SetStateAction, useEffect, useState} from 'react';
+import {PlotRelayoutEvent} from 'plotly.js';
+import {Button} from 'antd';
+import {GraphI} from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
-import { FLASK_URL } from '@/app/constants';
-import Plot from 'react-plotly.js';
+import {FLASK_URL} from '@/app/constants';
+
+const Plot = require('react-plotly.js').default;
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,

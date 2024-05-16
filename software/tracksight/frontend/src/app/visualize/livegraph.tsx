@@ -1,12 +1,13 @@
 'use client'
-import { useState, useEffect, MouseEventHandler } from 'react';
-import Plot from 'react-plotly.js';
-import { Button, Card, Switch, Space } from 'antd';
-import { useSocket } from '@/app/useSocket';
-import { FLASK_URL } from '@/app/constants';
+import {MouseEventHandler, useEffect, useState} from 'react';
+import {Button, Card, Space, Switch} from 'antd';
+import {useSocket} from '@/app/useSocket';
+import {FLASK_URL} from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
-import { assertType } from '@/types/Assert';
-import { PlotData } from 'plotly.js';
+import {assertType} from '@/types/Assert';
+import {PlotData} from 'plotly.js';
+
+const Plot = require('react-plotly.js').default;
 
 interface FormattedData {
     x: Date[];
