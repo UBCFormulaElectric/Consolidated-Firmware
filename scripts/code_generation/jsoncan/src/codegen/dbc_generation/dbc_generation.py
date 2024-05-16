@@ -2,7 +2,7 @@
 Module for generating a DBC file from a CanDatabase object.
 TODO: Adding descriptions of messages to DBC
 """
-from typing import List
+
 from ...can_database import *
 
 DBC_TEMPLATE = """\
@@ -58,7 +58,8 @@ class DbcGenerator:
         value_tables_text = ""
         cycle_time_attributes_text = ""
         signal_start_values_text = ""
-        for msg in self._db.msgs:
+        for _index, msg_entry in self._db.msgs.iterrows():
+            msg = CanMessage.from_series(msg_entry)
             # Generate text for CAN message
             msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node)
 
@@ -106,7 +107,8 @@ class DbcGenerator:
             node_names=" ".join(self._db.nodes + [self._db.bus_config.default_receiver])
         )
 
-    def _dbc_message(self, msg: CanMessage, tx_node: str) -> str:
+    @staticmethod
+    def _dbc_message(msg: CanMessage, tx_node: str) -> str:
         """
         Format and return DBC message definition.
         """
@@ -114,7 +116,8 @@ class DbcGenerator:
             id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=tx_node
         )
 
-    def _dbc_signal(self, signal: CanSignal, rx_nodes: List[str]) -> str:
+    @staticmethod
+    def _dbc_signal(signal: CanSignal, rx_nodes: List[str]) -> str:
         """
         Format and return DBC signal definition.
         """
@@ -136,6 +139,7 @@ class DbcGenerator:
         """
         Format and attribute definitions and defaults.
         """
+        # TODO what
         bus = self._db.bus_config
         # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
         #     cycle_time_min=bus.cycle_time_min,
@@ -147,7 +151,8 @@ class DbcGenerator:
         # )
         return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
 
-    def _dbc_msg_cycle_time_attribute(self, value: int, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_msg_cycle_time_attribute(value: int, msg_id: int) -> str:
         """
         Format and return DBC GenMsgCycleTime message attribute.
         """
@@ -159,7 +164,8 @@ class DbcGenerator:
             value=value,
         )
 
-    def _dbc_signal_start_val_attribute(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_signal_start_val_attribute(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC GenSigStartValue signal attribute.
         """
@@ -171,7 +177,8 @@ class DbcGenerator:
             value=signal.start_val,
         )
 
-    def _dbc_value_table(self, signal: CanSignal, msg_id: int) -> str:
+    @staticmethod
+    def _dbc_value_table(signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC value table.
         """

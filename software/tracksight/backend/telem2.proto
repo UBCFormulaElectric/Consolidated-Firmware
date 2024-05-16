@@ -1,0 +1,9 @@
+// Tracksight Message
+
+syntax = "proto3";
+
+message TelemMessage {
+    int32 can_id = 1;
+    repeated int32 message = 2;
+    int32 time_stamp = 3;
+}

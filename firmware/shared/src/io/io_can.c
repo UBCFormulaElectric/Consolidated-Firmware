@@ -72,7 +72,12 @@ void io_can_transmitMsgFromQueue(void)
     CanMsg           tx_msg;
     const osStatus_t s = osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
     assert(s == osOK);
-    hw_can_transmit(&tx_msg);
+    CanMsg tx_msg_hw;
+
+    tx_msg_hw.std_id = tx_msg.std_id;
+    tx_msg_hw.dlc    = tx_msg.dlc;
+    memcpy(tx_msg_hw.data, tx_msg.data, 8 * sizeof(int));
+    hw_can_transmit(&tx_msg_hw);
 }
 
 void io_can_popRxMsgFromQueue(CanMsg *msg)

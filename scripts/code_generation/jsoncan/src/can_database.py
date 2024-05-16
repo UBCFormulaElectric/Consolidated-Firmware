@@ -2,9 +2,11 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
+from cmath import isnan
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
+from pandas import DataFrame
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
@@ -130,6 +132,26 @@ class CanSignal:
         else:
             return CanSignalDatatype.FLOAT
 
+    @staticmethod
+    def from_series(series: DataFrame):
+        """
+        Create a CanSignal from a pandas Series.
+        """
+        return CanSignal(
+            name=series["name"],
+            start_bit=int(series["start_bit"]),
+            bits=int(series["bits"]),
+            scale=series["scale"],
+            offset=series["offset"],
+            min_val=series["min_val"],
+            max_val=series["max_val"],
+            start_val=series["start_val"],
+            enum=series["enum"],
+            unit=series["unit"],
+            signed=series["signed"],
+            description=series["description"],
+        )
+
     def __str__(self):
         return self.name
 
@@ -167,6 +189,39 @@ class CanMessage:
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
         return self.cycle_time is not None
+
+    def to_dict(self):
+        """
+        Convert this message to a dictionary.
+        """
+        return {
+            "name": self.name,
+            "id": self.id,
+            "description": self.description,
+            "cycle_time": self.cycle_time,
+            "signals": [signal.__dict__ for signal in self.signals],
+            "tx_node": self.tx_node,
+            "rx_nodes": self.rx_nodes,
+            "modes": self.modes,
+        }
+
+    @staticmethod
+    def from_series(series: DataFrame):
+        """
+        Create a CanMessage from a pandas Series.
+        """
+        return CanMessage(
+            name=series["name"],
+            id=int(series["id"]),
+            description=series["description"],
+            cycle_time=(
+                None if isnan(series["cycle_time"]) else int(series["cycle_time"])
+            ),
+            signals=[CanSignal.from_series(signal) for signal in series["signals"]],
+            tx_node=series["tx_node"],
+            rx_nodes=series["rx_nodes"],
+            modes=series["modes"],
+        )
 
 
 @dataclass(frozen=True)
@@ -208,7 +263,7 @@ class CanDatabase:
 
     nodes: List[str]  # List of names of the nodes on the bus
     bus_config: CanBusConfig  # Various bus params
-    msgs: List[CanMessage]  # All messages being sent to the bus
+    msgs: DataFrame  # All messages being sent to the bus
     shared_enums: List[CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
@@ -218,13 +273,21 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        return [msg for msg in self.msgs if tx_node == msg.tx_node]
+        return [
+            CanMessage.from_series(msg)
+            for _, msg in self.msgs[self.msgs["tx_node"] == tx_node].iterrows()
+        ]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        return [msg for msg in self.msgs if rx_node in msg.rx_nodes]
+        return [
+            CanMessage.from_series(msg)
+            for _, msg in self.msgs[
+                self.msgs["rx_nodes"].apply(lambda x: rx_node in x)
+            ].iterrows()
+        ]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
@@ -283,18 +346,28 @@ class CanDatabase:
         if tx_node == rx_node:
             # A node "receives" its own alerts
             return self.node_alerts(tx_node, alert_type)
-        else:
-            alert_msg = next(
-                msg for msg in self.msgs if msg.name == f"{tx_node}_{alert_type}s"
+
+        # tx_node != rx_node
+        query_alert_msgs = self.msgs[self.msgs["name"] == f"{tx_node}_{alert_type}s"]
+        if len(query_alert_msgs) == 0:
+            raise ValueError(
+                f"Alert message {tx_node}_{alert_type}s not found in database"
             )
-            return [
-                alert
-                for alert in self.node_alerts(tx_node, alert_type)
-                if rx_node in alert_msg.rx_nodes
-            ]
+        alert_msg = query_alert_msgs.iloc[0]
+        return [
+            alert
+            for alert in self.node_alerts(tx_node, alert_type)
+            if rx_node in alert_msg["rx_nodes"]
+        ]
 
     def node_has_alert(self, node: str, alert_type: CanAlertType) -> bool:
         """
         Return whether or not a node transmits any alerts.
         """
         return len(self.node_alerts(node, alert_type)) > 0
+
+    def msgs_for_id(self, msg_id: int) -> CanMessage:
+        """
+        Return list of all CAN messages with a specific id.
+        """
+        return self.msgs[self.msgs["id"] == msg_id]

@@ -4,7 +4,10 @@ import os
 # from flask_cors import CORS
 from process.http_app import app as http_app
 from process.socket_app import socketio as socket_app
+from process import SignalUtil #for starting threads TODO:fix ig?
 
+import subprocess #For compiling telem2.proto
+import threading
 
 app = Flask(__name__)
 # CORS(app)
@@ -14,6 +17,7 @@ JSON_FILE = './dashboards.json'
 
 def read_json_file():
     if not os.path.exists(JSON_FILE):
+        print("JSON File does not exist")
         return {}
     with open(JSON_FILE, 'r') as file:
         return json.load(file)
@@ -55,7 +59,39 @@ def delete_data():
     else:
         return jsonify({'error': 'Data not found'}), 404
 
+def compile_proto_files():
+    # protoc --proto_path=software/tracksight/backend --python_out=software/tracksight/backend/app/process  software/tracksight/backend/telem2.proto
+    proto_source = 'software/tracksight/backend/telem2.proto'
+    proto_dest = 'software/tracksight/backend/app/process'
+    command = [
+        'protoc',
+        f'--proto_path=software/tracksight/backend/',
+        f'--python_out={proto_dest}',
+        proto_source
+    ]
+    try:
+        # Run the command and wait for it to complete
+        subprocess.run(command, check=True)
+        print("Proto files compiled successfully.")
+    except subprocess.CalledProcessError as e:
+        print("Failed to compile proto files:", e)
+
 
 if __name__ == '__main__':
+
+    #Path to generate lookup script
+    #script_path = 'scripts/code_generation/generate_lookup_json.py'
+    #os.system(f'python3.11 {script_path}')
+
+    #Compile proto files
+  #  compile_proto_files()
+
     socket_app.init_app(app)  # Initialize the Socket.IO app with the main app
-    socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0')
+    #Create app Thread
+    appThread = threading.Thread (socket_app.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0'))
+    #Create read messages thread
+    readThread = threading.Thread (SignalUtil.read_messages())
+    #Start threads
+    appThread.start()
+    readThread.start()
+

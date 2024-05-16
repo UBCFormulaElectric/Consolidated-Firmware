@@ -19,7 +19,6 @@ def handle_disconnect():
 def handle_message(message):
     socketio.emit('message_from_server', f'Server received: {message}')
 
-
 # returns all available signals to the client
 @socketio.on('available_signals')
 def handle_available_signals(message):
