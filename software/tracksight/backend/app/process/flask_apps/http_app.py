@@ -16,6 +16,7 @@ app = Blueprint("http_app", __name__)
 
 # helpers
 from ..signal_util import SignalUtil
+
 signal_util = SignalUtil()
 
 
@@ -30,7 +31,6 @@ def responsify(data):
     return response
 
 
-
 @app.route("/")
 def hello_world():
     """
@@ -38,6 +38,7 @@ def hello_world():
     :return:
     """
     return "Telemetry Backend is running!"
+
 
 @app.route("/signal/measurements", methods=["GET"])
 def return_all_measurements():
