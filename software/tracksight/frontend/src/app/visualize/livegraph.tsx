@@ -6,6 +6,7 @@ import {FLASK_URL} from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
 import {assertType} from '@/types/Assert';
 import {PlotData} from 'plotly.js';
+import dynamic from "next/dynamic";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 

@@ -11,6 +11,7 @@ import {GraphI} from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import {FLASK_URL} from '@/app/constants';
+import dynamic from "next/dynamic";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
