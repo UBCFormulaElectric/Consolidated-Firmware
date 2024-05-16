@@ -1,10 +1,14 @@
 services:
   backend:
+    user: root
     build:
       context: ../../
       dockerfile: ./software/tracksight/backend/Dockerfile
     ports:
       - "5000:5000"
+    volumes:
+      - ./software/tracksight/backend/logs:/backend/logs
+      - ./can_bus:/can_bus
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:5000"]
     #   interval: 1m30s
