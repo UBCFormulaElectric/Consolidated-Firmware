@@ -1,6 +1,8 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: ../../
+      dockerfile: ./software/tracksight/backend/Dockerfile
     ports:
       - "5000:5000"
     # healthcheck:
@@ -11,9 +13,9 @@ services:
     #   start_period: 40s
     #   start_interval: 5s
   frontend:
-    build: ./frontend 
+    build: ./frontend
     ports:
       - "80:3000"
     depends_on:
       - backend
-        # condition: service_healthy
+      # condition: service_healthy
