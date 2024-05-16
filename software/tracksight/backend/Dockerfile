@@ -10,7 +10,6 @@ WORKDIR /backend
 COPY Pipfile .
 COPY Pipfile.lock .
 RUN pipenv install --system --deploy
-RUN pip install gunicorn eventlet
 
 WORKDIR /backend
 COPY ./software/tracksight/backend/ .
