@@ -2,6 +2,9 @@
 # ENV FLASK_RUN_HOST=0.0.0.0
 FROM python:3.11-slim
 
+# for healthcheck
+RUN apt update && apt install -y curl && apt clean
+
 USER root
 WORKDIR /backend
 RUN pip install pipenv

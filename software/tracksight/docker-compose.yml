@@ -1,3 +1,4 @@
+name: tracksight
 services:
   backend:
     user: root
@@ -9,17 +10,17 @@ services:
     volumes:
       - ./software/tracksight/backend/logs:/backend/logs
       - ./can_bus:/can_bus
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:5000"]
-    #   interval: 1m30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
-    #   start_interval: 5s
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 1m1s
+      timeout: 5s
+      retries: 3
+      start_period: 1s
+      start_interval: 1s
   frontend:
     build: ./frontend
     ports:
       - "80:3000"
     depends_on:
-      - backend
-      # condition: service_healthy
+      backend:
+        condition: service_healthy
