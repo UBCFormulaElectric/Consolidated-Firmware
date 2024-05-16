@@ -1,5 +1,25 @@
 name: tracksight
 services:
+  influx:
+    image: influxdb:2.7.6-alpine
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=tracksight
+      - INFLUXDB_ADMIN_ENABLED=true
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin
+      - INFLUXDB_USER=tracksight
+      - INFLUXDB_USER_PASSWORD=tracksight
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
+      interval: 1m1s
+      timeout: 5s
+      retries: 3
+      start_period: 1s
+      start_interval: 1s
   backend:
     user: root
     build:
@@ -17,6 +37,9 @@ services:
       retries: 3
       start_period: 1s
       start_interval: 1s
+    depends_on:
+      influx:
+        condition: service_healthy
   frontend:
     build: ./frontend
     ports:
@@ -24,16 +47,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-  influx:
-    image: influxdb:2.7.6-alpine
-    ports:
-      - "8086:8086"
-    volumes:
-      - ./influxdb:/var/lib/influxdb
-    environment:
-      - INFLUXDB_DB=tracksight
-      - INFLUXDB_ADMIN_ENABLED=true
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=admin
-      - INFLUXDB_USER=tracksight
-      - INFLUXDB_USER_PASSWORD=tracksight
