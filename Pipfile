@@ -24,6 +24,11 @@ black = "*"
 flask = "*"
 Definitions = "*"
 flask_cors = "*"
+pandas = "*"
+flask_socketio = "*"
+pyteipst = "*"
+asammdf = "*"
+requests = "*"
 
 [dev-packages]
 setuptools = "*"
