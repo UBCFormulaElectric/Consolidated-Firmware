@@ -32,6 +32,9 @@
   },
   "devDependencies": {
     "@types/plotly.js": "^2.12.29",
-    "@types/react-plotly.js": "^2.6.2"
+    "@types/react-plotly.js": "^2.6.2",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
   }
 }

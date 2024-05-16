@@ -1,0 +1,93 @@
+openapi: 3.1.0
+servers: 
+  - url: "https://tracksight.ubcformulaelectric.com:5000"
+info:
+  title: "Tracksight Backend API"
+  summary: "This is the backend API to access information about the UBC Formula Electric racecar Quadruna."
+  description: "It allows users to access information about the car, the team"
+  version: "1.0.0"
+  license: 
+    name: "Apache"
+    url: "https://github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/LICENSE"
+  contact: 
+    name: "UBC Formula Electric"
+    url: "https://ubcformulaelectric.com"
+    email: "contact@ubcformulaelectric.com"
+paths:
+  /:
+    get:
+      summary: "Root endpoint"
+      description: "Use this endpoint to test if the server is up and running."
+      operationId: "rootGet"
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            string:
+              schema:
+                type: "string"
+                example: "Telemetry Backend is running!"
+  /signal:
+    get: 
+      summary: "Lists all signals"
+      description: "Use this endpoint to get a list of all signals that are being tracked by the backend."
+      operationId: "signalGet"
+      responses: 
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+                  example: "['signal1', 'signal2', 'signal3']"
+  /signal/measurement:
+    get: 
+      summary: "Get a signal's measurements"
+      description: "Gets all measurements associated with a signal"
+      operationId: "signalMeasurementGet"
+      responses: 
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items: # TODO
+                  type: "object"
+                  properties:
+                    timestamp:
+                      type: "string"
+                      format: "date-time"
+                      example: "2022-01-01T00:00:00Z"
+                    value:
+                      type: "number"
+                      example: 123.45
+  /signal/fields/{measurement}:
+    get:
+      summary: "Get a signal's fields"
+      description: "Gets all fields associated with a signal"
+      operationId: "signalFieldsGet"
+      parameters:
+        - name: "measurement"
+          in: "path"
+          description: "The measurement to get fields for"
+          required: true
+          schema:
+            type: "string"
+      responses: 
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+                example:
+                  - "field1"
+                  - "field2"
+                  - "field3"
+          
+security: []
