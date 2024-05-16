@@ -4,17 +4,15 @@
 #include "string.h"
 #include "shared.pb.h"
 
-#include "app_globals.h"
 #include "app_heartbeatMonitor.h"
-#include "states/app_initState.h"
-#include "states/app_allStates.h"
+#include "app_states.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_currentSensing.h"
 #include "app_efuse.h"
+#include "app_shdnLoop.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -23,11 +21,12 @@
 #include "io_chimera.h"
 #include "io_efuse.h"
 #include "io_lowVoltageBattery.h"
-#include "io_shutdown.h"
+#include "io_vcShdn.h"
 #include "io_currentSensing.h"
 #include "io_buzzer.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_telemMessage.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -35,11 +34,9 @@
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
 #include "hw_gpio.h"
-#include "hw_stackWaterMark.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_uart.h"
 #include "hw_adc.h"
-#include "hw_i2c.h"
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -47,6 +44,9 @@ extern FDCAN_HandleTypeDef hfdcan1;
 extern UART_HandleTypeDef  huart7;
 extern TIM_HandleTypeDef   htim3;
 extern UART_HandleTypeDef  huart2;
+extern UART_HandleTypeDef  huart1;
+extern UART_HandleTypeDef  huart3;
+
 // extern IWDG_HandleTypeDef  hiwdg1;
 CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
 
@@ -62,12 +62,12 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_VC_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_VC_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_VC_Warning_RxOverflow_set(false);
 }
@@ -156,11 +156,19 @@ static const CurrentSensingConfig current_sensing_config = {
     .acc_current_adc = ADC1_IN5_ACC_I_SENSE,
 };
 
-static const ShutdownConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
-                                                .pcm_gpio                    = npcm_en,
-                                                .LE_stop_gpio                = l_shdn_sns,
-                                                .RE_stop_gpio                = r_shdn_sns,
-                                                .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
+static const VcShdnConfig shutdown_config = { .tsms_gpio                   = tsms_shdn_sns,
+                                              .pcm_gpio                    = npcm_en,
+                                              .LE_stop_gpio                = l_shdn_sns,
+                                              .RE_stop_gpio                = r_shdn_sns,
+                                              .splitter_box_interlock_gpio = sb_ilck_shdn_sns };
+
+static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
+    { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
+    { io_vcShdn_PcmFault_get, &app_canTx_VC_PCMInterlockOKStatus_set },
+    { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
+    { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
+    { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
+};
 
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
@@ -233,9 +241,12 @@ static void (*efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_TELEM]  = NULL,
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
-static Buzzer buzzer     = { .gpio = buzzer_pwr_en };
-static UART   debug_uart = { .handle = &huart7 };
-static UART   imu_uart   = { .handle = &huart2 };
+static Buzzer buzzer        = { .gpio = buzzer_pwr_en };
+static UART   debug_uart    = { .handle = &huart7 };
+static UART   imu_uart      = { .handle = &huart2 };
+static UART   modem2G4_uart = { .handle = &huart3 };
+static UART   modem900_uart = { .handle = &huart1 };
+static Modem  modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
 
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
@@ -245,12 +256,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                      [VC_HEARTBEAT_BOARD]   = NULL,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+                                                          [VC_HEARTBEAT_BOARD]   = NULL,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
@@ -271,7 +282,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
@@ -313,7 +324,7 @@ void tasks_init(void)
 
     io_buzzer_init(&buzzer);
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_shutdown_init(&shutdown_config);
+    io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
 
@@ -335,9 +346,11 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
+    io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    io_shutdown_init(&shutdown_config);
+    io_vcShdn_init(&shutdown_config);
+    app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
@@ -346,7 +359,7 @@ void tasks_init(void)
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -376,7 +389,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -389,7 +402,7 @@ void tasks_run100Hz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
@@ -404,7 +417,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -417,7 +430,7 @@ void tasks_run1kHz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         hw_watchdog_checkForTimeouts();
 
@@ -437,7 +450,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -447,7 +460,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -455,7 +468,7 @@ void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-
+        io_telemMessage_broadcast(&rx_msg);
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);

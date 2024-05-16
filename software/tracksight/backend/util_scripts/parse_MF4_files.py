@@ -5,13 +5,15 @@ from pathlib import Path
 import cantools
 from collections import defaultdict
 
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 sys.path.append(project_root)
-import Definitions 
+import Definitions
 
 # Specify the path to your MF4 file and DBC file
-MF4_DIR = Path(Definitions.ROOT_DIR) / "app" / "mf4_logs" 
-CSV_DIR = Path(Definitions.ROOT_DIR) / "app" / "data" 
+MF4_DIR = Path(Definitions.ROOT_DIR) / "app" / "mf4_logs"
+CSV_DIR = Path(Definitions.ROOT_DIR) / "app" / "data"
 DBC_DIR = Path(Definitions.ROOT_DIR) / "app" / "dbcs"
 outputFileName = "parsedData.csv"
 

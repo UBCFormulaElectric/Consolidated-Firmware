@@ -14,15 +14,16 @@
 #include "hw_watchdogConfig.h"
 #include "hw_watchdog.h"
 #include "hw_uart.h"
+#include "hw_sd.h"
+#include "hw_crc.h"
 
 #include "io_canTx.h"
 #include "io_canRx.h"
 #include "io_jsoncan.h"
-#include "io_led.h"
-#include "io_time.h"
 #include "io_can.h"
 #include "io_airs.h"
 #include "io_charger.h"
+#include "io_sd.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
 #include "ltc6813/io_ltc6813Shared.h"
@@ -30,20 +31,20 @@
 #include "io_tractiveSystem.h"
 #include "io_log.h"
 #include "io_chimera.h"
+#include "io_bmsShdn.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_timer.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_soc.h"
 #include "app_globals.h"
-#include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
+#include "app_shdnLoop.h"
 
 #include "shared.pb.h"
 #include "BMS.pb.h"
@@ -56,6 +57,8 @@ extern TIM_HandleTypeDef  htim1;
 extern TIM_HandleTypeDef  htim3;
 extern TIM_HandleTypeDef  htim15;
 extern UART_HandleTypeDef huart1;
+extern SD_HandleTypeDef   hsd1;
+extern CRC_HandleTypeDef  hcrc;
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -69,12 +72,12 @@ static void canTxQueueOverflowCallBack(uint32_t overflow_count)
     app_canAlerts_BMS_Warning_TxOverflow_set(true);
 }
 
-void canTxQueueOverflowClearCallback()
+void canTxQueueOverflowClearCallback(void)
 {
     app_canAlerts_BMS_Warning_TxOverflow_set(false);
 }
 
-void canRxQueueOverflowClearCallback()
+void canRxQueueOverflowClearCallback(void)
 {
     app_canAlerts_BMS_Warning_RxOverflow_set(false);
 }
@@ -99,6 +102,13 @@ static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_P
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
 // clang-format on
+
+static SdCard sd = {
+    .hsd     = &hsd1,
+    .timeout = 0x20, // osWaitForever,
+    // .sd_present       = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin },
+    .sd_init_complete = false,
+};
 
 PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
@@ -128,6 +138,11 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
 //                                        .port = CHRG_FLT_3V3_GPIO_Port,
 //                                        .pin  = CHRG_FLT_3V3_Pin,
 //                                    }};
+
+static const SdGpio sd_gpio = { .sd_present = {
+                                    .port = SD_CD_GPIO_Port,
+                                    .pin  = SD_CD_Pin,
+                                } };
 
 static const ThermistorsConfig thermistors_config = {.mux_0_gpio = {
                                        .port = AUX_TSENSE_MUX0_GPIO_Port,
@@ -163,7 +178,8 @@ static const AirsConfig airs_config = { .air_p_gpio = {
 };
 
 // TODO: Test differential ADC for voltage measurement
-static const TractiveSystemConfig ts_config = { .ts_vsense_channel          = ADC1_IN10_TS_VSENSE_DIFF,
+static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
+                                                .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
                                                 .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
                                                 .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
@@ -219,12 +235,12 @@ bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = NULL,
-                                                      [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-                                                      [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                      [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                      [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                      [CRIT_HEARTBEAT_BOARD] = NULL };
+bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = NULL,
+                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
+                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = NULL,
@@ -245,7 +261,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
+bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = NULL,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
@@ -279,13 +295,20 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_SPI_CS]                 = &spi_cs_pin };
 
 const AdcChannel id_to_adc[] = {
-    [BMS_AdcNetName_AUX_TSENSE]     = ADC1_IN4_AUX_TSENSE,
-    [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_50A]  = ADC1_IN5_TS_ISENSE_50A,
-    [BMS_AdcNetName_TS_VSENSE]      = ADC1_IN10_TS_VSENSE_DIFF,
+    [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
+    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
+    [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
 };
 
 static UART debug_uart = { .handle = &huart1 };
+
+static const BmsShdnConfig bms_shdn_pin_config = {
+    .ts_ilck_ok_gpio = ts_ilck_shdn_pin,
+    .hvd_ok_gpio     = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
+};
+
+static BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
+                                                           { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
 
 void tasks_preInit(void)
 {
@@ -301,18 +324,21 @@ void tasks_init(void)
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
 
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
     HAL_TIM_Base_Start(&htim15);
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
+    hw_sd_init(&sd);
+    hw_crc_init(&hcrc);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
-
+    io_bmsShdn_init(&bms_shdn_pin_config);
     io_tractiveSystem_init(&ts_config);
     io_thermistors_init(&thermistors_config);
     io_ltc6813Shared_init(&ltc6813_spi);
@@ -320,6 +346,7 @@ void tasks_init(void)
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
     // io_charger_init(&charger_config);
+    io_sdGpio_init(&sd_gpio);
 
     app_canTx_init();
     app_canRx_init();
@@ -331,6 +358,8 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
+    app_shdn_loop_init(bms_bshdn_nodes, BmsShdnNodeCount);
+
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
@@ -340,7 +369,7 @@ void tasks_init(void)
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
 }
 
-void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -369,7 +398,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -394,7 +423,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -428,7 +457,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
@@ -438,7 +467,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
     io_chimera_sleepTaskIfEnabled();
 

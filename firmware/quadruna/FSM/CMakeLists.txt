@@ -10,6 +10,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
     "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -56,8 +57,7 @@ set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
 list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
 
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_library(
-        "quadruna_FSM_can"
+    jsoncan_sources(
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
@@ -102,7 +102,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
         "${SYSCALLS}"
-        "${IOC_PATH}.md5"
+        "${MD5_LOCATION}"
     )
 
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
@@ -144,8 +144,7 @@ if("${TARGET}" STREQUAL "deploy")
     )
     
 elseif("${TARGET}" STREQUAL "test")
-    jsoncan_library(
-        "quadruna_FSM_can"
+    jsoncan_sources(
         "FSM"
         "${CMAKE_CURRENT_BINARY_DIR}"
         FALSE

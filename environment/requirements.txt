@@ -13,3 +13,4 @@ pyserial
 protoletariat
 pybind11
 pytest
+rich

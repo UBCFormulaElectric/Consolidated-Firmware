@@ -1,13 +1,12 @@
 """
 Provides an API for writing C code, used to generate all C CAN modules.
 """
-from abc import ABC
-from dataclasses import dataclass
-from typing import List, Optional, Union
-from ...can_database import *
-from ...utils import max_uint_for_bits
-from .c_config import *
 
+from abc import ABC
+from typing import Optional
+
+from .c_config import *
+from ...can_database import *
 
 INDENT_4_SPACES = "    "
 PREAMBLE = """\
@@ -16,16 +15,15 @@ PREAMBLE = """\
  */
 // clang-format off"""
 
+
 class CModule(ABC):
     """
     ABC for a C module (i.e. pair of header .h and source .c files)
     """
 
-    def header() -> str:
-        ...
+    def header(self) -> str: ...
 
-    def source() -> str:
-        ...
+    def source(self) -> str: ...
 
 
 @dataclass
@@ -139,7 +137,7 @@ class CWriter:
         self,
         name: str,
         value: str,
-        args: Optional[str] = None,
+        args: Optional[list[str]] = None,
         comment: Optional[str] = "",
     ) -> None:
         if args:

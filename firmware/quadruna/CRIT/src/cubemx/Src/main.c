@@ -482,7 +482,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(
         GPIOB,
         VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin | CRIT_DB_R_Pin |
-            RSM_B_Pin | REGEN_LED_Pin | TORQUE_VECTORING_LED_Pin | START_LED_Pin,
+            RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -520,9 +520,9 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pins : VC_R_Pin AUX_DB_B_Pin AUX_DB_G_Pin AUX_DB_R_Pin
                              CRIT_DB_B_Pin CRIT_DB_G_Pin CRIT_DB_R_Pin RSM_B_Pin
-                             REGEN_LED_Pin TORQUE_VECTORING_LED_Pin START_LED_Pin */
+                             START_LED_Pin TORQUE_VECTORING_LED_Pin REGEN_LED_Pin */
     GPIO_InitStruct.Pin = VC_R_Pin | AUX_DB_B_Pin | AUX_DB_G_Pin | AUX_DB_R_Pin | CRIT_DB_B_Pin | CRIT_DB_G_Pin |
-                          CRIT_DB_R_Pin | RSM_B_Pin | REGEN_LED_Pin | TORQUE_VECTORING_LED_Pin | START_LED_Pin;
+                          CRIT_DB_R_Pin | RSM_B_Pin | START_LED_Pin | TORQUE_VECTORING_LED_Pin | REGEN_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
