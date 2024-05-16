@@ -21,7 +21,11 @@ EMPTY_STRUCT(Modem);
 void io_telemMessage_init(Modem *m);
 
 /**
- * Serializes the can msg and sends it over UART to the appropriate Modem
+ * Serializes the can msg and pushes it to the queue
  */
+bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg);
 
-bool io_telemMessage_broadcast(CanMsg *rx_msg);
+/**
+ * Pops message from the queue and passes over uart
+ */
+bool io_telemMessage_broadcastMsgFromQueue(void);

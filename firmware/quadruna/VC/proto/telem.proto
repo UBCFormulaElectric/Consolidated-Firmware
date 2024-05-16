@@ -1,10 +1,16 @@
 // Tracksight Message
 
 syntax = "proto3";
-import "nanopb.proto";
 
 message TelemMessage {
     int32 can_id = 1;
-    repeated int32 message = 2 [(nanopb).max_count = 8];
-    int32 time_stamp = 3;
+    int32 message_0 = 2;
+    int32 message_1 = 3;
+    int32 message_2 = 4;
+    int32 message_3 = 5;
+    int32 message_4 = 6;
+    int32 message_5 = 7;
+    int32 message_6 = 8;
+    int32 message_7 = 9;
+    int32 time_stamp = 10;
 }
