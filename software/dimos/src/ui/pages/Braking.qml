@@ -11,8 +11,15 @@ Item {
     property int targetSpeed: 60
     property real speedRatio: 1 - (speed > targetSpeed ? (2*targetSpeed - speed): speed)/targetSpeed
     property int defaultSize: 200
+    property bool brakeActivated: (speed >= targetSpeed) ? true : ((speed === 0) ? false : brakeActivated)
+    property int ringExtra: brakeActivated ? 200 : 0
 
     Keys.onSpacePressed: speed++;
+
+    onSpeedChanged: {
+        // brakeActivated: (speed >= targetSpeed) ? true : ((speed === 0) ? false : brakeActivated)
+        console.log(brakeActivated)
+    }
 
     Text {
         id: speedString
@@ -49,7 +56,7 @@ Item {
     BrakeRing {
         anchors.horizontalCenter: speedString.horizontalCenter
         anchors.verticalCenter: speedString.verticalCenter
-        size: defaultSize + speedRatio * 200
+        size: defaultSize + speedRatio * 200 + ringExtra
         colorFraction: speedRatio
     }
 

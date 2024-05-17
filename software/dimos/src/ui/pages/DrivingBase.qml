@@ -9,6 +9,14 @@ Item {
     default property alias content: childContainer.children
     readonly property real child_ratio: 0.4
 
+    // Page specifics
+    Item {
+        id: childContainer
+        height: parent.height
+        width: parent.width * child_ratio
+        anchors.right: parent.right
+    }
+
     Item {
         id: notifParent
         height: parent.height
@@ -123,13 +131,5 @@ Item {
             clip: true
             spacing: 10
         }
-    }
-
-    // Page specifics
-    Item {
-        id: childContainer
-        height: parent.height
-        width: parent.width * child_ratio
-        anchors.right: parent.right
     }
 }
