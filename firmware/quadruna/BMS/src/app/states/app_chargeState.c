@@ -34,6 +34,7 @@ static void chargeStateRunOnEntry(void)
 
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
+    globals->charger_connected_counter    = 0;
     const float mains_current             = translateChargingParams(INITIAL_MAX_MAINS_CURRENT);
     const float batt_voltage              = translateChargingParams(INITIAL_CHARGING_VOLTAGE);
     const float batt_current              = translateChargingParams(INITIAL_CHARGING_CURRENT);
@@ -79,15 +80,14 @@ static void chargeStateRunOnTick100Hz(void)
             app_canRx_BRUSA_IsConnected_update(false);
             globals->charger_connected_counter = 0;
         }
-        else if(globals->charger_connected_counter >= 50)
+        else if (globals->charger_connected_counter >= 50)
         {
             if (!is_charger_connected)
             {
-            app_stateMachine_setNextState(app_faultState_get());
-            app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(!is_charger_connected);
+                app_stateMachine_setNextState(app_faultState_get());
+                app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_set(!is_charger_connected);
             }
         }
-        
 
         // Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
         if (external_shutdown_occurred)
@@ -114,9 +114,9 @@ static void chargeStateRunOnTick100Hz(void)
 
 static void chargeStateRunOnExit(void)
 {
-    globals->charger_connected_counter      = 0;
-    globals->charger_exit_counter           = 0;
-    globals->ignore_charger_fault_counter   = 0;
+    globals->charger_connected_counter    = 0;
+    globals->charger_exit_counter         = 0;
+    globals->ignore_charger_fault_counter = 0;
     io_charger_enable(false);
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);

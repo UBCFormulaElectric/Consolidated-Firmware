@@ -27,7 +27,7 @@ void app_tractiveSystem_broadcast()
 {
     const float ts_voltage = app_tractiveSystem_getVoltage();
     const float ts_current = app_tractiveSystem_getCurrent();
-    const float ts_power   = ts_voltage * ts_current;
+    const float ts_power   = ts_voltage * ts_current / 1000.0f;
 
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
