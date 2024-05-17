@@ -11,9 +11,9 @@
 #define PREMATURE_EXIT_FILTER_THRESHOLD (20U)
 
 // Setting these to testing, will need to be changed later.
-#define INITIAL_CHARGING_VOLTAGE (330.0f)
-#define INITIAL_CHARGING_CURRENT (15.0f)
-#define INITIAL_MAX_MAINS_CURRENT (15.0f)
+#define INITIAL_CHARGING_VOLTAGE (336.0f)
+#define INITIAL_CHARGING_CURRENT (12.5f)
+#define INITIAL_MAX_MAINS_CURRENT (18.0f)
 
 /**
  * Get a pointer to the Charge State.
