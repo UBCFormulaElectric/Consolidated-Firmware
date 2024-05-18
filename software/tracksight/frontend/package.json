@@ -18,9 +18,9 @@
     "dayjs": "^1.11.10",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.2",
-    "firebase": "^10.8.1",
+    "firebase": "^10.11.0",
     "moment-timezone": "^0.5.43",
-    "next": "13.5.4",
+    "next": "14.1.1",
     "package.json": "^0.0.0",
     "plotly.js": "^2.27.0",
     "react": "18.2.0",
@@ -32,6 +32,9 @@
   },
   "devDependencies": {
     "@types/plotly.js": "^2.12.29",
-    "@types/react-plotly.js": "^2.6.2"
+    "@types/react-plotly.js": "^2.6.2",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3"
   }
 }
