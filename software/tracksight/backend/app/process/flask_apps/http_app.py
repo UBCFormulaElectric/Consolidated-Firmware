@@ -40,6 +40,15 @@ def hello_world():
     return "Telemetry Backend is running!"
 
 
+@app.route("/health")
+def health():
+    """
+
+    :return:
+    """
+    return jsonify(status="healthy"), 200
+
+
 @app.route("/signal/measurements", methods=["GET"])
 def return_all_measurements():
     """
