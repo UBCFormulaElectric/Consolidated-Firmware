@@ -52,9 +52,9 @@ static void initStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool is_key_turned = io_tsms_read();
+    const bool is_hv_key_turned = io_tsms_read();
 
-    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && is_key_turned && all_states_ok) // just as a sanity check
+    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && is_hv_key_turned && all_states_ok) // just as a sanity check
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
