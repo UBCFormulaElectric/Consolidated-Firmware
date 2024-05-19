@@ -10,7 +10,7 @@
 #include "io_fileSystem.h"
 #include "io_time.h"
 // Private globals.
-static const CanConfig *config;
+static const CanConfig *config = NULL;
 #define QUEUE_SIZE 2048
 #define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE
 #define PATH_LENGTH 10

@@ -1,6 +1,6 @@
 #include "io_vcShdn.h"
 
-static const VcShdnConfig *shdn_config;
+static const VcShdnConfig *shdn_config = NULL;
 
 void io_vcShdn_init(const VcShdnConfig *shutdown_config)
 {

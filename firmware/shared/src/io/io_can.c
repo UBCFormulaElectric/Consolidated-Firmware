@@ -10,7 +10,7 @@
 #define RX_QUEUE_BYTES sizeof(CanMsg) * RX_QUEUE_SIZE
 
 // Private globals.
-static const CanConfig *config;
+static const CanConfig *config = NULL;
 
 static osMessageQueueId_t tx_queue_id;
 static osMessageQueueId_t rx_queue_id;

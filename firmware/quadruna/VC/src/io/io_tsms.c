@@ -1,6 +1,6 @@
 #include "io_tsms.h"
 
-static const TSMSConfig *config;
+static const TSMSConfig *config = NULL;
 
 void io_tsms_init(const TSMSConfig *const in_config)
 {

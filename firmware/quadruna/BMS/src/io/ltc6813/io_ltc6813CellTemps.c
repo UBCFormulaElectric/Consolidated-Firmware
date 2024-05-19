@@ -37,7 +37,7 @@ typedef enum
     NUM_OF_AUX_REGISTER_GROUPS
 } AuxiliaryRegisterGroup;
 
-extern const SpiInterface *ltc6813_spi;
+extern const SpiInterface *ltc6813_spi = NULL;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the

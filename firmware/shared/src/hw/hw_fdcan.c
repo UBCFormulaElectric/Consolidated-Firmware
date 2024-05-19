@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "io_log.h"
 
-static const CanHandle *handle;
+static const CanHandle *handle = NULL;
 
 void hw_can_init(const CanHandle *can_handle)
 {

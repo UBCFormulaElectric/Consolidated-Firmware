@@ -16,7 +16,7 @@
 extern const Gpio *const id_to_gpio[];
 extern const AdcChannel  id_to_adc[];
 
-static const UART *uart;
+static const UART *uart = NULL;
 static bool        is_mid_debug_msg;
 static uint8_t     data[MAX_DEBUG_BUF_SIZE];
 static uint8_t     rx_packet_size;
@@ -24,7 +24,7 @@ static uint32_t    net_name_gpio;
 static uint32_t    net_name_adc;
 static bool        chimera_button_pressed;
 
-static const Gpio *n_chimera_gpio;
+static const Gpio *n_chimera_gpio = NULL;
 
 static const Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
 {

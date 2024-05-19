@@ -15,7 +15,7 @@ static bool modem_900_choice;
 #define QUEUE_SIZE 12
 #define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
 static bool         modem_900_choice;
-static const Modem *modem;
+static const Modem *modem = NULL;
 
 static bool    proto_status;
 static uint8_t proto_msg_length;

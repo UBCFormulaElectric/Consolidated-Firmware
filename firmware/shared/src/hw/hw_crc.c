@@ -1,6 +1,6 @@
 #include "hw_crc.h"
 
-static CRC_HandleTypeDef *handle;
+static CRC_HandleTypeDef *handle = NULL;
 
 void hw_crc_init(CRC_HandleTypeDef *crc_handle)
 {

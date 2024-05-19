@@ -9,7 +9,7 @@
 
 // extern bool          sd_inited;
 static volatile bool dma_tx_completed = true;
-static SdCard       *sd;
+static SdCard       *sd = NULL;
 
 void hw_sd_init(SdCard *sd_config)
 {
