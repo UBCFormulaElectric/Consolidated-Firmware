@@ -47,34 +47,36 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-# Bootloader files.
-file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
-# tests
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
-list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_sources(
-        "FSM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        TRUE
-        "quadruna"
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    embedded_binary(
+            "quadruna_FSM_app"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
-    embedded_library(
-        quadruna_FSM_can
-        "${CAN_SRCS}"
-        "${CAN_INCLUDE_DIRS}"
-        "${ARM_CORE}"
-        TRUE
+
+    # Bootloader files.
+    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+    # Build bootloader.
+    stm32f4_boot_binary(
+            "quadruna_FSM_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "quadruna_FSM"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
     )
+
     generate_stm32cube_code(
         "FSM"
         "${IOC_PATH}"
     )
 
+    # STM HAL Library
     set(STM32_HAL_SRCS
         "stm32f4xx_hal_adc_ex.c"
         "stm32f4xx_hal_adc.c"
@@ -94,7 +96,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32f4xx_hal_uart.c"
         "stm32f4xx_hal.c"
     )
-
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
@@ -105,16 +106,10 @@ if("${TARGET}" STREQUAL "deploy")
         "${MD5_LOCATION}"
     )
 
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
-    embedded_binary(
-        "quadruna_FSM_app"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
-    )
+    # JSONCAN
+    jsoncan_embedded_library(FSM quadruna "${CMAKE_CURRENT_BINARY_DIR}" "${ARM_CORE}")
 
+    # CommitInfo
     commit_info_library(
         "quadruna_FSM_app.elf"
         "quadruna_FSM_commit_info"
@@ -122,18 +117,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_FSM_can" "quadruna_FSM_stm32cube")
-    target_link_libraries("quadruna_FSM_app.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_can" "quadruna_FSM_commit_info" "debug_modules" "m")
-
-    # Build bootloader.
-    stm32f4_boot_binary(
-        "quadruna_FSM_boot"
-        "${BOOT_SRCS}"
-        "${BOOT_INCLUDE_DIRS}"
-        "quadruna_FSM"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
-    )
+    target_link_libraries("quadruna_FSM_jsoncan" "quadruna_FSM_stm32cube")
+    target_link_libraries("quadruna_FSM_app.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_FSM_boot.elf" "quadruna_FSM_commit_info")
 
     embedded_image(
@@ -143,17 +128,23 @@ if("${TARGET}" STREQUAL "deploy")
         "quadruna_FSM_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_FSM_boot.hex"
     )
-    
 elseif("${TARGET}" STREQUAL "test")
-    jsoncan_sources(
-        "FSM"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        FALSE
-        "quadruna"
+    # tests
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+    set(SRCS ${APP_SRCS} ${TEST_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quadruna_FSM_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
     )
-    add_library(quadruna_FSM_can STATIC "${CAN_SRCS}")
-    target_include_directories(quadruna_FSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
+    # JSONCAN
+    jsoncan_library(FSM quadruna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    # FakeIO
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_steering.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_wheels.h"
@@ -166,13 +157,6 @@ elseif("${TARGET}" STREQUAL "test")
         "quadruna_FSM_fakes"
         "${HEADERS_TO_FAKE}"
     )
-    
-    set(SRCS ${APP_SRCS} ${TEST_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
-    compile_gtest_executable(
-        "quadruna_FSM_test"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-    )
-    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_can" "quadruna_FSM_fakes" "shared_fakes" "m")
+
+    target_link_libraries("quadruna_FSM_test" "quadruna_FSM_jsoncan" "quadruna_FSM_fakes" "shared_fakes" "m")
 endif()
