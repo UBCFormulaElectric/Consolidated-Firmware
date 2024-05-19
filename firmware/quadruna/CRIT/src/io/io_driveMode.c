@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stm32f4xx_hal.h>
 
-static const DriveMode *config;
+static const DriveMode *config = NULL;
 
 void io_driveMode_init(const DriveMode *config_in)
 {

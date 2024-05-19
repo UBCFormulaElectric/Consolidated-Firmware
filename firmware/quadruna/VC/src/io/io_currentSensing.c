@@ -7,7 +7,7 @@
 #define AMPERAGE_PER_VOLTAGE (1.0f / (5.5e-2f))
 #define MIN_VOLTAGE (3.3f / 2.0f)
 
-static const CurrentSensingConfig *config;
+static const CurrentSensingConfig *config = NULL;
 
 void io_currentSensing_init(const CurrentSensingConfig *current_sensing_config)
 {

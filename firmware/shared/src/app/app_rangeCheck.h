@@ -14,6 +14,12 @@ typedef enum
     VALUE_OVERFLOW,
 } RangeCheckStatus;
 
+typedef struct
+{
+    RangeCheckStatus status;
+    float value;
+}RangeCheckStatusMetaData;
+
 /**
  * Get the value for the given in-range check
  * @note Even if the value is out-of-range, this function still writes the value
@@ -26,4 +32,4 @@ typedef enum
  *         VALUE_UNDERFLOW if the value is below the specified range
  *         VALUE_OVERFLOW if the value is above the specified range
  */
-RangeCheckStatus app_rangeCheck_getValue(const RangeCheck *check, float *returned_value);
+RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value);

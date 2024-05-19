@@ -24,7 +24,7 @@
 // Voltage divider from adc --> current sensor output
 #define OUTPUT_2_DIV ((33.0f + 60.4f) / (60.4f))
 
-static const TractiveSystemConfig *config;
+static const TractiveSystemConfig *config = NULL;
 
 void io_tractiveSystem_init(const TractiveSystemConfig *ts_config)
 {

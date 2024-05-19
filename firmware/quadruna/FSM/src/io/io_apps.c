@@ -57,7 +57,7 @@ static float papps_max_angle;
 static float sapps_rest_angle;
 static float sapps_max_angle;
 
-static AppsConfig *config;
+static AppsConfig *config = NULL;
 
 // max and min angle calculation for PAPPS/SAPPS
 static float calcAppsAngle(float cos_law_coefficent, float pot_len, float cos_law_denominator)

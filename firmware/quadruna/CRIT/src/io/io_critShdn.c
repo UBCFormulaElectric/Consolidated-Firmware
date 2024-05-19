@@ -1,6 +1,6 @@
 #include "io_critShdn.h"
 
-static const CritShdnConfig *shdn_config;
+static const CritShdnConfig *shdn_config = NULL;
 
 void io_critShdn_init(const CritShdnConfig *crit_shdn_config)
 {
