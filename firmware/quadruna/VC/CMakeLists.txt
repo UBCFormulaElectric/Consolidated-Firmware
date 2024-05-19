@@ -157,6 +157,7 @@ if ("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
     )
+    target_link_libraries("quadruna_VC_boot.elf" "quadruna_VC_commit_info")
 
     embedded_image(
             "quadruna_VC"

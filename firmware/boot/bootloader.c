@@ -13,6 +13,7 @@
 #include "hw_crc.h"
 #include "main.h"
 #include "hw_gpio.h"
+#include "app_commitInfo.h"
 
 extern CRC_HandleTypeDef hcrc;
 extern TIM_HandleTypeDef htim6;
@@ -235,8 +236,10 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0] = (uint8_t)verifyAppCodeChecksum();
+        CanMsg   status_msg = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
+        uint64_t d =
+            ((uint64_t)GIT_COMMIT_CLEAN << 34) | ((uint32_t)GIT_COMMIT_HASH << 2) | (uint8_t)verifyAppCodeChecksum();
+        *((uint64_t *)&status_msg.data) = d;
         io_can_pushTxMsgToQueue(&status_msg);
 
         bootloader_boardSpecific_tick();

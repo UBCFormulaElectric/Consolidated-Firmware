@@ -134,6 +134,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
     )
+    target_link_libraries("quadruna_FSM_boot.elf" "quadruna_FSM_commit_info")
 
     embedded_image(
         "quadruna_FSM"

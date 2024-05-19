@@ -25,6 +25,7 @@
         "INVR_InternalStates",
         "INVR_MotorPositionInfo",
         "INVR_Temperatures3",
-        "RSM_Vitals"
+        "RSM_Vitals",
+        "Boot_VC"
     ]
 }
