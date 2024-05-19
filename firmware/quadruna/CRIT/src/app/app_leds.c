@@ -5,6 +5,28 @@
 
 BoardLEDStatus board_worst_status(CanAlertBoard b)
 {
+    bool is_missing_heartbeat;
+    switch (b)
+    {
+        case BMS_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
+            break;
+        case CRIT_ALERT_BOARD:
+            is_missing_heartbeat = false; // lmao like
+            break;
+        case FSM_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
+            break;
+        case RSM_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
+            break;
+        case VC_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
+            break;
+    }
+
+    if (is_missing_heartbeat)
+        return MISSING_HEARTBEAT;
     if (app_canAlerts_BoardHasFault(b))
         return FAULT;
     if (app_canAlerts_BoardHasWarning(b))
