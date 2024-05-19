@@ -94,9 +94,9 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
     void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-        [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
-        [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
-        [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
+        [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Warning_MissingVCHeartbeat_set,
+        [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Warning_MissingRSMHeartbeat_set,
+        [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Warning_MissingFSMHeartbeat_set,
         [DIM_HEARTBEAT_BOARD]  = nullptr,
         [CRIT_HEARTBEAT_BOARD] = nullptr
     };
@@ -104,9 +104,9 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     // heartbeatFaultGetters - gets fault statuses over CAN
     bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
-        [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
-        [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
-        [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
+        [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Warning_MissingVCHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Warning_MissingRSMHeartbeat_get,
+        [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Warning_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD]  = nullptr,
         [CRIT_HEARTBEAT_BOARD] = nullptr
     };

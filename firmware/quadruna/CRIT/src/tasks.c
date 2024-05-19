@@ -386,9 +386,9 @@ static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Warning_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Warning_MissingRSMHeartbeat_set,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Warning_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
 };
@@ -396,9 +396,9 @@ static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 // heartbeatFaultGetters - gets fault statuses over CAN
 static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Warning_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Warning_MissingRSMHeartbeat_get,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Warning_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = NULL
 };

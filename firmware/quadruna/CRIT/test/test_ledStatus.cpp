@@ -92,7 +92,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_critical_error)
              { app_canRx_BMS_Fault_CellOvertemp_update, fake_io_led_bms_status_set_callCountForArgs },
              { app_canRx_FSM_Fault_SappsOCSC_update, fake_io_led_fsm_status_set_callCountForArgs },
              { app_canRx_RSM_Fault_FlowMeterUnderflow_update, fake_io_led_rsm_status_set_callCountForArgs },
-             { app_canTx_CRIT_Fault_MissingFSMHeartbeat_set, fake_io_led_crit_status_set_callCountForArgs } })
+             { app_canTx_CRIT_Warning_MissingFSMHeartbeat_set, fake_io_led_crit_status_set_callCountForArgs } })
     {
         can_update(true);
         LetTimePass(10);
@@ -147,7 +147,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_multiple_errors)
                fake_io_led_fsm_status_set_callCountForArgs },
              { app_canRx_RSM_Fault_FlowMeterUnderflow_update, app_canRx_RSM_Warning_LoadCell3OCSC_update,
                fake_io_led_rsm_status_set_callCountForArgs },
-             { app_canTx_CRIT_Fault_MissingFSMHeartbeat_set, app_canTx_CRIT_Warning_StackWaterMarkHighTask100Hz_set,
+             { app_canTx_CRIT_Warning_MissingFSMHeartbeat_set, app_canTx_CRIT_Warning_StackWaterMarkHighTask100Hz_set,
                fake_io_led_crit_status_set_callCountForArgs } })
     {
         fault(true);
