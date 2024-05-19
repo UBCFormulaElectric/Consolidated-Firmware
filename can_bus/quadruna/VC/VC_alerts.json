@@ -47,6 +47,11 @@
         "ImuIo": {
             "id": 516,
             "description": "Example"
+        },
+        "FlowRateInputOutOfRange":
+        {
+            "id": 517,
+            "description": "Input to app_pumpControl_setFlowRate out of range"
         }
     },
     "faults": {
@@ -88,22 +93,6 @@
         },
         "BoostControllerFault": {
             "id": 560,
-            "description": "Example"
-        },
-        "LEStopFault": {
-            "id": 561,
-            "description": "Example"
-        },
-        "REStopFault": {
-            "id": 562,
-            "description": "Example"
-        },
-        "TSMSFault": {
-            "id": 563,
-            "description": "Example"
-        },
-        "PCMInterlockFault": {
-            "id": 564,
             "description": "Example"
         }
     }

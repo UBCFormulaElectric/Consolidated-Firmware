@@ -18,10 +18,10 @@
         "description": "Context info for BMS alerts",
         "signals": {
             "TxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "RxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
@@ -265,7 +265,7 @@
                 "unit": "V"
             },
             "TractiveSystemCurrent": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -300,
                 "max": 300,
                 "unit": "A"
@@ -399,6 +399,19 @@
             },
             "TSIlckOKStatus": {
                 "bits": 1
+            }
+        }
+    },
+    "ModuleCommunication": {
+        "msg_id": 144,
+        "cycle_time": 1000,
+        "description": "BMS Module Communication Status",
+        "signals": {
+            "NumCommTries": {
+                "bits": 16
+            },
+            "AccumulatorMonitorState": {
+                "enum": "CAN_AccumulatorMonitorState"
             }
         }
     }

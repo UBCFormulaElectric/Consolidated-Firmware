@@ -92,7 +92,7 @@ ENDIF ()
 message("🐍 Using Python Command: \"${PYTHON_COMMAND}\"")
 
 # ======== Clang-Format ========
-set(FIX_FORMATTING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/scripts/clang_format/fix_formatting.py)
+set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" OFF)
 IF (FIX_FORMATTING)
 	message("⚙️ Run Clang-Formatting for all boards")
@@ -103,6 +103,7 @@ IF (FIX_FORMATTING)
 ENDIF ()
 
 # ======== Code Time ========
+option(PLATFORM "The platform to build for" "")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
 	# ======== Dependency Handling ========

@@ -123,6 +123,18 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+/* Definitions for TaskLogging */
+osThreadId_t         TaskLoggingHandle;
+uint32_t             TaskLoggingBuffer[1024];
+osStaticThreadDef_t  TaskLoggingControlBlock;
+const osThreadAttr_t TaskLogging_attributes = {
+    .name       = "TaskLogging",
+    .cb_mem     = &TaskLoggingControlBlock,
+    .cb_size    = sizeof(TaskLoggingControlBlock),
+    .stack_mem  = &TaskLoggingBuffer[0],
+    .stack_size = sizeof(TaskLoggingBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -150,6 +162,7 @@ void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
+void        RunTaskLogging(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -238,6 +251,9 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskLogging */
+    TaskLoggingHandle = osThreadNew(RunTaskLogging, NULL, &TaskLogging_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -586,7 +602,7 @@ static void MX_I2C1_Init(void)
 
     /* USER CODE END I2C1_Init 1 */
     hi2c1.Instance              = I2C1;
-    hi2c1.Init.Timing           = 0x10707DBC;
+    hi2c1.Init.Timing           = 0x20A0C4DF;
     hi2c1.Init.OwnAddress1      = 0;
     hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -1123,6 +1139,24 @@ void RunTask1Hz(void *argument)
     /* USER CODE BEGIN RunTask1Hz */
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskLogging */
+/**
+ * @brief Function implementing the TaskLogging thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskLogging */
+void RunTaskLogging(void *argument)
+{
+    /* USER CODE BEGIN RunTaskLogging */
+    /* Infinite loop */
+    for (;;)
+    {
+        tasks_runLogging();
+    }
+    /* USER CODE END RunTaskLogging */
 }
 
 /**

@@ -2,8 +2,7 @@
 #include "io_fileSystem.h"
 #include "io_lfsConfig.h"
 
-#define LFS_NO_MALLOC 1
-#define MAX_FILE_NUMBER 5
+#define MAX_FILE_NUMBER 3
 static lfs_t lfs;
 
 static lfs_file_t files[MAX_FILE_NUMBER];
@@ -34,8 +33,14 @@ static int lfsErrorToFsError(int err)
 
 int io_fileSystem_init(void)
 {
-    int err = io_lfsConfig(&cfg);
-    err     = lfs_mount(&lfs, &cfg);
+    static bool is_initialized = false;
+    if (is_initialized)
+    {
+        return FILE_ERROR; // return error if already initialized
+    }
+    is_initialized = true;
+    int err        = io_lfsConfig(&cfg);
+    err            = lfs_mount(&lfs, &cfg);
     if (err)
     {
         lfs_format(&lfs, &cfg);

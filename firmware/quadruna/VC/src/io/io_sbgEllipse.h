@@ -3,10 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef TARGET_EMBEDDED
-#include "hw_uart.h"
-#endif
-
 // Enum of all the values read from the SBG Ellipse N sensor
 typedef enum
 {
@@ -47,10 +43,11 @@ typedef enum
 } SbgEllipseOutput;
 
 #ifdef TARGET_EMBEDDED
+#include "hw_uart.h"
 /*
  * Initialize the SBG Ellipse N sensor IO module.
  */
-bool io_sbgEllipse_init(UART *imu_uart);
+bool io_sbgEllipse_init(const UART *imu_uart);
 #endif
 
 /*

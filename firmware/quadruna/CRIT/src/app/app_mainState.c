@@ -14,7 +14,6 @@ static void mainStateRunOnTick100Hz(void)
     app_shdn_loop_broadcast();
 
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 }
 

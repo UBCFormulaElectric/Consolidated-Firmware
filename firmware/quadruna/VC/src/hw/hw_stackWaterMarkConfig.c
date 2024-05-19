@@ -15,6 +15,7 @@ extern TaskHandle_t Task100HzHandle;
 extern TaskHandle_t Task1kHzHandle;
 extern TaskHandle_t TaskCanRxHandle;
 extern TaskHandle_t TaskCanTxHandle;
+extern TaskHandle_t TaskLoggingHandle;
 
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
@@ -40,6 +41,11 @@ static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
+{
+    app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanTx_set(true);
+}
+
+static void logWaterMarkAboveThresholdTaskLogging(uint8_t error)
 {
     app_canAlerts_VC_Warning_StackWaterMarkHighTaskCanTx_set(true);
 }
@@ -75,6 +81,12 @@ static StackWaterMark stack_watermarks[] = {
         .stack_size          = 512,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
+    },
+    {
+        .handle              = &TaskLoggingHandle,
+        .stack_size          = 512,
+        .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
+        .log_error           = logWaterMarkAboveThresholdTaskLogging,
     },
 };
 

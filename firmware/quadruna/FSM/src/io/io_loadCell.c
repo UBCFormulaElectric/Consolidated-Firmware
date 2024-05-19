@@ -9,9 +9,9 @@
 #define LOADCELL_MIN_VOLTAGE (0.0f)
 #define LOADCELL_MAX_VOLTAGE (1000.0f)
 
-static LoadCellConfig *config;
+static const LoadCellConfig *config;
 
-void io_loadCell_init(LoadCellConfig *load_cell_config)
+void io_loadCell_init(const LoadCellConfig *load_cell_config)
 {
     config = load_cell_config;
 }

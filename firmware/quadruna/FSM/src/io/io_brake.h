@@ -5,11 +5,14 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.h"
+#include "hw_gpio.h"
 
 typedef struct
 {
-    AdcChannel rear_brake;
-    AdcChannel front_brake;
+    AdcChannel  rear_brake;
+    AdcChannel  front_brake;
+    const Gpio *brake_hardware_ocsc;
+    const Gpio *nbspd_brake_pressed;
 } BrakeConfig;
 
 #else
@@ -20,7 +23,7 @@ EMPTY_STRUCT(BrakeConfig)
  * Sets up configuration for ADC pins in brake io layer
  * @param brake_config wrapper around brake adc pins
  */
-void io_brake_init(BrakeConfig *brake_config);
+void io_brake_init(const BrakeConfig *brake_config);
 
 /**
  * Check if the brake is actuated, by getting the digital signal from the comparator on the FSM
@@ -49,3 +52,9 @@ float io_brake_getRearPressurePsi(void);
  * @return whether or not the rear pressure sensor is open or short circuit
  */
 bool io_brake_rearPressureSensorOCSC(void);
+
+/**
+ *
+ * @return
+ */
+bool io_brake_hwOCSC(void);

@@ -4,52 +4,33 @@
 #include <stdint.h>
 #include "app_heartbeatBoardsEnum.h"
 
-#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 300U
-
-typedef struct
-{
-    uint32_t previous_timeout_ms;
-    bool     heartbeats_checked_in[HEARTBEAT_BOARD_COUNT];
-    bool     heartbeats_to_check[HEARTBEAT_BOARD_COUNT];
-    bool     status[HEARTBEAT_BOARD_COUNT];
-
-    // getters for other heartbeats
-    bool (*getters[HEARTBEAT_BOARD_COUNT])();
-
-    // updaters on the local CAN table for other heartbeats
-    void (*updaters[HEARTBEAT_BOARD_COUNT])(bool);
-
-    // setter for own heartbeat
-    void (*setter)(bool);
-
-    // setters for faults
-    void (*fault_setters[HEARTBEAT_BOARD_COUNT])(bool);
-
-    // getters for faults
-    bool (*fault_getters[HEARTBEAT_BOARD_COUNT])();
-
-    // Override to block heartbeat faults during tests.
-    bool block_faults;
-} HeartbeatMonitor;
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
 
 void app_heartbeatMonitor_init(
     const bool boards_to_check[HEARTBEAT_BOARD_COUNT],
     bool (*const getters[HEARTBEAT_BOARD_COUNT])(),
     void (*const updaters[HEARTBEAT_BOARD_COUNT])(bool),
-    void (*setter)(bool),
+    void (*self_checkiner)(bool),
     void (*const fault_setters[HEARTBEAT_BOARD_COUNT])(bool),
     bool (*const fault_getters[HEARTBEAT_BOARD_COUNT])());
 
-void app_heartbeatMonitor_tick(void);
-
-void app_heartbeatMonitor_broadcastFaults(void);
-
+/**
+ * Populates heartbeats_checked_in
+ */
 void app_heartbeatMonitor_checkIn(void);
 
-bool app_heartbeatMonitor_checkFaults(void);
+/**
+ * Gets state to broadcast via can, and can callbacks to use to broadcast
+ */
+void app_heartbeatMonitor_broadcastFaults(void);
 
+/**
+ * @return Whether the heartbeat monitor for the current board has detected any fault
+ */
+bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void);
+
+/**
+ * Blocks faults from being reported in app_heartbeatMonitor_isSendingMissingHeartbeatFault
+ * @param block_faults Whether to block faults
+ */
 void app_heartbeatMonitor_blockFaults(bool block_faults);
-
-#ifdef TARGET_TEST
-HeartbeatMonitor *app_heartbeatMonitor_get(void);
-#endif

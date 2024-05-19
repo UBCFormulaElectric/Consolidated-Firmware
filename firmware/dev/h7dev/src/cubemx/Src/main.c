@@ -545,8 +545,8 @@ static void can_msg_received_callback(CanMsg *rx_msg)
     static uint32_t id = 0;
     rx_msg->std_id     = id;
     id++;
-    io_can_msgReceivedCallback(rx_msg);
-    io_canLogging_msgReceivedCallback(rx_msg);
+    io_can_pushRxMsgToQueue(rx_msg);
+    io_canLogging_loggingQueuePush(rx_msg);
 }
 
 /* USER CODE END 4 */

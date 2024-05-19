@@ -1,5 +1,6 @@
 #include "io_leds.h"
 #include "app_canRx.h"
+#include <assert.h>
 
 static const Leds *leds = NULL;
 
@@ -38,51 +39,52 @@ void io_led_torquevec_set(bool val)
     io_led_enable(leds->torquevec_led, val);
 }
 
-void io_led_shutdown_set(bool val)
-{
-    io_led_enable(leds->shdn_led, val);
-}
-
-void cringe(const RgbLed *led, const BoardLEDStatus status)
+void set_led_from_board_status(const RgbLed *led, const BoardLEDStatus status)
 {
     switch (status)
     {
         case FAULT:
-            io_rgbLed_enable(led, true, false, false);
+            hw_rgbLed_enable(led, RGB_RED);
             break;
         case OK:
-            io_rgbLed_enable(led, false, true, false);
+            hw_rgbLed_enable(led, RGB_GREEN);
             break;
         case WARNING:
-            io_rgbLed_enable(led, false, false, true);
+            hw_rgbLed_enable(led, RGB_YELLOW);
             break;
         case WHITE:
-            io_rgbLed_enable(led, true, true, true);
+            hw_rgbLed_enable(led, RGB_WHITE);
             break;
     }
 }
 
+void io_led_shutdown_set(const BoardLEDStatus status)
+{
+    assert(status != WHITE && status != WARNING);
+    set_led_from_board_status(leds->shdn_led, status);
+}
+
 void io_led_bms_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->bms_status_led, status);
+    set_led_from_board_status(leds->bms_status_led, status);
 }
 void io_led_fsm_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->fsm_status_led, status);
+    set_led_from_board_status(leds->fsm_status_led, status);
 }
 void io_led_vc_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->vc_status_led, status);
+    set_led_from_board_status(leds->vc_status_led, status);
 }
 void io_led_aux_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->aux_status_led, status);
+    set_led_from_board_status(leds->aux_status_led, status);
 }
 void io_led_crit_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->crit_status_led, status);
+    set_led_from_board_status(leds->crit_status_led, status);
 }
 void io_led_rsm_status_set(const BoardLEDStatus status)
 {
-    cringe(leds->rsm_status_led, status);
+    set_led_from_board_status(leds->rsm_status_led, status);
 }
