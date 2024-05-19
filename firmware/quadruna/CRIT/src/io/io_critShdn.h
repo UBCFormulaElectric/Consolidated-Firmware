@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    const Gpio shdn_sen_ok_gpio;
+    const Gpio cockpit_estop_gpio;
     const Gpio inertia_sen_ok_gpio;
 } CritShdnConfig;
 #else
@@ -19,6 +19,6 @@ EMPTY_STRUCT(CritShdnConfig);
 
 void io_critShdn_init(const CritShdnConfig *crit_shdn_config);
 
-bool io_get_SHDN_SEN_OK(void);
+bool io_get_COCKPIT_ESTOP_OK(void);
 
 bool io_get_INERTIA_SEN_OK(void);

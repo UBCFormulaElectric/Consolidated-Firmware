@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include "io_fan.h"
+#include "io_fans.h"
 #include "io_brake_light.h"
 #include "app_canTx.h"
 #include "app_mainState.h"
@@ -7,6 +7,7 @@
 #include "app_coolant.h"
 #include "app_loadCell.h"
 #include "app_suspension.h"
+
 #include "app_heartbeatMonitor.h"
 
 void mainStateRunOnTick100Hz(void)
@@ -15,7 +16,6 @@ void mainStateRunOnTick100Hz(void)
     app_loadcell_broadcast();
     app_suspension_broadcast();
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
     io_brake_light_set(app_canRx_FSM_BrakeActuated_get());

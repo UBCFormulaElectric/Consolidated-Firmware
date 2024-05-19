@@ -105,7 +105,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 /* USER CODE END 0 */
 
 /**

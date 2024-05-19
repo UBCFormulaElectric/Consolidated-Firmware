@@ -5,8 +5,9 @@
 #include "fake_io_lowVoltageBattery.hpp"
 #include "fake_io_efuse.hpp"
 #include "fake_io_led.hpp"
-#include "fake_io_buzzer.hpp"
 #include "fake_io_sbgEllipse.hpp"
+#include "fake_io_tsms.hpp"
+#include "fake_io_pcm.hpp"
 
 extern "C"
 {
@@ -69,6 +70,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_isChannelEnabled_reset();
         fake_io_efuse_getChannelCurrent_reset();
         fake_io_efuse_standbyReset_reset();
+        fake_io_tsms_read_reset();
+        fake_io_pcm_set_reset();
     }
 
     void SetInitialState(const State *const initial_state)
@@ -104,14 +107,11 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         return std::vector<const State *>{ app_initState_get(), app_driveState_get() };
     }
 
-    const BinaryLed brake_light = {};
-    const Buzzer    buzzer      = {};
-
     // config for heartbeat monitor (can funcs and flags)
     // VC relies on FSM, RSM, BMS, CRIT
     bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-        [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false, [RSM_HEARTBEAT_BOARD] = true,
-        [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = true, [CRIT_HEARTBEAT_BOARD] = true
+        [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
+        [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
     };
 
     // heartbeatGetters - get heartbeat signals from other boards

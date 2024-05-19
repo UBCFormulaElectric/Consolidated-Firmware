@@ -11,8 +11,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     adc_voltages[ADC1_IN4_AUX_TSENSE] =
         hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN4_AUX_TSENSE]);
-    adc_voltages[ADC1_IN5_TS_ISENSE_50A] =
-        hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN5_TS_ISENSE_50A]);
+    adc_voltages[ADC1_IN5_TS_ISENSE_75A] =
+        hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN5_TS_ISENSE_75A]);
     adc_voltages[ADC1_IN9_TS_ISENSE_400A] =
         hw_adcConversions_rawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_IN9_TS_ISENSE_400A]);
     adc_voltages[ADC1_IN10_TS_VSENSE_P] =

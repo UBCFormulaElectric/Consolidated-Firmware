@@ -18,7 +18,7 @@ EMPTY_STRUCT(SteeringConfig)
  * Initialize pins for steering sensor
  * @param steering_config wrapper around steering adc pin
  */
-void io_steering_init(SteeringConfig *steering_config);
+void io_steering_init(const SteeringConfig *steering_config);
 
 /**
  * Get the steering angle in degrees from the steering angle sensor

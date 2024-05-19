@@ -9,13 +9,14 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
+#include "app_coolant.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_coolant.h"
-#include "io_fan.h"
+#include "io_fans.h"
 #include "io_brake_light.h"
 
 #include "hw_bootup.h"
@@ -37,7 +38,7 @@ extern TIM_HandleTypeDef  htim3;
 extern CAN_HandleTypeDef  hcan1;
 extern UART_HandleTypeDef huart1;
 
-const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -61,7 +62,7 @@ void canRxQueueOverflowClearCallback(void)
     app_canAlerts_RSM_Warning_RxOverflow_set(false);
 }
 
-const CanConfig can_config = {
+static const CanConfig can_config = {
     .rx_msg_filter              = io_canRx_filterMessageId,
     .tx_overflow_callback       = canTxQueueOverflowCallBack,
     .rx_overflow_callback       = canRxQueueOverflowCallBack,
@@ -85,6 +86,11 @@ static const Gpio rad_fan_pin = {
     .pin  = ACC_FAN_EN_Pin,
 };
 
+static const BinaryLed brake_light = { .gpio = {
+                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
+                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
+                                       } };
+
 const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_pin,
                              [RSM_GpioNetName_LED]                = &led_pin,
                              [RSM_GpioNetName_RAD_FAN_EN]         = &rad_fan_en_pin,
@@ -93,12 +99,7 @@ const Gpio *id_to_gpio[] = { [RSM_GpioNetName_NCHIMERA]           = &n_chimera_p
                              [RSM_GpioNetName_ACC_FAN_EN]         = &acc_fan_en_pin,
                              [RSM_GpioNetName_NProgram_3V3]       = &n_program_pin };
 
-static const BinaryLed brake_light = { .gpio = {
-                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
-                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
-                                       } };
-
-AdcChannel id_to_adc[] = {
+const AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_ACC_FAN_I_SNS]        = ADC1_IN15_ACC_FAN_I_SNS,
     [RSM_AdcNetName_RAD_FAN_I_SNS]        = ADC1_IN14_RAD_FAN_I_SNS,
     [RSM_AdcNetName_CoolantPressure1_3V3] = ADC1_IN12_COOLANT_PRESSURE_1,
@@ -117,38 +118,38 @@ PwmInputFreqOnlyConfig coolant_config = { .htim                = &htim3,
                                           .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                           .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
-static UART debug_uart = { .handle = &huart1 };
+static const UART debug_uart = { .handle = &huart1 };
 
 // config for heartbeat monitor
 /// RSM rellies on BMS
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
     [FSM_HEARTBEAT_BOARD] = true,  [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
     [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get,
     [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
     [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
     [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
     [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
@@ -186,6 +187,7 @@ void tasks_init(void)
     io_coolant_init(&coolant_config);
     io_fan_init(&acc_fan_pin, &rad_fan_pin);
     io_brake_light_init(&brake_light);
+    app_coolant_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
@@ -235,7 +237,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        // const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -296,10 +298,13 @@ _Noreturn void tasks_runCanRx(void)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    io_coolant_inputCaptureCallback(&htim3);
-
     if (huart == debug_uart.handle)
     {
         io_chimera_msgRxCallback();
     }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    io_coolant_inputCaptureCallback(htim);
 }

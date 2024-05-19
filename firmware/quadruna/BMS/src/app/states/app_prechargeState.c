@@ -4,7 +4,6 @@
 // When TS reaches this threshold of ACC, AIR+ engages, and precharge is disabled, the voltage must be at least 90%
 // EV.6.6.1
 #define PRECHARGE_ACC_V_THRESHOLD (0.90f)
-
 #define MAX_PRECHARGE_ATTEMPTS 3U
 
 static bool checkPrechargeFaults(

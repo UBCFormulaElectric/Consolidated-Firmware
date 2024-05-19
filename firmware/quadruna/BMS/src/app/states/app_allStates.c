@@ -15,7 +15,7 @@
 #define NUM_CYCLES_TO_SETTLE (30U)
 #define NUM_CYCLES_TO_BALANCE (1000U)
 #define NUM_CYCLES_TO_MEASURE_BALANCING (100U)
-#define NUM_CYCLES_TO_MEASURE_NOMINAL (500U)
+#define NUM_CYCLES_TO_MEASURE_NOMINAL (1000U)
 
 typedef enum
 {
@@ -53,7 +53,6 @@ bool app_allStates_runOnTick100Hz(void)
     app_canTx_BMS_Heartbeat_set(true);
 
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();

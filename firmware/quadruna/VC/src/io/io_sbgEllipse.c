@@ -85,7 +85,7 @@ typedef struct
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
-static UART         *uart;
+static const UART   *uart;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet
@@ -341,7 +341,7 @@ static void io_sbgEllipse_processMsg_gpsPos(const SbgBinaryLogData *log_data)
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init(UART *imu_uart)
+bool io_sbgEllipse_init(const UART *imu_uart)
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 
@@ -369,7 +369,7 @@ bool io_sbgEllipse_init(UART *imu_uart)
     return true;
 }
 
-void io_sbgEllipse_handleLogs()
+void io_sbgEllipse_handleLogs(void)
 {
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
@@ -388,17 +388,17 @@ float io_sbgEllipse_getSensorOutput(SbgEllipseOutput output)
     return *(sensor_output_map[output]);
 }
 
-uint16_t io_sbgEllipse_getGeneralStatus()
+uint16_t io_sbgEllipse_getGeneralStatus(void)
 {
     return sensor_data.status_data.general_status;
 }
 
-uint32_t io_sbgEllipse_getComStatus()
+uint32_t io_sbgEllipse_getComStatus(void)
 {
     return sensor_data.status_data.com_status;
 }
 
-uint32_t io_sbgEllipse_getOverflowCount()
+uint32_t io_sbgEllipse_getOverflowCount(void)
 {
     return sbg_queue_overflow_count;
 }
