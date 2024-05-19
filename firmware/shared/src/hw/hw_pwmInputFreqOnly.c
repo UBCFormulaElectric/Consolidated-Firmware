@@ -14,7 +14,7 @@ static void setFrequency(PwmInputFreqOnly *pwm_input, float frequency_hz)
     pwm_input->frequency_hz = frequency_hz;
 }
 
-void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, PwmInputFreqOnlyConfig *config)
+void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, const PwmInputFreqOnlyConfig *config)
 {
     assert((*config).htim != NULL);
     assert(pwm_input != NULL);

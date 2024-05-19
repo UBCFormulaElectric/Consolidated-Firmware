@@ -58,6 +58,16 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LED_Pin GPIO_PIN_13
+#define LED_GPIO_Port GPIOC
+#define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_5
+#define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
+#define FR_STBY_Pin GPIO_PIN_6
+#define FR_STBY_GPIO_Port GPIOA
+#define RAD_FAN_EN_Pin GPIO_PIN_1
+#define RAD_FAN_EN_GPIO_Port GPIOB
+#define ACC_FAN_EN_Pin GPIO_PIN_10
+#define ACC_FAN_EN_GPIO_Port GPIOB
 #define nBOOT_EN_Pin GPIO_PIN_12
 #define nBOOT_EN_GPIO_Port GPIOB
 

@@ -9,10 +9,6 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_steering.h"
-#include "app_brake.h"
-#include "app_suspension.h"
-#include "app_loadCell.h"
 #include "app_shdnLoop.h"
 
 #include "io_jsoncan.h"
@@ -49,7 +45,7 @@ extern TIM_HandleTypeDef htim3;
 extern CAN_HandleTypeDef hcan1;
 extern TIM_HandleTypeDef htim12;
 
-const CanHandle           can = { .can = &hcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle    can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 extern UART_HandleTypeDef huart1;
 // extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
@@ -91,14 +87,14 @@ static const Gpio      nbspd_brake_pressed_3v3 = { .port = NBSPD_BRAKE_PRESSED_3
 static const Gpio      nprogram_3v3            = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
 static const Gpio      fsm_shdn                = { .port = FSM_SHDN_GPIO_Port, .pin = FSM_SHDN_Pin };
 
-const Gpio *id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
-                             [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
-                             [FSM_GpioNetName_LED]                     = &led.gpio,
-                             [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
-                             [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
-                             [FSM_GpioNetName_FSM_SHDN]                = &fsm_shdn };
+const Gpio *const id_to_gpio[] = { [FSM_GpioNetName_BRAKE_OCSC_OK_3V3]       = &brake_ocsc_ok_3v3,
+                                   [FSM_GpioNetName_NCHIMERA]                = &n_chimera_pin,
+                                   [FSM_GpioNetName_LED]                     = &led.gpio,
+                                   [FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3] = &nbspd_brake_pressed_3v3,
+                                   [FSM_GpioNetName_NPROGRAM_3V3]            = &nprogram_3v3,
+                                   [FSM_GpioNetName_FSM_SHDN]                = &fsm_shdn };
 
-AdcChannel id_to_adc[] = {
+const AdcChannel id_to_adc[] = {
     [FSM_AdcNetName_SUSP_TRAVEL_FR_3V3] = ADC1_IN9_SUSP_TRAVEL_FR,
     [FSM_AdcNetName_SUSP_TRAVEL_FL_3V3] = ADC1_IN8_SUSP_TRAVEL_FL,
     [FSM_AdcNetName_LOAD_CELL_2_3V3]    = ADC1_IN1_LOAD_CELL_2,
@@ -110,51 +106,58 @@ AdcChannel id_to_adc[] = {
     [FSM_AdcNetName_SteeringAngle_3V3]  = ADC1_IN11_STEERING_ANGLE,
 };
 
-static UART debug_uart = { .handle = &huart1 };
+static const UART debug_uart = { .handle = &huart1 };
 
-AppsConfig             apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
-BrakeConfig            brake_config      = { .rear_brake = ADC1_IN15_BPS_B, .front_brake = ADC1_IN7_BPS_F };
-LoadCellConfig         load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
-SteeringConfig         steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
-SuspensionConfig       suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
-                                             .front_right_suspension = ADC1_IN9_SUSP_TRAVEL_FR };
-PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
-                                             .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
-                                             .tim_channel         = TIM_CHANNEL_2,
-                                             .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
-                                             .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2 };
+static const AppsConfig       apps_config       = { .papps = ADC1_IN12_APPS1, .sapps = ADC1_IN5_APPS2 };
+static const BrakeConfig      brake_config      = { .rear_brake          = ADC1_IN15_BPS_B,
+                                                    .front_brake         = ADC1_IN7_BPS_F,
+                                                    .brake_hardware_ocsc = &brake_ocsc_ok_3v3,
+                                                    .nbspd_brake_pressed = &nbspd_brake_pressed_3v3 };
+static const LoadCellConfig   load_cell_config  = { .cell_1 = ADC1_IN13_LOAD_CELL_1, .cell_2 = ADC1_IN1_LOAD_CELL_2 };
+static const SteeringConfig   steering_config   = { .steering = ADC1_IN11_STEERING_ANGLE };
+static const SuspensionConfig suspension_config = { .front_left_suspension  = ADC1_IN8_SUSP_TRAVEL_FL,
+                                                    .front_right_suspension = ADC1_IN9_SUSP_TRAVEL_FR };
+static const PwmInputFreqOnlyConfig left_wheel_config = { .htim                = &htim12,
+                                                          .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                                          .tim_channel         = TIM_CHANNEL_2,
+                                                          .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                                          .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_2 };
 
-PwmInputFreqOnlyConfig right_wheel_config = { .htim                = &htim12,
-                                              .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
-                                              .tim_channel         = TIM_CHANNEL_1,
-                                              .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
-                                              .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
+static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                = &htim12,
+                                                           .tim_frequency_hz    = TIMx_FREQUENCY / TIM12_PRESCALER,
+                                                           .tim_channel         = TIM_CHANNEL_1,
+                                                           .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
+                                                           .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
 // config for heartbeat monitor (can funcs and flags)
 // FSM rellies on BMS
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
     [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-                                                          [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = NULL,
-                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
+static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                           [RSM_HEARTBEAT_BOARD]  = NULL,
-                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
+static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+    [VC_HEARTBEAT_BOARD]   = NULL,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
@@ -164,7 +167,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
     [RSM_HEARTBEAT_BOARD]  = NULL,
@@ -185,7 +188,7 @@ void tasks_preInit(void)
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
 
 static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_FSM_SHDN_OK_get,
-                                                                   &app_canTx_FSM_FSMShdnOKStatus_set } };
+                                                                   &app_canTx_FSM_BOTSOKStatus_set } };
 
 void tasks_init(void)
 {
@@ -267,7 +270,7 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
@@ -294,7 +297,7 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        const uint32_t start_time_ms = osKernelGetTickCount();
+        //        const uint32_t start_time_ms = osKernelGetTickCount();
 
         hw_watchdog_checkForTimeouts();
 

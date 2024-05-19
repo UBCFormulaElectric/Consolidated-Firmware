@@ -10,8 +10,8 @@ float app_tractiveSystem_getVoltage()
 
 float app_tractiveSystem_getCurrent(void)
 {
-    float low_res_current  = io_tractiveSystem_getCurrentLowResolution();
-    float high_res_current = io_tractiveSystem_getCurrentHighResolution();
+    const float low_res_current  = io_tractiveSystem_getCurrentLowResolution();
+    const float high_res_current = io_tractiveSystem_getCurrentHighResolution();
 
     if (IS_IN_RANGE(-HIGH_RES_MAX_CURRENT_READING, HIGH_RES_MAX_CURRENT_READING, low_res_current))
     {

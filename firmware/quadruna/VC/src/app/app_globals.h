@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include "app_heartbeatMonitor.h"
 #include "io_led.h"
-#include "io_buzzer.h"
 #include "app_timer.h"
 
 typedef struct
