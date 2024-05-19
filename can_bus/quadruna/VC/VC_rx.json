@@ -10,7 +10,6 @@
         "CRIT_CRITShdnNodeStatus",
         "CRIT_Switches",
         "CRIT_Vitals",
-        "CRIT_Vitals",
         "Debug_CanMode",
         "Debug_SetCoolantPump",
         "FSM_Apps",

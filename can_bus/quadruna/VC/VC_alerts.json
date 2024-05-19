@@ -63,10 +63,6 @@
             "id": 552,
             "description": "Example"
         },
-        "MissingRSMHeartbeat": {
-            "id": 553,
-            "description": "Example"
-        },
         "MissingCRITHeartbeat": {
             "id": 554,
             "description": "Example"
