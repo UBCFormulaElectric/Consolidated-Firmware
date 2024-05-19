@@ -20,11 +20,11 @@ void app_wheels_broadcast(void)
     float            left_wheel_speed;
     RangeCheckStatus left_wheel_status = app_rangeCheck_getValue(&left_wheel_speed_in_range_check, &left_wheel_speed);
     app_canTx_FSM_LeftWheelSpeed_set(left_wheel_speed);
-    app_canAlerts_FSM_Warning_LeftWheelSpeedOCSC_set(left_wheel_status != VALUE_IN_RANGE);
+    app_canAlerts_FSM_Warning_LeftWheelSpeedOutOfRange_set(left_wheel_status != VALUE_IN_RANGE);
 
     float            right_wheel_speed;
     RangeCheckStatus right_wheel_status =
         app_rangeCheck_getValue(&right_wheel_speed_in_range_check, &right_wheel_speed);
     app_canTx_FSM_RightWheelSpeed_set(right_wheel_speed);
-    app_canAlerts_FSM_Warning_RightWheelSpeedOCSC_set(right_wheel_status != VALUE_IN_RANGE);
+    app_canAlerts_FSM_Warning_RightWheelSpeedOutOfRange_set(right_wheel_status != VALUE_IN_RANGE);
 }

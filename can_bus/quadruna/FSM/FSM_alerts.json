@@ -44,11 +44,11 @@
             "id": 310,
             "description": "Steering angle out of range."
         },
-        "LeftWheelSpeedOCSC": {
+        "LeftWheelSpeedOutOfRange": {
             "id": 311,
             "description": "Left wheel speed out of range."
         },
-        "RightWheelSpeedOCSC": {
+        "RightWheelSpeedOutOfRange": {
             "id": 312,
             "description": "Right wheel speed out of range."
         },
