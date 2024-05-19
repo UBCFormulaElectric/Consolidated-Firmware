@@ -15,12 +15,13 @@ static const RangeCheck right_wheel_speed_in_range_check = {
 
 void app_wheels_broadcast(void)
 {
-    float            left_wheel_speed = io_wheels_getLeftSpeedKph();
-    RangeCheckStatusMetaData left_wheel_status = app_rangeCheck_getValue(&left_wheel_speed_in_range_check, left_wheel_speed);
+    float                    left_wheel_speed = io_wheels_getLeftSpeedKph();
+    RangeCheckStatusMetaData left_wheel_status =
+        app_rangeCheck_getValue(&left_wheel_speed_in_range_check, left_wheel_speed);
     app_canTx_FSM_LeftWheelSpeed_set(left_wheel_status.value);
     app_canAlerts_FSM_Warning_LeftWheelSpeedOCSC_set(left_wheel_status.status != VALUE_IN_RANGE);
 
-    float            right_wheel_speed = io_wheels_getRightSpeedKph();
+    float                    right_wheel_speed = io_wheels_getRightSpeedKph();
     RangeCheckStatusMetaData right_wheel_status =
         app_rangeCheck_getValue(&right_wheel_speed_in_range_check, right_wheel_speed);
     app_canTx_FSM_RightWheelSpeed_set(right_wheel_status.value);

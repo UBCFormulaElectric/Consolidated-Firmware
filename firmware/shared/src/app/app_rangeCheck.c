@@ -5,7 +5,7 @@
 
 RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float value)
 {
-    RangeCheckStatus status = VALUE_IN_RANGE;
+    RangeCheckStatus         status = VALUE_IN_RANGE;
     RangeCheckStatusMetaData return_value;
 
     if (value < check->min_value)
@@ -21,7 +21,7 @@ RangeCheckStatusMetaData app_rangeCheck_getValue(const RangeCheck *check, float 
         status = VALUE_IN_RANGE;
     }
 
-    return_value.value = value;
+    return_value.value  = value;
     return_value.status = status;
 
     return return_value;

@@ -17,8 +17,8 @@ typedef enum
 typedef struct
 {
     RangeCheckStatus status;
-    float value;
-}RangeCheckStatusMetaData;
+    float            value;
+} RangeCheckStatusMetaData;
 
 /**
  * Get the value for the given in-range check

@@ -16,13 +16,15 @@ void app_brake_broadcast(void)
     const bool brake_pressed = io_brake_isActuated();
     app_canTx_FSM_BrakeActuated_set(brake_pressed);
 
-    float            front_pressure = io_brake_getFrontPressurePsi();
-    RangeCheckStatusMetaData front_pressure_status = app_rangeCheck_getValue(&front_pressure_in_range_check, front_pressure);
+    float                    front_pressure = io_brake_getFrontPressurePsi();
+    RangeCheckStatusMetaData front_pressure_status =
+        app_rangeCheck_getValue(&front_pressure_in_range_check, front_pressure);
     app_canTx_FSM_FrontBrakePressure_set((uint32_t)front_pressure_status.value);
     app_canAlerts_FSM_Warning_FrontBrakePressureOutOfRange_set(front_pressure_status.status != VALUE_IN_RANGE);
 
-    float            rear_pressure = io_brake_getRearPressurePsi();
-    RangeCheckStatusMetaData rear_pressure_status = app_rangeCheck_getValue(&rear_pressure_in_range_check, rear_pressure);
+    float                    rear_pressure = io_brake_getRearPressurePsi();
+    RangeCheckStatusMetaData rear_pressure_status =
+        app_rangeCheck_getValue(&rear_pressure_in_range_check, rear_pressure);
     app_canTx_FSM_RearBrakePressure_set((uint32_t)rear_pressure_status.value);
     app_canAlerts_FSM_Warning_RearBrakePressureOutOfRange_set(rear_pressure_status.status != VALUE_IN_RANGE);
 
