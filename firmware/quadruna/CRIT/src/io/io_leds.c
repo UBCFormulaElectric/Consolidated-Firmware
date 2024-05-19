@@ -52,15 +52,18 @@ void set_led_from_board_status(const RgbLed *led, const BoardLEDStatus status)
         case WARNING:
             hw_rgbLed_enable(led, RGB_YELLOW);
             break;
-        case WHITE:
+        case NOT_IMPLEMENTED:
             hw_rgbLed_enable(led, RGB_WHITE);
+            break;
+        case MISSING_HEARTBEAT:
+            hw_rgbLed_enable(led, RGB_OFF);
             break;
     }
 }
 
 void io_led_shutdown_set(const BoardLEDStatus status)
 {
-    assert(status != WHITE && status != WARNING);
+    assert(status != NOT_IMPLEMENTED && status != WARNING);
     set_led_from_board_status(leds->shdn_led, status);
 }
 

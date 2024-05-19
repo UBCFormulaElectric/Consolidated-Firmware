@@ -27,8 +27,9 @@ void app_leds_update(void)
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     io_led_torquevec_set(torquevec_light_on);
 
-    const BoardLEDStatus shutdown_sensor = OK; // TODO implement VC last shutdown node code is in
-    io_led_shutdown_set(shutdown_sensor);
+    // or driven by BMS_drive_state???
+    const BoardLEDStatus shutdown_sensor_ok = app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? OK : FAULT;
+    io_led_shutdown_set(shutdown_sensor_ok);
 
     const BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
     io_led_bms_status_set(bms_status);
@@ -46,5 +47,5 @@ void app_leds_update(void)
     io_led_rsm_status_set(rsm_status);
 
     // TODO AUX status
-    io_led_aux_status_set(WHITE);
+    io_led_aux_status_set(NOT_IMPLEMENTED);
 }

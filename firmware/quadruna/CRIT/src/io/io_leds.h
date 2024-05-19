@@ -36,7 +36,8 @@ typedef enum
     OK,
     WARNING,
     FAULT,
-    WHITE
+    NOT_IMPLEMENTED,
+    MISSING_HEARTBEAT
 } BoardLEDStatus;
 
 void io_led_shutdown_set(BoardLEDStatus status);
