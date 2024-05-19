@@ -71,6 +71,10 @@
         "CoolantPressureBOCSC": {
             "id": 417,
             "description": "Coolant pressure B open or short circuit"
+        },
+        "MissingFSMHeartbeat": {
+            "id": 453,
+            "description": "FSM Missing Heartbeat"
         }
     },
     "faults": {
@@ -80,11 +84,7 @@
         },
         "MissingVCHeartbeat": {
             "id": 452,
-            "description": "VC Missing Heart beat"
-        },
-        "MissingFSMHeartbeat": {
-            "id": 453,
-            "description": "FSM Missing Heart beat"
+            "description": "VC Missing Heartbeat"
         }
     }
 }

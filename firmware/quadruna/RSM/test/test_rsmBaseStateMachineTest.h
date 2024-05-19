@@ -94,14 +94,14 @@ class RsmBaseStateMachineTest : public BaseStateMachineTest
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
     void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Warning_MissingFSMHeartbeat_set,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
-        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = &app_canAlerts_RSM_Warning_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
     };
 };
