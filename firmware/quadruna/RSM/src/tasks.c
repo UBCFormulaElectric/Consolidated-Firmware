@@ -113,10 +113,6 @@ const AdcChannel id_to_adc[] = {
     [RSM_AdcNetName_LC4_OUT]              = ADC1_IN0_LC4_OUT,
 };
 
-static const BinaryLed brake_light = { .gpio = {
-                                           .port = BRAKE_LIGHT_EN_3V3_GPIO_Port,
-                                           .pin  = BRAKE_LIGHT_EN_3V3_Pin,
-                                       } };
 
 static const GlobalsConfig config = { .brake_light = &brake_light };
 
@@ -195,7 +191,7 @@ void tasks_init(void)
     io_coolant_init(&coolant_config);
     app_coolant_init();
 
-    io_fans_init(&acc_fan_en_pin, &rad_fan_en_pin);
+    io_fan_init(&acc_fan_en_pin, &rad_fan_en_pin);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
@@ -304,47 +300,6 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
-{
-    io_chimera_sleepTaskIfEnabled();
-
-    static const TickType_t period_ms   = 1U;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
-
-    for (;;)
-    {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
-        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-_Noreturn void tasks_run1Hz(void)
-{
-    io_chimera_sleepTaskIfEnabled();
-
-    static const TickType_t period_ms   = 1000U;
-    static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
-
-    for (;;)
-    {
-        hw_stackWaterMarkConfig_check();
-        app_stateMachine_tick1Hz();
-
-        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
-        io_canTx_enqueue1HzMsgs();
-
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
