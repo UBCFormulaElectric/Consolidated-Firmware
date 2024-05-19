@@ -35,15 +35,15 @@
         "RxOverflow" : {
             "id" :108,
             "description" : "Example"
+        },
+        "MissingRSMHeartbeat":{
+            "id" :152,
+            "description" : "Example"
         }
     },
     "faults": {
         "MissingVCHeartbeat":{
             "id" :151,
-            "description" : "Example"
-        },
-        "MissingRSMHeartbeat":{
-            "id" :152,
             "description" : "Example"
         },
         "StateMachine" :{

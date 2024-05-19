@@ -153,7 +153,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
         [BMS_HEARTBEAT_BOARD]  = NULL,
         [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_set,
-        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_set,
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Warning_MissingRSMHeartbeat_set,
         [FSM_HEARTBEAT_BOARD]  = NULL,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = NULL
@@ -163,7 +163,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
     bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])() = {
         [BMS_HEARTBEAT_BOARD]  = NULL,
         [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
-        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
+        [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Warning_MissingRSMHeartbeat_get,
         [FSM_HEARTBEAT_BOARD]  = NULL,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = NULL
