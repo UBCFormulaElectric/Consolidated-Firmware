@@ -549,6 +549,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
+    osDelayUntil(osWaitForever);
     static uint32_t message_batch_count = 0;
     for (;;)
     {
