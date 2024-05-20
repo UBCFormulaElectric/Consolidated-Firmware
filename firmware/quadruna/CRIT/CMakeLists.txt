@@ -139,7 +139,7 @@ elseif("${TARGET}" STREQUAL "test")
     )
 
     # JSONCAN
-    jsoncan_library(CRIT quadruna "${CMAKE_CURENT_BINARY_DIR}")
+    jsoncan_library(CRIT quadruna "${CMAKE_CURRENT_BINARY_DIR}")
 
     # FakeIO
     set(HEADERS_TO_FAKE
