@@ -58,7 +58,7 @@ endfunction()
 function(jsoncan_library BOARD CAR JSONCAN_DIR)
     jsoncan_sources(
             ${BOARD}
-            ${JSONCAN_DIR}
+            "${JSONCAN_DIR}"
             FALSE
             ${CAR}
     )
