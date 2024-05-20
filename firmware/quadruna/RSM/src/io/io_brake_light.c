@@ -7,7 +7,9 @@ void io_brake_light_init(const BinaryLed *brake_light_in)
     brake_light = brake_light_in;
 }
 
-void io_brake_light_set(bool val)
+int io_brake_light_set(bool val)
 {
     io_led_enable(brake_light, val);
+
+    return val ? 1 : 0;
 }

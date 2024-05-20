@@ -18,10 +18,10 @@ void mainStateRunOnTick100Hz(void)
     app_heartbeatMonitor_checkIn();
     app_heartbeatMonitor_broadcastFaults();
 
-    io_brake_light_set(app_canRx_FSM_BrakeActuated_get());
+    app_canTx_RSM_BrakeLight_set(io_brake_light_set(app_canRx_FSM_BrakeActuated_get()));
     const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    io_acc_fan_set(hv_on);
-    io_rad_fan_set(hv_on);
+    app_canTx_RSM_AccumulatorFan_set(io_acc_fan_set(hv_on));
+    app_canTx_RSM_RadiatorFan_set(io_rad_fan_set(hv_on));
 }
 
 const State *app_mainState_get(void)

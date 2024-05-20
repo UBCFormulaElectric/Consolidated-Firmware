@@ -26,9 +26,9 @@
 #define VOLTAGE_PRESSURE_CONVERSION(voltage) \
     (((voltage)-PRESSURE_VOLTAGE_MIN) * (PRESSURE_PSI_MAX / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN)))
 
-#define T0 (298.15f)          // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
-#define R0 (10000.f)          // resistance at T0
-#define B_COEFFIECNT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
+#define T0 (298.15f)           // 25 degrees celsius is used for T0 in datasheet but for equation we do kelvin
+#define R0 (10000.f)           // resistance at T0
+#define B_COEFFIECENT (3988.f) // source: https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Probe_ass_K301_A003.pdf
 #define VIN (5.0f)
 #define R2 (2200.f) // bottom resistor in the coolant temp sensor circuit
 // the coolant temp sensor circuit is made of a voltage divider where the thermistor which we use for the temperature
@@ -37,16 +37,7 @@
 // * R2)/ Vout ) - R2)
 #define RTHERM(voltage_out) (VIN * R2 / voltage_out - R2)
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
-#define BTERM_STEIN_EQN(rtherm) ((float)log((double)(rtherm / R0)) / B_COEFFICIENT)
-
-// source:
-// https://m.media-amazon.com/images/S/aplus-media-library-service-media/413eb684-16a6-4eca-8ea6-b5e5bb1c657e.__CR0,0,970,600_PT0_SX970_V1___.jpg
-// NOTE: this assumes a linear relationship between voltage and temperature
-#define PRESSURE_VOLTAGE_MIN (0.5f)
-#define PRESSURE_VOLTAGE_MAX (4.5f)
-#define MIN_PRESSURE_PSI (0.0f)
-#define MAX_PRESSURE_PSI (200.0f)
-#define PSI_PER_VOLT ((MAX_PRESSURE_PSI - MIN_PRESSURE_PSI) / (PRESSURE_VOLTAGE_MAX - PRESSURE_VOLTAGE_MIN))
+#define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
 static PwmInputFreqOnly flow_meter;
 

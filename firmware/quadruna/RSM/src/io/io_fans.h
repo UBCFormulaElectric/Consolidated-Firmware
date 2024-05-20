@@ -8,6 +8,6 @@
 void io_fan_init(const Gpio *acc_fan_in, const Gpio *rad_fan_in);
 #endif
 
-void io_acc_fan_set(bool on);
+int io_acc_fan_set(bool on);
 
-void io_rad_fan_set(bool on);
+int io_rad_fan_set(bool on);

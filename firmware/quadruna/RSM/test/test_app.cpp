@@ -100,3 +100,29 @@ TEST_F(RsmAppTest, check_right_rear_suspension_can_signals)
     CheckBinaryStatusCanSignal(
         fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_RSM_Warning_RightSuspensionOCSC_get);
 }
+
+TEST_F(RsmAppTest, check_fan_can_signals)
+{
+    fake_io_acc_fan_set_returnsForAnyArgs(1);
+    fake_io_rad_fan_set_returnsForAnyArgs(1);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_RSM_AccumulatorFan_get(), 1);
+    ASSERT_EQ(app_canTx_RSM_RadiatorFan_get(), 1);
+
+    fake_io_acc_fan_set_returnsForAnyArgs(0);
+    fake_io_rad_fan_set_returnsForAnyArgs(0);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_RSM_AccumulatorFan_get(), 0);
+    ASSERT_EQ(app_canTx_RSM_RadiatorFan_get(), 0);
+}
+
+TEST_F(RsmAppTest, check_brakelight_can_signals)
+{
+    fake_io_brake_light_set_returnsForAnyArgs(0);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_RSM_BrakeLight_get(), 0);
+
+    fake_io_brake_light_set_returnsForAnyArgs(1);
+    LetTimePass(10);
+    ASSERT_EQ(app_canTx_RSM_BrakeLight_get(), 1);
+}

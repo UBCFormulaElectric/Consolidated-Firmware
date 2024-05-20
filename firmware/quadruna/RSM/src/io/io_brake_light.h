@@ -5,4 +5,4 @@
 void io_brake_light_init(const BinaryLed *brake_light);
 #endif
 
-void io_brake_light_set(bool val);
+int io_brake_light_set(bool val);
