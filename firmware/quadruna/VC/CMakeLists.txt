@@ -191,5 +191,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("quadruna_VC_test" "quadruna_VC_can" "quadruna_VC_fakes" "shared_fakes")
+    target_link_libraries("quadruna_VC_test" "quadruna_VC_jsoncan" "quadruna_VC_fakes" "shared_fakes")
 endif ()
