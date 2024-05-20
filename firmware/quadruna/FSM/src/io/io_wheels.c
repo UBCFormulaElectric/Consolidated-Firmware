@@ -12,7 +12,9 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 
 static PwmInputFreqOnly left_wheel_speed_sensor, right_wheel_speed_sensor;
 
-void io_wheels_init(PwmInputFreqOnlyConfig *left_wheel_speed_config, PwmInputFreqOnlyConfig *right_wheel_speed_config)
+void io_wheels_init(
+    const PwmInputFreqOnlyConfig *left_wheel_speed_config,
+    const PwmInputFreqOnlyConfig *right_wheel_speed_config)
 {
     hw_pwmInputFreqOnly_init(&left_wheel_speed_sensor, right_wheel_speed_config);
     hw_pwmInputFreqOnly_init(&right_wheel_speed_sensor, left_wheel_speed_config);

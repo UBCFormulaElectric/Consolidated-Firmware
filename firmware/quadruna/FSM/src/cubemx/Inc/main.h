@@ -75,8 +75,8 @@ extern "C"
 #define ADC_FREQUENCY 1000
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
-#define SteeingAngle_3V3_Pin GPIO_PIN_1
-#define SteeingAngle_3V3_GPIO_Port GPIOC
+#define SteeringAngle_3V3_Pin GPIO_PIN_1
+#define SteeringAngle_3V3_GPIO_Port GPIOC
 #define APPS1_3V3_Pin GPIO_PIN_2
 #define APPS1_3V3_GPIO_Port GPIOC
 #define LOAD_CELL_1_3V3_Pin GPIO_PIN_3

@@ -22,9 +22,7 @@ platform = _get_platform()
 # Construct the command line input
 CLANG_FORMAT_VERSION = "17.0.6"
 CLANG_PLATFORM_SUFFIX = {"windows": ".exe", "mac": "-mac", "linux": ""}[platform]
-CLANG_FORMAT_BINARY = (
-    f'{os.path.join(".", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
-)
+CLANG_FORMAT_BINARY = f'{os.path.join("..", "clang_format", "clang-format-")}{CLANG_FORMAT_VERSION}{CLANG_PLATFORM_SUFFIX}'
 CLANG_FORMAT_OPTIONS = " -i --style=file"
 
 # TODO make this (configs and function) work with multiple directories/make it compatible with multiple directories

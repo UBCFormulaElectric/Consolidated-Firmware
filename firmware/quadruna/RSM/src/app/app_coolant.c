@@ -1,6 +1,4 @@
 #include "app_coolant.h"
-#include <stdlib.h>
-#include <assert.h>
 #include "app_rangeCheck.h"
 #include "app_canTx.h"
 #include "app_canRx.h"

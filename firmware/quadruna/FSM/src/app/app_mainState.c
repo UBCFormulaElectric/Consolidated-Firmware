@@ -24,10 +24,9 @@ void mainStateRunOnTick100Hz(void)
     app_shdn_loop_broadcast();
 
     app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_tick();
     app_heartbeatMonitor_broadcastFaults();
 
-    bool missing_hb = app_heartbeatMonitor_checkFaults();
+    bool missing_hb = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
 
     if (missing_hb)
     {

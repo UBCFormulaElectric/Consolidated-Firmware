@@ -148,13 +148,13 @@ elseif("${TARGET}" STREQUAL "test")
     )
 
     add_library(quadruna_RSM_can STATIC "${CAN_SRCS}")
-    target_include_directories(quadruna_RSM_can PUBLIC "${CAN_INCLUDE_DIRS}")  
-    
+    target_include_directories(quadruna_RSM_can PUBLIC "${CAN_INCLUDE_DIRS}")
+
     set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_coolant.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_loadCell.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fan.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake_light.h"
     )
 

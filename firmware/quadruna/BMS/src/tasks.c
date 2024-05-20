@@ -64,12 +64,14 @@ static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_BMS_RxOverflowCount_set(overflow_count);
     app_canAlerts_BMS_Warning_RxOverflow_set(true);
+    LOG_INFO("CAN RX QUEUE OVERFLOW, overflow_count = %d", overflow_count);
 }
 
 static void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_BMS_TxOverflowCount_set(overflow_count);
     app_canAlerts_BMS_Warning_TxOverflow_set(true);
+    LOG_INFO("CAN TX QUEUE OVERFLOW, overflow_count = %d", overflow_count);
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -98,6 +100,7 @@ static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin =
 static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
 static const Gpio n_program_pin               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
 static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
+static const Gpio hvd_ok_shdn_pin = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin };
 static const Gpio ts_isense_ocsc_ok_pin = { .port = TS_ISENSE_OCSC_OK_3V3_GPIO_Port, .pin = TS_ISENSE_OCSC_OK_3V3_Pin };
 static const Gpio sd_cd_pin             = { .port = SD_CD_GPIO_Port, .pin = SD_CD_Pin };
 static const Gpio spi_cs_pin                = { .port = SPI_CS_GPIO_Port, .pin = SPI_CS_Pin };
@@ -110,14 +113,14 @@ static SdCard sd = {
     .sd_init_complete = false,
 };
 
-PwmInputConfig imd_pwm_input_config = {
+static const PwmInputConfig imd_pwm_input_config = {
     .htim                     = &htim1,
     .timer_frequency_hz       = TIM1_FREQUENCY / TIM1_PRESCALER,
-    .rising_edge_tim_channel  = TIM_CHANNEL_2,
-    .falling_edge_tim_channel = TIM_CHANNEL_1,
+    .rising_edge_tim_channel  = TIM_CHANNEL_1,
+    .falling_edge_tim_channel = TIM_CHANNEL_2,
 };
 
-const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_msgReceivedCallback };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
 static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
@@ -180,7 +183,7 @@ static const AirsConfig airs_config = { .air_p_gpio = {
 // TODO: Test differential ADC for voltage measurement
 static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
                                                 .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
-                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_50A,
+                                                .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_75A,
                                                 .ts_isense_low_res_channel  = ADC1_IN9_TS_ISENSE_400A
 
 };
@@ -229,29 +232,33 @@ static const GlobalsConfig globals_config = {
 
 // config for heartbeat monitor (can funcs and flags)
 // BMS relies on RSM, VC
-bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
+static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
     [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
-bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = NULL,
-                                                          [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-                                                          [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                          [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                          [CRIT_HEARTBEAT_BOARD] = NULL };
+static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+    [BMS_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
-void (*heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = { [BMS_HEARTBEAT_BOARD]  = NULL,
-                                                           [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
-                                                           [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-                                                           [FSM_HEARTBEAT_BOARD]  = NULL,
-                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
-                                                           [CRIT_HEARTBEAT_BOARD] = NULL };
+static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
+    [BMS_HEARTBEAT_BOARD]  = NULL,
+    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
+    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+    [FSM_HEARTBEAT_BOARD]  = NULL,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
+};
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
-void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
+static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = NULL,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_set,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_set,
@@ -261,7 +268,7 @@ void (*heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
-bool (*heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
+static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = NULL,
     [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
     [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
@@ -296,19 +303,21 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
 
 const AdcChannel id_to_adc[] = {
     [BMS_AdcNetName_AUX_TSENSE] = ADC1_IN4_AUX_TSENSE,       [BMS_AdcNetName_TS_ISENSE_400A] = ADC1_IN9_TS_ISENSE_400A,
-    [BMS_AdcNetName_TS_ISENSE_50A] = ADC1_IN5_TS_ISENSE_50A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
+    [BMS_AdcNetName_TS_ISENSE_75A] = ADC1_IN5_TS_ISENSE_75A, [BMS_AdcNetName_TS_VSENSE_P] = ADC1_IN10_TS_VSENSE_P,
     [BMS_AdcNetName_TS_VSENSE_N] = ADC1_IN11_TS_VSENSE_N,
 };
 
-static UART debug_uart = { .handle = &huart1 };
+static const UART debug_uart = { .handle = &huart1 };
 
 static const BmsShdnConfig bms_shdn_pin_config = {
     .ts_ilck_ok_gpio = ts_ilck_shdn_pin,
-    .hvd_ok_gpio     = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin },
+    .hvd_ok_gpio     = hvd_ok_shdn_pin,
 };
 
-static BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = { { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
-                                                           { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set } };
+static const BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = {
+    { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
+    { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set }
+};
 
 void tasks_preInit(void)
 {
@@ -350,6 +359,8 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+
+    HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
 
     app_inverterOnState_init();
     app_accumulator_init();

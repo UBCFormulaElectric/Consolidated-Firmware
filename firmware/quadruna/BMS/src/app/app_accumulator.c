@@ -92,7 +92,7 @@ typedef struct
 typedef struct
 {
     // Cells information
-    uint8_t                 num_comm_tries;
+    uint32_t                num_comm_tries;
     VoltageStats            voltage_stats;
     AccumulatorMonitorState state;
 
@@ -246,7 +246,7 @@ void app_accumulator_init(void)
     data.owc_state        = START_OPEN_WIRE_CHECK;
 }
 
-void app_accumulator_writeDefaultConfig()
+void app_accumulator_writeDefaultConfig(void)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     io_ltc6813Shared_setCfgRegsToDefaultSettings();
@@ -418,7 +418,7 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MinCellVoltageSegment_set(data.voltage_stats.min_voltage.segment);
     app_canTx_BMS_MaxCellVoltageSegment_set(data.voltage_stats.max_voltage.segment);
     app_canTx_BMS_MinCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
-    app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
+    app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.max_voltage.cell);
 
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
@@ -483,6 +483,8 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
     app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
+    app_canTx_BMS_NumCommTries_set(data.num_comm_tries);
+    app_canTx_BMS_AccumulatorMonitorState_set((CAN_AccumulatorMonitorState)data.state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
     bool owc_fault = data.owc_faults.owcGlobalFault;
