@@ -236,11 +236,11 @@ _Noreturn void bootloader_runTickTask(void)
     for (;;)
     {
         // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 1 };
-        status_msg.data[0] = (uint8_t)(0x000000ff & GIT_COMMIT_HASH >> 0);
-        status_msg.data[1] = (uint8_t)(0x0000ff00 & GIT_COMMIT_HASH >> 2);
-        status_msg.data[2] = (uint8_t)(0x00ff0000 & GIT_COMMIT_HASH >> 4);
-        status_msg.data[3] = (uint8_t)(0xff000000 & GIT_COMMIT_HASH >> 6);
+        CanMsg status_msg  = { .std_id = STATUS_10HZ_ID, .dlc = 5 };
+        status_msg.data[0] = (uint8_t)((0x000000ff & GIT_COMMIT_HASH) >> 0);
+        status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
+        status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
+        status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
         status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
         io_can_pushTxMsgToQueue(&status_msg);
 
