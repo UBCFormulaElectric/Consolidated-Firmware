@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <assert.h>
 #include "cmsis_os.h"
 #include "queue.h"
@@ -9,6 +10,7 @@
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "io_time.h"
+
 // Private globals.
 static const CanConfig *config;
 #define QUEUE_SIZE 2048
