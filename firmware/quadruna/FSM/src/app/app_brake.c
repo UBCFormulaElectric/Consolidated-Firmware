@@ -1,6 +1,4 @@
 #include "app_brake.h"
-#include <stdlib.h>
-#include <assert.h>
 #include "app_rangeCheck.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
@@ -19,13 +17,13 @@ void app_brake_broadcast(void)
     float                    front_pressure = io_brake_getFrontPressurePsi();
     RangeCheckStatusMetaData front_pressure_status =
         app_rangeCheck_getValue(&front_pressure_in_range_check, front_pressure);
-    app_canTx_FSM_FrontBrakePressure_set((uint32_t)front_pressure_status.value);
+    app_canTx_FSM_FrontBrakePressure_set((uint32_t)roundf(front_pressure));
     app_canAlerts_FSM_Warning_FrontBrakePressureOutOfRange_set(front_pressure_status.status != VALUE_IN_RANGE);
 
     float                    rear_pressure = io_brake_getRearPressurePsi();
     RangeCheckStatusMetaData rear_pressure_status =
         app_rangeCheck_getValue(&rear_pressure_in_range_check, rear_pressure);
-    app_canTx_FSM_RearBrakePressure_set((uint32_t)rear_pressure_status.value);
+    app_canTx_FSM_RearBrakePressure_set((uint32_t)roundf(rear_pressure));
     app_canAlerts_FSM_Warning_RearBrakePressureOutOfRange_set(rear_pressure_status.status != VALUE_IN_RANGE);
 
     const bool brake_pressure_ocsc =

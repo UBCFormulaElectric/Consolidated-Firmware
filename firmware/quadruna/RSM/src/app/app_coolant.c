@@ -26,7 +26,7 @@ void app_coolant_broadcast(void)
 
     float                    flow_val       = io_coolant_getFlowRate();
     RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
-    app_canTx_RSM_CoolantFlowRate_set(coolant_status.value);
+    app_canTx_RSM_CoolantFlowRate_set(flow_val);
     app_canAlerts_RSM_Warning_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
 
     // motor shutdown in flow rate check
