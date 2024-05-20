@@ -3,14 +3,14 @@
         "msg_id": 1219,
         "cycle_time": 100,
         "signals": {
-            "VC_Status": {
-                "enum": "BootStatus"
-            },
             "VC_Hash": {
                 "bits": 32
             },
             "VC_Clean": {
                 "bits": 1
+            },
+            "VC_Status": {
+                "enum": "BootStatus"
             }
         }
     },
@@ -18,14 +18,14 @@
         "msg_id": 1209,
         "cycle_time": 100,
         "signals": {
-            "BMS_Status": {
-                "enum": "BootStatus"
-            },
             "BMS_Hash": {
                 "bits": 32
             },
             "BMS_Clean": {
                 "bits": 1
+            },
+            "BMS_Status": {
+                "enum": "BootStatus"
             }
         }
     },
@@ -33,14 +33,14 @@
         "msg_id": 1239,
         "cycle_time": 100,
         "signals": {
-            "RSM_Status": {
-                "enum": "BootStatus"
-            },
             "RSM_Hash": {
                 "bits": 32
             },
             "RSM_Clean": {
                 "bits": 1
+            },
+            "RSM_Status": {
+                "enum": "BootStatus"
             }
         }
     },
@@ -48,14 +48,14 @@
         "msg_id": 1229,
         "cycle_time": 100,
         "signals": {
-            "FSM_Status": {
-                "enum": "BootStatus"
-            },
             "FSM_Hash": {
                 "bits": 32
             },
             "FSM_Clean": {
                 "bits": 1
+            },
+            "FSM_Status": {
+                "enum": "BootStatus"
             }
         }
     },
@@ -63,14 +63,14 @@
         "msg_id": 1249,
         "cycle_time": 100,
         "signals": {
-            "CRIT_Status": {
-                "enum": "BootStatus"
-            },
             "CRIT_Hash": {
                 "bits": 32
             },
             "CRIT_Clean": {
                 "bits": 1
+            },
+            "CRIT_Status": {
+                "enum": "BootStatus"
             }
         }
     },
@@ -78,14 +78,14 @@
         "msg_id": 1309,
         "cycle_time": 100,
         "signals": {
-            "H7Dev_Status": {
-                "enum": "BootStatus"
-            },
             "H7Dev_Hash": {
                 "bits": 32
             },
             "H7Dev_Clean": {
                 "bits": 1
+            },
+            "H7Dev_Status": {
+                "enum": "BootStatus"
             }
         }
     }
