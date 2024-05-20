@@ -1,5 +1,7 @@
 import csv
 import os
+import datetime
+import pytz
 
 from code_generation.jsoncan.src.json_parsing.json_can_parsing import \
     JsonCanParser
@@ -17,6 +19,7 @@ write_api = write_client.write_api(write_options=SYNCHRONOUS)
 
 # Define the path to the JSON CAN 
 ROOT_PATH = "can_bus/quadruna/"
+base_time = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('America/Vancouver'))
 megs = JsonCanParser(can_data_dir=ROOT_PATH).make_database().msgs
 id_to_meg = {}
 
@@ -68,13 +71,14 @@ with open(csv_file_path, mode='r') as file:
             print(f"ID {data_id} not found on line {line}")
             continue
         byte_array = get_byte_array_from_row(row)
-        point = Point(meg.name).tag("id", data_id)
+        actual_time = base_time + datetime.timedelta(milliseconds=int(timestamp))
+        point = Point(meg.name).tag("id", data_id).time(actual_time)
         for signal in meg.signals:
             signal_name = signal.name
             signal_value = get_signal_value(byte_array, signal.start_bit, signal.bits)
             point = point.field(signal_name, signal_value)
         points.append(point)
-        # write_api.write(bucket=bucket, org="org", record=point)
+        write_api.write(bucket=bucket, org="org", record=point)
         
         # Write the Point to InfluxDB
 # close the client
