@@ -111,16 +111,6 @@ if ("${TARGET}" STREQUAL "deploy")
             "${MD5_LOCATION}"
     )
 
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
-    embedded_binary(
-            "quadruna_VC_app"
-            "${SRCS}"
-            "${INCLUDE_DIRS}"
-            "${LINKER_SCRIPT}"
-            "${ARM_CORE}"
-    )
-
     # Telemetry Protocol Buffers
     nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
     set(P_SRCS ${PROTO_SRCS})
