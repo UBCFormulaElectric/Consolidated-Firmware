@@ -96,7 +96,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_critical_error)
     {
         can_update(true);
         LetTimePass(10);
-        ASSERT_EQ(1, assert_func(FAULT));
+        ASSERT_EQ(1, assert_func(BOARD_LED_STATUS_FAULT));
     }
 }
 
@@ -114,7 +114,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_warning)
     {
         can_update(true);
         LetTimePass(10);
-        ASSERT_EQ(1, assert_func(WARNING));
+        ASSERT_EQ(1, assert_func(BOARD_LED_STATUS_WARNING));
     }
 }
 
@@ -127,7 +127,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_no_error)
              fake_io_led_fsm_status_set_callCountForArgs, fake_io_led_rsm_status_set_callCountForArgs,
              fake_io_led_crit_status_set_callCountForArgs })
     {
-        const auto out = assert_func(OK);
+        const auto out = assert_func(BOARD_LED_STATUS_OK);
         ASSERT_EQ(1, out);
     }
 }
@@ -153,7 +153,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_multiple_errors)
         fault(true);
         warning(true);
         LetTimePass(10);
-        ASSERT_EQ(1, assert_func(FAULT));
-        ASSERT_EQ(0, assert_func(WARNING));
+        ASSERT_EQ(1, assert_func(BOARD_LED_STATUS_FAULT));
+        ASSERT_EQ(0, assert_func(BOARD_LED_STATUS_WARNING));
     }
 }
