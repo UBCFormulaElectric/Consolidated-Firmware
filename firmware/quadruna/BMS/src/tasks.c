@@ -364,7 +364,10 @@ void tasks_init(void)
 
     app_inverterOnState_init();
     app_accumulator_init();
-    app_thermistors_init();
+
+    // Re-enable if auxiliary thermistors installed
+    // app_thermistors_init();
+
     app_soc_init();
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());

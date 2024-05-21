@@ -119,13 +119,14 @@ bool app_allStates_runOnTick100Hz(void)
         }
     }
 
-    app_thermistors_updateAuxThermistorTemps();
+    // Re-enable if auxiliary thermistors installed
+    // app_thermistors_updateAuxThermistorTemps();
+    // app_thermistors_broadcast();
 
     app_accumulator_broadcast();
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_airs_broadcast();
-    app_thermistors_broadcast();
     app_shdn_loop_broadcast();
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())

@@ -1,9 +1,9 @@
 {
     "messages": [
-        "BMS_AvailablePower",
+        "BMS_TractiveSystem",
         "BMS_BMSShdnNodeStatus",
         "BMS_CellTemperatures",
-        "BMS_CellVoltages",
+        "BMS_VoltageAndChargeStats",
         "BMS_OkStatuses",
         "BMS_TractiveSystem",
         "BMS_Vitals",
