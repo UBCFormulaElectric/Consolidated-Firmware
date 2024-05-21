@@ -26,12 +26,12 @@ BoardLEDStatus board_worst_status(CanAlertBoard b)
     }
 
     if (is_missing_heartbeat)
-        return MISSING_HEARTBEAT;
+        return BOARD_LED_STATUS_MISSING_HEARTBEAT;
     if (app_canAlerts_BoardHasFault(b))
-        return FAULT;
+        return BOARD_LED_STATUS_FAULT;
     if (app_canAlerts_BoardHasWarning(b))
-        return WARNING;
-    return OK;
+        return BOARD_LED_STATUS_WARNING;
+    return BOARD_LED_STATUS_OK;
 }
 
 void app_leds_update(void)
@@ -50,7 +50,8 @@ void app_leds_update(void)
     io_led_torquevec_set(torquevec_light_on);
 
     // or driven by BMS_drive_state???
-    const BoardLEDStatus shutdown_sensor_ok = app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? OK : FAULT;
+    const BoardLEDStatus shutdown_sensor_ok =
+        app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? BOARD_LED_STATUS_OK : BOARD_LED_STATUS_FAULT;
     io_led_shutdown_set(shutdown_sensor_ok);
 
     const BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
@@ -69,5 +70,5 @@ void app_leds_update(void)
     io_led_rsm_status_set(rsm_status);
 
     // TODO AUX status
-    io_led_aux_status_set(NOT_IMPLEMENTED);
+    io_led_aux_status_set(BOARD_LED_STATUS_NOT_IMPLEMENTED);
 }

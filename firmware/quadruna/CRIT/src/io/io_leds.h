@@ -33,11 +33,11 @@ void io_led_torquevec_set(bool val);
 
 typedef enum
 {
-    OK,
-    WARNING,
-    FAULT,
-    NOT_IMPLEMENTED,
-    MISSING_HEARTBEAT
+    BOARD_LED_STATUS_OK,
+    BOARD_LED_STATUS_WARNING,
+    BOARD_LED_STATUS_FAULT,
+    BOARD_LED_STATUS_NOT_IMPLEMENTED,
+    BOARD_LED_STATUS_MISSING_HEARTBEAT
 } BoardLEDStatus;
 
 void io_led_shutdown_set(BoardLEDStatus status);
