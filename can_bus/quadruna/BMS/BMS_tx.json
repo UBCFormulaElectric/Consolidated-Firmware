@@ -95,6 +95,16 @@
             }
         }
     },
+    "Charger":{
+        "msg_id": 107,
+        "cycle_time": 100,
+        "description": "Charger infomation for the BMS to broadcast to other boards",
+        "signals":{
+            "ChargerConnected":{
+                "bits": 1
+            }
+        }
+    },
     "BrusaControls": {
         "msg_id": 1560,
         "cycle_time": 100,

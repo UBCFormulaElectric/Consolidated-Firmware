@@ -78,14 +78,25 @@ static void chargeStateRunOnTick100Hz(void)
             app_stateMachine_setNextState(app_faultState_get());
         }
 
+        // Increment global counter used to determine when to set charger connected on 
+        // local rx table to false and when to check the local rx table to see if it has
+        // been set back to true.
         globals->charger_connected_counter++;
+        // If it has been more than a second
         if (globals->charger_connected_counter >= 100)
         {
+            // Set the local rx value of charger connected to false, reset the counter
+            // and lock the functionality of broadcasting if the charger is connected
             app_canRx_BRUSA_IsConnected_update(false);
-            globals->charger_connected_counter = 0;
+            globals->charger_connected_counter   = 0;
+            globals->broadcast_charger_connected = false;
         }
+        // If it has been more than half a second
         else if (globals->charger_connected_counter >= 50)
         {
+            // Check to see if the BRUSA has set the connected signal back to true
+            // and unlock the functionality to broadcast charger connected on CAN
+            globals->broadcast_charger_connected = true;
             if (!is_charger_connected)
             {
                 app_stateMachine_setNextState(app_faultState_get());
@@ -137,10 +148,11 @@ static void chargeStateRunOnTick100Hz(void)
 
 static void chargeStateRunOnExit(void)
 {
+    globals->broadcast_charger_connected  = true;
     globals->charger_connected_counter    = 0;
     globals->charger_exit_counter         = 0;
     globals->ignore_charger_fault_counter = 0;
-    io_charger_enable(false);
+
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);
     app_canTx_BMS_ChargerEnable_set(false);

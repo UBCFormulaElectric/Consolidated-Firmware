@@ -20,7 +20,6 @@ static void initStateRunOnEntry(void)
     // Should always be opened at this point from other states, this is only for redundancy since we really don't want
     // AIR+ closed in init
     io_airs_openPositive();
-    io_charger_enable(true);
 
     iso_spi_state_counter = 0;
 }
@@ -47,15 +46,20 @@ static void initStateRunOnTick100Hz(void)
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
         const bool missing_hb          = app_heartbeatMonitor_checkFaults();
+        const bool fault_encountered   = globals->fault_encountered;
 
         if (air_negative_closed && ts_discharged)
         {
             const bool charger_connected         = app_canRx_BRUSA_IsConnected_get();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
             const bool external_charging_request = app_canRx_Debug_StartCharging_get();
+            const bool charging_override_fault   = app_canRx_Debug_FaultEncounteredOverride_get();
+            // If there was a fault encountered, don't allow charging unless a manual override is sent over CAN.
+            const bool fault_preventing_charging = fault_encountered && !charging_override_fault;
 
-            const bool precharge_for_charging = charger_connected && external_charging_request;
-            const bool precharge_for_driving  = !charger_connected && !cell_balancing_enabled && !missing_hb;
+            const bool precharge_for_charging =
+                charger_connected && external_charging_request && !fault_preventing_charging;
+            const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
 
             if (precharge_for_charging)
             {

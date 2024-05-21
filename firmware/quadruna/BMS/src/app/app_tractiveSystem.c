@@ -3,6 +3,8 @@
 #include "app_canTx.h"
 #include "io_tractiveSystem.h"
 
+#define W_TO_KW 1.0e-3f
+
 float app_tractiveSystem_getVoltage()
 {
     return io_tractiveSystem_getVoltage();
@@ -25,13 +27,13 @@ float app_tractiveSystem_getCurrent(void)
 
 void app_tractiveSystem_broadcast()
 {
-    const float ts_voltage = app_tractiveSystem_getVoltage();
-    const float ts_current = app_tractiveSystem_getCurrent();
-    const float ts_power   = ts_voltage * ts_current / 1000.0f;
+    const float ts_voltage  = app_tractiveSystem_getVoltage();
+    const float ts_current  = app_tractiveSystem_getCurrent();
+    const float ts_power_kw = ts_voltage * ts_current * W_TO_KW;
 
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);
-    app_canTx_BMS_TractiveSystemPower_set(ts_power);
+    app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
 }
 
 bool app_tractveSystem_checkFaults()
