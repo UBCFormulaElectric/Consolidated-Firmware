@@ -8,14 +8,14 @@
 // create or grab the constants for the different modem and pins and such
 
 // Private Globals
-static bool modem_900_choice;
 
 #define CAN_DATA_LENGTH 8
 #define UART_LENGTH 1
 #define QUEUE_SIZE 12
 #define QUEUE_BYTES 4 * QUEUE_SIZE // this is all temp
+
 static bool         modem_900_choice;
-static const Modem *modem;
+static const Modem *modem = NULL;
 
 static bool    proto_status;
 static uint8_t proto_msg_length;

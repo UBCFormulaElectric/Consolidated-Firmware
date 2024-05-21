@@ -1,6 +1,6 @@
 #include "io_bmsShdn.h"
 
-static const BmsShdnConfig *shdn_config;
+static const BmsShdnConfig *shdn_config = NULL;
 
 void io_bmsShdn_init(const BmsShdnConfig *bms_shdn_config)
 {
