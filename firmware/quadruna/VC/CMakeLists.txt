@@ -12,15 +12,15 @@ list(APPEND APP_SRCS
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_led.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_log.c"
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_log.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -29,74 +29,78 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
-list(APPEND HW_SRCS 
-    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
-set(P_SRCS ${PROTO_SRCS})
-set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
-# Bootloader files.
-file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
 if ("${TARGET}" STREQUAL "deploy")
-    jsoncan_sources(
-        "VC"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        TRUE
-        "quadruna"
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    embedded_binary(
+            "quadruna_VC_app"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
-    embedded_library(
-        quadruna_VC_can
-        "${CAN_SRCS}"
-        "${CAN_INCLUDE_DIRS}"
-        "${ARM_CORE}"
-        TRUE
+
+    # Bootloader files.
+    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+    # Build bootloader.
+    stm32h7_boot_binary(
+            "quadruna_VC_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "quadruna_VC"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
     )
+
+
     generate_stm32cube_code(
-        "VC"
-        "${IOC_PATH}"
+            "VC"
+            "${IOC_PATH}"
     )
 
+    # STM HAL Library
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal_adc_ex.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_dma_ex.c"
-        "stm32h7xx_hal_dma.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_fdcan.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_iwdg.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_tim_ex.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_uart_ex.c"
-        "stm32h7xx_hal_uart.c"
-        "stm32h7xx_ll_sdmmc.c"
-        "stm32h7xx_hal_sd_ex.c"
-        "stm32h7xx_hal_sd.c"
-        "stm32h7xx_hal.c"
-        "stm32h7xx_hal_i2c.c"
-        "stm32h7xx_hal_i2c_ex.c"
+            "stm32h7xx_hal_adc_ex.c"
+            "stm32h7xx_hal_adc.c"
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_dma_ex.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_uart_ex.c"
+            "stm32h7xx_hal_uart.c"
+            "stm32h7xx_ll_sdmmc.c"
+            "stm32h7xx_hal_sd_ex.c"
+            "stm32h7xx_hal_sd.c"
+            "stm32h7xx_hal.c"
+            "stm32h7xx_hal_i2c.c"
+            "stm32h7xx_hal_i2c_ex.c"
     )
-
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
@@ -107,34 +111,33 @@ if ("${TARGET}" STREQUAL "deploy")
             "${MD5_LOCATION}"
     )
 
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
-    embedded_binary(
-            "quadruna_VC_app"
-            "${SRCS}"
-            "${INCLUDE_DIRS}"
-            "${LINKER_SCRIPT}"
-            "${ARM_CORE}"
-    )
-    
-    # copy for custom use 
+    # LittleFS Library
+    # Add your replacement function source file to the littlefs_cm7 library
     embedded_library(
-        "littlefs_cm7_vc"
-        "${LITTLEFS_SRCS}"
-        "${LITTLEFS_SOURCE_DIR}"
-        "cm7"
-        TRUE
+            "littlefs_cm7_vc"
+            "${LITTLEFS_SRCS}"
+            "${LITTLEFS_SOURCE_DIR}"
+            "cm7"
+            TRUE
+    )
+    target_compile_definitions("littlefs_cm7_vc" PRIVATE LFS_ASSERT=io_custom_lfs_assert)
+
+    # Telemetry Protocol Buffers
+    nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
+    set(P_SRCS ${PROTO_SRCS})
+    set(P_HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
+    embedded_library(
+            "telem_proto"
+            "${P_SRCS}"
+            "${P_HDRS}"
+            "cm7"
+            TRUE
     )
 
-    embedded_library(
-        "telem_proto"
-        "${P_SRCS}"
-        "${P_HDRS}"
-        "cm7"
-        TRUE
-    )
-    
-    # Autogenerate git commit info header/source.
+    # JSONCAN
+    jsoncan_embedded_library(VC quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+
+    # CommitInfo
     commit_info_library(
             "quadruna_VC_app.elf"
             "quadruna_VC_commit_info"
@@ -142,64 +145,21 @@ if ("${TARGET}" STREQUAL "deploy")
             "${ARM_CORE}"
     )
 
-
-    # Add your replacement function source file to the littlefs_cm7 library
-    target_compile_definitions(littlefs_cm7_vc PRIVATE LFS_ASSERT=io_custom_lfs_assert)
-    target_link_libraries("quadruna_VC_can" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_can" "quadruna_VC_commit_info" "littlefs_cm7_vc" "debug_modules" "m" "telem_proto")
-
-    # Build bootloader.
-    stm32h7_boot_binary(
-        "quadruna_VC_boot"
-        "${BOOT_SRCS}"
-        "${BOOT_INCLUDE_DIRS}"
-        "quadruna_VC"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
-    )
+    target_link_libraries("quadruna_VC_jsoncan" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "littlefs_cm7_vc" "debug_modules" "m" "telem_proto")
+    target_link_libraries("quadruna_VC_boot.elf" "quadruna_VC_commit_info")
 
     embedded_image(
             "quadruna_VC"
             "quadruna_VC_app.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_app.hex"
             "quadruna_VC_boot.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
     )
-
 elseif ("${TARGET}" STREQUAL "test")
-    jsoncan_sources(
-            "VC"
-            "${CMAKE_CURRENT_BINARY_DIR}"
-            FALSE
-            "quadruna"
-    )
-    add_library(quadruna_VC_can STATIC "${CAN_SRCS}")
-    target_include_directories(quadruna_VC_can PUBLIC "${CAN_INCLUDE_DIRS}")
-
-    set(HEADERS_TO_FAKE
-        "${SHARED_IO_INCLUDE_DIR}/io_log.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_vcShdn.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tsms.h"
-    )
-
-    create_fake_library(
-            "quadruna_VC_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
-
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
     list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-
     set(SRCS ${APP_SRCS} ${TEST_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
     compile_gtest_executable(
@@ -207,5 +167,29 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SRCS}"
             "${INCLUDE_DIRS}"
     )
-    target_link_libraries("quadruna_VC_test" "quadruna_VC_can" "quadruna_VC_fakes" "shared_fakes")
+
+    # JSONCAN
+    jsoncan_library(VC quadruna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    # FakeIO
+    set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_log.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_vcShdn.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_currentSensing.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tsms.h"
+    )
+    create_fake_library(
+            "quadruna_VC_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("quadruna_VC_test" "quadruna_VC_jsoncan" "quadruna_VC_fakes" "shared_fakes")
 endif ()

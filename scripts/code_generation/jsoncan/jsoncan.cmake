@@ -1,3 +1,12 @@
+# Inputs
+# JSONCAN_PY_BOARD - Python board name
+# OUTPUT_DIR - Output directory
+# USE_IO - Whether to generate IO files
+# CAR - Car name
+#
+# Returns
+# CAN_SRCS - List of generated source files
+# CAN_INCLUDE_DIRS - List of include directories
 function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
     message("📚 Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
