@@ -1,6 +1,6 @@
 #include "io_fsmShdn.h"
 
-static const FsmShdnConfig *shdn_config;
+static const FsmShdnConfig *shdn_config = NULL;
 
 void io_fsmShdn_init(const FsmShdnConfig *fsm_shdn_config)
 {

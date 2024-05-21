@@ -85,7 +85,7 @@ typedef struct
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart1;
 
-static const UART   *uart;
+static const UART   *uart = NULL;
 static SbgInterface  sbg_interface;                       // Handle for interface
 static SbgEComHandle com_handle;                          // Handle for comms
 static uint8_t       uart_rx_buffer[UART_RX_PACKET_SIZE]; // Buffer to hold last RXed UART packet

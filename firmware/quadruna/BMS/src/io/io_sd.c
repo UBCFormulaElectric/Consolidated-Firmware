@@ -1,6 +1,6 @@
 #include "io_sd.h"
 
-static const SdGpio *sd;
+static const SdGpio *sd = NULL;
 
 void io_sdGpio_init(const SdGpio *sdGpio)
 {

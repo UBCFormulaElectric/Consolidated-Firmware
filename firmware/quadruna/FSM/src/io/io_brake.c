@@ -11,7 +11,7 @@
 // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
 #define BRAKE_PSI_PER_VOLT (2500.0f / (BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V))
 
-static const BrakeConfig *config;
+static const BrakeConfig *config = NULL;
 
 static bool pressureSensorOCSC(float pressure_voltage)
 {
