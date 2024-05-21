@@ -108,7 +108,7 @@ static bool isValidFd(int fd)
 FileSystemError io_fileSystem_init(void)
 {
     LogFsErr err = logfs_mount(&fs, &fs_cfg);
-    if (err)
+    if (err != LOGFS_ERR_OK)
     {
         // Mounting failed meaning image is corrupted, so format.
         err = logfs_format(&fs, &fs_cfg);

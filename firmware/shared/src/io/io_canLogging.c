@@ -39,18 +39,17 @@ static const osMessageQueueAttr_t queue_attr = {
 // assume the filesystem is already inited
 static int initLoggingFileSystem(void)
 {
-    // early return
-    uint32_t bootcount = 0;
-    current_bootcount  = io_fileSystem_getBootCount();
+    current_bootcount = io_fileSystem_getBootCount();
 
     // create new folder for this boot
-    sprintf(current_path, "%lu", current_bootcount);
+    sprintf(current_path, "/%lu.txt", current_bootcount);
     log_fd = io_fileSystem_open(current_path);
     if (log_fd < 0)
     {
         logging_error_remaining = 0;
         return 1;
     }
+
     return 0;
 }
 
