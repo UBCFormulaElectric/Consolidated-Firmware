@@ -206,10 +206,10 @@ void app_soc_resetSocCustomValue(float soc_percent)
 
 bool app_soc_readSocFromSd(float *saved_soc_c)
 {
-    uint32_t sd_read_crc = 0;
-    float    soc = 0.0f;
+    uint32_t sd_read_crc    = 0;
+    float    soc            = 0.0f;
     uint32_t calculated_crc = 0;
-    *saved_soc_c = -1.0f;
+    *saved_soc_c            = -1.0f;
 
     if (!sdCardReady())
     {

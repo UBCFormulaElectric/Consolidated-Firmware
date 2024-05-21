@@ -78,7 +78,7 @@ static void chargeStateRunOnTick100Hz(void)
             app_stateMachine_setNextState(app_faultState_get());
         }
 
-        // Increment global counter used to determine when to set charger connected on 
+        // Increment global counter used to determine when to set charger connected on
         // local rx table to false and when to check the local rx table to see if it has
         // been set back to true.
         globals->charger_connected_counter++;
