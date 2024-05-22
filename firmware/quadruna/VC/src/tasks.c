@@ -31,6 +31,7 @@
 #include "io_telemMessage.h"
 #include "io_pcm.h"
 #include "io_tsms.h"
+#include "io_time.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -54,26 +55,28 @@ extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
 // extern IWDG_HandleTypeDef  hiwdg1;
 
-static bool io_logging_functional(void); // TODO make this a general io logging happy function
+static bool loggingEnabled(void); // TODO make this a general io logging happy function
 
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
 static uint32_t write_count                = 0; // TODO debugging variables
 static bool     can_logging_enable         = true;
 
-static void tasks_canRx_callback(CanMsg *rx_msg)
+static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
-    if (io_logging_functional())
+
+    if (loggingEnabled() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
     }
+
     // TODO all telemetry here
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
-static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = tasks_canRx_callback };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = canRxCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -154,7 +157,7 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static bool io_logging_functional(void)
+static bool loggingEnabled(void)
 {
     return !hw_gpio_readPin(&sd_present) && can_logging_enable;
 }
@@ -389,7 +392,7 @@ void tasks_init(void)
         Error_Handler();
     }
 
-    if (io_logging_functional())
+    if (loggingEnabled())
     {
         if (io_fileSystem_init() == FILE_OK)
         {
@@ -555,7 +558,7 @@ _Noreturn void tasks_runLogging(void)
     static uint32_t message_batch_count = 0;
     for (;;)
     {
-        if (!io_logging_functional())
+        if (!loggingEnabled())
         {
             osThreadSuspend(osThreadGetId());
         }
