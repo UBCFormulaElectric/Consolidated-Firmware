@@ -1,6 +1,5 @@
 #include "io_can.h"
 #include "hw_sd.h"
-#include "lfs.h"
 
 typedef struct
 {

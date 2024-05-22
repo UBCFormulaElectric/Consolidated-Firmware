@@ -264,3 +264,17 @@ class LogFs:
         # Filter by provided prefix.
         filtered_paths = [path for path in paths if path.startswith(matches)]
         return filtered_paths
+    
+    def cat(self, path: str) -> None:
+        """
+        Linux command to print contents of a file.
+
+        """
+        file = self.open(path=path, flags="r")
+        metadata = file.read_metadata()
+        data = file.read()
+
+        print("Metadata:")
+        print(metadata)
+        print("Data:")
+        print(data)
