@@ -204,27 +204,11 @@ void app_accumulator_balanceCells(void)
     {
         // Enable cell discharging
         io_ltc6813Shared_enableBalance();
-        data.balance_pwm_ticks += 1;
-
-        if (data.balance_pwm_ticks >= balance_ticks_on)
-        {
-            // Cell discharging enabled duty cycle portion is finished
-            data.balance_pwm_high  = false;
-            data.balance_pwm_ticks = 0;
-        }
     }
     else
     {
         // Disable cell discharging
         io_ltc6813Shared_disableBalance();
-        data.balance_pwm_ticks += 1;
-
-        if (data.balance_pwm_ticks >= balance_ticks_off)
-        {
-            // Cell discharging disabled duty cycle portion is finished
-            data.balance_pwm_high  = true;
-            data.balance_pwm_ticks = 0;
-        }
     }
 }
 

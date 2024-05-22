@@ -16,6 +16,8 @@
 // Command used to write to configuration registers
 #define WRCFGA (0x0100U)
 #define WRCFGB (0x2400U)
+#define WRPWM (0x2000U)
+#define WRPSB (0x1C00U)
 
 // Command used to poll ADC conversions
 #define PLADC (0x1407U)
@@ -35,12 +37,18 @@
 #define ENABLE_ALL_CFGRA_GPIO (0x001FU << 3U) // Enable all GPIOs corresponding to CFGRA
 #define ENABLE_ALL_CFGRB_GPIO (0x000FU)       // Enable all GPIOs corresponding to CFGRB
 
+// PWM value for every cell will be set to the same PWM for now. Not that each register within the group coressponds to
+// 2 cells. By default the PWM pins are set to 1 (https://www.analog.com/media/en/technical-documentation/data-sheets/ltc6813-1.pdf -- page 30)
+#define DESIRED_PWM_VAL (0x55U)
+#define DEFAULT_PWM_VAL (0xFFU)
 #define PEC15_LUT_SIZE (256U)
 
 typedef enum
 {
     CONFIG_REG_A = 0U,
     CONFIG_REG_B,
+    CONFIG_REG_PWM,
+    CONFIG_REG_PWN_S,
     NUM_OF_CFG_REGS,
 } ConfigurationRegister;
 
@@ -80,7 +88,33 @@ static LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
             [REG_GROUP_BYTE_4] = 0U,
             [REG_GROUP_BYTE_5] = 0U,
         },
+    },
+    [CONFIG_REG_PWM] = {
+        .cfg_reg_cmds = WRPWM,
+        .default_cfg_reg = 
+        {
+            [REG_GROUP_BYTE_0] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_1] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_2] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_3] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_4] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_5] = DEFAULT_PWM_VAL,  
+        }
+    },
+    [CONFIG_REG_PWN_S] = {
+        .cfg_reg_cmds = WRPSB,
+        .default_cfg_reg = 
+        {
+            [REG_GROUP_BYTE_0] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_1] = DEFAULT_PWM_VAL,
+            [REG_GROUP_BYTE_2] = 0U,
+            [REG_GROUP_BYTE_3] = 0U,
+            [REG_GROUP_BYTE_4] = 0U,
+            [REG_GROUP_BYTE_5] = 0U,  
+        }
     }
+    
+
 };
 // clang-format on
 
@@ -170,6 +204,18 @@ static void prepareCfgRegBytes(
         {
             tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
             tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
+        }
+        else if (curr_cfg_reg == CONFIG_REG_PWM)
+        {
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_0] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_1] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_2] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_3] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_4] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_5] |= DESIRED_PWM_VAL;
+        }else if (curr_cfg_reg == CONFIG_REG_PWN_S){
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_0] |= DESIRED_PWM_VAL;
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_1] |= DESIRED_PWM_VAL;  
         }
         else
         {
