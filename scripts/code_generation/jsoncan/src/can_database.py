@@ -4,21 +4,12 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 
 from dataclasses import dataclass
 from typing import List, Union, Dict
+from pandas import DataFrame
 
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
-
-
-@dataclass(frozen=True)
-class CanEnumItem:
-    """
-    Dataclass for describing a single value table item.
-    """
-
-    name: str
-    value: int
 
 
 @dataclass(frozen=True)
@@ -29,13 +20,13 @@ class CanEnum:
     """
 
     name: str
-    items: List[CanEnumItem]
+    items: Dict[int, str]  # Dict of enum value to enum item name
 
     def max_val(self) -> int:
         """
         Maximum value present in this value table's entries.
         """
-        return max(entry.value for entry in self.items)
+        return max(self.items.keys())
 
     @staticmethod
     def min_val() -> int:
@@ -200,6 +191,13 @@ class CanAlert:
     alert_type: CanAlertType
 
 
+@dataclass
+class CanFrame:
+    id: int
+    length: int
+    data: bytes
+
+
 @dataclass(frozen=True)
 class CanDatabase:
     """
@@ -208,7 +206,9 @@ class CanDatabase:
 
     nodes: List[str]  # List of names of the nodes on the bus
     bus_config: CanBusConfig  # Various bus params
-    msgs: List[CanMessage]  # All messages being sent to the bus
+    msgs: Dict[
+        int, CanMessage
+    ]  # All messages being sent to the bus (dict of (ID to message)
     shared_enums: List[CanEnum]  # Enums used by all nodes
     alerts: Dict[
         str, Dict[CanAlert, AlertsEntry]
@@ -218,13 +218,13 @@ class CanDatabase:
         """
         Return list of all CAN messages transmitted by a specific node.
         """
-        return [msg for msg in self.msgs if tx_node == msg.tx_node]
+        return [msg for msg in self.msgs.values() if tx_node == msg.tx_node]
 
     def rx_msgs_for_node(self, rx_node: str) -> List[CanMessage]:
         """
         Return list of all CAN messages received by a specific node.
         """
-        return [msg for msg in self.msgs if rx_node in msg.rx_nodes]
+        return [msg for msg in self.msgs.values() if rx_node in msg.rx_nodes]
 
     def msgs_for_node(self, node: str) -> List[CanMessage]:
         """
@@ -285,7 +285,9 @@ class CanDatabase:
             return self.node_alerts(tx_node, alert_type)
         else:
             alert_msg = next(
-                msg for msg in self.msgs if msg.name == f"{tx_node}_{alert_type}s"
+                msg
+                for msg in self.msgs.values()
+                if msg.name == f"{tx_node}_{alert_type}s"
             )
             return [
                 alert
@@ -298,3 +300,43 @@ class CanDatabase:
         Return whether or not a node transmits any alerts.
         """
         return len(self.node_alerts(node, alert_type)) > 0
+
+    def unpack(self, frames: DataFrame):
+        """
+        Unpack a dataframe of raw CAN frames. "frames" is a pandas dataframe with columns
+        'timestamp' (time this message was logged), 'id' (CAN message ID), and 'bytes' (raw
+        CAN bytes).
+
+        Returns a new pandas dataframe of all the unpacked signals, with columns 'timestamp',
+        'name', 'value', and 'unit'.
+
+        TODO: Also add packing!
+        """
+        decoded_signals = {"timestamp": [], "name": [], "value": [], "unit": []}
+        for _, frame in frames.iterrows():
+            timestamp = frame["timestamp"]
+            id = frame["id"]
+            data = frame["data"]
+
+            for signal in self.msgs[id].signals:
+                # Interpret raw bytes as an int.
+                data_uint = int.from_bytes(data, byteorder="little", signed=False)
+
+                # Extract the bits representing the current signal.
+                data_shifted = data_uint >> signal.start_bit
+                bitmask = (1 << signal.bits) - 1
+                signal_bits = data_shifted & bitmask
+
+                # Decode the signal value using the scale/offset.
+                signal_value = signal_bits * signal.scale + signal.offset
+                if signal.enum is not None:
+                    signal_value = signal.enum.items[signal_value]
+
+                # Append decoded signal's data.
+                decoded_signals["timestamp"].append(timestamp)
+                decoded_signals["name"].append(signal.name)
+                decoded_signals["value"].append(signal_value)
+                decoded_signals["unit"].append(signal.unit)
+
+        return DataFrame(decoded_signals)
+    

@@ -105,7 +105,9 @@ class IoCanTxModule(CModule):
             # Prepare header
             func.body.add_comment("Prepare msg header")
             func.body.add_var_declaration(CVar("tx_msg", CTypesConfig.CAN_MSG_STRUCT))
-            func.body.add_line(f"memset(&tx_msg, 0, sizeof({CTypesConfig.CAN_MSG_STRUCT}));")
+            func.body.add_line(
+                f"memset(&tx_msg, 0, sizeof({CTypesConfig.CAN_MSG_STRUCT}));"
+            )
             func.body.add_line(f"tx_msg.std_id = {CMacrosConfig.id(msg.name)};")
             func.body.add_line(f"tx_msg.dlc = {CMacrosConfig.bytes(msg.name)};")
             func.body.add_line()
@@ -212,7 +214,9 @@ class IoCanTxModule(CModule):
         cw.add_header_comment("Static Variables")
         cw.add_line()
         cw.add_line("static uint32_t can_mode;")
-        cw.add_line(f"static void (*transmit_func)(const {CTypesConfig.CAN_MSG_STRUCT}* tx_msg);")
+        cw.add_line(
+            f"static void (*transmit_func)(const {CTypesConfig.CAN_MSG_STRUCT}* tx_msg);"
+        )
         cw.add_line()
 
         # Add static function definitions
