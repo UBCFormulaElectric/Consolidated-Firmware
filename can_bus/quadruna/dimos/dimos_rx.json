@@ -3,6 +3,6 @@
         "FSM_Wheels",
         "FSM_Apps",
         "FSM_Brake",
-        "BMS_StateOfCharge"
+        "BMS_VoltageAndChargeStats"
     ]
 }
