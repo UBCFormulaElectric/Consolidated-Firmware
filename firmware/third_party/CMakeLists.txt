@@ -18,6 +18,13 @@ if("${TARGET}" STREQUAL "deploy")
         "cm4"
         TRUE
     )
+    embedded_library(
+        "sbg_ecom_cm7"
+        "${SBG_ECOM_SRCS}"
+        "${SBG_ECOM_INCLUDE_DIRS}"
+        "cm7"
+        TRUE
+    )
 else()
     add_subdirectory("pybind11")
 endif()

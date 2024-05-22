@@ -48,28 +48,28 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-# Bootloader files.
-file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-
-# tests
-file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
-list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
-
 if("${TARGET}" STREQUAL "deploy")
-    jsoncan_sources(
-        "BMS"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        TRUE
-        "quadruna"
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
+    embedded_binary(
+            "quadruna_BMS_app"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
-    embedded_library(
-        quadruna_BMS_can
-        "${CAN_SRCS}"
-        "${CAN_INCLUDE_DIRS}"
-        "${ARM_CORE}"
-        TRUE
+
+    # Bootloader files.
+    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+    # Build bootloader.
+    stm32h7_boot_binary(
+            "quadruna_BMS_boot"
+            "${BOOT_SRCS}"
+            "${BOOT_INCLUDE_DIRS}"
+            "quadruna_BMS"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
     )
 
     generate_stm32cube_code(
@@ -77,6 +77,7 @@ if("${TARGET}" STREQUAL "deploy")
         "${IOC_PATH}"
     )
 
+    # STM HAL Library
     set(STM32_HAL_SRCS
         "stm32h7xx_hal_adc_ex.c"
         "stm32h7xx_hal_adc.c"
@@ -102,7 +103,6 @@ if("${TARGET}" STREQUAL "deploy")
         "stm32h7xx_ll_sdmmc.c"
         "stm32h7xx_hal.c"
     )
-
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
@@ -113,15 +113,8 @@ if("${TARGET}" STREQUAL "deploy")
         "${MD5_LOCATION}"
     )
 
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
-    embedded_binary(
-        "quadruna_BMS_app"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
-    )
+    # JSONCAN
+    jsoncan_embedded_library(BMS quadruna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # Autogenerate git commit info header/source.
     commit_info_library(
@@ -131,18 +124,9 @@ if("${TARGET}" STREQUAL "deploy")
         "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_BMS_can" "quadruna_BMS_stm32cube")
-    target_link_libraries("quadruna_BMS_app.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_can" "quadruna_BMS_commit_info" "debug_modules")
-
-    # Build bootloader.
-    stm32h7_boot_binary(
-        "quadruna_BMS_boot"
-        "${BOOT_SRCS}"
-        "${BOOT_INCLUDE_DIRS}"
-        "quadruna_BMS"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
-    )
+    target_link_libraries("quadruna_BMS_jsoncan" "quadruna_BMS_stm32cube")
+    target_link_libraries("quadruna_BMS_app.elf" "quadruna_BMS_stm32cube" "quadruna_BMS_jsoncan" "quadruna_BMS_commit_info" "debug_modules")
+    target_link_libraries("quadruna_BMS_boot.elf" "quadruna_BMS_commit_info")
 
     embedded_image(
         "quadruna_BMS"
@@ -151,9 +135,24 @@ if("${TARGET}" STREQUAL "deploy")
         "quadruna_BMS_boot.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/quadruna_BMS_boot.hex"
     )
-
 elseif("${TARGET}" STREQUAL "test")
-set(HEADERS_TO_FAKE
+    # tests
+    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
+    set(SRCS ${APP_SRCS} ${TEST_SRCS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
+    compile_gtest_executable(
+            "quadruna_BMS_test"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+    )
+
+    # JSONCAN
+    jsoncan_library(BMS quadruna "${CMAKE_CURRENT_BINARY_DIR}")
+
+    # FAKE IO
+    set(HEADERS_TO_FAKE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellTemps.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
@@ -169,21 +168,6 @@ set(HEADERS_TO_FAKE
         "quadruna_BMS_fakes"
         "${HEADERS_TO_FAKE}"
     )
-    jsoncan_sources(
-        "BMS"
-        "${CMAKE_CURRENT_BINARY_DIR}"
-        FALSE
-        "quadruna"
-    )
-    add_library(quadruna_BMS_can STATIC "${CAN_SRCS}")
-    target_include_directories(quadruna_BMS_can PUBLIC "${CAN_INCLUDE_DIRS}")
 
-    set(SRCS ${APP_SRCS} ${TEST_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS})
-    compile_gtest_executable(
-        "quadruna_BMS_test"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-    )
-    target_link_libraries("quadruna_BMS_test" "quadruna_BMS_can" "quadruna_BMS_fakes" "shared_fakes")
+    target_link_libraries("quadruna_BMS_test" "quadruna_BMS_jsoncan" "quadruna_BMS_fakes" "shared_fakes")
 endif()

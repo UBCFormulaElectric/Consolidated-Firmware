@@ -10,11 +10,12 @@
 // create the truth table for now to decide which amount of things to use
 // create or grab the constants for the different modem and pins and such
 // Private Globals
-static bool   modem_900_choice;
-static Modem *modem;
+
 #define CAN_DATA_LENGTH 8
 #define UART_LENGTH 1
 #define QUEUE_SIZE 12
+static bool         modem_900_choice;
+static const Modem *modem = NULL;
 #define QUEUE_BYTES CAN_DATA_LENGTH *QUEUE_SIZE
 
 static bool proto_status;
@@ -35,7 +36,7 @@ static const osMessageQueueAttr_t queue_attr = {
     .mq_size   = QUEUE_BYTES,
 };
 
-void io_telemMessage_init(Modem *m)
+void io_telemMessage_init(const Modem *m)
 {
     modem_900_choice = true; // if false, then using the 2.4GHz,
     modem            = m;

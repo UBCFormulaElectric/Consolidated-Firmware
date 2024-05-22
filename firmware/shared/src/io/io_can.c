@@ -1,9 +1,7 @@
 #include "io_can.h"
-#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include "cmsis_os.h"
-#include "queue.h"
 
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128
@@ -86,10 +84,11 @@ void io_can_popRxMsgFromQueue(CanMsg *msg)
     assert(s == osOK);
 }
 
-void io_can_msgReceivedCallback(CanMsg *rx_msg)
+void io_can_pushRxMsgToQueue(CanMsg *rx_msg)
 {
     static uint32_t rx_overflow_count = 0;
 
+    assert(config != NULL);
     if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.

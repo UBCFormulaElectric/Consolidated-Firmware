@@ -7,6 +7,8 @@
         "BMS_Contactors",
         "BMS_OkStatuses",
         "VC_Regen",
-        "VC_TorqueVectoring"
+        "VC_TorqueVectoring",
+        "VC_GlobalShdnNodeStatus",
+        "Debug_CanMode"
     ]
 }

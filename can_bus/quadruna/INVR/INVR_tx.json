@@ -137,6 +137,110 @@
             }
         }
     },
+    "AnalogInputVoltages": {
+        "msg_id": 53,
+        "cycle_time": 10,
+        "signals": {
+            "AnalogInput1": {
+                "start_bit": 0,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "AnalogInput2": {
+                "start_bit": 10,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "AnalogInput3": {
+                "start_bit": 20,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "AnalogInput4": {
+                "start_bit": 32,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "AnalogInput5": {
+                "start_bit": 42,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            },
+            "AnalogInput6": {
+                "start_bit": 52,
+                "bits": 10,
+                "signed": true,
+                "scale": 0.01,
+                "offset": 0,
+                "min": -327.68,
+                "max": 327.67,
+                "unit": "V"
+            }
+        }
+    },
+    "DigitalInputStatus": {
+        "msg_id": 54,
+        "cycle_time": 10,
+        "signals": {
+            "ForwardSwitchStatus": {
+                "start_bit": 0,
+                "bits": 1
+            },
+            "ReverseSwitchStatus": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "BrakeSwitchStatus": {
+                "start_bit": 16,
+                "bits": 1
+            },
+            "RegenDisableSwitchState": {
+                "start_bit": 24,
+                "bits": 1
+            },
+            "IgnitionSwitchState": {
+                "start_bit": 32,
+                "bits": 1
+            },
+            "StartSwitchState": {
+                "start_bit": 40,
+                "bits": 1
+            },
+            "ValeModeState": {
+                "start_bit": 48,
+                "bits": 1
+            },
+            "DigitalInput8": {
+                "start_bit": 56,
+                "bits": 1
+            }
+        }
+    },
     "MotorPositionInfo": {
         "msg_id": 55,
         "cycle_time": 10,
@@ -272,6 +376,52 @@
                 "min": -3276.8,
                 "max": 3276.7,
                 "unit": "V"
+            }
+        }
+    },
+    "FluxInformation": {
+        "msg_id": 58,
+        "cycle_time": 10,
+        "signals": {
+            "FluxCommand": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.0001,
+                "offset": 0,
+                "min": -32.768,
+                "max": 32.767,
+                "unit": "Webers"
+            },
+            "FluxFeedback": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.0001,
+                "offset": 0,
+                "min": -32.768,
+                "max": 32.767,
+                "unit": "Webers"
+            },
+            "IdFeedback": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "IqFeedback": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
             }
         }
     },
@@ -694,38 +844,113 @@
             }
         }
     },
+    "ModulationIndexAndFluxWeakeningOutputInformation": {
+        "msg_id": 63,
+        "cycle_time": 10,
+        "signals": {
+            "ModulationIndex": {
+                "start_bit": 0,
+                "bits": 16,
+                "signed": false,
+                "scale": 0.01,
+                "offset": 0,
+                "min": 0,
+                "max": 65536
+            },
+            "FluxWeakeningOutput": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "IdCommand": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            },
+            "IqCommand": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true,
+                "scale": 0.1,
+                "offset": 0,
+                "min": -3276.8,
+                "max": 3276.7,
+                "unit": "A"
+            }
+        }
+    },
+    "FirmwareInformation": {
+        "msg_id": 64,
+        "cycle_time": 100,
+        "signals": {
+            "EEPROMVersion": {
+                "start_bit": 0,
+                "bits": 16,
+                "min": 0,
+                "max": 65535
+            },
+            "SoftwareVersion": {
+                "start_bit": 16,
+                "bits": 16,
+                "min": 0,
+                "max": 65535
+            },
+            "DateCodeDayMonth": {
+                "start_bit": 32,
+                "bits": 16,
+                "min": 0,
+                "max": 65535
+            },
+            "DateCodeYear": {
+                "start_bit": 48,
+                "bits": 16,
+                "min": 0,
+                "max": 65535
+            }
+        }
+    },
     "DebugReadWriteParamCommand": {
-        "msg_id": 83, 
+        "msg_id": 83,
         "cycle_time": null,
         "signals": {
             "CommandParameterAddress": {
-                "start_bit": 0, 
+                "start_bit": 0,
                 "bits": 16
             },
             "CommandReadWrite": {
-                "start_bit": 16, 
+                "start_bit": 16,
                 "enum": "InverterReadWriteCommand"
             },
             "CommandData": {
-                "start_bit": 32, 
+                "start_bit": 32,
                 "bits": 16
             }
         }
     },
     "DebugReadWriteParamResponse": {
-        "msg_id": 84, 
+        "msg_id": 84,
         "cycle_time": null,
         "signals": {
             "ResponseParameterAddress": {
-                "start_bit": 0, 
+                "start_bit": 0,
                 "bits": 16
             },
             "ResponseWriteSuccess": {
-                "start_bit": 16, 
+                "start_bit": 16,
                 "bits": 1
             },
             "ResponseData": {
-                "start_bit": 32, 
+                "start_bit": 32,
                 "bits": 16
             }
         }

@@ -3,7 +3,7 @@
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 
-void app_loadCell_broadcast()
+void app_loadCell_broadcast(void)
 {
     app_canTx_FSM_LoadCell1_set(io_loadCell_getMechanicalLoad1());
     app_canTx_FSM_LoadCell2_set(io_loadCell_getMechanicalLoad2());

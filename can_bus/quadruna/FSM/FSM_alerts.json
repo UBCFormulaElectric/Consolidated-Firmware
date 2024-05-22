@@ -32,7 +32,7 @@
             "id": 307,
             "description": "Stack watermark failed on canRx task."
         },
-        "StackWaterMarkHighTaskCanTx":{
+        "StackWaterMarkHighTaskCanTx": {
             "id": 308,
             "description": "Stack watermark failed on canTx task."
         },
@@ -90,10 +90,6 @@
         }
     },
     "faults": {
-        "DummyFault": {
-            "id": 351,
-            "description": "Placeholder."
-        },
         "PappsOCSC": {
             "id": 352,
             "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."

@@ -1,52 +1,42 @@
 #include "io_efuse.h"
 #include "app_powerManager.h"
-#include "app_canRx.h"
+#include "io_pcm.h"
+#include "app_canTx.h"
 
-typedef struct
+static PowerStateConfig power_manager_config;
+
+void app_powerManager_updateConfig(PowerStateConfig new_power_manager_config)
 {
-    bool efuses[NUM_EFUSE_CHANNELS];
-} PowerStateConfig;
-
-static const PowerStateConfig power_states_config[NUM_POWER_STATES] = {
-    [POWER_MANAGER_SHUTDOWN] = {
-        .efuses = {
-            [EFUSE_CHANNEL_SHDN] = true,
-            [EFUSE_CHANNEL_LV] = true,
-            [EFUSE_CHANNEL_PUMP] = false,
-            [EFUSE_CHANNEL_AUX] = false,
-            [EFUSE_CHANNEL_INV_R] = false,
-            [EFUSE_CHANNEL_INV_L] = false,
-            [EFUSE_CHANNEL_TELEM] = true,
-            [EFUSE_CHANNEL_BUZZER] = false,
-        }
-    },
-    [POWER_MANAGER_DRIVE] = {
-        .efuses = {
-            [EFUSE_CHANNEL_SHDN] = false,
-            [EFUSE_CHANNEL_LV] = true,
-            [EFUSE_CHANNEL_PUMP] = true,
-            [EFUSE_CHANNEL_AUX] = true,
-            [EFUSE_CHANNEL_INV_R] = true,
-            [EFUSE_CHANNEL_INV_L] = true,
-            [EFUSE_CHANNEL_TELEM] = true,
-            [EFUSE_CHANNEL_BUZZER] = true,
-        }
-    }
-};
-
-static PowerManagerState current_power_state = POWER_MANAGER_SHUTDOWN;
-
-void app_powerManager_setState(PowerManagerState state)
-{
-    current_power_state = state;
-
+    power_manager_config = new_power_manager_config;
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse++)
     {
-        io_efuse_setChannel((EfuseChannel)efuse, power_states_config[state].efuses[efuse]);
+        io_efuse_setChannel((EfuseChannel)efuse, power_manager_config.efuses[efuse]);
     }
+    io_pcm_set(power_manager_config.pcm);
+
+    app_canTx_VC_BuzzerOn_set(power_manager_config.efuses[EFUSE_CHANNEL_BUZZER]);
 }
 
-PowerManagerState app_powerManager_getState(void)
+void app_powerManager_updateEfuse(EfuseChannel channel, bool val)
 {
-    return current_power_state;
+    power_manager_config.efuses[channel] = val;
+    io_efuse_setChannel(channel, val);
+
+    app_canTx_VC_BuzzerOn_set(power_manager_config.efuses[EFUSE_CHANNEL_BUZZER]);
+}
+
+void app_powerManager_updatePcm(bool val)
+{
+    power_manager_config.pcm = val;
+    io_pcm_set(val);
+}
+
+PowerStateConfig app_powerManager_getConfig(void)
+{
+    return power_manager_config;
+}
+
+bool app_powerManager_getEfuse(EfuseChannel channel)
+{
+    return power_manager_config.efuses[channel];
 }

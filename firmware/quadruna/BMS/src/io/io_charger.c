@@ -1,7 +1,7 @@
 #include "io_charger.h"
 #include "app_globals.h"
 
-static const Charger *charger;
+static const Charger *charger = NULL;
 
 void io_charger_init(const Charger *chgr)
 {

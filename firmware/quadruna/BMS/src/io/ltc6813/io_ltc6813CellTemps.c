@@ -109,8 +109,21 @@ static void updateCellTemperatureStatistics(void)
                 if (IS_CELL_TEMP_READING(curr_reg_group, curr_thermistor))
                 {
                     const uint16_t curr_cell_temp = ltc6813_temp.cell[curr_segment][curr_reg_group][curr_thermistor];
-                    const uint8_t  curr_cell_index =
+                    uint8_t        curr_cell_index =
                         (uint8_t)(curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_thermistor);
+
+                    /*
+                     * Physical locations of thermistors 1 and 2 are swapped, as well as 7 and 8
+                     */
+
+                    if (curr_cell_index == 1)
+                        curr_cell_index = 2;
+                    else if (curr_cell_index == 2)
+                        curr_cell_index = 1;
+                    else if (curr_cell_index == 7)
+                        curr_cell_index = 8;
+                    else if (curr_cell_index == 8)
+                        curr_cell_index = 7;
 
                     // Get the minimum cell voltage
                     if (curr_cell_temp < temp_stats.min.temp)

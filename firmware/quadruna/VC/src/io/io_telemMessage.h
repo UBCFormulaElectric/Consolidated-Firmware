@@ -7,8 +7,8 @@
 
 typedef struct
 {
-    UART *modem900M;
-    UART *modem2_4G;
+    UART const *modem900M;
+    UART const *modem2_4G;
 } Modem;
 #else
 EMPTY_STRUCT(Modem);
@@ -18,7 +18,7 @@ EMPTY_STRUCT(Modem);
  * Creates a new message queue for storing telem messages
  *
  */
-void io_telemMessage_init(Modem *m);
+void io_telemMessage_init(const Modem *m);
 
 /**
  * Serializes the can msg and pushes it to the queue

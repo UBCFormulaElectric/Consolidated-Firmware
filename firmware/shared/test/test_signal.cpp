@@ -4,7 +4,7 @@
 
 extern "C"
 {
-#include "app_signal.h"
+#include "app_signal.c"
 #include "app_timer.h"
 }
 

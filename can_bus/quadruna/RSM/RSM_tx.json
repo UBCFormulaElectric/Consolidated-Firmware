@@ -1,115 +1,128 @@
 {
-	"AlertsContext": {
-		"msg_id": 414,
-		"cycle_time": 1000,
-		"signals": {
-			"WatchdogTimeoutTaskName": {
-				"enum": "RtosTaskName"
-			},
-			"TxOverflowCount": {
-				"bits": 8
-			},
-			"RxOverflowCount": {
-				"bits": 8
-			}
-		}
-	},
-	"Vitals": {
-		"msg_id": 415, 
-		"cycle_time": 100,
-		"description": "RSM vitals message.",
-		"signals": {
-			"Heartbeat": {
-				"bits": 1
-			},
-			"State": {
-				"enum": "RsmStates"
-			}
-		}
-	},
-	"Coolant": {
-		"msg_id": 416,
-		"cycle_time": 1000,
-		"signals": {
-			"CoolantFlowRate": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 100,
-				"unit": "L/min"
-			},
-			"CoolantTemperatureA": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 100,
-				"unit": "°C"
-			},
-			"CoolantTemperatureB": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 100,
-				"unit": "°C"
-			},
-			"CoolantPressureA": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 100,
-				"unit": "psi"
-			},
-			"CoolantPressureB": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 100,
-				"unit": "psi"
-			}
-		}
-	},
-	"Suspension": {
-		"msg_id": 417,
-		"cycle_time": 100,
-		"description": "Suspension travel.",
-		"signals": {
-			"RearLeftSuspensionTravel": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 1000,
-				"unit": "cm"
-			},
-			"RearRightSuspensionTravel": {
-				"resolution": 0.1,
-				"min": 0,
-				"max": 1000,
-				"unit": "cm"
-			}
-		}
-	},
-	"LoadCell":{
-		"msg_id" : 418,
-		"cycle_time": 100,
-		"description" : "Mechanical load on load cell",
-		"signals" : {
-			"LoadCell3" : {
-				"resolution": 0.1,
-				"min" : 0,
-				"max" : 1000
-			},
-			"LoadCell4" : {
-				"resolution": 0.1,
-				"min" : 0,
-				"max" : 1000
-			}
-		}
-	},
-	"CommitInfo": {
-		"msg_id": 419,
-		"cycle_time": 100,
-		"description": "RSM Current Running Git Commit Info",
-		"signals": {
-			"Hash": {
-				"bits": 32
-			},
-			"Clean": {
-				"bits": 1
-			}
-		}
-	  }
+    "AlertsContext": {
+        "msg_id": 414,
+        "cycle_time": 1000,
+        "signals": {
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
+            },
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "Vitals": {
+        "msg_id": 415,
+        "cycle_time": 100,
+        "description": "RSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "RsmStates"
+            }
+        }
+    },
+    "Coolant": {
+        "msg_id": 416,
+        "cycle_time": 100,
+        "signals": {
+            "CoolantFlowRate": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "L/min"
+            },
+            "CoolantTemperatureA": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "°C"
+            },
+            "CoolantTemperatureB": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "°C"
+            },
+            "CoolantPressureA": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "psi"
+            },
+            "CoolantPressureB": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "psi"
+            }
+        }
+    },
+    "Suspension": {
+        "msg_id": 417,
+        "cycle_time": 100,
+        "description": "Suspension travel.",
+        "signals": {
+            "RearLeftSuspensionTravel": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 1000,
+                "unit": "cm"
+            },
+            "RearRightSuspensionTravel": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 1000,
+                "unit": "cm"
+            }
+        }
+    },
+    "LoadCell": {
+        "msg_id": 418,
+        "cycle_time": 100,
+        "description": "Mechanical load on load cell",
+        "signals": {
+            "LoadCell3": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 1000
+            },
+            "LoadCell4": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 1000
+            }
+        }
+    },
+    "CommitInfo": {
+        "msg_id": 419,
+        "cycle_time": 100,
+        "description": "RSM Current Running Git Commit Info",
+        "signals": {
+            "Hash": {
+                "bits": 32
+            },
+            "Clean": {
+                "bits": 1
+            }
+        }
+    },
+    "Fans": {
+        "msg_id": 420,
+        "cycle_time": 100,
+        "description": "Fan Status",
+        "signals": {
+            "AccumulatorFan": {
+                "bits": 1
+            },
+            "RadiatorFan": {
+                "bits": 1
+            }
+        }
+    }
 }

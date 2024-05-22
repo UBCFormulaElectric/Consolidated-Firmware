@@ -21,7 +21,7 @@ typedef struct
 
 typedef struct
 {
-    PwmInputFreqOnlyConfig *config;
+    const PwmInputFreqOnlyConfig *config;
 
     float frequency_hz;
 
@@ -40,7 +40,7 @@ typedef struct
  * @param config: Wrapper around configuration of PwmInputFreqOnly
  * @return Pointer to the allocated and initialized PWM input
  */
-void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, PwmInputFreqOnlyConfig *config);
+void hw_pwmInputFreqOnly_init(PwmInputFreqOnly *pwm_input, const PwmInputFreqOnlyConfig *config);
 
 /**
  * Get the frequency for the given PWM input

@@ -1,14 +1,17 @@
-#include <stdlib.h>
 #include <math.h>
+#include "io_log.h"
+// can
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canAlerts.h"
-#include "app_vehicleDynamicsConstants.h"
+// states
 #include "states/app_allStates.h"
-#include "app_powerManager.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
+// vehicle dynamics
+#include "app_vehicleDynamicsConstants.h"
+// app
+#include "app_powerManager.h"
 #include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
@@ -23,9 +26,23 @@
 static bool         torque_vectoring_switch_is_on;
 static TimerChannel buzzer_timer;
 
+static const PowerStateConfig power_manager_drive_init = {
+    .efuses = {
+        [EFUSE_CHANNEL_SHDN] = true,
+        [EFUSE_CHANNEL_LV] = true,
+        [EFUSE_CHANNEL_PUMP] = true,
+        [EFUSE_CHANNEL_AUX] = false,
+        [EFUSE_CHANNEL_INV_R] = true,
+        [EFUSE_CHANNEL_INV_L] = true,
+        [EFUSE_CHANNEL_TELEM] = true,
+        [EFUSE_CHANNEL_BUZZER] = true,
+    },
+    .pcm = true,
+};
+
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
-    const float bms_available_power   = app_canRx_BMS_AvailablePower_get();
+    const float bms_available_power   = (float)app_canRx_BMS_AvailablePower_get();
     const float right_motor_speed_rpm = (float)app_canRx_INVR_MotorSpeed_get();
     const float left_motor_speed_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
     float       bms_torque_limit      = MAX_TORQUE_REQUEST_NM;
@@ -51,21 +68,20 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
-    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
+    LOG_INFO("drive state entry");
     // Enable buzzer on transition to drive, and start 2s timer.
-    io_buzzer_enable(true);
-    app_canTx_VC_BuzzerOn_set(true);
+    app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_setState(POWER_MANAGER_DRIVE);
+    app_powerManager_updateConfig(power_manager_drive_init);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
-
-    // Set inverter directions.
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
+    app_canTx_VC_LeftInverterTorqueLimit_set(90.0f);
+    app_canTx_VC_RightInverterTorqueLimit_set(90.0f);
 
     // Read torque vectoring switch only when entering drive state, not during driving
 
@@ -75,6 +91,7 @@ static void driveStateRunOnEntry(void)
     {
         app_torqueVectoring_init();
     }
+    LOG_INFO("drive state entry done");
 }
 
 static void driveStateRunOnTick1Hz(void)
@@ -91,15 +108,15 @@ static void driveStateRunOnTick100Hz(void)
 
     const bool start_switch_off         = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive         = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init       = !all_states_ok;
-    bool       exit_drive_to_inverterOn = bms_not_in_drive || start_switch_off;
+    bool       exit_drive_to_init       = bms_not_in_drive || !all_states_ok;
+    bool       exit_drive_to_inverterOn = start_switch_off;
     bool       regen_switch_enabled     = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
     {
-        io_buzzer_enable(false);
+        app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
         app_canTx_VC_BuzzerOn_set(false);
     }
 
@@ -115,6 +132,8 @@ static void driveStateRunOnTick100Hz(void)
 
     if (exit_drive_to_init)
     {
+        LOG_INFO("4 %d %d", any_board_has_fault, inverter_has_fault);
+        LOG_ALL_FAULTS();
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
@@ -140,6 +159,7 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
+    LOG_INFO("drive state exit");
     // Disable inverters and apply zero torque upon exiting drive state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -148,8 +168,8 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on exit drive.
-    io_buzzer_enable(false);
-    app_canTx_VC_BuzzerOn_set(false);
+    app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
+    LOG_INFO("drive state exit done");
 }
 
 const State *app_driveState_get(void)

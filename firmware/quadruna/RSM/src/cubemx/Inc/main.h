@@ -111,6 +111,8 @@ extern "C"
 #define UART_RX_GPIO_Port GPIOA
 #define UART_TX_Pin GPIO_PIN_10
 #define UART_TX_GPIO_Port GPIOA
+#define FlowMeter_Pin GPIO_PIN_4
+#define FlowMeter_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
