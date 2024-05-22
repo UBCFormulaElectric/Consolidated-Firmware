@@ -270,12 +270,6 @@ uint32_t io_sbgEllipse_getTimestampUs(void)
     return sensor_data.status_data.timestamp_us;
 }
 
-float io_sbgEllipse_getSensorOutput(SbgEllipseOutput output)
-{
-    assert(output < NUM_SBG_OUTPUTS);
-    return *(sensor_output_map[output]);
-}
-
 uint16_t io_sbgEllipse_getGeneralStatus(void)
 {
     return sensor_data.status_data.general_status;
