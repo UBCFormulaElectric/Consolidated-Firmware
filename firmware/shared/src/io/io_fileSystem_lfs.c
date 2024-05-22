@@ -31,13 +31,14 @@ static int lfsErrorToFsError(int err)
     }
 }
 
-int io_fileSystem_init(void)
+FileSystemError io_fileSystem_init(void)
 {
     static bool is_initialized = false;
     if (is_initialized)
     {
         return FILE_ERROR; // return error if already initialized
     }
+
     is_initialized = true;
     int err        = io_lfsConfig(&cfg);
     err            = lfs_mount(&lfs, &cfg);
@@ -81,15 +82,15 @@ static bool isValidFd(int fd)
 
 int io_fileSystem_open(const char *path)
 {
-    int err;
-    int fd = allocateFd();
+    FileSystemError err;
+    int             fd = allocateFd();
     if (fd < 0)
     {
         return FILE_NOT_FOUND;
     }
-    fcfg->attrs->buffer = (void *)path;
 
-    err = lfs_file_opencfg(
+    fcfg[fd].attrs->buffer = (void *)path;
+    err                    = lfs_file_opencfg(
         &lfs, &files[fd], path, LFS_O_RDWR | LFS_O_CREAT,
         &fcfg[fd]); // default to open for read and write and create if not exist
     if (err)
@@ -101,39 +102,43 @@ int io_fileSystem_open(const char *path)
     return fd;
 }
 
-int io_fileSystem_read(int fd, void *buffer, size_t size)
+FileSystemError io_fileSystem_read(int fd, void *buffer, size_t size)
 {
     if (!isValidFd(fd))
     {
         return FILE_NOT_FOUND;
     }
-    int err = lfs_file_read(&lfs, &files[fd], buffer, size);
+
+    FileSystemError err = lfs_file_read(&lfs, &files[fd], buffer, size);
     if (err < 0)
     {
         return lfsErrorToFsError(err);
     }
+
     return FILE_OK;
 }
 
-int io_fileSystem_write(int fd, void *buffer, size_t size)
+FileSystemError io_fileSystem_write(int fd, void *buffer, size_t size)
 {
     if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
+
     int err = lfs_file_write(&lfs, &files[fd], buffer, size);
     if (err < 0)
     {
         return lfsErrorToFsError(err);
     }
+
     return FILE_OK;
 }
 
 uint32_t io_fileSystem_getBootCount(void)
 {
-    uint32_t bootcount    = 0;
-    int      bootcount_fd = io_fileSystem_open("bootcount");
-    int      err          = io_fileSystem_read(bootcount_fd, &bootcount, sizeof(bootcount));
+    uint32_t        bootcount    = 0;
+    int             bootcount_fd = io_fileSystem_open("bootcount");
+    FileSystemError err          = io_fileSystem_read(bootcount_fd, &bootcount, sizeof(bootcount));
     bootcount++;
 
     lfs_file_rewind(&lfs, &files[bootcount_fd]);
@@ -142,29 +147,32 @@ uint32_t io_fileSystem_getBootCount(void)
     return bootcount;
 }
 
-int io_fileSystem_close(int fd)
+FileSystemError io_fileSystem_close(int fd)
 {
     if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
-    int err = lfs_file_close(&lfs, &files[fd]);
+
+    FileSystemError err = lfs_file_close(&lfs, &files[fd]);
     if (err < 0)
     {
         return lfsErrorToFsError(err);
     }
+
     file_opened[fd] = false;
     return FILE_OK;
 }
 
-int io_fileSystem_sync(int fd)
+FileSystemError io_fileSystem_sync(int fd)
 {
     if (!isValidFd(fd))
     {
         return FILE_ERROR;
     }
-    int         err  = FILE_OK;
-    const char *path = fcfg[fd].attrs->buffer;
+
+    FileSystemError err  = FILE_OK;
+    const char     *path = fcfg[fd].attrs->buffer;
 
     lfs_soff_t seek = lfs_file_seek(&lfs, &files[fd], 0, LFS_SEEK_CUR); // old position
 
@@ -173,11 +181,13 @@ int io_fileSystem_sync(int fd)
     {
         return lfsErrorToFsError(err);
     }
+
     err = lfs_file_opencfg(&lfs, &files[fd], path, LFS_O_RDWR | LFS_O_CREAT, &fcfg[fd]);
     if (err < 0)
     {
         return lfsErrorToFsError(err);
     }
+
     lfs_file_seek(&lfs, &files[fd], seek, LFS_SEEK_SET);
     return FILE_OK;
 }

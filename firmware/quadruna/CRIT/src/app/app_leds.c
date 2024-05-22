@@ -5,11 +5,33 @@
 
 BoardLEDStatus board_worst_status(CanAlertBoard b)
 {
+    bool is_missing_heartbeat;
+    switch (b)
+    {
+        case BMS_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get();
+            break;
+        case CRIT_ALERT_BOARD:
+            is_missing_heartbeat = false; // lmao like
+            break;
+        case FSM_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
+            break;
+        case RSM_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get();
+            break;
+        case VC_ALERT_BOARD:
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
+            break;
+    }
+
+    if (is_missing_heartbeat)
+        return BOARD_LED_STATUS_MISSING_HEARTBEAT;
     if (app_canAlerts_BoardHasFault(b))
-        return FAULT;
+        return BOARD_LED_STATUS_FAULT;
     if (app_canAlerts_BoardHasWarning(b))
-        return WARNING;
-    return OK;
+        return BOARD_LED_STATUS_WARNING;
+    return BOARD_LED_STATUS_OK;
 }
 
 void app_leds_update(void)
@@ -27,8 +49,10 @@ void app_leds_update(void)
     const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
     io_led_torquevec_set(torquevec_light_on);
 
-    const BoardLEDStatus shutdown_sensor = OK; // TODO implement VC last shutdown node code is in
-    io_led_shutdown_set(shutdown_sensor);
+    // or driven by BMS_drive_state???
+    const BoardLEDStatus shutdown_sensor_ok =
+        app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? BOARD_LED_STATUS_OK : BOARD_LED_STATUS_FAULT;
+    io_led_shutdown_set(shutdown_sensor_ok);
 
     const BoardLEDStatus bms_status = board_worst_status(BMS_ALERT_BOARD);
     io_led_bms_status_set(bms_status);
@@ -46,5 +70,5 @@ void app_leds_update(void)
     io_led_rsm_status_set(rsm_status);
 
     // TODO AUX status
-    io_led_aux_status_set(WHITE);
+    io_led_aux_status_set(BOARD_LED_STATUS_NOT_IMPLEMENTED);
 }

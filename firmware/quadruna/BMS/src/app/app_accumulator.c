@@ -449,11 +449,7 @@ void app_accumulator_broadcast(void)
         MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
-    app_canTx_BMS_AvailablePower_set(available_power);
-    app_canTx_BMS_Seg4Cell2Temp_set(
-        io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL2_REG_GROUP, SEG4_CELL2_THERMISTOR));
-    app_canTx_BMS_Seg4Cell2Temp_set(
-        io_ltc6813CellTemperatures_getSpecificCellTempDegC(4, SEG4_CELL8_REG_GROUP, SEG4_CELL8_THERMISTOR));
+    app_canTx_BMS_AvailablePower_set((uint32_t)available_power);
 }
 
 bool app_accumulator_checkFaults(void)
@@ -483,8 +479,8 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
     app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
-    app_canTx_BMS_NumCommTries_set(data.num_comm_tries);
-    app_canTx_BMS_AccumulatorMonitorState_set((CAN_AccumulatorMonitorState)data.state);
+    app_canTx_BMS_ModuleCommunication_NumCommTries_set(data.num_comm_tries);
+    app_canTx_BMS_ModuleCommunication_MonitorState_set((CAN_AccumulatorMonitorState)data.state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
     bool owc_fault = data.owc_faults.owcGlobalFault;
