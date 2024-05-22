@@ -9,6 +9,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
@@ -411,6 +412,7 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+    app_canDataCapture_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
