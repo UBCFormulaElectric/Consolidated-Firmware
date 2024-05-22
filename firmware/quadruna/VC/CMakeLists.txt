@@ -15,7 +15,7 @@ file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_can.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
         "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
@@ -111,17 +111,6 @@ if ("${TARGET}" STREQUAL "deploy")
             "${MD5_LOCATION}"
     )
 
-    # LittleFS Library
-    # Add your replacement function source file to the littlefs_cm7 library
-    embedded_library(
-            "littlefs_cm7_vc"
-            "${LITTLEFS_SRCS}"
-            "${LITTLEFS_SOURCE_DIR}"
-            "cm7"
-            TRUE
-    )
-    target_compile_definitions("littlefs_cm7_vc" PRIVATE LFS_ASSERT=io_custom_lfs_assert)
-
     # Telemetry Protocol Buffers
     nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS proto/telem.proto)
     set(P_SRCS ${PROTO_SRCS})
@@ -145,8 +134,8 @@ if ("${TARGET}" STREQUAL "deploy")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_jsoncan" "quadruna_VC_stm32cube" "sbg_ecom_cm4")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "littlefs_cm7_vc" "debug_modules" "m" "telem_proto")
+    target_link_libraries("quadruna_VC_jsoncan" "quadruna_VC_stm32cube" "sbg_ecom_cm7")
+    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto")
     target_link_libraries("quadruna_VC_boot.elf" "quadruna_VC_commit_info")
 
     embedded_image(
