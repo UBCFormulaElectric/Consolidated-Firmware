@@ -1,4 +1,4 @@
-#include "io_fan.h"
+#include "io_fans.h"
 
 static const Gpio *acc_fan = NULL;
 static const Gpio *rad_fan = NULL;

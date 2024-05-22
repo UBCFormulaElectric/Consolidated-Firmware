@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "hw_stackWaterMark.h"
+#include "hw_utils.h"
 
 /**
  * @brief  Check if the stack high watermark for a task exceeds the specified
@@ -36,6 +37,7 @@ void hw_stackWaterMark_check(StackWaterMark *stacks, size_t num_of_stacks)
         if (stackAboveWatermarkThreshold(*(stacks[i].handle), stacks[i].stack_size, stacks[i].watermark_threshold))
         {
             stacks[i].log_error(1);
+            BREAK_IF_DEBUGGER_CONNECTED()
         }
     }
 }

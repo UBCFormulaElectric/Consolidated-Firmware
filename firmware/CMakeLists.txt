@@ -2,6 +2,9 @@ include(cmake/embedded.cmake)
 include(cmake/tests.cmake)
 include(cmake/shared.cmake)
 
+# Embedded Options
+option(BUILD_ASM "Build the assembly files" OFF)
+
 # ======== Libraries ========
 # protobufs
 CPMAddPackage(

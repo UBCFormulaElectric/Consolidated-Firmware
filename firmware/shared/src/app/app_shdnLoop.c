@@ -1,5 +1,4 @@
 #include "app_shdnLoop.h"
-#include "app_canTx.h"
 
 static const BoardShdnNode *board_nodes;
 static int                  length;

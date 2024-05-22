@@ -1,6 +1,7 @@
 #pragma once
 
-#include "io_rgbLed.h"
+#ifdef TARGET_EMBEDDED
+#include "hw_rgbLed.h"
 #include "io_led.h"
 
 typedef struct
@@ -11,7 +12,7 @@ typedef struct
     const BinaryLed *const start_led;
     const BinaryLed *const regen_led;
     const BinaryLed *const torquevec_led;
-    const BinaryLed *const shdn_led;
+    const RgbLed *const    shdn_led;
     const RgbLed *const    bms_status_led;
     const RgbLed *const    fsm_status_led;
     const RgbLed *const    vc_status_led;
@@ -21,6 +22,7 @@ typedef struct
 } Leds;
 
 void io_led_init(const Leds *in_leds);
+#endif
 
 void io_led_imd_set(bool val);
 void io_led_bspd_set(bool val);
@@ -28,16 +30,17 @@ void io_led_ams_set(bool val);
 void io_led_start_set(bool val);
 void io_led_regen_set(bool val);
 void io_led_torquevec_set(bool val);
-void io_led_shutdown_set(bool val);
 
 typedef enum
 {
-    OK,
-    WARNING,
-    FAULT,
-    WHITE
+    BOARD_LED_STATUS_OK,
+    BOARD_LED_STATUS_WARNING,
+    BOARD_LED_STATUS_FAULT,
+    BOARD_LED_STATUS_NOT_IMPLEMENTED,
+    BOARD_LED_STATUS_MISSING_HEARTBEAT
 } BoardLEDStatus;
 
+void io_led_shutdown_set(BoardLEDStatus status);
 void io_led_bms_status_set(BoardLEDStatus status);
 void io_led_fsm_status_set(BoardLEDStatus status);
 void io_led_vc_status_set(BoardLEDStatus status);

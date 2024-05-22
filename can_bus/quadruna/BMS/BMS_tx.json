@@ -18,13 +18,19 @@
         "description": "Context info for BMS alerts",
         "signals": {
             "TxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "RxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "WatchdogTimeoutTaskName": {
                 "enum": "RtosTaskName"
+            },
+            "ModuleCommunication_NumCommTries": {
+                "bits": 16
+            },
+            "ModuleCommunication_MonitorState": {
+                "enum": "CAN_AccumulatorMonitorState"
             }
         }
     },
@@ -101,7 +107,7 @@
     },
     "OkStatuses": {
         "msg_id": 111,
-        "cycle_time": 10,
+        "cycle_time": 100,
         "description": "BMS OK status flags",
         "signals": {
             "BmsOk": {
@@ -126,7 +132,7 @@
     },
     "Contactors": {
         "msg_id": 112,
-        "cycle_time": 10,
+        "cycle_time": 100,
         "description": "BMS AIR state statuses",
         "signals": {
             "AirPositive": {
@@ -142,7 +148,7 @@
     },
     "CellTemperatures": {
         "msg_id": 120,
-        "cycle_time": 100,
+        "cycle_time": 1000,
         "description": "BMS Cell Temperature readings",
         "signals": {
             "MinCellTemperature": {
@@ -156,45 +162,20 @@
                 "min": 0,
                 "max": 100,
                 "unit": "degC"
-            },
-            "Seg4Cell2Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "Seg4Cell8Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
             }
         }
     },
-    "CellVoltages": {
+    "VoltageAndChargeStats": {
         "msg_id": 121,
         "cycle_time": 100,
         "description": "BMS Cell Voltage readings",
         "signals": {
-            "MinCellVoltage": {
-                "resolution": 0.0001,
+            "PackVoltage": {
+                "resolution": 0.01,
                 "min": 0,
-                "max": 5,
+                "max": 600,
                 "unit": "V"
             },
-            "MaxCellVoltage": {
-                "resolution": 0.0001,
-                "min": 0,
-                "max": 5,
-                "unit": "V"
-            }
-        }
-    },
-    "StateOfCharge": {
-        "msg_id": 122,
-        "cycle_time": 100,
-        "description": "BMS State of Charge Details",
-        "signals": {
             "Soc": {
                 "resolution": 0.1,
                 "min": 0,
@@ -203,6 +184,18 @@
             },
             "SocCorrupt": {
                 "bits": 1
+            },
+            "MinCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "MaxCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
             }
         }
     },
@@ -259,91 +252,28 @@
         "description": "BMS Tractive System Data",
         "signals": {
             "TractiveSystemVoltage": {
-                "resolution": 0.0001,
+                "resolution": 0.01,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
             },
             "TractiveSystemCurrent": {
-                "resolution": 0.1,
+                "resolution": 0.01,
                 "min": -300,
                 "max": 300,
                 "unit": "A"
             },
             "TractiveSystemPower": {
-                "resolution": 0.001,
+                "resolution": 0.01,
                 "min": -100,
                 "max": 100,
                 "unit": "kW"
-            }
-        }
-    },
-    "PackVoltage": {
-        "msg_id": 131,
-        "cycle_time": 100,
-        "description": "BMS Pack Voltage",
-        "signals": {
-            "PackVoltage": {
-                "resolution": 0.0001,
-                "min": 0,
-                "max": 600,
-                "unit": "V"
-            }
-        }
-    },
-    "AvailablePower": {
-        "msg_id": 132,
-        "cycle_time": 100,
-        "description": "BMS Available Power",
-        "signals": {
+            },
             "AvailablePower": {
-                "resolution": 0.1,
+                "resolution": 1,
                 "min": 0,
                 "max": 100000,
                 "unit": "W"
-            }
-        }
-    },
-    "AuxThermistors": {
-        "msg_id": 133,
-        "cycle_time": 100,
-        "description": "BMS Auxiliary Thermistor Temperatures",
-        "signals": {
-            "ThermTemp0": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "ThermTemp1": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "ThermTemp2": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "ThermTemp3": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "ThermTemp4": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
-            },
-            "ThermTemp5": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 100,
-                "unit": "degC"
             }
         }
     },

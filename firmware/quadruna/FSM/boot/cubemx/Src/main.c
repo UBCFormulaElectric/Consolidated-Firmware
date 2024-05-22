@@ -87,7 +87,7 @@ const osThreadAttr_t tickTask_attributes = {
 /* USER CODE BEGIN PV */
 CanHandle can = {
     .can                       = &hcan1,
-    .can_msg_received_callback = io_can_msgReceivedCallback,
+    .can_msg_received_callback = io_can_pushRxMsgToQueue,
 };
 /* USER CODE END PV */
 

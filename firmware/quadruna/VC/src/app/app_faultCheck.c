@@ -2,8 +2,9 @@
 #include "app_canAlerts.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "io_log.h"
 
-bool app_boardFaultCheck()
+bool app_boardFaultCheck(void)
 {
     const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
     const bool vc_fault   = app_canAlerts_BoardHasFault(VC_ALERT_BOARD);

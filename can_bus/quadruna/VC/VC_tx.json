@@ -137,66 +137,6 @@
         "msg_id": 202,
         "cycle_time": 10,
         "signals": {
-            "RightInverterTorqueCommand": {
-                "start_bit": 0,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm",
-                "start_value": 0
-            },
-            "RightInverterSpeedCommand": {
-                "start_bit": 16,
-                "bits": 16,
-                "signed": true,
-                "scale": 1,
-                "offset": 0,
-                "min": -32768,
-                "max": 32767,
-                "unit": "rpm",
-                "start_value": 0
-            },
-            "RightInverterDirectionCommand": {
-                "start_bit": 32,
-                "enum": "InverterDirection",
-                "start_value": 0
-            },
-            "RightInverterEnable": {
-                "start_bit": 40,
-                "bits": 1,
-                "start_value": 0
-            },
-            "RightInverterEnableDischarge": {
-                "start_bit": 41,
-                "bits": 1,
-                "start_value": 0
-            },
-            "RightInverterEnableSpeedMode": {
-                "start_bit": 42,
-                "bits": 1,
-                "start_value": 0
-            },
-            "RightInverterTorqueLimit": {
-                "start_bit": 48,
-                "bits": 16,
-                "signed": true,
-                "scale": 0.1,
-                "offset": 0,
-                "min": -3276.8,
-                "max": 3276.7,
-                "unit": "Nm",
-                "start_value": 0
-            }
-        }
-    },
-    "AlertsContext": {
-        "msg_id": 202,
-        "cycle_time": 1000,
-        "description": "Context info for VC alerts",
-        "signals": {
             "WatchdogTimeout": {
                 "bits": 1
             },
@@ -204,10 +144,10 @@
                 "enum": "RtosTaskName"
             },
             "TxOverflowCount": {
-                "bits": 8
+                "bits": 16
             },
             "RxOverflowCount": {
-                "bits": 8
+                "bits": 16
             }
         }
     },
@@ -237,7 +177,7 @@
     },
     "EllipseAcceleration": {
         "msg_id": 201,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Acceleration from the SBG Ellipse N sensor.",
         "signals": {
             "AccelerationForward": {
@@ -262,7 +202,7 @@
     },
     "EllipseAngularVelocity": {
         "msg_id": 203,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
         "signals": {
             "AngularVelocityRoll": {
@@ -287,7 +227,7 @@
     },
     "EllipseEulerAngles": {
         "msg_id": 222,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Euler angles from the SBG Ellipse N sensor.",
         "signals": {
             "EulerAnglesRoll": {
@@ -325,7 +265,7 @@
     },
     "PowerEstimate": {
         "msg_id": 211,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Debug Power Messages",
         "signals": {
             "PowerEstimateValue": {
@@ -342,7 +282,7 @@
     },
     "PowerEstimatePID": {
         "msg_id": 212,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Debug messages for the PID power estimate controller",
         "signals": {
             "PIDPowerEstimateOutput": {
@@ -385,7 +325,7 @@
     },
     "PIDSlipRatio": {
         "msg_id": 213,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Debug messages for the PID slip ratio controller",
         "signals": {
             "PIDSlipRatioOutput": {
@@ -428,7 +368,7 @@
     },
     "SlipRatios": {
         "msg_id": 214,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Debug Messages for the Traction Control component of Torque Vectoring",
         "signals": {
             "SlipRatioLeft": {
@@ -451,7 +391,7 @@
     },
     "ActiveDiffOutputs": {
         "msg_id": 215,
-        "cycle_time": 10,
+        "cycle_time": 1000,
         "description": "Debug Messages for the Active Differential component of Torque Vectoring",
         "signals": {
             "ActiveDiffTorqueLeft": {
@@ -752,11 +692,18 @@
             "TSMSOKStatus": {
                 "bits": 1
             },
-            "PCMInterlockOKStatus": {
-                "bits": 1
-            },
             "SplitterBoxInterlockOKStatus": {
                 "bits": 1
+            }
+        }
+    },
+    "GlobalShdnNodeStatus": {
+        "msg_id": 229,
+        "cycle_time": 100,
+        "description": "Global Shutdown Node Status",
+        "signals": {
+            "FirstFaultNode": {
+                "enum": "ShutdownNode"
             }
         }
     }

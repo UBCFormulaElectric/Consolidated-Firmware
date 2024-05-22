@@ -7,7 +7,6 @@
 #include "io_steering.h"
 
 static const RangeCheck steering_angle_in_range_check = {
-    .get_value = io_steering_getAngleDegrees,
     .min_value = MIN_STEERING_ANGLE_DEG,
     .max_value = MAX_STEERING_ANGLE_DEG,
 };
@@ -23,8 +22,9 @@ void app_steering_broadcast(void)
         app_canTx_FSM_SteeringAngle_set(0);
     }
 
-    float            steering_angle;
-    RangeCheckStatus steering_in_range = app_rangeCheck_getValue(&steering_angle_in_range_check, &steering_angle);
+    float                    steering_angle = io_steering_getAngleDegrees();
+    RangeCheckStatusMetaData steering_in_range =
+        app_rangeCheck_getValue(&steering_angle_in_range_check, steering_angle);
     app_canTx_FSM_SteeringAngle_set(steering_angle);
-    app_canAlerts_FSM_Warning_SteeringAngleOutOfRange_set(steering_in_range != VALUE_IN_RANGE);
+    app_canAlerts_FSM_Warning_SteeringAngleOutOfRange_set(steering_in_range.status != VALUE_IN_RANGE);
 }

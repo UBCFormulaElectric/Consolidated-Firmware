@@ -13,16 +13,16 @@
 #define MAX_DEBUG_BUF_SIZE 100
 #define DEBUG_SIZE_MSG_BUF_SIZE 1
 
-extern const Gpio      *id_to_gpio[];
-extern const AdcChannel id_to_adc[];
+extern const Gpio *const id_to_gpio[];
+extern const AdcChannel  id_to_adc[];
 
-static UART    *uart;
-static bool     is_mid_debug_msg;
-static uint8_t  data[MAX_DEBUG_BUF_SIZE];
-static uint8_t  rx_packet_size;
-static uint32_t net_name_gpio;
-static uint32_t net_name_adc;
-static bool     chimera_button_pressed;
+static const UART *uart;
+static bool        is_mid_debug_msg;
+static uint8_t     data[MAX_DEBUG_BUF_SIZE];
+static uint8_t     rx_packet_size;
+static uint32_t    net_name_gpio;
+static uint32_t    net_name_adc;
+static bool        chimera_button_pressed;
 
 static const Gpio *n_chimera_gpio;
 
@@ -90,7 +90,7 @@ static AdcChannel io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
     }
 }
 
-void io_chimera_init(UART *serial_uart, uint32_t name_gpio, uint32_t name_adc, const Gpio *bootup_gpio)
+void io_chimera_init(const UART *serial_uart, uint32_t name_gpio, uint32_t name_adc, const Gpio *bootup_gpio)
 {
     uart             = serial_uart;
     is_mid_debug_msg = false;
