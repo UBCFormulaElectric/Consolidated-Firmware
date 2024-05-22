@@ -34,7 +34,7 @@ class SignalUtil:
         s.add(165)
         #s.add(0)
         s.add(253)
-        last_bit = 0;
+        last_bit = 0
 
         try:
             while True:
