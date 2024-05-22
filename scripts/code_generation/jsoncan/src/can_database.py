@@ -190,13 +190,6 @@ class CanAlert:
     alert_type: CanAlertType
 
 
-@dataclass
-class CanFrame:
-    id: int
-    length: int
-    data: bytes
-
-
 @dataclass(frozen=True)
 class CanDatabase:
     """
