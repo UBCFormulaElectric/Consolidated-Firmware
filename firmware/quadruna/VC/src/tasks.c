@@ -554,15 +554,14 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    osDelayUntil(osWaitForever);
+    if (!loggingEnabled())
+    {
+        osThreadSuspend(osThreadGetId());
+    }
+
     static uint32_t message_batch_count = 0;
     for (;;)
     {
-        if (!loggingEnabled())
-        {
-            osThreadSuspend(osThreadGetId());
-        }
-
         io_canLogging_recordMsgFromQueue();
         message_batch_count++;
         write_count++;
