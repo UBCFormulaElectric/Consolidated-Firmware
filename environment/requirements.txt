@@ -14,4 +14,3 @@ protoletariat
 pybind11
 pytest
 rich
-pandas

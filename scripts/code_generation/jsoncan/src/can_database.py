@@ -4,7 +4,6 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 
 from dataclasses import dataclass
 from typing import List, Union, Dict
-from pandas import DataFrame
 
 from strenum import StrEnum
 
