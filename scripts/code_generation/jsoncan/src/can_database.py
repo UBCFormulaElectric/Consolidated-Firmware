@@ -301,42 +301,31 @@ class CanDatabase:
         """
         return len(self.node_alerts(node, alert_type)) > 0
 
-    def unpack(self, frames: DataFrame):
+    def unpack(self, id: int, data: bytes) -> Dict:
         """
-        Unpack a dataframe of raw CAN frames. "frames" is a pandas dataframe with columns
-        'timestamp' (time this message was logged), 'id' (CAN message ID), and 'bytes' (raw
-        CAN bytes).
-
-        Returns a new pandas dataframe of all the unpacked signals, with columns 'timestamp',
-        'name', 'value', and 'unit'.
+        Unpack a CAN dataframe.
+        Returns a dict with the signal name, value, and unit.
 
         TODO: Also add packing!
         """
-        decoded_signals = {"timestamp": [], "name": [], "value": [], "unit": []}
-        for _, frame in frames.iterrows():
-            timestamp = frame["timestamp"]
-            id = frame["id"]
-            data = frame["data"]
+        signals = []
+        for signal in self.msgs[id].signals:
+            # Interpret raw bytes as an int.
+            data_uint = int.from_bytes(data, byteorder="little", signed=False)
 
-            for signal in self.msgs[id].signals:
-                # Interpret raw bytes as an int.
-                data_uint = int.from_bytes(data, byteorder="little", signed=False)
+            # Extract the bits representing the current signal.
+            data_shifted = data_uint >> signal.start_bit
+            bitmask = (1 << signal.bits) - 1
+            signal_bits = data_shifted & bitmask
 
-                # Extract the bits representing the current signal.
-                data_shifted = data_uint >> signal.start_bit
-                bitmask = (1 << signal.bits) - 1
-                signal_bits = data_shifted & bitmask
+            # Decode the signal value using the scale/offset.
+            signal_value = signal_bits * signal.scale + signal.offset
+            if signal.enum is not None:
+                signal_value = signal.enum.items[signal_value]
 
-                # Decode the signal value using the scale/offset.
-                signal_value = signal_bits * signal.scale + signal.offset
-                if signal.enum is not None:
-                    signal_value = signal.enum.items[signal_value]
+            # Append decoded signal's data.
+            signals.append(
+                {"name": signal.name, "value": signal_value, "unit": signal.unit}
+            )
 
-                # Append decoded signal's data.
-                decoded_signals["timestamp"].append(timestamp)
-                decoded_signals["name"].append(signal.name)
-                decoded_signals["value"].append(signal_value)
-                decoded_signals["unit"].append(signal.unit)
-
-        return DataFrame(decoded_signals)
-    
+        return signals
