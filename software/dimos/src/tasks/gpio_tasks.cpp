@@ -1,5 +1,5 @@
 #include "gpio_tasks.h"
-#include "ui/DimSwitches/DimSwitchEmitter.h"
+#include "ui/dimswitches/DimSwitchEmitter.h"
 
 #include <QThread>
 #include <qlogging.h>

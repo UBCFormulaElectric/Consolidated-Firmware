@@ -30,6 +30,7 @@ flask_socketio = "*"
 pytest = "*"
 asammdf = "*"
 requests = "*"
+GitPython = "*"
 
 [dev-packages]
 setuptools = "*"
