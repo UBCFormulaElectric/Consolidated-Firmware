@@ -157,7 +157,6 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813CellVoltages.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/ltc6813/io_ltc6813Shared.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_airs.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_thermistors.h"

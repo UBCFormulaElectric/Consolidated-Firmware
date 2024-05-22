@@ -1,7 +1,6 @@
 #include "app_chargeState.h"
 #include "states/app_allStates.h"
 #include "io_airs.h"
-#include "io_charger.h"
 
 // 0.05C is standard for a boundary to consider full charge
 #define C_RATE_FOR_MAX_CHARGE (0.05f)

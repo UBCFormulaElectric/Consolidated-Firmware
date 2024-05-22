@@ -114,7 +114,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
                                            app_balancingState_get() };
     }
 
-    const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};
     const AirsConfig           airs_config        = {};
     const TractiveSystemConfig ts_config          = {};

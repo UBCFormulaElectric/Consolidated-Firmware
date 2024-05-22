@@ -22,7 +22,6 @@
 #include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_airs.h"
-#include "io_charger.h"
 #include "io_sd.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
@@ -353,7 +352,6 @@ void tasks_init(void)
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
-    // io_charger_init(&charger_config);
     io_sdGpio_init(&sd_gpio);
 
     app_canTx_init();

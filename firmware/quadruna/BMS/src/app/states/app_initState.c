@@ -45,7 +45,7 @@ static void initStateRunOnTick100Hz(void)
     {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
-        const bool missing_hb          = app_heartbeatMonitor_checkFaults();
+        const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
         const bool fault_encountered   = globals->fault_encountered;
 
         if (air_negative_closed && ts_discharged)

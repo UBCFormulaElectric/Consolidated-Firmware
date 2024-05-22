@@ -60,7 +60,7 @@ void app_heartbeatMonitor_init(
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         hb_monitor.heartbeats_checked_in[board]     = false;
-        hb_monitor.status[board]                    = true;
+        hb_monitor.status[board]                    = false;
         hb_monitor.is_watching_heartbeat_for[board] = boards_to_check[board];
         hb_monitor.getters[board]                   = getters[board];
         hb_monitor.resetters[board]                 = updaters[board];
@@ -69,6 +69,15 @@ void app_heartbeatMonitor_init(
 
         app_timer_init(&timers[board], HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS); // TODO board specific timeout
         app_timer_restart(&timers[board]);
+    }
+
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        if (!hb_monitor.is_watching_heartbeat_for[board])
+            continue;
+        assert((hb_monitor.fault_setters[board] != NULL));
+        // By default, set fault for all boards to true on start-up
+        hb_monitor.fault_setters[board](true);
     }
 }
 
@@ -98,7 +107,9 @@ void app_heartbeatMonitor_checkIn(void)
         hb_monitor.heartbeats_checked_in[board] = board_status_good;
         const TimerState state                  = app_timer_runIfCondition(&timers[board], !board_status_good);
 
-        hb_monitor.status[board] = board_status_good || state == TIMER_STATE_RUNNING;
+        hb_monitor.status[board] =
+            board_status_good || state == TIMER_STATE_RUNNING &&
+                                     app_timer_getElapsedTime(&timers[board]) > HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
         hb_monitor.resetters[board](false); // reset the CAN table so that it has to be checked in again
     }
 }
