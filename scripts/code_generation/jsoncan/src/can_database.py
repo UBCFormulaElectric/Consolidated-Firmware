@@ -317,8 +317,16 @@ class CanDatabase:
             bitmask = (1 << signal.bits) - 1
             signal_bits = data_shifted & bitmask
 
+            # Interpret value as signed number via 2s complement.
+            if signal.signed:
+                if signal_bits & (1 << (signal.bits - 1)):
+                    signal_bits = ~signal_bits & ((1 << signal.bits) - 1)
+                    signal_bits += 1
+
             # Decode the signal value using the scale/offset.
             signal_value = signal_bits * signal.scale + signal.offset
+
+            # If the signal is an enum, set the value to the entry name.
             if signal.enum is not None:
                 signal_value = signal.enum.items[signal_value]
 
