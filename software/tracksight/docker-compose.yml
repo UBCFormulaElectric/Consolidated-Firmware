@@ -13,17 +13,37 @@ services:
       - INFLUXDB_ADMIN_PASSWORD=admin
       - INFLUXDB_USER=tracksight
       - INFLUXDB_USER_PASSWORD=tracksight
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+      start_interval: 1s
   backend:
     user: root
     build:
       context: ../../
       dockerfile: ./software/tracksight/backend/Dockerfile
-    ports:  
+    ports:
       - "5000:5000"
     volumes:
       - ./backend/logs:/backend/logs
       - ../../can_bus:/can_bus
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+      start_interval: 1s
+    depends_on:
+      influx:
+        condition: service_healthy
   frontend:
     build: ./frontend
     ports:
       - "80:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
