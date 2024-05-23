@@ -219,6 +219,10 @@ _Noreturn void tasks_run1Hz(void)
         io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

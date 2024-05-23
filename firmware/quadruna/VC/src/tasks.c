@@ -352,6 +352,7 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 
     // Configure and initialize SEGGER SystemView.
+    SystemCoreClockUpdate();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 }
