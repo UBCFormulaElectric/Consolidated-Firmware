@@ -94,8 +94,8 @@ def query(
     fields: List[str],
     time_range: Tuple[int, int],
     bucket: str = INFLUX_DB_DEFAULT_BUCKET_ID,
-    max_points: int = 8000, # TODO implement
-    ms_resolution: int = 100, # TODO implement
+    max_points: int = 8000,  # TODO implement
+    ms_resolution: int = 100,  # TODO implement
 ) -> dict[str, TimeValue]:
     """
     Make a general query to the database.

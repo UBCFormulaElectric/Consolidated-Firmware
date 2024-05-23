@@ -2,9 +2,7 @@
 Main REST component of the backend
 """
 
-from typing import Tuple
-
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request
 
 from .. import influx_handler as influx
 
@@ -12,19 +10,8 @@ from .. import influx_handler as influx
 app = Blueprint("http_app", __name__)
 
 
-def responsify(data):
-    """
-    Manual CORS?????? very bad idea
-    :param data: Data to JSON-ify.
-    :returns JSON-ified data response.
-    """
-    response = jsonify(data)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
-
-
 @app.route("/")
-def hello_world() -> str:
+def hello_world():
     """
     :returns Hello world page for backend.
     """
@@ -32,7 +19,7 @@ def hello_world() -> str:
 
 
 @app.route("/health")
-def health() -> Tuple[Response, int]:
+def health():
     """
     :returns Health check page for backend.
     """
@@ -40,22 +27,22 @@ def health() -> Tuple[Response, int]:
 
 
 @app.route("/signal/measurements", methods=["GET"])
-def return_all_measurements() -> Response:
+def return_all_measurements():
     """
     :returns Page displaying all measurements in the database.
     """
     measurements = influx.get_measurements()
-    return responsify(measurements)
+    return jsonify(measurements), 200
 
 
 @app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
-def return_all_fields_for_measurement(measurement: str) -> Response:
+def return_all_fields_for_measurement(measurement: str):
     """
     :param measurement: Measurement to fetch fields for.
     :returns Page displaying all fields for a specific measurement.
     """
     fields = influx.get_fields(measurement)
-    return responsify(fields)
+    return jsonify(fields), 200
 
 
 @app.route("/signal/query", methods=["GET"])
@@ -74,8 +61,8 @@ def return_query():
         or start_epoch is None
         or end_epoch is None
     ):
-        return responsify({"error": "Missing parameters."})
+        return {"error": "Missing parameters."}
     try:
         return influx.query(measurement, fields, (int(start_epoch), int(end_epoch)))
     except Exception as e:
-        return responsify({"error": str(e)}), 500
+        return {"error": str(e)}, 500

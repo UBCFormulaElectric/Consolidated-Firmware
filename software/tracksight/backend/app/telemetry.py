@@ -17,12 +17,12 @@ from process.flask_apps.database_app import app as database_app
 from process.flask_apps.http_app import app as http_app
 from process.flask_apps.socket_app import socketio
 
-# from flask_cors import CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.register_blueprint(http_app)
 app.register_blueprint(database_app)
-# CORS(app)
+CORS(app)
 
 logger = logging.getLogger("telemetry_logger")
 if not os.path.exists("logs"):
