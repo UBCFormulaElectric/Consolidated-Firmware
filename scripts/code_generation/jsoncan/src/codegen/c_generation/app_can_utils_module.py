@@ -99,7 +99,7 @@ class AppCanUtilsModule(CModule):
 
         # Msg ID macros
         cw.add_comment("Msg IDs")
-        for msg in self._db.msgs_for_node(self._node):
+        for msg in self._db.msgs.values():  # Need all IDs for data capture
             cw.add_macro(
                 CMacrosConfig.id(msg.name),
                 str(msg.id),
