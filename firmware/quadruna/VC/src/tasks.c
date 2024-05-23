@@ -388,23 +388,22 @@ void tasks_init(void)
     {
         Error_Handler();
     }
-
-    // if (loggingEnabled())
-    // {
-    //     if (io_fileSystem_init() == FILE_OK)
-    //     {
-    //         io_canLogging_init(&canLogging_config);
-    //     }
-    //     else
-    //     {
-    //         can_logging_enable = false;
-    //     }
-    // }
-    // else
-    // {
-    //     can_logging_enable = false;
-    // }
-    can_logging_enable = false;
+  
+    if (loggingEnabled())
+    {
+        if (io_fileSystem_init() == FILE_OK)
+        {
+            io_canLogging_init(&canLogging_config);
+        }
+        else
+        {
+            can_logging_enable = false;
+        }
+    }
+    else
+    {
+        can_logging_enable = false;
+    }
 
     if (!io_imu_init())
     {
