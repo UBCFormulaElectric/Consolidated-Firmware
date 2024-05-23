@@ -1,7 +1,8 @@
 """
-Influx Handler
+Influx database handler class.
 """
 
+from typing import List
 import requests
 from dateutil.parser import parse
 
@@ -12,14 +13,16 @@ TEMP_TOKEN = "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8
 
 
 class NoDataForQueryException(Exception):
-    """Raised when no data was found for a specific query"""
+    """
+    Raised when no data was found for a specific query
+    """
 
     pass
 
 
 class InfluxHandler:
     """
-    Class for handling influxdb queries
+    Class for handling influxdb queries.
     This requires the influx dbrc mapping to have db name == bucket name
     TODO: Implement proper error handling for things like no data available.
     """
@@ -53,11 +56,11 @@ class InfluxHandler:
         ]
 
     @staticmethod
-    def get_measurements(db=BUCKET):
+    def get_measurements(db: str=BUCKET) -> List:
         """
-
-        :param db:
-        :return:
+        Get all measurements from the database.
+        :param db: Name of bucket to fetch data from.
+        :returns List of all measurements.
         """
         headers = InfluxHandler._gen_headers()
         params = {
@@ -73,12 +76,12 @@ class InfluxHandler:
         return [measurement["values"][0][0] for measurement in results["series"]]
 
     @staticmethod
-    def get_fields(measurement, db=BUCKET):
+    def get_fields(measurement: str, db: str=BUCKET) -> List:
         """
-
-        :param measurement:
-        :param db:
-        :return:
+        Get all fields from a measurement.
+        :param measurement: Measurement to fetch fields from.
+        :param db: Name of bucket to fetch data from.
+        :return: List of all fields.
         """
         headers = InfluxHandler._gen_headers()
         params = {
