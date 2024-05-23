@@ -55,9 +55,7 @@ def get_measurements(bucket=INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
         ]
 
 
-def get_fields(
-    measurement: str, bucket: str = INFLUX_DB_VEHICLE_BUCKET
-) -> list[str]:
+def get_fields(measurement: str, bucket: str = INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
     """
     Get all fields from a measurement.
     :param measurement: Measurement to fetch fields from.
@@ -105,7 +103,7 @@ def query(
     :param bucket: Name of bucket to fetch data from.
     :param max_points: Maximum number of datapoints to fetch.
     :param ms_resolution: Minimum time delta required before grabbing a new datapoint.
-    :return:
+    :return: A dictionary where the keys are the fields and the values are TimeValue objects.
     """
     out: dict[str, TimeValue] = {field: {"times": [], "values": []} for field in fields}
     with influxdb_client.InfluxDBClient(
