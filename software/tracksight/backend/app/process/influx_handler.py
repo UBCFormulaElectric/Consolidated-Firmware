@@ -22,18 +22,18 @@ if INFLUX_DB_TOKEN is None:
 
 
 # "testing"
-INFLUX_DB_DEFAULT_BUCKET_ID = "vehicle"
+INFLUX_DB_VEHICLE_BUCKET = "vehicle"
 
 
 # Checks if the vehicle bucket exists, and if not, creates it
 with influxdb_client.InfluxDBClient(
     url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
 ) as _client:
-    if _client.buckets_api().find_bucket_by_name(INFLUX_DB_DEFAULT_BUCKET_ID) is None:
-        _client.buckets_api().create_bucket(bucket_name=INFLUX_DB_DEFAULT_BUCKET_ID)
+    if _client.buckets_api().find_bucket_by_name(INFLUX_DB_VEHICLE_BUCKET) is None:
+        _client.buckets_api().create_bucket(bucket_name=INFLUX_DB_VEHICLE_BUCKET)
 
 
-def get_measurements(bucket=INFLUX_DB_DEFAULT_BUCKET_ID) -> list[str]:
+def get_measurements(bucket=INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
     """
     Get all measurements from the database.
     :param bucket: Name of bucket to fetch data from.
@@ -56,7 +56,7 @@ def get_measurements(bucket=INFLUX_DB_DEFAULT_BUCKET_ID) -> list[str]:
 
 
 def get_fields(
-    measurement: str, bucket: str = INFLUX_DB_DEFAULT_BUCKET_ID
+    measurement: str, bucket: str = INFLUX_DB_VEHICLE_BUCKET
 ) -> list[str]:
     """
     Get all fields from a measurement.
@@ -93,7 +93,7 @@ def query(
     measurement: str,
     fields: List[str],
     time_range: Tuple[int, int],
-    bucket: str = INFLUX_DB_DEFAULT_BUCKET_ID,
+    bucket: str = INFLUX_DB_VEHICLE_BUCKET,
     max_points: int = 8000,  # TODO implement
     ms_resolution: int = 100,  # TODO implement
 ) -> dict[str, TimeValue]:
