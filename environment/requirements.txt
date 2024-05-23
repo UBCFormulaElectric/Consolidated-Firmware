@@ -1,4 +1,3 @@
-# Firmware dependencies.
 cmake
 schema
 strenum
@@ -15,13 +14,3 @@ protoletariat
 pybind11
 pytest
 rich
-
-# Tracksight backend dependencies.
-flask
-Definitions
-flask_cors
-pandas
-flask_socketio
-pytest
-asammdf
-requests

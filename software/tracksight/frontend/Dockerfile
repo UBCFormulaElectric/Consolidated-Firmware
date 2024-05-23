@@ -4,11 +4,6 @@ FROM node:18-alpine AS base
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
-
-# For some reason I have to add this line or build fails...
-# https://stackoverflow.com/questions/59470406/how-to-solve-could-not-find-any-python-installation-to-use-with-docker-node-al
-RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
-
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
