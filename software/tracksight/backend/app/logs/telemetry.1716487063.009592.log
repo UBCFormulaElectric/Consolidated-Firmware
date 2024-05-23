@@ -1,0 +1,3 @@
+INFO:telemetry_logger:Thread 1 starting
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 805-963-437
