@@ -20,7 +20,7 @@ app.register_blueprint(database_app)
 # CORS(app)
 
 logger = logging.getLogger("telemetry_logger")
-logging.basicConfig(filename=f"telemetry.{time.time()}.log", level=logging.INFO)
+logging.basicConfig(filename=f"logs/telemetry.{time.time()}.log", level=logging.INFO)
 
 
 def thread_function(a):
