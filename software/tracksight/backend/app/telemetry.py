@@ -3,8 +3,13 @@ Entrypoint to the telemetry backend
 """
 
 import logging
+import os
 import threading
 import time
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from flask import Flask
 
@@ -20,6 +25,8 @@ app.register_blueprint(database_app)
 # CORS(app)
 
 logger = logging.getLogger("telemetry_logger")
+if not os.path.exists("logs"):
+    os.makedirs("logs")
 logging.basicConfig(filename=f"logs/telemetry.{time.time()}.log", level=logging.INFO)
 
 

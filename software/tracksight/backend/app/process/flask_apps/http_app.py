@@ -3,10 +3,10 @@ Main REST component of the backend
 """
 
 from typing import Tuple
+
 from flask import Blueprint, jsonify, request, Response
 
-from ..influx_handler import InfluxHandler as influx
-from ..influx_handler import NoDataForQueryException
+from .. import influx_handler as influx
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
@@ -59,18 +59,20 @@ def return_all_fields_for_measurement(measurement: str) -> Response:
 
 
 @app.route("/signal/query", methods=["GET"])
-def return_query() -> Response:
+def return_query():
     """
     :returns Page displaying the result of a single query.
     """
     params = request.args
     measurement = params.get("measurement")
-    fields = params.get("fields").split(",")
+    fields: list[str] | None = params.get("fields").split(",")
     start_epoch = params.get("start_epoch")
     end_epoch = params.get("end_epoch")
-
-    try:
-        data = influx.query(measurement, fields, [start_epoch, end_epoch])
-    except NoDataForQueryException as e:
-        return responsify({"error": str(e)}), 400
-    return responsify(data)
+    if (
+        measurement is None
+        or fields is None
+        or start_epoch is None
+        or end_epoch is None
+    ):
+        return responsify({"error": "Missing parameters."})
+    return influx.query(measurement, fields, (int(start_epoch), int(end_epoch)))

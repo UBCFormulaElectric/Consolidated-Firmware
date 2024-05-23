@@ -30,6 +30,8 @@ flask_socketio = "*"
 pytest = "*"
 asammdf = "*"
 requests = "*"
+python-dotenv = "*"
+influxdb-client = "*"
 
 [dev-packages]
 setuptools = "*"
