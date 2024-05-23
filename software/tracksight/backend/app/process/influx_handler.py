@@ -22,7 +22,7 @@ if INFLUX_DB_TOKEN is None:
 
 
 # "testing"
-INFLUX_DB_DEFAULT_BUCKET_ID = "example-bucket"
+INFLUX_DB_DEFAULT_BUCKET_ID = "vehicle"
 
 # TODO consider if we should use the context manager as a wrapper for the client
 # with InfluxDBClient(url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG) as client:
