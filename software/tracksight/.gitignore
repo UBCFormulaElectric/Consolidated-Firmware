@@ -1,7 +1,8 @@
 # Logs
 frontend/logs
 frontend/*.log
-backend/*.log
+frontend/npm-debug.log*
+backend/** */.log
 
 # Runtime data
 frontend/pids

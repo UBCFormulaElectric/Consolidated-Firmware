@@ -1,6 +1,0 @@
-INFO:telemetry_logger:Thread 1 starting
-WARNING:werkzeug:Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
-WARNING:werkzeug: * Debugger is active!
-INFO:werkzeug: * Debugger PIN: 259-747-739
-INFO:werkzeug:192.168.65.1 - - [23/May/2024 18:10:37] "GET / HTTP/1.1" 200 -
-INFO:werkzeug:192.168.65.1 - - [23/May/2024 18:10:38] "GET / HTTP/1.1" 200 -
