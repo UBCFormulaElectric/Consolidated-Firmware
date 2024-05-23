@@ -11,7 +11,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 # Define the InfluxDB connection
 bucket = "bucket"
 org = "org"
-token = "H_csyksUJJion_wiM9HCop4wX4vGEs2mgRQylaBOoKY_cYOgJRCVKZfPtI0TCL0sV0kWkKIitIOq51iEE_6tSg=="
+token = "J-5Bq0hKIA2V4Z4tZuSs9x6o37fvOTStEc22C9kxobHYMenQJtxd7bx0gDBoH9YdOoV1gjkK6agGqKAyiuqAwA=="
 url = "http://localhost:8086"
 csv_file_path = 'scripts\data.csv'
 write_client = InfluxDBClient(url=url, token=token, org=org)
@@ -32,10 +32,7 @@ for value in range(5):
   )
   write_api.write(bucket=bucket, org="org", record=point)
 
-
-# build the map from id to message
-for meg in megs:
-    id_to_meg[meg.id] = meg
+id_to_meg = megs
 
 def get_byte_array_from_row(row): 
     byte_array = []
