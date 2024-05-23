@@ -336,12 +336,11 @@ class CanDatabase:
                 for msg in self.msgs.values()
                 if msg.name == f"{tx_node}_{alert_type}s"
             )
-        alert_msg = query_alert_msgs.iloc[0]
-        return [
-            alert
-            for alert in self.node_alerts(tx_node, alert_type)
-            if rx_node in alert_msg["rx_nodes"]
-        ]
+            return [
+                alert
+                for alert in self.node_alerts(tx_node, alert_type)
+                if rx_node in alert_msg.rx_nodes
+            ]
 
     def node_has_alert(self, node: str, alert_type: CanAlertType) -> bool:
         """
@@ -385,3 +384,4 @@ class CanDatabase:
             )
 
         return signals
+    

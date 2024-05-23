@@ -58,12 +58,7 @@ class DbcGenerator:
         value_tables_text = ""
         cycle_time_attributes_text = ""
         signal_start_values_text = ""
-<<<<<<< HEAD
-        for _index, msg_entry in self._db.msgs.iterrows():
-            msg = CanMessage.from_series(msg_entry)
-=======
         for msg in self._db.msgs.values():
->>>>>>> master
             # Generate text for CAN message
             msgs_text += self._dbc_message(msg=msg, tx_node=msg.tx_node)
 

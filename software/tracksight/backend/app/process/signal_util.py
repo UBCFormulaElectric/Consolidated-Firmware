@@ -1,18 +1,16 @@
 import os
 import sys
 from pathlib import Path
-
 import pandas as pd
 
 from . import definitions
+from . import telem_pb2
 
-project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-sys.path.append(project_root)
-
-MOCK_DATA_PATH = Path(definitions.ROOT_DIR) / "mock_data" / "data" / "sample_data3.csv"
-
+import serial 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../scripts/code_generation/')))
+bus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../../can_bus/quadruna'))
+from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.src.can_database import CanDatabase
 
 class SignalUtil:
     """
@@ -20,17 +18,9 @@ class SignalUtil:
     """
 
     def __init__(self, is_mock=False):
-        if is_mock:
-            try:
-                self.df = pd.read_csv(MOCK_DATA_PATH)
-                self.df = self.df.set_index("date_time")
-            except:
-                print("Error reading mock data file")
-        else:
-            pass
-
         self.df = pd.DataFrame(columns=['can_id', 'data', 'time_stamp', 'description', 'unit'])
         self.ser = serial.Serial("/dev/ttyUSB0", baudrate=57600, timeout=1)
+        self.can_db = JsonCanParser(bus_path).make_database()
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
     
@@ -45,29 +35,17 @@ class SignalUtil:
         try:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
-                if packet_size in s:
-                    continue
-                # print(packet_size)
-                # continue
-                if last_bit == 0 and packet_size != 0:
-                    bytes = self.ser.read(packet_size)
-                    message_received = telem2_pb2.TelemMessage()
-                    message_received.ParseFromString(bytes)
-                    print("Message received is ", message_received)
-                    # Lookup the message ID in the table
-                    msg_details = self.lookup_message_details(message_received.can_id)
+                print(packet_size)
 
-                    # Append data along with description and unit from the lookup table
-                    self.df = pd.concat([self.df, pd.DataFrame([{
-                        'can_id': message_received.can_id,
-                        'data': message_received.message,
-                        'time_stamp': message_received.time_stamp,
-                        'description': msg_details['description'], #Retrieve key value pairs from lookup
-                        'unit': msg_details['unit'] #Retrieve key value pairs from lookup
-                    }], columns=self.df.columns)], ignore_index=True)
-                    print(self.df)
-                else:
-                    last_bit = packet_size
+                # if last_bit == 0 and packet_size !=0: #the size will be different due to 0 not often being included
+                #     bytes = self.ser.read(packet_size)
+                #     message_received = telem_pb2.TelemMessage()
+                #     message_received.ParseFromString(bytes)
+                #     # print(message_received.can_id)
+                #     print("Message received is ", message_received)
+                    # data_array = self.make_bytes(message_received)
+                    # print(self.can_db.unpack(message_received.can_id), data_array)
+
         except KeyboardInterrupt:
             self.ser.close()
         except Exception as e:
@@ -86,18 +64,9 @@ class SignalUtil:
                     }
         return {'description': 'Unknown', 'unit': 'N/A'}  
     # returns all signals in data
-    def get_all_signals(self):
+    def make_bytes(self, message):
         """
-
-        :return:
+        Make the byte array out of the messages s
         """
-        return self.df.iloc[:, 0:]
-
-    # return target signal
-    def get_signal(self, s_id):
-        """
-
-        :param s_id:
-        :return:
-        """
-        return self.df[s_id]
+        data_array = [message.message_0, message.message_1, message.message_2, message.message_3, message.message_4, message.message_5, message.message_6, message.message_7]
+        return bytearray(data_array)

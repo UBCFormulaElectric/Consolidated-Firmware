@@ -1052,6 +1052,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(L_SHDN_SNS_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin */
+    GPIO_InitStruct.Pin  = IMU_INT1_Pin | IMU_INT2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
     /*Configure GPIO pin : nPCM_EN_Pin */
     GPIO_InitStruct.Pin   = nPCM_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -1167,11 +1173,8 @@ void RunTask1Hz(void *argument)
 void RunTaskLogging(void *argument)
 {
     /* USER CODE BEGIN RunTaskLogging */
-    /* Infinite loop */
-    for (;;)
-    {
-        tasks_runLogging();
-    }
+
+    tasks_runLogging();
     /* USER CODE END RunTaskLogging */
 }
 

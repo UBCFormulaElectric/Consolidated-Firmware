@@ -113,6 +113,10 @@ extern "C"
 #define SB_ILCK_SHDN_SNS_GPIO_Port GPIOB
 #define L_SHDN_SNS_Pin GPIO_PIN_9
 #define L_SHDN_SNS_GPIO_Port GPIOE
+#define IMU_INT1_Pin GPIO_PIN_14
+#define IMU_INT1_GPIO_Port GPIOE
+#define IMU_INT2_Pin GPIO_PIN_15
+#define IMU_INT2_GPIO_Port GPIOE
 #define nPCM_EN_Pin GPIO_PIN_12
 #define nPCM_EN_GPIO_Port GPIOB
 #define ACC_I_SENSE_nFLT_Pin GPIO_PIN_14

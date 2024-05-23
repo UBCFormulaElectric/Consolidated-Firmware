@@ -531,7 +531,7 @@ _Noreturn void tasks_runCanTx(void)
         CanMsg tx_msg;
         io_can_popTxMsgFromQueue(&tx_msg);
         io_telemMessage_pushMsgtoQueue(&tx_msg);
-        io_can_transmitMsgFromQueue(&tx_msg);
+        // io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 
