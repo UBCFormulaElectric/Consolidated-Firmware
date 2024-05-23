@@ -389,7 +389,7 @@ void tasks_init(void)
     {
         Error_Handler();
     }
-  
+
     if (loggingEnabled())
     {
         if (io_fileSystem_init() == FILE_OK)
