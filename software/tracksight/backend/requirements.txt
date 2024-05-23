@@ -1,0 +1,8 @@
+flask
+Definitions
+flask_cors
+pandas
+flask_socketio
+pytest
+asammdf
+requests
