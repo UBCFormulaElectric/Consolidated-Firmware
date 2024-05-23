@@ -4,6 +4,7 @@ This module contains the flask app for the database.
 
 import json
 import os
+
 from flask import request, jsonify, Blueprint
 
 DB_JSON_PATH = "./dashboards.json"
