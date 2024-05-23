@@ -2,21 +2,29 @@
 Main REST component of the backend
 """
 
-from typing import Tuple
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request
 
-from ..influx_handler import InfluxHandler as influx
-from ..influx_handler import NoDataForQueryException
+from ..influx_handler import (
+    InfluxHandler as influx,
+)
+from ..influx_handler import (
+    NoDataForQueryException,
+)
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
+
+# helpers
+from ..signal_util import SignalUtil
+
+signal_util = SignalUtil()
 
 
 def responsify(data):
     """
     Manual CORS?????? very bad idea
-    :param data: Data to JSON-ify.
-    :returns JSON-ified data response.
+    :param data:
+    :return:
     """
     response = jsonify(data)
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -24,44 +32,49 @@ def responsify(data):
 
 
 @app.route("/")
-def hello_world() -> str:
+def hello_world():
     """
-    :returns Hello world page for backend.
+
+    :return:
     """
     return "Telemetry Backend is running!"
 
 
 @app.route("/health")
-def health() -> Tuple[Response, int]:
+def health():
     """
-    :returns Health check page for backend.
+
+    :return:
     """
     return jsonify(status="healthy"), 200
 
 
 @app.route("/signal/measurements", methods=["GET"])
-def return_all_measurements() -> Response:
+def return_all_measurements():
     """
-    :returns Page displaying all measurements in the database.
+
+    :return:
     """
     measurements = influx.get_measurements()
     return responsify(measurements)
 
 
 @app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
-def return_all_fields_for_measurement(measurement: str) -> Response:
+def return_all_fields_for_measurement(measurement):
     """
-    :param measurement: Measurement to fetch fields for.
-    :returns Page displaying all fields for a specific measurement.
+
+    :param measurement:
+    :return:
     """
     fields = influx.get_fields(measurement)
     return responsify(fields)
 
 
 @app.route("/signal/query", methods=["GET"])
-def return_query() -> Response:
+def return_query():
     """
-    :returns Page displaying the result of a single query.
+
+    :return:
     """
     params = request.args
     measurement = params.get("measurement")

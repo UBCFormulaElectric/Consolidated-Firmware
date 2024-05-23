@@ -9,6 +9,10 @@ from flask import request
 
 logger = logging.getLogger("telemetry_logger")
 
+from ..signal_util import SignalUtil
+
+signal_util = SignalUtil()
+
 # SocketIO processes for live data
 socketio = flask_socketio.SocketIO(cors_allowed_origins="*")
 

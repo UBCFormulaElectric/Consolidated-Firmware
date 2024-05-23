@@ -15,10 +15,10 @@ services:
       - INFLUXDB_USER_PASSWORD=tracksight
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
-      interval: 30s
+      interval: 1m1s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 1s
       start_interval: 1s
   backend:
     user: root
@@ -32,10 +32,10 @@ services:
       - ../../can_bus:/can_bus
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
-      interval: 30s
+      interval: 1m1s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 1s
       start_interval: 1s
     depends_on:
       influx:
