@@ -53,7 +53,6 @@ extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
-// extern IWDG_HandleTypeDef  hiwdg1;
 
 static bool loggingEnabled(void); // TODO make this a general io logging happy function
 
@@ -353,6 +352,7 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 
     // Configure and initialize SEGGER SystemView.
+    SystemCoreClockUpdate();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC reset!");
 }
@@ -364,6 +364,7 @@ void tasks_init(void)
     hw_hardFaultHandler_init();
     hw_can_init(&can);
     hw_sd_init(&sd);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -371,9 +372,6 @@ void tasks_init(void)
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
     HAL_ADC_Start_IT(&hadc3);
-
-    // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -480,7 +478,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
@@ -507,8 +504,6 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());

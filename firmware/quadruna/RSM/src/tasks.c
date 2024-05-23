@@ -219,6 +219,10 @@ _Noreturn void tasks_run1Hz(void)
         io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        hw_watchdog_checkIn(watchdog);
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -237,7 +241,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -263,10 +266,18 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        // const uint32_t start_time_ms = osKernelGetTickCount();
+        hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
+        {
+            hw_watchdog_checkIn(watchdog);
+        }
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
