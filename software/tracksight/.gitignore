@@ -2,7 +2,7 @@
 frontend/logs
 frontend/*.log
 frontend/npm-debug.log*
-backend/app/logs/*/.log
+backend/app/logs/*.log
 
 # Runtime data
 frontend/pids
