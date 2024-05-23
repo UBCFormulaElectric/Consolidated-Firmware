@@ -75,4 +75,7 @@ def return_query():
         or end_epoch is None
     ):
         return responsify({"error": "Missing parameters."})
-    return influx.query(measurement, fields, (int(start_epoch), int(end_epoch)))
+    try:
+        return influx.query(measurement, fields, (int(start_epoch), int(end_epoch)))
+    except Exception as e:
+        return responsify({"error": str(e)}), 500
