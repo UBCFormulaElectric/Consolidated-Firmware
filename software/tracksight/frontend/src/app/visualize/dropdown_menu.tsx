@@ -11,16 +11,14 @@ export default function DropdownMenu<T>(props: {
     loading?: boolean,
     disabled?: boolean,
 }) {
-    const filterOption = (input: string, option?: { label: string; value: string }) =>
-      (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
-
     return (
         <Select
             className="w-full"
             showSearch
             mode={props.single ? undefined : "multiple"}
             placeholder={props.placeholder ?? "Placeholder Text..."}
-            filterOption={filterOption}
+            filterOption={(input: string, option?: { label: string; value: string }) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
             value={props.selectedOptions}
             onChange={(v) => props.setSelectedOptions(v)}
             options={props.options.map(n => ({ value: n, label: n, }))}

@@ -1,14 +1,64 @@
 'use client'
-import {MouseEventHandler, useEffect, useState} from 'react';
-import {Button, Card, Space, Switch} from 'antd';
-import {useSocket} from '@/app/useSocket';
-import {FLASK_URL} from '@/app/constants';
+import { MouseEventHandler, useEffect, useState } from 'react';
+import { Button, Space, Switch } from 'antd';
+import { useSocket } from '@/app/useSocket';
+import { FLASK_URL } from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
-import {assertType} from '@/types/Assert';
-import {PlotData} from 'plotly.js';
+import { assertType } from '@/types/Assert';
+import { PlotData } from 'plotly.js';
 import dynamic from "next/dynamic";
+import { Socket } from 'socket.io-client';
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+
+function SignalSelector({ socket, loading, setGraphTitle }: {
+    socket: Socket | null,
+    loading: boolean,
+    setGraphTitle: (title: string) => void,
+}) {
+    // Handles which signals we care about
+    const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]); // technically an anti-pattern but the handler is inside an opaque component
+    const [watchSignals, setWatchSignals] = useState<string[]>([]);
+    useEffect(() => {
+        if (watchSignals.length === 0) return;
+        if (!socket || loading) throw new Error("Socket not initialized");
+        watchSignals.forEach(s => {
+            if (!(s in prevWatchSignals)) socket.emit("signal_sub", { signal: s });
+        })
+        prevWatchSignals.forEach(s => {
+            if (!(s in watchSignals)) socket.emit("signal_unsub", { signal: s });
+        });
+        // cleanup
+        setGraphTitle(Object.keys(watchSignals).join(" + "));
+        return () => {
+            setPrevWatchSignals(watchSignals);
+        }
+    }, [watchSignals]);
+
+    // Handles all available signals
+    const [validSignals, setValidSignals] = useState<string[]>([]);
+    const [gottenSignalResponse, setGottenSignalResponse] = useState<boolean>(false);
+    useEffect(() => {
+        if (!socket) return;
+        setGottenSignalResponse(false);
+        socket.emit("available_signals_sub");
+        socket.on("available_signals_response", (signalNames) => {
+            setValidSignals(signalNames);
+            setGottenSignalResponse(true);
+        });
+        return () => {
+            socket.off("available_signals_response");
+        };
+    }, [socket]);
+
+    return (
+        <DropdownMenu options={validSignals}
+            selectedOptions={watchSignals} setSelectedOptions={setWatchSignals}
+            loading={loading} disabled={!gottenSignalResponse}
+            placeholder="Signals"
+        />
+    )
+}
 
 interface FormattedData {
     x: Date[];
@@ -51,17 +101,15 @@ export default function LiveGraph(props: {
     id: number,
     onDelete: MouseEventHandler<HTMLElement>,
 }) {
-    const { socket, loading } = useSocket(FLASK_URL);
     // Plot Data 
     const [plotData, setPlotData] = useState<FormattedData[]>([]);
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
-    const setGraphTitle = (t: string) => setGraphLayout(p => ({ ...p, title: t, }))
 
-    // handles live data
+    const { socket, loading } = useSocket(FLASK_URL);
     const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
     useEffect(() => {
         if (!socket) return;
-        if(!isSubscribed) return;
+        if (!isSubscribed) return;
         socket.on("signal_response", (packet: unknown) => {
             if (typeof packet !== 'object' || packet === null) {
                 throw new Error("Invalid packet received from server: is of wrong type or null");
@@ -94,49 +142,15 @@ export default function LiveGraph(props: {
         };
     }, [socket, isSubscribed])
 
-    // Handles which signals we care about
-    const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]); // technically an anti-pattern but the handler is inside an opaque component
-    const [watchSignals, setWatchSignals] = useState<string[]>([]);
-    useEffect(() => {
-        if (watchSignals.length === 0) return;
-        if (!socket || loading) throw new Error("Socket not initialized");
-        watchSignals.forEach(s => {
-            if (!(s in prevWatchSignals)) socket.emit("signal_sub", { signal: s });
-        })
-        prevWatchSignals.forEach(s => {
-            if (!(s in watchSignals)) socket.emit("signal_unsub", { signal: s });
-        });
-        // cleanup
-        setGraphTitle(Object.keys(watchSignals).join(" + "));
-        return () => {
-            setPrevWatchSignals(watchSignals);
-        }
-    }, [watchSignals]);
-
-    // Handles all available signals
-    const [validSignals, setValidSignals] = useState<string[]>([]);
-    useEffect(() => {
-        if(!socket) return;
-        socket.emit("available_signals_sub");
-        socket.on("available_signals_response", (signalNames) => {
-            setValidSignals(signalNames);
-        });
-        return () => {
-            socket.off("available_signals_response");
-        };
-    }, [socket]);
-
     return (
-        <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="flex flex-col p-4 border-2 rounded-xl">
             <div className="flex flex-row items-center gap-x-2 mb-2">
                 <p>Live</p>
                 <Switch onChange={setIsSubscribed} checked={isSubscribed} />
             </div>
             <div className="flex flex-row gap-x-2">
-                <DropdownMenu options={validSignals} setSelectedOptions={setWatchSignals}
-                    loading={!loading} disabled={!loading}
-                    placeholder="Signals"
-                />
+                <SignalSelector socket={socket} loading={loading}
+                    setGraphTitle={(t: string) => setGraphLayout(p => ({ ...p, title: t, }))} />
             </div>
             <Plot data={plotData as Partial<PlotData>[]} layout={graphLayout} />
             <Space.Compact size={"middle"}>
@@ -148,7 +162,7 @@ export default function LiveGraph(props: {
                 </Button>
                 <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
             </Space.Compact>
-        </Card>
+        </div>
     );
 }
 
