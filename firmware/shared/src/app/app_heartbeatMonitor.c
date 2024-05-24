@@ -68,8 +68,9 @@ void app_heartbeatMonitor_init(
         hb_monitor.fault_getters[board]             = fault_getters[board];
 
         app_timer_init(&timers[board], HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS); // TODO board specific timeout
-        // Initialize timer to expired as to cause fault to be present on power-on (missing heartbeat timeout period initially expired)
-        timers[board].state = TIMER_STATE_EXPIRED; 
+        // Initialize timer to expired as to cause fault to be present on power-on (missing heartbeat timeout period
+        // initially expired)
+        timers[board].state = TIMER_STATE_EXPIRED;
 
         if (!hb_monitor.is_watching_heartbeat_for[board])
             continue;
