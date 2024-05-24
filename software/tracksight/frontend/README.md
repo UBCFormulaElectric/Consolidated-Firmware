@@ -1,5 +1,12 @@
 # Tracksight Frontend
 
+## Dev Server
+```
+npm run dev
+```
+
+## Deployment Server
+Please refer to the `frontend` service of `sofware/tracksight/docker-compose.yml` for notes on how to deploy the frontend server.
 
 ## TODOs
 - Move shared zoom data to a shared context
