@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction } from 'react'; 
-import { Select } from 'antd';
-import React from 'react';
+import React, {Dispatch, SetStateAction} from 'react';
+import {Select} from 'antd';
 
-export default function DropdownMenu(props: {
+
+export default function DropdownMenu<T>(props: {
     options: string[],
-    setSelectedOptions: Dispatch<SetStateAction<string>> | Dispatch<SetStateAction<string[]>>,
+    selectedOptions: T,
+    setSelectedOptions: Dispatch<SetStateAction<T>>,
     placeholder?: string,
     single?: boolean,
     loading?: boolean,
@@ -20,6 +21,7 @@ export default function DropdownMenu(props: {
             mode={props.single ? undefined : "multiple"}
             placeholder={props.placeholder ?? "Placeholder Text..."}
             filterOption={filterOption}
+            value={props.selectedOptions}
             onChange={(v) => props.setSelectedOptions(v)}
             options={props.options.map(n => ({ value: n, label: n, }))}
             maxTagCount="responsive"

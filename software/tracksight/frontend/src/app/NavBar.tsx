@@ -1,10 +1,9 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
-import { useContext } from 'react';
-import { Menu, Switch } from 'antd';
-import { Theme } from './Theme';
-import { ThemeContext } from './Theme';
+import {usePathname, useRouter} from 'next/navigation'
+import {useContext} from 'react';
+import {Menu, Switch} from 'antd';
+import {Theme, ThemeContext} from './Theme';
 
 export default function NavBar() {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -15,7 +14,7 @@ export default function NavBar() {
       <Menu
         theme={theme ? 'dark' : 'light'}
         mode="horizontal"
-        defaultSelectedKeys={[path.split('/')[1]]}
+        defaultSelectedKeys={[path.split('/')[1] || "home"]}
         onClick={(e) => {
           switch (e.key) {
             case "home":
@@ -36,14 +35,14 @@ export default function NavBar() {
         <Menu.Item key="home">Home</Menu.Item>
         <Menu.Item key="visualize">Visualize</Menu.Item>
         <Menu.Item key="dashboard">Dashboards</Menu.Item>
-        <Menu.Item key="theme">
+        <div className="order-10">
           <Switch
             checked={theme === Theme.DARK}
             onChange={(checked: boolean) => setTheme(checked ? Theme.DARK : Theme.LIGHT)}
             checkedChildren="Dark"
             unCheckedChildren="Light"
           />
-        </Menu.Item>
+        </div>
       </Menu>
   );
 };

@@ -31,7 +31,8 @@ export const getRandomColor = () => {
     return `rgb(${r},${g},${b})`;
 };
 
-const MeasurementDropdown = ({ setMeasurement }: {
+const MeasurementDropdown = ({ measurement, setMeasurement }: {
+    measurement: string,
     setMeasurement: Dispatch<SetStateAction<string>>
 }) => {
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
@@ -55,6 +56,7 @@ const MeasurementDropdown = ({ setMeasurement }: {
 
     return (
         <DropdownMenu
+            selectedOptions={measurement}
             setSelectedOptions={setMeasurement}
             options={allMeasurements}
             single={true}
@@ -65,19 +67,21 @@ const MeasurementDropdown = ({ setMeasurement }: {
     )
 }
 
-const FieldDropdown = ({ setFields, measurement }: {
+const FieldDropdown = ({ fields, setFields, measurement }: {
+    fields: string[],
     setFields: Dispatch<SetStateAction<string[]>>
     measurement: string, 
 }) => {
     const [allFields, setAllFields] = useState<string[]>([]);
-    const [fetchedFields, setFetchedFields] = useState<boolean>(false);
+    const [hasFetchedFields, setHasFetchedFields] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        setFields([]);
         if(measurement.length == 0) return;
         (async () => {
             setLoading(true);
-            setFetchedFields(false)
+            setHasFetchedFields(false)
             try {
                 const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
                     method: 'get',
@@ -87,7 +91,7 @@ const FieldDropdown = ({ setFields, measurement }: {
                     return;
                 }
                 setAllFields(await res.json())
-                setFetchedFields(true)
+                setHasFetchedFields(true)
             } catch (error) {
                 console.error(error)
             } finally {
@@ -98,8 +102,9 @@ const FieldDropdown = ({ setFields, measurement }: {
 
     return (
         <DropdownMenu
-            disabled={!fetchedFields}
+            disabled={!hasFetchedFields}
             loading={loading}
+            selectedOptions={fields}
             setSelectedOptions={setFields}
             options={allFields}
             single={false}
@@ -162,8 +167,8 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
         <div className="flex flex-col p-4 border-[1.5px] rounded-xl">
             {/* Measurement Selector */}
             <div className="flex flex-col gap-y-2">
-                <MeasurementDropdown setMeasurement={setMeasurement} />
-                <FieldDropdown setFields={setFields} measurement={measurement} />
+                <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
+                <FieldDropdown fields={fields} setFields={setFields} measurement={measurement} />
                 <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
                 <Button onClick={async (e) => {
                     const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
@@ -174,8 +179,8 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
                     }
                     const fetchUrl = new URL("/signal/query", FLASK_URL);
                     fetchUrl.search = new URLSearchParams({
-                        measurement: measurement[0],
-                        start_epoch: startEpoch, end_epoch: endEpoch,
+                        measurement: measurement,
+                        start_epoch: startEpoch.slice(0, -2 - 3), end_epoch: endEpoch.slice(0, -2 - 3), // apparently for some reason the time is given in ms
                         fields: fields.join(",")
                     }).toString();
                     console.log(fetchUrl.toString()) // TODO remove after testing
