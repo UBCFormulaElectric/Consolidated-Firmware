@@ -1,20 +1,30 @@
+/**
+ * Websockets that are used (handling signals, and handling available signals)
+ *  - signal_sub (emit), signal_unsub (emit)
+ *  - signal_response
+ *  - signal_stopped
+ *  - available_signals_sub (emit)
+ *  - available_signals_response
+ */
+
 'use client'
-import { MouseEventHandler, useEffect, useState } from 'react';
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
 import { Switch } from 'antd';
 import { useSocket } from '@/app/useSocket';
 import { FLASK_URL } from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
 import { assertType } from '@/types/Assert';
-import { PlotData } from 'plotly.js';
+import { PlotData, PlotRelayoutEvent, PlotType } from 'plotly.js';
 import dynamic from "next/dynamic";
 import { Socket } from 'socket.io-client';
+import TimePlot, { FormattedData } from './timeplot';
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
-function SignalSelector({ socket, loading, setGraphTitle }: {
+function SignalSelector({ socket, loading, setPlotTitle: setGraphTitle }: {
     socket: Socket | null,
     loading: boolean,
-    setGraphTitle: (title: string) => void,
+    setPlotTitle: (title: string) => void,
 }) {
     // Handles which signals we care about
     const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]); // technically an anti-pattern but the handler is inside an opaque component
@@ -60,51 +70,16 @@ function SignalSelector({ socket, loading, setGraphTitle }: {
     )
 }
 
-interface FormattedData {
-    x: Date[];
-    y: number[];
-    type: string;
-    mode: string;
-    name: string;
-}
-
-const EMPTY_FORMATTED_DATA: FormattedData = {
-    x: [],
-    y: [],
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: 'test',
-};
-
-const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
-    width: 620,
-    height: 500,
-    title: "Live Data",
-    xaxis: {
-        // for formatting time
-        tickformat: "%H:%M:%S.%L", // TODO fix this formatting
-        automargin: true,
-    },
-    yaxis: {},
-    legend: { "orientation": "h" },
-};
-
-/**
- * Websockets that are used (handling signals, and handling available signals)
- *  - signal_sub (emit), signal_unsub (emit)
- *  - signal_response
- *  - signal_stopped
- *  - available_signals_sub (emit)
- *  - available_signals_response
- */
-export default function LiveGraph(props: {
+export default function LiveGraph({ id, deletePlot, syncZoom, sharedZoomData, setSharedZoomData }: {
     id: number,
-    onDelete: MouseEventHandler<HTMLElement>,
+    deletePlot: MouseEventHandler<HTMLElement>,
+    syncZoom: boolean,
+    sharedZoomData: PlotRelayoutEvent,
+    setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
 }) {
-    // Plot Data 
+    // Plot Data
+    const [plotTitle, setPlotTitle] = useState<string>("");
     const [plotData, setPlotData] = useState<FormattedData[]>([]);
-    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
-
     const { socket, loading } = useSocket(FLASK_URL);
     const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
     useEffect(() => {
@@ -125,7 +100,13 @@ export default function LiveGraph(props: {
                 // extracts the most recent 100 data points to display to ensure the graph doesn't get too cluttered
                 // const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
                 // const maxDataPoints = sortedDates.slice(-MAX_DATA_POINTS);
-                const existingSignal = p.find((d) => d.name === packet.id) || EMPTY_FORMATTED_DATA;
+                const existingSignal = p.find((d) => d.name === packet.id) || {
+                    x: [],
+                    y: [],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'test',
+                };
                 // TODO new data!!!
                 existingSignal.x.push(new Date());
                 existingSignal.y.push(Math.random());
@@ -143,34 +124,18 @@ export default function LiveGraph(props: {
     }, [socket, isSubscribed])
 
     return (
-        <div className="flex flex-col p-4 border-2 rounded-xl">
+        <TimePlot plotTitle={plotTitle} deletePlot={deletePlot}
+            plotData={plotData} clearPlotData={e => setPlotData([])}
+            syncZoom={syncZoom} sharedZoomData={sharedZoomData} setSharedZoomData={setSharedZoomData}
+        >
             <div className="flex flex-row items-center gap-x-2 mb-2">
                 <p>Live</p>
                 <Switch onChange={setIsSubscribed} checked={isSubscribed} />
             </div>
             <div className="flex flex-row gap-x-2">
-                <SignalSelector socket={socket} loading={loading}
-                    setGraphTitle={(t: string) => setGraphLayout(p => ({ ...p, title: t, }))} />
+                <SignalSelector socket={socket} loading={loading} setPlotTitle={setPlotTitle} />
             </div>
-            <Plot data={plotData as Partial<PlotData>[]} layout={graphLayout} />
-            <div className="flex flex-row gap-x-2">
-                <button className="bg-[#1890ff] hover:bg-blue-400 text-white text-sm
-                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
-                    onClick={() => {
-                        setGraphLayout(DEFAULT_LAYOUT);
-                        setPlotData([]);
-                    }}
-                >
-                    Clear Data
-                </button>
-                <button className="bg-[#ff4d4f] hover:bg-red-400 text-white text-sm
-                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
-                    onClick={props.onDelete}
-                >
-                    Delete This Graph
-                </button>
-            </div>
-        </div>
+        </TimePlot>
     );
 }
 

@@ -82,7 +82,7 @@ export default function Visualize() {
                             <Graph
                                 key={graph.id}
                                 graphInfo={graph}
-                                handleDelete={(e) =>
+                                deletePlot={(e) =>
                                     setGraphs(prevGraphs => prevGraphs.filter(g => g.id !== graph.id))}
                                 syncZoom={shouldSyncZoom}
                                 sharedZoomData={sharedZoomData}
@@ -98,8 +98,11 @@ export default function Visualize() {
                             <LiveGraph
                                 key={graph.id}
                                 id={graph.id}
-                                onDelete={(e) =>
+                                deletePlot={(e) =>
                                     setGraphs(prevGraphs => prevGraphs.filter(g => g.id !== graph.id))}
+                                syncZoom={shouldSyncZoom}
+                                sharedZoomData={sharedZoomData}
+                                setSharedZoomData={setSharedZoomData}
                             />
                         )
                     }
