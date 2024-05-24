@@ -2,7 +2,7 @@
 Main REST component of the backend
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 
 from .. import influx_handler as influx
 
@@ -23,7 +23,7 @@ def health():
     """
     :returns Health check page for backend.
     """
-    return jsonify(status="healthy"), 200
+    return {"status": "healthy"}, 200
 
 
 @app.route("/signal/measurements", methods=["GET"])
@@ -31,8 +31,7 @@ def return_all_measurements():
     """
     :returns Page displaying all measurements in the database.
     """
-    measurements = influx.get_measurements()
-    return jsonify(measurements), 200
+    return influx.get_measurements(), 200
 
 
 @app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
@@ -41,8 +40,7 @@ def return_all_fields_for_measurement(measurement: str):
     :param measurement: Measurement to fetch fields for.
     :returns Page displaying all fields for a specific measurement.
     """
-    fields = influx.get_fields(measurement)
-    return jsonify(fields), 200
+    return influx.get_fields(measurement), 200
 
 
 @app.route("/signal/query", methods=["GET"])
