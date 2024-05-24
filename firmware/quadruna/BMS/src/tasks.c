@@ -51,14 +51,13 @@
 
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
-// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
-extern SPI_HandleTypeDef  hspi2;
-extern TIM_HandleTypeDef  htim1;
-extern TIM_HandleTypeDef  htim3;
-extern TIM_HandleTypeDef  htim15;
-extern UART_HandleTypeDef huart1;
-extern SD_HandleTypeDef   hsd1;
-extern CRC_HandleTypeDef  hcrc;
+extern SPI_HandleTypeDef   hspi2;
+extern TIM_HandleTypeDef   htim1;
+extern TIM_HandleTypeDef   htim3;
+extern TIM_HandleTypeDef   htim15;
+extern UART_HandleTypeDef  huart1;
+extern SD_HandleTypeDef    hsd1;
+extern CRC_HandleTypeDef   hcrc;
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -180,7 +179,6 @@ static const AirsConfig airs_config = { .air_p_gpio = {
                                    }
 };
 
-// TODO: Test differential ADC for voltage measurement
 static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
                                                 .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
                                                 .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_75A,
@@ -323,14 +321,15 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("BMS reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
@@ -451,9 +450,7 @@ _Noreturn void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-
-        // TODO: Re-enable watchdog after investigating failure
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);

@@ -140,6 +140,12 @@ class CanMessage:
     tx_node: str  # The node that transmits this message
     rx_nodes: List[str]  # All nodes which receive this message
     modes: List[str]  # List of modes which this message should be transmitted in
+    log_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be logged to disk at (None if don't capture this msg)
+    telem_cycle_time: Union[
+        int, None
+    ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
     def bytes(self):
         """
