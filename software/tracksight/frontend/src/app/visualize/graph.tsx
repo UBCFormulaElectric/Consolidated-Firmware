@@ -8,12 +8,14 @@
 'use client';
 import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
 import { PlotData, PlotRelayoutEvent } from 'plotly.js';
-import { Button } from 'antd';
+import { Button, DatePicker } from 'antd';
 import { GraphI } from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
 import { FLASK_URL } from '@/app/constants';
 import TimePlot, { FormattedData } from './timeplot';
+import { Dayjs } from 'dayjs';
+import { Nullable } from '@/types/Util';
 
 export const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
@@ -112,7 +114,7 @@ function usePlotlyFormat(setGraphTitle: (title: string) => void): [
         setGraphTitle(Object.keys(data).join(" + "));
         setFormattedData(Object.entries(data).map(([graphName, { times, values }]) => ({
             name: graphName,
-            x: times.map(x=>new Date(x)), y: values,
+            x: times.map(x => new Date(x)), y: values,
             type: "scatter", mode: "lines+markers", line: { color: getRandomColor() }
         })));
     }, [data]);
@@ -133,8 +135,8 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
     // Top Form Information
     const [measurement, setMeasurement] = useState<string | null>(null);
     const [fields, setFields] = useState<string[]>([]);
-    const [startEpoch, setStartEpoch] = useState<string>("");
-    const [endEpoch, setEndEpoch] = useState<string>("");
+    const [startEpoch, setStartEpoch] = useState<number | null>(null);
+    const [endEpoch, setEndEpoch] = useState<number | null>(null);
 
     return (
         <TimePlot plotTitle={plotTitle} deletePlot={deletePlot}
@@ -144,7 +146,14 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
             <div className="flex flex-col gap-y-2">
                 <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
                 <FieldDropdown fields={fields} setFields={setFields} measurement={measurement} />
-                <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
+                <DatePicker.RangePicker showTime
+                    onChange={(date_pair: Nullable<[Nullable<Dayjs>, Nullable<Dayjs>]>, _formatted_dates: [string, string]) => {
+                        if (!date_pair) return;
+                        if(!date_pair[0] || !date_pair[1]) return console.warn("Partially null date pair");
+                        setStartEpoch(date_pair[0].unix());
+                        setEndEpoch(date_pair[1].unix());
+                    }}
+                />
                 <Button onClick={async (e) => {
                     const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
                     if (missingQueryEls) {
@@ -155,7 +164,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
                     const fetchUrl = new URL("/signal/query", FLASK_URL);
                     fetchUrl.search = new URLSearchParams({
                         measurement: measurement,
-                        start_epoch: startEpoch.slice(0, -2 - 3), end_epoch: endEpoch.slice(0, -2 - 3), // apparently for some reason the time is given in ms
+                        start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString(), // apparently for some reason the time is given in ms
                         fields: fields.join(",")
                     }).toString();
                     console.log(fetchUrl.toString()) // TODO remove after testing
