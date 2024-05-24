@@ -48,9 +48,9 @@ class JsonCanParser:
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
         self._shared_enums: list[CanEnum] = []  # Set of shared enums
-        self._alerts: dict[str, dict[CanAlert, AlertsEntry]] = (
-            {}
-        )  # Dict of node names to node's alerts
+        self._alerts: dict[
+            str, dict[CanAlert, AlertsEntry]
+        ] = {}  # Dict of node names to node's alerts
         self._alert_descriptions = {}  # TODO this is not used
 
         self._parse_json_data(can_data_dir=can_data_dir)
@@ -62,7 +62,7 @@ class JsonCanParser:
         return CanDatabase(
             nodes=self._nodes,
             bus_config=self._bus_cfg,
-            msgs=list(self._messages.values()),
+            msgs={msg.id: msg for msg in self._messages.values()},
             shared_enums=self._shared_enums,
             alerts=self._alerts,
         )
@@ -201,6 +201,16 @@ class JsonCanParser:
             msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
         )
 
+        log_cycle_time = msg_cycle_time
+        telem_cycle_time = msg_cycle_time
+        if "data_capture" in msg_json_data:
+            log_cycle_time, _ = self._get_optional_value(
+                msg_json_data["data_capture"], "log_cycle_time", msg_cycle_time
+            )
+            telem_cycle_time, _ = self._get_optional_value(
+                msg_json_data["data_capture"], "telem_cycle_time", msg_cycle_time
+            )
+
         if len(msg_modes) == 0:
             raise InvalidCanJson(
                 f"Message '{msg_name}' transmitted by '{node}' doesn't specify any allowed modes."
@@ -268,6 +278,8 @@ class JsonCanParser:
                 self._bus_cfg.default_receiver
             ],  # Every msg is received by the default receiver
             modes=msg_modes,
+            log_cycle_time=log_cycle_time,
+            telem_cycle_time=telem_cycle_time,
         )
 
     def _get_parsed_can_signal(
@@ -401,21 +413,21 @@ class JsonCanParser:
         """
         Parse JSON data dictionary representing a CAN enum.
         """
-        items = []
+        items = {}
         for name, value in enum_entries.items():
             if value < 0:
                 raise InvalidCanJson(
                     f"Negative enum value found for enum '{enum_name}', which is not supported. Use only positive integers or zero."
                 )
 
-            if value in {item.value for item in items}:
+            if value in items:
                 raise InvalidCanJson(
                     f"Repeated value {value} for enum '{enum_name}', which is not allowed (values must be unique)."
                 )
 
-            items.append(CanEnumItem(name=name, value=value))
+            items[value] = name
 
-        if 0 not in {item.value for item in items}:
+        if 0 not in items:
             raise InvalidCanJson(f"Enum '{enum_name}' must start at 0.")
 
         return CanEnum(name=enum_name, items=items)
@@ -494,6 +506,8 @@ class JsonCanParser:
                 id=msg_id,
                 description=description,
                 cycle_time=cycle_time,
+                log_cycle_time=cycle_time,
+                telem_cycle_time=cycle_time,
                 signals=signals,
                 tx_node=node,
                 rx_nodes=[self._bus_cfg.default_receiver],

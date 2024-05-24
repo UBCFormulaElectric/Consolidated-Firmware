@@ -43,6 +43,10 @@
                 "max": 3276.7,
                 "unit": "degC"
             }
+        },
+        "data_capture": {
+            "log_cycle_time": 1000,
+            "telem_cycle_time": 1000
         }
     },
     "Temperatures2": {
@@ -89,6 +93,10 @@
                 "max": 3276.7,
                 "unit": "degC"
             }
+        },
+        "data_capture": {
+            "log_cycle_time": 1000,
+            "telem_cycle_time": 1000
         }
     },
     "Temperatures3": {
@@ -135,6 +143,10 @@
                 "max": 3276.7,
                 "unit": "Nm"
             }
+        },
+        "data_capture": {
+            "log_cycle_time": 1000,
+            "telem_cycle_time": 1000
         }
     },
     "AnalogInputVoltages": {
@@ -201,6 +213,10 @@
                 "max": 327.67,
                 "unit": "V"
             }
+        },
+        "data_capture": {
+            "log_cycle_time": 1000,
+            "telem_cycle_time": 1000
         }
     },
     "DigitalInputStatus": {
@@ -469,6 +485,10 @@
                 "max": 327.67,
                 "unit": "V"
             }
+        },
+        "data_capture": {
+            "log_cycle_time": 1000,
+            "telem_cycle_time": 1000
         }
     },
     "InternalStates": {

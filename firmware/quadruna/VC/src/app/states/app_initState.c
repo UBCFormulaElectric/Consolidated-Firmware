@@ -27,9 +27,9 @@ static const PowerStateConfig power_manager_shutdown_init = {
 
 static void initStateRunOnEntry(void)
 {
-    LOG_INFO("init entry");
     app_canTx_VC_State_set(VC_INIT_STATE);
     app_powerManager_updateConfig(power_manager_shutdown_init);
+
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -42,7 +42,6 @@ static void initStateRunOnEntry(void)
 
     // Disable buzzer on transition to init.
     app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
-    LOG_INFO("init entry done");
 }
 
 static void initStateRunOnTick100Hz(void)

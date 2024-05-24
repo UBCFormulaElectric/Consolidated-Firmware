@@ -47,7 +47,6 @@ extern TIM_HandleTypeDef htim12;
 
 static const CanHandle    can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 extern UART_HandleTypeDef huart1;
-// extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -270,8 +269,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -297,8 +294,6 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
