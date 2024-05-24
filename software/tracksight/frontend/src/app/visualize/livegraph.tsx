@@ -14,12 +14,9 @@ import { useSocket } from '@/app/useSocket';
 import { FLASK_URL } from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
 import { assertType } from '@/types/Assert';
-import { PlotData, PlotRelayoutEvent, PlotType } from 'plotly.js';
-import dynamic from "next/dynamic";
+import { PlotRelayoutEvent } from 'plotly.js';
 import { Socket } from 'socket.io-client';
 import TimePlot, { FormattedData } from './timeplot';
-
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
 function SignalSelector({ socket, loading, setPlotTitle: setGraphTitle }: {
     socket: Socket | null,

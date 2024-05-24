@@ -22,27 +22,27 @@ export const getRandomColor = () => {
     return `rgb(${r},${g},${b})`;
 };
 
-const MeasurementDropdown = ({ measurement, setMeasurement }: {
-    measurement: string | null,
-    setMeasurement: Dispatch<SetStateAction<string | null>>
-}) => {
+function MeasurementDropdown({ measurement, setMeasurement }: {
+    measurement: string | null;
+    setMeasurement: Dispatch<SetStateAction<string | null>>;
+}) {
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         (async () => {
-            const fetchURL = `${FLASK_URL}/signal/measurements`
+            const fetchURL = `${FLASK_URL}/signal/measurements`;
             const res = await fetch(fetchURL, {
                 method: 'get',
-            })
+            });
             if (!res.ok) {
-                console.error(await res.text())
+                console.error(await res.text());
                 // TODO messages fetch error
                 return;
             }
-            const data = await res.json()
-            setAllMeasurements(data)
-            setLoading(false)
-        })()
+            const data = await res.json();
+            setAllMeasurements(data);
+            setLoading(false);
+        })();
     }, []);
 
     return (
@@ -53,16 +53,15 @@ const MeasurementDropdown = ({ measurement, setMeasurement }: {
             single={true}
             placeholder={"Measurements"}
             disabled={loading}
-            loading={loading}
-        />
-    )
+            loading={loading} />
+    );
 }
 
-const FieldDropdown = ({ fields, setFields, measurement }: {
-    fields: string[],
-    setFields: Dispatch<SetStateAction<string[]>>
-    measurement: string | null,
-}) => {
+function FieldDropdown({ fields, setFields, measurement }: {
+    fields: string[];
+    setFields: Dispatch<SetStateAction<string[]>>;
+    measurement: string | null;
+}) {
     const [allFields, setAllFields] = useState<string[]>([]);
     const [hasFetchedFields, setHasFetchedFields] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -72,23 +71,23 @@ const FieldDropdown = ({ fields, setFields, measurement }: {
         if (measurement === null) return;
         (async () => {
             setLoading(true);
-            setHasFetchedFields(false)
+            setHasFetchedFields(false);
             try {
                 const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
                     method: 'get',
-                })
+                });
                 if (!res.ok) {
-                    console.error(await res.text())
+                    console.error(await res.text());
                     return;
                 }
-                setAllFields(await res.json())
-                setHasFetchedFields(true)
+                setAllFields(await res.json());
+                setHasFetchedFields(true);
             } catch (error) {
-                console.error(error)
+                console.error(error);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        })()
+        })();
     }, [measurement]);
 
     return (
@@ -99,9 +98,8 @@ const FieldDropdown = ({ fields, setFields, measurement }: {
             setSelectedOptions={setFields}
             options={allFields}
             single={false}
-            placeholder="Fields"
-        />
-    )
+            placeholder="Fields" />
+    );
 }
 
 function usePlotlyFormat(setGraphTitle: (title: string) => void): [
