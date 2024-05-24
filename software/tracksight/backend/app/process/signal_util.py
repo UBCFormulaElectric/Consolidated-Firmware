@@ -40,7 +40,7 @@ class SignalUtil:
         try:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
-                # print(packet_size)
+                print(packet_size)
                 # if packet_size in s:
                 #     continue
                 

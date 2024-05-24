@@ -67,7 +67,7 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
 void io_can_popTxMsgFromQueue(CanMsg *msg)
 {
     // Pop a msg of the TX queue
-    const osStatus_t s = osMessageQueueGet(tx_queue_id, &msg, NULL, osWaitForever);
+    const osStatus_t s = osMessageQueueGet(tx_queue_id, msg, NULL, osWaitForever);
     assert(s == osOK);
 }
 

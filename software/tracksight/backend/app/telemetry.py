@@ -19,16 +19,16 @@ app.register_blueprint(http_app)
 app.register_blueprint(database_app)
 # CORS(app)
 
-logger = logging.getLogger("telemetry_logger")
-logging.basicConfig(filename=f"logs/telemetry.{time.time()}.log", level=logging.INFO)
+# logger = logging.getLogger("telemetry_logger")
+# logging.basicConfig(filename=f"logs/telemetry.{time.time()}.log", level=logging.INFO)
 
 
-def thread_function(a):
-    logger.info(f"Thread {a} starting")
+# def thread_function(a):
+#     logger.info(f"Thread {a} starting")
 
-def sig_util_fcn():
-    signal_util = SignalUtil()
-    signal_util.read_messages()
+# def sig_util_fcn():
+#     signal_util = SignalUtil()
+#     signal_util.read_messages()
 
 
 
