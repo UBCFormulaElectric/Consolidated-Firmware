@@ -23,24 +23,27 @@ logger = logging.getLogger("telemetry_logger")
 logging.basicConfig(filename=f"telemetry.{time.time()}.log", level=logging.INFO)
 
 
-# def thread_function(a):
-#     logger.info(f"Thread {a} starting")
+def thread_function(a):
+    logger.info(f"Thread {a} starting")
 
-
-# modem_thread = threading.Threseriaad(
-#     target=thread_function, args=(1,), daemon=True
-# )  # TODO for Lara: Make this the function that is monitoring the UART
-# messages_thread = threading.Thread(
-#     target=thread_function, args=(2,), daemon=True
-# )  # TODO for Lara: Make this the function that is monitoring the JSONCAN file
-try:
-    # modem_thread.start()
-    # socketio.init_app(app)  # Initialize the Socket.IO app with the main app
-    # socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0")
+def sig_util_fcn():
     signal_util = SignalUtil()
     signal_util.read_messages()
+
+
+
+modem_thread = threading.Threseriaad(
+    target=sig_util_fcn, args=(1,), daemon=True
+)  
+messages_thread = threading.Thread(
+    target=thread_function, args=(2,), daemon=True
+)  # TODO for Lara: Make this the function that is monitoring the JSONCAN file
+try:
+    modem_thread.start()
+    socketio.init_app(app)  # Initialize the Socket.IO app with the main app
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0")
 except KeyboardInterrupt:
     print("Exiting")
-    # if modem_thread is not None:
-    #     modem_thread.join()
-    # print("Thread stopped")
+    if modem_thread is not None:
+        modem_thread.join()
+    print("Thread stopped")

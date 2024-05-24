@@ -31,7 +31,7 @@ def handle_disconnect():
     """
     Handles the socket connection when the client disconnects
     """
-    # TODO SignalUtil.disconnectClient(request.sid)
+    signal_util.disconnect_client(request.sid)
     logger.info(f"Client {request.sid} Disconnected")
     flask_socketio.emit("message", "Successfully Disconnected from the server")
 
@@ -42,7 +42,8 @@ def handle_available_signals():
     Handles the "available signals" request from the client
     :returns all available signals to the client
     """
-    # TODO SignalUtil.connectClientToAvailableSignals(client)
+    client_id = request.sid 
+    signal_util.connect_client_to_available_signals(client_id)
     logger.info(f"Client {request.sid} requested available signals")
 
 
@@ -53,13 +54,16 @@ def handle_signal_subscription(message):
     :param message:
     :returns signal data to client based on signal name
     """
-    # TODO SignalUtil.connectClientToSignal(request.sid, message.signal_name)
+    signal_util.connect_client_to_signal(request.sid, message.signal_name)
     logger.info(f"Client {request.sid} requested signal {message.signal_name}")
 
 
 @socketio.on("signal_unsub")
 def handle_signal_unsubscrption(message):
-    # TODO SignalUtil.disconnectClientFromSignal(request.sid, message.signal_name)
+    """
+    Handles the signal unsubscription
+    """
+    signal_util.disconnect_client_from_signal(request.sid, message.signal_name)
     logger.info(f"Client {request.sid} unsubscribed from signal {message.signal_name}")
 
 
