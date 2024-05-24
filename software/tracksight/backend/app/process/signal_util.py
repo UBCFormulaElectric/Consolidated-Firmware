@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 import pandas as pd
+import flask_socketio
 
 from . import definitions
 from . import telem_pb2
@@ -39,7 +40,7 @@ class SignalUtil:
         try:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
-                print(packet_size)
+                # print(packet_size)
                 # if packet_size in s:
                 #     continue
                 
@@ -56,11 +57,14 @@ class SignalUtil:
                     data_array = self.make_bytes(message_received)
 
                     # Unpack the data and add the id and meta data
-                    print(self.can_db.unpack(message_received.can_id, data_array))
-                    
-                    # # Add the time stamp
-                    # signal_dict["timestamp"] = message_received.time_stamp
+                    signal_list = self.can_db.unpack(message_received.can_id, data_array)
 
+                    for single_signal in signal_list:
+                
+                    # # Add the time stamp
+                        single_signal["timestamp"] = message_received.time_stamp
+
+                        # flask_socketio.emit('signal_response',single_signal)
                     # # Append the new signal to the list of availble signals
                     # self.available_signals.append(signal_dict)
                 else: 

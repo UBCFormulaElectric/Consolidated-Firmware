@@ -53,25 +53,25 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
     // filling in fields
-    t_message.can_id    = (int32_t)(rx_msg->std_id);
-    t_message.message_0 = rx_msg->data[0];
-    t_message.message_1 = rx_msg->data[1];
-    t_message.message_2 = rx_msg->data[2];
-    t_message.message_3 = rx_msg->data[3];
-    t_message.message_4 = rx_msg->data[4];
-    t_message.message_5 = rx_msg->data[5];
-    t_message.message_6 = rx_msg->data[6];
-    t_message.message_7 = rx_msg->data[7];
+    // t_message.can_id    = (int32_t)(rx_msg->std_id);
+    // t_message.message_0 = rx_msg->data[0];
+    // t_message.message_1 = rx_msg->data[1];
+    // t_message.message_2 = rx_msg->data[2];
+    // t_message.message_3 = rx_msg->data[3];
+    // t_message.message_4 = rx_msg->data[4];
+    // t_message.message_5 = rx_msg->data[5];
+    // t_message.message_6 = rx_msg->data[6];
+    // t_message.message_7 = rx_msg->data[7];
 
-    // t_message.can_id     = 415;
-    // t_message.message_0  = 0;
-    // t_message.message_1  = 30;
-    // t_message.message_2  = 1;
-    // t_message.message_3  = 36;
-    // t_message.message_4  = 236;
-    // t_message.message_5  = 202;
-    // t_message.message_6  = 0;
-    // t_message.message_7  = 36;
+    t_message.can_id     = 415;
+    t_message.message_0  = 0;
+    t_message.message_1  = 30;
+    t_message.message_2  = 1;
+    t_message.message_3  = 36;
+    t_message.message_4  = 236;
+    t_message.message_5  = 202;
+    t_message.message_6  = 0;
+    t_message.message_7  = 36;
     t_message.time_stamp = 0;
 
     // encoding message
