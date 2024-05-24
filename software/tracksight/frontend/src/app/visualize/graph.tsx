@@ -7,11 +7,10 @@
 
 'use client';
 import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
-import { PlotData, PlotRelayoutEvent } from 'plotly.js';
+import { PlotRelayoutEvent } from 'plotly.js';
 import { Button, DatePicker } from 'antd';
 import { GraphI } from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
-import TimeStampPicker from './timestamp_picker';
 import { FLASK_URL } from '@/app/constants';
 import TimePlot, { FormattedData } from './timeplot';
 import { Dayjs } from 'dayjs';
