@@ -8,15 +8,19 @@
  */
 
 'use client'
+// ui
 import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
 import { Switch } from 'antd';
-import { useSocket } from '@/app/useSocket';
-import { FLASK_URL } from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
+import TimePlot from './timeplot';
+// logic
+import { FLASK_URL } from '@/app/constants';
+import { useSocket } from '@/app/useSocket';
+import { Socket } from 'socket.io-client';
+// types
 import { assertType } from '@/types/Assert';
 import { PlotRelayoutEvent } from 'plotly.js';
-import { Socket } from 'socket.io-client';
-import TimePlot, { FormattedData } from './timeplot';
+import { FormattedData } from './timeplot';
 
 function SignalSelector({ socket, loading, setPlotTitle: setGraphTitle }: {
     socket: Socket | null,

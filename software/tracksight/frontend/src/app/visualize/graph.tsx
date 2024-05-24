@@ -6,15 +6,19 @@
  */
 
 'use client';
-import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
-import { PlotRelayoutEvent } from 'plotly.js';
+// ui
 import { Button, DatePicker } from 'antd';
-import { GraphI } from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
+import TimePlot from './timeplot';
+// constants
 import { FLASK_URL } from '@/app/constants';
-import TimePlot, { FormattedData } from './timeplot';
-import { Dayjs } from 'dayjs';
+// types
+import { GraphI } from '@/types/Graph';
 import { Nullable } from '@/types/Util';
+import { PlotRelayoutEvent } from 'plotly.js';
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
+import { Dayjs } from 'dayjs';
+import { FormattedData } from './timeplot';
 
 export const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
