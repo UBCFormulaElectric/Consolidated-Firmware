@@ -61,8 +61,18 @@ def return_query():
         or start_epoch is None
         or end_epoch is None
     ):
-        return {"error": "Missing parameters."}
+        missing_keys = [
+            k
+            for k, v in [
+                ("measurement", measurement),
+                ("fields", fields),
+                ("start_epoch", start_epoch),
+                ("end_epoch", end_epoch),
+            ]
+            if v is None
+        ]
+        return {"error": f"Missing parameters: {missing_keys}"}, 400
     try:
-        return influx.query(measurement, fields, (int(start_epoch), int(end_epoch)))
+        return influx.query(measurement, fields, (start_epoch, end_epoch))
     except Exception as e:
         return {"error": str(e)}, 500

@@ -90,7 +90,7 @@ class TimeValue(TypedDict):
 def query(
     measurement: str,
     fields: List[str],
-    time_range: Tuple[int, int],
+    time_range: Tuple[str, str],
     bucket: str = INFLUX_DB_VEHICLE_BUCKET,
     max_points: int = 8000,  # TODO implement
     ms_resolution: int = 100,  # TODO implement
