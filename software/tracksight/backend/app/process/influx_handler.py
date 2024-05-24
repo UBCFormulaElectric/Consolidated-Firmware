@@ -14,7 +14,6 @@ import influxdb_client
 # Configs for InfluxDBClient
 INFLUX_DB_ORG = "org1"
 # "https://us-east-1-1.aws.cloud2.influxdata.com"
-print(os.environ.get("USING_DOCKER"))
 if os.environ.get("USING_DOCKER") == "true":
     INFLUX_DB_URL = "http://influx:8086"
 else:
