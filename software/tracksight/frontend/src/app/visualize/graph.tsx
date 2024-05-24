@@ -4,13 +4,13 @@
 // /query
 
 'use client';
-import {Dispatch, MouseEventHandler, SetStateAction, useEffect, useState} from 'react';
-import {PlotRelayoutEvent} from 'plotly.js';
-import {Button} from 'antd';
-import {GraphI} from '@/types/Graph';
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
+import { PlotRelayoutEvent } from 'plotly.js';
+import { Button } from 'antd';
+import { GraphI } from '@/types/Graph';
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
-import {FLASK_URL} from '@/app/constants';
+import { FLASK_URL } from '@/app/constants';
 import dynamic from "next/dynamic";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
@@ -70,7 +70,7 @@ const MeasurementDropdown = ({ measurement, setMeasurement }: {
 const FieldDropdown = ({ fields, setFields, measurement }: {
     fields: string[],
     setFields: Dispatch<SetStateAction<string[]>>
-    measurement: string, 
+    measurement: string,
 }) => {
     const [allFields, setAllFields] = useState<string[]>([]);
     const [hasFetchedFields, setHasFetchedFields] = useState<boolean>(false);
@@ -78,7 +78,7 @@ const FieldDropdown = ({ fields, setFields, measurement }: {
 
     useEffect(() => {
         setFields([]);
-        if(measurement.length == 0) return;
+        if (measurement.length == 0) return;
         (async () => {
             setLoading(true);
             setHasFetchedFields(false)
@@ -86,7 +86,7 @@ const FieldDropdown = ({ fields, setFields, measurement }: {
                 const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
                     method: 'get',
                 })
-                if(!res.ok) {
+                if (!res.ok) {
                     console.error(await res.text())
                     return;
                 }
@@ -133,7 +133,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
     syncZoom: boolean,
     sharedZoomData: PlotRelayoutEvent,
     setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    handleDelete: MouseEventHandler<HTMLInputElement>,
+    handleDelete: MouseEventHandler<HTMLButtonElement>,
 }) {
     //default graph layout
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
@@ -208,15 +208,21 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
             />
 
             <div className="flex flex-row gap-x-2">
-                <Button block={true} className="bg-[#1890ff] text-white border-0" onClick={() => {
-                    setGraphLayout(DEFAULT_LAYOUT);
-                    setPlotData({});
-                }}>
+                <button className="bg-[#1890ff] hover:bg-blue-400 text-white text-sm
+                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
+                    onClick={() => {
+                        setGraphLayout(DEFAULT_LAYOUT);
+                        setPlotData({});
+                    }}
+                >
                     Clear Data
-                </Button>
-                <Button block={true} className="bg-[#ff4d4f] !text-white border-0" danger={true} ghost={false} onClick={handleDelete}>
+                </button>
+                <button className="bg-[#ff4d4f] hover:bg-red-400 text-white text-sm
+                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
+                    onClick={handleDelete}
+                >
                     Delete This Graph
-                </Button>
+                </button>
             </div>
         </div>
     );

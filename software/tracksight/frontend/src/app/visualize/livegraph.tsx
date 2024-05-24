@@ -1,6 +1,6 @@
 'use client'
 import { MouseEventHandler, useEffect, useState } from 'react';
-import { Button, Space, Switch } from 'antd';
+import { Switch } from 'antd';
 import { useSocket } from '@/app/useSocket';
 import { FLASK_URL } from '@/app/constants';
 import DropdownMenu from './dropdown_menu';
@@ -153,15 +153,23 @@ export default function LiveGraph(props: {
                     setGraphTitle={(t: string) => setGraphLayout(p => ({ ...p, title: t, }))} />
             </div>
             <Plot data={plotData as Partial<PlotData>[]} layout={graphLayout} />
-            <Space.Compact size={"middle"}>
-                <Button block={true} className="clear" onClick={() => {
-                    setGraphLayout(DEFAULT_LAYOUT);
-                    setPlotData([]);
-                }}>
-                    Clear
-                </Button>
-                <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
-            </Space.Compact>
+            <div className="flex flex-row gap-x-2">
+                <button className="bg-[#1890ff] hover:bg-blue-400 text-white text-sm
+                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
+                    onClick={() => {
+                        setGraphLayout(DEFAULT_LAYOUT);
+                        setPlotData([]);
+                    }}
+                >
+                    Clear Data
+                </button>
+                <button className="bg-[#ff4d4f] hover:bg-red-400 text-white text-sm
+                    transition-colors duration-100 border-0 block p-2 rounded-md flex-1"
+                    onClick={props.onDelete}
+                >
+                    Delete This Graph
+                </button>
+            </div>
         </div>
     );
 }
