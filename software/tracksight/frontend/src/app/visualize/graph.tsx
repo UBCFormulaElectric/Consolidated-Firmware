@@ -23,8 +23,8 @@ export const getRandomColor = () => {
 };
 
 const MeasurementDropdown = ({ measurement, setMeasurement }: {
-    measurement: string,
-    setMeasurement: Dispatch<SetStateAction<string>>
+    measurement: string | null,
+    setMeasurement: Dispatch<SetStateAction<string | null>>
 }) => {
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -61,7 +61,7 @@ const MeasurementDropdown = ({ measurement, setMeasurement }: {
 const FieldDropdown = ({ fields, setFields, measurement }: {
     fields: string[],
     setFields: Dispatch<SetStateAction<string[]>>
-    measurement: string,
+    measurement: string | null,
 }) => {
     const [allFields, setAllFields] = useState<string[]>([]);
     const [hasFetchedFields, setHasFetchedFields] = useState<boolean>(false);
@@ -69,7 +69,7 @@ const FieldDropdown = ({ fields, setFields, measurement }: {
 
     useEffect(() => {
         setFields([]);
-        if (measurement.length == 0) return;
+        if (measurement === null) return;
         (async () => {
             setLoading(true);
             setHasFetchedFields(false)
@@ -133,7 +133,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
     const [plotData, setPlotData] = usePlotlyFormat(setPlotTitle);
 
     // Top Form Information
-    const [measurement, setMeasurement] = useState<string>("");
+    const [measurement, setMeasurement] = useState<string | null>(null);
     const [fields, setFields] = useState<string[]>([]);
     const [startEpoch, setStartEpoch] = useState<string>("");
     const [endEpoch, setEndEpoch] = useState<string>("");
