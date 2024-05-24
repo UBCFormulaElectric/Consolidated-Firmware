@@ -141,38 +141,40 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
             plotData={plotData} clearPlotData={e => setPlotData({})}
             syncZoom={syncZoom} sharedZoomData={sharedZoomData} setSharedZoomData={setSharedZoomData}
         >
-            <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
-            <FieldDropdown fields={fields} setFields={setFields} measurement={measurement} />
-            <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
-            <Button onClick={async (e) => {
-                const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
-                if (missingQueryEls) {
-                    // TODO add message
-                    // "Please fill out all fields properly"
-                    return;
-                }
-                const fetchUrl = new URL("/signal/query", FLASK_URL);
-                fetchUrl.search = new URLSearchParams({
-                    measurement: measurement,
-                    start_epoch: startEpoch.slice(0, -2 - 3), end_epoch: endEpoch.slice(0, -2 - 3), // apparently for some reason the time is given in ms
-                    fields: fields.join(",")
-                }).toString();
-                console.log(fetchUrl.toString()) // TODO remove after testing
-
-                try {
-                    const res = await fetch(fetchUrl, { method: 'get' })
-                    if (!res.ok) {
+            <div className="flex flex-col gap-y-2">
+                <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
+                <FieldDropdown fields={fields} setFields={setFields} measurement={measurement} />
+                <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
+                <Button onClick={async (e) => {
+                    const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
+                    if (missingQueryEls) {
                         // TODO add message
-                        console.error(await res.json())
+                        // "Please fill out all fields properly"
                         return;
                     }
-                    setPlotData(await res.json())
-                } catch (error) {
-                    console.error(error)
-                }
-            }}>
-                Submit
-            </Button>
+                    const fetchUrl = new URL("/signal/query", FLASK_URL);
+                    fetchUrl.search = new URLSearchParams({
+                        measurement: measurement,
+                        start_epoch: startEpoch.slice(0, -2 - 3), end_epoch: endEpoch.slice(0, -2 - 3), // apparently for some reason the time is given in ms
+                        fields: fields.join(",")
+                    }).toString();
+                    console.log(fetchUrl.toString()) // TODO remove after testing
+
+                    try {
+                        const res = await fetch(fetchUrl, { method: 'get' })
+                        if (!res.ok) {
+                            // TODO add message
+                            console.error(await res.json())
+                            return;
+                        }
+                        setPlotData(await res.json())
+                    } catch (error) {
+                        console.error(error)
+                    }
+                }}>
+                    Submit
+                </Button>
+            </div>
         </TimePlot>
     );
 }

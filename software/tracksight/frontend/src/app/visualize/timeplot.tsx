@@ -58,7 +58,7 @@ export default function TimePlot({ children, plotTitle, syncZoom, sharedZoomData
     return (
         <div className="flex flex-col p-4 border-[1.5px] rounded-xl">
             {/* Measurement Selector */}
-            <div className="flex flex-col gap-y-2">
+            <div className="flex-1">
                 {children}
             </div>
 
