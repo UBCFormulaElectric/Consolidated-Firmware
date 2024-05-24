@@ -13,6 +13,7 @@ import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from
 import { Switch } from 'antd';
 import DropdownMenu from './dropdown_menu';
 import TimePlot from './timeplot';
+import { toast } from "sonner"
 // logic
 import { FLASK_URL } from '@/app/constants';
 import { useSocket } from '@/app/useSocket';
@@ -91,7 +92,8 @@ export default function LiveGraph({ id, deletePlot, syncZoom, sharedZoomData, se
                 throw new Error("Invalid packet received from server: is of wrong type or null");
             }
             if (!('id' in packet && typeof packet.id === "string" && 'signal' in packet && typeof packet.signal === "object" && packet.signal != null)) {
-                return; // TODO display error
+                toast.error("Invalid packet received from server: missing id or signal");
+                return;
             }
             console.log(packet.id);
             const signals = packet.signal;
@@ -115,8 +117,8 @@ export default function LiveGraph({ id, deletePlot, syncZoom, sharedZoomData, se
             });
         })
         socket.on("signal_stopped", (data) => {
-            // TODO display that a signal has stopped broadcasting
             console.log(`Signal ${data.id} stopped`)
+            toast(`Signal ${data.id} stopped`)
         })
 
         return () => {

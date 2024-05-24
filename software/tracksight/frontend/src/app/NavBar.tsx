@@ -1,9 +1,9 @@
 'use client'
 
-import {usePathname, useRouter} from 'next/navigation'
-import {useContext} from 'react';
-import {Menu, Switch} from 'antd';
-import {Theme, ThemeContext} from './Theme';
+import { usePathname, useRouter } from 'next/navigation'
+import { useContext } from 'react';
+import { Menu, Switch } from 'antd';
+import { Theme, ThemeContext } from './Theme';
 
 export default function NavBar() {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -11,6 +11,7 @@ export default function NavBar() {
   const path = usePathname();
 
   return (
+    <div className="p-0 fixed top-0 left-0 right-0">
       <Menu
         theme={theme ? 'dark' : 'light'}
         mode="horizontal"
@@ -44,5 +45,6 @@ export default function NavBar() {
           />
         </div>
       </Menu>
+    </div>
   );
 };

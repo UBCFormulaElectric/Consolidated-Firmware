@@ -10,6 +10,7 @@
 import { Button, DatePicker } from 'antd';
 import DropdownMenu from './dropdown_menu';
 import TimePlot from './timeplot';
+import { toast } from "sonner"
 // constants
 import { FLASK_URL } from '@/app/constants';
 // types
@@ -41,7 +42,7 @@ function MeasurementDropdown({ measurement, setMeasurement }: {
             });
             if (!res.ok) {
                 console.error(await res.text());
-                // TODO messages fetch error
+                toast.error("Error fetching measurements");
                 return;
             }
             const data = await res.json();
@@ -160,8 +161,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
                 <Button onClick={async (e) => {
                     const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
                     if (missingQueryEls) {
-                        // TODO add message
-                        // "Please fill out all fields properly"
+                        toast("Please fill out all fields properly")
                         return;
                     }
                     const fetchUrl = new URL("/signal/query", FLASK_URL);
@@ -170,13 +170,11 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
                         start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString(), // apparently for some reason the time is given in ms
                         fields: fields.join(",")
                     }).toString();
-                    console.log(fetchUrl.toString()) // TODO remove after testing
-
                     try {
                         const res = await fetch(fetchUrl, { method: 'get' })
                         if (!res.ok) {
-                            // TODO add message
                             console.error(await res.json())
+                            toast.error("Error fetching data")
                             return;
                         }
                         setPlotData(await res.json())

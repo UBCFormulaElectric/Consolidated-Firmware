@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { PlotData, PlotRelayoutEvent } from "plotly.js";
 import { Dispatch, MouseEventHandler, ReactNode, SetStateAction, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
@@ -20,7 +21,6 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 }
 
-// TODO refactor shared zoom data to be a context
 export default function TimePlot({ children, plotTitle, syncZoom, sharedZoomData, setSharedZoomData, plotData, clearPlotData, deletePlot }: {
     children: ReactNode,
     plotTitle: string,
@@ -36,7 +36,7 @@ export default function TimePlot({ children, plotTitle, syncZoom, sharedZoomData
     // updates graph layout when zoomed 
     useEffect(() => {
         if (!(sharedZoomData && 'xaxis.range[0]' in sharedZoomData)) {
-            // TODO error in some way
+            toast.error("Invalid shared zoom data received");
             return;
         }
         // Update the graph's layout with the new axis ranges
