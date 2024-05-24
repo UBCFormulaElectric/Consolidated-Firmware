@@ -158,14 +158,15 @@ static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("RSM reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG();
 
     // Start DMA/TIM3 for the ADC.
