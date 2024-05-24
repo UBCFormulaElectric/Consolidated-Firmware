@@ -18,8 +18,8 @@ static bool         modem_900_choice;
 static const Modem *modem = NULL;
 #define QUEUE_BYTES CAN_DATA_LENGTH *QUEUE_SIZE
 
-static bool proto_status;
-static uint8_t proto_msg_length;
+static bool               proto_status;
+static uint8_t            proto_msg_length;
 static uint8_t            proto_buffer[8];
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
@@ -95,7 +95,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
 bool io_telemMessage_broadcastMsgFromQueue(void)
 {
     static uint8_t proto_out[QUEUE_SIZE];
-    osStatus_t res = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
+    osStatus_t     res = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
     LOG_INFO("proto popped and on to uart");
     if (modem_900_choice == true)
     {
