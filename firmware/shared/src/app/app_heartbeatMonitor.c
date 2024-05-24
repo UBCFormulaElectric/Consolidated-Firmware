@@ -68,11 +68,9 @@ void app_heartbeatMonitor_init(
         hb_monitor.fault_getters[board]             = fault_getters[board];
 
         app_timer_init(&timers[board], HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS); // TODO board specific timeout
-        app_timer_restart(&timers[board]);
-    }
+        // Initialize timer to expired as to cause fault to be present on power-on (missing heartbeat timeout period initially expired)
+        timers[board].state = TIMER_STATE_EXPIRED; 
 
-    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
-    {
         if (!hb_monitor.is_watching_heartbeat_for[board])
             continue;
         assert((hb_monitor.fault_setters[board] != NULL));
@@ -107,9 +105,7 @@ void app_heartbeatMonitor_checkIn(void)
         hb_monitor.heartbeats_checked_in[board] = board_status_good;
         const TimerState state                  = app_timer_runIfCondition(&timers[board], !board_status_good);
 
-        hb_monitor.status[board] =
-            board_status_good || state == TIMER_STATE_RUNNING &&
-                                     app_timer_getElapsedTime(&timers[board]) > HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS;
+        hb_monitor.status[board] = board_status_good || state == TIMER_STATE_RUNNING;
         hb_monitor.resetters[board](false); // reset the CAN table so that it has to be checked in again
     }
 }
