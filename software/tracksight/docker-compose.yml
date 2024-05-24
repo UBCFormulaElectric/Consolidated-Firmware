@@ -6,13 +6,6 @@ services:
       - "8086:8086"
     volumes:
       - ./influxdb:/var/lib/influxdb
-    environment:
-      - INFLUXDB_DB=tracksight
-      - INFLUXDB_ADMIN_ENABLED=true
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=admin
-      - INFLUXDB_USER=tracksight
-      - INFLUXDB_USER_PASSWORD=tracksight
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 30s
@@ -27,9 +20,12 @@ services:
       dockerfile: ./software/tracksight/backend/Dockerfile
     ports:
       - "5000:5000"
+    environment:
+      - USING_DOCKER=true
     volumes:
       - ./backend/logs:/backend/logs
       - ../../can_bus:/can_bus
+      - ./backend/.env:/backend/.env
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
       interval: 30s

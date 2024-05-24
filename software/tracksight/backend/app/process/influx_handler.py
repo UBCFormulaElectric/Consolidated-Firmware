@@ -14,16 +14,19 @@ import influxdb_client
 # Configs for InfluxDBClient
 INFLUX_DB_ORG = "org1"
 # "https://us-east-1-1.aws.cloud2.influxdata.com"
-INFLUX_DB_URL = "http://localhost:8086"
+print(os.environ.get("USING_DOCKER"))
+if os.environ.get("USING_DOCKER") == "true":
+    INFLUX_DB_URL = "http://influx:8086"
+else:
+    INFLUX_DB_URL = "http://localhost:8086"
 # "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
 INFLUX_DB_TOKEN = os.environ.get("INFLUXDB_TOKEN")
 if INFLUX_DB_TOKEN is None:
     raise ValueError("INFLUXDB_TOKEN environment variable not set")
 
-
 # "testing"
 INFLUX_DB_VEHICLE_BUCKET = "vehicle"
-
+print(f"Using URL {INFLUX_DB_URL} with token {INFLUX_DB_TOKEN}")
 
 # Checks if the vehicle bucket exists, and if not, creates it
 with influxdb_client.InfluxDBClient(
