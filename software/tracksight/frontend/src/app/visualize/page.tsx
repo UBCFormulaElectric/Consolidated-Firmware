@@ -6,18 +6,6 @@ import LiveGraph from './livegraph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { GraphI, GraphType } from '@/types/Graph';
 
-// const [graphSignals, setGraphSignals] = useState<Record<string, string[]>>({});
-// const [dbName, setDbName] = useState<string>("test");
-// const [modalOpen, setModalOpen] = useState<boolean>(false);
-
-// const updateGraphSignals = (graphId: number, signals: string) => {
-//     setGraphSignals(prev => ({ ...prev, [graphId]: signals }));
-// };
-
-// const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setDbName(event.target.value);
-// }
-
 // const saveDashboard = async () => {
 //     //error handling for cases where these goblins try to save dashboard without a name or without any data
 //     if (!dbName.trim()) {
@@ -55,7 +43,7 @@ export default function Visualize() {
     // shared layout
     const [shouldSyncZoom, setShouldSyncZoom] = useState<boolean>(false);
     const [sharedZoomData, setSharedZoomData] = useState<PlotRelayoutEvent>({});
-    
+
     // graph management
     const [graphs, setGraphs] = useState<GraphI[]>([]);
     function addGraph(graphType: GraphType) {
@@ -64,10 +52,6 @@ export default function Visualize() {
             timestamp: new Date(),
             type: graphType
         }]);
-    };
-    //delete a graph
-    function deleteGraph(gid: number) {
-        setGraphs(prevGraphs => prevGraphs.filter(graph => graph.id !== gid));
     };
 
     return (
@@ -93,12 +77,13 @@ export default function Visualize() {
             </div>
             <div id="graph-container" className="flex flex-wrap gap-4 mt-6">
                 {graphs.map((graph) => {
-                    if(graph.type == GraphType.HISTORICAL) {
+                    if (graph.type == GraphType.HISTORICAL) {
                         return (
                             <Graph
                                 key={graph.id}
                                 graphInfo={graph}
-                                handleDelete={(e) => deleteGraph(graph.id)}
+                                handleDelete={(e) =>
+                                    setGraphs(prevGraphs => prevGraphs.filter(g => g.id !== graph.id))}
                                 syncZoom={shouldSyncZoom}
                                 sharedZoomData={sharedZoomData}
                                 setSharedZoomData={setSharedZoomData}
@@ -113,7 +98,8 @@ export default function Visualize() {
                             <LiveGraph
                                 key={graph.id}
                                 id={graph.id}
-                                onDelete={(e) => deleteGraph(graph.id)}
+                                onDelete={(e) =>
+                                    setGraphs(prevGraphs => prevGraphs.filter(g => g.id !== graph.id))}
                             />
                         )
                     }
