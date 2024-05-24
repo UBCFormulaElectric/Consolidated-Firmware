@@ -253,7 +253,7 @@
       "name": "Debug Tests: RSM (Quadruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/RSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/quadruna_RSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: RSM (Quadruna)",
       "linux": {

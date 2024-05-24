@@ -34,3 +34,8 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void);
  * @param block_faults Whether to block faults
  */
 void app_heartbeatMonitor_blockFaults(bool block_faults);
+
+/**
+ * Resets faults as to report as false, useful for test environments
+ */
+void app_heartbeatMonitor_clearFaults(void);

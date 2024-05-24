@@ -154,6 +154,18 @@ void app_heartbeatMonitor_blockFaults(bool block_faults)
     hb_monitor.block_faults = block_faults;
 }
 
+void app_heartbeatMonitor_clearFaults(void)
+{
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        if (!hb_monitor.is_watching_heartbeat_for[board])
+            continue;
+        assert((hb_monitor.fault_setters[board] != NULL));
+
+        hb_monitor.fault_setters[board](false);
+    }
+}
+
 HeartbeatMonitor *app_heartbeatMonitor_get(void)
 {
     return &hb_monitor;
