@@ -23,7 +23,7 @@ class SignalUtil:
         self.can_db = JsonCanParser(bus_path).make_database()
 
         self.available_signals = []
-        self.client_signals = []
+        self.client_signals = {}
 
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
@@ -39,27 +39,32 @@ class SignalUtil:
         try:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
+                print(packet_size)
+                # if packet_size in s:
+                #     continue
+                
 
-                if last_bit == 0 and packet_size !=0: #the size will be different due to 0 not often being include
+                if last_bit == 0 and packet_size != 0: #the size will be different due to 0 not often being include
                     
                     # Read in UART message and parse the protobuf
-                    bytes = self.ser.read(packet_size)
+                    bytes_read = self.ser.read(packet_size)
                     message_received = telem_pb2.TelemMessage()
-                    message_received.ParseFromString(bytes)
-
+                    # print(bytes_read)
+                    message_received.ParseFromString(bytes_read)
                     # Make data array out of ints
-                    print("Message received is ", message_received)
+                    # print("Message received is ", message_received)
                     data_array = self.make_bytes(message_received)
 
                     # Unpack the data and add the id and meta data
-                    signal_dict = self.can_db.unpack(message_received.can_id), data_array
+                    print(self.can_db.unpack(message_received.can_id, data_array))
                     
-                    # Add the time stamp
-                    signal_dict["timestamp"] = message_received.time_stamp
+                    # # Add the time stamp
+                    # signal_dict["timestamp"] = message_received.time_stamp
 
-                    # Append the new dictionary and list, this is done individually
-                    self.client_signals.append(signal_dict)
-                    self.available_signals.append(signal_dict["name"])
+                    # # Append the new signal to the list of availble signals
+                    # self.available_signals.append(signal_dict)
+                else: 
+                    last_bit = packet_size
 
         except KeyboardInterrupt:
             self.ser.close()
@@ -85,7 +90,7 @@ class SignalUtil:
         """
         Return a list of the availble signals
         """
-        return self.available_signals
+        return self.available_signals.copy()
 
     def connect_client_to_signal(self, client_id, signal_name):
         """
@@ -95,6 +100,7 @@ class SignalUtil:
             self.client_signals[client_id] = []
         if signal_name in self.available_signals and signal_name not in self.client_signals[client_id]:
             self.client_signals[client_id].append(signal_name)
+        return self.client_signals[client_id].append(signal_name).copy()
 
     def connect_client_to_available_signals(self, client_id):
         """
@@ -103,17 +109,21 @@ class SignalUtil:
         if client_id not in self.client_signals:
             self.client_signals[client_id] = self.available_signals.copy() 
 
+        return self.client_signals.copy()
+
 
     def disconnect_client_from_signal(self, client_id, signal_name):
         """
-        Remove the signal from the client
+        Remove a specific signal from a specific client
         """
-        if client_id in self.client_signals and signal_name in self.client_signals[client_id]:
-            self.client_signals[client_id].remove(signal_name)
+        if signal_name in list(self.client_signals.keys()): # Checking if signal is in signals at all
+            if client_id in self.client_signals[signal_name]: # Removing ID
+                self.client_signals[signal_name].remove(client_id)
+
 
     def disconnect_client(self, client_id):
         """
-        Delete the client itself
+        Remove a specific client from all signals
         """
         if client_id in self.client_signals:
             del self.client_signals[client_id]
@@ -127,4 +137,4 @@ class SignalUtil:
             message.message_0, message.message_1, message.message_2, 
             message.message_3, message.message_4, message.message_5, 
             message.message_6, message.message_7
-        ]) #TODO: deal with possibly not having a message due to the value being 0
+        ]) 

@@ -137,7 +137,7 @@ const osThreadAttr_t TaskLogging_attributes = {
 };
 /* Definitions for TaskTelem */
 osThreadId_t         TaskTelemHandle;
-uint32_t             TaskTelemBuffer[256];
+uint32_t             TaskTelemBuffer[512];
 osStaticThreadDef_t  TaskTelemControlBlock;
 const osThreadAttr_t TaskTelem_attributes = {
     .name       = "TaskTelem",
@@ -145,7 +145,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .cb_size    = sizeof(TaskTelemControlBlock),
     .stack_mem  = &TaskTelemBuffer[0],
     .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityBelowNormal1,
 };
 /* USER CODE BEGIN PV */
 Gpio sd_present = {

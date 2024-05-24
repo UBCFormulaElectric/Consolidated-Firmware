@@ -43,8 +43,9 @@ def handle_available_signals():
     :returns all available signals to the client
     """
     client_id = request.sid 
-    signal_util.connect_client_to_available_signals(client_id)
+    available_signals = signal_util.connect_client_to_available_signals(client_id)
     logger.info(f"Client {request.sid} requested available signals")
+    socketio.emit("available_signals_sub", available_signals)
 
 
 @socketio.on("signal_sub")
@@ -56,6 +57,7 @@ def handle_signal_subscription(message):
     """
     signal_util.connect_client_to_signal(request.sid, message.signal_name)
     logger.info(f"Client {request.sid} requested signal {message.signal_name}")
+    
 
 
 @socketio.on("signal_unsub")
