@@ -47,7 +47,6 @@ extern TIM_HandleTypeDef htim12;
 
 static const CanHandle    can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 extern UART_HandleTypeDef huart1;
-// extern IWDG_HandleTypeDef *hiwdg; TODO: Re-enable watchdog
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -179,10 +178,6 @@ static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("FSM reset!");
 }
 
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
@@ -192,6 +187,11 @@ static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_F
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG();
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
@@ -270,8 +270,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
@@ -297,8 +295,6 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());

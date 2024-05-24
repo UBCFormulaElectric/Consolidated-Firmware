@@ -1,9 +1,6 @@
 #!/bin/bash
 
-rootDir=$(realpath "$(dirname "$BASH_SOURCE")/../../../")
-
-# Create the directory, ignoring the error if it already exists
-mkdir -p "$rootDir/software/tracksight/backend/util_scripts" 2> /dev/null
+rootDir=$(realpath "$(dirname "$BASH_SOURCE")/../../../../")
 
 # Iterate over all .proto files in the specified directory
 find "$rootDir/firmware/quadruna/VC/proto" -name "*.proto" | while read -r file; do

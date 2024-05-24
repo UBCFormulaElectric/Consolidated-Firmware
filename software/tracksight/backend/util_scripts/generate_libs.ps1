@@ -1,5 +1,4 @@
-$rootDir = Resolve-Path "$PSScriptRoot/../../../"
-mkdir "$rootDir\software\tracksight\backend\util_scripts" -ErrorAction SilentlyContinue
+$rootDir = Resolve-Path "$PSScriptRoot/../../../../"
 Get-ChildItem "$rootDir\firmware\quadruna\VC\proto" -Filter "*.proto" |
 Foreach-Object {
     protoc `

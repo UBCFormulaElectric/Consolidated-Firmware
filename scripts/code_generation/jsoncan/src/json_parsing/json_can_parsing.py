@@ -204,6 +204,16 @@ class JsonCanParser:
             msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
         )
 
+        log_cycle_time = msg_cycle_time
+        telem_cycle_time = msg_cycle_time
+        if "data_capture" in msg_json_data:
+            log_cycle_time, _ = self._get_optional_value(
+                msg_json_data["data_capture"], "log_cycle_time", msg_cycle_time
+            )
+            telem_cycle_time, _ = self._get_optional_value(
+                msg_json_data["data_capture"], "telem_cycle_time", msg_cycle_time
+            )
+
         if len(msg_modes) == 0:
             raise InvalidCanJson(
                 f"Message '{msg_name}' transmitted by '{node}' doesn't specify any allowed modes."
@@ -271,6 +281,8 @@ class JsonCanParser:
                 self._bus_cfg.default_receiver
             ],  # Every msg is received by the default receiver
             modes=msg_modes,
+            log_cycle_time=log_cycle_time,
+            telem_cycle_time=telem_cycle_time,
         )
 
     def _get_parsed_can_signal(
@@ -497,6 +509,8 @@ class JsonCanParser:
                 id=msg_id,
                 description=description,
                 cycle_time=cycle_time,
+                log_cycle_time=cycle_time,
+                telem_cycle_time=cycle_time,
                 signals=signals,
                 tx_node=node,
                 rx_nodes=[self._bus_cfg.default_receiver],
