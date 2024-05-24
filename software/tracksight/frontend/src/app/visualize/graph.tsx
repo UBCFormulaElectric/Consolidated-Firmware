@@ -14,7 +14,7 @@ import TimePlot from './timeplot';
 import { FLASK_URL } from '@/app/constants';
 // types
 import { GraphI } from '@/types/Graph';
-import { Nullable } from '@/types/Util';
+import { Nullable } from '@/types/Utility';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
 import { Dayjs } from 'dayjs';
