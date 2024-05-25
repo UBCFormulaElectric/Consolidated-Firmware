@@ -267,7 +267,7 @@
       "name": "Debug Tests: CRIT (Quadruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/CRIT_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/quadruna_CRIT_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: CRIT (Quadruna)",
       "linux": {

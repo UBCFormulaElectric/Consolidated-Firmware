@@ -125,21 +125,6 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_pin    = SPI_CS_Pin,
                                           .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
 
-// TODO: Update for new charger
-
-// static const Charger charger_config  = { .enable_gpio = {
-//                                        .port = CHRG_EN_3V3_GPIO_Port,
-//                                        .pin  = CHRG_EN_3V3_Pin,
-//                                    },
-//                                    .connected_gpio = {
-//                                        .port = CHRG_STATE_3V3_GPIO_Port,
-//                                        .pin  = CHRG_STATE_3V3_Pin,
-//                                    },
-//                                    .faulted_gpio = {
-//                                        .port = CHRG_FLT_3V3_GPIO_Port,
-//                                        .pin  = CHRG_FLT_3V3_Pin,
-//                                    }};
-
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
                                     .pin  = SD_CD_Pin,
