@@ -35,6 +35,30 @@
         "RxOverflow" : {
             "id" :108,
             "description" : "CAN RX queue has overflowed."
+        },
+        "OpenWireCheckFault": {
+            "id" :165,
+            "description" : "Open wire cell detected (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment0_GND": {
+            "id" :166,
+            "description" : "Open wire cell detected in segment 0 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment1_GND": {
+            "id" :167,
+            "description" : "Open wire cell detected in segment 1 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment2_GND": {
+            "id" :168,
+            "description" : "Open wire cell detected in segment 2 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment3_GND": {
+            "id" :169,
+            "description" : "Open wire cell detected in segment 3 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment4_GND": {
+            "id" :170,
+            "description" : "Open wire cell detected in segment 4 (cell voltage tap is open circuit)."
         }
     },
     "faults": {
@@ -48,71 +72,47 @@
         },
         "StateMachine" :{
             "id" :154,
-            "description" : "Example"
+            "description" : "BMS has transitioned to fault state."
         },
         "CellUndervoltage": {
             "id" :155,
-            "description" : "Example"
+            "description" : "Cell is critically undervoltage (<3.0V)"
         },
         "CellOvervoltage": {
             "id" :156,
-            "description" : "Example"
+            "description" : "Cell is critically overvoltage (<4.2V)"
         },
         "ModuleCommunicationError": {
             "id" :157,
-            "description" : "Example"
+            "description" : "Failed to communicate with LTC6813 modules (>3x bad PEC15 error checks)."
         },
         "CellUndertemp": {
             "id" :158,
-            "description" : "Example"
+            "description" : "Cell is critically undervoltage (<-20degC)"
         },
         "CellOvertemp": {
             "id" :159,
-            "description" : "Example"
+            "description" : "Cell is critically undervoltage (>45degC if charging, >60degC if not)."
         },
         "Charger": {
             "id" :160,
-            "description" : "Example"
+            "description" : "TODO @Will"
         },
         "ChargerDisconnectedDuringCharge": {
             "id" :161,
-            "description" : "Example"
+            "description" : "TODO @Will"
         },
         "ChargerExternalShutdown": {
             "id" :162,
-            "description" : "Example"
+            "description" : "AIR- opened during charging."
         },
         "TractiveSystemOvercurrent": {
             "id" :163,
-            "description" : "Example"
+            "description" : "Tractive system overcurrent detected (<-265A or >70.8A)."
         },
         "PrechargeFailure": {
             "id" :164,
-            "description" : "Example"
-        },
-        "OpenWireCheckFault": {
-            "id" :165,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment0_GND": {
-            "id" :166,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment1_GND": {
-            "id" :167,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment2_GND": {
-            "id" :168,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment3_GND": {
-            "id" :169,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment4_GND": {
-            "id" :170,
-            "description" : "Example"
+            "description" : "Precharge failed 3x times."
         }
     }
 }
