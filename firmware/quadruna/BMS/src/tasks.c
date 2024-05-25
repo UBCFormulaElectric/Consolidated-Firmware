@@ -363,6 +363,7 @@ void tasks_init(void)
 
     app_inverterOnState_init();
     app_accumulator_init();
+    app_tractiveSystem_init();
 
     // Re-enable if auxiliary thermistors installed
     // app_thermistors_init();

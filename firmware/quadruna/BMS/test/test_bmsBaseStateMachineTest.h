@@ -55,6 +55,7 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
         app_inverterOnState_init();
         app_accumulator_init();
+        app_tractiveSystem_init();
         app_thermistors_init();
         app_soc_init();
         app_globals_init(&globals_config);

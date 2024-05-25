@@ -453,6 +453,9 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
     SetInitialState(app_chargeState_get());
     fake_io_airs_isNegativeClosed_returns(true);
 
+    // Let accumulator startup count expire
+    LetTimePass(1000);
+
     // Set the current values to above the threshold for charging to stop (charging should continue)
     fake_io_tractiveSystem_getCurrentHighResolution_returns(1.0f);
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
@@ -468,7 +471,7 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1000.0f);
     fake_io_airs_isNegativeClosed_returns(false);
 
-    LetTimePass(20);
+    LetTimePass(TS_OVERCURRENT_DEBOUNCE_DURATION_MS + 10);
 
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 }
@@ -486,7 +489,7 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
 
     // Simulate over-temp fault in drive state
     fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f);
-    LetTimePass(10);
+    LetTimePass(OVER_TEMP_DEBOUNCE_DURATION_MS + 10);
 
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 
