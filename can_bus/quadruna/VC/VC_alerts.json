@@ -6,35 +6,35 @@
     "warnings": {
         "StackWaterMarkHighTask1Hz": {
             "id": 501,
-            "description": "Example"
+            "description": "1Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask100Hz": {
             "id": 502,
-            "description": "Example"
+            "description": "100Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask1kHz": {
             "id": 503,
-            "description": "Example"
+            "description": "1kHz task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanRx": {
             "id": 504,
-            "description": "Example"
+            "description": "CAN RX task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanTx": {
             "id": 505,
-            "description": "Example"
+            "description": "CAN TX task stack watermark exceeded."
         },
         "WatchdogTimeout": {
             "id": 506,
-            "description": "Example"
+            "description": "Watchdog timeout detected."
         },
         "TxOverflow": {
             "id": 507,
-            "description": "Example"
+            "description": "CAN TX queue has overflowed."
         },
         "RxOverflow": {
             "id": 508,
-            "description": "Example"
+            "description": "CAN RX queue has overflowed."
         },
         "RegenNotAvailable": {
             "id": 509,
@@ -48,8 +48,7 @@
             "id": 516,
             "description": "Example"
         },
-        "FlowRateInputOutOfRange":
-        {
+        "FlowRateInputOutOfRange": {
             "id": 517,
             "description": "Input to app_pumpControl_setFlowRate out of range"
         }
@@ -57,27 +56,27 @@
     "faults": {
         "MissingBMSHeartbeat": {
             "id": 551,
-            "description": "Example"
+            "description": "Missing heartbeat signal from the BMS."
         },
         "MissingFSMHeartbeat": {
             "id": 552,
-            "description": "Example"
+            "description": "Missing heartbeat signal from the FSM."
         },
         "MissingRSMHeartbeat": {
             "id": 553,
-            "description": "Example"
+            "description": "Missing heartbeat signal from the RSM."
         },
         "MissingCRITHeartbeat": {
             "id": 554,
-            "description": "Example"
+            "description": "Missing heartbeat signal from the CRIT."
         },
         "LeftInverterFault": {
             "id": 555,
-            "description": "Example"
+            "description": "Left inverter entered fault state."
         },
         "RightInverterFault": {
             "id": 556,
-            "description": "Example"
+            "description": "Right inverter entered fault state."
         },
         "BatteryFault": {
             "id": 557,
