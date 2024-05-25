@@ -86,7 +86,6 @@ class SignalUtil:
         finally:
             self.ser.close()
 
-
     def lookup_message_details(self, can_id):
         # Traverse the nested dictionary to find the matching message and signal details
         for subsystem, messages in self.lookup_table.items():
@@ -121,7 +120,6 @@ class SignalUtil:
             if client_id not in self.client_signals[signal_name]:
                 self.client_signals[signal_name].append(client_id)
 
-
     def disconnect_client_from_signal(self, client_id, signal_name):
         """
         Remove a specific signal from a specific client
@@ -129,7 +127,6 @@ class SignalUtil:
         if signal_name in list(self.client_signals.keys()): 
             if client_id in self.client_signals[signal_name]: 
                 self.client_signals[signal_name].remove(client_id)
-
 
     def disconnect_client(self, client_id):
         """

@@ -64,6 +64,7 @@ UART_HandleTypeDef huart7;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef  hdma_usart1_tx;
 
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
@@ -137,18 +138,6 @@ const osThreadAttr_t TaskLogging_attributes = {
     .stack_size = sizeof(TaskLoggingBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
-/* Definitions for TaskTelem */
-osThreadId_t         TaskTelemHandle;
-uint32_t             TaskTelemBuffer[512];
-osStaticThreadDef_t  TaskTelemControlBlock;
-const osThreadAttr_t TaskTelem_attributes = {
-    .name       = "TaskTelem",
-    .cb_mem     = &TaskTelemControlBlock,
-    .cb_size    = sizeof(TaskTelemControlBlock),
-    .stack_mem  = &TaskTelemBuffer[0],
-    .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal1,
-};
 /* USER CODE BEGIN PV */
 Gpio sd_present = {
     .pin  = GPIO_PIN_8,
@@ -178,7 +167,6 @@ void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskLogging(void *argument);
-void        RunTaskTelem(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -271,9 +259,6 @@ int main(void)
 
     /* creation of TaskLogging */
     TaskLoggingHandle = osThreadNew(RunTaskLogging, NULL, &TaskLogging_attributes);
-
-    /* creation of TaskTelem */
-    TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -998,6 +983,9 @@ static void MX_DMA_Init(void)
     /* DMA1_Stream0_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 }
 
 /**
@@ -1208,20 +1196,6 @@ void RunTaskLogging(void *argument)
 
     tasks_runLogging();
     /* USER CODE END RunTaskLogging */
-}
-
-/* USER CODE BEGIN Header_RunTaskTelem */
-/**
- * @brief Function implementing the TaskTelem thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskTelem */
-void RunTaskTelem(void *argument)
-{
-    /* USER CODE BEGIN RunTaskTelem */
-    tasks_runTelem();
-    /* USER CODE END RunTaskTelem */
 }
 
 /**

@@ -45,11 +45,6 @@ void io_telemMessage_init(const Modem *m)
 
 bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
 {
-    // filter messages
-    // if (rx_msg->std_id != 130)
-    // {
-    //     return false;
-    // }
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
     // filling in fields
@@ -88,19 +83,19 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
 {
     uint8_t    proto_out[QUEUE_SIZE];
     uint8_t    zero_test = 0;
-    osStatus_t status = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
+    osStatus_t status    = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
 
     LOG_INFO("proto popped and on to uart");
     if (modem_900_choice)
     {
-        hw_uart_transmitPoll(modem->modem900M, &proto_msg_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem->modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
-        hw_uart_transmitPoll(modem->modem900M, &zero_test, UART_LENGTH, UART_LENGTH);
+        hw_uart_transmitDma(modem->modem900M, &proto_msg_length, UART_LENGTH);
+        hw_uart_transmitDma(modem->modem900M, proto_out, (uint8_t)sizeof(proto_out));
+        hw_uart_transmitDma(modem->modem900M, &zero_test, UART_LENGTH);
     }
     else
     {
-        hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
-        hw_uart_transmitPoll(modem->modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
+        hw_uart_transmitDma(modem->modem2_4G, &proto_msg_length, UART_LENGTH);
+        hw_uart_transmitDma(modem->modem2_4G, proto_out, (uint8_t)sizeof(proto_out));
     }
     return true;
 }
