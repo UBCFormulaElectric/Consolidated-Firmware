@@ -6,45 +6,45 @@
     "warnings": {
         "StackWaterMarkHighTask1Hz" : {
             "id" :101,
-            "description" : "Example"
+            "description" : "1Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask100Hz" : {
             "id" :102,
-            "description" : "Example"
+            "description" : "100Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask1kHz" :{
             "id" :103,
-            "description" : "Example"
+            "description" : "1kHz task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanRx": {
             "id" :104,
-            "description" : "Example"
+            "description" : "CAN RX task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanTx":{
             "id" :105,
-            "description" : "Example"
+            "description" : "CAN TX task stack watermark exceeded."
         },
         "WatchdogTimeout" :{
             "id" :106,
-            "description" : "Example"
+            "description" : "Watchdog timeout detected."
         },
         "TxOverflow": {
             "id" :107,
-            "description" : "Example"
+            "description" : "CAN TX queue has overflowed."
         },
         "RxOverflow" : {
             "id" :108,
-            "description" : "Example"
+            "description" : "CAN RX queue has overflowed."
         }
     },
     "faults": {
         "MissingVCHeartbeat":{
             "id" :151,
-            "description" : "Example"
+            "description" : "Missing heartbeat signal from the VC."
         },
         "MissingRSMHeartbeat":{
             "id" :152,
-            "description" : "Example"
+            "description" : "Missing heartbeat signal from the RSM."
         },
         "StateMachine" :{
             "id" :154,

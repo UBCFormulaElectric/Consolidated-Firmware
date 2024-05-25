@@ -3,6 +3,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_math.h"
+#include "app_timer.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "ltc6813/io_ltc6813CellTemps.h"
@@ -51,6 +52,12 @@
     {                                                       \
         (num_comm_tries)++;                                 \
     }
+
+// Fault debounce durations.
+#define UNDER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define OVER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define UNDER_TEMP_DEBOUNCE_DURATION_MS (1000U)
+#define OVER_TEMP_DEBOUNCE_DURATION_MS (1000U)
 
 typedef enum
 {
@@ -110,6 +117,11 @@ static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
 static uint8_t     owc_idle_cycles;
+
+static TimerChannel under_voltage_fault_timer;
+static TimerChannel over_voltage_fault_timer;
+static TimerChannel under_temp_fault_timer;
+static TimerChannel over_temp_fault_timer;
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -244,6 +256,12 @@ void app_accumulator_init(void)
     open_wire_pd_readings = 0;
     owc_idle_cycles       = 0;
     data.owc_state        = START_OPEN_WIRE_CHECK;
+
+    // Init fault debounce timers.
+    app_timer_init(&under_voltage_fault_timer, UNDER_VOLTAGE_DEBOUNCE_DURATION_MS);
+    app_timer_init(&over_voltage_fault_timer, OVER_VOLTAGE_DEBOUNCE_DURATION_MS);
+    app_timer_init(&under_temp_fault_timer, UNDER_TEMP_DEBOUNCE_DURATION_MS);
+    app_timer_init(&over_temp_fault_timer, OVER_TEMP_DEBOUNCE_DURATION_MS);
 }
 
 void app_accumulator_writeDefaultConfig(void)
@@ -475,10 +493,15 @@ bool app_accumulator_checkFaults(void)
     bool undervoltage_fault  = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
     bool communication_fault = data.num_comm_tries >= MAX_NUM_COMM_TRIES;
 
-    app_canAlerts_BMS_Fault_CellUndervoltage_set(undervoltage_fault);
-    app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
-    app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
-    app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
+    app_canAlerts_BMS_Fault_CellUndervoltage_set(
+        app_timer_runIfCondition(&under_voltage_fault_timer, undervoltage_fault) == TIMER_STATE_EXPIRED);
+    app_canAlerts_BMS_Fault_CellOvervoltage_set(
+        app_timer_runIfCondition(&over_voltage_fault_timer, overvoltage_fault) == TIMER_STATE_EXPIRED);
+    app_canAlerts_BMS_Fault_CellUndertemp_set(
+        app_timer_runIfCondition(&under_temp_fault_timer, undertemp_fault) == TIMER_STATE_EXPIRED);
+    app_canAlerts_BMS_Fault_CellOvertemp_set(
+        app_timer_runIfCondition(&over_temp_fault_timer, overtemp_fault) == TIMER_STATE_EXPIRED);
+
     app_canTx_BMS_ModuleCommunication_NumCommTries_set(data.num_comm_tries);
     app_canTx_BMS_ModuleCommunication_MonitorState_set((CAN_AccumulatorMonitorState)data.state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
