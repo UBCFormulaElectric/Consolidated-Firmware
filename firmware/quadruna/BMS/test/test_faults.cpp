@@ -127,17 +127,12 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         TearDown();
         SetUp();
 
-        // Set TS current negative to trigger discharging condition in tempertature check
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(-10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(-10.0f);
-        SetInitialState(app_initState_get());
-
         // Let accumulator startup count expire
         LetTimePass(1000);
         ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
         ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
 
-        // // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
+        // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
         fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC + 1.0f);
         LetTimePass(1000);
         ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
@@ -162,7 +157,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
             // Clear fault, should transition back to init
             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_DISCHARGE_TEMP_DEGC - 1.0f);
             fake_io_airs_isNegativeClosed_returns(false);
-            fake_io_charger_hasFaulted_returns(false);
 
             LetTimePass(10);
             ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
@@ -196,10 +190,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         fake_io_charger_isConnected_returns(true);
         fake_io_airs_isNegativeClosed_returns(true);
         fake_io_charger_hasFaulted_returns(false);
-
-        // Set TS current positive to trigger charging condition in temperature check
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(10.0f);
 
         SetInitialState(app_chargeState_get());
         app_canRx_Debug_StartCharging_update(true);
@@ -255,11 +245,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         // Reset test
         TearDown();
         SetUp();
-
-        // Set TS current negative to trigger discharging condition in tempertature check
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(-10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(-10.0f);
-        fake_io_airs_isNegativeClosed_returns(false);
 
         SetInitialState(app_initState_get());
 
@@ -327,11 +312,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
 
-        // Set TS current positive to trigger charging condition in tempertature check and above threshold to remain
-        // charging
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(10.0f);
-
         SetInitialState(app_chargeState_get());
 
         // Let accumulator startup count expire
@@ -385,10 +365,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
         // Reset test
         TearDown();
         SetUp();
-
-        // Set TS current negative to trigger discharging condition
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(-10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(-10.0f);
 
         SetInitialState(app_initState_get());
 
@@ -451,10 +427,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
         fake_io_charger_hasFaulted_returns(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
-
-        // Set TS current above cutoff threshold to keep state machine in charge state
-        fake_io_tractiveSystem_getCurrentHighResolution_returns(10.0f);
-        fake_io_tractiveSystem_getCurrentLowResolution_returns(10.0f);
 
         SetInitialState(app_chargeState_get());
 
