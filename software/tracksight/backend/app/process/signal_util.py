@@ -18,22 +18,25 @@ class SignalUtil:
     SignalUtil class for handling signals
     """
 
-    def __init__(self, is_mock=False):
-        self.df = pd.DataFrame(columns=['can_id', 'data', 'time_stamp', 'description', 'unit'])
-        self.ser = serial.Serial("/dev/ttyUSB0", baudrate=57600, timeout=1)
-        self.can_db = JsonCanParser(bus_path).make_database()
+    def __init__(self, is_modem_reader):
 
-        self.available_signals = []
+        if(is_modem_reader):
+            self.ser = serial.Serial("/dev/ttyUSB0", baudrate=57600, timeout=1) #TODO: generalize the serial port (only linux as this file structure)
+            self.can_db = JsonCanParser(bus_path).make_database()
+
+        self.available_signals = {} #TODO: could just make this the keys
         self.client_signals = {}
 
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
     
     def read_messages(self):
+        """
+        Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket 
+        """
         s = set()
         s.add(255)
         s.add(165)
-        #s.add(0)
         s.add(253)
         last_bit = 0
 
@@ -41,8 +44,8 @@ class SignalUtil:
             while True:
                 packet_size = int.from_bytes(self.ser.read(1), byteorder="little")
                 print(packet_size)
-                # if packet_size in s:
-                #     continue
+                if packet_size in s:
+                    continue
                 
 
                 if last_bit == 0 and packet_size != 0: #the size will be different due to 0 not often being include
@@ -61,12 +64,18 @@ class SignalUtil:
 
                     for single_signal in signal_list:
                 
-                    # # Add the time stamp
+                        # Add the time stamp
                         single_signal["timestamp"] = message_received.time_stamp
+                        signal_name = single_signal["name"]
 
-                        # flask_socketio.emit('signal_response',single_signal)
-                    # # Append the new signal to the list of availble signals
-                    # self.available_signals.append(signal_dict)
+                        # Update the list of availble signals and add it to client signals
+                        if signal_name not in self.available_signals:
+                            self.available_signals[signal_name] = True
+                            self.client_signals[signal_name] = []
+                        
+                        # Emit the message
+                        flask_socketio.emit('signal_response',single_signal)
+
                 else: 
                     last_bit = packet_size
 
@@ -94,34 +103,31 @@ class SignalUtil:
         """
         Return a list of the availble signals
         """
-        return self.available_signals.copy()
+        flask_socketio.emit(self.available_signals.copy())
 
     def connect_client_to_signal(self, client_id, signal_name):
         """
-        Append the signal name to the clients
+        Append the client_id to a specific signal
         """
-        if client_id not in self.client_signals:
-            self.client_signals[client_id] = []
-        if signal_name in self.available_signals and signal_name not in self.client_signals[client_id]:
-            self.client_signals[client_id].append(signal_name)
-        return self.client_signals[client_id].append(signal_name).copy()
+        if signal_name in list(self.client_signals.keys()):
+            if client_id not in self.client_id[signal_name]:
+                self.client_signals[signal_name].append(client_id)
 
     def connect_client_to_available_signals(self, client_id):
         """
-        Connect the client and provide a list of availble signals
+        Connect the client and to all available signals
         """
-        if client_id not in self.client_signals:
-            self.client_signals[client_id] = self.available_signals.copy() 
-
-        return self.client_signals.copy()
+        for signal_name in list(self.client_signals.keys()):
+            if client_id not in self.client_signals[signal_name]:
+                self.client_signals[signal_name].append(client_id)
 
 
     def disconnect_client_from_signal(self, client_id, signal_name):
         """
         Remove a specific signal from a specific client
         """
-        if signal_name in list(self.client_signals.keys()): # Checking if signal is in signals at all
-            if client_id in self.client_signals[signal_name]: # Removing ID
+        if signal_name in list(self.client_signals.keys()): 
+            if client_id in self.client_signals[signal_name]: 
                 self.client_signals[signal_name].remove(client_id)
 
 
@@ -129,10 +135,10 @@ class SignalUtil:
         """
         Remove a specific client from all signals
         """
-        if client_id in self.client_signals:
-            del self.client_signals[client_id]
+        for signal_name in list(self.client_signals.keys()):
+            if client_id in self.client_signals[signal_name]:
+                self.client_signals[signal_name].remove(client_id)
 
-    # returns all signals in data
     def make_bytes(self, message):
         """
         Make the byte array out of the messages array.
@@ -142,3 +148,4 @@ class SignalUtil:
             message.message_3, message.message_4, message.message_5, 
             message.message_6, message.message_7
         ]) 
+        

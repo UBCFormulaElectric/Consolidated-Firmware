@@ -9,6 +9,10 @@ from flask import request
 
 logger = logging.getLogger("telemetry_logger")
 
+from ..signal_util import SignalUtil
+
+signal_util = SignalUtil(False)
+
 # SocketIO processes for live data
 socketio = flask_socketio.SocketIO(cors_allowed_origins="*")
 
@@ -39,9 +43,9 @@ def handle_available_signals():
     :returns all available signals to the client
     """
     client_id = request.sid 
-    available_signals = signal_util.connect_client_to_available_signals(client_id)
+    signal_util.connect_client_to_available_signals(client_id)
     logger.info(f"Client {request.sid} requested available signals")
-    socketio.emit("available_signals_sub", available_signals)
+    
 
 
 @socketio.on("signal_sub")
