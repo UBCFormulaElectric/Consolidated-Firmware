@@ -8,34 +8,34 @@ TODO: Implement proper error handling for things like no data available.
 
 import os
 from typing import List, Tuple, TypedDict
-
 import influxdb_client
 
-# Configs for InfluxDBClient
-INFLUX_DB_ORG = "org1"
-# "https://us-east-1-1.aws.cloud2.influxdata.com"
-if os.environ.get("USING_DOCKER") == "true":
-    INFLUX_DB_URL = "http://influx:8086"
-else:
-    INFLUX_DB_URL = "http://localhost:8086"
-# "pyh_P66tpmkqnfB6IL73p1GVSyiSK_o5_fmt-1KhZ8eYu_WVoyUMddNsHDlozlstS8gZ0WVyuycQtQOCKIIWJQ=="
-INFLUX_DB_TOKEN = os.environ.get("INFLUXDB_TOKEN")
-if INFLUX_DB_TOKEN is None:
-    raise ValueError("INFLUXDB_TOKEN environment variable not set")
+REQUIRED_ENV_VARS = {
+    "org": "DOCKER_INFLUXDB_INIT_ORG",
+    "bucket": "DOCKER_INFLUXDB_INIT_BUCKET",
+    "token": "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN",
+}
+for env_var in REQUIRED_ENV_VARS.values():
+    if os.environ.get(env_var) is None:
+        raise RuntimeError(f"Required environment variable not set: {env_var}")
 
-# "testing"
-INFLUX_DB_VEHICLE_BUCKET = "vehicle"
-print(f"Using URL {INFLUX_DB_URL} with token {INFLUX_DB_TOKEN}")
+# Configs for Influx DB instance.
+INFLUX_DB_URL = "http://influx:8086"
+INFLUX_DB_ORG = os.environ.get(REQUIRED_ENV_VARS["org"])
+INFLUX_DB_BUCKET = os.environ.get(REQUIRED_ENV_VARS["bucket"])
+INFLUX_DB_TOKEN = os.environ.get(REQUIRED_ENV_VARS["token"])
+
+print(f"Using URL {INFLUX_DB_URL} with token {INFLUX_DB_TOKEN}.")
 
 # Checks if the vehicle bucket exists, and if not, creates it
 with influxdb_client.InfluxDBClient(
     url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
-) as _client:
-    if _client.buckets_api().find_bucket_by_name(INFLUX_DB_VEHICLE_BUCKET) is None:
-        _client.buckets_api().create_bucket(bucket_name=INFLUX_DB_VEHICLE_BUCKET)
+) as client:
+    if client.buckets_api().find_bucket_by_name(INFLUX_DB_BUCKET) is None:
+        client.buckets_api().create_bucket(bucket_name=INFLUX_DB_BUCKET)
 
 
-def get_measurements(bucket=INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
+def get_measurements(bucket=INFLUX_DB_BUCKET) -> list[str]:
     """
     Get all measurements from the database.
     :param bucket: Name of bucket to fetch data from.
@@ -57,7 +57,7 @@ def get_measurements(bucket=INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
         ]
 
 
-def get_fields(measurement: str, bucket: str = INFLUX_DB_VEHICLE_BUCKET) -> list[str]:
+def get_fields(measurement: str, bucket: str = INFLUX_DB_BUCKET) -> list[str]:
     """
     Get all fields from a measurement.
     :param measurement: Measurement to fetch fields from.
@@ -93,7 +93,7 @@ def query(
     measurement: str,
     fields: List[str],
     time_range: Tuple[str, str],
-    bucket: str = INFLUX_DB_VEHICLE_BUCKET,
+    bucket: str = INFLUX_DB_BUCKET,
     max_points: int = 8000,  # TODO implement
     ms_resolution: int = 100,  # TODO implement
 ) -> dict[str, TimeValue]:

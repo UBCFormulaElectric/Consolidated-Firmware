@@ -6,11 +6,6 @@ import logging
 import os
 import threading
 import time
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from flask import Flask
 
 from process.flask_apps.database_app import app as database_app
