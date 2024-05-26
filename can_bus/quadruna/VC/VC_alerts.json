@@ -38,19 +38,31 @@
         },
         "RegenNotAvailable": {
             "id": 509,
-            "description": "Example"
+            "description": "Regen is not currently available."
         },
-        "SbgRxOverflow": {
-            "id": 510,
-            "description": "Example"
-        },
-        "ImuIo": {
+        "ImuInitFailed": {
             "id": 516,
-            "description": "Example"
+            "description": "Initializing the embedded IMU failed."
         },
         "FlowRateInputOutOfRange": {
             "id": 517,
             "description": "Input to app_pumpControl_setFlowRate out of range"
+        },
+        "BatteryRailOvercurrentFault": {
+            "id": 557,
+            "description": "LV rail from the 18650 batteries was overcurrent."
+        },
+        "AccumulatorRailOvercurrentFault": {
+            "id": 558,
+            "description": "LV rail from the HV DCDC was overcurrent."
+        },
+        "LvChargeFault": {
+            "id": 559,
+            "description": "LV battery charger has faulted."
+        },
+        "BoostControllerFault": {
+            "id": 560,
+            "description": "Boost controller has faulted."
         }
     },
     "faults": {
@@ -61,10 +73,6 @@
         "MissingFSMHeartbeat": {
             "id": 552,
             "description": "Missing heartbeat signal from the FSM."
-        },
-        "MissingRSMHeartbeat": {
-            "id": 553,
-            "description": "Missing heartbeat signal from the RSM."
         },
         "MissingCRITHeartbeat": {
             "id": 554,
@@ -77,22 +85,6 @@
         "RightInverterFault": {
             "id": 556,
             "description": "Right inverter entered fault state."
-        },
-        "BatteryFault": {
-            "id": 557,
-            "description": "Example"
-        },
-        "AccumulatorFault": {
-            "id": 558,
-            "description": "Example"
-        },
-        "LvChargeFault": {
-            "id": 559,
-            "description": "Example"
-        },
-        "BoostControllerFault": {
-            "id": 560,
-            "description": "Example"
         }
     }
 }

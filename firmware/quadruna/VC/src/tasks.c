@@ -305,14 +305,14 @@ static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &
 // config for heartbeat monitor (can funcs and flags)
 // VC relies on FSM, RSM, BMS, CRIT
 const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = true,
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
     [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = true
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
 bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
                                                                 [VC_HEARTBEAT_BOARD]   = NULL,
-                                                                [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                                [RSM_HEARTBEAT_BOARD]  = NULL,
                                                                 [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
                                                                 [DIM_HEARTBEAT_BOARD]  = NULL,
                                                                 [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };
@@ -321,7 +321,7 @@ bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = { [BMS_HEARTBEAT_B
 void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
     [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_update
@@ -331,7 +331,7 @@ void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
 void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_set,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_set,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_set
@@ -341,7 +341,7 @@ void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
 bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
     [BMS_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingBMSHeartbeat_get,
     [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingRSMHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
     [FSM_HEARTBEAT_BOARD]  = app_canAlerts_VC_Fault_MissingFSMHeartbeat_get,
     [DIM_HEARTBEAT_BOARD]  = NULL,
     [CRIT_HEARTBEAT_BOARD] = app_canAlerts_VC_Fault_MissingCRITHeartbeat_get
@@ -408,7 +408,7 @@ void tasks_init(void)
 
     if (!io_imu_init())
     {
-        app_canAlerts_VC_Warning_ImuIo_set(true);
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
     }
 
     app_canTx_init();
