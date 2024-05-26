@@ -1,44 +1,3 @@
-'use client'
-import {MouseEventHandler, useEffect, useState} from 'react';
-import {Button, Card, Space, Switch} from 'antd';
-import {useSocket} from '@/app/useSocket';
-import {FLASK_URL} from '@/app/constants';
-import DropdownMenu from './dropdown_menu';
-import {assertType} from '@/types/Assert';
-import {PlotData} from 'plotly.js';
-import dynamic from "next/dynamic";
-
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
-
-interface FormattedData {
-    x: Date[];
-    y: number[];
-    type: string;
-    mode: string;
-    name: string;
-}
-
-const EMPTY_FORMATTED_DATA: FormattedData = {
-    x: [],
-    y: [],
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: 'test',
-};
-
-const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
-    width: 620,
-    height: 500,
-    title: "Live Data",
-    xaxis: {
-        // for formatting time
-        tickformat: "%H:%M:%S.%L", // TODO fix this formatting
-        automargin: true,
-    },
-    yaxis: {},
-    legend: { "orientation": "h" },
-};
-
 /**
  * Websockets that are used (handling signals, and handling available signals)
  *  - signal_sub (emit), signal_unsub (emit)
@@ -47,53 +6,28 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
  *  - available_signals_sub (emit)
  *  - available_signals_response
  */
-export default function LiveGraph(props: {
-    id: number,
-    onDelete: MouseEventHandler<HTMLElement>,
+
+'use client'
+// ui
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
+import { Switch } from 'antd';
+import DropdownMenu from './dropdown_menu';
+import TimePlot from './timeplot';
+import { toast } from "sonner"
+// logic
+import { FLASK_URL } from '@/app/constants';
+import { useSocket } from '@/app/useSocket';
+import { Socket } from 'socket.io-client';
+// types
+import { assertType } from '@/types/Assert';
+import { PlotRelayoutEvent } from 'plotly.js';
+import { FormattedData } from './timeplot';
+
+function SignalSelector({ socket, loading, setPlotTitle: setGraphTitle }: {
+    socket: Socket | null,
+    loading: boolean,
+    setPlotTitle: (title: string) => void,
 }) {
-    const { socket, loading } = useSocket(FLASK_URL);
-    // Plot Data 
-    const [plotData, setPlotData] = useState<FormattedData[]>([]);
-    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
-    const setGraphTitle = (t: string) => setGraphLayout(p => ({ ...p, title: t, }))
-
-    // handles live data
-    const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
-    useEffect(() => {
-        if (!socket) return;
-        if(!isSubscribed) return;
-        socket.on("signal_response", (packet: unknown) => {
-            if (typeof packet !== 'object' || packet === null) {
-                throw new Error("Invalid packet received from server: is of wrong type or null");
-            }
-            if (!('id' in packet && typeof packet.id === "string" && 'signal' in packet && typeof packet.signal === "object" && packet.signal != null)) {
-                return; // TODO display error
-            }
-            console.log(packet.id);
-            const signals = packet.signal;
-            assertType<object>(signals, typeof signals === 'object', "Recieved signal is not an object");
-
-            setPlotData(p => {
-                // extracts the most recent 100 data points to display to ensure the graph doesn't get too cluttered
-                // const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-                // const maxDataPoints = sortedDates.slice(-MAX_DATA_POINTS);
-                const existingSignal = p.find((d) => d.name === packet.id) || EMPTY_FORMATTED_DATA;
-                // TODO new data!!!
-                existingSignal.x.push(new Date());
-                existingSignal.y.push(Math.random());
-                return [...p.filter(d => d.name != packet.id), existingSignal];
-            });
-        })
-        socket.on("signal_stopped", (data) => {
-            // TODO display that a signal has stopped broadcasting
-            console.log(`Signal ${data.id} stopped`)
-        })
-
-        return () => {
-            socket.off("signal_response");
-        };
-    }, [socket, isSubscribed])
-
     // Handles which signals we care about
     const [prevWatchSignals, setPrevWatchSignals] = useState<string[]>([]); // technically an anti-pattern but the handler is inside an opaque component
     const [watchSignals, setWatchSignals] = useState<string[]>([]);
@@ -115,11 +49,14 @@ export default function LiveGraph(props: {
 
     // Handles all available signals
     const [validSignals, setValidSignals] = useState<string[]>([]);
+    const [gottenSignalResponse, setGottenSignalResponse] = useState<boolean>(false);
     useEffect(() => {
-        if(!socket) return;
+        if (!socket) return;
+        setGottenSignalResponse(false);
         socket.emit("available_signals_sub");
         socket.on("available_signals_response", (signalNames) => {
             setValidSignals(signalNames);
+            setGottenSignalResponse(true);
         });
         return () => {
             socket.off("available_signals_response");
@@ -127,28 +64,81 @@ export default function LiveGraph(props: {
     }, [socket]);
 
     return (
-        <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
+        <DropdownMenu options={validSignals}
+            selectedOptions={watchSignals} setSelectedOptions={setWatchSignals}
+            loading={loading} disabled={!gottenSignalResponse}
+            placeholder="Signals"
+        />
+    )
+}
+
+export default function LiveGraph({ id, deletePlot, syncZoom, sharedZoomData, setSharedZoomData }: {
+    id: number,
+    deletePlot: MouseEventHandler<HTMLElement>,
+    syncZoom: boolean,
+    sharedZoomData: PlotRelayoutEvent,
+    setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
+}) {
+    // Plot Data
+    const [plotTitle, setPlotTitle] = useState<string>("");
+    const [plotData, setPlotData] = useState<FormattedData[]>([]);
+    const { socket, loading } = useSocket(FLASK_URL);
+    const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
+    useEffect(() => {
+        if (!socket) return;
+        if (!isSubscribed) return;
+        socket.on("signal_response", (packet: unknown) => {
+            if (typeof packet !== 'object' || packet === null) {
+                throw new Error("Invalid packet received from server: is of wrong type or null");
+            }
+            if (!('id' in packet && typeof packet.id === "string" && 'signal' in packet && typeof packet.signal === "object" && packet.signal != null)) {
+                toast.error("Invalid packet received from server: missing id or signal");
+                return;
+            }
+            console.log(packet.id);
+            const signals = packet.signal;
+            assertType<object>(signals, typeof signals === 'object', "Recieved signal is not an object");
+
+            setPlotData(p => {
+                // extracts the most recent 100 data points to display to ensure the graph doesn't get too cluttered
+                // const sortedDates = Object.keys(signalData).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                // const maxDataPoints = sortedDates.slice(-MAX_DATA_POINTS);
+                const existingSignal = p.find((d) => d.name === packet.id) || {
+                    x: [],
+                    y: [],
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'test',
+                };
+                // TODO new data!!!
+                existingSignal.x.push(new Date());
+                existingSignal.y.push(Math.random());
+                return [...p.filter(d => d.name != packet.id), existingSignal];
+            });
+        })
+        socket.on("signal_stopped", (data) => {
+            console.log(`Signal ${data.id} stopped`)
+            toast(`Signal ${data.id} stopped`)
+        })
+
+        return () => {
+            socket.off("signal_response");
+        };
+    }, [socket, isSubscribed])
+
+    return (
+        <TimePlot plotTitle={plotTitle} deletePlot={deletePlot}
+            plotData={plotData} clearPlotData={e => setPlotData([])}
+            syncZoom={syncZoom} sharedZoomData={sharedZoomData} setSharedZoomData={setSharedZoomData}
+        >
             <div className="flex flex-row items-center gap-x-2 mb-2">
                 <p>Live</p>
                 <Switch onChange={setIsSubscribed} checked={isSubscribed} />
             </div>
             <div className="flex flex-row gap-x-2">
-                <DropdownMenu options={validSignals} setSelectedOptions={setWatchSignals}
-                    loading={!loading} disabled={!loading}
-                    placeholder="Signals"
-                />
+                <SignalSelector socket={socket} loading={loading} setPlotTitle={setPlotTitle} />
             </div>
-            <Plot data={plotData as Partial<PlotData>[]} layout={graphLayout} />
-            <Space.Compact size={"middle"}>
-                <Button block={true} className="clear" onClick={() => {
-                    setGraphLayout(DEFAULT_LAYOUT);
-                    setPlotData([]);
-                }}>
-                    Clear
-                </Button>
-                <Button block={true} danger={true} ghost={false} onClick={props.onDelete}>Delete This Graph</Button>
-            </Space.Compact>
-        </Card>
+        </TimePlot>
     );
 }
 
