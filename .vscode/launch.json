@@ -253,7 +253,7 @@
       "name": "Debug Tests: RSM (Quadruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/RSM_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/quadruna_RSM_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: RSM (Quadruna)",
       "linux": {
@@ -267,7 +267,7 @@
       "name": "Debug Tests: CRIT (Quadruna)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/CRIT_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/quadruna_CRIT_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: CRIT (Quadruna)",
       "linux": {

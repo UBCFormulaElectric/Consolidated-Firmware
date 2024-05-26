@@ -22,7 +22,6 @@
 #include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_airs.h"
-#include "io_charger.h"
 #include "io_sd.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
@@ -125,21 +124,6 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
                                           .nss_pin    = SPI_CS_Pin,
                                           .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
-
-// TODO: Update for new charger
-
-// static const Charger charger_config  = { .enable_gpio = {
-//                                        .port = CHRG_EN_3V3_GPIO_Port,
-//                                        .pin  = CHRG_EN_3V3_Pin,
-//                                    },
-//                                    .connected_gpio = {
-//                                        .port = CHRG_STATE_3V3_GPIO_Port,
-//                                        .pin  = CHRG_STATE_3V3_Pin,
-//                                    },
-//                                    .faulted_gpio = {
-//                                        .port = CHRG_FLT_3V3_GPIO_Port,
-//                                        .pin  = CHRG_FLT_3V3_Pin,
-//                                    }};
 
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
@@ -328,7 +312,7 @@ void tasks_init(void)
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
+    LOG_INFO("BMS reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
 
@@ -353,7 +337,6 @@ void tasks_init(void)
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
-    // io_charger_init(&charger_config);
     io_sdGpio_init(&sd_gpio);
 
     app_canTx_init();

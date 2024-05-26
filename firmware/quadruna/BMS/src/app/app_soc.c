@@ -53,15 +53,7 @@ typedef struct
 static SocStats stats;
 extern bool     sd_inited;
 
-#ifndef TARGET_EMBEDDED
-
-// ONLY FOR USE IN OFF-TARGET TESTING
-void app_soc_setPrevCurrent(float current)
-{
-    stats.prev_current_A = current;
-}
-
-#endif
+#ifdef TARGET_EMBEDDED
 
 static void convert_float_to_bytes(uint8_t *byte_array, float float_to_convert)
 {
@@ -75,9 +67,18 @@ static float convert_bytes_to_float(uint8_t *byte_array)
     return converted_float;
 }
 
-static bool sdCardReady()
+#else
+
+// ONLY FOR USE IN OFF-TARGET TESTING
+void app_soc_setPrevCurrent(float current)
 {
-    // return sd_inited && io_sdGpio_checkSdPresent();
+    stats.prev_current_A = current;
+}
+
+#endif
+
+static bool sdCardReady(void)
+{
     return io_sdGpio_checkSdPresent();
 }
 
@@ -120,14 +121,13 @@ void app_soc_init(void)
 {
     stats.prev_current_A = 0.0f;
 
-    // Asoc assumed corrupt until proven otherwise
+    // SOC assumed corrupt until proven otherwise
     stats.is_corrupt = true;
     stats.charge_c   = -1;
 
-    // A negative soc value will indicate to app_soc_Create that saved SOC value is corrupted
-    float saved_soc_c = -1.0f;
-
 #ifdef TARGET_EMBEDDED
+    // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
+    float saved_soc_c = -1.0f;
 
     if (app_soc_readSocFromSd(&saved_soc_c))
     {
@@ -206,22 +206,23 @@ void app_soc_resetSocCustomValue(float soc_percent)
 
 bool app_soc_readSocFromSd(float *saved_soc_c)
 {
-    uint8_t sd_read_data[SD_SECTOR_SIZE];
-    uint8_t sd_read_soc_bytes[NUM_SOC_BYTES];
-    uint8_t sd_read_crc_bytes[NUM_SOC_CRC_BYTES];
-
-    uint32_t sd_read_soc;
-    uint32_t sd_read_crc;
-    float    soc;
-    uint32_t calculated_crc;
-    *saved_soc_c = -1.0f;
-
-#ifdef TARGET_EMBEDDED
+    uint32_t sd_read_crc    = 0;
+    float    soc            = 0.0f;
+    uint32_t calculated_crc = 0;
+    *saved_soc_c            = -1.0f;
 
     if (!sdCardReady())
     {
         return false;
     }
+
+#ifdef TARGET_EMBEDDED
+    uint8_t sd_read_crc_bytes[NUM_SOC_CRC_BYTES];
+    uint8_t sd_read_soc_bytes[NUM_SOC_BYTES];
+    uint8_t sd_read_data[SD_SECTOR_SIZE];
+
+    uint32_t sd_read_soc;
+
     if (hw_sd_read(sd_read_data, DEFAULT_SOC_ADDR, 1) == SD_CARD_OK)
     {
         memcpy(sd_read_soc_bytes, sd_read_data, sizeof(uint32_t));
@@ -263,12 +264,12 @@ bool app_soc_readSocFromSd(float *saved_soc_c)
 
 bool app_soc_writeSocToSd(float soc)
 {
-#ifdef TARGET_EMBEDDED
     if (!sdCardReady())
     {
         return false;
     }
 
+#ifdef TARGET_EMBEDDED
     uint8_t sd_write_data[SD_SECTOR_SIZE];
     convert_float_to_bytes(sd_write_data, soc);
     uint32_t soc_value = ARRAY_TO_UINT32(sd_write_data);
