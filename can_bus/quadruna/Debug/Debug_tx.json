@@ -17,6 +17,9 @@
             "StartCharging": {
                 "bits": 1
             },
+            "ClearChargerLatchedFault":{
+                "bits": 1
+            },
             "FaultEncounteredOverride": {
                 "bits": 1
             },

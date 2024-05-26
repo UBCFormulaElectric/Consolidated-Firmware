@@ -86,7 +86,6 @@ TEST_F(LedStatusTest, ams_led_control_in_drive_state)
 TEST_F(LedStatusTest, vc_board_status_led_control_with_critical_error)
 {
     // Set any critical error and check that the DCM LED turns red
-    app_heartbeatMonitor_clearFaults();
     for (const auto &[can_update, assert_func] :
          std::vector<std::pair<std::function<void(bool)>, std::function<uint32_t(BoardLEDStatus)>>>{
              { app_canRx_VC_Fault_MissingBMSHeartbeat_update, fake_io_led_vc_status_set_callCountForArgs },
@@ -105,7 +104,6 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_warning)
 {
     // Set any warning and check that the DCM LED turns blue
     // Set any critical error and check that the DCM LED turns red
-    app_heartbeatMonitor_clearFaults();
     for (const auto &[can_update, assert_func] :
          std::vector<std::pair<std::function<void(bool)>, std::function<uint32_t(BoardLEDStatus)>>>{
              { app_canRx_VC_Warning_ImuIo_update, fake_io_led_vc_status_set_callCountForArgs },
@@ -122,7 +120,6 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_warning)
 
 TEST_F(LedStatusTest, vc_board_status_led_control_with_no_error)
 {
-    app_heartbeatMonitor_clearFaults();
     LetTimePass(10);
     // Don't set any error and check that the DCM LED turns green
     for (const auto &assert_func : std::vector<std::function<uint32_t(BoardLEDStatus)>>{
@@ -140,7 +137,6 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_multiple_errors)
     // If the error table contains critical and non-critical errors
     // simultaneously, the critical error should take precedence and turn the
     // DCM LED red rather than blue
-    app_heartbeatMonitor_clearFaults();
     for (const auto &[fault, warning, assert_func] : std::vector<
              std::tuple<std::function<void(bool)>, std::function<void(bool)>, std::function<uint32_t(BoardLEDStatus)>>>{
              { app_canRx_VC_Fault_MissingBMSHeartbeat_update, app_canRx_VC_Warning_StackWaterMarkHighTask1Hz_update,
