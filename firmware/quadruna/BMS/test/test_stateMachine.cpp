@@ -367,8 +367,6 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
     ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
 }
 
-// For now this isn't working, we'll have to rethink how to use missing_hb
-// to stop the BMS going into drive state when charger is not connected
 TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state)
 {
     SetInitialState(app_initState_get());
