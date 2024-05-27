@@ -1,5 +1,7 @@
 import os
 import argparse
+import subprocess
+import re
 '''
     A function that read all .su file generate by gcc to check the stack usage for all function in firmware we use
     Use this scripe after compile with option -Wfstack-usage
@@ -25,7 +27,7 @@ def read_all_lines(file_name):
         lines = [line.strip().split('\t') for line in lines]
     return lines
 
-def main(root_path, output_file):
+def check_stack(root_path, output_file, warning_threshold=512):
     su_files = find_all_su_file(root_path)
     all_lines = []
     for file in su_files:
@@ -39,7 +41,10 @@ def main(root_path, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         for line in all_lines:
             f.write('\t'.join(line) + '\n')
-    
+            if int(line[1]) > warning_threshold:
+                print(f"WARNING: Function {line[0]} uses more than {warning_threshold} bytes of stack")
+    return all_lines
+
 
 
 # Example usage
@@ -47,11 +52,14 @@ if __name__ == "__main__":
     # root_path = "/home/jiajun/Consolidated-Firmware/build_fw_deploy/firmware/"  # Replace with the actual root path
     # output_file = "/home/jiajun/Consolidated-Firmware/build_fw_deploy/firmware/stack.su"  # Replace with the desired output file path
     parser = argparse.ArgumentParser(description="Function stack checker")
-    parser.add_argument("--root_path", help="Root path of the project")
-    parser.add_argument("--output_file", help="Output file path")
+    parser.add_argument("--root_path", help="Root path of the project", default=os.getcwd())
+    parser.add_argument("--output_file", help="Output file path", default="stack.su")
+    parser.add_argument("--warning_threshold", help="Warning threshold for stack usage", default=512)
+    
     args = parser.parse_args()
     root_path = args.root_path
     output_file = args.output_file
+    warning_threshold = int(args.warning_threshold)
 
+    all_lines = check_stack(root_path, output_file, warning_threshold=512)
 
-    main(root_path, output_file)
