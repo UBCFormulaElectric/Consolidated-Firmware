@@ -70,8 +70,6 @@ static void canRxCallback(CanMsg *rx_msg)
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
     }
-
-    // TODO all telemetry here
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };

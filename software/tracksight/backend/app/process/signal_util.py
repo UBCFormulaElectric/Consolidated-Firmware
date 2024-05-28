@@ -13,6 +13,7 @@ bus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 from jsoncan.src.can_database import CanDatabase
 
+#TODO: rid this of a class and make it availble for proper threading.
 class SignalUtil:
     """
     SignalUtil class for handling signals
@@ -26,11 +27,11 @@ class SignalUtil:
             self.ser.reset_input_buffer()
             self.ser.reset_output_buffer()
 
-        self.available_signals = {} #TODO: could just make this the keys
+        self.available_signals = {} 
         self.client_signals = {}
 
-        # self.ser.reset_input_buffer()
-        # self.ser.reset_output_buffer()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
     
     def read_messages(self):
         """
@@ -50,37 +51,35 @@ class SignalUtil:
                     continue
                 
 
-                # if last_bit == 0 and packet_size != 0: #the size will be different due to 0 not often being include
+                if last_bit == 0 and packet_size != 0: #the size will be different due to 0 not often being include
                     
-                #     # Read in UART message and parse the protobuf
-                #     bytes_read = self.ser.read(packet_size)
-                #     message_received = telem_pb2.TelemMessage()
-                #     # print(bytes_read)
-                #     message_received.ParseFromString(bytes_read)
-                #     # Make data array out of ints
-                #     # print("Message received is ", message_received)
-                #     data_array = self.make_bytes(message_received)
+                    # Read in UART message and parse the protobuf
+                    bytes_read = self.ser.read(packet_size)
+                    message_received = telem_pb2.TelemMessage()
+                    message_received.ParseFromString(bytes_read)
 
-                #     # Unpack the data and add the id and meta data
-                #     signal_list = self.can_db.unpack(message_received.can_id, data_array)
+                    # Make data array out of ints
+                    data_array = self.make_bytes(message_received)
 
-                #     for single_signal in signal_list:
+                    # Unpack the data and add the id and meta data
+                    signal_list = self.can_db.unpack(message_received.can_id, data_array)
+
+                    for single_signal in signal_list:
                 
-                #         # Add the time stamp
-                #         single_signal["timestamp"] = message_received.time_stamp
-                #         signal_name = single_signal["name"]
-                #         print(single_signal)
+                        # Add the time stamp
+                        single_signal["timestamp"] = message_received.time_stamp
+                        signal_name = single_signal["name"]
 
-                #         # Update the list of availble signals and add it to client signals
-                #         if signal_name not in self.available_signals:
-                #             self.available_signals[signal_name] = True
-                #             self.client_signals[signal_name] = []
+                        # Update the list of availble signals and add it to client signals
+                        if signal_name not in self.available_signals:
+                            self.available_signals[signal_name] = True
+                            self.client_signals[signal_name] = []
                         
-                #         # Emit the message
-                #         # flask_socketio.emit('signal_response',single_signal)
+                        # Emit the message
+                        flask_socketio.emit('signal_response',single_signal)
 
-                # else: 
-                #     last_bit = packet_size
+                else: 
+                    last_bit = packet_size
 
         except KeyboardInterrupt:
             self.ser.close()
@@ -89,22 +88,9 @@ class SignalUtil:
         finally:
             self.ser.close()
 
-
-    def lookup_message_details(self, can_id):
-        # Traverse the nested dictionary to find the matching message and signal details
-        for subsystem, messages in self.lookup_table.items():
-            for message_name, message_info in messages.items():
-                if message_info['msg_id'] == can_id:
-                    signal_info = next(iter(message_info['signals'].values()))
-                    return {
-                        'description': message_info['description'],
-                        'unit': signal_info['unit']
-                    }
-        return {'description': 'Unknown', 'unit': 'N/A'}  
-
     def get_available_signals(self):
         """
-        Return a list of the availble signals
+        Emit a list of the availble signals
         """
         flask_socketio.emit(self.available_signals.copy())
 
