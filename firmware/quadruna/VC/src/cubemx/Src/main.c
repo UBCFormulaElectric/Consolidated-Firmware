@@ -1205,7 +1205,6 @@ void RunTask1Hz(void *argument)
 void RunTaskLogging(void *argument)
 {
     /* USER CODE BEGIN RunTaskLogging */
-
     tasks_runLogging();
     /* USER CODE END RunTaskLogging */
 }
