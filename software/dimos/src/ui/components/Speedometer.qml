@@ -11,7 +11,7 @@ Item {
 
     property real instantaneous_power_percentage: CanQML.BMS_TractiveSystemPower / 100
     property real avaiable_power_percentage: CanQML.VC_PowerLimitValue / 120
-    property real hv_battery_soc: CanQML.BMS_Soc
+    property real hv_battery_soc: CanQML.BMS_Soc / 100
     property real max_cell_temp: CanQML.BMS_MaxCellTemperature
     property bool startup_animation_running: false;
     property int speed: CanQML.FSM_LeftWheelSpeed * 1000 * Constants.rpmToSpeed

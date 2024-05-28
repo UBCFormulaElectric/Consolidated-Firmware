@@ -123,6 +123,10 @@ Window {
                         break;
                 }
             }
+
+            Component.onCompleted: {
+                refocusMainStack()
+            }
         }
 
         Switcher {
