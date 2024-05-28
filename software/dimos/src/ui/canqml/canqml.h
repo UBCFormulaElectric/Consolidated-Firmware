@@ -21,7 +21,7 @@ class Q_Fault_Warning_Info : public QObject
 
     bool operator==(const Fault_Warning_Info &other) const { return id == other.id; }
 
-    int get_id() const { return int_id; }
+    [[nodiscard]] int get_id() const { return int_id; }
 
   private:
     const QString description;
@@ -79,8 +79,6 @@ class CanQML final : public QObject
     static CanQML *getInstance();
     static CanQML *create(const QQmlEngine *qmlEngine, const QJSEngine *jsEngine);
 
-    Q_PROPERTY(int first_error_node READ get_first_error_node NOTIFY notify_all_signals FINAL REQUIRED STORED false)
-    static int get_first_error_node();
     // Signals
     REGISTER_CAN_MESSAGE(FSM_LeftWheelSpeed, float)
     REGISTER_CAN_MESSAGE(FSM_PappsMappedPedalPercentage, float)
@@ -88,6 +86,8 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(BMS_Soc, float)
     REGISTER_CAN_MESSAGE(FSM_FrontBrakePressure, int)
     REGISTER_CAN_MESSAGE(FSM_RearBrakePressure, int)
+    REGISTER_CAN_MESSAGE(BMS_MaxCellTemperature, int)
+    REGISTER_CAN_MESSAGE(BMS_TractiveSystemPower, int)
 
   public slots:
     void fault_poll();

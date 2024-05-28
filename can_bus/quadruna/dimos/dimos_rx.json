@@ -3,6 +3,9 @@
         "FSM_Wheels",
         "FSM_Apps",
         "FSM_Brake",
-        "BMS_VoltageAndChargeStats"
+        "BMS_VoltageAndChargeStats",
+        "BMS_TractiveSystem",
+        "BMS_CellTemperatures",
+        "VC_PowerLimit"
     ]
 }

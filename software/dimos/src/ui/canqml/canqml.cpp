@@ -74,8 +74,3 @@ bool CanQML::fault_consolidation(QList<Q_Fault_Warning_Info *> &a, Fault_Warning
 
     return has_changed;
 }
-
-int CanQML::get_first_error_node()
-{
-    return -1; // TODO implement faults when they arrive
-}
