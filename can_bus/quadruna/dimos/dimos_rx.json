@@ -6,6 +6,7 @@
         "BMS_VoltageAndChargeStats",
         "BMS_TractiveSystem",
         "BMS_CellTemperatures",
-        "VC_PowerLimit"
+        "VC_PowerLimit",
+        "VC_GlobalShdnNodeStatus"
     ]
 }

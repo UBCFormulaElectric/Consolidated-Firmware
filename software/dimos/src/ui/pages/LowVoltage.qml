@@ -4,7 +4,7 @@ import components
 import canqml
 
 Item {
-    property real stateOfCharge: CanQML.BMS_Soc/100;
+    property real stateOfCharge: CanQML.BMS_Soc / 100;
     property bool first_visit_complete: false
     onFocusChanged: {
         if (focus) {
@@ -56,7 +56,7 @@ Item {
                     text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
                     color: "white"
                 }
-                property int first_error_node: CanQML.first_error_node; //ShutdownLoop.ShutdownLoopNode.BSPD;
+                property int first_error_node: CanQML.VC_FirstFaultNode; //ShutdownLoop.ShutdownLoopNode.BSPD;
                 property real max_loop_progress: getShutdownLoopNodePercentage(first_error_node);
                 percentage: first_visit_complete ? max_loop_progress : 0 // todo set to correct percentage, but only when turning on the car
 
