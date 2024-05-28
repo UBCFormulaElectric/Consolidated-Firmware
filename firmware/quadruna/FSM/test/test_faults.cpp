@@ -15,18 +15,19 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
 
     // Start with a non-zero pedal positions to prevent false positive
     int time_ms = 0;
-    fake_io_apps_getPrimary_returns(50);
-    fake_io_apps_getSecondary_returns(50);
+    fake_io_apps_getPrimary_returns(50.0f);
+    fake_io_apps_getSecondary_returns(50.0f);
     LetTimePass(10);
 
     // Check in all heartbeats within timeout period
     time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
     fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
+    // Heartbeat faults initially present at startup until cleared
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
-    ASSERT_FALSE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
-    ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_TRUE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_PappsMappedPedalPercentage_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_SappsMappedPedalPercentage_get());
 
     app_canRx_BMS_Heartbeat_update(true); // Check in heartbeat
     time_ms += 10;
@@ -34,8 +35,8 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     LetTimePass(10);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
-    ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
 
     // Fail to check heartbeat, FSM should fault
     time_ms += HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U;
@@ -43,23 +44,23 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
-    ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
 
     time_ms += 20;
     fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(20);
     ASSERT_TRUE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
-    ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_PappsMappedPedalPercentage_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_SappsMappedPedalPercentage_get());
 
     // Stay faulted indefinitely
     time_ms += 1000;
     fake_io_time_getCurrentMs_returns(time_ms);
     LetTimePass(1000);
     ASSERT_TRUE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_FLOAT_EQ(0, app_canTx_FSM_PappsMappedPedalPercentage_get());
-    ASSERT_FLOAT_EQ(0, app_canTx_FSM_SappsMappedPedalPercentage_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_PappsMappedPedalPercentage_get());
+    ASSERT_FLOAT_EQ(0.0f, app_canTx_FSM_SappsMappedPedalPercentage_get());
 
     // Check heartbeat back in, fault should clear and transition back to init
     app_canRx_BMS_Heartbeat_update(true); // Check in heartbeat
@@ -68,8 +69,8 @@ TEST_F(FsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get());
-    ASSERT_NEAR(50, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
-    ASSERT_NEAR(50, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.5f);
+    ASSERT_NEAR(50.0f, app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.5f);
 }
 
 TEST_F(FsmFaultsTest, papps_ocsc_sets_mapped_pedal_percentage_to_zero)
