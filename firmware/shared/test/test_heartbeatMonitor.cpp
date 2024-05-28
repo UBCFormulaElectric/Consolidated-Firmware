@@ -144,7 +144,7 @@ TEST(HeartbeatMonitor, test_create)
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[board]);
-        ASSERT_TRUE(heartbeat_monitor->status[board]);
+        ASSERT_FALSE(heartbeat_monitor->status[board]);
         ASSERT_EQ(heartbeat_monitor->is_watching_heartbeat_for[board], heartbeats_to_check[board]);
 
         ASSERT_EQ(heartbeat_monitor->getters[board], heartbeat_can_getters[board]);
@@ -250,12 +250,12 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     ASSERT_EQ(heartbeat_monitor->is_watching_heartbeat_for[D_HEARTBEAT_BOARD], heartbeats_to_check[D_HEARTBEAT_BOARD]);
     ASSERT_EQ(heartbeat_monitor->is_watching_heartbeat_for[E_HEARTBEAT_BOARD], heartbeats_to_check[E_HEARTBEAT_BOARD]);
 
-    // confirm status good
-    ASSERT_TRUE(heartbeat_monitor->status[A_HEARTBEAT_BOARD]);
+    // confirm status bad for non-null heartbeat boards
+    ASSERT_FALSE(heartbeat_monitor->status[A_HEARTBEAT_BOARD]);
+    ASSERT_FALSE(heartbeat_monitor->status[E_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[B_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[C_HEARTBEAT_BOARD]);
     ASSERT_TRUE(heartbeat_monitor->status[D_HEARTBEAT_BOARD]);
-    ASSERT_TRUE(heartbeat_monitor->status[E_HEARTBEAT_BOARD]);
 
     // check in A and E midway (150 ms)
     fake_io_time_getCurrentMs_returns(150);

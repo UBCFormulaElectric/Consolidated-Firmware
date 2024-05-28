@@ -22,7 +22,6 @@
 #include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_airs.h"
-#include "io_charger.h"
 #include "io_sd.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
@@ -51,14 +50,13 @@
 
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
-// extern IWDG_HandleTypeDef  hiwdg; // TODO: Re-enable watchdog.
-extern SPI_HandleTypeDef  hspi2;
-extern TIM_HandleTypeDef  htim1;
-extern TIM_HandleTypeDef  htim3;
-extern TIM_HandleTypeDef  htim15;
-extern UART_HandleTypeDef huart1;
-extern SD_HandleTypeDef   hsd1;
-extern CRC_HandleTypeDef  hcrc;
+extern SPI_HandleTypeDef   hspi2;
+extern TIM_HandleTypeDef   htim1;
+extern TIM_HandleTypeDef   htim3;
+extern TIM_HandleTypeDef   htim15;
+extern UART_HandleTypeDef  huart1;
+extern SD_HandleTypeDef    hsd1;
+extern CRC_HandleTypeDef   hcrc;
 
 static void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -127,21 +125,6 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_pin    = SPI_CS_Pin,
                                           .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
 
-// TODO: Update for new charger
-
-// static const Charger charger_config  = { .enable_gpio = {
-//                                        .port = CHRG_EN_3V3_GPIO_Port,
-//                                        .pin  = CHRG_EN_3V3_Pin,
-//                                    },
-//                                    .connected_gpio = {
-//                                        .port = CHRG_STATE_3V3_GPIO_Port,
-//                                        .pin  = CHRG_STATE_3V3_Pin,
-//                                    },
-//                                    .faulted_gpio = {
-//                                        .port = CHRG_FLT_3V3_GPIO_Port,
-//                                        .pin  = CHRG_FLT_3V3_Pin,
-//                                    }};
-
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
                                     .pin  = SD_CD_Pin,
@@ -180,7 +163,6 @@ static const AirsConfig airs_config = { .air_p_gpio = {
                                    }
 };
 
-// TODO: Test differential ADC for voltage measurement
 static const TractiveSystemConfig ts_config = { .ts_vsense_channel_P        = ADC1_IN10_TS_VSENSE_P,
                                                 .ts_vsense_channel_N        = ADC1_IN11_TS_VSENSE_N,
                                                 .ts_isense_high_res_channel = ADC1_IN5_TS_ISENSE_75A,
@@ -323,14 +305,15 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("BMS reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
@@ -354,7 +337,6 @@ void tasks_init(void)
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
-    // io_charger_init(&charger_config);
     io_sdGpio_init(&sd_gpio);
 
     app_canTx_init();
@@ -451,9 +433,7 @@ _Noreturn void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-
-        // TODO: Re-enable watchdog after investigating failure
-        // hw_watchdog_checkForTimeouts();
+        hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);

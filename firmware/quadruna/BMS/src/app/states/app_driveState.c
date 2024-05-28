@@ -18,8 +18,9 @@ static void driveStateRunOnTick100Hz(void)
     if (app_allStates_runOnTick100Hz())
     {
         // if AIR- opens, go back to init state.
-        const bool air_negative_opened = !io_airs_isNegativeClosed();
-        if (air_negative_opened)
+        const bool air_negative_opened  = !io_airs_isNegativeClosed();
+        const bool is_charger_connected = app_canRx_BRUSA_IsConnected_get();
+        if (air_negative_opened || is_charger_connected)
         {
             app_stateMachine_setNextState(app_initState_get());
         }

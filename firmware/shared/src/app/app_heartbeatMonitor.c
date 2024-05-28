@@ -60,7 +60,7 @@ void app_heartbeatMonitor_init(
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         hb_monitor.heartbeats_checked_in[board]     = false;
-        hb_monitor.status[board]                    = true;
+        hb_monitor.status[board]                    = false;
         hb_monitor.is_watching_heartbeat_for[board] = boards_to_check[board];
         hb_monitor.getters[board]                   = getters[board];
         hb_monitor.resetters[board]                 = updaters[board];
@@ -68,7 +68,15 @@ void app_heartbeatMonitor_init(
         hb_monitor.fault_getters[board]             = fault_getters[board];
 
         app_timer_init(&timers[board], HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS); // TODO board specific timeout
-        app_timer_restart(&timers[board]);
+        // Initialize timer to expired as to cause fault to be present on power-on (missing heartbeat timeout period
+        // initially expired)
+        timers[board].state = TIMER_STATE_EXPIRED;
+
+        if (!hb_monitor.is_watching_heartbeat_for[board])
+            continue;
+        assert((hb_monitor.fault_setters[board] != NULL));
+        // By default, set fault for all boards to true on start-up
+        hb_monitor.fault_setters[board](true);
     }
 }
 
@@ -144,6 +152,18 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void)
 void app_heartbeatMonitor_blockFaults(bool block_faults)
 {
     hb_monitor.block_faults = block_faults;
+}
+
+void app_heartbeatMonitor_clearFaults(void)
+{
+    for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
+    {
+        if (!hb_monitor.is_watching_heartbeat_for[board])
+            continue;
+        assert((hb_monitor.fault_setters[board] != NULL));
+
+        hb_monitor.fault_setters[board](false);
+    }
 }
 
 HeartbeatMonitor *app_heartbeatMonitor_get(void)

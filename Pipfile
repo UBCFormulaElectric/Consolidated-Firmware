@@ -31,6 +31,8 @@ pytest = "*"
 asammdf = "*"
 requests = "*"
 GitPython = "*"
+python-dotenv = "*"
+influxdb-client = "*"
 
 [dev-packages]
 setuptools = "*"

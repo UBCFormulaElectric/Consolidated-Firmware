@@ -9,6 +9,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
+#include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
 #include "app_efuse.h"
@@ -30,6 +31,7 @@
 #include "io_telemMessage.h"
 #include "io_pcm.h"
 #include "io_tsms.h"
+#include "io_time.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -51,28 +53,29 @@ extern UART_HandleTypeDef  huart2;
 extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
-// extern IWDG_HandleTypeDef  hiwdg1;
 
-static bool io_logging_functional(void); // TODO make this a general io logging happy function
+static bool loggingEnabled(void); // TODO make this a general io logging happy function
 
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
 static uint32_t write_count                = 0; // TODO debugging variables
 static bool     can_logging_enable         = true;
 
-static void tasks_canRx_callback(CanMsg *rx_msg)
+static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
-    if (io_logging_functional())
+
+    if (loggingEnabled() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
     }
+
     // TODO all telemetry here
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
-static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = tasks_canRx_callback };
+static const CanHandle can = { .can = &hfdcan1, .can_msg_received_callback = canRxCallback };
 
 void canRxQueueOverflowCallBack(uint32_t overflow_count)
 {
@@ -153,7 +156,7 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static bool io_logging_functional(void)
+static bool loggingEnabled(void)
 {
     return !hw_gpio_readPin(&sd_present) && can_logging_enable;
 }
@@ -347,19 +350,21 @@ bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
     hw_sd_init(&sd);
+    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -367,9 +372,6 @@ void tasks_init(void)
     // Start interrupt mode for ADC3, since we can't use DMA (see `firmware/quadruna/VC/src/hw/hw_adc.c` for a more
     // in-depth comment).
     HAL_ADC_Start_IT(&hadc3);
-
-    // TODO: Re-enable watchdog (disabled because it can get annoying when bringing up a board).
-    hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     io_canTx_init(io_jsoncan_pushTxMsgToQueue);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -388,7 +390,7 @@ void tasks_init(void)
         Error_Handler();
     }
 
-    if (io_logging_functional())
+    if (loggingEnabled())
     {
         if (io_fileSystem_init() == FILE_OK)
         {
@@ -411,6 +413,7 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
+    app_canDataCapture_init();
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
@@ -475,7 +478,6 @@ _Noreturn void tasks_run100Hz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
         app_allStates_runOnTick100Hz();
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
@@ -502,8 +504,6 @@ _Noreturn void tasks_run1kHz(void)
 
     for (;;)
     {
-        //        const uint32_t start_time_ms = osKernelGetTickCount();
-
         hw_watchdog_checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
@@ -549,15 +549,14 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    osDelayUntil(osWaitForever);
+    if (!loggingEnabled())
+    {
+        osThreadSuspend(osThreadGetId());
+    }
+
     static uint32_t message_batch_count = 0;
     for (;;)
     {
-        if (!io_logging_functional())
-        {
-            osThreadSuspend(osThreadGetId());
-        }
-
         io_canLogging_recordMsgFromQueue();
         message_batch_count++;
         write_count++;

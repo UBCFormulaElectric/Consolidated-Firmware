@@ -71,6 +71,10 @@ tx_msg_schema = Schema(
         Optional("num_bytes"): Or(int, lambda x: x >= 0 and x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): [str],
+        Optional("data_capture"): {
+            Optional("log_cycle_time"): Or(int, None),
+            Optional("telem_cycle_time"): Or(int, None),
+        },
     }
 )
 

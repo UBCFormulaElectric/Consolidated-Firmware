@@ -3,8 +3,13 @@ Entrypoint to the telemetry backend
 """
 
 import logging
+import os
 import threading
 import time
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from flask import Flask
 
@@ -12,15 +17,17 @@ from process.flask_apps.database_app import app as database_app
 from process.flask_apps.http_app import app as http_app
 from process.flask_apps.socket_app import socketio
 
-# from flask_cors import CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.register_blueprint(http_app)
 app.register_blueprint(database_app)
-# CORS(app)
+CORS(app)
 
 logger = logging.getLogger("telemetry_logger")
-logging.basicConfig(filename=f"telemetry.{time.time()}.log", level=logging.INFO)
+if not os.path.exists("logs"):
+    os.makedirs("logs")
+logging.basicConfig(filename=f"logs/telemetry.{time.time()}.log", level=logging.INFO)
 
 
 def thread_function(a):

@@ -414,14 +414,15 @@ static const BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("CRIT reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     // Start DMA/TIM3 for the ADC.
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -531,8 +532,8 @@ _Noreturn void tasks_run1kHz(void)
     {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
 
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the

@@ -99,7 +99,7 @@ class AppCanUtilsModule(CModule):
 
         # Msg ID macros
         cw.add_comment("Msg IDs")
-        for msg in self._db.msgs_for_node(self._node):
+        for msg in self._db.msgs.values():  # Need all IDs for data capture
             cw.add_macro(
                 CMacrosConfig.id(msg.name),
                 str(msg.id),
@@ -201,8 +201,8 @@ class AppCanUtilsModule(CModule):
         # Add found enums
         for can_enum in can_enums:
             enum = CEnum(can_enum.name)
-            for item in can_enum.items:
-                enum.add_value(CVar(name=item.name, value=item.value))
+            for item_value, item_name in can_enum.items.items():
+                enum.add_value(CVar(name=item_name, value=item_value))
             enum.add_value(
                 CVar(
                     name=f"NUM_{pascal_to_screaming_snake_case(can_enum.name)}_CHOICES",
