@@ -27,6 +27,8 @@ pytest = "*"
 asammdf = "*"
 python-dateutil = "*"
 requests = "*"
+python-dotenv = "*"
+influxdb-client = "*"
 flask = "*"
 
 [dev-packages]

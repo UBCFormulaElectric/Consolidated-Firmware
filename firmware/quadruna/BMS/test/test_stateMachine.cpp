@@ -37,7 +37,7 @@ TEST_F(BmsStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
 
 TEST_F(BmsStateMachineTest, check_state_transition_from_init_to_inverter_to_precharge)
 {
-    fake_io_charger_isConnected_returns(false);
+    app_canRx_BRUSA_IsConnected_update(false);
     fake_io_tractiveSystem_getVoltage_returns(2.0f);
     fake_io_airs_isNegativeClosed_returns(true);
     SetInitialState(app_initState_get());
@@ -179,11 +179,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
     {
         SetInitialState(state);
 
-        fake_io_charger_isConnected_returns(true);
+        app_canRx_BRUSA_IsConnected_update(true);
         LetTimePass(1000);
         EXPECT_EQ(true, app_canTx_BMS_ChargerConnected_get());
 
-        fake_io_charger_isConnected_returns(false);
+        app_canRx_BRUSA_IsConnected_update(false);
         LetTimePass(1000);
         EXPECT_EQ(false, app_canTx_BMS_ChargerConnected_get());
     }
@@ -253,10 +253,10 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(false);
+    app_canRx_BRUSA_IsConnected_update(false);
     app_canRx_Debug_StartCharging_update(true);
 
-    LetTimePass(10);
+    LetTimePass(1000);
 
     // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
     ASSERT_EQ(true, app_canAlerts_BMS_Fault_ChargerDisconnectedDuringCharge_get());
@@ -313,7 +313,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     SetInitialState(app_faultState_get());
 
     // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
-    fake_io_charger_isConnected_returns(false);
+    app_canRx_BRUSA_IsConnected_update(false);
     fake_io_airs_isNegativeClosed_returns(true);
     LetTimePass(1000);
     ASSERT_EQ(BMS_FAULT_STATE, app_canTx_BMS_State_get());
@@ -330,7 +330,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     // Check that state machine remains in FaultState with AIR- closed
     // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     fake_io_airs_isNegativeClosed_returns(true);
-    fake_io_charger_isConnected_returns(false);
+    app_canRx_BRUSA_IsConnected_update(false);
     LetTimePass(1000);
     ASSERT_EQ(BMS_FAULT_STATE, app_canTx_BMS_State_get());
 
@@ -346,7 +346,7 @@ TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
     fake_io_airs_isNegativeClosed_returns(true);
 
     // Without the CAN message to start charging, will remain in init state when charger is connected
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
 
     LetTimePass(20);
 
@@ -359,12 +359,25 @@ TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state)
     fake_io_airs_isNegativeClosed_returns(true);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
     app_canRx_Debug_StartCharging_update(true);
 
     LetTimePass(210U);
 
     ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state)
+{
+    SetInitialState(app_initState_get());
+    fake_io_airs_isNegativeClosed_returns(true);
+    app_heartbeatMonitor_blockFaults(false);
+    app_canRx_VC_Heartbeat_update(false);
+    app_canRx_RSM_Heartbeat_update(false);
+
+    LetTimePass(500U);
+
+    ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
 TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
@@ -377,7 +390,7 @@ TEST_F(BmsStateMachineTest, charger_connected_successful_precharge_stays)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
     app_canRx_Debug_StartCharging_update(true);
 
     // Allow BMS time to go through Init state
@@ -401,12 +414,11 @@ TEST_F(BmsStateMachineTest, keeps_charging_with_no_interrupts)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
     app_canRx_Debug_StartCharging_update(true);
 
     LetTimePass(100);
 
-    ASSERT_EQ(fake_io_charger_enable_callCountForArgs(true), 1);
     ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
 }
 
@@ -420,7 +432,7 @@ TEST_F(BmsStateMachineTest, stops_charging_after_false_charging_msg)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
     app_canRx_Debug_StartCharging_update(false);
 
     LetTimePass(1000);
@@ -437,8 +449,8 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
-    fake_io_charger_hasFaulted_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
+    app_canRx_BRUSA_Error_update(true);
     app_canRx_Debug_StartCharging_update(true);
 
     // Charger faults are ignored for 5s upon charge state entry
@@ -458,7 +470,7 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
     fake_io_tractiveSystem_getCurrentLowResolution_returns(1.0f);
 
     // Simulate situation with charger present and user indicate to start charging
-    fake_io_charger_isConnected_returns(true);
+    app_canRx_BRUSA_IsConnected_update(true);
     app_canRx_Debug_StartCharging_update(true);
 
     LetTimePass(10);
@@ -579,7 +591,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
 
             // Set voltage to pack voltage (i.e. voltage successfully rose within duration)
             fake_io_tractiveSystem_getVoltage_returns(
-                3.8f * ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT);
+                3.8f * (float)ACCUMULATOR_NUM_SEGMENTS * ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT);
 
             LetTimePass(10);
             if (test_params[i].expect_precharge_successful)

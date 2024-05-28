@@ -29,8 +29,14 @@ uint32_t    iso_spi_state_counter = 0;
 
 void app_allStates_runOnTick1Hz(void)
 {
-    bool charger_is_connected = io_charger_isConnected();
-    app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+    // If charge state has not placed a lock on broadcasting
+    // if the charger is charger is connected
+    if (globals->broadcast_charger_connected)
+    {
+        // Broadcast the can msg from the BRUSA charger to the entire car
+        bool charger_is_connected = app_canRx_BRUSA_IsConnected_get();
+        app_canTx_BMS_ChargerConnected_set(charger_is_connected);
+    }
 
     const float min_soc = app_soc_getMinSocCoulombs();
 
@@ -155,7 +161,8 @@ bool app_allStates_runOnTick100Hz(void)
     }
     else if (acc_fault || ts_fault)
     {
-        status = false;
+        status                     = false;
+        globals->fault_encountered = true;
         app_stateMachine_setNextState(app_faultState_get());
     }
 
