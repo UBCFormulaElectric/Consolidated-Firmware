@@ -2,7 +2,7 @@
 Module for generating a DBC file from a CanDatabase object.
 TODO: Adding descriptions of messages to DBC
 """
-
+from typing import List
 from ...can_database import *
 
 DBC_TEMPLATE = """\
@@ -106,8 +106,7 @@ class DbcGenerator:
             node_names=" ".join(self._db.nodes + [self._db.bus_config.default_receiver])
         )
 
-    @staticmethod
-    def _dbc_message(msg: CanMessage, tx_node: str) -> str:
+    def _dbc_message(self, msg: CanMessage, tx_node: str) -> str:
         """
         Format and return DBC message definition.
         """
@@ -115,8 +114,7 @@ class DbcGenerator:
             id=msg.id, name=msg.name, num_bytes=msg.bytes(), tx_node=tx_node
         )
 
-    @staticmethod
-    def _dbc_signal(signal: CanSignal, rx_nodes: List[str]) -> str:
+    def _dbc_signal(self, signal: CanSignal, rx_nodes: List[str]) -> str:
         """
         Format and return DBC signal definition.
         """
@@ -138,7 +136,6 @@ class DbcGenerator:
         """
         Format and attribute definitions and defaults.
         """
-        # TODO what
         bus = self._db.bus_config
         # return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE.format(
         #     cycle_time_min=bus.cycle_time_min,
@@ -150,8 +147,7 @@ class DbcGenerator:
         # )
         return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
 
-    @staticmethod
-    def _dbc_msg_cycle_time_attribute(value: int, msg_id: int) -> str:
+    def _dbc_msg_cycle_time_attribute(self, value: int, msg_id: int) -> str:
         """
         Format and return DBC GenMsgCycleTime message attribute.
         """
@@ -163,8 +159,7 @@ class DbcGenerator:
             value=value,
         )
 
-    @staticmethod
-    def _dbc_signal_start_val_attribute(signal: CanSignal, msg_id: int) -> str:
+    def _dbc_signal_start_val_attribute(self, signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC GenSigStartValue signal attribute.
         """
@@ -176,8 +171,7 @@ class DbcGenerator:
             value=signal.start_val,
         )
 
-    @staticmethod
-    def _dbc_value_table(signal: CanSignal, msg_id: int) -> str:
+    def _dbc_value_table(self, signal: CanSignal, msg_id: int) -> str:
         """
         Format and return DBC value table.
         """

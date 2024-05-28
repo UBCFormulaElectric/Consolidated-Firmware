@@ -2,11 +2,9 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
-from cmath import isnan
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
-from pandas import DataFrame
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
@@ -122,26 +120,6 @@ class CanSignal:
         else:
             return CanSignalDatatype.FLOAT
 
-    @staticmethod
-    def from_series(series: DataFrame):
-        """
-        Create a CanSignal from a pandas Series.
-        """
-        return CanSignal(
-            name=series["name"],
-            start_bit=int(series["start_bit"]),
-            bits=int(series["bits"]),
-            scale=series["scale"],
-            offset=series["offset"],
-            min_val=series["min_val"],
-            max_val=series["max_val"],
-            start_val=series["start_val"],
-            enum=series["enum"],
-            unit=series["unit"],
-            signed=series["signed"],
-            description=series["description"],
-        )
-
     def __str__(self):
         return self.name
 
@@ -185,39 +163,6 @@ class CanMessage:
         If this signal is periodic, i.e. should be continuously transmitted at a certain cycle time.
         """
         return self.cycle_time is not None
-
-    def to_dict(self):
-        """
-        Convert this message to a dictionary.
-        """
-        return {
-            "name": self.name,
-            "id": self.id,
-            "description": self.description,
-            "cycle_time": self.cycle_time,
-            "signals": [signal.__dict__ for signal in self.signals],
-            "tx_node": self.tx_node,
-            "rx_nodes": self.rx_nodes,
-            "modes": self.modes,
-        }
-
-    @staticmethod
-    def from_series(series: DataFrame):
-        """
-        Create a CanMessage from a pandas Series.
-        """
-        return CanMessage(
-            name=series["name"],
-            id=int(series["id"]),
-            description=series["description"],
-            cycle_time=(
-                None if isnan(series["cycle_time"]) else int(series["cycle_time"])
-            ),
-            signals=[CanSignal.from_series(signal) for signal in series["signals"]],
-            tx_node=series["tx_node"],
-            rx_nodes=series["rx_nodes"],
-            modes=series["modes"],
-        )
 
 
 @dataclass(frozen=True)
@@ -390,4 +335,3 @@ class CanDatabase:
             )
 
         return signals
-    
