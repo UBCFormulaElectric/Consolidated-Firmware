@@ -217,14 +217,16 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Handshake to ensure the address are lined up after each chunk (32-bytes)
             uint32_t address = *(uint32_t *)command.data;
-            CanMsg   reply   = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = (address == current_address) ? 1 : 0 };
+            CanMsg   reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = { (address == current_address) ? 1 : 0 } };
             io_can_pushTxMsgToQueue(&reply);
         }
         else if (command.std_id == LOST_CHUNK_ID && update_in_progress)
         {
             // Program the lost chunk to the address
-            uint32_t address = command.data[3] << 24 | command.data[2] << 16 | command.data[1] << 8 | command.data[0];
-            uint32_t data    = command.data[7] << 24 | command.data[6] << 16 | command.data[5] << 8 | command.data[4];
+            uint32_t address = ((uint32_t)command.data[3] << 24) | ((uint32_t)command.data[2] << 16) |
+                               ((uint32_t)command.data[1] << 8) | (uint32_t)command.data[0];
+            uint32_t data = ((uint32_t)command.data[7] << 24) | ((uint32_t)command.data[6] << 16) |
+                            ((uint32_t)command.data[5] << 8) | (uint32_t)command.data[4];
             bootloader_boardSpecific_program(address, data);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
