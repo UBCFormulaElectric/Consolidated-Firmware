@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
@@ -8,7 +9,8 @@
 #define ERASE_SECTOR_ID 1000
 #define PROGRAM_ID 1001
 #define VERIFY_ID 1002
-#define LOST_PACKET_ID 1003
+#define CONFIRM_CHUNK_ID 1003
+#define LOST_CHUNK_ID 1004
 
 // Reply IDs.
 #define ERASE_SECTOR_COMPLETE_ID 1010
@@ -19,7 +21,6 @@ void           bootloader_init(void);
 _Noreturn void bootloader_runInterfaceTask(void);
 _Noreturn void bootloader_runTickTask(void);
 _Noreturn void bootloader_runCanTxTask(void);
-void bootloader_sendUnreceivedPackets(void);
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);

@@ -134,9 +134,6 @@ static const Gpio bootloader_pin = {
 static uint32_t current_address;
 static bool     update_in_progress;
 
-#define PACKET_BUFFER_SIZE 32 // is this enough?
-static bool received_packets[PACKET_BUFFER_SIZE];
-
 void bootloader_preInit()
 {
     // Configure and initialize SEGGER SystemView.
@@ -215,23 +212,20 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // No reply for program command to reduce latency.
             bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
             current_address += sizeof(uint64_t);
-
-            uint32_t packet_index          = (current_address - __app_metadata_start__) / 8;
-            received_packets[packet_index] = true;
-
-            bootloader_sendUnreceivedPackets();
         }
-        else if (command.std_id == LOST_PACKET_ID)
+        else if (command.std_id == CONFIRM_CHUNK_ID && update_in_progress)
         {
-            for (uint32_t i = 0; i < PACKET_BUFFER_SIZE; i++)
-            {
-                if (!received_packets[i])
-                {
-                    uint32_t address = __app_metadata_start__ + 8 * i; // assuming it is consecutive addresses
-                    bootloader_boardSpecific_program(address, *(uint64_t *)command.data);
-                    break;
-                }
-            }
+            // Handshake to ensure the address are lined up after each chunk (32-bytes)
+            uint32_t address = *(uint32_t *)command.data;
+            CanMsg   reply   = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = (address == current_address) ? 1 : 0 };
+            io_can_pushTxMsgToQueue(&reply);
+        }
+        else if (command.std_id == LOST_CHUNK_ID && update_in_progress)
+        {
+            // Program the lost chunk to the address
+            uint32_t address = command.data[3] << 24 | command.data[2] << 16 | command.data[1] << 8 | command.data[0];
+            uint32_t data    = command.data[7] << 24 | command.data[6] << 16 | command.data[5] << 8 | command.data[4];
+            bootloader_boardSpecific_program(address, data);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
@@ -245,28 +239,6 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
-        }
-    }
-}
-
-void bootloader_sendUnreceivedPackets()
-{
-    for (uint32_t i = 0; i < PACKET_BUFFER_SIZE; i++)
-    {
-        if (!received_packets[i])
-        {
-            uint32_t address = __app_metadata_start__ + i * 8;
-            CanMsg lost_packet_msg = {
-                .std_id = LOST_PACKET_ID,
-                .dlc    = 4,
-                .data   = { 
-                    (uint8_t)(address & 0xFF),           // LSB of address
-                    (uint8_t)((address >> 8) & 0xFF),    // Next byte of address
-                    (uint8_t)((address >> 16) & 0xFF),   // Next byte of address
-                    (uint8_t)((address >> 24) & 0xFF)    // MSB of address
-                } // not sure if this is correct???
-            };
-            io_can_pushTxMsgToQueue(&lost_packet_msg);
         }
     }
 }
