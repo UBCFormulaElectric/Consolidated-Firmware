@@ -216,10 +216,11 @@ _Noreturn void bootloader_runInterfaceTask(void)
         else if (command.std_id == CONFIRM_CHUNK_ID && update_in_progress)
         {
             // Handshake to ensure the addresses are lined up after each chunk (32 bytes)
-            uint32_t address = *(uint32_t *)command.data;
-            bool address_aligned = address == current_address;
+            uint32_t address         = *(uint32_t *)command.data;
+            bool     address_aligned = address == current_address;
 
-            if (!address_aligned) {
+            if (!address_aligned)
+            {
                 current_address = address;
             }
             CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = address_aligned };
