@@ -229,11 +229,11 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-bool io_sbgEllipse_init(const UART *imu_uart)
+bool io_sbgEllipse_init(const UART *sbg_uart)
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 
-    uart = imu_uart;
+    uart = sbg_uart;
 
     // Initialize the SBG serial interface handle
     io_sbgEllipse_createSerialInterface(&sbg_interface);
@@ -310,19 +310,15 @@ EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData()
     return &sensor_data.ekf_data.ekf_nav_position;
 }
 
-// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-// {
-//     if (huart == &huart2)
-//     {
-//         // Push newly received data to queue
-//         for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
-//         {
-//             sbg_queue_overflow_count = 0;
+void io_sbgEllipse_msgRxCallback(void)
+{
+    for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
+    {
+        sbg_queue_overflow_count = 0;
 
-//             if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
-//             {
-//                 sbg_queue_overflow_count++;
-//             }
-//         }
-//     }
-// }
+        if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
+        {
+            sbg_queue_overflow_count++;
+        }
+    }
+}

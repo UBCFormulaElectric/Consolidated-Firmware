@@ -162,3 +162,8 @@ EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData();
  *
  */
 EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData();
+
+/*
+ * Handle SBG Ellipse UART Callbacks
+ */
+void io_sbgEllipse_msgRxCallback(void);
