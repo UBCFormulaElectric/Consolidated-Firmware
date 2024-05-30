@@ -95,7 +95,6 @@ bool app_allStates_runOnTick100Hz(void)
                 {
                     iso_spi_task_state = RUN_CELL_BALANCING;
                     app_accumulator_calculateCellsToBalance();
-                    app_accumulator_enableBalancing(true);
                 }
                 else
                 {
