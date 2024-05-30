@@ -223,7 +223,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
             {
                 current_address = address;
             }
-            CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = address_aligned };
+            CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = { address_aligned } };
             io_can_pushTxMsgToQueue(&reply);
         }
         else if (command.std_id == VERIFY_ID && update_in_progress)
