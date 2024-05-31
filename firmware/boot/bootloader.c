@@ -221,7 +221,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
 
             if (!address_aligned)
             {
-                current_address = address;
+                current_address = address-8192*sizeof(uint64_t);
             }
             CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = { address_aligned } };
             io_can_pushTxMsgToQueue(&reply);
