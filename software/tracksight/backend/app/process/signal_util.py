@@ -9,11 +9,7 @@ them to the flask app appropriately
 import os
 import sys
 
-# from pathlib import Path
-# import pandas as pd
 import flask_socketio
-
-# from . import definitions
 from . import telem_pb2
 
 import serial
