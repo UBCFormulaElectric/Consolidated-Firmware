@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import NavBar from './NavBar';
 import ThemeProvider from './ThemeProvider';
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,16 +28,13 @@ export default function RootLayout({ children, }: {
         <meta name="msapplication-config" content="/favicon/browserconfig.xml" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className}`}>
+        <Toaster />
         <ThemeProvider>
-          <div className="flex flex-col justify-between p-0 m-0 min-h-screen dark:bg-black dark:text-white">
-            <div className="p-0">
-              <NavBar />
-            </div>
-            <div className="flex-1">
-              {children}
-            </div>
-          </div>
+          <NavBar />
+          <main className="min-h-screen dark:bg-black dark:text-white pt-12">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

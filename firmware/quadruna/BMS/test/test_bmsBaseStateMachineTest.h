@@ -6,7 +6,6 @@
 #include "fake_io_time.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_airs.hpp"
-#include "fake_io_charger.hpp"
 #include "fake_io_sd.hpp"
 #include "fake_io_faultLatch.hpp"
 #include "fake_io_imd.hpp"
@@ -67,8 +66,8 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
         // Disable charging
         app_canRx_Debug_StartCharging_update(false);
-        fake_io_charger_hasFaulted_returns(false);
-        fake_io_charger_isConnected_returns(false);
+        app_canRx_BRUSA_Error_update(false);
+        app_canRx_BRUSA_IsConnected_update(false);
 
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
@@ -76,8 +75,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
 
     void TearDown() override
     {
-        fake_io_charger_hasFaulted_reset();
-        fake_io_charger_isConnected_reset();
         fake_io_ltc6813CellTemps_getMinTempDegC_reset();
         fake_io_ltc6813CellTemps_getMaxTempDegC_reset();
         fake_io_ltc6813CellVoltages_getCellVoltage_reset();
@@ -89,7 +86,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         fake_io_faultLatch_getCurrentStatus_reset();
         fake_io_tractiveSystem_getCurrentHighResolution_reset();
         fake_io_tractiveSystem_getCurrentLowResolution_reset();
-        fake_io_charger_enable_reset();
         fake_io_ltc6813CellTemps_getMinTempDegC_reset();
         fake_io_ltc6813CellTemps_getMaxTempDegC_reset();
         fake_io_airs_closePositive_reset();
@@ -109,7 +105,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
                                            app_balancingState_get() };
     }
 
-    const Charger              charger_config     = {};
     const ThermistorsConfig    thermistors_config = {};
     const AirsConfig           airs_config        = {};
     const TractiveSystemConfig ts_config          = {};

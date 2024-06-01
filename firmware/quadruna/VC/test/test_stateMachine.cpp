@@ -6,6 +6,7 @@ class VCStateMachineTest : public VcBaseStateMachineTest
     void TestFaultBlocksDrive(const std::function<void(void)> &set_fault, const std::function<void(void)> &clear_fault)
     {
         SetInitialState(app_driveState_get());
+        app_heartbeatMonitor_clearFaults();
 
         // Set the CRIT start switch to on, and the BMS to drive state, to prevent state transitions in
         // the drive state.
@@ -41,6 +42,7 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
+        app_heartbeatMonitor_clearFaults();
     }
 };
 
@@ -53,6 +55,8 @@ TEST_F(VCStateMachineTest, test_SetStateToDrive)
 
 TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
+    app_heartbeatMonitor_clearFaults();
+
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     // Pull start switch down and back up, expect no transition as inverters are not on/BMS is not in drive state
@@ -86,6 +90,7 @@ TEST_F(VCStateMachineTest, check_init_state_is_broadcasted_over_can)
 TEST_F(VCStateMachineTest, check_state_transition_from_init_to_inverter_on)
 {
     SetInitialState(app_initState_get());
+    app_heartbeatMonitor_clearFaults();
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     fake_io_tsms_read_returns(true);
     LetTimePass(1000);
@@ -112,6 +117,7 @@ TEST_F(VCStateMachineTest, check_inverterOn_state_is_broadcasted_over_can)
 TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
 {
     SetInitialState(app_initState_get());
+    app_heartbeatMonitor_clearFaults();
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
     fake_io_tsms_read_returns(true);
     LetTimePass(1000);
@@ -155,6 +161,7 @@ TEST_F(VCStateMachineTest, check_if_buzzer_stays_on_for_two_seconds_only_after_e
     {
         VcBaseStateMachineTest::SetUp();
         SetInitialState(state);
+        app_heartbeatMonitor_clearFaults();
 
         if (app_canTx_VC_State_get() == VC_DRIVE_STATE)
         {
