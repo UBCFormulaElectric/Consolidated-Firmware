@@ -3,7 +3,7 @@ Signal util and uart 'handling' class
 
 Reads in the bytes coming in over UART and emits 
 them to the flask app appropriately
-#TODO: update documentation
+TODO: Implement proper error handling for things like no data available.
 """
 
 import os
@@ -38,13 +38,10 @@ ser.reset_output_buffer()
 available_signals = {}
 client_signals = {}
 
-ser.reset_input_buffer()
-ser.reset_output_buffer()
 s = set()
 s.add(255)
 s.add(165)
 s.add(253)
-
 
 def read_messages():
     """
@@ -108,7 +105,9 @@ def get_available_signals(self):
 
 def connect_client_to_signal(self, client_id, signal_name):
     """
-    Append the client_id to a specific signal
+    Append the client ID to a specific signal.
+    :param client_id: The ID of the client to connect.
+    :param signal_name: The name of the signal to connect to.
     """
     if signal_name in list(client_signals.keys()):
         if client_id not in client_id[signal_name]:
@@ -117,7 +116,8 @@ def connect_client_to_signal(self, client_id, signal_name):
 
 def connect_client_to_available_signals(client_id):
     """
-    Connect the client and to all available signals
+    Connect the client to all available signals.
+    :param client_id: The ID of the client to connect.
     """
     for signal_name in list(client_signals.keys()):
         if client_id not in client_signals[signal_name]:
@@ -126,7 +126,9 @@ def connect_client_to_available_signals(client_id):
 
 def disconnect_client_from_signal(client_id, signal_name):
     """
-    Remove a specific signal from a specific client
+    Remove a specific signal from a specific client.
+    :param client_id: The ID of the client to disconnect.
+    :param signal_name: The name of the signal to disconnect from.
     """
     if signal_name in list(client_signals.keys()):
         if client_id in client_signals[signal_name]:
@@ -135,7 +137,8 @@ def disconnect_client_from_signal(client_id, signal_name):
 
 def disconnect_client(client_id):
     """
-    Remove a specific client from all signals
+    Remove a specific client from all signals.
+    :param client_id: The ID of the client to disconnect.
     """
     for signal_name in list(client_signals.keys()):
         if client_id in client_signals[signal_name]:
@@ -144,7 +147,9 @@ def disconnect_client(client_id):
 
 def make_bytes(message):
     """
-    Make the byte array out of the messages array.
+    Make the byte array out of the message array.
+    :param message: The message to convert to bytes.
+    :return: Bytearray of the message.
     """
     return bytearray(
         [
