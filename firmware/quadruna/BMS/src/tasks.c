@@ -430,6 +430,8 @@ _Noreturn void tasks_run1kHz(void)
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
 
+    hw_watchdog_checkIn(watchdog);
+
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
