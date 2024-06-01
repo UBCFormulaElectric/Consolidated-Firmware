@@ -13,6 +13,12 @@ bus_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 from jsoncan.src.can_database import CanDatabase
 
+#Imports for Influx
+import datetime
+import pytz
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+
 #TODO: rid this of a class and make it availble for proper threading.
 class SignalUtil:
     """
@@ -32,7 +38,20 @@ class SignalUtil:
 
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
-    
+        
+        #Influx DB setup
+        bucket = "bucket"
+        org = "org"
+        token = "J-5Bq0hKIA2V4Z4tZuSs9x6o37fvOTStEc22C9kxobHYMenQJtxd7bx0gDBoH9YdOoV1gjkK6agGqKAyiuqAwA=="
+        url = "http://localhost:8086"   
+        self.write_client = InfluxDBClient(url=url, token=token, org=org)
+        self.write_api = self.write_cliet.write_api(write_options=SYNCHRONOUS)
+        self.base_time = datetime.datetime.now(pytz.utc).astimezone(pytz.timezone('America/Vancouver'))
+
+       
+        self.signal_queue = {}  #To queue signals for write
+        self.batch_size = 10 #Let batch size be 10 for now
+
     def read_messages(self):
         """
         Read messages coming in through the serial port, decode them, unpack them and then emit them to the socket 
@@ -77,6 +96,7 @@ class SignalUtil:
                         
                         # Emit the message
                         flask_socketio.emit('signal_response',single_signal)
+                        self.queue_signal(message_received, single_signal)
 
                 else: 
                     last_bit = packet_size
@@ -87,6 +107,41 @@ class SignalUtil:
             print("Error receiving/sending proto msg:", e)
         finally:
             self.ser.close()
+
+    def queue_signal(self, message_received, single_signal):
+        """
+        Queue the signal for batch writing to InfluxDB
+        """
+        timestamp = message_received.time_stamp
+        actual_time = self.base_time + datetime.timedelta(milliseconds=int(timestamp))
+        signal_name = single_signal["name"]
+        signal_value = single_signal["value"]
+        
+        point = Point(signal_name).time(actual_time).field("value", signal_value)
+        
+        if signal_name not in self.signal_queue:
+            self.signal_queue[signal_name] = []
+        
+        self.signal_queue[signal_name].append(point)
+
+        if sum(len(points) for points in self.signal_queue.values()) >= self.batch_size:
+            self.write_batch_to_influx()
+
+
+    def write_to_Influx(self):
+        """
+        Writes data to InfluxDB and clear queue
+        """
+        points_to_write = []
+        for points in self.signal_queue.values():
+            points_to_write.extend(points)
+        
+        try:
+            self.write_api.write(bucket="bucket", org="org", record=points_to_write)
+            self.signal_queue.clear()
+        except Exception as e:
+            print(f"Error writing batch to InfluxDB: {e}")
+  
 
     def get_available_signals(self):
         """
@@ -138,3 +193,29 @@ class SignalUtil:
             message.message_6, message.message_7
         ]) 
         
+
+  #TEMPORARY
+
+def query_influxdb():
+    token = "J-5Bq0hKIA2V4Z4tZuSs9x6o37fvOTStEc22C9kxobHYMenQJtxd7bx0gDBoH9YdOoV1gjkK6agGqKAyiuqAwA=="
+    org = "org"
+    bucket = "bucket"
+    url = "http://localhost:8086"
+
+    client = InfluxDBClient(url=url, token=token, org=org)
+    query_api = client.query_api()
+
+    query = f'from(bucket:"{bucket}") |> range(start: -1h)'  # Query data from the last hour
+    tables = query_api.query(query)
+
+    for table in tables:
+        for record in table.records:
+            print(f'Time: {record.get_time()}, Measurement: {record.get_measurement()}, Field: {record.get_field()}, Value: {record.get_value()}')
+
+    client.close()
+
+if __name__ == "__main__":
+    is_modem_reader = True  # or False, depending on the use case
+    signal_util = SignalUtil(is_modem_reader)
+    signal_util.read_messages()
+    query_influxdb()
