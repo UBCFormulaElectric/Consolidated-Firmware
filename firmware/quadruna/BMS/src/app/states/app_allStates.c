@@ -10,6 +10,7 @@
 #include "app_shdnLoop.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
+#include "io_bspdTest.h"
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
@@ -128,6 +129,11 @@ bool app_allStates_runOnTick100Hz(void)
     // Re-enable if auxiliary thermistors installed
     // app_thermistors_updateAuxThermistorTemps();
     // app_thermistors_broadcast();
+
+    const bool bspd_test_current_enable = app_canRx_Debug_EnableTestCurrent_get();
+    io_bspdTest_enable(bspd_test_current_enable);
+    const bool bspd_current_threshold_exceeded = io_bspdTest_isCurrentThresholdExceeded();
+    app_canTx_BMS_BSPDCurrentThresholdExceeded_set(bspd_current_threshold_exceeded);
 
     app_accumulator_broadcast();
     app_tractiveSystem_broadcast();
