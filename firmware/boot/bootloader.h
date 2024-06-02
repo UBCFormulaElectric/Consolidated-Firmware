@@ -25,4 +25,4 @@ _Noreturn void bootloader_runCanTxTask(void);
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);
-void bootloader_boardSpecific_program(uint32_t address, uint64_t* cache_buffer);
+void bootloader_boardSpecific_program(uint32_t address, uint64_t *cache_buffer);

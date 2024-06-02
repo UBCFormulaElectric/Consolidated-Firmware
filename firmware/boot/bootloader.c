@@ -133,7 +133,7 @@ static const Gpio bootloader_pin = {
 
 static uint32_t current_address;
 static bool     update_in_progress;
-static uint64_t program_cache_buffer[CHUNK_SIZE_BYTES];
+static uint64_t program_cache_buffer[CHUNK_SIZE_BYTES / 8];
 static uint32_t program_cache_buffer_idx = 0;
 
 void bootloader_preInit()
@@ -221,19 +221,20 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Handshake to ensure the addresses are lined up after each chunk
             uint32_t program_address = *(uint32_t *)command.data;
-            bool address_aligned = program_address == current_address;
+            bool     address_aligned = program_address == current_address;
 
             if (!address_aligned)
             {
                 current_address = program_address - CHUNK_SIZE_BYTES;
             }
 
-            CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1 };
+            CanMsg reply  = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1 };
             reply.data[0] = (uint8_t)address_aligned;
             io_can_pushTxMsgToQueue(&reply);
 
-            if (address_aligned) {
-                bootloader_boardSpecific_program(current_address-CHUNK_SIZE_BYTES, program_cache_buffer);
+            if (address_aligned)
+            {
+                bootloader_boardSpecific_program(current_address - CHUNK_SIZE_BYTES, program_cache_buffer);
                 program_cache_buffer_idx = 0;
             }
         }
