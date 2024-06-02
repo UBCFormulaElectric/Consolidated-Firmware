@@ -9,7 +9,6 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
     "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
