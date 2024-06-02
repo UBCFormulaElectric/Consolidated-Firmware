@@ -1,28 +1,25 @@
-// used api endpoints
-// /signal/measurement
-// /signal/fields/<measurement>
-// /query
+/**
+ * REST API Endpoints:
+ * /signal/measurement 
+ * /signal/fields/<measurement>
+ * /query
+ */
 
 'use client';
-import {Dispatch, MouseEventHandler, SetStateAction, useEffect, useState} from 'react';
-import {PlotRelayoutEvent} from 'plotly.js';
-import {Button} from 'antd';
-import {GraphI} from '@/types/Graph';
+// ui
+import { Button, DatePicker } from 'antd';
 import DropdownMenu from './dropdown_menu';
-import TimeStampPicker from './timestamp_picker';
-import {FLASK_URL} from '@/app/constants';
-import dynamic from "next/dynamic";
-
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
-
-const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
-    width: 620,
-    height: 500,
-    title: "Empty",
-    xaxis: {},
-    yaxis: {},
-    legend: { "orientation": "h" },
-}
+import TimePlot from './timeplot';
+import { toast } from "sonner"
+// constants
+import { FLASK_URL } from '@/app/constants';
+// types
+import { GraphI } from '@/types/Graph';
+import { Nullable } from '@/types/Utility';
+import { PlotRelayoutEvent } from 'plotly.js';
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useState } from 'react';
+import { Dayjs } from 'dayjs';
+import { FormattedData } from './timeplot';
 
 export const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
@@ -31,160 +28,153 @@ export const getRandomColor = () => {
     return `rgb(${r},${g},${b})`;
 };
 
-const MeasurementDropdown = ({ setMeasurement }: {
-    setMeasurement: Dispatch<SetStateAction<string>>
-}) => {
+function MeasurementDropdown({ measurement, setMeasurement }: {
+    measurement: string | null;
+    setMeasurement: Dispatch<SetStateAction<string | null>>;
+}) {
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         (async () => {
-            const fetchURL = `${FLASK_URL}/signal/measurements`
+            const fetchURL = `${FLASK_URL}/signal/measurements`;
             const res = await fetch(fetchURL, {
                 method: 'get',
-            })
+            });
             if (!res.ok) {
-                console.error(await res.text())
-                // TODO messages fetch error
+                console.error(await res.text());
+                toast.error("Error fetching measurements");
                 return;
             }
-            const data = await res.json()
-            setAllMeasurements(data)
-            setLoading(false)
-        })()
+            const data = await res.json();
+            setAllMeasurements(data);
+            setLoading(false);
+        })();
     }, []);
 
     return (
         <DropdownMenu
+            selectedOptions={measurement}
             setSelectedOptions={setMeasurement}
             options={allMeasurements}
             single={true}
             placeholder={"Measurements"}
             disabled={loading}
-            loading={loading}
-        />
-    )
+            loading={loading} />
+    );
 }
 
-const FieldDropdown = ({ setFields, measurement }: {
-    setFields: Dispatch<SetStateAction<string[]>>
-    measurement: string, 
-}) => {
+function FieldDropdown({ fields, setFields, measurement }: {
+    fields: string[];
+    setFields: Dispatch<SetStateAction<string[]>>;
+    measurement: string | null;
+}) {
     const [allFields, setAllFields] = useState<string[]>([]);
-    const [fetchedFields, setFetchedFields] = useState<boolean>(false);
+    const [hasFetchedFields, setHasFetchedFields] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if(measurement.length == 0) return;
+        setFields([]);
+        if (measurement === null) return;
         (async () => {
             setLoading(true);
-            setFetchedFields(false)
+            setHasFetchedFields(false);
             try {
                 const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
                     method: 'get',
-                })
-                if(!res.ok) {
-                    console.error(await res.text())
+                });
+                if (!res.ok) {
+                    console.error(await res.text());
                     return;
                 }
-                setAllFields(await res.json())
-                setFetchedFields(true)
+                setAllFields(await res.json());
+                setHasFetchedFields(true);
             } catch (error) {
-                console.error(error)
+                console.error(error);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        })()
+        })();
     }, [measurement]);
 
     return (
         <DropdownMenu
-            disabled={!fetchedFields}
+            disabled={!hasFetchedFields}
             loading={loading}
+            selectedOptions={fields}
             setSelectedOptions={setFields}
             options={allFields}
             single={false}
-            placeholder="Fields"
-        />
-    )
+            placeholder="Fields" />
+    );
 }
 
-function usePlotlyFormat(setGraphTitle: (title: string) => void): [Plotly.Data[], Dispatch<SetStateAction<Record<string, { times: Array<string>; values: Array<number>; }>>>] {
+function usePlotlyFormat(setGraphTitle: (title: string) => void): [
+    FormattedData[],
+    Dispatch<SetStateAction<Record<string, { times: Array<string>; values: Array<number>; }>>>
+] {
     const [data, setData] = useState<Record<string, { times: Array<string>; values: Array<number>; }>>({});
-    const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
+    const [formattedData, setFormattedData] = useState<FormattedData[]>([]);
     useEffect(() => {
         setGraphTitle(Object.keys(data).join(" + "));
         setFormattedData(Object.entries(data).map(([graphName, { times, values }]) => ({
             name: graphName,
-            x: times, y: values,
-            type: 'scatter', mode: 'lines+markers', line: { color: getRandomColor() }
-        } as Plotly.Data)));
+            x: times.map(x => new Date(x)), y: values,
+            type: "scatter", mode: "lines+markers", line: { color: getRandomColor() }
+        })));
     }, [data]);
 
     return [formattedData, setData];
 }
 
-export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, handleDelete }: {
+export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, deletePlot }: {
     graphInfo: GraphI,
+    deletePlot: MouseEventHandler<HTMLButtonElement>,
     syncZoom: boolean,
     sharedZoomData: PlotRelayoutEvent,
     setSharedZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    handleDelete: MouseEventHandler<HTMLInputElement>,
 }) {
-    //default graph layout
-    const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
-    // updates graph layout when zoomed 
-    useEffect(() => {
-        if (!(sharedZoomData && 'xaxis.range[0]' in sharedZoomData)) {
-            // TODO error in some way
-            return;
-        }
-        // Update the graph's layout with the new axis ranges
-        setGraphLayout(prevLayout => ({
-            ...prevLayout,
-            xaxis: {
-                range: [sharedZoomData['xaxis.range[0]'], sharedZoomData['xaxis.range[1]']],
-            },
-            yaxis: {
-                range: [sharedZoomData['yaxis.range[0]'], sharedZoomData['yaxis.range[1]']],
-            },
-        }));
-    }, [sharedZoomData]);
-
-    const [plotData, setPlotData] = usePlotlyFormat((t) => setGraphLayout(p => ({ ...p, title: t, })))
+    const [plotTitle, setPlotTitle] = useState<string>("");
+    const [plotData, setPlotData] = usePlotlyFormat(setPlotTitle);
 
     // Top Form Information
-    const [measurement, setMeasurement] = useState<string>("");
+    const [measurement, setMeasurement] = useState<string | null>(null);
     const [fields, setFields] = useState<string[]>([]);
-    const [startEpoch, setStartEpoch] = useState<string>("");
-    const [endEpoch, setEndEpoch] = useState<string>("");
+    const [startEpoch, setStartEpoch] = useState<number | null>(null);
+    const [endEpoch, setEndEpoch] = useState<number | null>(null);
 
     return (
-        <div className="flex flex-col p-4 border-[1.5px] rounded-xl">
-            {/* Measurement Selector */}
+        <TimePlot plotTitle={plotTitle} deletePlot={deletePlot}
+            plotData={plotData} clearPlotData={e => setPlotData({})}
+            syncZoom={syncZoom} sharedZoomData={sharedZoomData} setSharedZoomData={setSharedZoomData}
+        >
             <div className="flex flex-col gap-y-2">
-                <MeasurementDropdown setMeasurement={setMeasurement} />
-                <FieldDropdown setFields={setFields} measurement={measurement} />
-                <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
+                <MeasurementDropdown measurement={measurement} setMeasurement={setMeasurement} />
+                <FieldDropdown fields={fields} setFields={setFields} measurement={measurement} />
+                <DatePicker.RangePicker showTime
+                    onChange={(date_pair: Nullable<[Nullable<Dayjs>, Nullable<Dayjs>]>, _formatted_dates: [string, string]) => {
+                        if (!date_pair) return;
+                        if(!date_pair[0] || !date_pair[1]) return console.warn("Partially null date pair");
+                        setStartEpoch(date_pair[0].unix());
+                        setEndEpoch(date_pair[1].unix());
+                    }}
+                />
                 <Button onClick={async (e) => {
                     const missingQueryEls = !startEpoch || !endEpoch || !measurement || fields.length == 0;
                     if (missingQueryEls) {
-                        // TODO add message
-                        // "Please fill out all fields properly"
+                        toast("Please fill out all fields properly")
                         return;
                     }
                     const fetchUrl = new URL("/signal/query", FLASK_URL);
                     fetchUrl.search = new URLSearchParams({
-                        measurement: measurement[0],
-                        start_epoch: startEpoch, end_epoch: endEpoch,
+                        measurement: measurement,
+                        start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString(), // apparently for some reason the time is given in ms
                         fields: fields.join(",")
                     }).toString();
-                    console.log(fetchUrl.toString()) // TODO remove after testing
-
                     try {
                         const res = await fetch(fetchUrl, { method: 'get' })
                         if (!res.ok) {
-                            // TODO add message
                             console.error(await res.json())
+                            toast.error("Error fetching data")
                             return;
                         }
                         setPlotData(await res.json())
@@ -195,24 +185,6 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, han
                     Submit
                 </Button>
             </div>
-
-            {/* TODO better plotting library :(((( */}
-            <Plot layout={graphLayout} data={plotData} // Pass the array of formatted data objects
-                config={{ displayModeBar: true, displaylogo: false, scrollZoom: true, }}
-                onRelayout={(e: PlotRelayoutEvent) => { if (syncZoom) setSharedZoomData(e) }}
-            />
-
-            <div className="flex flex-row gap-x-2">
-                <Button block={true} className="bg-[#1890ff] text-white border-0" onClick={() => {
-                    setGraphLayout(DEFAULT_LAYOUT);
-                    setPlotData({});
-                }}>
-                    Clear Data
-                </Button>
-                <Button block={true} className="bg-[#ff4d4f] !text-white border-0" danger={true} ghost={false} onClick={handleDelete}>
-                    Delete This Graph
-                </Button>
-            </div>
-        </div>
+        </TimePlot>
     );
 }

@@ -187,9 +187,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         SetUp();
 
         // Set charger conditions such that charger faults do not trigger
-        fake_io_charger_isConnected_returns(true);
+        app_canRx_BRUSA_IsConnected_update(true);
         fake_io_airs_isNegativeClosed_returns(true);
-        fake_io_charger_hasFaulted_returns(false);
+        app_canRx_BRUSA_Error_update(false);
 
         SetInitialState(app_chargeState_get());
         app_canRx_Debug_StartCharging_update(true);
@@ -305,10 +305,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         // Reset test
         TearDown();
         SetUp();
-
         // Set charger conditions such that charger faults do not trigger
-        fake_io_charger_isConnected_returns(true);
-        fake_io_charger_hasFaulted_returns(false);
+        app_canRx_BRUSA_IsConnected_update(true);
+        app_canRx_BRUSA_Error_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
 
@@ -423,8 +422,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
         SetUp();
 
         // Set charger conditions such that charger faults do not trigger
-        fake_io_charger_isConnected_returns(true);
-        fake_io_charger_hasFaulted_returns(false);
+        app_canRx_BRUSA_IsConnected_update(true);
+        app_canRx_BRUSA_Error_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
 
@@ -486,7 +485,7 @@ TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
     for (int i = 1; i <= 3; i++)
     {
         // Close negative contactor with charger disconnected, precharge should start
-        fake_io_charger_isConnected_returns(false);
+        app_canRx_BRUSA_IsConnected_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(false);
         LetTimePass(210U);
