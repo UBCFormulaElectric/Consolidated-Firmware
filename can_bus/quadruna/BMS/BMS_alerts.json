@@ -37,39 +37,35 @@
             "description": "CAN RX queue has overflowed."
         },
         "OpenWireCheckFault": {
-            "id": 165,
+            "id": 109,
             "description": "Open wire cell detected (cell voltage tap is open circuit)."
         },
         "OpenWireCheck_Segment0_GND": {
-            "id": 166,
+            "id": 110,
             "description": "Open wire cell detected in segment 0 (cell voltage tap is open circuit)."
         },
         "OpenWireCheck_Segment1_GND": {
-            "id": 167,
+            "id": 111,
             "description": "Open wire cell detected in segment 1 (cell voltage tap is open circuit)."
         },
         "OpenWireCheck_Segment2_GND": {
-            "id": 168,
+            "id": 112,
             "description": "Open wire cell detected in segment 2 (cell voltage tap is open circuit)."
         },
         "OpenWireCheck_Segment3_GND": {
-            "id": 169,
+            "id": 113,
             "description": "Open wire cell detected in segment 3 (cell voltage tap is open circuit)."
         },
         "OpenWireCheck_Segment4_GND": {
-            "id": 170,
+            "id": 114,
             "description": "Open wire cell detected in segment 4 (cell voltage tap is open circuit)."
+        },
+        "MissingVCHeartbeat": {
+            "id": 115,
+            "description": "Missing heartbeat from the VC."
         }
     },
     "faults": {
-        "MissingVCHeartbeat": {
-            "id": 151,
-            "description": "Missing heartbeat signal from the VC."
-        },
-        "MissingRSMHeartbeat": {
-            "id": 152,
-            "description": "Missing heartbeat signal from the RSM."
-        },
         "StateMachine": {
             "id": 154,
             "description": "BMS has transitioned to fault state."
