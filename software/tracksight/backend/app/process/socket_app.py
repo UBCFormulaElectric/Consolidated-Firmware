@@ -5,29 +5,36 @@ from process import SignalUtil
 socketio = SocketIO(cors_allowed_origins="*")
 signal_util = SignalUtil.SignalUtil()
 
-@socketio.on('connect')
+
+@socketio.on("connect")
 def handle_connect():
     print("Client Connected")
-    emit('message', 'You are connected to the server connect')
+    emit("message", "You are connected to the server connect")
 
-@socketio.on('disconnect')
+
+@socketio.on("disconnect")
 def handle_disconnect():
     print("Client Disconnected")
-    emit('message', 'You are disconnected from the server disconnect')
-    
-@socketio.on('data')
+    emit("message", "You are disconnected from the server disconnect")
+
+
+@socketio.on("data")
 def handle_message(message):
-    socketio.emit('message_from_server', f'Server received: {message}')
+    socketio.emit("message_from_server", f"Server received: {message}")
+
 
 # returns all available signals to the client
-@socketio.on('available_signals')
+@socketio.on("available_signals")
 def handle_available_signals(message):
-    signals = signal_util.get_all_signals() 
-    signal_names = list(signals.keys())  # returns list of keys 
-    socketio.emit('available_signals_response', signal_names)  # Emit the signal names to the client
+    signals = signal_util.get_all_signals()
+    signal_names = list(signals.keys())  # returns list of keys
+    socketio.emit(
+        "available_signals_response", signal_names
+    )  # Emit the signal names to the client
+
 
 # returns signal data to client based on signal name
-@socketio.on('signal')
+@socketio.on("signal")
 def handle_signal_message(message):
     id = message["graph"]
     ids = message["ids"]
@@ -40,5 +47,6 @@ def handle_signal_message(message):
     ret["signals"] = signals
     emit("signal_response", ret)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     socketio.run(debug=True)
