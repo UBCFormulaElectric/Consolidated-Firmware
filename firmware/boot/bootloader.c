@@ -133,6 +133,8 @@ static const Gpio bootloader_pin = {
 
 static uint32_t current_address;
 static bool     update_in_progress;
+static uint64_t program_cache_buffer[CHUNK_SIZE_BYTES];
+static uint32_t program_cache_buffer_idx = 0;
 
 void bootloader_preInit()
 {
@@ -158,7 +160,7 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
+    if (false && verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
@@ -174,6 +176,8 @@ void bootloader_init(void)
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    verifyAppCodeChecksum();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -210,22 +214,30 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            program_cache_buffer[program_cache_buffer_idx++] = *(uint64_t *)command.data;
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == CONFIRM_CHUNK_ID && update_in_progress)
         {
-            // Handshake to ensure the addresses are lined up after each chunk (32 bytes)
-            uint32_t address         = *(uint32_t *)command.data;
-            bool     address_aligned = address == current_address;
+            // Handshake to ensure the addresses are lined up after each chunk
+            uint32_t program_address = *(uint32_t *)command.data;
+            bool address_aligned = program_address == current_address;
 
             if (!address_aligned)
             {
-                current_address = address-8192*sizeof(uint64_t);
+                current_address = program_address - CHUNK_SIZE_BYTES;
             }
-            CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1, .data = { address_aligned } };
+
+            CanMsg reply = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1 };
+            reply.data[0] = (uint8_t)address_aligned;
             io_can_pushTxMsgToQueue(&reply);
+
+            if (address_aligned) {
+                bootloader_boardSpecific_program(current_address-CHUNK_SIZE_BYTES, program_cache_buffer);
+                program_cache_buffer_idx = 0;
+            }
         }
+
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
@@ -254,12 +266,12 @@ void bootloader_runTickTask()
         status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
         status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
         status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-        status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        // status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
         io_can_pushTxMsgToQueue(&status_msg);
 
         bootloader_boardSpecific_tick();
 
-        start_ticks += 100; // 10Hz tick
+        start_ticks += 1000; // 10Hz tick
         osDelayUntil(start_ticks);
     }
 }

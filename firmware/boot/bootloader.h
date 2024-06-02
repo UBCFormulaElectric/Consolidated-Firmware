@@ -15,6 +15,8 @@
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
 
+#define CHUNK_SIZE_BYTES (32768U)
+
 void           bootloader_preInit(void);
 void           bootloader_init(void);
 _Noreturn void bootloader_runInterfaceTask(void);
@@ -23,4 +25,4 @@ _Noreturn void bootloader_runCanTxTask(void);
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);
-void bootloader_boardSpecific_program(uint32_t address, uint64_t data);
+void bootloader_boardSpecific_program(uint32_t address, uint64_t* cache_buffer);
