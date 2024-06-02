@@ -63,6 +63,10 @@
         "MissingVCHeartbeat": {
             "id": 115,
             "description": "Missing heartbeat from the VC."
+        },
+        "BlownCellFuse":{
+            "id": 116,
+            "description": "Blown fuse in BMS detected based on cell voltages"
         }
     },
     "faults": {

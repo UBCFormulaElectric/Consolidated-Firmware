@@ -42,6 +42,14 @@
 #define SEG4_CELL2_THERMISTOR (2U)
 #define SEG4_CELL8_THERMISTOR (2U)
 
+// For internal cell resistance see the cell-segment
+// datasheet on google drive Model No.:SLPB9742126
+#define INTERNAL_CELL_RESISTANCE (0.0025f) // Ohms
+// What we will compare against to determine if a segment has a blown fuse and is
+// less than three cells in parallel. We calculate number of cells and compare.
+#define BLOWN_FUSE_THRESHOLD (2.5f)
+#define FUSE_CHECK_CURRENT_THRESHOLD_AMPS (40.0f)
+
 // Update the counter keeping track of the PEC15 error
 #define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
     if ((is_pec_ok))                                        \
@@ -462,6 +470,50 @@ void app_accumulator_broadcast(void)
             MAX_POWER_LIMIT_W);
 
     app_canTx_BMS_AvailablePower_set((uint32_t)available_power);
+}
+
+float app_accumulator_blownFuseCheckHelper(void)
+{
+    float cell_voltage_minimum = app_accumulator_getMinCellVoltage(NULL, NULL);
+    float cell_voltage_sum     = 0;
+
+    for (uint8_t seg = 0; seg < ACCUMULATOR_NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            float cell_voltage = io_ltc6813CellVoltages_getCellVoltage(seg, cell);
+            cell_voltage_sum += cell_voltage;
+        }
+    }
+
+    float cell_voltage_avg = cell_voltage_sum / (float)ACCUMULATOR_NUM_SERIES_CELLS_TOTAL;
+    float segment_current  = app_tractiveSystem_getCurrent();
+
+    float denom_min_cells_in_parallel =
+        cell_voltage_avg - cell_voltage_minimum +
+        segment_current * INTERNAL_CELL_RESISTANCE / (float)ACCUMULATOR_NUM_PARALLEL_CELLS;
+
+    if (denom_min_cells_in_parallel == 0)
+    {
+        return -1;
+    }
+
+    return (segment_current)*INTERNAL_CELL_RESISTANCE / denom_min_cells_in_parallel;
+}
+
+bool app_accumulator_checkWarnings(void)
+{
+    if (app_tractiveSystem_getCurrent() < FUSE_CHECK_CURRENT_THRESHOLD_AMPS)
+    {
+        return false;
+    }
+    float estimated_min_cells_in_parallel = app_accumulator_blownFuseCheckHelper();
+
+    bool blown_fuse_warning = estimated_min_cells_in_parallel < BLOWN_FUSE_THRESHOLD;
+
+    app_canAlerts_BMS_Warning_BlownCellFuse_set(blown_fuse_warning);
+
+    return blown_fuse_warning;
 }
 
 bool app_accumulator_checkFaults(void)

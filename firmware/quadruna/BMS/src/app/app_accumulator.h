@@ -55,6 +55,12 @@ bool app_accumulator_runOpenWireCheck(void);
 void app_accumulator_broadcast(void);
 
 /**
+ * Check the status of Accumulator warnings, sends warning over CAN bus
+ * @return True if warnings present, false otherwise
+ */
+bool app_accumulator_checkWarnings(void);
+
+/**
  * Check the status of Accumulator faults, sends warning over CAN bus
  * @return True if faults present, false otherwise
  */
