@@ -37,6 +37,15 @@ services:
     depends_on:
       influx:
         condition: service_healthy
+    command:
+      [
+        "python3",
+        "app/telemetry.py",
+        "--mode",
+        "log",
+        "--log-file",
+        "/test.txt"
+      ]
   frontend:
     build: ./frontend
     ports:

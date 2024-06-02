@@ -3,8 +3,7 @@ Main REST component of the backend
 """
 
 from flask import Blueprint, request
-
-from .. import influx_handler as influx
+import influx_handler
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
@@ -31,7 +30,7 @@ def return_all_measurements():
     """
     :returns Page displaying all measurements in the database.
     """
-    return influx.get_measurements(), 200
+    return influx_handler.get_measurements(), 200
 
 
 @app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
@@ -40,7 +39,7 @@ def return_all_fields_for_measurement(measurement: str):
     :param measurement: Measurement to fetch fields for.
     :returns Page displaying all fields for a specific measurement.
     """
-    return influx.get_fields(measurement), 200
+    return influx_handler.get_fields(measurement), 200
 
 
 @app.route("/signal/query", methods=["GET"])
@@ -71,6 +70,6 @@ def return_query():
         ]
         return {"error": f"Missing parameters: {missing_keys}"}, 400
     try:
-        return influx.query(measurement, fields, (start_epoch, end_epoch))
+        return influx_handler.query(measurement, fields, (start_epoch, end_epoch))
     except Exception as e:
         return {"error": str(e)}, 500
