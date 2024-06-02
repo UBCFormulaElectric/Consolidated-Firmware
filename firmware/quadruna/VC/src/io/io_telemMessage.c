@@ -6,9 +6,8 @@
 #include "cmsis_os.h"
 #include "queue.h"
 #include "io_log.h"
+#include "app_canDataCapture.h"
 
-// create the truth table for now to decide which amount of things to use
-// create or grab the constants for the different modem and pins and such
 // Private Globals
 
 #define CAN_DATA_LENGTH 12
@@ -43,48 +42,52 @@ void io_telemMessage_init(const Modem *m)
     message_queue_id = osMessageQueueNew(CAN_DATA_LENGTH, QUEUE_SIZE, &queue_attr);
 }
 
-bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
+bool io_telemMessage_pushMsgtoQueue(CanMsg *msg)
 {
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
     // filter messages
-    if (rx_msg->std_id != 111)
-    {
+
+    uint32_t msg_id = msg->std_id;
+    uint32_t time_ms = io_time_getCurrentMs();
+    if (app_dataCapture_needsTelem((uint16_t)msg_id, time_ms)){ //TODO: proper app / io seperation
+        // start protobuf
+        pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
+
+        // filling in fields
+        if (msg->dlc > 8)
+            return false;
+        t_message.can_id    = (int32_t)msg_id;
+        t_message.message_0 = msg->data[0];
+        t_message.message_1 = msg->data[1];
+        t_message.message_2 = msg->data[2];
+        t_message.message_3 = msg->data[3];
+        t_message.message_4 = msg->data[4];
+        t_message.message_5 = msg->data[5];
+        t_message.message_6 = msg->data[6];
+        t_message.message_7 = msg->data[7];
+
+        // encoding message
+
+        proto_status                         = pb_encode(&stream, TelemMessage_fields, &t_message);
+        proto_msg_length                     = (uint8_t)stream.bytes_written;
+        proto_buffer[49]                     = proto_msg_length;
+        static uint32_t telem_overflow_count = 0;
+        osStatus_t      s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
+        if (s != osOK)
+        {
+            telem_overflow_count++;
+            LOG_WARN("queue problem");
+        }
+        else
+        {
+            LOG_INFO("proto pushed to queue");
+        }
+        return true;
+    }
+    else{
         return false;
     }
-    // send it over the correct UART functionality
-    pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
-
-    // filling in fields
-    if (rx_msg->dlc > 8)
-        return false;
-    t_message.can_id    = (int32_t)(rx_msg->std_id);
-    t_message.message_0 = rx_msg->data[0];
-    t_message.message_1 = rx_msg->data[1];
-    t_message.message_2 = rx_msg->data[2];
-    t_message.message_3 = rx_msg->data[3];
-    t_message.message_4 = rx_msg->data[4];
-    t_message.message_5 = rx_msg->data[5];
-    t_message.message_6 = rx_msg->data[6];
-    t_message.message_7 = rx_msg->data[7];
-
-    // encoding message
-
-    proto_status                         = pb_encode(&stream, TelemMessage_fields, &t_message);
-    proto_msg_length                     = (uint8_t)stream.bytes_written;
-    proto_buffer[49]                     = proto_msg_length;
-    static uint32_t telem_overflow_count = 0;
-    osStatus_t      s                    = osMessageQueuePut(message_queue_id, &proto_buffer, 0U, 0U);
-    if (s != osOK)
-    {
-        telem_overflow_count++;
-        LOG_WARN("queue problem");
-    }
-    else
-    {
-        LOG_INFO("proto pushed to queue");
-    }
-    return true;
 }
 
 bool io_telemMessage_broadcastMsgFromQueue(void)
