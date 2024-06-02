@@ -74,6 +74,10 @@
             "id": 552,
             "description": "Missing heartbeat signal from the FSM."
         },
+        "MissingRSMHeartbeat": {
+            "id": 553,
+            "description": "Missing heartbeat signal from the RSM."
+        },
         "MissingCRITHeartbeat": {
             "id": 554,
             "description": "Missing heartbeat signal from the CRIT."

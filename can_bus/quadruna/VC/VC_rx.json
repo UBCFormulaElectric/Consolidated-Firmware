@@ -19,6 +19,7 @@
         "FSM_Steering",
         "FSM_Vitals",
         "FSM_Wheels",
+        "RSM_Vitals",
         "INVL_InternalStates",
         "INVL_MotorPositionInfo",
         "INVL_Temperatures3",
