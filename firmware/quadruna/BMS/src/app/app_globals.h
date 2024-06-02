@@ -28,6 +28,7 @@ typedef struct
     uint32_t     ignore_charger_fault_counter;
     uint32_t     charger_exit_counter;
     uint32_t     charger_connected_counter;
+    bool         disable_charger_connected_hb_check;
 } Globals;
 
 extern Globals *const globals;

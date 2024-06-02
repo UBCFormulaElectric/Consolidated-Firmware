@@ -7,8 +7,24 @@
 #include "app_utils.h"
 
 #define HIGH_RES_MAX_CURRENT_READING (75.0f)
-#define MAX_TS_CHARGE_CURRENT_AMPS (70.8f)
-#define MAX_TS_DISCHARGE_CURRENT_AMPS (-265.5f)
+
+// Taken from our cell's datasheet on Confluence:
+// https://ubcformulaelectric.atlassian.net/wiki/pages/viewpageattachments.action?pageId=55214081&preview=%2F55214081%2F55214090%2FSLPB9742126-3.7V-5900mAh-10C-V2018.pdf
+#define MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS (-88.5f)
+#define MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS (23.6f)
+
+// As per datasheet, our cells can do the max discharge current for up to 3s and the peak charge current for 100ms. We
+// shouldn't be anywhere near the max discharge current during driving, so we can use 100ms for charge and discharge.
+#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
+
+#define CELLS_IN_PARALLEL (3)
+#define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+#define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
+
+/**
+ * Init the app tractive system module.
+ */
+void app_tractiveSystem_init();
 
 /**
  * Get the TS voltage
