@@ -11,7 +11,6 @@
 Signal papps_ocsc_signal;
 Signal sapps_ocsc_signal;
 Signal papps_sapps_disagreement_signal;
-Signal apps_brake_disagreement_signal;
 
 void app_apps_init(void)
 {
@@ -20,8 +19,6 @@ void app_apps_init(void)
     app_signal_init(
         &papps_sapps_disagreement_signal, PAPPS_SAPPS_DISAGREEMENT_TIME_TO_FAULT,
         PAPPS_SAPPS_DISAGREEMENT_TIME_TO_CLEAR);
-    app_signal_init(
-        &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
 }
 
 void app_apps_broadcast()
@@ -53,26 +50,11 @@ void app_apps_broadcast()
 
     app_canAlerts_FSM_Warning_AppsDisagreement_set(papps_sapps_disagreement_active);
 
-    // Accelerator Brake Plausibility (bad user input safety issues)
-    // Protect against brake/apps active at same time
-    // Brakes disagreement is detected if brakes are actuated and apps are past 25% threshold
-    // Allowed to exit disagreement only when apps is released (< 5%)
-    bool apps_brakes_conflict = io_brake_isActuated() && (papps_pedal_percentage > 25 || sapps_pedal_percentage > 25);
-
-    bool apps_less_than_5_percent = papps_pedal_percentage < 5 && sapps_pedal_percentage < 5;
-
-    SignalState apps_brake_disagreement_signal_state =
-        app_signal_getState(&apps_brake_disagreement_signal, apps_brakes_conflict, apps_less_than_5_percent);
-
-    const bool apps_brake_disagreement_active = apps_brake_disagreement_signal_state == SIGNAL_STATE_ACTIVE;
-
-    app_canAlerts_FSM_Warning_BrakeAppsDisagreement_set(apps_brake_disagreement_active);
-
     app_canTx_FSM_PappsRawPedalPercentage_set(papps_pedal_percentage);
     app_canTx_FSM_SappsRawPedalPercentage_set(sapps_pedal_percentage);
 
     // set mapped apps to 0 if anything went wrong
-    if (papps_ocsc_active || sapps_ocsc_active || apps_brake_disagreement_active || papps_sapps_disagreement_active)
+    if (papps_ocsc_active || sapps_ocsc_active || papps_sapps_disagreement_active)
     {
         app_canTx_FSM_PappsMappedPedalPercentage_set(0.0f);
         app_canTx_FSM_SappsMappedPedalPercentage_set(0.0f);

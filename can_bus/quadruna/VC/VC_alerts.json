@@ -75,6 +75,10 @@
         "CanLoggingErrored": {
             "id": 563,
             "description": "CAN logging received multiple errors and has been disabled."
+        },
+        "BrakeAppsDisagreement": {
+            "id": 564,
+            "description": "Brakes and apps are active at same time."
         }
     },
     "faults": {

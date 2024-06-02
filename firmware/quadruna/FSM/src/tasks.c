@@ -9,6 +9,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_shdnLoop.h"
+#include "app_apps.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -169,6 +170,7 @@ void tasks_init(void)
     io_steering_init(&steering_config);
     io_suspension_init(&suspension_config);
     io_wheels_init(&left_wheel_config, &right_wheel_config);
+    app_apps_init();
 
     app_stateMachine_init(app_mainState_get());
 
