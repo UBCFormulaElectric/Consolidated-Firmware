@@ -97,10 +97,6 @@
         "SappsOCSC": {
             "id": 353,
             "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
-        },
-        "MissingBMSHeartbeat": {
-            "id": 354,
-            "description": "BMS heartbeat no longer captured."
         }
     }
 }

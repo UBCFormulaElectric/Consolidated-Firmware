@@ -4,115 +4,111 @@
     "warnings_counts_id": 152,
     "faults_counts_id": 153,
     "warnings": {
-        "StackWaterMarkHighTask1Hz" : {
-            "id" :101,
-            "description" : "Example"
+        "StackWaterMarkHighTask1Hz": {
+            "id": 101,
+            "description": "1Hz task stack watermark exceeded."
         },
-        "StackWaterMarkHighTask100Hz" : {
-            "id" :102,
-            "description" : "Example"
+        "StackWaterMarkHighTask100Hz": {
+            "id": 102,
+            "description": "100Hz task stack watermark exceeded."
         },
-        "StackWaterMarkHighTask1kHz" :{
-            "id" :103,
-            "description" : "Example"
+        "StackWaterMarkHighTask1kHz": {
+            "id": 103,
+            "description": "1kHz task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id" :104,
-            "description" : "Example"
+            "id": 104,
+            "description": "CAN RX task stack watermark exceeded."
         },
-        "StackWaterMarkHighTaskCanTx":{
-            "id" :105,
-            "description" : "Example"
+        "StackWaterMarkHighTaskCanTx": {
+            "id": 105,
+            "description": "CAN TX task stack watermark exceeded."
         },
-        "WatchdogTimeout" :{
-            "id" :106,
-            "description" : "Example"
+        "WatchdogTimeout": {
+            "id": 106,
+            "description": "Watchdog timeout detected."
         },
         "TxOverflow": {
-            "id" :107,
-            "description" : "Example"
+            "id": 107,
+            "description": "CAN TX queue has overflowed."
         },
-        "RxOverflow" : {
-            "id" :108,
-            "description" : "Example"
+        "RxOverflow": {
+            "id": 108,
+            "description": "CAN RX queue has overflowed."
+        },
+        "OpenWireCheckFault": {
+            "id": 109,
+            "description": "Open wire cell detected (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment0_GND": {
+            "id": 110,
+            "description": "Open wire cell detected in segment 0 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment1_GND": {
+            "id": 111,
+            "description": "Open wire cell detected in segment 1 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment2_GND": {
+            "id": 112,
+            "description": "Open wire cell detected in segment 2 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment3_GND": {
+            "id": 113,
+            "description": "Open wire cell detected in segment 3 (cell voltage tap is open circuit)."
+        },
+        "OpenWireCheck_Segment4_GND": {
+            "id": 114,
+            "description": "Open wire cell detected in segment 4 (cell voltage tap is open circuit)."
+        },
+        "MissingVCHeartbeat": {
+            "id": 115,
+            "description": "Missing heartbeat from the VC."
         }
     },
     "faults": {
-        "MissingVCHeartbeat":{
-            "id" :151,
-            "description" : "Example"
-        },
-        "MissingRSMHeartbeat":{
-            "id" :152,
-            "description" : "Example"
-        },
-        "StateMachine" :{
-            "id" :154,
-            "description" : "Example"
+        "StateMachine": {
+            "id": 154,
+            "description": "BMS has transitioned to fault state."
         },
         "CellUndervoltage": {
-            "id" :155,
-            "description" : "Example"
+            "id": 155,
+            "description": "Cell is critically undervoltage (<3.0V)"
         },
         "CellOvervoltage": {
-            "id" :156,
-            "description" : "Example"
+            "id": 156,
+            "description": "Cell is critically overvoltage (>4.2V)"
         },
         "ModuleCommunicationError": {
-            "id" :157,
-            "description" : "Example"
+            "id": 157,
+            "description": "Failed to communicate with LTC6813 modules (>3x bad PEC15 error checks)."
         },
         "CellUndertemp": {
-            "id" :158,
-            "description" : "Example"
+            "id": 158,
+            "description": "Cell is critically undertemp (<-20degC)"
         },
         "CellOvertemp": {
-            "id" :159,
-            "description" : "Example"
+            "id": 159,
+            "description": "Cell is critically overtemp (>45degC if charging, >60degC if not)."
         },
-        "Charger": {
-            "id" :160,
-            "description" : "Example"
+        "ChargerReportedError": {
+            "id": 160,
+            "description": "The charger reported an error."
         },
         "ChargerDisconnectedDuringCharge": {
-            "id" :161,
-            "description" : "Example"
+            "id": 161,
+            "description": "Charger was disconnected while in charge state."
         },
-        "ChargerExternalShutdown": {
-            "id" :162,
-            "description" : "Example"
+        "ChargerShutdownLoopOpen": {
+            "id": 162,
+            "description": "AIR- opened during charging."
         },
         "TractiveSystemOvercurrent": {
-            "id" :163,
-            "description" : "Example"
+            "id": 163,
+            "description": "Tractive system overcurrent detected (<-265A or >70.8A)."
         },
         "PrechargeFailure": {
-            "id" :164,
-            "description" : "Example"
-        },
-        "OpenWireCheckFault": {
-            "id" :165,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment0_GND": {
-            "id" :166,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment1_GND": {
-            "id" :167,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment2_GND": {
-            "id" :168,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment3_GND": {
-            "id" :169,
-            "description" : "Example"
-        },
-        "OpenWireCheck_Segment4_GND": {
-            "id" :170,
-            "description" : "Example"
+            "id": 164,
+            "description": "Precharge failed 3x times."
         }
     }
 }
