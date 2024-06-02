@@ -22,7 +22,6 @@ typedef struct
     uint32_t     cell_monitor_settle_count;
     uint32_t     num_precharge_failures;
     bool         precharge_limit_exceeded;
-    bool         fault_encountered;
     bool         broadcast_charger_connected;
     TimerChannel precharge_lower_bound_timer;
     TimerChannel precharge_upper_bound_timer;
