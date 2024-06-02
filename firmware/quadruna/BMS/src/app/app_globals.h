@@ -11,8 +11,6 @@ typedef struct
     const FaultLatch *bms_ok_latch;
     const FaultLatch *imd_ok_latch;
     const FaultLatch *bspd_ok_latch;
-    const Gpio       *bspd_test_enable_pin;
-    const Gpio       *n_high_current_bspd_pin;
 } GlobalsConfig;
 
 typedef struct
