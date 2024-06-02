@@ -96,7 +96,6 @@ TEST_F(RsmAppTest, check_right_rear_suspension_can_signals)
     fake_io_suspension_getRearRightTravel_returns(50.0);
     LetTimePass(10);
     ASSERT_EQ(app_canTx_RSM_RearRightSuspensionTravel_get(), 50.0);
-
     CheckBinaryStatusCanSignal(
         fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_RSM_Warning_RightSuspensionOCSC_get);
 }
