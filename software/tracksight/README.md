@@ -1,60 +1,37 @@
 # Tracksight
 
-## Setup
+## Backend
+The backend is brought up by running the pipenv shell after it is installed. Then enter /software/tracksight/backend/app and run python/telemetry.py
 
-### Backend
-This sets up the conda environment (you will also need to install conda) for running the backend locally.
-#### Initial Environment Setup:
-1. Install conda
-2. Run `conda env create --file environment.yml`
-3. Activate environment using `conda activate tracksight-backend`
+## Frontend
 
-#### Updating Environment Setup:
-1. Activate environment using `conda activate tracksight-backend`
-2. Update environment using `conda env update --file environment.yml --prune`
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-#### CI
-1. Backend and frontend ci implemented
+### Getting Started
 
-## MVP
-Build a service to create a dashboard with signals
+1. Install Node.js > v18.8.0. `sudo apt install node` on Linux will install an outdated version so you need to manually seek it(should probably use `nvm`).
+2. Install packages with `npm install` inside this directory
+3. Run the development server: `npm run dev`
 
-- Livestream a signal in realtime
-- Read a signal from an sd card 
-- Build a dashboard
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Backend
-- data storage (mocked)
-- data inflow( mocked)
-- From real sd card data
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Future
-- Better data visualizations
-- testing luhmao :)
-- Addtional input formats
-- Interacting with cloud data
-- Cloud data blah blah
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Schema
-Client request:
-{
-ids: [“1234”, “5678”]
-}
+### Learn More
 
-Response:
-{
-	“1234”: {
-		“Name”: str,
-		“timestamp”:
-		“data”: df
-	},
-5678
-}
+To learn more about Next.js, take a look at the following resources:
 
-“1234” + “5678”
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-{
-Op: “ad”
-Args: []
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-}
+### Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Docker Invocation

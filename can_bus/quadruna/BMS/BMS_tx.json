@@ -95,13 +95,46 @@
             }
         }
     },
-    "Charger": {
-        "msg_id": 110,
-        "cycle_time": 1000,
-        "description": "Flags relaying BMS Charger Status",
-        "signals": {
-            "ChargerConnected": {
+    "Charger":{
+        "msg_id": 107,
+        "cycle_time": 100,
+        "description": "Charger infomation for the BMS to broadcast to other boards",
+        "signals":{
+            "ChargerConnected":{
                 "bits": 1
+            }
+        }
+    },
+    "BrusaControls": {
+        "msg_id": 1560,
+        "cycle_time": 100,
+        "description": "Flags and parameters for controlling the BRUSA charger",
+        "signals": {
+            "ChargerEnable": {
+                "start_bit": 7,
+                "bits": 1
+            },
+            "ClearLatch": {
+                "start_bit": 6,
+                "bits": 1
+            },
+            "MaxMainsCurrent": {
+                "start_bit": 8,
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
+            },
+            "ChargingVoltage": {
+                "start_bit": 24,
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
+            },
+            "ChargingCurrent": {
+                "start_bit": 40,
+                "min": 0,
+                "max": 6000,
+                "resolution": 0.1
             }
         }
     },
@@ -252,19 +285,19 @@
         "description": "BMS Tractive System Data",
         "signals": {
             "TractiveSystemVoltage": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
             },
             "TractiveSystemCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": -300,
                 "max": 300,
                 "unit": "A"
             },
             "TractiveSystemPower": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": -100,
                 "max": 100,
                 "unit": "kW"
@@ -274,6 +307,9 @@
                 "min": 0,
                 "max": 100000,
                 "unit": "W"
+            },
+            "BSPDCurrentThresholdExceeded": {
+                "bits": 1
             }
         }
     },

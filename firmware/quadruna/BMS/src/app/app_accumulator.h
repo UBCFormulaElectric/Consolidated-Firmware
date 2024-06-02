@@ -20,6 +20,12 @@
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
 
+// Fault debounce durations.
+#define UNDER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define OVER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)
+#define UNDER_TEMP_DEBOUNCE_DURATION_MS (1000U)
+#define OVER_TEMP_DEBOUNCE_DURATION_MS (1000U)
+
 // Cell Balancing Discharge Parameters
 #define CELL_VOLTAGE_BALANCE_WINDOW_V (600e-6f) // 600uV
 

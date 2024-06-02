@@ -15,8 +15,9 @@ TEST_F(RsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
     // Check in all heartbeats within timeout period
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
-    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());  // no missing heartbeat now
-    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get()); // no missing heartbeat now
+    // Heartbeat faults initially present at startup until cleared
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
 
     app_canRx_VC_Heartbeat_update(true);  // Check in VC heartbeat
     app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat

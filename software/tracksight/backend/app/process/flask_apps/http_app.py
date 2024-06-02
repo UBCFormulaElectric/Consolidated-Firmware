@@ -2,29 +2,16 @@
 Main REST component of the backend
 """
 
-from typing import Tuple
-from flask import Blueprint, jsonify, request, Response
+from flask import Blueprint, request
 
-from ..influx_handler import InfluxHandler as influx
-from ..influx_handler import NoDataForQueryException
+from .. import influx_handler as influx
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
 
 
-def responsify(data):
-    """
-    Manual CORS?????? very bad idea
-    :param data: Data to JSON-ify.
-    :returns JSON-ified data response.
-    """
-    response = jsonify(data)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
-
-
 @app.route("/")
-def hello_world() -> str:
+def hello_world():
     """
     :returns Hello world page for backend.
     """
@@ -32,45 +19,58 @@ def hello_world() -> str:
 
 
 @app.route("/health")
-def health() -> Tuple[Response, int]:
+def health():
     """
     :returns Health check page for backend.
     """
-    return jsonify(status="healthy"), 200
+    return {"status": "healthy"}, 200
 
 
 @app.route("/signal/measurements", methods=["GET"])
-def return_all_measurements() -> Response:
+def return_all_measurements():
     """
     :returns Page displaying all measurements in the database.
     """
-    measurements = influx.get_measurements()
-    return responsify(measurements)
+    return influx.get_measurements(), 200
 
 
 @app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
-def return_all_fields_for_measurement(measurement: str) -> Response:
+def return_all_fields_for_measurement(measurement: str):
     """
     :param measurement: Measurement to fetch fields for.
     :returns Page displaying all fields for a specific measurement.
     """
-    fields = influx.get_fields(measurement)
-    return responsify(fields)
+    return influx.get_fields(measurement), 200
 
 
 @app.route("/signal/query", methods=["GET"])
-def return_query() -> Response:
+def return_query():
     """
     :returns Page displaying the result of a single query.
     """
     params = request.args
     measurement = params.get("measurement")
-    fields = params.get("fields").split(",")
+    fields: list[str] | None = params.get("fields").split(",")
     start_epoch = params.get("start_epoch")
     end_epoch = params.get("end_epoch")
-
+    if (
+        measurement is None
+        or fields is None
+        or start_epoch is None
+        or end_epoch is None
+    ):
+        missing_keys = [
+            k
+            for k, v in [
+                ("measurement", measurement),
+                ("fields", fields),
+                ("start_epoch", start_epoch),
+                ("end_epoch", end_epoch),
+            ]
+            if v is None
+        ]
+        return {"error": f"Missing parameters: {missing_keys}"}, 400
     try:
-        data = influx.query(measurement, fields, [start_epoch, end_epoch])
-    except NoDataForQueryException as e:
-        return responsify({"error": str(e)}), 400
-    return responsify(data)
+        return influx.query(measurement, fields, (start_epoch, end_epoch))
+    except Exception as e:
+        return {"error": str(e)}, 500

@@ -414,14 +414,15 @@ static const BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("CRIT reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     // Start DMA/TIM3 for the ADC.
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim3);
@@ -494,7 +495,9 @@ _Noreturn void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 

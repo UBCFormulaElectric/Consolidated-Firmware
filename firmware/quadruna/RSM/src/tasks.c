@@ -4,7 +4,6 @@
 
 #include "app_heartbeatMonitor.h"
 #include "app_mainState.h"
-
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -123,49 +122,62 @@ static const UART debug_uart = { .handle = &huart1 };
 // config for heartbeat monitor
 /// RSM rellies on BMS
 static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
-    [FSM_HEARTBEAT_BOARD] = true,  [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
+    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
+    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
 static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_FSM_Heartbeat_get,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
+    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canRx_VC_Heartbeat_update,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_set,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_RSM_Fault_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_set,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
-    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get,
+    [VC_HEARTBEAT_BOARD]   = app_canAlerts_RSM_Fault_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD]  = NULL,
+    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get,
+    [DIM_HEARTBEAT_BOARD]  = NULL,
+    [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("RSM reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG();
 
     // Start DMA/TIM3 for the ADC.
@@ -290,7 +302,9 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 

@@ -16,6 +16,30 @@
         "signals": {
             "StartCharging": {
                 "bits": 1
+            },
+            "ClearChargerLatchedFault":{
+                "bits": 1
+            },
+            "FaultEncounteredOverride": {
+                "bits": 1
+            },
+            "ChargingCurrentOverride": {
+                "bits": 1
+            },
+            "ChargingVoltageOverride": {
+                "bits": 1
+            },
+            "ChargingCurrentTargetValue": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 12.5,
+                "unit": "A"
+            },
+            "ChargingVoltageTargetValue": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 350.0,
+                "unit": "V"
             }
         }
     },
@@ -74,7 +98,7 @@
     },
     "SetCoolantPump": {
         "msg_id": 705,
-        "cycle_time": 1,
+        "cycle_time": 1000,
         "description": "Value set by the user to set the coolant pump flow rate.",
         "signals": {
             "SetCoolantPump_CustomEnable": {
@@ -85,6 +109,16 @@
                 "min": 0,
                 "max": 2000,
                 "unit": "L/H"
+            }
+        }
+    },
+    "SetBSPDTestCurrent":{
+        "msg_id": 706,
+        "cycle_time": 100,
+        "description": "Enable BSPD Test Current",
+        "signals": {
+            "EnableTestCurrent": {
+                "bits": 1
             }
         }
     }

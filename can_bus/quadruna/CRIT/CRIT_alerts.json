@@ -5,54 +5,54 @@
     "faults_counts_id": 551,
     "warnings": {
         "StackWaterMarkHighTask1Hz": {
-            "id" :201,
-            "description" : "Example"
+            "id": 201,
+            "description": "1Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask100Hz": {
-            "id" :202,
-            "description" : "Example"
+            "id": 202,
+            "description": "100Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask1kHz": {
-            "id" :203,
-            "description" : "Example"
+            "id": 203,
+            "description": "1kHz task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id" :204,
-            "description" : "Example"
+            "id": 204,
+            "description": "CAN RX task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanTx": {
-            "id" :205,
-            "description" : "Example"
+            "id": 205,
+            "description": "CAN TX task stack watermark exceeded."
         },
         "WatchdogTimeout": {
-            "id" :206,
-            "description" : "Example"
+            "id": 206,
+            "description": "Watchdog timeout detected."
         },
         "TxOverflow": {
-            "id" :207,
-            "description" : "Example"
+            "id": 207,
+            "description": "CAN TX queue has overflowed."
         },
         "RxOverflow": {
-            "id" :208,
-            "description" : "Example"
+            "id": 208,
+            "description": "CAN RX queue has overflowed."
         }
     },
     "faults": {
         "MissingBMSHeartbeat": {
-            "id" :251,
-            "description" : "Example"
+            "id": 251,
+            "description": "Missing heartbeat signal from the BMS."
         },
         "MissingFSMHeartbeat": {
-            "id" :252,
-            "description" : "Example"
+            "id": 252,
+            "description": "Missing heartbeat signal from the FSM."
         },
         "MissingRSMHeartbeat": {
-            "id" :253,
-            "description" : "Example"
+            "id": 253,
+            "description": "Missing heartbeat signal from the RSM."
         },
         "MissingVCHeartbeat": {
-            "id":254,
-            "description" : "Example"
+            "id": 254,
+            "description": "Missing heartbeat signal from the VC."
         }
-}
+    }
 }

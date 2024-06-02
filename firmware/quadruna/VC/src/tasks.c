@@ -70,8 +70,6 @@ static void canRxCallback(CanMsg *rx_msg)
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
     }
-
-    // TODO all telemetry here
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
@@ -350,15 +348,15 @@ bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SystemCoreClockUpdate();
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     hw_hardFaultHandler_init();
@@ -408,7 +406,7 @@ void tasks_init(void)
 
     if (!io_imu_init())
     {
-        app_canAlerts_VC_Warning_ImuIo_set(true);
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
     }
 
     app_canTx_init();
@@ -528,7 +526,18 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_telemMessage_pushMsgtoQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
+    }
+}
+
+_Noreturn void tasks_runTelem(void)
+{
+    for (;;)
+    {
+        io_telemMessage_broadcastMsgFromQueue();
     }
 }
 
@@ -540,7 +549,7 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-        //        io_telemMessage_broadcast(&rx_msg);
+        io_telemMessage_pushMsgtoQueue(&rx_msg);
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);

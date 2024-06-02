@@ -59,9 +59,14 @@ void io_can_init(const CanConfig *can_config);
 void io_can_pushTxMsgToQueue(const CanMsg *msg);
 
 /**
- * Transmit a single CAN msg onto the bus from the TX queue. Blocks until a msg exists in the queue.
+ * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
  */
-void io_can_transmitMsgFromQueue(void);
+void io_can_popTxMsgFromQueue(CanMsg *msg);
+
+/**
+ * Transmit a single CAN msg onto the bus.
+ */
+void io_can_transmitMsgFromQueue(CanMsg *msg);
 
 /**
  * Dequeue a received CAN msg. Blocks until a msg can be dequeued.

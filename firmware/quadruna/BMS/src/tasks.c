@@ -22,7 +22,6 @@
 #include "io_jsoncan.h"
 #include "io_can.h"
 #include "io_airs.h"
-#include "io_charger.h"
 #include "io_sd.h"
 #include "io_faultLatch.h"
 #include "io_imd.h"
@@ -32,6 +31,7 @@
 #include "io_log.h"
 #include "io_chimera.h"
 #include "io_bmsShdn.h"
+#include "io_bspdTest.h"
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -93,10 +93,8 @@ static const CanConfig can_config = {
 
 // clang-format off
 static const Gpio accel_brake_ok_pin      = { .port = ACCEL_BRAKE_OK_3V3_GPIO_Port, .pin = ACCEL_BRAKE_OK_3V3_Pin };
-static const Gpio bspd_test_en_pin        = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin };
 static const Gpio led_pin                 = { .port = LED_GPIO_Port, .pin = LED_Pin };
 static const Gpio n_chimera_pin           = { .port = nCHIMERA_GPIO_Port, .pin = nCHIMERA_Pin };
-static const Gpio n_high_current_bspd_pin = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin  = nHIGH_CURRENT_BSPD_3V3_Pin };
 static const Gpio n_program_pin               = { .port = nPROGRAM_3V3_GPIO_Port, .pin = nPROGRAM_3V3_Pin };
 static const Gpio ts_ilck_shdn_pin        = { .port = TS_ILCK_SHDN_OK_GPIO_Port, .pin = TS_ILCK_SHDN_OK_Pin };
 static const Gpio hvd_ok_shdn_pin = { .port = HVD_SHDN_OK_GPIO_Port, .pin = HVD_SHDN_OK_Pin };
@@ -125,21 +123,6 @@ static const SpiInterface ltc6813_spi = { .spi_handle = &hspi2,
                                           .nss_port   = SPI_CS_GPIO_Port,
                                           .nss_pin    = SPI_CS_Pin,
                                           .timeout_ms = LTC6813_SPI_TIMEOUT_MS };
-
-// TODO: Update for new charger
-
-// static const Charger charger_config  = { .enable_gpio = {
-//                                        .port = CHRG_EN_3V3_GPIO_Port,
-//                                        .pin  = CHRG_EN_3V3_Pin,
-//                                    },
-//                                    .connected_gpio = {
-//                                        .port = CHRG_STATE_3V3_GPIO_Port,
-//                                        .pin  = CHRG_STATE_3V3_Pin,
-//                                    },
-//                                    .faulted_gpio = {
-//                                        .port = CHRG_FLT_3V3_GPIO_Port,
-//                                        .pin  = CHRG_FLT_3V3_Pin,
-//                                    }};
 
 static const SdGpio sd_gpio = { .sd_present = {
                                     .port = SD_CD_GPIO_Port,
@@ -222,57 +205,48 @@ static const FaultLatch bspd_ok_latch = {
     .read_only = true,
 };
 
-static const GlobalsConfig globals_config = {
-    .bms_ok_latch  = &bms_ok_latch,
-    .imd_ok_latch  = &imd_ok_latch,
-    .bspd_ok_latch = &bspd_ok_latch,
+static const BSPDTestConfig bspd_test_config = {
+    .test_enable_gpio    = { .port = BSPD_TEST_EN_GPIO_Port, .pin = BSPD_TEST_EN_Pin },
+    .n_high_current_gpio = { .port = nHIGH_CURRENT_BSPD_3V3_GPIO_Port, .pin = nHIGH_CURRENT_BSPD_3V3_Pin }
 };
 
+static const GlobalsConfig globals_config = { .bms_ok_latch  = &bms_ok_latch,
+                                              .imd_ok_latch  = &imd_ok_latch,
+                                              .bspd_ok_latch = &bspd_ok_latch };
+
 // config for heartbeat monitor (can funcs and flags)
-// BMS relies on RSM, VC
+// BMS relies on VC
 static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
+    [BMS_HEARTBEAT_BOARD] = false, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = false,
     [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
 };
 
 // heartbeatGetters - get heartbeat signals from other boards
 static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = NULL,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_get,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatUpdaters - update local CAN table with heartbeat status
 static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = NULL,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canRx_VC_Heartbeat_update,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultSetters - broadcast heartbeat faults over CAN
 static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = NULL,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_BMS_Warning_MissingVCHeartbeat_set,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 // heartbeatFaultGetters - gets fault statuses over CAN
 static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = NULL,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_BMS_Fault_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_BMS_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
+    [BMS_HEARTBEAT_BOARD] = NULL, [VC_HEARTBEAT_BOARD] = app_canAlerts_BMS_Warning_MissingVCHeartbeat_get,
+    [RSM_HEARTBEAT_BOARD] = NULL, [FSM_HEARTBEAT_BOARD] = NULL,
+    [DIM_HEARTBEAT_BOARD] = NULL, [CRIT_HEARTBEAT_BOARD] = NULL
 };
 
 const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_brake_ok_pin,
@@ -285,13 +259,13 @@ const Gpio *id_to_gpio[] = { [BMS_GpioNetName_ACCEL_BRAKE_OK_3V3]     = &accel_b
                              [BMS_GpioNetName_BMS_OK_3V3]             = &bms_ok_latch.current_status_gpio,
                              [BMS_GpioNetName_BSPD_LATCH]             = &bspd_ok_latch.latch_status_gpio,
                              [BMS_GpioNetName_BSPD_OK_3V3]            = &bspd_ok_latch.current_status_gpio,
-                             [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_en_pin,
+                             [BMS_GpioNetName_BSPD_TEST_EN]           = &bspd_test_config.test_enable_gpio,
                              [BMS_GpioNetName_HVD_SHDN_OK]            = &airs_config.air_n_gpio,
                              [BMS_GpioNetName_IMD_LATCH]              = &imd_ok_latch.latch_status_gpio,
                              [BMS_GpioNetName_IMD_OK_3V3]             = &imd_ok_latch.current_status_gpio,
                              [BMS_GpioNetName_LED]                    = &led_pin,
                              [BMS_GpioNetName_NCHIMERA]               = &n_chimera_pin,
-                             [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &n_high_current_bspd_pin,
+                             [BMS_GpioNetName_NHIGH_CURRENT_BSPD_3V3] = &bspd_test_config.n_high_current_gpio,
                              [BMS_GpioNetName_NPROGRAM_3V3]           = &n_program_pin,
                              [BMS_GpioNetName_PRE_CHARGE_EN]          = &airs_config.precharge_gpio,
                              [BMS_GpioNetName_TS_ILCK_SHDN_OK]        = &ts_ilck_shdn_pin,
@@ -321,14 +295,15 @@ void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
     hw_bootup_enableInterruptsForApp();
-
-    // Configure and initialize SEGGER SystemView.
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("BMS reset!");
 }
 
 void tasks_init(void)
 {
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS reset!");
+
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
@@ -352,16 +327,15 @@ void tasks_init(void)
     io_airs_init(&airs_config);
     io_imd_init(&imd_pwm_input_config);
     io_chimera_init(&debug_uart, GpioNetName_bms_net_name_tag, AdcNetName_bms_net_name_tag, &n_chimera_pin);
-    // io_charger_init(&charger_config);
     io_sdGpio_init(&sd_gpio);
+    io_bspdTest_init(&bspd_test_config);
 
     app_canTx_init();
     app_canRx_init();
 
-    HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
-
     app_inverterOnState_init();
     app_accumulator_init();
+    app_tractiveSystem_init();
 
     // Re-enable if auxiliary thermistors installed
     // app_thermistors_init();
@@ -473,7 +447,9 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 
