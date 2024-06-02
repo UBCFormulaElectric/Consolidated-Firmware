@@ -22,7 +22,7 @@ if __name__ == "__main__":
         "-m",
         type=str,
         required=True,
-        help="Mode to run telemetry in, either 'wireless' or 'log'.",
+        help="Mode to run telemetry in, either 'wireless' or 'local'.",
     )
     parser.add_argument(
         "--serial-port",
@@ -46,12 +46,12 @@ if __name__ == "__main__":
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    elif args.mode == "log" and args.log_file is None:
+    elif args.mode == "local" and args.log_file is None:
         raise RuntimeError(
             "If running telemetry in log file mode, you must specify a path to the logging file!"
         )
-    elif args.mode != "wireless" and args.mode != "log":
-        raise RuntimeError("Mode must be either 'wireless' or 'log'")
+    elif args.mode != "wireless" and args.mode != "local":
+        raise RuntimeError("Mode must be either 'wireless' or 'local'")
 
     # Setup logging.
     logger = logging.getLogger("telemetry_logger")
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
             logger.log("Thread stopped")
 
-    elif args.mode == "log":
+    elif args.mode == "local":
         try:
             socketio.init_app(app)  # Initialize the Socket.IO app with the main app
             socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host="0.0.0.0")

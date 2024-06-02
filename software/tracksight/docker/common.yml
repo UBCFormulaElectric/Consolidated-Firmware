@@ -1,11 +1,10 @@
-name: tracksight
 services:
   influx:
     image: influxdb:2.7.6-alpine
     ports:
       # Default port for Influx DB.
       - "8086:8086"
-    env_file: backend/influx.env
+    env_file: ../backend/influx.env
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
@@ -17,14 +16,14 @@ services:
       start_interval: 1s
   backend:
     build:
-      context: ../../
-      dockerfile: ./software/tracksight/backend/Dockerfile
+      context: ../../../
+      dockerfile: software/tracksight/backend/Dockerfile
     ports:
       # Default port for Flask apps.
       - "5000:5000"
-    env_file: backend/influx.env
+    env_file: ../backend/influx.env
     volumes:
-      - ./backend/logs:/backend/logs
+      - ../backend/logs:/backend/logs
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
@@ -37,17 +36,8 @@ services:
     depends_on:
       influx:
         condition: service_healthy
-    command:
-      [
-        "python3",
-        "app/telemetry.py",
-        "--mode",
-        "log",
-        "--log-file",
-        "/test.txt"
-      ]
   frontend:
-    build: ./frontend
+    build: ../frontend
     ports:
       - "3000:3000"
     depends_on:

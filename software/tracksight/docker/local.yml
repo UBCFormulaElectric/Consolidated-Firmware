@@ -1,0 +1,24 @@
+name: tracksight-local
+services:
+  influx:
+    extends:
+      file: common.yml
+      service: influx
+  backend:
+    extends:
+      file: common.yml
+      service: backend
+    # Start telemetry in log file mode.
+    command:
+      [
+        "python3",
+        "app/telemetry.py",
+        "--mode",
+        "local",
+        "--log-file",
+        "/test.txt"
+      ]
+  frontend:
+    extends:
+      file: common.yml
+      service: frontend
