@@ -35,6 +35,10 @@
         "RxOverflow": {
             "id": 108,
             "description": "Example"
+        },
+        "MissingVCHeartbeat": {
+            "id": 109,
+            "description": "Example"
         }
     },
     "faults": {

@@ -1,5 +1,7 @@
 {
     "messages": [
+        "VC_Vitals",
+        "BRUSA_Vitals",
         "Debug_Charging",
         "Debug_CanMode",
         "Debug_CellBalancing",

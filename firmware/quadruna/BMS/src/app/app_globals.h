@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "io_faultLatch.h"
 #include "io_thermistors.h"
+#include "app_heartbeatMonitor.h"
 #include "app_timer.h"
 
 typedef struct
