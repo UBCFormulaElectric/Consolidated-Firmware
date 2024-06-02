@@ -161,8 +161,7 @@ bool app_allStates_runOnTick100Hz(void)
     }
     else if (acc_fault || ts_fault)
     {
-        status                     = false;
-        globals->fault_encountered = true;
+        status = false;
         app_stateMachine_setNextState(app_faultState_get());
     }
 

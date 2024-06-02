@@ -16,6 +16,5 @@ void app_globals_init(const GlobalsConfig *config)
     globals->ignore_charger_fault_counter = 0;
     globals->charger_exit_counter         = 0;
     globals->precharge_limit_exceeded     = false;
-    globals->fault_encountered            = false;
     globals->broadcast_charger_connected  = true;
 }

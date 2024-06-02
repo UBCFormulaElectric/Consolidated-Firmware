@@ -423,14 +423,12 @@ _Noreturn void tasks_run1kHz(void)
 {
     io_chimera_sleepTaskIfEnabled();
 
-    static const TickType_t period_ms = 1;
+    static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
-
-    hw_watchdog_checkIn(watchdog);
 
     for (;;)
     {
