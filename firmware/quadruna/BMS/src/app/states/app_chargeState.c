@@ -82,7 +82,7 @@ static void chargeStateRunOnTick100Hz(void)
         // been set back to true.
         globals->charger_connected_counter++;
         // If it has been more than a second
-        if (globals->charger_connected_counter >= 100)
+        if (!globals->disable_charger_connected_hb_check && globals->charger_connected_counter >= 100)
         {
             // Set the local rx value of charger connected to false, reset the counter
             // and lock the functionality of broadcasting if the charger is connected

@@ -190,6 +190,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
         app_canRx_BRUSA_IsConnected_update(true);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_BRUSA_Error_update(false);
+        globals->disable_charger_connected_hb_check = true;
 
         SetInitialState(app_chargeState_get());
         app_canRx_Debug_StartCharging_update(true);
@@ -310,6 +311,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
         app_canRx_BRUSA_Error_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
+        globals->disable_charger_connected_hb_check = true;
 
         SetInitialState(app_chargeState_get());
 
@@ -426,6 +428,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
         app_canRx_BRUSA_Error_update(false);
         fake_io_airs_isNegativeClosed_returns(true);
         app_canRx_Debug_StartCharging_update(true);
+        globals->disable_charger_connected_hb_check = true;
 
         SetInitialState(app_chargeState_get());
 
