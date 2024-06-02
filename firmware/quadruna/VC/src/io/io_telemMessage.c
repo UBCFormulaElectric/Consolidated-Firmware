@@ -48,9 +48,10 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *msg)
 
     // filter messages
 
-    uint32_t msg_id = msg->std_id;
+    uint32_t msg_id  = msg->std_id;
     uint32_t time_ms = io_time_getCurrentMs();
-    if (app_dataCapture_needsTelem((uint16_t)msg_id, time_ms)){ //TODO: proper app / io seperation
+    if (app_dataCapture_needsTelem((uint16_t)msg_id, time_ms))
+    { // TODO: proper app / io seperation
         // start protobuf
         pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
@@ -85,7 +86,8 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *msg)
         }
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
