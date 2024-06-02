@@ -11,10 +11,11 @@
 #include "app_suspension.h"
 #include "app_loadCell.h"
 #include "app_shdnLoop.h"
-#include "app_heartbeatMonitor.h"
 
 void mainStateRunOnTick100Hz(void)
 {
+    app_canTx_FSM_Heartbeat_set(true);
+
     app_apps_broadcast();
     app_brake_broadcast();
     app_steering_broadcast();
@@ -22,19 +23,6 @@ void mainStateRunOnTick100Hz(void)
     app_suspension_broadcast();
     app_loadCell_broadcast();
     app_shdn_loop_broadcast();
-
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_broadcastFaults();
-
-    bool missing_hb = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
-
-    if (missing_hb)
-    {
-        // Redundancy if FSM is missing heartbeats
-        // Suppress accelerator pedal percentages (set to 0%)
-        app_canTx_FSM_PappsMappedPedalPercentage_set(0);
-        app_canTx_FSM_SappsMappedPedalPercentage_set(0);
-    }
 }
 
 const State *app_mainState_get(void)

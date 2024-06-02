@@ -21,33 +21,75 @@ TEST_F(RsmFaultsTest, check_state_transition_fault_state_heartbeat_timeout)
 
     app_canRx_VC_Heartbeat_update(true);  // Check in VC heartbeat
     app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat
+    app_canRx_BMS_Heartbeat_update(true); // check in BMS heartbeat
     LetTimePass(10);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
 
-    // Fail to check heartbeat, FSM and VC should fault
     LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 10U);
     ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
 
+    // Fail to check heartbeat, BMS FSM and VC should fault
     LetTimePass(20);
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
 
-    // Stay faulted indefinitely
-    LetTimePass(1000);
+    LetTimePass(1000); // faulted indefinitely
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
 
-    // Check heartbeat back in, fault should clear and transition back to init
-    app_canRx_VC_Heartbeat_update(true);  // Check in heartbeat
-    app_canRx_FSM_Heartbeat_update(true); // Check in heartbeat
-    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS);
-    ASSERT_EQ(app_mainState_get(), app_stateMachine_getCurrentState());
+    app_canRx_VC_Heartbeat_update(true);  // Check in VC
+    app_canRx_BMS_Heartbeat_update(true); // Check in BMS but no FSM
+    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 20U);
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
+
+    LetTimePass(1000); // faulted indefinitely and all three faults from timeout independently
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
+
+    app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat but No VC
+    app_canRx_BMS_Heartbeat_update(true); // Check in BMS but no VC
+    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 20U);
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
+
+    LetTimePass(1000); // faulted indefinitely and all three faults from timeout independently
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+
+    app_canRx_VC_Heartbeat_update(true);  // Check in VC heartbeat
+    app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat
+    app_canRx_BMS_Heartbeat_update(true); // check in BMS heartbeat
+    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 20U);
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
     ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
+
+    LetTimePass(10);
+    app_canRx_VC_Heartbeat_update(true);  // Check in VC heartbeat
+    app_canRx_FSM_Heartbeat_update(true); // check in FSM heartbeat
+
+    LetTimePass(HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS - 20U);
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingBMSHeartbeat_get());
+
+    LetTimePass(1000); // faulted indefinitely and all three faults from timeout independently
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingFSMHeartbeat_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Fault_MissingVCHeartbeat_get());
 }
 
 TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault)

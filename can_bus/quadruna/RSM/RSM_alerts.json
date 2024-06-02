@@ -83,8 +83,14 @@
             "description": "VC Missing Heart beat"
         },
         "MissingFSMHeartbeat": {
-            "id": 453,
-            "description": "FSM Missing Heart beat"
-        }
+            "id" :453,
+            "description" : "FSM Missing Heart beat"
+        },
+        "MissingBMSHeartbeat": {
+            "id" :454,
+            "description" : "BMS Missing Heart beat"
+
+        
     }
+}
 }

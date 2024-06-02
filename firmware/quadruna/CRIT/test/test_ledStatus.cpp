@@ -106,7 +106,7 @@ TEST_F(LedStatusTest, vc_board_status_led_control_with_warning)
     // Set any critical error and check that the DCM LED turns red
     for (const auto &[can_update, assert_func] :
          std::vector<std::pair<std::function<void(bool)>, std::function<uint32_t(BoardLEDStatus)>>>{
-             { app_canRx_VC_Warning_ImuIo_update, fake_io_led_vc_status_set_callCountForArgs },
+             { app_canRx_VC_Warning_ImuInitFailed_update, fake_io_led_vc_status_set_callCountForArgs },
              { app_canRx_BMS_Warning_RxOverflow_update, fake_io_led_bms_status_set_callCountForArgs },
              { app_canRx_FSM_Warning_LeftSuspensionOCSC_update, fake_io_led_fsm_status_set_callCountForArgs },
              { app_canRx_RSM_Warning_LoadCell3OCSC_update, fake_io_led_rsm_status_set_callCountForArgs },

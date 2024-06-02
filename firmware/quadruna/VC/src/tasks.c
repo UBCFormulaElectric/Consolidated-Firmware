@@ -406,7 +406,7 @@ void tasks_init(void)
 
     if (!io_imu_init())
     {
-        app_canAlerts_VC_Warning_ImuIo_set(true);
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
     }
 
     app_canTx_init();

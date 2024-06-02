@@ -1,11 +1,15 @@
 #include "io_mechanicalLoad.h"
 
-#define LOADCELL_SLOPE 1
-#define Y_INTERCEPT 0
+// the S-Type load cell like the DYLY-103, it actually requires an excitation voltage to function correctly.
+// This type of load cell is a strain gauge-based transducer that converts mechanical force into an electrical output
+// signal that is proportional to the force.
+
+// assumed excitation voltage
+#define EXCITATION_VOLTAGE (10.0f)
+#define SENSETIVITY_FACTOR (0.002f) // 2mv/V
+#define CONVERSION(voltage) ((voltage) / (SENSETIVITY_FACTOR * EXCITATION_VOLTAGE))
 
 float io_voltageToMechanicalLoad(float voltage)
 {
-    // TODO: find transfer function (will need to be experimentally determined when the load cells come in)
-    // Assumed to be a linear function
-    return LOADCELL_SLOPE * voltage + Y_INTERCEPT;
+    return CONVERSION(voltage);
 }
