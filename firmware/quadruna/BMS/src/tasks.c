@@ -206,11 +206,11 @@ static const FaultLatch bspd_ok_latch = {
     .read_only = true,
 };
 
-static const GlobalsConfig globals_config = {
-    .bms_ok_latch  = &bms_ok_latch,
-    .imd_ok_latch  = &imd_ok_latch,
-    .bspd_ok_latch = &bspd_ok_latch,
-};
+static const GlobalsConfig globals_config = { .bms_ok_latch            = &bms_ok_latch,
+                                              .imd_ok_latch            = &imd_ok_latch,
+                                              .bspd_ok_latch           = &bspd_ok_latch,
+                                              .bspd_test_enable_pin    = &bspd_test_en_pin,
+                                              .n_high_current_bspd_pin = &n_high_current_bspd_pin };
 
 // config for heartbeat monitor (can funcs and flags)
 // BMS relies on RSM, VC
@@ -341,8 +341,6 @@ void tasks_init(void)
 
     app_canTx_init();
     app_canRx_init();
-
-    HAL_GPIO_WritePin(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin, GPIO_PIN_RESET);
 
     app_inverterOnState_init();
     app_accumulator_init();
