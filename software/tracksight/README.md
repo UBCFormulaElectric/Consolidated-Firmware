@@ -47,16 +47,23 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ### Running Locally
 
-To start the local stack, navigate to `software/tracksight` and run `./run_local.sh`.
+To start the local stack, navigate to `software/tracksight` and run `./run_local.sh`. This is used for viewing log files, such as from the onboard SD card.
 
 This starts the frontend, backend, and InfluxDB database. These are all available at [http://localhost:3000](http://localhost:3000), [http://localhost:5000](http://localhost:5000), and [http://localhost:8086](http://localhost:8086), respectively.
 
 The data source for running locally is from CSV data files. These are essentially a time-series list of the signals sent on the CAN bus, with 
 their timestamps, names, values, and units. In these CSV files, the required columns are "time" (timestamp that the signal was sent), "signal" (signal name), "value", and "unit" (physical unit that the value is in, leave blank if not applicable).
 
-To specify a data file to read, pass it as the first positional argument to `run_local.sh`. This will upload all of the data in your provided file to the local InfluxDB database. IMPORTANT: Your log file must be in the `software/tracksight/backend/data` directory. If it is not, it will not be uploaded. Provide the path relative to this folder. (Yes I know this is pretty silly, but comp is in 7 days)
+To specify a data file to read, pass it as the first positional argument to `run_local.sh`. You can upload multiple by providing a comma-seperated list instead. This will upload all of the data in your provided files to the local InfluxDB database. IMPORTANT: Your log file must be in the `software/tracksight/backend/data` directory. If it is not, it will not be uploaded. Provide the path relative to this folder. (Yes I know this is pretty silly, but comp is in 7 days)
 
-Note that if you stop the compose stack, and restart it again, your data will remain since the data is stored on a Docker volume which isn't wiped if the compose stack is stopped. To clear the local database, pass the `-c` or `--clean` flag to `run_local.sh`.
+Note that if you stop the compose stack, and restart it again, your data will remain since the data is stored on a Docker volume which isn't wiped if the compose stack is brought down. This is useful if you want to upload more data files, and keep your old ones. To clear the local database, pass the `-c` or `--clean` flag to `run_local.sh`.
+
+Example:
+
+```
+# sine_wave_data.csv is located in software/tracksight/backend/data
+./run_local.sh sine_wave_data.csv
+```
 
 ### Running Wireless Telemetry
 
