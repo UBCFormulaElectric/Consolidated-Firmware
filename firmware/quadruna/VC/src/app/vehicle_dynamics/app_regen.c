@@ -151,3 +151,12 @@ static void computeRegenTorqueRequest(
         regenAttr->right_inverter_torque_Nm = MAX_REGEN_Nm * pedal_percentage * regenAttr->derating_value;
     }
 }
+
+float app_regen_pedalRemapping(float apps_pedal_percentage)
+{
+    apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
+    apps_pedal_percentage = apps_pedal_percentage < 0.0f ? apps_pedal_percentage / PEDAL_SCALE
+                                                         : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+
+    return apps_pedal_percentage;
+}

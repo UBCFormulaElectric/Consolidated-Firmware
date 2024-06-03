@@ -26,6 +26,8 @@ extern "C"
 #include "app_powerManager.h"
 #include "app_efuse.h"
 #include "app_globals.h"
+#include "app_faultCheck.h"
+#include "app_regen.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -54,6 +56,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+        app_bspd_init();
     }
 
     void TearDown() override
@@ -80,6 +83,15 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     {
         app_stateMachine_init(initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
+    }
+
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+        app_heartbeatMonitor_clearFaults();
     }
 
     // configs for efuse messages over can

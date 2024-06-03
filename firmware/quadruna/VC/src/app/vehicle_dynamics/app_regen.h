@@ -5,6 +5,8 @@
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
 #define SOC_LIMIT_DERATING_VALUE 0.85f;
+#define PEDAL_SCALE 0.3f
+#define MAX_PEDAL_PERCENT 1.0f
 /**
  * Runs when pedal percentage is in range [-100, 0] and does safety checks
  * before calculating and sending regenerative braking negative torque requests
@@ -36,3 +38,10 @@ void app_regen_sendTorqueRequest(float left, float right);
  * differential
  */
 void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs, RegenBraking_Inputs *regenAttr);
+
+/**
+ * Remap Papps and Sapps pedal percentage
+ * @param apps_pedal_percentage is the FSM given pedal percentage
+ * @return remap pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+ */
+float app_regen_pedalRemapping(float apps_pedal_percentage);

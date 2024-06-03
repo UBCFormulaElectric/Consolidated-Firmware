@@ -5,9 +5,6 @@
 #include "app_signal.h"
 #include "io_log.h"
 
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10U)
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10U)
-
 static Signal apps_brake_disagreement_signal;
 
 bool app_boardFaultCheck(void)
@@ -45,7 +42,7 @@ bool app_bspdWarningCheck(float papps_pedal_percentage, float sapps_pedal_percen
     bool apps_brakes_conflict =
         app_canRx_FSM_BrakeActuated_get() && (papps_pedal_percentage > 0.25f || sapps_pedal_percentage > 0.25f);
 
-    bool apps_less_than_5_percent = papps_pedal_percentage < 5 && sapps_pedal_percentage < 0.05f;
+    bool apps_less_than_5_percent = papps_pedal_percentage < 0.05f && sapps_pedal_percentage < 0.05f;
 
     SignalState apps_brake_disagreement_signal_state =
         app_signal_getState(&apps_brake_disagreement_signal, apps_brakes_conflict, apps_less_than_5_percent);
