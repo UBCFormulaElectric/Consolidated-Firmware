@@ -6,7 +6,7 @@ This is outdated, we've moved to Docker now. -Gus
 The backend is brought up by running the pipenv shell after it is installed. Then enter /software/tracksight/backend/app and run python/telemetry.py 
 -->
 
-Tracksight can be run in one of two ways: Either it pulls data from a local CSV log file, or it receives data wirelessly from the car in real time. 
+Tracksight can be run in one of two ways: Either it pulls data from a local CSV data file, or it receives data wirelessly from the car in real time. 
 The backend is a Flask app that pipes data to the frontend in either case.
 
 ## Frontend
@@ -52,9 +52,11 @@ To start the local stack, navigate to `software/tracksight` and run `./run_local
 This starts the frontend, backend, and InfluxDB database. These are all available at [http://localhost:3000](http://localhost:3000), [http://localhost:5000](http://localhost:5000), and [http://localhost:8086](http://localhost:8086), respectively.
 
 The data source for running locally is from CSV data files. These are essentially a time-series list of the signals sent on the CAN bus, with 
-their timestamps, names, values, and units.
+their timestamps, names, values, and units. In these CSV files, the required columns are "time" (timestamp that the signal was sent), "signal" (signal name), "value", and "unit" (physical unit that the value is in, leave blank if not applicable).
 
-In these CSV files, the required columns are "time" (timestamp that the signal was sent), "signal" (signal name), "value", and "unit" (physical unit that the value is in, leave blank if not applicable).
+To specify a data file to read, pass it as the first positional argument to `run_local.sh`. This will upload all of the data in your provided file to the local InfluxDB database. IMPORTANT: Your log file must be in the `software/tracksight/backend/data` directory. If it is not, it will not be uploaded. Provide the path relative to this folder. (Yes I know this is pretty silly, but comp is in 7 days)
+
+Note that if you stop the compose stack, and restart it again, your data will remain since the data is stored on a Docker volume which isn't wiped if the compose stack is stopped. To clear the local database, pass the `-c` or `--clean` flag to `run_local.sh`.
 
 ### Running Wireless Telemetry
 
