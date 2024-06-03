@@ -108,7 +108,7 @@
         },
         "SBGModeFault":  {
             "id" :561,
-            "description" : "Example"
+            "description" : "Ensure mode is Nominal mode for EKF data used"
         }  
     }
 }
