@@ -6,6 +6,6 @@ WORKDIR /backend
 COPY environment/requirements.txt .
 RUN pip3 install -r requirements.txt
 
-COPY software/tracksight/backend/ .
-
 EXPOSE 5000
+
+COPY software/tracksight/backend/app ./app

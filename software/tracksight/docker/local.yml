@@ -15,9 +15,12 @@ services:
         "app/telemetry.py",
         "--mode",
         "local",
-        "--log-file",
-        "/test.txt"
+        "--data-file",
+        "${DATA_FILE}"
       ]
+    volumes:
+      - ../backend/logs:/backend/logs
+      - ../backend/data:/backend/data
   frontend:
     extends:
       file: common.yml

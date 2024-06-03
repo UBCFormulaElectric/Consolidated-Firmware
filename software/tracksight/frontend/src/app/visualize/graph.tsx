@@ -1,7 +1,7 @@
 /**
  * REST API Endpoints:
- * /signal/measurement 
- * /signal/fields/<measurement>
+ * /data/measurement 
+ * /data/fields/<measurement>
  * /query
  */
 
@@ -36,7 +36,7 @@ function MeasurementDropdown({ measurement, setMeasurement }: {
     const [loading, setLoading] = useState<boolean>(true);
     useEffect(() => {
         (async () => {
-            const fetchURL = `${FLASK_URL}/signal/measurements`;
+            const fetchURL = `${FLASK_URL}/data/measurements`;
             const res = await fetch(fetchURL, {
                 method: 'get',
             });
@@ -79,7 +79,7 @@ function FieldDropdown({ fields, setFields, measurement }: {
             setLoading(true);
             setHasFetchedFields(false);
             try {
-                const res = await fetch(new URL(`/signal/measurement/${measurement}/fields`, FLASK_URL), {
+                const res = await fetch(new URL(`/data/measurement/${measurement}/signals`, FLASK_URL), {
                     method: 'get',
                 });
                 if (!res.ok) {
@@ -153,7 +153,7 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
                 <DatePicker.RangePicker showTime
                     onChange={(date_pair: Nullable<[Nullable<Dayjs>, Nullable<Dayjs>]>, _formatted_dates: [string, string]) => {
                         if (!date_pair) return;
-                        if(!date_pair[0] || !date_pair[1]) return console.warn("Partially null date pair");
+                        if (!date_pair[0] || !date_pair[1]) return console.warn("Partially null date pair");
                         setStartEpoch(date_pair[0].unix());
                         setEndEpoch(date_pair[1].unix());
                     }}
@@ -164,11 +164,11 @@ export default function Graph({ syncZoom, sharedZoomData, setSharedZoomData, del
                         toast("Please fill out all fields properly")
                         return;
                     }
-                    const fetchUrl = new URL("/signal/query", FLASK_URL);
+                    const fetchUrl = new URL("/data/query", FLASK_URL);
                     fetchUrl.search = new URLSearchParams({
                         measurement: measurement,
                         start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString(), // apparently for some reason the time is given in ms
-                        fields: fields.join(",")
+                        signals: fields.join(",")
                     }).toString();
                     try {
                         const res = await fetch(fetchUrl, { method: 'get' })

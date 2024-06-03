@@ -7,8 +7,14 @@ TODO: Implement proper error handling for things like no data available.
 """
 
 import os
-from typing import List, Tuple, TypedDict
+import pandas as pd
+from typing import List, Tuple
 import influxdb_client
+import logging
+
+
+logger = logging.getLogger("telemetry_logger")
+
 
 REQUIRED_ENV_VARS = {
     "org": "DOCKER_INFLUXDB_INIT_ORG",
@@ -41,62 +47,49 @@ def get_measurements(bucket=INFLUX_DB_BUCKET) -> list[str]:
     :param bucket: Name of bucket to fetch data from.
     :returns List of all measurements.
     """
+    query = f"""
+    import "influxdata/influxdb/schema"
+    schema.measurements(bucket: \"{bucket}\")"""
     with influxdb_client.InfluxDBClient(
         url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
     ) as client:
         return [
-            str(i[0])  # "i" is an array of form ["_result", 0, <measurement_name>]
-            for i in client.query_api()
-            .query(
-                f"""
-        import \"influxdata/influxdb/schema\"
-        schema.measurements(bucket: \"{bucket}\")
-        """
-            )
-            .to_values(columns=["_value"])
+            str(i[0])
+            for i in client.query_api().query(query).to_values(columns=["_value"])
         ]
 
 
-def get_fields(measurement: str, bucket: str = INFLUX_DB_BUCKET) -> list[str]:
+def get_signals(measurement: str = None, bucket: str = INFLUX_DB_BUCKET) -> list[str]:
     """
-    Get all fields from a measurement.
-    :param measurement: Measurement to fetch fields from.
+    Get all signals from the database.
     :param bucket: Name of bucket to fetch data from.
-    :return: List of all fields.
+    :returns List of all measurements.
     """
+    query = f"""
+    import "influxdata/influxdb/schema"
+    schema.tagValues(
+        bucket: "{bucket}", 
+        predicate: (r) => r._measurement == "{measurement}",
+        tag: "signal"
+    )"""
+
     with influxdb_client.InfluxDBClient(
         url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
     ) as client:
         return [
-            str(i[0])  # "i" is an array of form ["_result", 0, <measurement_name>]
-            for i in client.query_api()
-            .query(
-                f"""
-        import \"influxdata/influxdb/schema\"
-        schema.measurementFieldKeys(bucket: \"{bucket}\", measurement: \"{measurement}\")
-        """
-            )
-            .to_values(columns=["_value"])
+            str(i[0])
+            for i in client.query_api().query(query=query).to_values(columns=["_value"])
         ]
-
-
-class TimeValue(TypedDict):
-    """
-    TypedDict for the time and value fields in a query response.
-    """
-
-    times: list[str]
-    values: list[str]
 
 
 def query(
     measurement: str,
-    fields: List[str],
+    signals: List[str],
     time_range: Tuple[str, str],
     bucket: str = INFLUX_DB_BUCKET,
     max_points: int = 8000,  # TODO implement
     ms_resolution: int = 100,  # TODO implement
-) -> dict[str, TimeValue]:
+) -> dict[str, dict]:
     """
     Make a general query to the database.
     :param measurement: Measurement to pull data from.
@@ -107,21 +100,48 @@ def query(
     :param ms_resolution: Minimum time delta required before grabbing a new datapoint.
     :return: A dictionary where the keys are the fields and the values are TimeValue objects.
     """
-    out: dict[str, TimeValue] = {field: {"times": [], "values": []} for field in fields}
+
+    query = f"""
+    from(bucket:"{bucket}")
+        |> range(start: {time_range[0]}, stop: {time_range[1]})
+        |> filter(fn: (r) => 
+            r._measurement == "{measurement}" and 
+            r._field == "value" and
+            contains(value: r.signal, set: {str(signals).replace("'", '"')}))
+    """
+
+    query_result = {signal: {"times": [], "values": []} for signal in signals}
     with influxdb_client.InfluxDBClient(
         url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
     ) as client:
-        for field, value, time in (
+        for signal, value, time in (
             client.query_api()
-            .query(
-                f"""
-    from(bucket:"{bucket}")
-            |> range(start: {time_range[0]}, stop: {time_range[1]})
-            |> filter(fn: (r) => r._measurement == "{measurement}" and contains(value: r._field, set: {str(fields).replace("'", '"')}))
-        """
-            )
-            .to_values(columns=["_field", "_value", "_time"])
+            .query(query=query)
+            .to_values(columns=["signal", "_value", "_time"])
         ):
-            out[field]["times"].append(time)
-            out[field]["values"].append(value)
-    return out
+            query_result[signal]["times"].append(time)
+            query_result[signal]["values"].append(value)
+
+    return query_result
+
+
+def write(df: pd.DataFrame, measurement: str) -> None:
+    """
+    Write a pandas dataframe to the Influx database. The dataframe should have the columns
+    time, value, unit, and signal.
+    :param db: Dataframe to upload.
+    """
+    with influxdb_client.InfluxDBClient(
+        url=INFLUX_DB_URL, token=INFLUX_DB_TOKEN, org=INFLUX_DB_ORG
+    ) as client:
+        # Index is used as source for time.
+        df.set_index("time", inplace=True)
+
+        write_api = client.write_api()
+        write_api.write(
+            bucket=INFLUX_DB_BUCKET,
+            org=INFLUX_DB_ORG,
+            record=df,
+            data_frame_measurement_name=measurement,
+            data_frame_tag_columns=["signal"],
+        )
