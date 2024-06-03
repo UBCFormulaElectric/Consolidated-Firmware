@@ -350,6 +350,33 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
+void tasks_preInitWatchdog(void)
+{
+    hw_sd_init(&sd);
+
+    if (loggingEnabled())
+    {
+        if (io_fileSystem_init() == FILE_OK)
+        {
+            io_canLogging_init(&canLogging_config);
+
+            // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
+            // This is not correlated to the size of each file.
+            app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
+            app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(
+                io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
+        }
+        else
+        {
+            can_logging_enable = false;
+        }
+    }
+    else
+    {
+        can_logging_enable = false;
+    }
+}
+
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
@@ -361,7 +388,6 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
-    hw_sd_init(&sd);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
@@ -386,22 +412,6 @@ void tasks_init(void)
     if (!io_sbgEllipse_init(&imu_uart))
     {
         Error_Handler();
-    }
-
-    if (loggingEnabled())
-    {
-        if (io_fileSystem_init() == FILE_OK)
-        {
-            io_canLogging_init(&canLogging_config);
-        }
-        else
-        {
-            can_logging_enable = false;
-        }
-    }
-    else
-    {
-        can_logging_enable = false;
     }
 
     if (!io_imu_init())

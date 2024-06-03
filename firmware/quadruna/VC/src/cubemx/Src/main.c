@@ -708,7 +708,7 @@ static void MX_I2C2_Init(void)
 static void MX_IWDG1_Init(void)
 {
     /* USER CODE BEGIN IWDG1_Init 0 */
-
+    tasks_preInitWatchdog();
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
