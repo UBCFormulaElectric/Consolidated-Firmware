@@ -8,11 +8,9 @@ TODO: Implement proper error handling for things like no data available.
 
 import os
 import sys
-
-import flask_socketio
-from . import telem_pb2
-
 import serial
+import flask_socketio
+from generated import telem_pb2
 
 sys.path.insert(
     0,
@@ -25,15 +23,15 @@ sys.path.insert(
 bus_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../../../../can_bus/quadruna")
 )
-from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
-from jsoncan.src.can_database import CanDatabase
+# from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+# from jsoncan.src.can_database import CanDatabase
 
-ser = serial.Serial(
-    "/dev/ttyUSB0", baudrate=57600, timeout=1
-)  # TODO: generalize the serial port (only linux as this file structure)
-can_db = JsonCanParser(bus_path).make_database()
-ser.reset_input_buffer()
-ser.reset_output_buffer()
+# ser = serial.Serial(
+#     "/dev/ttyUSB0", baudrate=57600, timeout=1
+# )  # TODO: generalize the serial port (only linux as this file structure)
+# # can_db = JsonCanParser(bus_path).make_database()
+# ser.reset_input_buffer()
+# ser.reset_output_buffer()
 
 available_signals = {}
 client_signals = {}
@@ -42,6 +40,7 @@ s = set()
 s.add(255)
 s.add(165)
 s.add(253)
+
 
 def read_messages():
     """

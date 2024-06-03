@@ -1,0 +1,24 @@
+name: tracksight-log
+services:
+  influx:
+    extends:
+      file: common.yml
+      service: influx
+  backend:
+    extends:
+      file: common.yml
+      service: backend
+    # Start telemetry in log file mode.
+    command:
+      [
+        "python3",
+        "app/telemetry.py",
+        "--mode",
+        "wireless",
+        "--serial-port",
+        "TODO"
+      ]
+  frontend:
+    extends:
+      file: common.yml
+      service: frontend

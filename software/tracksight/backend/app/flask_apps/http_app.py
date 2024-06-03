@@ -3,15 +3,15 @@ Main REST component of the backend
 """
 
 from flask import Blueprint, request
-
-from .. import influx_handler as influx
+import influx_handler
+from typing import Tuple, Dict, List
 
 # HTTP processes for data that is not live
 app = Blueprint("http_app", __name__)
 
 
 @app.route("/")
-def hello_world():
+def hello_world() -> str:
     """
     :returns Hello world page for backend.
     """
@@ -19,43 +19,44 @@ def hello_world():
 
 
 @app.route("/health")
-def health():
+def health() -> Tuple[Dict, int]:
     """
     :returns Health check page for backend.
     """
     return {"status": "healthy"}, 200
 
 
-@app.route("/signal/measurements", methods=["GET"])
-def return_all_measurements():
+@app.route("/data/measurements", methods=["GET"])
+def return_all_measurements() -> Tuple[List[str], int]:
     """
     :returns Page displaying all measurements in the database.
     """
-    return influx.get_measurements(), 200
+    return influx_handler.get_measurements(), 200
 
 
-@app.route("/signal/measurement/<string:measurement>/fields", methods=["GET"])
-def return_all_fields_for_measurement(measurement: str):
+@app.route("/data/measurement/<string:measurement>/signals", methods=["GET"])
+def return_signals_for_measurement(measurement: str) -> Tuple[List[str], int]:
     """
     :param measurement: Measurement to fetch fields for.
     :returns Page displaying all fields for a specific measurement.
     """
-    return influx.get_fields(measurement), 200
+    return influx_handler.get_signals(measurement=measurement), 200
 
 
-@app.route("/signal/query", methods=["GET"])
-def return_query():
+@app.route("/data/query", methods=["GET"])
+def return_query() -> Dict[str, Dict]:
     """
     :returns Page displaying the result of a single query.
     """
     params = request.args
     measurement = params.get("measurement")
-    fields: list[str] | None = params.get("fields").split(",")
+    signals: list[str] | None = params.get("signals")
     start_epoch = params.get("start_epoch")
     end_epoch = params.get("end_epoch")
+
     if (
         measurement is None
-        or fields is None
+        or signals is None
         or start_epoch is None
         or end_epoch is None
     ):
@@ -63,7 +64,7 @@ def return_query():
             k
             for k, v in [
                 ("measurement", measurement),
-                ("fields", fields),
+                ("signals", signals),
                 ("start_epoch", start_epoch),
                 ("end_epoch", end_epoch),
             ]
@@ -71,6 +72,11 @@ def return_query():
         ]
         return {"error": f"Missing parameters: {missing_keys}"}, 400
     try:
-        return influx.query(measurement, fields, (start_epoch, end_epoch))
+        signals = signals.split(",")
+        return influx_handler.query(
+            measurement=measurement,
+            signals=signals,
+            time_range=(start_epoch, end_epoch),
+        )
     except Exception as e:
         return {"error": str(e)}, 500

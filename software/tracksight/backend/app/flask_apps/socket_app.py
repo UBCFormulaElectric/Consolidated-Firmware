@@ -3,14 +3,12 @@ Socket app for handling live data
 """
 
 import logging
-
 import flask_socketio
 from flask import request
 
+import signal_util
+
 logger = logging.getLogger("telemetry_logger")
-
-from .. import signal_util as signal_util
-
 
 # SocketIO processes for live data
 socketio = flask_socketio.SocketIO(cors_allowed_origins="*")

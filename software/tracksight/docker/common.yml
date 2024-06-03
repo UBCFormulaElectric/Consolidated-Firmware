@@ -1,0 +1,45 @@
+services:
+  influx:
+    image: influxdb:2.7.6-alpine
+    ports:
+      # Default port for Influx DB.
+      - "8086:8086"
+    env_file: ../backend/influx.env
+    healthcheck:
+      # Ping server every 30s in case something breaks.
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
+      start_period: 10s
+      start_interval: 1s
+  backend:
+    build:
+      context: ../../../
+      dockerfile: software/tracksight/backend/Dockerfile
+    ports:
+      # Default port for Flask apps.
+      - "5000:5000"
+    env_file: ../backend/influx.env
+    volumes:
+      - ../backend/logs:/backend/logs
+    healthcheck:
+      # Ping server every 30s in case something breaks.
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
+      start_period: 10s
+      start_interval: 1s
+    depends_on:
+      influx:
+        condition: service_healthy
+  frontend:
+    build: ../frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
