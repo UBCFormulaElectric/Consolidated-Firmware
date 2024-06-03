@@ -128,7 +128,7 @@ def query(
 def write(df: pd.DataFrame, measurement: str) -> None:
     """
     Write a pandas dataframe to the Influx database. The dataframe should have the columns
-    time, value, unit, and signal.
+    time, signal, value, and unit.
     :param db: Dataframe to upload.
     """
     with influxdb_client.InfluxDBClient(

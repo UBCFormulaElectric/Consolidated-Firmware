@@ -7,7 +7,7 @@ typedef struct
     uint32_t dlc : 4;        // Data length code [0,8]
     uint32_t timestamp : 17; // sum up to 32 bits
     uint8_t  data[8];
-    uint8_t  reserved[4]; // reserved byte to round up to 16 bytes
+    uint8_t  reserved[4]; // reserved byte to round up to 16 bytes, TODO: Use this for error checking?
 } CanMsgLog;
 
 /**
