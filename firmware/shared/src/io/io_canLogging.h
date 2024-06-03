@@ -39,3 +39,8 @@ int io_canLogging_recordMsgFromQueue(void);
 void io_canLogging_loggingQueuePush(CanMsg *rx_msg);
 
 int io_canLogging_sync(void);
+
+/**
+ * Return the number of the current CAN data log.
+ */
+uint32_t io_canLogging_getCurrentLog(void);
