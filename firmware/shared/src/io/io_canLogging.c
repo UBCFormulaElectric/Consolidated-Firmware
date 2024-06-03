@@ -15,7 +15,7 @@
 static const CanConfig *config;
 #define QUEUE_SIZE 2048
 #define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE
-#define PATH_LENGTH 10
+#define PATH_LENGTH 16
 static osMessageQueueId_t message_queue_id;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
@@ -154,4 +154,9 @@ int io_canLogging_sync(void)
         return 1;
     }
     return 0;
+}
+
+uint32_t io_canLogging_getCurrentLog(void)
+{
+    return current_bootcount;
 }
