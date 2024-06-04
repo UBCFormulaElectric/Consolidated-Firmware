@@ -67,6 +67,14 @@
         "HighNumberOfCanDataLogs": {
             "id": 561,
             "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
+        },
+        "CanLoggingSdCardNotPresent": {
+            "id": 562,
+            "description": "CAN logging SD card is not detected."
+        },
+        "CanLoggingErrored": {
+            "id": 563,
+            "description": "CAN logging received multiple errors and has been disabled."
         }
     },
     "faults": {

@@ -2,6 +2,7 @@
 // app
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
+#include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_lowVoltageBattery.h"
 #include "app_currentSensing.h"
@@ -12,6 +13,7 @@
 // io
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_canLogging.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -56,4 +58,8 @@ void app_allStates_runOnTick100Hz(void)
 void app_allStates_runOnTick1Hz(void)
 {
     app_canTx_VC_FlowRate_set(app_pumpControl_getFlowRate());
+
+    // Update SD card logging related signals.
+    app_canTx_VC_CanLoggingRemainingErrors_set(io_canLogging_errorsRemaining());
+    app_canAlerts_VC_Warning_CanLoggingErrored_set(io_canLogging_errorsRemaining() == 0);
 }

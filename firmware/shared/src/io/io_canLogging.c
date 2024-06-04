@@ -23,7 +23,7 @@ static uint8_t            queue_buf[QUEUE_BYTES];
 static uint32_t current_bootcount;
 static int      log_fd; // fd for the log file
 
-static uint8_t logging_error_remaining = 5; // number of times to error before stopping logging
+static uint8_t logging_error_remaining = 10; // number of times to error before stopping logging
 
 static char current_path[10];
 
@@ -63,7 +63,7 @@ static void convertCanMsgToLog(const CanMsg *msg, CanMsgLog *log)
 
 static bool isLoggingEnabled(void)
 {
-    return (logging_error_remaining > 0);
+    return logging_error_remaining > 0 && config != NULL;
 }
 
 int io_canLogging_init(const CanConfig *can_config)
@@ -82,37 +82,18 @@ int io_canLogging_init(const CanConfig *can_config)
     return initLoggingFileSystem();
 }
 
-int io_canLogging_pushTxMsgToQueue(const CanMsg *msg)
-{
-    if (!isLoggingEnabled())
-    {
-        return 1;
-    }
-    static uint32_t tx_overflow_count = 0;
-
-    CanMsgLog log;
-    convertCanMsgToLog(msg, &log);
-
-    if (osMessageQueuePut(message_queue_id, &log, 0, 0) != osOK && config->tx_overflow_callback != NULL)
-    {
-        // If pushing to the queue failed, the queue is full. Discard the msg and invoke the TX overflow callback.
-        config->tx_overflow_callback(++tx_overflow_count);
-        return 1;
-    }
-    return 0;
-}
-
 int io_canLogging_recordMsgFromQueue(void)
 {
     if (!isLoggingEnabled())
     {
         return 1;
     }
+
     CanMsgLog tx_msg;
     osMessageQueueGet(message_queue_id, &tx_msg, NULL, osWaitForever);
 
     int err = io_fileSystem_write(log_fd, &tx_msg, sizeof(tx_msg));
-    if (err < 0)
+    if (err < 0 && logging_error_remaining > 0)
     {
         logging_error_remaining--;
         return 1;
@@ -120,35 +101,42 @@ int io_canLogging_recordMsgFromQueue(void)
     return 0;
 }
 
-void io_canLogging_loggingQueuePush(CanMsg *rx_msg)
+void io_canLogging_loggingQueuePush(CanMsg *msg)
 {
-    static uint32_t rx_overflow_count = 0;
-    CanMsgLog       msg;
-    if (config == NULL)
+    if (!isLoggingEnabled())
+    {
         return;
+    }
 
-    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(rx_msg->std_id))
+    if (config->rx_msg_filter != NULL && !config->rx_msg_filter(msg->std_id))
     {
         // Early return if we don't care about this msg via configured filter func.
         return;
     }
 
+    static uint32_t overflow_count = 0;
+    CanMsgLog       msg_log;
+    convertCanMsgToLog(msg, &msg_log);
+
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
-
-    convertCanMsgToLog(rx_msg, &msg);
-    if (osMessageQueuePut(message_queue_id, &msg, 0, 0) != osOK && config->rx_overflow_callback != NULL)
+    if (osMessageQueuePut(message_queue_id, &msg_log, 0, 0) != osOK && config->rx_overflow_callback != NULL)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.
-        config->rx_overflow_callback(++rx_overflow_count);
+        config->rx_overflow_callback(++overflow_count);
     }
 }
 
 int io_canLogging_sync(void)
 {
+    if (!isLoggingEnabled())
+    {
+        return 1;
+    }
+
     // SAVe the seek before close
     int err = io_fileSystem_sync(log_fd);
-    if (err < 0)
+    if (err < 0 && logging_error_remaining > 0)
     {
         logging_error_remaining--;
         return 1;
@@ -159,4 +147,9 @@ int io_canLogging_sync(void)
 uint32_t io_canLogging_getCurrentLog(void)
 {
     return current_bootcount;
+}
+
+uint32_t io_canLogging_errorsRemaining(void)
+{
+    return logging_error_remaining;
 }

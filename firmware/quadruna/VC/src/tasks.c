@@ -54,18 +54,16 @@ extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
 
-static bool loggingEnabled(void); // TODO make this a general io logging happy function
-
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
 static uint32_t write_count                = 0; // TODO debugging variables
-static bool     can_logging_enable         = true;
+static bool     sd_card_present            = true;
 
 static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
 
-    if (loggingEnabled() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
+    if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
@@ -153,11 +151,6 @@ static const Gpio      n_chimera_pin    = { .port = NCHIMERA_GPIO_Port, .pin = N
 static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin = NPROGRAM_3V3_Pin };
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
-
-static bool loggingEnabled(void)
-{
-    return !hw_gpio_readPin(&sd_present) && can_logging_enable;
-}
 
 const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
@@ -354,26 +347,17 @@ void tasks_preInitWatchdog(void)
 {
     hw_sd_init(&sd);
 
-    if (loggingEnabled())
+    sd_card_present = !hw_gpio_readPin(&sd_present);
+    if (sd_card_present)
     {
         if (io_fileSystem_init() == FILE_OK)
         {
             io_canLogging_init(&canLogging_config);
-
-            // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
-            // This is not correlated to the size of each file.
-            app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
-            app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(
-                io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
         }
         else
         {
-            can_logging_enable = false;
+            sd_card_present = false;
         }
-    }
-    else
-    {
-        can_logging_enable = false;
     }
 }
 
@@ -422,6 +406,12 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
     app_canDataCapture_init();
+
+    // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
+    // This is not correlated to the size of each file.
+    app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
+    app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
+    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
@@ -539,7 +529,11 @@ _Noreturn void tasks_runCanTx(void)
         CanMsg tx_msg;
         io_can_popTxMsgFromQueue(&tx_msg);
         io_telemMessage_pushMsgtoQueue(&tx_msg);
-        io_canLogging_pushTxMsgToQueue(&tx_msg);
+
+        if (sd_card_present)
+        {
+            io_canLogging_loggingQueuePush(&tx_msg);
+        }
 
         io_can_transmitMsgFromQueue(&tx_msg);
     }
@@ -562,7 +556,6 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
-        io_canLogging_pushTxMsgToQueue(&rx_msg);
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
@@ -572,7 +565,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    if (!loggingEnabled())
+    if (!sd_card_present)
     {
         osThreadSuspend(osThreadGetId());
     }
