@@ -17,6 +17,11 @@
                 "resolution": 1,
                 "min": 0,
                 "max": 1000
+            },
+            "CanLoggingRemainingErrors": {
+                "resolution": 1,
+                "min": 0,
+                "max": 10
             }
         }
     },

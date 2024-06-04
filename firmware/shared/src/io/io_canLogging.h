@@ -1,5 +1,10 @@
+#pragma once
+
 #include "io_can.h"
+
+#ifdef TARGET_EMBEDDED
 #include "hw_sd.h"
+#endif
 
 // Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new
 // blank CAN log, taking approximately 500ms. This was found using logfs (not littlefs, there is probably a different
@@ -25,11 +30,6 @@ typedef struct
 int io_canLogging_init(const CanConfig *can_config);
 
 /**
- * Create a push message to
- */
-int io_canLogging_pushTxMsgToQueue(const CanMsg *msg);
-
-/**
  * write the can message to the sdcard
  * pop the massage from queue
  *
@@ -44,3 +44,8 @@ int io_canLogging_sync(void);
  * Return the number of the current CAN data log.
  */
 uint32_t io_canLogging_getCurrentLog(void);
+
+/**
+ * Number of remaining errors before logging is disabled.
+ */
+uint32_t io_canLogging_errorsRemaining(void);

@@ -8,6 +8,7 @@
 #include "fake_io_sbgEllipse.hpp"
 #include "fake_io_tsms.hpp"
 #include "fake_io_pcm.hpp"
+#include "fake_io_canLogging.hpp"
 
 extern "C"
 {
@@ -72,6 +73,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_standbyReset_reset();
         fake_io_tsms_read_reset();
         fake_io_pcm_set_reset();
+        fake_io_canLogging_errorsRemaining_reset();
     }
 
     void SetInitialState(const State *const initial_state)
