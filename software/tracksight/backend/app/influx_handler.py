@@ -119,9 +119,10 @@ def query(
             .query(query=query)
             .to_values(columns=["signal", "_value", "_time"])
         ):
-            query_result[signal]["times"].append(time)
+            query_result[signal]["times"].append(str(time))
             query_result[signal]["values"].append(value)
 
+    logger.debug(query_result)
     return query_result
 
 
@@ -144,4 +145,5 @@ def write(df: pd.DataFrame, measurement: str) -> None:
             record=df,
             data_frame_measurement_name=measurement,
             data_frame_tag_columns=["signal"],
+            write_precision=influxdb_client.WritePrecision.NS,
         )

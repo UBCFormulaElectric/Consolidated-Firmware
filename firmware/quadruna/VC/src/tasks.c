@@ -359,12 +359,6 @@ void tasks_preInitWatchdog(void)
         if (io_fileSystem_init() == FILE_OK)
         {
             io_canLogging_init(&canLogging_config);
-
-            // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
-            // This is not correlated to the size of each file.
-            app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
-            app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(
-                io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
         }
         else
         {
@@ -422,6 +416,11 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
     app_canDataCapture_init();
+
+    // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
+    // This is not correlated to the size of each file.
+    app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
+    app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
@@ -539,7 +538,11 @@ _Noreturn void tasks_runCanTx(void)
         CanMsg tx_msg;
         io_can_popTxMsgFromQueue(&tx_msg);
         io_telemMessage_pushMsgtoQueue(&tx_msg);
-        io_canLogging_pushTxMsgToQueue(&tx_msg);
+
+        if (loggingEnabled())
+        {
+            io_canLogging_pushTxMsgToQueue(&tx_msg);
+        }
 
         io_can_transmitMsgFromQueue(&tx_msg);
     }
@@ -562,7 +565,11 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
-        io_canLogging_pushTxMsgToQueue(&rx_msg);
+
+        if (loggingEnabled())
+        {
+            io_canLogging_pushTxMsgToQueue(&rx_msg);
+        }
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
