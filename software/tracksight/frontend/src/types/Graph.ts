@@ -1,6 +1,6 @@
 export enum GraphType {
-    LIVE="live",
-    HISTORICAL="historical"
+    LIVE = "live",
+    HISTORICAL = "historical"
 }
 export interface GraphI {
     id: number
