@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button, Switch } from 'antd';
 import Graph from './graph';
-import LiveGraph from './livegraph';
+import LiveGraph from './live_graph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { GraphI, GraphType } from '@/types/Graph';
 
@@ -97,7 +97,7 @@ export default function Visualize() {
                         return (
                             <LiveGraph
                                 key={graph.id}
-                                id={graph.id}
+                                graphInfo={graph}
                                 deletePlot={(e) =>
                                     setGraphs(prevGraphs => prevGraphs.filter(g => g.id !== graph.id))}
                                 syncZoom={shouldSyncZoom}

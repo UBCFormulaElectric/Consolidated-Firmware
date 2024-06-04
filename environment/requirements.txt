@@ -20,8 +20,8 @@ rich
 flask
 flask_cors
 pandas
-flask_socketio
 pytest
 requests
 influxdb-client
 tzlocal
+python-dotenv
