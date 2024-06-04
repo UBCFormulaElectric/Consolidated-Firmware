@@ -1,6 +1,12 @@
 #include "io_can.h"
 #include "hw_sd.h"
 
+// Empirically determined number which corresponds to the time to mount the filesystem, plus the time to create a new
+// blank CAN log, taking approximately 500ms. This was found using logfs (not littlefs, there is probably a different
+// threshold). The time to mount/create a log both scale linearly with logfs, so for example if there are 400 logs then
+// then the time will be ~1s. Proceed with caution creating a significant amount of logs above this threshold.
+#define HIGH_NUMBER_OF_LOGS_THRESHOLD (200U)
+
 typedef struct
 {
     uint32_t id : 11;
@@ -33,3 +39,8 @@ int io_canLogging_recordMsgFromQueue(void);
 void io_canLogging_loggingQueuePush(CanMsg *rx_msg);
 
 int io_canLogging_sync(void);
+
+/**
+ * Return the number of the current CAN data log.
+ */
+uint32_t io_canLogging_getCurrentLog(void);

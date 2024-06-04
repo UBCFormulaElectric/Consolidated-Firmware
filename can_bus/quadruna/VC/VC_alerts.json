@@ -63,6 +63,10 @@
         "BoostControllerFault": {
             "id": 560,
             "description": "Boost controller has faulted."
+        },
+        "HighNumberOfCanDataLogs": {
+            "id": 561,
+            "description": "High number of CAN data logs (>200) on the SD card, which slows down mounting the filesystem."
         }
     },
     "faults": {

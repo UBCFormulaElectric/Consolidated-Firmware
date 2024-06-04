@@ -12,6 +12,11 @@
             },
             "BuzzerOn": {
                 "bits": 1
+            },
+            "NumberOfCanDataLogs": {
+                "resolution": 1,
+                "min": 0,
+                "max": 1000
             }
         }
     },
