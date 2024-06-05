@@ -12,6 +12,7 @@ import serial
 import logging
 import time
 import pandas as pd
+from queue import Queue
 from tzlocal import get_localzone
 
 from generated import telem_pb2
@@ -40,6 +41,8 @@ class SignalUtil:
     available_signals = {}
     client_signals = {}
     is_setup = False
+    signal_queue = Queue()
+
 
     @classmethod
     def setup(cls, port: str, app):
@@ -49,7 +52,7 @@ class SignalUtil:
         cls.is_setup = True
         cls.app = app
 
-        # can_db = JsonCanParser(bus_path).make_database()
+        can_db = JsonCanParser(bus_path).make_database()
 
     @classmethod
     def read_messages(cls):
@@ -64,46 +67,52 @@ class SignalUtil:
             while True:
                 # TODO: Lara: Upload actual signals instead!
 
-                # packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
-                # logger.info(f"Received data: {packet_size}")
-                # if packet_size in VALID_PACKET_SIZES:
-                #     continue
+                packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
+                logger.info(f"Received data: {packet_size}")
+                if packet_size in VALID_PACKET_SIZES:
+                    continue
 
-                # if (
-                #     last_bit == 0 and packet_size != 0
-                # ):  # the size will be different due to 0 not often being include
+                if (
+                    last_bit == 0 and packet_size != 0
+                ):  # the size will be different due to 0 not often being include
 
-                #     # Read in UART message and parse the protobuf
-                #     bytes_read = cls.ser.read(packet_size)
-                #     message_received = telem_pb2.TelemMessage()
-                #     message_received.ParseFromString(bytes_read)
+                    # Read in UART message and parse the protobuf
+                    bytes_read = cls.ser.read(packet_size)
+                    message_received = telem_pb2.TelemMessage()
+                    message_received.ParseFromString(bytes_read)
 
-                #     # Make data array out of ints
-                #     data_array = cls.make_bytes(message_received)
+                    # Make data array out of ints
+                    data_array = cls.make_bytes(message_received)
 
-                #     # Unpack the data and add the id and meta data
-                #     signal_list = cls.can_db.unpack(message_received.can_id, data_array)
+                    # Unpack the data and add the id and meta data
+                    signal_list = cls.can_db.unpack(message_received.can_id, data_array)
 
-                #     for single_signal in signal_list:
+                    for single_signal in signal_list:
 
-                #         # Add the time stamp
-                #         single_signal["timestamp"] = message_received.time_stamp
-                #         signal_name = single_signal["name"]
+                        # Add the time stamp and get name
+                        single_signal["timestamp"] = message_received.time_stamp
+                        signal_name = single_signal["name"] 
 
-                #         # Update the list of availble signals and add it to client signals
-                #         if signal_name not in cls.available_signals:
-                #             cls.available_signals[signal_name] = True
-                #             cls.client_signals[signal_name] = []
+                        # Update the list of availble signals and add it to client signals
+                        if signal_name not in cls.available_signals:
+                            cls.available_signals[signal_name] = True
+                            cls.client_signals[signal_name] = []
 
-                #         # Emit the message
-                #         flask_socketio.emit("signal_response", single_signal)
+                        # Emit the message
+                        flask_socketio.emit("signal_response", single_signal)
 
-                # else:
-                #     last_bit = packet_size
+                        #Put in queue
+                        cls.signal_queue.put(single_signal)
 
-                if "Signal" not in cls.available_signals:
-                    cls.available_signals["Signal"] = True
-                    cls.client_signals["Signal"] = []
+                        if cls.signal_queue.qsize() > 10:
+                            cls.write_signals_to_influx()
+
+                else:
+                    last_bit = packet_size
+
+                # if "Signal" not in cls.available_signals:
+                #     cls.available_signals["Signal"] = True
+                #     cls.client_signals["Signal"] = []
 
                 # signal = {
                 #     # "timestamp": "2024",
@@ -113,18 +122,19 @@ class SignalUtil:
                 # }
                 # with cls.app.app_context():
 
-                signals = {"time": [], "signal": [], "value": [], "unit": []}
-                for _ in range(10):
-                    timestamp = pd.Timestamp.now(tz=get_localzone())
-                    signals["time"].append(timestamp)
-                    signals["signal"].append("Test")
-                    signals["value"].append(2)
-                    signals["unit"].append("kW")
+                # signals = {"time": [], "signal": [], "value": [], "unit": []}
+                # for _ in range(10):
+                #     timestamp = pd.Timestamp.now(tz=get_localzone())
+                #     signals["time"].append(timestamp)
+                #     signals["signal"].append("Test")
+                #     signals["value"].append(2)
+                #     signals["unit"].append("kW")
+                
 
-                InfluxHandler.write(
-                    pd.DataFrame(data=signals),
-                    measurement="live",
-                )
+                # InfluxHandler.write(
+                #     pd.DataFrame(data=signals),
+                #     measurement="live",
+                # )
 
                 time.sleep(1)
 
@@ -132,3 +142,22 @@ class SignalUtil:
             logger.error("Error receiving/sending proto msg:", e)
         finally:
             cls.ser.close()
+
+    @classmethod
+    def write_signals_to_influx(cls):
+        if not cls.signal_queue.empty():
+            signals = {"time": [], "signal": [], "value": [], "unit": []}
+            while not cls.signal_queue.empty():
+                signal = cls.signal_queue.get()
+                timestamp = pd.Timestamp(signal["timestamp"], tz=get_localzone())
+                signals["time"].append(timestamp)
+                signals["signal"].append(signal["name"])
+                signals["value"].append(signal["value"])
+                signals["unit"].append(signal["unit"])
+
+            InfluxHandler.write(
+                pd.DataFrame(data=signals),
+                measurement="live",
+            )
+
+            time.sleep(1)
