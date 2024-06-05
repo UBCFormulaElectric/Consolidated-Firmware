@@ -65,7 +65,7 @@ class SignalUtil:
                 # TODO: Lara: Upload actual signals instead!
 
                 # packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
-                # logger.debug(f"Received data: {packet_size}")
+                # logger.info(f"Received data: {packet_size}")
                 # if packet_size in VALID_PACKET_SIZES:
                 #     continue
 

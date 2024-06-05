@@ -39,7 +39,7 @@ if __name__ == "__main__":
         "-m",
         type=str,
         required=True,
-        help="Mode to run telemetry in, either 'wireless' or 'local'.",
+        help="Mode to run telemetry in, either 'wireless' or 'log'.",
     )
     parser.add_argument(
         "--serial-port",
@@ -66,16 +66,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.INFO)
     else:
-        logging.basicConfig(filename=log_path, level=logging.DEBUG)
+        logging.basicConfig(filename=log_path, level=logging.INFO)
 
     if args.mode == "wireless" and args.serial_port is None:
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    elif args.mode != "wireless" and args.mode != "local":
-        raise RuntimeError("Mode must be either 'wireless' or 'local'")
+    elif args.mode != "wireless" and args.mode != "log":
+        raise RuntimeError("Mode must be either 'wireless' or 'log'")
 
     # Configs for Influx DB instance.
     required_env_vars = {
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             wireless_thread.start()
 
             # Initialize the Socket.IO app with the main app.
-            app.run(debug=False)
+            app.run(debug=False, host="0.0.0.0")
         except KeyboardInterrupt:
             logger.info("Exiting")
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
             logger.info("Thread stopped")
 
-    elif args.mode == "local":
+    elif args.mode == "log":
         try:
             if args.data_file is not None and args.data_file.strip() != "":
                 # Read log files and upload to the influx database.
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
             # Initialize the Socket.IO app with the main app.
             logger.info("Starting Flask app.")
-            app.run(app, debug=False)
+            app.run(debug=False, host="0.0.0.0")
 
         except KeyboardInterrupt:
             logger.info("Exiting")

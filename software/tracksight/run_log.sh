@@ -3,7 +3,7 @@
 show_help() {
 cat << EOF
 Usage: ${0##*/} [-h|--help] [-c|--clean] -f|--file FILE
-Run telemetry locally, sourcing data from a CSV log file.
+Run telemetry in log mode, sourcing data from a CSV log file.
 
     -h|--help       Display this help and exit
     -c|--clean      Clear all existing data in the local Influx database
@@ -52,7 +52,7 @@ script_dir="$(dirname "$(readlink -f "$0")")"
 # Handle the clean command.
 if [ "$clean" -eq 1 ]; then
     echo "Cleaning database."
-    docker compose -f "$script_dir/docker/local.yml" down -v
+    docker compose -f "$script_dir/docker/log.yml" down -v
 fi
 
 # Check if the file path is provided
@@ -61,5 +61,5 @@ if [ -z "$file" ]; then
 fi
 
 # Pass the file argument to the Python script.
-echo "Starting telemetry locally."
-env DATA_FILE="$file" docker compose -f "$script_dir/docker/local.yml" up --build
+echo "Starting telemetry in log  mode."
+env DATA_FILE="$file" docker compose -f "$script_dir/docker/log.yml" up --build
