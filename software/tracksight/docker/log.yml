@@ -1,4 +1,4 @@
-name: tracksight-local
+name: tracksight-log
 services:
   influx:
     extends:
@@ -14,9 +14,10 @@ services:
         "python3",
         "app/telemetry.py",
         "--mode",
-        "local",
+        "log",
         "--data-file",
-        "${DATA_FILE}"
+        "${DATA_FILE}",
+        "--debug"
       ]
     volumes:
       - ../backend/logs:/backend/logs
