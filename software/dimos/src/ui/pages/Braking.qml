@@ -11,11 +11,14 @@ Item {
     property int targetSpeed: 60
     property real speedRatio: 1 - (speed > targetSpeed ? (2*targetSpeed - speed): speed)/targetSpeed
     property int defaultSize: 200
-    property bool brakeActivated: (speed >= targetSpeed) ? true : ((speed === 0) ? false : brakeActivated)
+    // property bool brakeActivated: (speed >= targetSpeed) ? true : ((speed === 0) ? false : brakeActivated)
     property int ringExtra: 0
 
     Keys.onSpacePressed: speed++
-    Keys.onTabPressed: speed--
+    Keys.onTabPressed: {
+        speed--
+        console.log(speedRatio)
+    }
 
     // I see dead people
     Timer {
@@ -26,13 +29,14 @@ Item {
         onTriggered: ringExtra++
     }
 
-    onBrakeActivatedChanged: {
-        if (onBrakeActivatedChanged) {
+    onSpeedChanged: {
+        if (speed >= targetSpeed) {
             targetReached.start()
-        } else {
+        }
+        if (speed <= 0) {
+            console.log("FUCK")
             ringExtra = 0
             outerRing.visible = true
-            targetReached.restart()
         }
     }
 
