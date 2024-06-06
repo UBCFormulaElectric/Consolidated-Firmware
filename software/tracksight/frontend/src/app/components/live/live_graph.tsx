@@ -17,27 +17,33 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
 }
 
 export interface LiveGraphProps {
-    url: string,
     id: number,
-    messageApi: MessageInstance,
-    updateGraphSignals: any;
+    url: string,
+    sync: boolean,
+    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
+    zoomData: PlotRelayoutEvent,
     onDelete: MouseEventHandler<HTMLElement>,
-    signals?: string[],
+    messageApi: MessageInstance,
 }
 
 const LiveGraph = (props: LiveGraphProps) => {
     const [data, setData] = useState<{ [name: string]: { times: Array<string>, values: Array<number> } }>({});
     const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
-
-    const [signals, setSignals] = useState<string[]>(props.signals || []);
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
 
     const clearData = () => {
         setFormattedData([]);
         setGraphLayout(DEFAULT_LAYOUT);
         setData({});
-        setSignals([]);
     }
+
+    // randomizes colour for graph lines 
+    const getRandomColor = () => {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `rgb(${r},${g},${b})`;
+    };
 
     useEffect(() => {
         const tempFormattedData: Plotly.Data[] = [];
@@ -52,7 +58,7 @@ const LiveGraph = (props: LiveGraphProps) => {
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: name,
-                // line: { color: getRandomColor() }
+                line: { color: getRandomColor() }
             };
 
             tempFormattedData.push(formattedObj);
@@ -66,38 +72,6 @@ const LiveGraph = (props: LiveGraphProps) => {
 
         setFormattedData(tempFormattedData);
     }, [data]);
-
-    useEffect(() => {
-        props.updateGraphSignals(props.id, signals);
-    }, [signals]);
-
-
-    // useEffect(() => {
-    //     if (useLive) {
-    //         const interval = setInterval(() => {
-    //             const time = new Date().toISOString();
-    //             const value = Math.random() * 0.5;
-
-    //             // Update the data state with the new point
-    //             setData((prevData) => {
-    //                 let updatedData = { ...prevData };
-    //                 updatedData = { ...updatedData['signals'] };
-    //                 // Update the signal you want to mimic live data for
-    //                 updatedData['LiveTest'] = {
-    //                     ...updatedData['LiveTest'],
-    //                     [time]: value,
-    //                 };
-    //                 const ret = { 'id': props.id, 'signals': updatedData };
-    //                 console.log(ret);
-    //                 return ret;
-    //             });
-    //         }, UPDATE_INTERVAL_MS);
-
-    //         return () => {
-    //             clearInterval(interval);
-    //         };
-    //     }
-    // }, [useLive]);
 
     // updates graph layout when zoomed 
     useEffect(() => {

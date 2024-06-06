@@ -17,7 +17,11 @@ app = Blueprint("http_app", __name__)
 
 
 def submit_query(
-    measurement: str, signals: List[str], start_epoch: int, end_epoch: int
+    measurement: str,
+    signals: List[str],
+    start_epoch: int,
+    end_epoch: int,
+    max_points: int,
 ) -> Dict[str, Dict]:
     if (
         measurement is None
@@ -42,6 +46,7 @@ def submit_query(
             measurement=measurement,
             signals=signals,
             time_range=(start_epoch, end_epoch),
+            max_points=max_points,
         )
     except Exception as e:
         return {"error": str(e)}, 500
@@ -86,7 +91,6 @@ def return_live_query() -> Dict[str, Dict]:
     :returns Page displaying the result of a single query.
     """
     params = request.args
-    measurement = "live"
     signals: list[str] | None = params.get("signals")
 
     start_time = datetime.now() - timedelta(hours=1)
@@ -96,10 +100,11 @@ def return_live_query() -> Dict[str, Dict]:
     end_epoch = int(end_time.timestamp())
 
     return submit_query(
-        measurement=measurement,
+        measurement="live",
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
+        max_points=10_000,
     )
 
 
@@ -119,4 +124,5 @@ def return_query() -> Dict[str, Dict]:
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
+        max_points=1000,
     )

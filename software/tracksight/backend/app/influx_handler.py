@@ -95,7 +95,7 @@ class InfluxHandler:
         measurement: str,
         signals: List[str],
         time_range: Tuple[str, str],
-        max_points: int = 8000,  # TODO implement
+        max_points: int,
         ms_resolution: int = 100,  # TODO implement
     ) -> dict[str, dict]:
         """
@@ -118,6 +118,7 @@ class InfluxHandler:
                 r._measurement == "{measurement}" and 
                 r._field == "value" and
                 contains(value: r.signal, set: {str(signals).replace("'", '"')}))
+            |> tail(n: {10})
         """
 
         query_result = {signal: {"times": [], "values": []} for signal in signals}

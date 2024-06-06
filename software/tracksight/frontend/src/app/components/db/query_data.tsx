@@ -67,8 +67,8 @@ const QueryData = (props: QueryDataProps) => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"} />
-            <DropdownMenu setOption={setSignals} selectedOptions={signals} options={allSignal} single={false} name={"Signal"} />
+            <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurement"} />
+            <DropdownMenu setOption={setSignals} selectedOptions={signals} options={allSignal} single={false} name={"Signals"} />
             <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
             <Button onClick={handleSubmit}>Submit</Button>
         </div>);

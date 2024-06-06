@@ -51,7 +51,6 @@ const Graph = (props: GraphProps) => {
         setData({});
     }
 
-
     // creates a new graph with request signals
     // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
     // suggestions for improvements appreciated. 

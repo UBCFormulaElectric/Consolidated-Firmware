@@ -43,9 +43,9 @@ class SignalUtil:
 
     @classmethod
     def setup(cls, port: str, app):
-        cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
-        cls.ser.reset_input_buffer()
-        cls.ser.reset_output_buffer()
+        # cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
+        # cls.ser.reset_input_buffer()
+        # cls.ser.reset_output_buffer()
         cls.is_setup = True
         cls.app = app
 

@@ -13,24 +13,24 @@ const NavBar = (props: NavBarProps) => {
   };
 
   return (
-      <Menu
-        theme={props.theme ? 'dark' : 'light'}
-        mode="horizontal"
-        defaultSelectedKeys={['visualize']}
-        onClick={(e) => props.updateFunction(e.key)}
-        style={{ flexGrow: 1 }} 
-      >
-        <Menu.Item key="visualize">Visualize</Menu.Item>
-        <Menu.Item key="dashboards">Dashboards</Menu.Item>
-        <Menu.Item key="theme">
+    <Menu
+      theme={props.theme ? 'dark' : 'light'}
+      mode="horizontal"
+      defaultSelectedKeys={['visualize']}
+      onClick={(e) => props.updateFunction(e.key)}
+      style={{ flexGrow: 1 }}
+    >
+      <Menu.Item key="visualize">Visualize</Menu.Item>
+      <Menu.Item key="dashboards">Dashboards</Menu.Item>
+      <Menu.Item key="theme">
         <Switch
-        checked={props.theme}
-        onChange={changeTheme}
-        checkedChildren="Dark"
-        unCheckedChildren="Light"
-      />
-        </Menu.Item>
-      </Menu>
+          checked={props.theme}
+          onChange={changeTheme}
+          checkedChildren="Dark"
+          unCheckedChildren="Light"
+        />
+      </Menu.Item>
+    </Menu>
   );
 };
 

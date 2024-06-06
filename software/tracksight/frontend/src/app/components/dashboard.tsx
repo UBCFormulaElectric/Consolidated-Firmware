@@ -11,7 +11,6 @@ import LiveGraph from './live/live_graph';
 
 
 export interface DashboardProps {
-  socket: Socket;
   deleteGraph: (graphId: number, live: boolean) => void;
 }
 const Dashboard = (props: DashboardProps) => {

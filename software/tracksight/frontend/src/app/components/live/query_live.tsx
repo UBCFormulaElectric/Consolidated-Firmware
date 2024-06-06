@@ -2,10 +2,9 @@
 import { Dispatch, useEffect, useState } from 'react';
 import { Space, Switch } from 'antd';
 
-import LiveDropdownMenu from './dropdown_live';
+import DropdownMenu from '../db/dropdown_menu'
 import { MessageInstance } from 'antd/es/message/interface';
 
-const MAX_DATA_POINTS = 100; // max amount of data points on the graph at a time
 const UPDATE_INTERVAL_MS = 1000; // how often the graph updates
 
 export interface QueryLiveProps {
@@ -15,33 +14,55 @@ export interface QueryLiveProps {
 }
 
 const QueryLive = (props: QueryLiveProps) => {
-    const measurement = "live";
-
     const [signals, setSignals] = useState<string[]>([]);
     const [allSignal, setAllSignal] = useState<string[]>([]);
     const [useLive, setUseLive] = useState<boolean>(false);
-    const [avail, setAvail] = useState<string[]>([]);
 
     const changeLive = (checked: boolean) => {
         setUseLive(checked);
     }
 
     useEffect(() => {
-        fetch(props.url + "/signals/" + measurement, {
+        fetch(props.url + "/signals/live", {
             method: 'get',
         }).then((response) => response.json())
             .then((data) => setAllSignal(data))
             .catch((error) => console.log(error));
-    }, [useLive]);
+    }, []);
+
+    useEffect(() => {
+        if (useLive && signals.length > 0) {
+            const interval = setInterval(() => {
+                const newParams = new URLSearchParams({
+                    signals: signals.join(","),
+                });
+
+                fetch(props.url + "/query/live?" + newParams)
+                    .then((response) => {
+                        if (!response.ok) {
+                            return response.json().then(json => { throw new Error(json["error"]) });
+                        } else {
+                            return response.json()
+                        }
+                    })
+                    .then((data) => props.setData(data))
+                    .catch((error) => props.messageApi.open({ type: "error", content: error.toString() }));
+
+            }, UPDATE_INTERVAL_MS);
+
+            return () => {
+                clearInterval(interval);
+            };
+        }
+    }, [useLive, signals]);
+
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             <Space direction={"vertical"} size={"small"}>
                 <p>Turn live signal on/off</p>
                 <Switch onChange={changeLive} checked={useLive} />
-                <Space size={"middle"}>
-                    <LiveDropdownMenu setSignal={setSignals} signals={signals} avail={avail} />
-                </Space>
+                <DropdownMenu setOption={setSignals} selectedOptions={signals} options={allSignal} single={false} name={"Signal"} />
             </Space>
         </div>);
 }
