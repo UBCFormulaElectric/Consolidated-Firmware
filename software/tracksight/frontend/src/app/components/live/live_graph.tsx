@@ -1,14 +1,11 @@
-'use client';
-
-import { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
+import React, { useState, useEffect, Dispatch, MouseEventHandler, SetStateAction } from 'react';
 import dynamic from "next/dynamic";
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 import { PlotRelayoutEvent } from 'plotly.js';
-
-import { Card, Button, Space } from 'antd';
-
-import QueryData from './query_data';
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
+import { Button, Card, Space } from 'antd';
 import { MessageInstance } from 'antd/es/message/interface';
+
+import QueryLive from './query_live'
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
@@ -19,42 +16,29 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 }
 
-export interface GraphProps {
-    id: number,
+export interface LiveGraphProps {
     url: string,
-    sync: boolean,
-    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    zoomData: PlotRelayoutEvent,
-    onDelete: MouseEventHandler<HTMLElement>,
+    id: number,
     messageApi: MessageInstance,
+    updateGraphSignals: any;
+    onDelete: MouseEventHandler<HTMLElement>,
+    signals?: string[],
 }
 
-const Graph = (props: GraphProps) => {
+const LiveGraph = (props: LiveGraphProps) => {
     const [data, setData] = useState<{ [name: string]: { times: Array<string>, values: Array<number> } }>({});
     const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
 
-    //default graph layout
+    const [signals, setSignals] = useState<string[]>(props.signals || []);
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
 
-    // randomizes colour for graph lines 
-    const getRandomColor = () => {
-        const r = Math.floor(Math.random() * 256);
-        const g = Math.floor(Math.random() * 256);
-        const b = Math.floor(Math.random() * 256);
-        return `rgb(${r},${g},${b})`;
-    };
-
-    // resets data on graph
     const clearData = () => {
         setFormattedData([]);
         setGraphLayout(DEFAULT_LAYOUT);
         setData({});
+        setSignals([]);
     }
 
-
-    // creates a new graph with request signals
-    // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
-    // suggestions for improvements appreciated. 
     useEffect(() => {
         const tempFormattedData: Plotly.Data[] = [];
         for (const name in data) {
@@ -68,7 +52,7 @@ const Graph = (props: GraphProps) => {
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: name,
-                line: { color: getRandomColor() }
+                // line: { color: getRandomColor() }
             };
 
             tempFormattedData.push(formattedObj);
@@ -83,6 +67,37 @@ const Graph = (props: GraphProps) => {
         setFormattedData(tempFormattedData);
     }, [data]);
 
+    useEffect(() => {
+        props.updateGraphSignals(props.id, signals);
+    }, [signals]);
+
+
+    // useEffect(() => {
+    //     if (useLive) {
+    //         const interval = setInterval(() => {
+    //             const time = new Date().toISOString();
+    //             const value = Math.random() * 0.5;
+
+    //             // Update the data state with the new point
+    //             setData((prevData) => {
+    //                 let updatedData = { ...prevData };
+    //                 updatedData = { ...updatedData['signals'] };
+    //                 // Update the signal you want to mimic live data for
+    //                 updatedData['LiveTest'] = {
+    //                     ...updatedData['LiveTest'],
+    //                     [time]: value,
+    //                 };
+    //                 const ret = { 'id': props.id, 'signals': updatedData };
+    //                 console.log(ret);
+    //                 return ret;
+    //             });
+    //         }, UPDATE_INTERVAL_MS);
+
+    //         return () => {
+    //             clearInterval(interval);
+    //         };
+    //     }
+    // }, [useLive]);
 
     // updates graph layout when zoomed 
     useEffect(() => {
@@ -112,9 +127,8 @@ const Graph = (props: GraphProps) => {
     }
 
     return (
-        <Card
-            bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryData url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
+        <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
+            <QueryLive url={props.url} setData={setData} messageApi={props.messageApi}></QueryLive>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
@@ -134,4 +148,4 @@ const Graph = (props: GraphProps) => {
     );
 }
 
-export default Graph;
+export default LiveGraph;
