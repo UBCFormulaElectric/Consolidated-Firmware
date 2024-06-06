@@ -6,6 +6,7 @@ from flask import Blueprint, request
 from typing import Tuple, Dict, List
 from datetime import datetime, timedelta
 import logging
+from datetime import datetime
 
 from influx_handler import InfluxHandler
 
@@ -15,8 +16,16 @@ logger = logging.getLogger("telemetry_logger")
 app = Blueprint("http_app", __name__)
 
 
+MAX_POINTS_HISTORIC = 1000
+MAX_POINTS_LIVE = 100
+
+
 def submit_query(
-    measurement: str, signals: List[str], start_epoch: int, end_epoch: int
+    measurement: str,
+    signals: List[str],
+    start_epoch: int,
+    end_epoch: int,
+    max_points: int,
 ) -> Dict[str, Dict]:
     if (
         measurement is None
@@ -41,6 +50,7 @@ def submit_query(
             measurement=measurement,
             signals=signals,
             time_range=(start_epoch, end_epoch),
+            max_points=max_points,
         )
     except Exception as e:
         return {"error": str(e)}, 500
@@ -62,7 +72,7 @@ def health() -> Tuple[Dict, int]:
     return {"status": "healthy"}, 200
 
 
-@app.route("/data/measurements", methods=["GET"])
+@app.route("/measurements", methods=["GET"])
 def return_all_measurements() -> Tuple[List[str], int]:
     """
     :returns Page displaying all measurements in the database.
@@ -70,7 +80,7 @@ def return_all_measurements() -> Tuple[List[str], int]:
     return InfluxHandler.get_measurements(), 200
 
 
-@app.route("/data/measurement/<string:measurement>/signals", methods=["GET"])
+@app.route("/signals/<string:measurement>", methods=["GET"])
 def return_signals_for_measurement(measurement: str) -> Tuple[List[str], int]:
     """
     :param measurement: Measurement to fetch fields for.
@@ -79,22 +89,12 @@ def return_signals_for_measurement(measurement: str) -> Tuple[List[str], int]:
     return InfluxHandler.get_signals(measurement=measurement), 200
 
 
-@app.route("/data/measurement/wtf", methods=["GET"])
-def return_live_signals() -> Tuple[List[str], int]:
-    """
-    :param measurement: Measurement to fetch fields for.
-    :returns Page displaying all fields for a specific measurement.
-    """
-    return InfluxHandler.get_signals(measurement="live"), 200
-
-
-@app.route("/data/query/live", methods=["GET"])
+@app.route("/query/live", methods=["GET"])
 def return_live_query() -> Dict[str, Dict]:
     """
     :returns Page displaying the result of a single query.
     """
     params = request.args
-    measurement = "live"
     signals: list[str] | None = params.get("signals")
 
     start_time = datetime.now() - timedelta(hours=1)
@@ -103,17 +103,16 @@ def return_live_query() -> Dict[str, Dict]:
     start_epoch = int(start_time.timestamp())
     end_epoch = int(end_time.timestamp())
 
-    logger.info(f"Start request: {start_epoch}, {end_epoch}")
-
     return submit_query(
-        measurement=measurement,
+        measurement="live",
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
+        max_points=MAX_POINTS_HISTORIC,
     )
 
 
-@app.route("/data/query", methods=["GET"])
+@app.route("/query", methods=["GET"])
 def return_query() -> Dict[str, Dict]:
     """
     :returns Page displaying the result of a single query.
@@ -129,4 +128,5 @@ def return_query() -> Dict[str, Dict]:
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
+        max_points=MAX_POINTS_LIVE,
     )

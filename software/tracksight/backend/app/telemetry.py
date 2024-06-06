@@ -132,7 +132,7 @@ if __name__ == "__main__":
                     file = file.strip()
                     logger.info(f"Uploading data file: {file}")
 
-                    path = os.path.join("data", file)
+                    path = os.path.join(app_dir, "..", "data", file)
                     df = pd.read_csv(path)
                     InfluxHandler.write(df=df, measurement=file)
 
