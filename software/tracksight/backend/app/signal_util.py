@@ -45,7 +45,7 @@ class SignalUtil:
     client_signals = {}
     is_setup = False
     signal_df = pd.DataFrame(columns=['time', 'signal', 'value', 'unit'])
-    max_df_size = 1  # Define the size threshold
+    max_df_size = 10  # Define the size threshold
 
 
     @classmethod
@@ -127,8 +127,7 @@ class SignalUtil:
                 
                          # Emit the message
                         if len(cls.signal_df) >= cls.max_df_size:
-                            print("I am here")
-                            print(cls.signal_df)
+                           
                             InfluxHandler.write(
                                  cls.signal_df, measurement='live'
                             )
