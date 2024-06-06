@@ -32,7 +32,7 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = true,
+        [EFUSE_CHANNEL_BUZZER] = false,
     },
     .pcm = true,
 };

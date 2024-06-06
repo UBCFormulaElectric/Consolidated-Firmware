@@ -38,12 +38,11 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
 
     // Disable buzzer on transition to init.
-    app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
+    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
 }
 
 static void initStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick100Hz();
     const bool any_board_has_fault = app_boardFaultCheck();
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
