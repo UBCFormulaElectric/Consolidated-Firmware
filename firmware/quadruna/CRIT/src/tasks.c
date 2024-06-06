@@ -1,34 +1,33 @@
 #include "tasks.h"
 #include "main.h"
 #include "cmsis_os.h"
-// protobufs
+
 #include "shared.pb.h"
 #include "CRIT.pb.h"
-// app
+
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
 #include "app_shdnLoop.h"
-// io
-#include "io_log.h"
-#include "io_chimera.h"
-#include "io_led.h"
-#include "io_switch.h"
-#include "hw_rgbLed.h"
-#include "io_critShdn.h"
-#include "io_leds.h"
-#include "io_switches.h"
-// can
-#include "io_jsoncan.h"
-#include "io_can.h"
-#include "io_canRx.h"
-#include "io_driveMode.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-// hw
+
+#include "io_log.h"
+#include "io_chimera.h"
+#include "io_led.h"
+#include "io_switch.h"
+#include "io_rgbLed.h"
+#include "io_critShdn.h"
+#include "io_leds.h"
+#include "io_switches.h"
+#include "io_jsoncan.h"
+#include "io_can.h"
+#include "io_canRx.h"
+#include "io_driveMode.h"
+
 #include "hw_gpio.h"
 #include "hw_adc.h"
 #include "hw_uart.h"
@@ -332,7 +331,24 @@ const AdcChannel id_to_adc[] = {
 
 static const UART debug_uart = { .handle = &huart2 };
 
-static const GlobalsConfig globals_config = { .drive_mode = &drive_mode };
+static const GlobalsConfig globals_config = { .imd_led          = &imd_led,
+                                              .bspd_led         = &bspd_led,
+                                              .ams_led          = &ams_led,
+                                              .shdn_led         = &shdn_led,
+                                              .start_led        = &start_led,
+                                              .start_switch     = &start_switch,
+                                              .regen_led        = &regen_led,
+                                              .regen_switch     = &regen_switch,
+                                              .torquevec_led    = &torquevec_led,
+                                              .torquevec_switch = &torquevec_switch,
+                                              .aux_status_led   = &aux_status_led,
+                                              .bms_status_led   = &bms_status_led,
+                                              .crit_status_led  = &crit_status_led,
+                                              .fsm_status_led   = &fsm_status_led,
+                                              .rsm_status_led   = &rsm_status_led,
+                                              .vc_status_led    = &vc_status_led,
+                                              .shdn_sen         = &shdn_sen,
+                                              .drive_mode       = &drive_mode };
 
 static const Leds led_config = {
     .imd_led         = &imd_led,
@@ -407,8 +423,8 @@ static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
 static const BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
-    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
-    { &io_get_COCKPIT_ESTOP_OK, &app_canTx_CRIT_CockpitEStopOKStatus_set }
+    { &io_critShdn_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_critShdn_get_COCKPIT_ESTOP_OK, &app_canTx_CRIT_CockpitEStopOKStatus_set }
 };
 
 void tasks_preInit(void)
@@ -440,20 +456,15 @@ void tasks_init(void)
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io_can_init(&can_config);
     io_critShdn_init(&crit_shdn_pin_config);
-
-    io_led_init(&led_config);
-    io_switches_init(&switch_config);
     io_driveMode_init(&drive_mode);
 
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(crit_bshdn_nodes, CritShdnNodeCount);
-
+    app_shdnLoop_init(crit_bshdn_nodes, CritShdnNodeCount);
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
-
     app_stateMachine_init(app_mainState_get());
     app_globals_init(&globals_config);
 

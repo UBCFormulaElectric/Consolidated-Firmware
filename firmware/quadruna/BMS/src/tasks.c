@@ -344,7 +344,7 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
-    app_shdn_loop_init(bms_bshdn_nodes, BmsShdnNodeCount);
+    app_shdnLoop_init(bms_bshdn_nodes, BmsShdnNodeCount);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,

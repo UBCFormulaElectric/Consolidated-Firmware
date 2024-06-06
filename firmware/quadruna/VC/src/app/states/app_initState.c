@@ -1,15 +1,12 @@
-// states
-#include "app_states.h"
-// jsoncan
+#include "app_initState.h"
+#include "app_allStates.h"
+#include "app_inverterOnState.h"
 #include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-
 #include "app_powerManager.h"
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
-#include "io_tsms.h"
-#include "io_log.h"
 
 static const PowerStateConfig power_manager_shutdown_init = {
     .efuses = {
@@ -51,9 +48,7 @@ static void initStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool is_hv_key_turned = io_tsms_read();
-
-    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && is_hv_key_turned && all_states_ok) // just as a sanity check
+    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }
@@ -67,11 +62,6 @@ static void initStateRunOnTick1Hz(void)
         app_canRx_Debug_SetCoolantPump_CustomEnable_get() ? app_canRx_Debug_SetCoolantPump_CustomVal_get() : 600.0f);
 }
 
-static void initStateRunOnExit(void)
-{
-    LOG_INFO("init exit");
-}
-
 const State *app_initState_get(void)
 {
     static State init_state = {
@@ -79,7 +69,6 @@ const State *app_initState_get(void)
         .run_on_entry      = initStateRunOnEntry,
         .run_on_tick_1Hz   = initStateRunOnTick1Hz,
         .run_on_tick_100Hz = initStateRunOnTick100Hz,
-        .run_on_exit       = initStateRunOnExit,
     };
 
     return &init_state;

@@ -22,7 +22,7 @@ void mainStateRunOnTick100Hz(void)
     app_wheels_broadcast();
     app_suspension_broadcast();
     app_loadCell_broadcast();
-    app_shdn_loop_broadcast();
+    app_shdnLoop_broadcast();
 }
 
 const State *app_mainState_get(void)

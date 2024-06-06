@@ -161,7 +161,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(fsm_bshdn_nodes, FsmShdnNodeCount);
+    app_shdnLoop_init(fsm_bshdn_nodes, FsmShdnNodeCount);
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);

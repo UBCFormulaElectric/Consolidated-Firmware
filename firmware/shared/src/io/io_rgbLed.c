@@ -1,6 +1,6 @@
-#include "hw_rgbLed.h"
+#include "io_rgbLed.h"
 
-void hw_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour)
+void io_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour)
 {
     bool red_on   = false;
     bool blue_on  = false;
@@ -16,7 +16,7 @@ void hw_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour)
     hw_gpio_writePin(&rgb_led->blue_gpio, blue_on);
 }
 
-void hw_rgbLed_disable(const RgbLed *rgb_led)
+void io_rgbLed_disable(const RgbLed *rgb_led)
 {
-    hw_rgbLed_enable(rgb_led, RGB_OFF);
+    io_rgbLed_enable(rgb_led, RGB_OFF);
 }

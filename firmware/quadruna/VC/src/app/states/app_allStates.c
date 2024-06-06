@@ -22,7 +22,7 @@ static uint16_t heartbeat_cycles = 0;
 void app_allStates_runOnTick100Hz(void)
 {
     app_lowVoltageBattery_broadcast();
-    app_shdn_loop_broadcast();
+    app_shdnLoop_broadcast();
     app_currentSensing_broadcast();
     app_efuse_broadcast();
     app_shdnLast_broadcast();
