@@ -22,7 +22,7 @@ const NavBar = (props: NavBarProps) => {
     >
       <Menu.Item key="visualize">Visualize</Menu.Item>
       <Menu.Item key="dashboards">Dashboards</Menu.Item>
-      <Menu.Item key="theme">
+      <Menu.Item key="theme" disabled={true}>
         <Switch
           checked={props.theme}
           onChange={changeTheme}
