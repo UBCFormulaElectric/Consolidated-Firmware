@@ -60,3 +60,8 @@ TEST(CanMsgsTest, tractive_system_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_TRACTIVE_SYSTEM_CYCLE_TIME_MS);
 }
+
+TEST(CanMsgsTest, availible_current_limit_frequency)
+{
+    ASSERT_GE(HZ_TO_MS(10), CAN_MSG_BMS_AVAILABLE_CURRENT_LIMIT_CYCLE_TIME_MS);
+}
