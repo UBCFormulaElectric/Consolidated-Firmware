@@ -6,6 +6,7 @@
         "VC_Vitals",
         "BMS_Contactors",
         "BMS_OkStatuses",
+        "BMS_AvailableCurrentLimit",
         "VC_Regen",
         "VC_TorqueVectoring",
         "VC_GlobalShdnNodeStatus",

@@ -63,6 +63,10 @@
         "MissingVCHeartbeat": {
             "id": 115,
             "description": "Missing heartbeat from the VC."
+        },
+        "CurrentLimitActive": {
+            "id": 116,
+            "description": "Current limiting is activated." 
         }
     },
     "faults": {

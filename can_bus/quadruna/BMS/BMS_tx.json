@@ -232,6 +232,31 @@
             }
         }
     },
+    "AvailableCurrentLimit": {
+        "msg_id": 122,
+        "cycle_time": 100,
+        "description": "BMS Available Current Limit",
+        "signals": {
+            "AvailableChargingCurrentLimit": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 265.5,
+                "unit": "A"
+            },
+            "AvailableDischargingCurrentLimit": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 265.5,
+                "unit": "A"
+            },
+            "ChargingCurrentLimitCondition": {
+                "enum": "ChargingCurrentLimitConditionName"
+            },
+            "DischargingCurrentLimitCondition": {
+                "enum": "DischargingCurrentLimitConditionName"
+            }
+        }    
+    },
     "CellStats": {
         "msg_id": 123,
         "cycle_time": 100,
