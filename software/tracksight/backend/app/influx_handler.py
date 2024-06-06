@@ -118,7 +118,7 @@ class InfluxHandler:
                 r._measurement == "{measurement}" and 
                 r._field == "value" and
                 contains(value: r.signal, set: {str(signals).replace("'", '"')}))
-            |> tail(n: {10})
+            |> tail(n: {max_points})
         """
 
         query_result = {signal: {"times": [], "values": []} for signal in signals}

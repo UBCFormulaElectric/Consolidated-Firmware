@@ -16,6 +16,10 @@ logger = logging.getLogger("telemetry_logger")
 app = Blueprint("http_app", __name__)
 
 
+MAX_POINTS_HISTORIC = 1000
+MAX_POINTS_LIVE = 100
+
+
 def submit_query(
     measurement: str,
     signals: List[str],
@@ -104,7 +108,7 @@ def return_live_query() -> Dict[str, Dict]:
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
-        max_points=10_000,
+        max_points=MAX_POINTS_HISTORIC,
     )
 
 
@@ -124,5 +128,5 @@ def return_query() -> Dict[str, Dict]:
         signals=signals,
         start_epoch=start_epoch,
         end_epoch=end_epoch,
-        max_points=1000,
+        max_points=MAX_POINTS_LIVE,
     )
