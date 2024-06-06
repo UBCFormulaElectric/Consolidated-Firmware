@@ -17,10 +17,9 @@
 #include "app_faultCheck.h"
 #include "app_regen.h"
 #include "app_units.h"
+#include "app_signal.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-#define PEDAL_SCALE 0.3f
-#define MAX_PEDAL_PERCENT 1.0f
 #define BUZZER_ON_DURATION_MS 2000
 
 static bool         torque_vectoring_switch_is_on;
@@ -112,6 +111,7 @@ static void driveStateRunOnTick100Hz(void)
     bool       exit_drive_to_inverterOn = start_switch_off;
     bool       regen_switch_enabled     = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float      sapps_pedal_percentage   = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     // Disable drive buzzer after 2 seconds.
     if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
@@ -124,11 +124,11 @@ static void driveStateRunOnTick100Hz(void)
 
     if (regen_switch_enabled)
     {
-        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-        apps_pedal_percentage = apps_pedal_percentage < 0.0f
-                                    ? apps_pedal_percentage / PEDAL_SCALE
-                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+        apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
+        sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
+
+    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
 
     if (exit_drive_to_init)
     {
@@ -143,7 +143,13 @@ static void driveStateRunOnTick100Hz(void)
         return;
     }
 
-    if (apps_pedal_percentage < 0.0f)
+    if (app_bspdWarningCheck(apps_pedal_percentage, sapps_pedal_percentage))
+    {
+        // If bspd warning is true, set torque to 0.0
+        app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
+        app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    }
+    else if (apps_pedal_percentage < 0.0f)
     {
         app_regen_run(apps_pedal_percentage);
     }

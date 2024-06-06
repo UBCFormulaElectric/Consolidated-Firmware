@@ -14,6 +14,7 @@
 #include "app_powerManager.h"
 #include "app_efuse.h"
 #include "app_shdnLoop.h"
+#include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -428,6 +429,8 @@ void tasks_init(void)
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+
+    app_bspd_init();
 
     // enable these for inverter programming
     // hw_gpio_writePin(&inv_l_program, true);
