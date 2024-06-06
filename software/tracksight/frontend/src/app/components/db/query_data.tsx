@@ -8,7 +8,7 @@ import { MessageInstance } from 'antd/es/message/interface';
 
 export interface QueryDataProps {
     url: string,
-    setData: Dispatch<{ [name: string]: { time: Array<string>, value: Array<number> } }>,
+    setData: Dispatch<{ [name: string]: { times: Array<string>, values: Array<number> } }>,
     messageApi: MessageInstance,
 }
 
@@ -16,14 +16,14 @@ const QueryData = (props: QueryDataProps) => {
     const [measurement, setMeasurement] = useState<string[]>([]);
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
 
-    const [fields, setFields] = useState<string[]>([]);
-    const [allFields, setAllFields] = useState<string[]>([]);
+    const [signals, setSignals] = useState<string[]>([]);
+    const [allSignal, setAllSignal] = useState<string[]>([]);
 
     const [startEpoch, setStartEpoch] = useState<number | null>(null);
     const [endEpoch, setEndEpoch] = useState<number | null>(null);
 
     useEffect(() => {
-        fetch(props.url + "/signal/measurement", {
+        fetch(props.url + "/measurements", {
             method: 'get',
         }).then((response) => response.json())
             .then((data) => setAllMeasurements(data))
@@ -36,22 +36,22 @@ const QueryData = (props: QueryDataProps) => {
         }
 
         const measurement_name = measurement[0];
-        fetch(props.url + "/signal/fields/" + measurement_name, {
+        fetch(props.url + "/signals/" + measurement_name, {
             method: 'get',
         }).then((response) => response.json())
-            .then((data) => setAllFields(data))
+            .then((data) => setAllSignal(data))
             .catch((error) => console.log(error));
     }, [measurement]);
 
     const handleSubmit = () => {
-        if (!startEpoch || !endEpoch || !measurement || !fields.length) {
-            props.messageApi.open({ type: "error", content: "Please fill out all fields properly" });
+        if (!startEpoch || !endEpoch || !measurement || !signals.length) {
+            props.messageApi.open({ type: "error", content: "Please fill out all signal properly" });
             return;
         }
-        const newParams = new URLSearchParams({ measurement: measurement[0], start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString() });
-        for (const field in fields) {
-            newParams.append('fields', fields[field]);
-        }
+        const newParams = new URLSearchParams({
+            measurement: measurement[0], start_epoch: startEpoch.toString(), end_epoch: endEpoch.toString(),
+            signals: signals.join(","),
+        });
         fetch(props.url + "/query?" + newParams)
             .then((response) => {
                 if (!response.ok) {
@@ -68,9 +68,9 @@ const QueryData = (props: QueryDataProps) => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             <DropdownMenu setOption={setMeasurement} selectedOptions={measurement} options={allMeasurements} single={true} name={"Measurements"} />
-            <DropdownMenu setOption={setFields} selectedOptions={fields} options={allFields} single={false} name={"Fields"} />
+            <DropdownMenu setOption={setSignals} selectedOptions={signals} options={allSignal} single={false} name={"Signal"} />
             <TimeStampPicker setStart={setStartEpoch} setEnd={setEndEpoch} />
-            <Button onClick={handleSubmit}>submit</Button>
+            <Button onClick={handleSubmit}>Submit</Button>
         </div>);
 }
 

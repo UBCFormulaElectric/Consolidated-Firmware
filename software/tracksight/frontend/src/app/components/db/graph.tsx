@@ -30,7 +30,7 @@ export interface GraphProps {
 }
 
 const Graph = (props: GraphProps) => {
-    const [data, setData] = useState<{ [name: string]: { time: Array<string>, value: Array<number> } }>({});
+    const [data, setData] = useState<{ [name: string]: { times: Array<string>, values: Array<number> } }>({});
     const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
 
     //default graph layout
@@ -59,8 +59,8 @@ const Graph = (props: GraphProps) => {
         const tempFormattedData: Plotly.Data[] = [];
         for (const name in data) {
             let signalData = data[name];
-            let xData = signalData["time"];
-            let yData = signalData["value"];
+            let xData = signalData["times"];
+            let yData = signalData["values"];
 
             const formattedObj: Plotly.Data = {
                 x: xData,

@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'; 
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { Select } from 'antd';
 import React from 'react';
 
@@ -11,7 +11,7 @@ export interface DropdownMenuProps {
 }
 
 const DropdownMenu = (props: DropdownMenuProps) => {
-    const [items, setItems] = useState<Array<{value: string, label: string}>>([]);
+    const [items, setItems] = useState<Array<{ value: string, label: string }>>([]);
 
     useEffect(() => {
         const updatedItems = props.options.map((name, index) => ({
@@ -20,13 +20,13 @@ const DropdownMenu = (props: DropdownMenuProps) => {
         }));
         setItems(updatedItems);
     }, [props.options, props.selectedOptions]);
-    
+
     const handleChange = (value: string[]) => {
         props.setOption(value);
     };
 
     const filterOption = (input: string, option?: { label: string; value: string }) =>
-      (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <Select
@@ -35,7 +35,7 @@ const DropdownMenu = (props: DropdownMenuProps) => {
             placeholder={props.name}
             filterOption={filterOption}
             onChange={handleChange}
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
             options={items}
             maxTagCount="responsive"
         />

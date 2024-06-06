@@ -6,6 +6,7 @@ from flask import Blueprint, request
 from typing import Tuple, Dict, List
 from datetime import datetime, timedelta
 import logging
+from datetime import datetime
 
 from influx_handler import InfluxHandler
 
@@ -62,7 +63,7 @@ def health() -> Tuple[Dict, int]:
     return {"status": "healthy"}, 200
 
 
-@app.route("/data/measurements", methods=["GET"])
+@app.route("/measurements", methods=["GET"])
 def return_all_measurements() -> Tuple[List[str], int]:
     """
     :returns Page displaying all measurements in the database.
@@ -70,7 +71,7 @@ def return_all_measurements() -> Tuple[List[str], int]:
     return InfluxHandler.get_measurements(), 200
 
 
-@app.route("/data/measurement/<string:measurement>/signals", methods=["GET"])
+@app.route("/signals/<string:measurement>", methods=["GET"])
 def return_signals_for_measurement(measurement: str) -> Tuple[List[str], int]:
     """
     :param measurement: Measurement to fetch fields for.
@@ -79,16 +80,7 @@ def return_signals_for_measurement(measurement: str) -> Tuple[List[str], int]:
     return InfluxHandler.get_signals(measurement=measurement), 200
 
 
-@app.route("/data/measurement/wtf", methods=["GET"])
-def return_live_signals() -> Tuple[List[str], int]:
-    """
-    :param measurement: Measurement to fetch fields for.
-    :returns Page displaying all fields for a specific measurement.
-    """
-    return InfluxHandler.get_signals(measurement="live"), 200
-
-
-@app.route("/data/query/live", methods=["GET"])
+@app.route("/query/live", methods=["GET"])
 def return_live_query() -> Dict[str, Dict]:
     """
     :returns Page displaying the result of a single query.
@@ -103,8 +95,6 @@ def return_live_query() -> Dict[str, Dict]:
     start_epoch = int(start_time.timestamp())
     end_epoch = int(end_time.timestamp())
 
-    logger.info(f"Start request: {start_epoch}, {end_epoch}")
-
     return submit_query(
         measurement=measurement,
         signals=signals,
@@ -113,7 +103,7 @@ def return_live_query() -> Dict[str, Dict]:
     )
 
 
-@app.route("/data/query", methods=["GET"])
+@app.route("/query", methods=["GET"])
 def return_query() -> Dict[str, Dict]:
     """
     :returns Page displaying the result of a single query.
