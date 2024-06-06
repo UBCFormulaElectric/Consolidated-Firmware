@@ -11,7 +11,6 @@ const FLASK_URL = "http://localhost:5000";
 
 const Home = () => {
     const [componentToDisplay, setComponentToDisplay] = useState<string>('visualize');
-    const [loading, setLoading] = useState<boolean>(true);
     const [graphs, setGraphs] = useState<number[]>([]);
     const [liveGraphs, setLiveGraphs] = useState<number[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
@@ -56,9 +55,7 @@ const Home = () => {
                         />
                     ) : (
                         <Dashboard
-                            socket={null!}
                             deleteGraph={deleteGraph}
-
                         />
                     )
                 }

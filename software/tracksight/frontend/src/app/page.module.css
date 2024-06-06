@@ -9,7 +9,7 @@
 
 .light {
   background: #fff;
-  color: #121212; 
+  color: #121212;
 }
 
 .dark {
@@ -27,9 +27,9 @@
 }
 
 .clear {
-    background: '#1890ff';
-    color: '#fff';
-    border: 'none';
+  background: '#1890ff';
+  color: '#fff';
+  border: 'none';
 }
 
 .delete {

@@ -5,8 +5,10 @@
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
 
-  --foreground-rgb: 255, 255, 255; /* White text */
-  --background-rgb: 0, 0, 0; /* Dark background */
+  --foreground-rgb: 255, 255, 255;
+  /* White text */
+  --background-rgb: 0, 0, 0;
+  /* Dark background */
 }
 
 * {
