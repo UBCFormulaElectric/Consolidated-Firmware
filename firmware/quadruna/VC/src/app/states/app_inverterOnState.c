@@ -42,8 +42,6 @@ static void inverterOnStateRunOnEntry(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
-    app_allStates_runOnTick100Hz();
-
     const bool any_board_has_fault = app_boardFaultCheck();
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
