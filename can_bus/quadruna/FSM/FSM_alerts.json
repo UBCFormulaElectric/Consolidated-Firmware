@@ -76,10 +76,6 @@
             "id": 318,
             "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
         },
-        "BrakeAppsDisagreement": {
-            "id": 319,
-            "description": "Brakes and apps active at same time."
-        },
         "LoadCell1OCSC": {
             "id": 320,
             "description": "Load cell 1 sensor voltage out of acceptable range (OCSC)."

@@ -35,15 +35,6 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         LetTimePass(50);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     }
-
-    void SetStateToDrive()
-    {
-        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-        app_canRx_FSM_BrakeActuated_update(true);
-        SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults();
-    }
 };
 
 TEST_F(VCStateMachineTest, test_SetStateToDrive)
