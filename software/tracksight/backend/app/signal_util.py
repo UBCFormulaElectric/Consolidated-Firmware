@@ -24,24 +24,28 @@ sys.path.insert(
     0,
     os.path.abspath(
         os.path.join(
-            os.path.dirname(__file__), "../../../../../scripts/code_generation/"
+            os.path.dirname(__file__), "../../../../scripts/code_generation/"
         )
     ),
 )
 bus_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../../../../can_bus/quadruna")
+    os.path.join(os.path.dirname(__file__), "../../../../can_bus/quadruna")
 )
-# from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
-# from jsoncan.src.can_database import CanDatabase
+print("sys.path[0]:", sys.path[0])
+print(bus_path)
 
-VALID_PACKET_SIZES = {255, 165, 253}
+from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
+from jsoncan.src.can_database import CanDatabase
+
+INVALID_PACKET_SIZES = {255, 165, 253}
 
 
 class SignalUtil:
     available_signals = {}
     client_signals = {}
     is_setup = False
-    signal_queue = Queue()
+    signal_df = pd.DataFrame(columns=['time', 'signal', 'value', 'unit'])
+    max_df_size = 1  # Define the size threshold
 
 
     @classmethod
@@ -52,7 +56,7 @@ class SignalUtil:
         cls.is_setup = True
         cls.app = app
 
-        can_db = JsonCanParser(bus_path).make_database()
+        cls.can_db = JsonCanParser(bus_path).make_database()
 
     @classmethod
     def read_messages(cls):
@@ -69,7 +73,7 @@ class SignalUtil:
 
                 packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
                 logger.info(f"Received data: {packet_size}")
-                if packet_size in VALID_PACKET_SIZES:
+                if packet_size in INVALID_PACKET_SIZES:
                     continue
 
                 if (
@@ -98,66 +102,57 @@ class SignalUtil:
                             cls.available_signals[signal_name] = True
                             cls.client_signals[signal_name] = []
 
-                        # Emit the message
-                        flask_socketio.emit("signal_response", single_signal)
+                      
+                        # Ensure the value is the correct type (convert to float)
+                        value = int(single_signal["value"])
 
-                        #Put in queue
-                        cls.signal_queue.put(single_signal)
 
-                        if cls.signal_queue.qsize() > 10:
-                            cls.write_signals_to_influx()
+                        print(single_signal)
 
+                        # Create a DataFrame for the new signal
+                        new_signal_df = pd.DataFrame([{
+                            "time": pd.Timestamp.now(tz=get_localzone()),#TODO: Make time more accurate in mili since start
+                            "value": value,
+                            "unit": single_signal["unit"],
+                            "signal": single_signal["name"]
+                        }])
+
+
+                        # Filter out empty or all-NA columns before concatenation
+                        cls.signal_df = cls.signal_df.dropna(axis=1, how='all')
+                        new_signal_df = new_signal_df.dropna(axis=1, how='all')
+                        # Concatenate the new signal DataFrame with the existing one
+                        cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
+
+                
+                         # Emit the message
+                        if len(cls.signal_df) >= cls.max_df_size:
+                            print("I am here")
+                            print(cls.signal_df)
+                            InfluxHandler.write(
+                                 cls.signal_df, measurement='live'
+                            )
+
+                            cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
+                            time.sleep(1)
+                        
                 else:
                     last_bit = packet_size
-
-                # if "Signal" not in cls.available_signals:
-                #     cls.available_signals["Signal"] = True
-                #     cls.client_signals["Signal"] = []
-
-                # signal = {
-                #     # "timestamp": "2024",
-                #     "name": "Signal",
-                #     "value": 3,
-                #     "unit": "W",
-                # }
-                # with cls.app.app_context():
-
-                # signals = {"time": [], "signal": [], "value": [], "unit": []}
-                # for _ in range(10):
-                #     timestamp = pd.Timestamp.now(tz=get_localzone())
-                #     signals["time"].append(timestamp)
-                #     signals["signal"].append("Test")
-                #     signals["value"].append(2)
-                #     signals["unit"].append("kW")
-                
-
-                # InfluxHandler.write(
-                #     pd.DataFrame(data=signals),
-                #     measurement="live",
-                # )
-
-                time.sleep(1)
 
         except Exception as e:
             logger.error("Error receiving/sending proto msg:", e)
         finally:
             cls.ser.close()
 
-    @classmethod
-    def write_signals_to_influx(cls):
-        if not cls.signal_queue.empty():
-            signals = {"time": [], "signal": [], "value": [], "unit": []}
-            while not cls.signal_queue.empty():
-                signal = cls.signal_queue.get()
-                timestamp = pd.Timestamp(signal["timestamp"], tz=get_localzone())
-                signals["time"].append(timestamp)
-                signals["signal"].append(signal["name"])
-                signals["value"].append(signal["value"])
-                signals["unit"].append(signal["unit"])
 
-            InfluxHandler.write(
-                pd.DataFrame(data=signals),
-                measurement="live",
-            )
 
-            time.sleep(1)
+    @classmethod    
+    def make_bytes(cls, message):
+        """
+        Make the byte array out of the messages array.
+        """
+        return bytearray([
+            message.message_0, message.message_1, message.message_2, 
+            message.message_3, message.message_4, message.message_5, 
+            message.message_6, message.message_7
+        ]) 
