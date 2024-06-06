@@ -100,21 +100,21 @@ TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault)
     fake_io_coolant_getFlowRate_returns(std::nextafter(underflow_threshold, std::numeric_limits<float>::lowest()));
 
     LetTimePass(10 + FLOW_METER_TIME_TO_FAULT - 1);
-    ASSERT_FALSE(app_canAlerts_RSM_Fault_FlowMeterUnderflow_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
     LetTimePass(1);
-    ASSERT_TRUE(app_canAlerts_RSM_Fault_FlowMeterUnderflow_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
 
     // Confirm fault set indefinitely
     LetTimePass(1000);
-    ASSERT_TRUE(app_canAlerts_RSM_Fault_FlowMeterUnderflow_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
 
     // Clear condition, confirm fault resets
     fake_io_coolant_getFlowRate_returns(std::nextafter(underflow_threshold, std::numeric_limits<float>::max()));
 
     LetTimePass(10 + FLOW_METER_TIME_TO_CLEAR - 1);
-    ASSERT_TRUE(app_canAlerts_RSM_Fault_FlowMeterUnderflow_get());
+    ASSERT_TRUE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
     LetTimePass(1);
-    ASSERT_FALSE(app_canAlerts_RSM_Fault_FlowMeterUnderflow_get());
+    ASSERT_FALSE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
 }
 
 TEST_F(RsmFaultsTest, left_suspension_ocsc_sets_warning)

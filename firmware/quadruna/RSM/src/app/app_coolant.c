@@ -34,5 +34,7 @@ void app_coolant_broadcast(void)
     SignalState flow_in_range_signal_state = app_signal_getState(
         &flow_in_range_signal, coolant_status.status == VALUE_UNDERFLOW && in_drive_state,
         coolant_status.status == VALUE_IN_RANGE || !in_drive_state);
-    app_canAlerts_RSM_Fault_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
+
+    // TODO: This should be a fault, but it's not working!!!
+    app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
