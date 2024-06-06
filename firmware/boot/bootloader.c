@@ -160,7 +160,7 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (false && verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID
 #ifndef BOOT_AUTO
         && hw_gpio_readPin(&bootloader_pin)
 #endif
@@ -269,12 +269,12 @@ void bootloader_runTickTask()
         status_msg.data[1] = (uint8_t)((0x0000ff00 & GIT_COMMIT_HASH) >> 8);
         status_msg.data[2] = (uint8_t)((0x00ff0000 & GIT_COMMIT_HASH) >> 16);
         status_msg.data[3] = (uint8_t)((0xff000000 & GIT_COMMIT_HASH) >> 24);
-        // status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
+        status_msg.data[4] = (uint8_t)(verifyAppCodeChecksum() << 1) | GIT_COMMIT_CLEAN;
         io_can_pushTxMsgToQueue(&status_msg);
 
         bootloader_boardSpecific_tick();
 
-        start_ticks += 1000; // 10Hz tick
+        start_ticks += 100; // 10Hz tick
         osDelayUntil(start_ticks);
     }
 }
