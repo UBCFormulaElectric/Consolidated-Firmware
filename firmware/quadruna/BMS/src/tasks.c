@@ -287,8 +287,8 @@ static const BmsShdnConfig bms_shdn_pin_config = {
 };
 
 static const BoardShdnNode bms_bshdn_nodes[BMS_SHDN_NODE_COUNT] = {
-    { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
-    { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set }
+    { &io_bmsShdn_TS_ILCK_OK_get, &app_canTx_BMS_TSIlckOKStatus_set },
+    { &io_bmsShdn_HVD_OK_get, &app_canTx_BMS_HVDShdnOKStatus_set }
 };
 
 void tasks_preInit(void)

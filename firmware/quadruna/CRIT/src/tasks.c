@@ -407,8 +407,8 @@ static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
 static const BoardShdnNode crit_bshdn_nodes[CRIT_SHDN_NODE_COUNT] = {
-    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
-    { &io_get_COCKPIT_ESTOP_OK, &app_canTx_CRIT_CockpitEStopOKStatus_set }
+    { &io_critShdn_get_INERTIA_SEN_OK_get, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_critShdn_COCKPIT_ESTOP_OK_get, &app_canTx_CRIT_CockpitEStopOKStatus_set }
 };
 
 void tasks_preInit(void)

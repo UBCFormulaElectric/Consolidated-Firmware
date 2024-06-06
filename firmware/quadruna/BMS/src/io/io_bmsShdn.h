@@ -19,6 +19,6 @@ EMPTY_STRUCT(BmsShdnConfig);
 
 void io_bmsShdn_init(const BmsShdnConfig *bms_shdn_config);
 
-bool io_get_TS_ILCK_OK(void);
+bool io_bmsShdn_TS_ILCK_OK_get(void);
 
-bool io_get_HVD_OK(void);
+bool io_bmsShdn_HVD_OK_get(void);

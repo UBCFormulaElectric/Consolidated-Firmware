@@ -19,6 +19,6 @@ EMPTY_STRUCT(CritShdnConfig);
 
 void io_critShdn_init(const CritShdnConfig *crit_shdn_config);
 
-bool io_get_COCKPIT_ESTOP_OK(void);
+bool io_critShdn_COCKPIT_ESTOP_OK_get(void);
 
-bool io_get_INERTIA_SEN_OK(void);
+bool io_critShdn_get_INERTIA_SEN_OK_get(void);
