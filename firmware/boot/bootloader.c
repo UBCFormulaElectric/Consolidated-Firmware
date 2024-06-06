@@ -133,7 +133,7 @@ static const Gpio bootloader_pin = {
 
 static uint32_t current_address;
 static bool     update_in_progress;
-static uint64_t program_cache_buffer[CHUNK_SIZE_BYTES / 8];
+static uint32_t program_cache_buffer[CHUNK_SIZE_BYTES / 4];
 static uint32_t program_cache_buffer_idx = 0;
 
 void bootloader_preInit()
@@ -214,7 +214,9 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            program_cache_buffer[program_cache_buffer_idx++] = *(uint64_t *)command.data;
+            uint64_t data                                    = *(uint64_t *)command.data;
+            program_cache_buffer[program_cache_buffer_idx++] = (uint32_t)data & 0xFFFFFFFF;
+            program_cache_buffer[program_cache_buffer_idx++] = (uint32_t)(data >> 32) & 0xFFFFFFFF;
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == CONFIRM_CHUNK_ID && update_in_progress)

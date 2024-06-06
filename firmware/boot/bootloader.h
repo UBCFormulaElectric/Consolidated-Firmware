@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include <stdbool.h>
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
@@ -15,7 +14,7 @@
 #define ERASE_SECTOR_COMPLETE_ID 1010
 #define APP_VALIDITY_ID 1011
 
-#define CHUNK_SIZE_BYTES (32768U)
+#define CHUNK_SIZE_BYTES (32)
 
 void           bootloader_preInit(void);
 void           bootloader_init(void);
@@ -25,4 +24,4 @@ _Noreturn void bootloader_runCanTxTask(void);
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);
-void bootloader_boardSpecific_program(uint32_t address, uint64_t *cache_buffer);
+void bootloader_boardSpecific_program(uint32_t address, uint32_t *cache_buffer);
