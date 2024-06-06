@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 #include "test_baseStateMachineTest.h"
 
-#include "fake_io_led.hpp"
-#include "fake_io_rgbLed.hpp"
-#include "fake_io_switch.hpp"
+#include "fake_io_leds.hpp"
+#include "fake_io_switches.hpp"
 
 extern "C"
 {
@@ -46,31 +45,25 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     void TearDown() override
     {
         // Reset fakes.
-        fake_io_led_enable_reset();
-        fake_io_rgbLed_enable_reset();
-        fake_io_rgbLed_disable_reset();
-        fake_io_switch_isClosed_reset();
+        fake_io_time_getCurrentMs_reset();
+        fake_io_led_imd_set_reset();
+        fake_io_led_bspd_set_reset();
+        fake_io_led_ams_set_reset();
+        fake_io_led_start_set_reset();
+        fake_io_led_regen_set_reset();
+        fake_io_led_torquevec_set_reset();
+        fake_io_led_shutdown_set_reset();
+        fake_io_led_bms_status_set_reset();
+        fake_io_led_fsm_status_set_reset();
+        fake_io_led_vc_status_set_reset();
+        fake_io_led_aux_status_set_reset();
+        fake_io_led_crit_status_set_reset();
+        fake_io_led_rsm_status_set_reset();
+        fake_io_switches_init_reset();
+        fake_io_switches_start_get_reset();
+        fake_io_switches_regen_get_reset();
+        fake_io_switches_torquevec_get_reset();
     }
-
-    const BinaryLed      imd_led          = {};
-    const BinaryLed      bspd_led         = {};
-    const BinaryLed      ams_led          = {};
-    const BinaryLed      shdn_led         = {};
-    const BinaryLed      start_led        = {};
-    const Switch         start_switch     = {};
-    const BinaryLed      regen_led        = {};
-    const Switch         regen_switch     = {};
-    const BinaryLed      torquevec_led    = {};
-    const Switch         torquevec_switch = {};
-    const RgbLed         aux_status_led   = {};
-    const RgbLed         bms_status_led   = {};
-    const RgbLed         crit_status_led  = {};
-    const RgbLed         fsm_status_led   = {};
-    const RgbLed         rsm_status_led   = {};
-    const RgbLed         vc_status_led    = {};
-    const ShutdownSensor shdn_sen         = {};
-    const DriveMode      drive_mode       = {};
-
     // dummy used to initialize shdn_sen_pin
     const DriveMode drive_mode = {};
 
@@ -122,22 +115,4 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
     const GlobalsConfig globals_config = {
         .drive_mode = &drive_mode,
     };
-
-    const GlobalsConfig globals_config = { .imd_led          = &imd_led,
-                                           .bspd_led         = &bspd_led,
-                                           .ams_led          = &ams_led,
-                                           .start_led        = &start_led,
-                                           .regen_led        = &regen_led,
-                                           .torquevec_led    = &torquevec_led,
-                                           .shdn_led         = &shdn_led,
-                                           .start_switch     = &start_switch,
-                                           .regen_switch     = &regen_switch,
-                                           .torquevec_switch = &torquevec_switch,
-                                           .bms_status_led   = &bms_status_led,
-                                           .fsm_status_led   = &fsm_status_led,
-                                           .vc_status_led    = &vc_status_led,
-                                           .aux_status_led   = &aux_status_led,
-                                           .crit_status_led  = &crit_status_led,
-                                           .rsm_status_led   = &rsm_status_led,
-                                           .shdn_sen         = &shdn_sen };
 };

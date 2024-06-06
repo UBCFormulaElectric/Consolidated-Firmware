@@ -16,7 +16,7 @@ typedef struct
 EMPTY_STRUCT(VcShdnConfig);
 #endif
 
-#define VcShdnNodeCount 4
+#define VC_SHDN_NODE_COUNT 4
 
 /*
  * Initialize config for shutdown gpio pins

@@ -15,7 +15,7 @@ typedef struct
 EMPTY_STRUCT(BmsShdnConfig);
 #endif
 
-#define BmsShdnNodeCount 2
+#define BMS_SHDN_NODE_COUNT 2
 
 void io_bmsShdn_init(const BmsShdnConfig *bms_shdn_config);
 

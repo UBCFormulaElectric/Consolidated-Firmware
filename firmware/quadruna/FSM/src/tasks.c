@@ -134,8 +134,8 @@ void tasks_preInit(void)
 
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
 
-static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_FSM_SHDN_OK_get,
-                                                                   &app_canTx_FSM_BOTSOKStatus_set } };
+static const BoardShdnNode fsm_bshdn_nodes[FSM_SHDN_NODE_COUNT] = { { &io_fsmShdn_FSM_SHDN_OK_get,
+                                                                      &app_canTx_FSM_BOTSOKStatus_set } };
 
 void tasks_init(void)
 {
@@ -161,7 +161,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdnLoop_init(fsm_bshdn_nodes, FsmShdnNodeCount);
+    app_shdnLoop_init(fsm_bshdn_nodes, FSM_SHDN_NODE_COUNT);
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
