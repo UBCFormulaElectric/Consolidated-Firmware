@@ -48,7 +48,8 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
     // filter messages, rn for faults and warnings and bms (to verify working when running normally)
-    if (rx_msg->std_id != 111 || rx_msg->std_id != 205 || rx_msg->std_id != 206 || rx_msg->std_id != 207 || rx_msg->std_id != 208 )
+    if (rx_msg->std_id != 111 || rx_msg->std_id != 205 || rx_msg->std_id != 206 || rx_msg->std_id != 207 ||
+        rx_msg->std_id != 208)
     {
         return false;
     }
@@ -77,7 +78,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     // t_message.message_5 = 236;
     // t_message.message_6 = 202;
     // t_message.message_7 = 0;
-    t_message.time_stamp = (int32_t) io_time_getCurrentMs();
+    t_message.time_stamp = (int32_t)io_time_getCurrentMs();
     // encoding message
 
     proto_status                         = pb_encode(&stream, TelemMessage_fields, &t_message);
