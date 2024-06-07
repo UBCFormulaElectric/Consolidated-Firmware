@@ -12,9 +12,8 @@ def generate_data_rate(target_data_rate_kbps):
     try:
         while True:
             msg = str(int(tick_count)) + "\n"
-            # 80 bits
             ser.write(msg.encode('utf-8'))  # Encode as UTF-8 bytes
-
+            # 80 bits
 
             time.sleep(delay)
             tick_count += 1
