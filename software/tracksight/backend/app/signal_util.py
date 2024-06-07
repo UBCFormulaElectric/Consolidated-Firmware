@@ -45,14 +45,14 @@ class SignalUtil:
     client_signals = {}
     is_setup = False
     signal_df = pd.DataFrame(columns=['time', 'signal', 'value', 'unit'])
-    max_df_size = 10  # Define the size threshold
+    max_df_size = 1  # Define the size threshold
 
 
     @classmethod
     def setup(cls, port: str, app):
-        # cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
-        # cls.ser.reset_input_buffer()
-        # cls.ser.reset_output_buffer()
+        cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
+        cls.ser.reset_input_buffer()
+        cls.ser.reset_output_buffer()
         cls.is_setup = True
         cls.app = app
 
@@ -107,7 +107,7 @@ class SignalUtil:
                         value = int(single_signal["value"])
 
 
-                        print(single_signal)
+                        #print(single_signal) #Un comment to verify getting signals to terminal
 
                         # Create a DataFrame for the new signal
                         new_signal_df = pd.DataFrame([{
@@ -127,7 +127,7 @@ class SignalUtil:
                 
                          # Emit the message
                         if len(cls.signal_df) >= cls.max_df_size:
-                           
+                            print(cls.signal_df)
                             InfluxHandler.write(
                                  cls.signal_df, measurement='live'
                             )
