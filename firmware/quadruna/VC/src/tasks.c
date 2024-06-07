@@ -4,8 +4,9 @@
 #include "string.h"
 #include "shared.pb.h"
 
+#include "states/app_allStates.h"
+#include "states/app_initState.h"
 #include "app_heartbeatMonitor.h"
-#include "app_states.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -31,7 +32,6 @@
 #include "io_imu.h"
 #include "io_telemMessage.h"
 #include "io_pcm.h"
-#include "io_tsms.h"
 #include "io_time.h"
 
 #include "hw_bootup.h"
@@ -206,7 +206,7 @@ static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &ts
                                               .RE_stop_gpio                = &r_shdn_sns,
                                               .splitter_box_interlock_gpio = &sb_ilck_shdn_sns };
 
-static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
+static const BoardShdnNode vc_shdn_nodes[VC_SHDN_NODE_COUNT] = {
     { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
     { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
     { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
@@ -264,8 +264,6 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
 };
 
 static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
-
-static const TSMSConfig tsms_config = { .tsms_gpio = &tsms_shdn_sns };
 
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
@@ -391,8 +389,6 @@ void tasks_init(void)
     io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
-    io_pcm_init(&pcm_config);
-    io_tsms_init(&tsms_config);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
@@ -422,7 +418,7 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
+    app_shdnLoop_init(vc_shdn_nodes, VC_SHDN_NODE_COUNT);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);

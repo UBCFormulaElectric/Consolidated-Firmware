@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef TARGET_EMBEDDED
-#include "hw_rgbLed.h"
+#include "io_rgbLed.h"
 #include "io_led.h"
 
 typedef struct

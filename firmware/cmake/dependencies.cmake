@@ -1,12 +1,3 @@
-# Host system specific settings
-#IF (WIN32)
-#	set(ARM_COMPILER "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-win32.zip")
-#ELSEIF (APPLE)
-#	set(ARM_COMPILER "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-mac.tar.bz2")
-#ELSEIF (UNIX)
-#	set(ARM_COMPILER "https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2")
-#ENDIF ()
-
 # Git Submodules
 execute_process(COMMAND "git submodule update --init --recursive" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 message("✅ Git Submodules Updated")
@@ -45,9 +36,6 @@ ENDIF ()
 
 # arm toolchain
 IF ("${TARGET}" STREQUAL "deploy")
-	# arm binary
-#	CPMAddPackage(URL ${ARM_COMPILER} NAME gcc-arm-none-eabi-9 DOWNLOAD_ONLY)
-#	message("🔖 ARM Compiler Installed At ${gcc-arm-none-eabi-9_SOURCE_DIR}")
 	set(TOOLCHAIN_PREFIX "")
 	IF (WIN32)
 		# openocd

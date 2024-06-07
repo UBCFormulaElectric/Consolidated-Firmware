@@ -14,7 +14,7 @@ typedef struct
 EMPTY_STRUCT(FsmShdnConfig);
 #endif
 
-#define FsmShdnNodeCount 1
+#define FSM_SHDN_NODE_COUNT 1
 
 void io_fsmShdn_init(const FsmShdnConfig *fsm_shdn_config);
 

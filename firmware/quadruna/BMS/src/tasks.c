@@ -286,9 +286,9 @@ static const BmsShdnConfig bms_shdn_pin_config = {
     .hvd_ok_gpio     = hvd_ok_shdn_pin,
 };
 
-static const BoardShdnNode bms_bshdn_nodes[BmsShdnNodeCount] = {
-    { &io_get_TS_ILCK_OK, &app_canTx_BMS_TSIlckOKStatus_set },
-    { &io_get_HVD_OK, &app_canTx_BMS_HVDShdnOKStatus_set }
+static const BoardShdnNode bms_bshdn_nodes[BMS_SHDN_NODE_COUNT] = {
+    { &io_bmsShdn_TS_ILCK_OK_get, &app_canTx_BMS_TSIlckOKStatus_set },
+    { &io_bmsShdn_HVD_OK_get, &app_canTx_BMS_HVDShdnOKStatus_set }
 };
 
 void tasks_preInit(void)
@@ -344,7 +344,7 @@ void tasks_init(void)
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
-    app_shdn_loop_init(bms_bshdn_nodes, BmsShdnNodeCount);
+    app_shdnLoop_init(bms_bshdn_nodes, BMS_SHDN_NODE_COUNT);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,

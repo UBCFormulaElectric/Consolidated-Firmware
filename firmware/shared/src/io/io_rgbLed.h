@@ -27,10 +27,10 @@ typedef enum
  * @param rgb_led RGB LED instance.
  * @param colour Colour to enable.
  */
-void hw_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour);
+void io_rgbLed_enable(const RgbLed *rgb_led, RgbLedColour colour);
 
 /**
  * Disable an RGB LED (turn all LEDs off).
  * @param rgb_led RGB LED instance.
  */
-void hw_rgbLed_disable(const RgbLed *rgb_led);
+void io_rgbLed_disable(const RgbLed *rgb_led);

@@ -68,7 +68,7 @@ float io_tractiveSystem_getVoltage()
 
     if (ts_vsense < 0.0f)
     {
-        return NAN;
+        return 0.0f;
     }
     else
     {
@@ -79,11 +79,11 @@ float io_tractiveSystem_getVoltage()
 
 float io_tractiveSystem_getCurrentHighResolution()
 {
-    const float adc_voltage = hw_adc_getVoltage(config->ts_isense_high_res_channel);
+    float adc_voltage = hw_adc_getVoltage(config->ts_isense_high_res_channel);
 
     if (adc_voltage < 0.0f)
     {
-        return NAN;
+        adc_voltage = 0.0f;
     }
 
     // DHAB S/124 Output 1 (+/- 75A):
@@ -116,11 +116,11 @@ float io_tractiveSystem_getCurrentHighResolution()
 
 float io_tractiveSystem_getCurrentLowResolution()
 {
-    const float adc_voltage = hw_adc_getVoltage(config->ts_isense_low_res_channel);
+    float adc_voltage = hw_adc_getVoltage(config->ts_isense_low_res_channel);
 
     if (adc_voltage < 0.0f)
     {
-        return NAN;
+        adc_voltage = 0.0f;
     }
 
     // DHAB S/124 Output 2 (+/- 500A):

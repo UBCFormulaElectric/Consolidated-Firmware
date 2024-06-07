@@ -12,23 +12,8 @@ void app_powerManager_updateConfig(PowerStateConfig new_power_manager_config)
     {
         io_efuse_setChannel((EfuseChannel)efuse, power_manager_config.efuses[efuse]);
     }
+
     io_pcm_set(power_manager_config.pcm);
-
-    app_canTx_VC_BuzzerOn_set(power_manager_config.efuses[EFUSE_CHANNEL_BUZZER]);
-}
-
-void app_powerManager_updateEfuse(EfuseChannel channel, bool val)
-{
-    power_manager_config.efuses[channel] = val;
-    io_efuse_setChannel(channel, val);
-
-    app_canTx_VC_BuzzerOn_set(power_manager_config.efuses[EFUSE_CHANNEL_BUZZER]);
-}
-
-void app_powerManager_updatePcm(bool val)
-{
-    power_manager_config.pcm = val;
-    io_pcm_set(val);
 }
 
 PowerStateConfig app_powerManager_getConfig(void)

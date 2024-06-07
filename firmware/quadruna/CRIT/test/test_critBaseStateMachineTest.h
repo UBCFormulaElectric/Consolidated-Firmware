@@ -79,8 +79,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
                                                                 [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_get,
                                                                 [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_get,
                                                                 [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_get,
-                                                                [DIM_HEARTBEAT_BOARD]  = nullptr,
-                                                                [CRIT_HEARTBEAT_BOARD] = nullptr };
+                                                                [DIM_HEARTBEAT_BOARD]  = NULL,
+                                                                [CRIT_HEARTBEAT_BOARD] = NULL };
 
     // heartbeatUpdaters - update local CAN table with heartbeat status
     void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
@@ -88,8 +88,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         [VC_HEARTBEAT_BOARD]   = &app_canRx_VC_Heartbeat_update,
         [RSM_HEARTBEAT_BOARD]  = &app_canRx_RSM_Heartbeat_update,
         [FSM_HEARTBEAT_BOARD]  = &app_canRx_FSM_Heartbeat_update,
-        [DIM_HEARTBEAT_BOARD]  = nullptr,
-        [CRIT_HEARTBEAT_BOARD] = nullptr
+        [DIM_HEARTBEAT_BOARD]  = NULL,
+        [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultSetters - broadcast heartbeat faults over CAN
@@ -98,8 +98,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
         [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
         [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
-        [DIM_HEARTBEAT_BOARD]  = nullptr,
-        [CRIT_HEARTBEAT_BOARD] = nullptr
+        [DIM_HEARTBEAT_BOARD]  = NULL,
+        [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     // heartbeatFaultGetters - gets fault statuses over CAN
@@ -108,8 +108,8 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         [VC_HEARTBEAT_BOARD]   = &app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
         [RSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
         [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
-        [DIM_HEARTBEAT_BOARD]  = nullptr,
-        [CRIT_HEARTBEAT_BOARD] = nullptr
+        [DIM_HEARTBEAT_BOARD]  = NULL,
+        [CRIT_HEARTBEAT_BOARD] = NULL
     };
 
     const GlobalsConfig globals_config = {

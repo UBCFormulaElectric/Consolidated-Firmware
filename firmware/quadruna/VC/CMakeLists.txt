@@ -175,7 +175,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tsms.h"
     )
     create_fake_library(
             "quadruna_VC_fakes"
