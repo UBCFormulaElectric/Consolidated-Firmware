@@ -389,6 +389,7 @@ void tasks_init(void)
     io_vcShdn_init(&shutdown_config);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
+    io_pcm_init(&pcm_config);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
