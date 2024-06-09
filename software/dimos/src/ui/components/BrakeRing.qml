@@ -18,9 +18,7 @@ Item {
     required property real colorFraction
 
     readonly property var hsv1: [0.14, 0, 0.17]
-    // im sorry crodie
     readonly property var hsv2: [0.14, 0.96, 0.60]
-    // im cheesin fam
     readonly property var hsv3: [0.37, 0.96, 0.60]
 
     function lerp(a, b, t) {
