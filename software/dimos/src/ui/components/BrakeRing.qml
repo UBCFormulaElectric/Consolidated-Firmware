@@ -10,22 +10,44 @@ Item {
     // Debugging with key later
     property int frontBrakePressure: CanQML.FSM_FrontBrakePressure
     property int rearBrakePressure: CanQML.FSM_RearBrakePressure
-    property real pressurePercentage: (frontBrakePressure + rearBrakePressure)/Constants.maxBrakePressure*2
+    property real pressurePercentage: (frontBrakePressure + rearBrakePressure) / Constants.maxBrakePressure * 2
 
     // default values
-    property int size: 200
-    property real colorFraction: 0
-    property int borderWidth: 5
+    required property int size
+    required property int borderWidth
+    required property real colorFraction
 
+    readonly property var hsv1: [0.14, 0, 0.17]
     // im sorry crodie
-    property int red: 54
-    property int green: 251
-    property int blue: 97
-
+    readonly property var hsv2: [0.14, 0.96, 0.60]
     // im cheesin fam
-    property real redDif: 197
-    property real greenDif: -31
-    property real blueDif: -43
+    readonly property var hsv3: [0.37, 0.96, 0.60]
+
+    function lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    function lerpAngle(a, b, t) {
+        let diff = b - a;
+        diff = (diff + 180) % 360 - 180;  // Wrap the difference to [-180, 180]
+        return a + diff * t;
+    }
+
+    function getColor(t) {
+        let h, s, v;
+        if (t < 0.5) {
+            t *= 2;
+            h = lerpAngle(hsv1[0], hsv2[0], t);
+            s = lerp(hsv1[1], hsv2[1], t);
+            v = lerp(hsv1[2], hsv2[2], t);
+        } else {
+            t = (t - 0.5) * 2;
+            h = lerpAngle(hsv2[0], hsv3[0], t);
+            s = lerp(hsv2[1], hsv3[1], t);
+            v = lerp(hsv2[2], hsv3[2], t);
+        }
+        return Qt.hsla((h + 360) % 360, s, v, 1);
+    }
 
     Rectangle {
         anchors.verticalCenter: parent.verticalCenter
@@ -34,9 +56,8 @@ Item {
         id: ring
         height: size
         width: size
-        radius: size/2
-        border.color: Qt.rgba((red + redDif*colorFraction)/255,
-            (green + greenDif*colorFraction)/255, (blue + blueDif*colorFraction)/255, 1)
+        radius: size / 2
+        border.color: parent.getColor(colorFraction)
         color: "transparent"
         border.width: borderWidth
     }
@@ -45,20 +66,7 @@ Item {
         anchors.fill: ring
         radius: 10
         samples: 10 * pressurePercentage
-        color: Qt.rgba((red + redDif*colorFraction)/255,
-            (green + greenDif*colorFraction)/255, (blue + blueDif*colorFraction)/255, 1)
+        color: parent.getColor(colorFraction)
         source: ring
     }
-
-    // debug
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: ring.bottom
-        anchors.topMargin: 30
-        font.family: "Roboto"
-        font.pointSize: 16
-        text: green + greenDif*colorFraction
-        color: "#ffffff"
-    }
-
 }
