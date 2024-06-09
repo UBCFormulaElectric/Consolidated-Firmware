@@ -36,6 +36,8 @@ Window {
                 id: lowVoltagePage
                 visible: mainStack.currentIndex === 0
             }
+            // this is not great practice especially considering that it does not genearlized well
+            // if the mainStack was a real component
             DrivingBase {
                 visible: [1, 2, 3, 4, 5].includes(mainStack.currentIndex)
                 Image {
