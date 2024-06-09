@@ -134,6 +134,11 @@ if __name__ == "__main__":
 
                     path = os.path.join(app_dir, "..", "data", file)
                     df = pd.read_csv(path)
+
+                    # Ignore enum labels since we can't plot strings.
+                    # TODO: Support these properly!
+                    df.drop("label", axis=1)
+
                     InfluxHandler.write(df=df, measurement=file)
 
             # Initialize the Socket.IO app with the main app.
