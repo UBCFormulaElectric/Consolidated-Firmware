@@ -7,7 +7,7 @@ import constants
 Item {
     anchors.fill: parent
     default property alias content: childContainer.children
-    readonly property real child_ratio: 0.4
+    readonly property real child_ratio: 0.45
 
     // Page specifics
     Item {

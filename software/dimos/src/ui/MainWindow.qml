@@ -120,7 +120,9 @@ Window {
                         break;
                 }
                 nextPage.forceActiveFocus();
-                nextPage.onPageLoad();
+                if (nextPage.onPageLoad !== undefined) {
+                    nextPage.onPageLoad();
+                }
             }
 
             Component.onCompleted: {
