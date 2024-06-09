@@ -27,7 +27,9 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_TARGET_${TARGET}")
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DQT_DEBUG -DQT_MESSAGELOGCONTEXT) # W mans https://stackoverflow.com/a/43549795/6833423
-target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
+if(${TARGET} STREQUAL dev)
+    target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
+endif()
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
