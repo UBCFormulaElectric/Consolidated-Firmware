@@ -5,10 +5,8 @@ import components
 Item {
     anchors.fill: parent
 
-    onActiveFocusChanged: {
-        if (activeFocus) {
-            enduranceSpeedometer.startup_animation_running = true
-        }
+    function onPageLoad() {
+        enduranceSpeedometer.startup_animation_running = true
     }
 
     Speedometer {

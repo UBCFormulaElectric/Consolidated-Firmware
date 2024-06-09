@@ -8,10 +8,8 @@ Item {
     anchors.fill: parent
     property real stateOfCharge: CanQML.BMS_Soc;
 
-    onActiveFocusChanged: {
-        if (activeFocus) {
-            acclerationSpeedometer.startup_animation_running = true
-        }
+    function onPageLoad() {
+        acclerationSpeedometer.startup_animation_running = true
     }
 
     Speedometer {

@@ -90,38 +90,35 @@ Window {
             }
 
             function refocusMainStack() {
+                let nextPage;
                 switch (mainStack.currentIndex) {
                     case 0:
-                        // noinspection JSUnresolvedReference
-                        lowVoltagePage.forceActiveFocus()
-                        break
+                        nextPage = lowVoltagePage
+                        break;
                     case 1:
-                        // noinspection JSUnresolvedReference
-                        accelerationPage.forceActiveFocus()
-                        break
+                        nextPage = accelerationPage
+                        break;
                     case 2:
-                        // noinspection JSUnresolvedReference
-                        autocrossPage.forceActiveFocus()
-                        break
+                        nextPage = autocrossPage
+                        break;
                     case 3:
-                        // noinspection JSUnresolvedReference
-                        brakingPage.forceActiveFocus()
-                        break
+                        nextPage = brakingPage
+                        break;
                     case 4:
-                        // noinspection JSUnresolvedReference
-                        endurancePage.forceActiveFocus()
-                        break
+                        nextPage = endurancePage
+                        break;
                     case 5:
-                        // noinspection JSUnresolvedReference
-                        skidpadPage.forceActiveFocus()
-                        break
+                        nextPage = skidpadPage
+                        break;
                     case 6:
-                        // noinspection JSUnresolvedReference
-                        softwareDebugPage.forceActiveFocus()
-                        break
+                        nextPage = softwareDebugPage
+                        break;
                     default:
+                        nextPage = landingPage
                         break;
                 }
+                nextPage.forceActiveFocus();
+                nextPage.onPageLoad();
             }
 
             Component.onCompleted: {

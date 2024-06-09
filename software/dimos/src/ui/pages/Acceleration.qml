@@ -11,10 +11,8 @@ Item {
     property real sappsPedalPercentage: CanQML.FSM_SappsMappedPedalPercentage
     property real pappsPedalPercentage: CanQML.FSM_PappsMappedPedalPercentage
 
-    onActiveFocusChanged: {
-        if (activeFocus) {
-            startupAnimation.running = true
-        }
+    function onPageLoad() {
+        startupAnimation.running = true
     }
 
     Text {
