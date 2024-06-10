@@ -13,7 +13,7 @@ Item {
     property real speedRatio: speed / targetSpeed
 
     // ring size rendering
-    property int defaultSize: 260
+    property int defaultSize: 280
     property int ringExplosionOffset: 0
     readonly property int maxRingExplosionOffset: 600
     property bool latched: false
@@ -96,7 +96,7 @@ Item {
         anchors.horizontalCenter: speedString.horizontalCenter
         anchors.verticalCenter: speedString.verticalCenter
 
-        opacity: speedRatio - ringExplosionOffset / maxRingExplosionOffset
+        opacity: speedRatio - ringExplosionOffset / (maxRingExplosionOffset - 100)
 
         size: defaultSize + (1 - speedRatio) * 200 + ringExplosionOffset
         borderWidth: 5
