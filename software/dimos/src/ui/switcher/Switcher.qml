@@ -22,10 +22,6 @@ FocusScope {
             name: "Acceleration"
         }
         ListElement {
-            icon: "qrc:/SwitcherEventIcons/Autocross.svg"
-            name: "Autocross"
-        }
-        ListElement {
             icon: "qrc:/SwitcherEventIcons/Brake.svg"
             name: "Brake"
         }

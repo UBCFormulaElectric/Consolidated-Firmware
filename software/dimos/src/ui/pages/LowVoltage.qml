@@ -6,11 +6,11 @@ import canqml
 Item {
     property real stateOfCharge: CanQML.BMS_Soc / 100;
     property bool first_visit_complete: false
-    onFocusChanged: {
-        if (focus) {
-            first_visit_complete = true;
-        }
+
+    function onPageLoad() {
+        first_visit_complete = true;
     }
+
     Keys.onSpacePressed: {
         first_visit_complete = false;
     }
@@ -51,12 +51,7 @@ Item {
                 anchors.fill: parent
                 visible: true
 
-                Text {
-                    anchors.centerIn: parent
-                    text: CanQML.VC_Fault_DummyFault ? "Fault" : "No Fault"
-                    color: "white"
-                }
-                property int first_error_node: CanQML.VC_FirstFaultNode; //ShutdownLoop.ShutdownLoopNode.BSPD;
+                property int first_error_node: CanQML.VC_FirstFaultNode;
                 property real max_loop_progress: getShutdownLoopNodePercentage(first_error_node);
                 percentage: first_visit_complete ? max_loop_progress : 0 // todo set to correct percentage, but only when turning on the car
 

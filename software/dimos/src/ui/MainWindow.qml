@@ -26,6 +26,18 @@ Window {
             color: "#141414"
             anchors.fill: parent
             id: mainStack
+
+
+            enum Page {
+                LANDING = -1,
+                LOW_VOLTAGE = 0,
+                ACCELERATION = 1,
+                BRAKING = 2,
+                ENDURANCE = 3,
+                SKIDPAD = 4,
+                SOFTWARE_DEBUG = 5
+            }
+
             property int currentIndex: 0
             Landing {
                 id: landingPage
@@ -39,19 +51,17 @@ Window {
             // this is not great practice especially considering that it does not genearlized well
             // if the mainStack was a real component
             DrivingBase {
-                visible: [1, 2, 3, 4, 5].includes(mainStack.currentIndex)
+                visible: [1, 2, 3, 4].includes(mainStack.currentIndex)
                 Image {
                     function getPageIconURL(index: int): string {
                         switch (index) {
                             case 1:
                                 return "qrc:/SwitcherEventIcons/Acceleration.svg"
                             case 2:
-                                return "qrc:/SwitcherEventIcons/Autocross.svg"
-                            case 3:
                                 return "qrc:/SwitcherEventIcons/Brake.svg"
-                            case 4:
+                            case 3:
                                 return "qrc:/SwitcherEventIcons/Endurance.svg"
-                            case 5:
+                            case 4:
                                 return "qrc:/SwitcherEventIcons/Skidpad.svg"
                             default:
                                 return ""
@@ -69,25 +79,21 @@ Window {
                     id: accelerationPage
                     visible: mainStack.currentIndex === 1
                 }
-                Autocross {
-                    id: autocrossPage
-                    visible: mainStack.currentIndex === 2
-                }
                 Braking {
                     id: brakingPage
-                    visible: mainStack.currentIndex === 3
+                    visible: mainStack.currentIndex === 2
                 }
                 Endurance {
                     id: endurancePage
-                    visible: mainStack.currentIndex === 4
+                    visible: mainStack.currentIndex === 3
                 }
                 Skidpad {
                     id: skidpadPage
-                    visible: mainStack.currentIndex === 5
+                    visible: mainStack.currentIndex === 4
                 }
             }
             DebugSoftware {
-                visible: mainStack.currentIndex === 6
+                visible: mainStack.currentIndex === 5
                 id: softwareDebugPage
             }
 
@@ -99,9 +105,6 @@ Window {
                         break;
                     case 1:
                         nextPage = accelerationPage
-                        break;
-                    case 2:
-                        nextPage = autocrossPage
                         break;
                     case 3:
                         nextPage = brakingPage
