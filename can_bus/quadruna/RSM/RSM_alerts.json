@@ -71,13 +71,13 @@
         "CoolantPressureBOCSC": {
             "id": 417,
             "description": "Coolant pressure B open or short circuit"
-        }
-    },
-    "faults": {
+        },
         "FlowMeterUnderflow": {
             "id": 451,
             "description": "Coolant flow meter underflow"
-        },
+        }
+    },
+    "faults": {
         "MissingVCHeartbeat": {
             "id": 452,
             "description": "VC Missing Heart beat"
@@ -85,6 +85,10 @@
         "MissingFSMHeartbeat": {
             "id": 453,
             "description": "FSM Missing Heart beat"
+        },
+        "MissingBMSHeartbeat": {
+            "id": 454,
+            "description": "BMS Missing Heart beat"
         }
     }
 }

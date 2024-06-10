@@ -8,6 +8,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -163,6 +164,7 @@ elseif ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_log.h"
+            "${SHARED_IO_INCLUDE_DIR}/io_canLogging.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lowVoltageBattery.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse.h"
@@ -173,7 +175,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_i2cPotentiometer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_pcm.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tsms.h"
     )
     create_fake_library(
             "quadruna_VC_fakes"

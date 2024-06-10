@@ -4,8 +4,9 @@
 #include "string.h"
 #include "shared.pb.h"
 
+#include "states/app_allStates.h"
+#include "states/app_initState.h"
 #include "app_heartbeatMonitor.h"
-#include "app_states.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -14,6 +15,7 @@
 #include "app_powerManager.h"
 #include "app_efuse.h"
 #include "app_shdnLoop.h"
+#include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -30,7 +32,6 @@
 #include "io_imu.h"
 #include "io_telemMessage.h"
 #include "io_pcm.h"
-#include "io_tsms.h"
 #include "io_time.h"
 
 #include "hw_bootup.h"
@@ -54,24 +55,20 @@ extern UART_HandleTypeDef  huart1;
 extern UART_HandleTypeDef  huart3;
 extern SD_HandleTypeDef    hsd1;
 
-static bool loggingEnabled(void); // TODO make this a general io logging happy function
-
 static uint32_t can_logging_overflow_count = 0;
 static uint32_t read_count                 = 0; // TODO debugging variables
 static uint32_t write_count                = 0; // TODO debugging variables
-static bool     can_logging_enable         = true;
+static bool     sd_card_present            = true;
 
 static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
 
-    if (loggingEnabled() && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
+    if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
     {
         io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
         read_count++;
     }
-
-    // TODO all telemetry here
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
@@ -156,11 +153,6 @@ static const Gpio      nprogram_3v3     = { .port = NPROGRAM_3V3_GPIO_Port, .pin
 static const Gpio      sb_ilck_shdn_sns = { .port = SB_ILCK_SHDN_SNS_GPIO_Port, .pin = SB_ILCK_SHDN_SNS_Pin };
 static const Gpio      tsms_shdn_sns    = { .port = TSMS_SHDN_SNS_GPIO_Port, .pin = TSMS_SHDN_SNS_Pin };
 
-static bool loggingEnabled(void)
-{
-    return !hw_gpio_readPin(&sd_present) && can_logging_enable;
-}
-
 const Gpio *id_to_gpio[] = { [VC_GpioNetName_BUZZER_PWR_EN]    = &buzzer_pwr_en,
                              [VC_GpioNetName_BAT_I_SNS_NFLT]   = &bat_i_sns_nflt,
                              [VC_GpioNetName_LED]              = &led.gpio,
@@ -214,7 +206,7 @@ static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &ts
                                               .RE_stop_gpio                = &r_shdn_sns,
                                               .splitter_box_interlock_gpio = &sb_ilck_shdn_sns };
 
-static const BoardShdnNode vc_shdn_nodes[VcShdnNodeCount] = {
+static const BoardShdnNode vc_shdn_nodes[VC_SHDN_NODE_COUNT] = {
     { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
     { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
     { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
@@ -272,8 +264,6 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
 };
 
 static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
-
-static const TSMSConfig tsms_config = { .tsms_gpio = &tsms_shdn_sns };
 
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
@@ -352,6 +342,24 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
+void tasks_preInitWatchdog(void)
+{
+    hw_sd_init(&sd);
+
+    sd_card_present = !hw_gpio_readPin(&sd_present);
+    if (sd_card_present)
+    {
+        if (io_fileSystem_init() == FILE_OK)
+        {
+            io_canLogging_init(&canLogging_config);
+        }
+        else
+        {
+            sd_card_present = false;
+        }
+    }
+}
+
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
@@ -363,7 +371,6 @@ void tasks_init(void)
 
     hw_hardFaultHandler_init();
     hw_can_init(&can);
-    hw_sd_init(&sd);
     hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
@@ -383,37 +390,26 @@ void tasks_init(void)
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
-    io_tsms_init(&tsms_config);
 
     if (!io_sbgEllipse_init(&imu_uart))
     {
         Error_Handler();
     }
 
-    if (loggingEnabled())
-    {
-        if (io_fileSystem_init() == FILE_OK)
-        {
-            io_canLogging_init(&canLogging_config);
-        }
-        else
-        {
-            can_logging_enable = false;
-        }
-    }
-    else
-    {
-        can_logging_enable = false;
-    }
-
     if (!io_imu_init())
     {
-        app_canAlerts_VC_Warning_ImuIo_set(true);
+        app_canAlerts_VC_Warning_ImuInitFailed_set(true);
     }
 
     app_canTx_init();
     app_canRx_init();
     app_canDataCapture_init();
+
+    // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
+    // This is not correlated to the size of each file.
+    app_canTx_VC_NumberOfCanDataLogs_set(io_canLogging_getCurrentLog());
+    app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
+    app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
@@ -423,13 +419,15 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    app_shdn_loop_init(vc_shdn_nodes, VcShdnNodeCount);
+    app_shdnLoop_init(vc_shdn_nodes, VC_SHDN_NODE_COUNT);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
+
+    app_bspd_init();
 
     // enable these for inverter programming
     // hw_gpio_writePin(&inv_l_program, true);
@@ -528,7 +526,24 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_telemMessage_pushMsgtoQueue(&tx_msg);
+
+        if (sd_card_present)
+        {
+            io_canLogging_loggingQueuePush(&tx_msg);
+        }
+
+        io_can_transmitMsgFromQueue(&tx_msg);
+    }
+}
+
+_Noreturn void tasks_runTelem(void)
+{
+    for (;;)
+    {
+        io_telemMessage_broadcastMsgFromQueue();
     }
 }
 
@@ -540,7 +555,8 @@ _Noreturn void tasks_runCanRx(void)
     {
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
-        //        io_telemMessage_broadcast(&rx_msg);
+        io_telemMessage_pushMsgtoQueue(&rx_msg);
+
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
@@ -549,7 +565,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
-    if (!loggingEnabled())
+    if (!sd_card_present)
     {
         osThreadSuspend(osThreadGetId());
     }

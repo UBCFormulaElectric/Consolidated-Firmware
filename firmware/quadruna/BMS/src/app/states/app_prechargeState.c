@@ -100,7 +100,7 @@ static void preChargeStateRunOnTick100Hz(void)
             // TODO: Consider reworking this transition.
             app_stateMachine_setNextState(app_faultState_get());
             app_canRx_Debug_StartCharging_update(false);
-            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(!is_charger_connected);
+            app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_set(!is_charger_connected);
         }
     }
 }

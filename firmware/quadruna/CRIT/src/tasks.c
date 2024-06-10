@@ -15,7 +15,7 @@
 #include "io_chimera.h"
 #include "io_led.h"
 #include "io_switch.h"
-#include "hw_rgbLed.h"
+#include "io_rgbLed.h"
 #include "io_critShdn.h"
 #include "io_leds.h"
 #include "io_switches.h"
@@ -406,9 +406,9 @@ static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
-static const BoardShdnNode crit_bshdn_nodes[CritShdnNodeCount] = {
-    { &io_get_INERTIA_SEN_OK, &app_canTx_CRIT_InertiaSenOKStatus_set },
-    { &io_get_COCKPIT_ESTOP_OK, &app_canTx_CRIT_CockpitEStopOKStatus_set }
+static const BoardShdnNode crit_bshdn_nodes[CRIT_SHDN_NODE_COUNT] = {
+    { &io_critShdn_get_INERTIA_SEN_OK_get, &app_canTx_CRIT_InertiaSenOKStatus_set },
+    { &io_critShdn_COCKPIT_ESTOP_OK_get, &app_canTx_CRIT_CockpitEStopOKStatus_set }
 };
 
 void tasks_preInit(void)
@@ -448,7 +448,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(crit_bshdn_nodes, CritShdnNodeCount);
+    app_shdnLoop_init(crit_bshdn_nodes, CRIT_SHDN_NODE_COUNT);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
@@ -495,7 +495,9 @@ _Noreturn void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 

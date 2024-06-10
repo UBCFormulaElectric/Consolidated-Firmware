@@ -64,13 +64,17 @@ void io_can_pushTxMsgToQueue(const CanMsg *msg)
     }
 }
 
-void io_can_transmitMsgFromQueue(void)
+void io_can_popTxMsgFromQueue(CanMsg *msg)
 {
-    // Pop a msg of the TX queue, then transmit it onto the bus.
-    CanMsg           tx_msg;
-    const osStatus_t s = osMessageQueueGet(tx_queue_id, &tx_msg, NULL, osWaitForever);
+    // Pop a msg of the TX queue
+    const osStatus_t s = osMessageQueueGet(tx_queue_id, msg, NULL, osWaitForever);
     assert(s == osOK);
-    hw_can_transmit(&tx_msg);
+}
+
+void io_can_transmitMsgFromQueue(CanMsg *msg)
+{
+    // Transmit the tx_msg onto the bus.
+    hw_can_transmit(msg);
 }
 
 void io_can_popRxMsgFromQueue(CanMsg *msg)

@@ -5,7 +5,7 @@
 extern "C"
 {
 #include "app_heartbeatBoardsEnum.h"
-#include "app_heartbeatMonitor.c"
+#include "app_heartbeatMonitor.h"
 }
 
 // fake can states

@@ -70,7 +70,7 @@ static void chargeStateRunOnTick100Hz(void)
             globals->ignore_charger_fault_counter++;
         }
 
-        app_canAlerts_BMS_Fault_Charger_set(has_charger_faulted);
+        app_canAlerts_BMS_Fault_ChargerReportedError_set(has_charger_faulted);
 
         if (has_charger_faulted)
         {
@@ -82,7 +82,7 @@ static void chargeStateRunOnTick100Hz(void)
         // been set back to true.
         globals->charger_connected_counter++;
         // If it has been more than a second
-        if (globals->charger_connected_counter >= 100)
+        if (!globals->disable_charger_connected_hb_check && globals->charger_connected_counter >= 100)
         {
             // Set the local rx value of charger connected to false, reset the counter
             // and lock the functionality of broadcasting if the charger is connected
@@ -107,7 +107,7 @@ static void chargeStateRunOnTick100Hz(void)
         if (external_shutdown_occurred)
         {
             app_stateMachine_setNextState(app_faultState_get());
-            app_canAlerts_BMS_Fault_ChargerExternalShutdown_set(external_shutdown_occurred);
+            app_canAlerts_BMS_Fault_ChargerShutdownLoopOpen_set(external_shutdown_occurred);
         }
         // If charging is disabled over CAN go back to init state.
         if (!charging_enabled)

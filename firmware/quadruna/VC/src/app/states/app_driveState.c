@@ -1,26 +1,22 @@
 #include <math.h>
-#include "io_log.h"
-// can
-#include "app_canTx.h"
-#include "app_canRx.h"
-// states
+
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
-// vehicle dynamics
+
+#include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_vehicleDynamicsConstants.h"
-// app
 #include "app_powerManager.h"
 #include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
 #include "app_units.h"
+#include "app_signal.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
-#define PEDAL_SCALE 0.3f
-#define MAX_PEDAL_PERCENT 1.0f
 #define BUZZER_ON_DURATION_MS 2000
 
 static bool         torque_vectoring_switch_is_on;
@@ -35,7 +31,7 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = true,
+        [EFUSE_CHANNEL_BUZZER] = false,
     },
     .pcm = true,
 };
@@ -68,10 +64,11 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
-    LOG_INFO("drive state entry");
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
+    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, true);
+    app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_drive_init);
@@ -80,8 +77,8 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
-    app_canTx_VC_LeftInverterTorqueLimit_set(90.0f);
-    app_canTx_VC_RightInverterTorqueLimit_set(90.0f);
+    app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
+    app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
 
     // Read torque vectoring switch only when entering drive state, not during driving
 
@@ -91,7 +88,6 @@ static void driveStateRunOnEntry(void)
     {
         app_torqueVectoring_init();
     }
-    LOG_INFO("drive state entry done");
 }
 
 static void driveStateRunOnTick1Hz(void)
@@ -106,44 +102,47 @@ static void driveStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_inverterFaultCheck();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool start_switch_off         = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive         = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init       = bms_not_in_drive || !all_states_ok;
-    bool       exit_drive_to_inverterOn = start_switch_off;
-    bool       regen_switch_enabled     = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-    float      apps_pedal_percentage    = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-
-    // Disable drive buzzer after 2 seconds.
-    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
-    {
-        app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
-        app_canTx_VC_BuzzerOn_set(false);
-    }
-
-    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
-
-    if (regen_switch_enabled)
-    {
-        apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-        apps_pedal_percentage = apps_pedal_percentage < 0.0f
-                                    ? apps_pedal_percentage / PEDAL_SCALE
-                                    : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
-    }
+    const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init        = bms_not_in_drive;
+    bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
+    bool       regen_switch_enabled      = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    float      apps_pedal_percentage     = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float      sapps_pedal_percentage    = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     if (exit_drive_to_init)
     {
-        LOG_INFO("4 %d %d", any_board_has_fault, inverter_has_fault);
-        LOG_ALL_FAULTS();
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
-    else if (exit_drive_to_inverterOn)
+    else if (exit_drive_to_inverter_on)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
         return;
     }
 
-    if (apps_pedal_percentage < 0.0f)
+    // Disable drive buzzer after 2 seconds.
+    if (app_timer_updateAndGetState(&buzzer_timer) == TIMER_STATE_EXPIRED)
+    {
+        io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
+        app_canTx_VC_BuzzerOn_set(false);
+    }
+
+    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    if (regen_switch_enabled)
+    {
+        apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
+        sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
+    }
+
+    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
+    if (app_bspdWarningCheck(apps_pedal_percentage, sapps_pedal_percentage))
+    {
+        // If bspd warning is true, set torque to 0.0
+        app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
+        app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+    }
+    else if (apps_pedal_percentage < 0.0f && regen_switch_enabled)
     {
         app_regen_run(apps_pedal_percentage);
     }
@@ -159,7 +158,6 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
-    LOG_INFO("drive state exit");
     // Disable inverters and apply zero torque upon exiting drive state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
@@ -168,8 +166,8 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
 
     // Disable buzzer on exit drive.
-    app_powerManager_updateEfuse(EFUSE_CHANNEL_BUZZER, false);
-    LOG_INFO("drive state exit done");
+    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
+    app_canTx_VC_BuzzerOn_set(false);
 }
 
 const State *app_driveState_get(void)

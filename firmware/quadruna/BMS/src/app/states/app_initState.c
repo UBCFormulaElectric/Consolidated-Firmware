@@ -46,7 +46,6 @@ static void initStateRunOnTick100Hz(void)
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
         const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
-        const bool fault_encountered   = globals->fault_encountered;
 
         if (air_negative_closed && ts_discharged)
         {
@@ -58,12 +57,8 @@ static void initStateRunOnTick100Hz(void)
 
             app_canTx_BMS_ClearLatch_set(clear_brusa_latch);
 
-            // If there was a fault encountered, don't allow charging unless a manual override is sent over CAN.
-            const bool fault_preventing_charging = fault_encountered && !charging_override_fault;
-
-            const bool precharge_for_charging =
-                charger_connected && external_charging_request && !fault_preventing_charging;
-            const bool precharge_for_driving = !charger_connected && !cell_balancing_enabled && !missing_hb;
+            const bool precharge_for_charging = charger_connected && external_charging_request;
+            const bool precharge_for_driving  = !charger_connected && !cell_balancing_enabled && !missing_hb;
 
             if (precharge_for_charging)
             {

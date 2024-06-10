@@ -11,13 +11,16 @@ static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
 static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
 
 static uint8_t        cache[HW_DEVICE_SECTOR_SIZE];
-static const LogFsCfg fs_cfg = { .block_count = 1000000,
-                                 .block_size  = HW_DEVICE_SECTOR_SIZE,
-                                 .cache       = cache,
-                                 .rd_only     = false,
-                                 .read        = logfsCfgRead,
-                                 .write       = logfsCfgWrite };
-static LogFs          fs;
+static const LogFsCfg fs_cfg = {
+    .block_count  = 1024 * 1024,
+    .block_size   = HW_DEVICE_SECTOR_SIZE,
+    .cache        = cache,
+    .rd_only      = false,
+    .read         = logfsCfgRead,
+    .write        = logfsCfgWrite,
+    .write_cycles = 0 // Disable wear levelling.
+};
+static LogFs fs;
 
 static LogFsFileCfg files_cfg[MAX_FILE_NUMBER];
 static LogFsFile    files[MAX_FILE_NUMBER];

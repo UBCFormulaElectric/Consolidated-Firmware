@@ -4,32 +4,60 @@
 
 void app_shdnLast_broadcast(void)
 {
-    ShutdownNode shdn;
+    ShutdownNode node;
+
     if (!app_canRx_BMS_HVDShdnOKStatus_get())
-        shdn = SHDN_HVD_ILCK;
+    {
+        node = SHDN_HVD_ILCK;
+    }
     else if (!app_canTx_VC_SplitterBoxInterlockOKStatus_get())
-        shdn = SHDN_SB_ILCK;
+    {
+        node = SHDN_SB_ILCK;
+    }
     else if (!app_canTx_VC_TSMSOKStatus_get())
-        shdn = SHDN_TSMS;
+    {
+        node = SHDN_TSMS;
+    }
     else if (!app_canTx_VC_REStopOKStatus_get())
-        shdn = SHDN_R_EStop;
+    {
+        node = SHDN_R_EStop;
+    }
     else if (!app_canTx_VC_LEStopOKStatus_get())
-        shdn = SHDN_L_EStop;
+    {
+        node = SHDN_L_EStop;
+    }
     else if (!app_canRx_FSM_BOTSOKStatus_get())
-        shdn = SHDN_BOTS;
+    {
+        node = SHDN_BOTS;
+    }
     else if (!app_canRx_CRIT_InertiaSenOKStatus_get())
-        shdn = SHDN_Inertia;
+    {
+        node = SHDN_Inertia;
+    }
     else if (!app_canRx_CRIT_CockpitEStopOKStatus_get())
-        shdn = SHDN_Cockpit_EStop;
+    {
+        node = SHDN_Cockpit_EStop;
+    }
     else if (!app_canRx_BMS_TSIlckOKStatus_get())
-        shdn = SHDN_TS_Ilck;
+    {
+        node = SHDN_TS_Ilck;
+    }
     else if (!app_canRx_BMS_BmsOk_get())
-        shdn = SHDN_BMS_OK;
+    {
+        node = SHDN_BMS_OK;
+    }
     else if (!app_canRx_BMS_BspdOk_get())
-        shdn = SHDN_BSPD_OK;
+    {
+        node = SHDN_BSPD_OK;
+    }
     else if (!app_canRx_BMS_ImdOk_get())
-        shdn = SHDN_IMD_OK;
+    {
+        node = SHDN_IMD_OK;
+    }
     else
-        shdn = SHDN_OK;
-    app_canTx_VC_FirstFaultNode_set(shdn);
+    {
+        node = SHDN_OK;
+    }
+
+    app_canTx_VC_FirstFaultNode_set(node);
 }

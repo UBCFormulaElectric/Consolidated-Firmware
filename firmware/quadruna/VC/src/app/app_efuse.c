@@ -10,12 +10,6 @@ void app_efuse_init(
     void (*const enabled_setters[NUM_EFUSE_CHANNELS])(bool),
     void (*const current_setters[NUM_EFUSE_CHANNELS])(float))
 {
-    //    for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse += 1)
-    //    {
-    //        efuse_enabled_can_setters[efuse] = enabled_setters[efuse];
-    //        efuse_current_can_setters[efuse] = current_setters[efuse];
-    //    }
-
     efuse_enabled_can_setters = enabled_setters;
     efuse_current_can_setters = current_setters;
 }

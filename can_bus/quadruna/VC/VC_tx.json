@@ -12,6 +12,16 @@
             },
             "BuzzerOn": {
                 "bits": 1
+            },
+            "NumberOfCanDataLogs": {
+                "resolution": 1,
+                "min": 0,
+                "max": 1000
+            },
+            "CanLoggingRemainingErrors": {
+                "resolution": 1,
+                "min": 0,
+                "max": 10
             }
         }
     },
@@ -704,6 +714,19 @@
         "signals": {
             "FirstFaultNode": {
                 "enum": "ShutdownNode"
+            }
+        }
+    },
+    "PedalPercentage": {
+        "msg_id": 230,
+        "cycle_time": 100,
+        "description": "Pedal percentage info",
+        "signals": {
+            "MappedPedalPercentage" :{
+                "min": -1,
+                "max": 1,
+                "resolution": 0.01,
+                "unit": "%"
             }
         }
     }

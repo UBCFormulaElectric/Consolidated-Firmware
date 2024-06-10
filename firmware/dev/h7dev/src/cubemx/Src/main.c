@@ -621,7 +621,7 @@ void runCanTxTask(void *argument)
         for (int j = 0; j < 6; j++)
         {
             read_num++;
-            io_canLogging_pushTxMsgToQueue(&msg);
+            // io_canLogging_pushTxMsgToQueue(&msg);
         }
         osDelay(1);
     }

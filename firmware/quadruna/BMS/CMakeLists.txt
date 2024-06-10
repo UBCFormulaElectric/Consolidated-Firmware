@@ -162,6 +162,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_thermistors.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sd.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
     )
     create_fake_library(
         "quadruna_BMS_fakes"

@@ -3,6 +3,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_math.h"
+#include "app_timer.h"
 #include "ltc6813/io_ltc6813Shared.h"
 #include "ltc6813/io_ltc6813CellVoltages.h"
 #include "ltc6813/io_ltc6813CellTemps.h"
@@ -84,9 +85,9 @@ typedef struct
 
 typedef struct
 {
-    uint16_t owcStatus[ACCUMULATOR_NUM_SEGMENTS];
-    bool     owcFaultGND[ACCUMULATOR_NUM_SEGMENTS];
-    bool     owcGlobalFault;
+    uint16_t owc_status[ACCUMULATOR_NUM_SEGMENTS];
+    bool     owc_fault_gnd[ACCUMULATOR_NUM_SEGMENTS];
+    bool     owc_global_fault;
 } OWCFaults;
 
 typedef struct
@@ -110,6 +111,11 @@ static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
 static uint8_t     owc_idle_cycles;
+
+static TimerChannel under_voltage_fault_timer;
+static TimerChannel over_voltage_fault_timer;
+static TimerChannel under_temp_fault_timer;
+static TimerChannel over_temp_fault_timer;
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -244,6 +250,12 @@ void app_accumulator_init(void)
     open_wire_pd_readings = 0;
     owc_idle_cycles       = 0;
     data.owc_state        = START_OPEN_WIRE_CHECK;
+
+    // Init fault debounce timers.
+    app_timer_init(&under_voltage_fault_timer, UNDER_VOLTAGE_DEBOUNCE_DURATION_MS);
+    app_timer_init(&over_voltage_fault_timer, OVER_VOLTAGE_DEBOUNCE_DURATION_MS);
+    app_timer_init(&under_temp_fault_timer, UNDER_TEMP_DEBOUNCE_DURATION_MS);
+    app_timer_init(&over_temp_fault_timer, OVER_TEMP_DEBOUNCE_DURATION_MS);
 }
 
 void app_accumulator_writeDefaultConfig(void)
@@ -288,18 +300,18 @@ void app_accumulator_runCellMeasurements(void)
 
 static void app_accumulator_owcCalculateFaults(void)
 {
-    OWCFaults owcFaults = { .owcStatus = { 0U }, .owcFaultGND = { 0U }, .owcGlobalFault = 0U };
+    OWCFaults owcFaults = { .owc_status = { 0U }, .owc_fault_gnd = { 0U }, .owc_global_fault = 0U };
 
-    owcFaults.owcGlobalFault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
+    owcFaults.owc_global_fault = io_ltc6813CellVoltages_getGlobalOpenWireFault();
 
-    if (owcFaults.owcGlobalFault)
+    if (owcFaults.owc_global_fault)
     {
         for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
         {
             if (io_ltc6813CellVoltages_getOpenWireFault(segment, 0))
             {
-                owcFaults.owcFaultGND[segment] = true;
-                owcFaults.owcStatus[segment]   = (uint16_t)1;
+                owcFaults.owc_fault_gnd[segment] = true;
+                owcFaults.owc_status[segment]    = (uint16_t)1;
             }
             else
             {
@@ -307,7 +319,7 @@ static void app_accumulator_owcCalculateFaults(void)
                 {
                     if (io_ltc6813CellVoltages_getOpenWireFault(segment, cell))
                     {
-                        owcFaults.owcStatus[segment] |= ((uint16_t)(1 << cell));
+                        owcFaults.owc_status[segment] |= ((uint16_t)(1 << cell));
                     }
                 }
             }
@@ -438,11 +450,11 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MaxTempIdx_set(max_loc);
 
     // Broadcast OWC information
-    app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.owcStatus[0]);
-    app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owcStatus[1]);
-    app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owcStatus[2]);
-    app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owcStatus[3]);
-    app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owcStatus[4]);
+    app_canTx_BMS_Segment0_OWC_Cells_Status_set(data.owc_faults.owc_status[0]);
+    app_canTx_BMS_Segment1_OWC_Cells_Status_set(data.owc_faults.owc_status[1]);
+    app_canTx_BMS_Segment2_OWC_Cells_Status_set(data.owc_faults.owc_status[2]);
+    app_canTx_BMS_Segment3_OWC_Cells_Status_set(data.owc_faults.owc_status[3]);
+    app_canTx_BMS_Segment4_OWC_Cells_Status_set(data.owc_faults.owc_status[4]);
 
     // Calculate and broadcast pack power.
     const float available_power =
@@ -461,36 +473,45 @@ bool app_accumulator_checkFaults(void)
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (app_tractiveSystem_getCurrent() > 3.0f)
+    if (app_canRx_BRUSA_IsConnected_get())
     {
         max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
-    bool overtemp_fault =
+    const bool overtemp_condition =
         io_ltc6813CellTemps_getMaxTempDegC(&throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
-    bool undertemp_fault =
+    const bool undertemp_condition =
         io_ltc6813CellTemps_getMinTempDegC(&throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
-    bool overvoltage_fault   = data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
-    bool undervoltage_fault  = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
-    bool communication_fault = data.num_comm_tries >= MAX_NUM_COMM_TRIES;
+    const bool overvoltage_condition  = data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
+    const bool undervoltage_condition = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
+
+    const bool overtemp_fault =
+        app_timer_runIfCondition(&over_temp_fault_timer, overtemp_condition) == TIMER_STATE_EXPIRED;
+    const bool undertemp_fault =
+        app_timer_runIfCondition(&under_temp_fault_timer, undertemp_condition) == TIMER_STATE_EXPIRED;
+    const bool overvoltage_fault =
+        app_timer_runIfCondition(&over_voltage_fault_timer, overvoltage_condition) == TIMER_STATE_EXPIRED;
+    const bool undervoltage_fault =
+        app_timer_runIfCondition(&under_voltage_fault_timer, undervoltage_condition) == TIMER_STATE_EXPIRED;
 
     app_canAlerts_BMS_Fault_CellUndervoltage_set(undervoltage_fault);
     app_canAlerts_BMS_Fault_CellOvervoltage_set(overvoltage_fault);
     app_canAlerts_BMS_Fault_CellUndertemp_set(undertemp_fault);
     app_canAlerts_BMS_Fault_CellOvertemp_set(overtemp_fault);
+
+    bool communication_fault = data.num_comm_tries >= MAX_NUM_COMM_TRIES;
     app_canTx_BMS_ModuleCommunication_NumCommTries_set(data.num_comm_tries);
     app_canTx_BMS_ModuleCommunication_MonitorState_set((CAN_AccumulatorMonitorState)data.state);
     app_canAlerts_BMS_Fault_ModuleCommunicationError_set(communication_fault);
 
-    bool owc_fault = data.owc_faults.owcGlobalFault;
-
-    app_canAlerts_BMS_Fault_OpenWireCheckFault_set(data.owc_faults.owcGlobalFault);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment0_GND_set(data.owc_faults.owcFaultGND[0]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment1_GND_set(data.owc_faults.owcFaultGND[1]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment2_GND_set(data.owc_faults.owcFaultGND[2]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment3_GND_set(data.owc_faults.owcFaultGND[3]);
-    app_canAlerts_BMS_Fault_OpenWireCheck_Segment4_GND_set(data.owc_faults.owcFaultGND[4]);
+    bool owc_fault = data.owc_faults.owc_global_fault;
+    app_canAlerts_BMS_Warning_OpenWireCheckFault_set(data.owc_faults.owc_global_fault);
+    app_canAlerts_BMS_Warning_OpenWireCheck_Segment0_GND_set(data.owc_faults.owc_fault_gnd[0]);
+    app_canAlerts_BMS_Warning_OpenWireCheck_Segment1_GND_set(data.owc_faults.owc_fault_gnd[1]);
+    app_canAlerts_BMS_Warning_OpenWireCheck_Segment2_GND_set(data.owc_faults.owc_fault_gnd[2]);
+    app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(data.owc_faults.owc_fault_gnd[3]);
+    app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(data.owc_faults.owc_fault_gnd[4]);
 
     const bool acc_fault = overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault ||
                            communication_fault || owc_fault;

@@ -2,7 +2,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_heartbeatMonitor.h"
 #include "app_mainState.h"
 
 #include "app_canTx.h"
@@ -10,6 +9,7 @@
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
 #include "app_shdnLoop.h"
+#include "app_apps.h"
 
 #include "io_jsoncan.h"
 #include "io_canRx.h"
@@ -128,53 +128,6 @@ static const PwmInputFreqOnlyConfig right_wheel_config = { .htim                
                                                            .tim_auto_reload_reg = TIM12_AUTO_RELOAD_REG,
                                                            .tim_active_channel  = HAL_TIM_ACTIVE_CHANNEL_1 };
 
-// config for heartbeat monitor (can funcs and flags)
-// FSM rellies on BMS
-static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true,  [VC_HEARTBEAT_BOARD] = false,  [RSM_HEARTBEAT_BOARD] = false,
-    [FSM_HEARTBEAT_BOARD] = false, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_FSM_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = NULL,
-    [RSM_HEARTBEAT_BOARD]  = NULL,
-    [FSM_HEARTBEAT_BOARD]  = NULL,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -182,8 +135,8 @@ void tasks_preInit(void)
 
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
 
-static const BoardShdnNode fsm_bshdn_nodes[FsmShdnNodeCount] = { { &io_fsmShdn_FSM_SHDN_OK_get,
-                                                                   &app_canTx_FSM_BOTSOKStatus_set } };
+static const BoardShdnNode fsm_bshdn_nodes[FSM_SHDN_NODE_COUNT] = { { &io_fsmShdn_FSM_SHDN_OK_get,
+                                                                      &app_canTx_FSM_BOTSOKStatus_set } };
 
 void tasks_init(void)
 {
@@ -209,7 +162,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdn_loop_init(fsm_bshdn_nodes, FsmShdnNodeCount);
+    app_shdnLoop_init(fsm_bshdn_nodes, FSM_SHDN_NODE_COUNT);
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);
@@ -217,10 +170,7 @@ void tasks_init(void)
     io_steering_init(&steering_config);
     io_suspension_init(&suspension_config);
     io_wheels_init(&left_wheel_config, &right_wheel_config);
-
-    app_heartbeatMonitor_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_FSM_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
+    app_apps_init();
 
     app_stateMachine_init(app_mainState_get());
 
@@ -319,7 +269,9 @@ _Noreturn void tasks_runCanTx(void)
 
     for (;;)
     {
-        io_can_transmitMsgFromQueue();
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 

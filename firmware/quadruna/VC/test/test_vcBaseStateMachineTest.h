@@ -6,8 +6,8 @@
 #include "fake_io_efuse.hpp"
 #include "fake_io_led.hpp"
 #include "fake_io_sbgEllipse.hpp"
-#include "fake_io_tsms.hpp"
 #include "fake_io_pcm.hpp"
+#include "fake_io_canLogging.hpp"
 
 extern "C"
 {
@@ -25,6 +25,8 @@ extern "C"
 #include "app_powerManager.h"
 #include "app_efuse.h"
 #include "app_globals.h"
+#include "app_faultCheck.h"
+#include "app_regen.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -53,6 +55,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
+        app_bspd_init();
     }
 
     void TearDown() override
@@ -70,14 +73,23 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_isChannelEnabled_reset();
         fake_io_efuse_getChannelCurrent_reset();
         fake_io_efuse_standbyReset_reset();
-        fake_io_tsms_read_reset();
         fake_io_pcm_set_reset();
+        fake_io_canLogging_errorsRemaining_reset();
     }
 
     void SetInitialState(const State *const initial_state)
     {
         app_stateMachine_init(initial_state);
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
+    }
+
+    void SetStateToDrive()
+    {
+        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_FSM_BrakeActuated_update(true);
+        SetInitialState(app_driveState_get());
+        app_heartbeatMonitor_clearFaults();
     }
 
     // configs for efuse messages over can
@@ -117,7 +129,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // heartbeatGetters - get heartbeat signals from other boards
     bool (*heartbeatGetters[HEARTBEAT_BOARD_COUNT])() = { [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
                                                           [VC_HEARTBEAT_BOARD]   = NULL,
-                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
+                                                          [RSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
                                                           [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
                                                           [DIM_HEARTBEAT_BOARD]  = NULL,
                                                           [CRIT_HEARTBEAT_BOARD] = app_canRx_CRIT_Heartbeat_get };

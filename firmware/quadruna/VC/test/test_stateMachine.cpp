@@ -18,11 +18,11 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         // Introduce fault, expect transition to init state.
         set_fault();
         LetTimePass(10);
-        EXPECT_EQ(VC_INIT_STATE, app_canTx_VC_State_get());
+        EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
 
         // Confirm we don't allow a transition back to drive until the fault clears.
         LetTimePass(1000);
-        EXPECT_EQ(VC_INIT_STATE, app_canTx_VC_State_get());
+        EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
 
         // Clear fault and observe a transition back to drive, when the drive conditions are met.
         clear_fault();
@@ -34,15 +34,6 @@ class VCStateMachineTest : public VcBaseStateMachineTest
         SetStateToDrive();
         LetTimePass(50);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
-    }
-
-    void SetStateToDrive()
-    {
-        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-        app_canRx_FSM_BrakeActuated_update(true);
-        SetInitialState(app_driveState_get());
-        app_heartbeatMonitor_clearFaults();
     }
 };
 
@@ -64,7 +55,6 @@ TEST_F(VCStateMachineTest, check_init_transitions_to_drive_if_conditions_met_and
 
     // Transition BMS to drive state, expect transition to inverter_state as power manage is in drive state
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    fake_io_tsms_read_returns(true);
     LetTimePass(10);
     EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
 
@@ -92,7 +82,6 @@ TEST_F(VCStateMachineTest, check_state_transition_from_init_to_inverter_on)
     SetInitialState(app_initState_get());
     app_heartbeatMonitor_clearFaults();
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    fake_io_tsms_read_returns(true);
     LetTimePass(1000);
     EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
     EXPECT_TRUE(app_powerManager_getEfuse(EFUSE_CHANNEL_INV_R));
@@ -107,7 +96,7 @@ TEST_F(VCStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
 }
 
-TEST_F(VCStateMachineTest, check_inverterOn_state_is_broadcasted_over_can)
+TEST_F(VCStateMachineTest, check_inverter_on_state_is_broadcasted_over_can)
 {
     SetInitialState(app_inverterOnState_get());
 
@@ -119,7 +108,6 @@ TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
     SetInitialState(app_initState_get());
     app_heartbeatMonitor_clearFaults();
     app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-    fake_io_tsms_read_returns(true);
     LetTimePass(1000);
     // Transitioning from init state to inverter on state as inverters have been turned on
     EXPECT_EQ(VC_INVERTER_ON_STATE, app_canTx_VC_State_get());
@@ -146,7 +134,7 @@ TEST_F(VCStateMachineTest, disable_inverters_in_init_state)
     EXPECT_FLOAT_EQ(false, app_canTx_VC_RightInverterEnable_get());
 }
 
-TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverterOn_state)
+TEST_F(VCStateMachineTest, start_switch_off_transitions_drive_state_to_inverter_on_state)
 {
     SetStateToDrive();
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
@@ -207,7 +195,7 @@ TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pres
     EXPECT_FLOAT_EQ(0.0f, app_canTx_VC_RightInverterTorqueCommand_get());
 }
 
-TEST_F(VCStateMachineTest, drive_to_init_state_on_left_inverter_fault)
+TEST_F(VCStateMachineTest, exit_drive_state_on_left_inverter_fault)
 {
     auto set_fault   = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
     auto clear_fault = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_START_STATE); };
@@ -215,7 +203,7 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_left_inverter_fault)
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
-TEST_F(VCStateMachineTest, drive_to_init_state_on_right_inverter_fault)
+TEST_F(VCStateMachineTest, exit_drive_state_on_right_inverter_fault)
 {
     auto set_fault   = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
     auto clear_fault = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_START_STATE); };
@@ -223,7 +211,7 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_right_inverter_fault)
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
-TEST_F(VCStateMachineTest, drive_to_init_state_on_bms_fault)
+TEST_F(VCStateMachineTest, exit_drive_state_on_bms_fault)
 {
     auto set_fault   = []() { app_canRx_BMS_Fault_CellOvervoltage_update(true); };
     auto clear_fault = []() { app_canRx_BMS_Fault_CellOvervoltage_update(false); };
@@ -231,23 +219,23 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_bms_fault)
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
-// TEST_F(VCStateMachineTest, drive_to_init_state_on_fsm_fault)
-// {
-//     auto set_fault   = []() { app_canRx_FSM_Fault_FlowMeterUnderflow_update(true); };
-//     auto clear_fault = []() { app_canRx_FSM_Fault_FlowMeterUnderflow_update(false); };
+TEST_F(VCStateMachineTest, exit_drive_state_on_fsm_fault)
+{
+    auto set_fault   = []() { app_canRx_FSM_Fault_PappsOCSC_update(true); };
+    auto clear_fault = []() { app_canRx_FSM_Fault_PappsOCSC_update(false); };
 
-//     TestFaultBlocksDrive(set_fault, clear_fault);
-// }
+    TestFaultBlocksDrive(set_fault, clear_fault);
+}
 
-// TEST_F(VCStateMachineTest, drive_to_init_state_on_VC_fault)
-// {
-//     auto set_fault   = []() { app_canRx_VC_Fault_DummyFault_update(true); };
-//     auto clear_fault = []() { app_canRx_VC_Fault_DummyFault_update(false); };
+TEST_F(VCStateMachineTest, exit_drive_state_on_VC_fault)
+{
+    auto set_fault   = []() { app_canTx_VC_Fault_MissingBMSHeartbeat_set(true); };
+    auto clear_fault = []() { app_canTx_VC_Fault_MissingBMSHeartbeat_set(false); };
 
-//     TestFaultBlocksDrive(set_fault, clear_fault);
-// }
+    TestFaultBlocksDrive(set_fault, clear_fault);
+}
 
-TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
+TEST_F(VCStateMachineTest, exit_drive_state_on_CRIT_fault)
 {
     auto set_fault   = []() { app_canRx_CRIT_Fault_MissingBMSHeartbeat_update(true); };
     auto clear_fault = []() { app_canRx_CRIT_Fault_MissingBMSHeartbeat_update(false); };
@@ -255,19 +243,7 @@ TEST_F(VCStateMachineTest, drive_to_init_state_on_CRIT_fault)
     TestFaultBlocksDrive(set_fault, clear_fault);
 }
 
-TEST_F(VCStateMachineTest, drive_to_init_inverter_fault)
-{
-    SetStateToDrive();
-    LetTimePass(100);
-    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
-
-    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
-
-    LetTimePass(100);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
-}
-
-TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on)
 {
     SetStateToDrive();
     LetTimePass(100);
@@ -278,7 +254,7 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn)
     EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
-TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverterOn_to_init)
+TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init)
 {
     SetStateToDrive();
     LetTimePass(100);

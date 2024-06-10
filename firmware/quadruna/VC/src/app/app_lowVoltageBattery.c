@@ -10,6 +10,6 @@ void app_lowVoltageBattery_broadcast(void)
     app_canTx_VC_AccVoltage_set(io_lowVoltageBattery_getAccVoltage());
     app_canTx_VC_BoostVoltage_set(io_lowVoltageBattery_getBoostVoltage());
 
-    app_canAlerts_VC_Fault_LvChargeFault_set(io_lowVoltageBattery_hasChargeFault() && false); // TODO
-    app_canAlerts_VC_Fault_BoostControllerFault_set(io_lowVoltageBattery_hasBoostControllerFault() && false);
+    app_canAlerts_VC_Warning_LvChargeFault_set(io_lowVoltageBattery_hasChargeFault());
+    app_canAlerts_VC_Warning_BoostControllerFault_set(io_lowVoltageBattery_hasBoostControllerFault());
 }

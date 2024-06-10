@@ -15,10 +15,10 @@ typedef struct
 EMPTY_STRUCT(BmsShdnConfig);
 #endif
 
-#define BmsShdnNodeCount 2
+#define BMS_SHDN_NODE_COUNT 2
 
 void io_bmsShdn_init(const BmsShdnConfig *bms_shdn_config);
 
-bool io_get_TS_ILCK_OK(void);
+bool io_bmsShdn_TS_ILCK_OK_get(void);
 
-bool io_get_HVD_OK(void);
+bool io_bmsShdn_HVD_OK_get(void);

@@ -1,11 +1,11 @@
 {
     "messages": [
-        "RSM_Vitals",
         "VC_Vitals",
         "BRUSA_Vitals",
         "Debug_Charging",
         "Debug_CanMode",
         "Debug_CellBalancing",
-        "Debug_ResetSoc"
+        "Debug_ResetSoc",
+        "Debug_SetBSPDTestCurrent"
     ]
 }

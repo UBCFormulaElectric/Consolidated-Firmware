@@ -285,19 +285,19 @@
         "description": "BMS Tractive System Data",
         "signals": {
             "TractiveSystemVoltage": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": 0,
                 "max": 600,
                 "unit": "V"
             },
             "TractiveSystemCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": -300,
                 "max": 300,
                 "unit": "A"
             },
             "TractiveSystemPower": {
-                "resolution": 0.01,
+                "resolution": 0.1,
                 "min": -100,
                 "max": 100,
                 "unit": "kW"
@@ -307,6 +307,9 @@
                 "min": 0,
                 "max": 100000,
                 "unit": "W"
+            },
+            "BSPDCurrentThresholdExceeded": {
+                "bits": 1
             }
         }
     },

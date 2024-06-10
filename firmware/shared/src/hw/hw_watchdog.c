@@ -40,7 +40,7 @@ void hw_watchdog_initWatchdog(WatchdogHandle *watchdog, uint8_t task_id, Tick_t 
 {
     watchdog->period          = period_in_ticks;
     watchdog->deadline        = period_in_ticks;
-    watchdog->check_in_status = false;
+    watchdog->check_in_status = true;
     watchdog->initialized     = true;
     watchdog->task_id         = task_id;
 }

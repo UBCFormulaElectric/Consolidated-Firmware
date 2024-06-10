@@ -4,7 +4,7 @@
 
 extern "C"
 {
-#include "app_timer.c"
+#include "app_timer.h"
 }
 
 class TimerTest : public testing::Test

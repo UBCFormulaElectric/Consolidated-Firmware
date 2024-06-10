@@ -36,7 +36,7 @@ float io_coolant_getFlowRate(void);
 void io_coolant_checkIfFlowMeterActive(void);
 
 /**
- * @returns the temperature of the coolant at [sensor B] in Celsius
+ * @returns the temperature of the coolant at [sensor A] in Celsius
  */
 float io_coolant_getTemperatureA(void);
 
@@ -51,6 +51,16 @@ float io_coolant_getTemperatureB(void);
 float io_coolant_getPressureA(void);
 
 /**
+ * @returns a bool regarding if the pressure voltage [sensor A] is within working range
+ */
+bool io_coolant_PressureAOCSC(void);
+
+/**
  * @returns the pressure of the coolant at [sensor B] in PSI
  */
 float io_coolant_getPressureB(void);
+
+/**
+ * @returns a bool regarding if the pressure voltage [sensor B] is within working range
+ */
+bool io_coolant_PressureBOCSC(void);

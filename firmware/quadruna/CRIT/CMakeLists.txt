@@ -21,6 +21,7 @@ list(APPEND IO_SRCS
     "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
     "${SHARED_IO_INCLUDE_DIR}/io_time.c"
     "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+    "${SHARED_IO_INCLUDE_DIR}/io_rgbLed.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
@@ -30,7 +31,6 @@ file(GLOB_RECURSE HW_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS
-    "${SHARED_HW_INCLUDE_DIR}/hw_rgbLed.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
     "${SHARED_HW_INCLUDE_DIR}/hw_can.c"

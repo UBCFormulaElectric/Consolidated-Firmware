@@ -44,19 +44,19 @@ void set_led_from_board_status(const RgbLed *led, const BoardLEDStatus status)
     switch (status)
     {
         case BOARD_LED_STATUS_FAULT:
-            hw_rgbLed_enable(led, RGB_RED);
+            io_rgbLed_enable(led, RGB_RED);
             break;
         case BOARD_LED_STATUS_OK:
-            hw_rgbLed_enable(led, RGB_GREEN);
+            io_rgbLed_enable(led, RGB_GREEN);
             break;
         case BOARD_LED_STATUS_WARNING:
-            hw_rgbLed_enable(led, RGB_YELLOW);
+            io_rgbLed_enable(led, RGB_YELLOW);
             break;
         case BOARD_LED_STATUS_NOT_IMPLEMENTED:
-            hw_rgbLed_enable(led, RGB_WHITE);
+            io_rgbLed_enable(led, RGB_WHITE);
             break;
         case BOARD_LED_STATUS_MISSING_HEARTBEAT:
-            hw_rgbLed_enable(led, RGB_OFF);
+            io_rgbLed_enable(led, RGB_OFF);
             break;
     }
 }
