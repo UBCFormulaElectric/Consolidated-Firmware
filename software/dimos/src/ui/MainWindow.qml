@@ -27,17 +27,6 @@ Window {
             anchors.fill: parent
             id: mainStack
 
-
-            enum Page {
-                LANDING = -1,
-                LOW_VOLTAGE = 0,
-                ACCELERATION = 1,
-                BRAKING = 2,
-                ENDURANCE = 3,
-                SKIDPAD = 4,
-                SOFTWARE_DEBUG = 5
-            }
-
             property int currentIndex: 0
             Landing {
                 id: landingPage

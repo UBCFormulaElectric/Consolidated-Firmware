@@ -13,21 +13,22 @@ class ShutdownLoop : public QQuickPaintedItem
 
   public:
     explicit ShutdownLoop(QQuickItem *parent = nullptr);
-    void     paint(QPainter *p) override;
+    void paint(QPainter *p) override;
 
     enum class ShutdownLoopNode
     {
-        BSPD,
-        BMS,
         IMD,
+        AMS,
+        BSPD,
+        TS_ILCK,
         EStop,
         InertiaSwitch,
         BOTS,
         LEStop,
         REStop,
         TSMS,
-        HVDInterlock,
         PCMInterlock,
+        HVDInterlock,
     };
     Q_ENUM(ShutdownLoopNode)
     /**
@@ -49,7 +50,7 @@ class ShutdownLoop : public QQuickPaintedItem
         std::string      name;
         TextCenterAnchor center_anchor;
     };
-    static std::map<ShutdownLoopNode, LoopNodeMetadata> node_thresholds;
+    const static std::map<ShutdownLoopNode, LoopNodeMetadata> node_thresholds;
 
     [[nodiscard]] double get_m_percentage() const { return m_percentage; }
     void                 set_m_percentage(const double value)
