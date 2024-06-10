@@ -24,7 +24,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                 ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                 // Set cell voltage critically high.
-                fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE + 0.1f);
+                fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL + 0.1f);
                 LetTimePass(OVER_VOLTAGE_DEBOUNCE_DURATION_MS);
 
                 if (debounce_expires[i])
@@ -39,7 +39,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
 
                     // Clear fault, should transition back to init
-                    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE - 0.1f);
+                    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL - 0.1f);
                     LetTimePass(20);
                     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
@@ -47,7 +47,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
                 else
                 {
                     // Clear fault before it expires, fault should not set.
-                    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE - 0.1f);
+                    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL - 0.1f);
                     LetTimePass(10);
                     ASSERT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
                     ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
@@ -535,7 +535,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
     ASSERT_EQ(fake_io_faultLatch_setCurrentStatus_callCountForArgs(&bms_ok_latch, false), 0);
 
     // Set cell voltage critically high and confirm fault is set
-    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE + 0.1f);
+    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(MAX_CELL_VOLTAGE_NOMINAL + 0.1f);
     LetTimePass(OVER_VOLTAGE_DEBOUNCE_DURATION_MS + 10);
     ASSERT_EQ(app_faultState_get(), app_stateMachine_getCurrentState());
 

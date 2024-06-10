@@ -16,9 +16,13 @@
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-#define MAX_CELL_VOLTAGE (4.2f)
+#define MAX_CELL_VOLTAGE_NOMINAL (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
+
+// When balancing with fully charged pack, voltage readings can temporarily be higher than 4.2V as voltage readings
+// settle after discharging
+#define MAX_CELL_VOLTAGE_BALANCING (4.25f)
 
 // Fault debounce durations.
 #define UNDER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)

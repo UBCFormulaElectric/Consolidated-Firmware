@@ -1,4 +1,6 @@
 #include "app_accumulator.h"
+#include "states/app_balancingState.h"
+#include "states/app_initState.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -479,11 +481,18 @@ bool app_accumulator_checkFaults(void)
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
+    const State *current_state = app_stateMachine_getCurrentState();
+
+    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get() && (current_state == app_initState_get() || current_state == app_balancingState_get() );
+
+    const float max_cell_voltage =
+        app_canRx_Debug_CellBalancingRequest_get() ? MAX_CELL_VOLTAGE_BALANCING : MAX_CELL_VOLTAGE_NOMINAL;
+
     const bool overtemp_condition =
         io_ltc6813CellTemps_getMaxTempDegC(&throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
     const bool undertemp_condition =
         io_ltc6813CellTemps_getMinTempDegC(&throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
-    const bool overvoltage_condition  = data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
+    const bool overvoltage_condition  = data.voltage_stats.max_voltage.voltage > max_cell_voltage;
     const bool undervoltage_condition = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
 
     const bool overtemp_fault =
