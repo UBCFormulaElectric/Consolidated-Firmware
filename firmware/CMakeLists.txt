@@ -10,7 +10,7 @@ option(BUILD_ASM "Build the assembly files" OFF)
 CPMAddPackage(
         NAME NANOPB_REPO
         GITHUB_REPOSITORY nanopb/nanopb
-        GIT_TAG 0.3.9.10
+        GIT_TAG 0.4.8
         GIT_SHALLOW TRUE
         DOWNLOAD_ONLY TRUE
 )
