@@ -26,7 +26,7 @@ from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
 CAN_PACKET_SIZE_BYTES = 16
 
 # Number of CAN msgs to unpack before logging an update.
-CAN_MSGS_CHUNK_SIZE = 10_000
+CAN_MSGS_CHUNK_SIZE = 100_000
 
 # Columns of output CSV file.
 CSV_HEADER = ["time", "signal", "value", "label", "unit"]
@@ -188,8 +188,10 @@ if __name__ == "__main__":
                     )
 
                     if delta_timestamp < last_timestamp_ms - pd.Timedelta(minutes=1):
-                        overflow_fix_delta_ms += pd.Timedelta(milliseconds=2**17)
-                        delta_timestamp += pd.Timedelta(milliseconds=2**17)
+                        # We currently allocate 17 bits for timestamps, so we need to add 2^17 to undo the overflow.
+                        delta = pd.Timedelta(milliseconds=2**17)
+                        overflow_fix_delta_ms += delta
+                        delta_timestamp += delta
 
                     last_timestamp_ms = delta_timestamp
                     timestamp = start_timestamp + delta_timestamp
