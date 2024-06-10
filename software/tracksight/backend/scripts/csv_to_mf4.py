@@ -60,7 +60,7 @@ if __name__ == "__main__":
             df.groupby("signal")[["time", "value", "unit"]].agg(list).reset_index()
         )
 
-        signals = []
+        mdf = MDF()
         for i, signal in df_signals.iterrows():
             # TODO: Support enums/value tables.
             signal_name = signal["signal"]
@@ -73,14 +73,17 @@ if __name__ == "__main__":
             # Round timestamp to nearest millisecond.
             signal_timestamps_ms = (signal_datetimes.astype("int64") // 1e6).to_numpy()
             signal_timestamps_s = signal_timestamps_ms.astype("float64") / 1e3
+            signal_timestamps_ms
 
-            signals.append(
-                Signal(
+            mdf.append(
+                signals=Signal(
                     samples=signal_values,
                     timestamps=signal_timestamps_s,
                     name=signal_name,
                     unit=signal_unit,
-                )
+                ),
+                comment=signal_name,
+                common_timebase=False,
             )
 
             # Log an update.
@@ -96,6 +99,4 @@ if __name__ == "__main__":
             # Create output path if it doesn't already exist.
             os.makedirs(os.path.dirname(out_path))
 
-        mdf = MDF()
-        mdf.append(signals, common_timebase=True)
         mdf.save(out_path, overwrite=True)
