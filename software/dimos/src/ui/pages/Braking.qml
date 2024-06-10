@@ -6,7 +6,7 @@ import Qt5Compat.GraphicalEffects
 
 Item {
     anchors.fill: parent
-    id: root
+    id: innerBrake
 
     property int speed: CanQML.FSM_LeftWheelSpeed
     property int targetSpeed: 60
@@ -15,6 +15,8 @@ Item {
     // ring size rendering
     property int defaultSize: 260
     property int ringExplosionOffset: 0
+    readonly property int maxRingExplosionOffset: 600
+    property bool latched: false
 
     // TODO remove after debug
     Keys.onSpacePressed: speed++
@@ -22,34 +24,32 @@ Item {
 
     // I see dead people
     PropertyAnimation {
-        target: root
+        target: innerBrake
         properties: "ringExplosionOffset"
         id: targetReached
         running: false
         from: 0
-        to: 600
-        duration: 3000
-        easing.type: Easing.OutExpo
-    }
-
-    PropertyAnimation {
-        target: root
-        properties: "ringExplosionOffset"
-        id: targetReturned
-        running: false
-        from: ringExplosionOffset
-        to: 0
-        duration: 3000
+        to: maxRingExplosionOffset
+        duration: 2000
         easing.type: Easing.OutExpo
     }
 
     onSpeedChanged: {
         if (speed < 0) {
             speed = 0
-            targetReturned.start()
         }
-        if (speed >= targetSpeed) {
+        if (speed >= targetSpeed && !latched) {
             targetReached.start()
+            latched = true
+        } else if (speed <= 5) {
+            latched = false
+        }
+    }
+
+    onLatchedChanged: {
+        if (!latched) {
+            targetReached.running = false
+            ringExplosionOffset = 0
         }
     }
 
@@ -95,6 +95,8 @@ Item {
         visible: true
         anchors.horizontalCenter: speedString.horizontalCenter
         anchors.verticalCenter: speedString.verticalCenter
+
+        opacity: speedRatio - ringExplosionOffset / maxRingExplosionOffset
 
         size: defaultSize + (1 - speedRatio) * 200 + ringExplosionOffset
         borderWidth: 5
