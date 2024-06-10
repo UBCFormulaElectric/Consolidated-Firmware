@@ -61,9 +61,9 @@ void app_leds_update(void)
     io_led_ams_set(ams_fault_latched);
     const bool start_led_on = app_canRx_VC_State_get() == VC_DRIVE_STATE;
     io_led_start_set(start_led_on);
-    const bool regen_light_on = app_canRx_VC_RegenEnabled_get();
+    const bool regen_light_on = app_canRx_VC_RegenEnabled_get() == SWITCH_ON;
     io_led_regen_set(regen_light_on);
-    const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get();
+    const bool torquevec_light_on = app_canRx_VC_TorqueVectoringEnabled_get() == SWITCH_ON;
     io_led_torquevec_set(torquevec_light_on);
 
     // or driven by BMS_drive_state???
