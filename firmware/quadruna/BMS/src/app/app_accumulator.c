@@ -483,7 +483,7 @@ bool app_accumulator_checkFaults(void)
 
     const State *current_state = app_stateMachine_getCurrentState();
 
-    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get() && (current_state == app_initState_get() || current_state == app_balancingState_get() );
+    const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
     const float max_cell_voltage =
         app_canRx_Debug_CellBalancingRequest_get() ? MAX_CELL_VOLTAGE_BALANCING : MAX_CELL_VOLTAGE_NOMINAL;
