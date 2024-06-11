@@ -89,6 +89,7 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(BMS_MaxCellTemperature, int)
     REGISTER_CAN_MESSAGE(BMS_TractiveSystemPower, int)
     REGISTER_CAN_MESSAGE(VC_FirstFaultNode, int)
+    REGISTER_CAN_MESSAGE(VC_AccelerationLateral, float)
 
   public slots:
     void fault_poll();
