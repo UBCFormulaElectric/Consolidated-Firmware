@@ -64,9 +64,17 @@
             "id": 315,
             "description": "Rear brake pressure out of range."
         },
-        "BrakePressureSensorOCSC": {
+        "FrontBrakePressureOcSc": {
             "id": 316,
-            "description": "Brake pressure sensor voltage out of acceptable range (OCSC)."
+            "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
+        },
+        "RearBrakePressureOcSc": {
+            "id": 322,
+            "description": "Rear brake pressure sensor voltage out of acceptable range (OCSC)."
+        },
+        "BrakeOcScNotOk": {
+            "id": 323,
+            "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
         },
         "LeftSuspensionOCSC": {
             "id": 317,
@@ -77,10 +85,12 @@
             "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
         },
         "LoadCell1OCSC": {
+            "disabled": true,
             "id": 320,
             "description": "Load cell 1 sensor voltage out of acceptable range (OCSC)."
         },
         "LoadCell2OCSC": {
+            "disabled": true,
             "id": 321,
             "description": "Load cell 2 sensor voltage out of acceptable range (OCSC)."
         }
