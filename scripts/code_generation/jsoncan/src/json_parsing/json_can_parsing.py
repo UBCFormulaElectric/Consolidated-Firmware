@@ -48,9 +48,9 @@ class JsonCanParser:
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
         self._shared_enums: list[CanEnum] = []  # Set of shared enums
-        self._alerts: dict[
-            str, dict[CanAlert, AlertsEntry]
-        ] = {}  # Dict of node names to node's alerts
+        self._alerts: dict[str, dict[CanAlert, AlertsEntry]] = (
+            {}
+        )  # Dict of node names to node's alerts
         self._alert_descriptions = {}  # TODO this is not used
 
         self._parse_json_data(can_data_dir=can_data_dir)
@@ -121,6 +121,13 @@ class JsonCanParser:
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_tx")
             )
             for tx_node_msg_name, msg_data in node_tx_json_data.items():
+                # Skip if message is disabled
+                msg_disabled, _ = self._get_optional_value(
+                    data=msg_data, key="disabled", default=False
+                )
+                if msg_disabled:
+                    continue
+
                 tx_node_msg_name = f"{node}_{tx_node_msg_name}"
 
                 # Check if this message name is a duplicate
@@ -436,8 +443,16 @@ class JsonCanParser:
         """
         Parse JSON data dictionary representing a node's alerts.
         """
-        warnings = alerts_json["warnings"]
-        faults = alerts_json["faults"]
+        warnings = {
+            name: alert
+            for name, alert in alerts_json["warnings"].items()
+            if self._get_optional_value(data=alert, key="disabled", default=False)
+        }
+        faults = {
+            name: alert
+            for name, alert in alerts_json["faults"].items()
+            if self._get_optional_value(data=alert, key="disabled", default=False)
+        }
 
         # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
         # that indicate the number of times an alert has been set. Each signal is allocated 3 bits, and so can count
