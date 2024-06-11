@@ -130,6 +130,7 @@
         }
     },
     "Suspension": {
+        "disable" : true,
         "msg_id": 307,
         "cycle_time": 100,
         "description": "Suspension travel.",
@@ -147,8 +148,9 @@
                 "unit": "cm"
             }
         }
-    },
+    }, 
     "LoadCell": {
+        "disable" : true,
         "msg_id": 308,
         "cycle_time": 100,
         "description": "Load cell mechanical loads.",
