@@ -16,9 +16,14 @@
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-#define MAX_CELL_VOLTAGE (4.2f)
+#define MAX_CELL_VOLTAGE_NOMINAL (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
 #define C_RATE_TO_AMPS (17.7f)
+
+// Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
+// charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
+// this allows for these over-charged cells to be discharged back to safe limits
+#define MAX_CELL_VOLTAGE_BALANCING (4.25f)
 
 // Fault debounce durations.
 #define UNDER_VOLTAGE_DEBOUNCE_DURATION_MS (500U)

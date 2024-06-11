@@ -1,4 +1,5 @@
 #include "app_accumulator.h"
+#include "states/app_chargeState.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
@@ -479,11 +480,23 @@ bool app_accumulator_checkFaults(void)
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
+    const State *current_state = app_stateMachine_getCurrentState();
+
+    // Check if balancing is enabled. For safety reasons, also check if current state is charge state, as we do not want
+    // to adjust max cell voltage thresholds if actively charging.
+    const bool cell_balancing_enabled =
+        app_canRx_Debug_CellBalancingRequest_get() && current_state != app_chargeState_get();
+
+    // Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
+    // charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
+    // this allows for these over-charged cells to be discharged back to safe limits
+    const float max_cell_voltage = cell_balancing_enabled ? MAX_CELL_VOLTAGE_BALANCING : MAX_CELL_VOLTAGE_NOMINAL;
+
     const bool overtemp_condition =
         io_ltc6813CellTemps_getMaxTempDegC(&throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
     const bool undertemp_condition =
         io_ltc6813CellTemps_getMinTempDegC(&throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
-    const bool overvoltage_condition  = data.voltage_stats.max_voltage.voltage > MAX_CELL_VOLTAGE;
+    const bool overvoltage_condition  = data.voltage_stats.max_voltage.voltage > max_cell_voltage;
     const bool undervoltage_condition = data.voltage_stats.min_voltage.voltage < MIN_CELL_VOLTAGE;
 
     const bool overtemp_fault =
