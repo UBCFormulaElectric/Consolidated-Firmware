@@ -52,7 +52,6 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
 
-        app_inverterOnState_init();
         app_accumulator_init();
         app_tractiveSystem_init();
         app_thermistors_init();

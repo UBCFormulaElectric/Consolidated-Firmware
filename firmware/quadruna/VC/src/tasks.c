@@ -428,7 +428,7 @@ void tasks_init(void)
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
 
-    app_bspd_init();
+    app_faultCheck_init();
 
     // enable these for inverter programming
     // hw_gpio_writePin(&inv_l_program, true);

@@ -42,19 +42,23 @@ static void inverterOnStateRunOnEntry(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
-    const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool any_board_has_fault = app_faultCheck_checkBoards();
+    const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool curr_start_switch_on     = app_canRx_CRIT_StartSwitch_get();
     const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
     const bool is_brake_actuated        = app_canRx_FSM_BrakeActuated_get();
 
-    if (app_canRx_BMS_State_get() != BMS_DRIVE_STATE)
+    const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool hv_support_lost =
+        app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
+
+    if (hv_support_lost)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
-    else if (is_brake_actuated && was_start_switch_enabled && all_states_ok)
+    else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):

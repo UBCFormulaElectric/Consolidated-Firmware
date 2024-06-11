@@ -251,7 +251,7 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on)
 
     app_canRx_BMS_State_update(BMS_INVERTER_ON_STATE);
     LetTimePass(100);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
 }
 
 TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init)
@@ -262,7 +262,7 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init)
 
     app_canRx_BMS_State_update(BMS_PRECHARGE_STATE);
     LetTimePass(100);
-    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
 
     app_canRx_BMS_State_update(BMS_INIT_STATE);
     LetTimePass(100);
