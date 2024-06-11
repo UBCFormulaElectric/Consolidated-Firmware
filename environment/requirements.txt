@@ -25,3 +25,4 @@ requests
 influxdb-client
 tzlocal
 python-dotenv
+asammdf

@@ -106,6 +106,7 @@ const Graph = (props: GraphProps) => {
 
     const handleZoom = (e: Readonly<PlotRelayoutEvent>) => {
         if (props.sync) {
+            // TODO: Only sync time axis, not y axis.
             props.setZoomData(e);
         }
     }
