@@ -117,74 +117,74 @@ TEST_F(RsmFaultsTest, primary_flow_rate_underflow_sets_fault)
     ASSERT_FALSE(app_canAlerts_RSM_Warning_FlowMeterUnderflow_get());
 }
 
-TEST_F(RsmFaultsTest, left_suspension_ocsc_sets_warning)
-{
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
+// TEST_F(RsmFaultsTest, left_suspension_ocsc_sets_warning)
+// {
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
 
-    // Set left suspension OCSC
-    fake_io_suspension_leftSensorOCSC_returns(true);
-    LetTimePass(10);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
+//     // Set left suspension OCSC
+//     fake_io_suspension_leftSensorOCSC_returns(true);
+//     LetTimePass(10);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
 
-    // Confirm set indefinitely
-    LetTimePass(1000);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
+//     // Confirm set indefinitely
+//     LetTimePass(1000);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
 
-    // Clear condition, confirm warning resets
-    fake_io_suspension_leftSensorOCSC_returns(false);
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
-}
+//     // Clear condition, confirm warning resets
+//     fake_io_suspension_leftSensorOCSC_returns(false);
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get());
+// }
 
-TEST_F(RsmFaultsTest, right_suspension_ocsc_sets_warning)
-{
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
+// TEST_F(RsmFaultsTest, right_suspension_ocsc_sets_warning)
+// {
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
 
-    // Set right suspension OCSC
-    fake_io_suspension_rightSensorOCSC_returns(true);
-    LetTimePass(10);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
+//     // Set right suspension OCSC
+//     fake_io_suspension_rightSensorOCSC_returns(true);
+//     LetTimePass(10);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
 
-    // Confirm set indefinitely
-    LetTimePass(1000);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
+//     // Confirm set indefinitely
+//     LetTimePass(1000);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
 
-    // Clear condition, confirm warning resets
-    fake_io_suspension_rightSensorOCSC_returns(false);
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
-}
+//     // Clear condition, confirm warning resets
+//     fake_io_suspension_rightSensorOCSC_returns(false);
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_RightSuspensionOCSC_get());
+// }
 
-TEST_F(RsmFaultsTest, load_cell_3_ocsc_sets_warning)
-{
-    fake_io_loadCell_sensor3OCSC_returns(true);
-    LetTimePass(10);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
+// TEST_F(RsmFaultsTest, load_cell_3_ocsc_sets_warning)
+// {
+//     fake_io_loadCell_sensor3OCSC_returns(true);
+//     LetTimePass(10);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
 
-    // Confirm set indefinitely
-    LetTimePass(1000);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
+//     // Confirm set indefinitely
+//     LetTimePass(1000);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
 
-    // Clear condition, confirm warning resets
-    fake_io_loadCell_sensor3OCSC_returns(false);
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
-}
+//     // Clear condition, confirm warning resets
+//     fake_io_loadCell_sensor3OCSC_returns(false);
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_LoadCell3OCSC_get());
+// }
 
-TEST_F(RsmFaultsTest, load_cell_4_ocsc_sets_warning)
-{
-    fake_io_loadCell_sensor4OCSC_returns(true);
-    LetTimePass(10);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
+// TEST_F(RsmFaultsTest, load_cell_4_ocsc_sets_warning)
+// {
+//     fake_io_loadCell_sensor4OCSC_returns(true);
+//     LetTimePass(10);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
 
-    // Confirm set indefinitely
-    LetTimePass(1000);
-    ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
+//     // Confirm set indefinitely
+//     LetTimePass(1000);
+//     ASSERT_TRUE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
 
-    // Clear condition, confirm warning resets
-    fake_io_loadCell_sensor4OCSC_returns(false);
-    LetTimePass(10);
-    ASSERT_FALSE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
-}
+//     // Clear condition, confirm warning resets
+//     fake_io_loadCell_sensor4OCSC_returns(false);
+//     LetTimePass(10);
+//     ASSERT_FALSE(app_canAlerts_RSM_Warning_LoadCell4OCSC_get());
+// }

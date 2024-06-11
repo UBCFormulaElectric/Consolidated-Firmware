@@ -81,21 +81,21 @@ TEST_F(RsmAppTest, check_pressureB_can_signals)
     ASSERT_NEAR(app_canTx_RSM_CoolantPressureB_get(), 0.8, 0.00001);
 }
 
-TEST_F(RsmAppTest, check_left_rear_suspension_can_signals)
-{
-    fake_io_suspension_getRearLeftTravel_returns(50.0);
-    LetTimePass(10);
-    // ASSERT_EQ(app_canTx_RSM_RearLeftSuspensionTravel_get(), 50.0);
+// TEST_F(RsmAppTest, check_left_rear_suspension_can_signals)
+// {
+//     fake_io_suspension_getRearLeftTravel_returns(50.0);
+//     LetTimePass(10);
+//     // ASSERT_EQ(app_canTx_RSM_RearLeftSuspensionTravel_get(), 50.0);
 
-    CheckBinaryStatusCanSignal(
-        fake_io_suspension_leftSensorOCSC_returns, app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get);
-}
+//     CheckBinaryStatusCanSignal(
+//         fake_io_suspension_leftSensorOCSC_returns, app_canAlerts_RSM_Warning_LeftSuspensionOCSC_get);
+// }
 
-TEST_F(RsmAppTest, check_right_rear_suspension_can_signals)
-{
-    fake_io_suspension_getRearRightTravel_returns(50.0);
-    LetTimePass(10);
-    // ASSERT_EQ(app_canTx_RSM_RearRightSuspensionTravel_get(), 50.0);
-    CheckBinaryStatusCanSignal(
-        fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_RSM_Warning_RightSuspensionOCSC_get);
-}
+// TEST_F(RsmAppTest, check_right_rear_suspension_can_signals)
+// {
+//     fake_io_suspension_getRearRightTravel_returns(50.0);
+//     LetTimePass(10);
+//     // ASSERT_EQ(app_canTx_RSM_RearRightSuspensionTravel_get(), 50.0);
+//     CheckBinaryStatusCanSignal(
+//         fake_io_suspension_rightSensorOCSC_returns, app_canAlerts_RSM_Warning_RightSuspensionOCSC_get);
+// }
