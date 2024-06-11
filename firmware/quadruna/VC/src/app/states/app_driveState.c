@@ -139,8 +139,6 @@ static void driveStateRunOnTick100Hz(void)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
-        app_canTx_VC_RegenEnabled_set(app_regen_available());
-        app_canTx_VC_Warning_RegenNotAvailable_set(!app_regen_available());
     }
 
     app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
