@@ -42,6 +42,7 @@ static float steering_angle_deg;
 
 void app_torqueVectoring_init(void)
 {
+    app_canTx_VC_TorqueVectoringEnabled_set(true);
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
     traction_control_inputs.pid = &pid_traction_control;
