@@ -147,6 +147,8 @@ TEST_F(VcFaultsTest, brake_actuated_and_regen_switch_on_sets_torque_to_zero_and_
         TearDown();
         SetUp();
 
+        app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
+
         SetStateToDrive();
         LetTimePass(10);
         EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
@@ -154,7 +156,6 @@ TEST_F(VcFaultsTest, brake_actuated_and_regen_switch_on_sets_torque_to_zero_and_
         int   actual_apps_percentage = regen_to_regularMapping(test_params[i].apps_percentage);
         float motor_speed_rpm        = MOTOR_KMH_TO_RPM(30.0f);
 
-        app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
         app_canRx_CRIT_TorqueVecSwitch_update(test_params[i].switch_state);
         app_canRx_FSM_PappsMappedPedalPercentage_update(actual_apps_percentage);
         app_canRx_FSM_SappsMappedPedalPercentage_update(actual_apps_percentage);

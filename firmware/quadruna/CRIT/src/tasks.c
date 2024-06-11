@@ -356,7 +356,6 @@ static const Switches switch_config = {
     .torquevec_switch = &torquevec_switch,
 };
 
-// TODO: add heartbeat for VC and RSM
 // CRIT rellies on BMS, VC, RSM, FSM
 static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
     [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,

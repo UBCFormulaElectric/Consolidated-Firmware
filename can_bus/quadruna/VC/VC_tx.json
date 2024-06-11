@@ -433,22 +433,15 @@
             }
         }
     },
-    "Regen": {
+    "VehicleDynamics": {
         "msg_id": 226,
         "cycle_time": 100,
-        "description": "Regen info",
+        "description": "Vehicle dynamics info",
         "signals": {
             "RegenEnabled": {
                 "bits": 1
-            }
-        }
-    },
-    "TorqueVectoring": {
-        "msg_id": 227,
-        "cycle_time": 100,
-        "description": "Torque vectoring info",
-        "signals": {
-            "TorqueVectoringEnabled": {
+            },
+            "TorqueVectoringEnabled":{
                 "bits": 1
             }
         }
