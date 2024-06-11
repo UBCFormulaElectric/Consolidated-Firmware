@@ -482,6 +482,8 @@ bool app_accumulator_checkFaults(void)
 
     const State *current_state = app_stateMachine_getCurrentState();
 
+    // Check if balancing is enabled. For safety reasons, also check if current state is charge state, as we do not want
+    // to adjust max cell voltage thresholds if actively charging.
     const bool cell_balancing_enabled =
         app_canRx_Debug_CellBalancingRequest_get() && current_state != app_chargeState_get();
 
