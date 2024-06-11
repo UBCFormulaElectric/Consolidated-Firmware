@@ -446,12 +446,16 @@ class JsonCanParser:
         warnings = {
             name: alert
             for name, alert in alerts_json["warnings"].items()
-            if self._get_optional_value(data=alert, key="disabled", default=False)
+            if not self._get_optional_value(data=alert, key="disabled", default=False)[
+                0
+            ]
         }
         faults = {
             name: alert
             for name, alert in alerts_json["faults"].items()
-            if self._get_optional_value(data=alert, key="disabled", default=False)
+            if not self._get_optional_value(data=alert, key="disabled", default=False)[
+                0
+            ]
         }
 
         # Number of alerts can't exceed 21. This is because we transmit a "counts" message for faults and warnings
@@ -459,7 +463,7 @@ class JsonCanParser:
         # up to 8, meaning we can pack 21 alerts to fit inside a 64-bit CAN payload.
         if max(len(warnings), len(faults)) > 21:
             raise InvalidCanJson(
-                f"Number of alerts for node '{node}' cannot exceed 64."
+                f"Number of alerts for node '{node}' cannot exceed 21."
             )
 
         # Check alert messages ID are unique
