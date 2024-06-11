@@ -35,6 +35,7 @@ Item {
     }
 
     onSpeedChanged: {
+        console.log("FUCK")
         if (speed < 0) {
             speed = 0
         }
