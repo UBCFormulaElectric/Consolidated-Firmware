@@ -50,8 +50,8 @@ void app_allStates_runOnTick100Hz(void)
         app_heartbeatMonitor_broadcastFaults();
 
     // Comment out for now - SBG Ellipse is not currently used.
-    //io_sbgEllipse_handleLogs();
-    //app_sbgEllipse_broadcast();
+    // io_sbgEllipse_handleLogs();
+    // app_sbgEllipse_broadcast();
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
 }
