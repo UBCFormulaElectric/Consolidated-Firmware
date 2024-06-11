@@ -51,9 +51,3 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
  * @return remap pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
  */
 float app_regen_pedalRemapping(float apps_pedal_percentage);
-
-/**
- * Check if regen is available or not
- * @return true if available, false if not
- */
-bool app_regen_available(void);

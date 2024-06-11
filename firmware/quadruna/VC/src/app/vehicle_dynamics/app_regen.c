@@ -65,8 +65,8 @@ void app_regen_run(float accelerator_pedal_percentage)
         regenAttributes.right_inverter_torque_Nm = 0.0;
     }
 
-    app_canTx_VC_RegenEnabled_set(app_regen_available());
-    app_canTx_VC_Warning_RegenNotAvailable_set(!app_regen_available());
+    app_canTx_VC_RegenEnabled_set(regen_available);
+    app_canTx_VC_Warning_RegenNotAvailable_set(!regen_available);
 
     app_regen_sendTorqueRequest(regenAttributes.left_inverter_torque_Nm, regenAttributes.right_inverter_torque_Nm);
 }
@@ -169,9 +169,4 @@ float app_regen_pedalRemapping(float apps_pedal_percentage)
                                                          : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
 
     return apps_pedal_percentage;
-}
-
-bool app_regen_available(void)
-{
-    return regen_available;
 }
