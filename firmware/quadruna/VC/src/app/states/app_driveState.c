@@ -64,6 +64,15 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
+    // Clear latched inverter faults
+    app_canTx_INVL_DebugReadWriteCommand_CommandReadWrite_set(1);
+    app_canTx_INVL_DebugReadWriteCommand_CommandParameterAddress_set(20);
+    app_canTx_INVL_DebugReadWriteCommand_CommandData_set(0);
+
+    app_canTx_INVR_DebugReadWriteCommand_CommandReadWrite_set(1);
+    app_canTx_INVR_DebugReadWriteCommand_CommandParameterAddress_set(20);
+    app_canTx_INVR_DebugReadWriteCommand_CommandData_set(0);
+
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
