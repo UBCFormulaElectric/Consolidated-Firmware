@@ -3,44 +3,79 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Enum of all the values read from the SBG Ellipse N sensor
-typedef enum
+#ifdef TARGET_EMBEDDED
+#include "hw_uart.h"
+#endif
+
+/* ------------------------------------ Typedefs ------------------------------------- */
+
+typedef struct
 {
-    // Transational acceleration (m/s^2)
-    ELLIPSE_OUTPUT_ACCELERATION_X,
-    ELLIPSE_OUTPUT_ACCELERATION_Y,
-    ELLIPSE_OUTPUT_ACCELERATION_Z,
+    float x;
+    float y;
+    float z;
+} Vector3;
 
-    // Angular velocity (deg/s)
-    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_ROLL,
-    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_PITCH,
-    ELLIPSE_OUTPUT_ANGULAR_VELOCITY_YAW,
+typedef struct
+{
+    float roll;
+    float pitch;
+    float yaw;
+} Attitude;
 
-    // Euler angles (deg)
-    ELLIPSE_OUTPUT_EULER_ROLL,
-    ELLIPSE_OUTPUT_EULER_PITCH,
-    ELLIPSE_OUTPUT_EULER_YAW,
+typedef struct
+{
+    uint32_t status;
+    double   latitude;
+    double   longitude;
+    double   altitude;
+    float    latitude_std_dev;
+    float    longitude_std_dev;
+    float    altitude_std_dev;
+} EkfNavPositionData;
 
-    // Position Info
-    ELLIPSE_OUTPUT_GPS_POS_STATUS,
-    ELLIPSE_OUTPUT_GPS_LAT,
-    ELLIPSE_OUTPUT_GPS_LAT_ACC,
-    ELLIPSE_OUTPUT_GPS_LONG,
-    ELLIPSE_OUTPUT_GPS_LONG_ACC,
-    ELLIPSE_OUTPUT_GPS_ALT,
-    ELLIPSE_OUTPUT_GPS_ALT_ACC,
+typedef struct
+{
+    uint32_t status;
+    float    north; // North
+    float    east;  // East
+    float    down;  // Down
+    float    north_std_dev;
+    float    east_std_dev;
+    float    down_std_dev;
+} EkfNavVelocityData;
 
-    // Velocity Info
-    ELLIPSE_OUTPUT_GPS_VEL_STATUS,
-    ELLIPSE_OUTPUT_GPS_VEL_N,
-    ELLIPSE_OUTPUT_GPS_VEL_N_ACC,
-    ELLIPSE_OUTPUT_GPS_VEL_E,
-    ELLIPSE_OUTPUT_GPS_VEL_E_ACC,
-    ELLIPSE_OUTPUT_GPS_VEL_D,
-    ELLIPSE_OUTPUT_GPS_VEL_D_ACC,
+typedef struct
+{
+    EkfNavVelocityData ekf_nav_velocity;
+    EkfNavPositionData ekf_nav_position;
+} EkfData;
 
-    NUM_SBG_OUTPUTS,
-} SbgEllipseOutput;
+typedef struct
+{
+    Vector3  acceleration;
+    Attitude angular_velocity;
+} ImuPacketData;
+
+typedef struct
+{
+    Attitude euler_angles;
+} EulerPacketData;
+
+typedef struct
+{
+    uint32_t timestamp_us;
+    uint16_t general_status;
+    uint32_t com_status;
+} StatusPacketData;
+
+typedef struct
+{
+    ImuPacketData    imu_data;
+    EulerPacketData  euler_data;
+    StatusPacketData status_data;
+    EkfData          ekf_data;
+} SensorData;
 
 #ifdef TARGET_EMBEDDED
 #include "hw_uart.h"
@@ -62,14 +97,6 @@ void io_sbgEllipse_handleLogs(void);
 uint32_t io_sbgEllipse_getTimestampUs(void);
 
 /*
- * Get a last read output from the SBG Ellipse N sensor.
- * This is a single function to avoid faking a whole bunch of IO functions for each sensor output.
- * @param output Which sensor value to read
- * @return Last read sensor output, in the cooresponding units
- */
-float io_sbgEllipse_getSensorOutput(SbgEllipseOutput output);
-
-/*
  * Get general status from the sensor.
  * @return Bitmask of faults, 1 indiciates a fault
  */
@@ -86,3 +113,57 @@ uint32_t io_sbgEllipse_getComStatus(void);
  * @return the overflow uint32_t
  */
 uint32_t io_sbgEllipse_getOverflowCount(void);
+
+/**
+ * Get the IMU accelerations as a struct pointer with fields:
+ * - float x: Forward acceleration in m/s^2
+ * - float y: Lateral acceleration in m/s^2
+ * - float z: Vertical acceleration in m/s^2
+ */
+Vector3 *io_sbgEllipse_getImuAccelerations();
+
+/*
+ * Get the IMU angular velocities as a struct pointer with fields:
+ * - float roll: Roll angular velocity in rad/s
+ * - float pitch: Pitch angular velocity in rad/s
+ * - float yaw: Yaw angular velocity in rad/s
+ */
+Attitude *io_sbgEllipse_getImuAngularVelocities();
+
+/*
+ * Get the Euler angles as a struct pointer with fields:
+ * - float roll: Roll angle in rad
+ * - float pitch: Pitch angle in rad
+ * - float yaw: Yaw angle in rad
+ */
+Attitude *io_sbgEllipse_getEulerAngles();
+
+/*
+ * Get the GPS velocity data as a struct pointer with fields:
+ * - SbgEComGpsVelStatus status: Status of the velocity data
+ * - float velocity_n: North velocity in m/s
+ * - float velocity_e: East velocity in m/s
+ * - float velocity_d: Down velocity in m/s
+ * - float velocity_accuracy_n: North velocity accuracy in m/s
+ * - float velocity_accuracy_e: East velocity accuracy in m/s
+ * - float velocity_accuracy_d: Down velocity accuracy in m/s
+ */
+EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData();
+
+/*
+ * Get the GPS position data as a struct pointer with fields:
+ * - SbgEComGpsPosStatus status: Status of the position data
+ * - double latitude: Latitude in degrees
+ * - double longitude: Longitude in degrees
+ * - double altitude: Altitude in meters
+ * - float latitude_accuracy: Latitude accuracy in meters
+ * - float longitude_accuracy: Longitude accuracy in meters
+ * - float altitude_accuracy: Altitude accuracy in meters
+ *
+ */
+EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData();
+
+/*
+ * Handle SBG Ellipse UART Callbacks
+ */
+void io_sbgEllipse_msgRxCallback(void);
