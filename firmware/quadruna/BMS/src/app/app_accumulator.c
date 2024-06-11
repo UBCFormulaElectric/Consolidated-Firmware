@@ -485,6 +485,9 @@ bool app_accumulator_checkFaults(void)
     const bool cell_balancing_enabled =
         app_canRx_Debug_CellBalancingRequest_get() && current_state != app_chargeState_get();
 
+    // Allows balancing of cells even if slight over-charging occurs. Occured prior to Competition 2024, where a fully
+    // charged pack with max cell V of 4.19 after charging reported as 4.21 after settling. Cause currently unknown, but
+    // this allows for these over-charged cells to be discharged back to safe limits
     const float max_cell_voltage = cell_balancing_enabled ? MAX_CELL_VOLTAGE_BALANCING : MAX_CELL_VOLTAGE_NOMINAL;
 
     const bool overtemp_condition =
