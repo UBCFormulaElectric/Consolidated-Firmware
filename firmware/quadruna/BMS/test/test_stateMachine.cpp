@@ -526,49 +526,49 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         float precharge_duration;
         bool  expect_precharge_starts;
         bool  expect_precharge_successful;
-    } test_params[1] = { // {
-                         //                      // Precharge doesn't start, AIR- doesn't close
-                         //                      .air_negative_closes         = false,
-                         //                      .initial_ts_voltage          = 0.0,
-                         //                      .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                         //                      .expect_precharge_starts     = false,
-                         //                      .expect_precharge_successful = false,
-                         //                  },
-                         //                  {
-                         //                      // Precharge doesn't start, TS voltage too high
-                         //                      .air_negative_closes         = false,
-                         //                      .initial_ts_voltage          = 11.0, // 10V is threshold to precharge
-                         //                      .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                         //                      .expect_precharge_starts     = false,
-                         //                      .expect_precharge_successful = false,
-                         //                  },
-                         //                  {
-                         //                      // Nominal precharge, success
-                         //                      .air_negative_closes         = true,
-                         //                      .initial_ts_voltage          = 0.0,
-                         //                      .precharge_duration          = PRECHARGE_COMPLETION_MS,
-                         //                      .expect_precharge_starts     = true,
-                         //                      .expect_precharge_successful = true,
-                         //                  },
-                         //                  {
-                         //                      // Fast precharge, fails
-                         //                      .air_negative_closes         = true,
-                         //                      .initial_ts_voltage          = 0.0,
-                         //                      .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
-                         //                      .expect_precharge_starts     = true,
-                         //                      .expect_precharge_successful = false,
-                         //                  },
+    } test_params[5] = { {
+                             // Precharge doesn't start, AIR- doesn't close
+                             .air_negative_closes         = false,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = false,
+                             .expect_precharge_successful = false,
+                         },
                          {
-                             // Slow precharge, fails
+                             // Precharge doesn't start, TS voltage too high
+                             .air_negative_closes         = false,
+                             .initial_ts_voltage          = 11.0, // 10V is threshold to precharge
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = false,
+                             .expect_precharge_successful = false,
+                         },
+                         {
+                             // Nominal precharge, success
                              .air_negative_closes         = true,
                              .initial_ts_voltage          = 0.0,
-                             .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 30 + 200,
+                             .precharge_duration          = PRECHARGE_COMPLETION_MS,
+                             .expect_precharge_starts     = true,
+                             .expect_precharge_successful = true,
+                         },
+                         {
+                             // Fast precharge, fails
+                             .air_negative_closes         = true,
+                             .initial_ts_voltage          = 0.0,
+                             .precharge_duration          = PRECHARGE_COMPLETION_LOWER_BOUND - 30,
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
-                         }
-    };
+                         },
+                         {
+                             // Slow precharge, fails
+                             .air_negative_closes = true,
+                             .initial_ts_voltage  = 0.0,
+                             .precharge_duration  = PRECHARGE_COMPLETION_UPPER_BOUND + INVERTER_BOOTUP_TIME_MS +
+                                                   20U, // Allow inverter on state to complete again
+                             .expect_precharge_starts     = true,
+                             .expect_precharge_successful = false,
+                         } };
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 5; i++)
     {
         TearDown();
         SetUp();
@@ -583,7 +583,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(210U);
+            LetTimePass(INVERTER_BOOTUP_TIME_MS + 10U);
             ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 

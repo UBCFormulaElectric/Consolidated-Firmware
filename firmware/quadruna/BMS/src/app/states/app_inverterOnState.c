@@ -4,14 +4,12 @@
 #include "app_utils.h"
 #include "app_timer.h"
 
-#define CHARGING_MILLISECONDS 200
-
 static TimerChannel timer;
 
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INVERTER_ON_STATE);
-    app_timer_init(&timer, CHARGING_MILLISECONDS);
+    app_timer_init(&timer, INVERTER_BOOTUP_TIME_MS);
     app_timer_restart(&timer);
 }
 
