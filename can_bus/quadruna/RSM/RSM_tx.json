@@ -64,7 +64,7 @@
 		}
 	},
 	"Suspension": {
-		"disabled": "true",
+		"disabled": true,
 		"msg_id": 417,
 		"cycle_time": 100,
 		"description": "Suspension travel.",
@@ -84,7 +84,7 @@
 		}
 	},
 	"LoadCell":{
-		"disabled": "true",
+		"disabled": true,
 		"msg_id" : 418,
 		"cycle_time": 100,
 		"description" : "Mechanical load on load cell",
