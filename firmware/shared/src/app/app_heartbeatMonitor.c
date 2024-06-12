@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 static TimerChannel timers[HEARTBEAT_BOARD_COUNT];
+// static TimerChannel init_timer;
 
 static HeartbeatMonitor hb_monitor;
 
@@ -34,6 +35,9 @@ void app_heartbeatMonitor_init(
         // initially expired)
         timers[board].state = TIMER_STATE_EXPIRED;
 
+        // app_timer_init(&init_timer, HEARTBEAT_MONITOR_INIT_PERIOD);
+        // init_timer.state = TIMER_STATE_RUNNING;
+
         if (!hb_monitor.is_watching_heartbeat_for[board])
             continue;
         assert((hb_monitor.fault_setters[board] != NULL));
@@ -56,7 +60,7 @@ void app_heartbeatMonitor_checkIn(void)
     for (int board = 0; board < HEARTBEAT_BOARD_COUNT; board++)
     {
         // if boards heartbeat returned
-        if (!hb_monitor.is_watching_heartbeat_for[board])
+        if (!hb_monitor.is_watching_heartbeat_for[board])// || app_timer_getElapsedTime(&init_timer) < HEARTBEAT_MONITOR_INIT_PERIOD)
         {
             hb_monitor.status[board] = true;
             continue;
