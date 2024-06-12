@@ -56,6 +56,12 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         // re-enable the heartbeat monitor.
         app_heartbeatMonitor_blockFaults(true);
         app_bspd_init();
+
+        memset(&fake_sensor_data, 0U, sizeof(fake_sensor_data));
+
+        fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
+        fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
+        fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
     }
 
     void TearDown() override
@@ -74,7 +80,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_efuse_getChannelCurrent_reset();
         fake_io_efuse_standbyReset_reset();
         fake_io_pcm_set_reset();
-        fake_io_canLogging_errorsRemaining_reset();
+        fake_io_sbgEllipse_getImuAccelerations_reset();
+        fake_io_sbgEllipse_getImuAngularVelocities_reset();
+        fake_io_sbgEllipse_getEulerAngles_reset();
     }
 
     void SetInitialState(const State *const initial_state)
@@ -167,4 +175,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // const GlobalsConfig globals_config = {
     //     .a = 0
     // };
+
+    SensorData fake_sensor_data;
 };

@@ -64,6 +64,7 @@ UART_HandleTypeDef huart7;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef  hdma_usart2_rx;
 
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
@@ -918,7 +919,8 @@ static void MX_USART2_UART_Init(void)
     huart2.Init.OverSampling           = UART_OVERSAMPLING_16;
     huart2.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
     huart2.Init.ClockPrescaler         = UART_PRESCALER_DIV1;
-    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
+    huart2.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
     if (HAL_UART_Init(&huart2) != HAL_OK)
     {
         Error_Handler();
@@ -998,6 +1000,9 @@ static void MX_DMA_Init(void)
     /* DMA1_Stream0_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+    /* DMA1_Stream1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 }
 
 /**

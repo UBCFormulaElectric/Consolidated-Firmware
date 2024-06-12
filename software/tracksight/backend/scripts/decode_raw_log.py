@@ -5,8 +5,12 @@ import struct
 import csv
 import pandas as pd
 from tzlocal import get_localzone
-
+import logging
 from logfs import LogFs, LogFsUnixDisk
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 # Path fuckery so we can import JSONCAN.
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,8 +25,11 @@ from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
 # Size of an individual packet.
 CAN_PACKET_SIZE_BYTES = 16
 
+# Number of CAN msgs to unpack before logging an update.
+CAN_MSGS_CHUNK_SIZE = 100_000
+
 # Columns of output CSV file.
-CSV_HEADER = ["time", "signal", "value", "unit"]
+CSV_HEADER = ["time", "signal", "value", "label", "unit"]
 
 
 def extract_bits(data: int, start_bit: int, size: int) -> int:
@@ -90,10 +97,18 @@ if __name__ == "__main__":
         help="Path to JSONCAN source files",
         default=os.path.join(root_dir, "can_bus", "quadruna"),
     )
+    parser.add_argument(
+        "--name",
+        "-n",
+        type=str,
+        help="Descriptive name of this session.",
+        required=True,
+    )
     args = parser.parse_args()
 
     files_to_decode = args.file.split(",") if args.file is not None else None
     start_timestamp = pd.Timestamp(args.time, tz=get_localzone())
+    start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H:%M")
 
     # Open filesystem.
     logfs = LogFs(
@@ -123,29 +138,43 @@ if __name__ == "__main__":
             and file_path.lstrip("/") not in files_to_decode
         ):
             # Doesn't match the files we want to decode, ignore.
-            print(f"Skipping file '{file_path}', doesn't match file flag.")
+            logger.info(f"Skipping file '{file_path}', doesn't match file flag.")
             continue
 
+        logger.info(f"Opening log file '{file_path}'.")
         with logfs.open(path=file_path) as file:
             raw_data = file.read()
 
             if raw_data == b"":
-                print(f"Skipping file '{file_path}', no data found.")
+                logger.info(f"Skipping file '{file_path}', no data found.")
                 continue
 
             file_path, _ = file_path.lstrip("/").split(".")
-            out_path = os.path.join(args.output, file_path + ".csv")
+            out_name = f"{start_timestamp_no_spaces}_{args.name}_{file_path}"
+            out_path = os.path.join(args.output, out_name + ".csv")
 
             if not os.path.exists(os.path.dirname(out_path)):
                 # Create output path if it doesn't already exist.
                 os.makedirs(os.path.dirname(out_path))
 
+            last_timestamp_ms = pd.Timedelta(milliseconds=0)
+            overflow_fix_delta_ms = pd.Timedelta(milliseconds=0)
+
             with open(file=out_path, mode="w", newline="") as out_file:
-                print(f"Decoding file '{file_path}' to '{out_path}'.")
+                logger.info(f"Decoding file '{file_path}' to '{out_path}'.")
                 csv_writer = csv.writer(out_file)
                 csv_writer.writerow(CSV_HEADER)
 
+                total_msgs = len(raw_data) // CAN_PACKET_SIZE_BYTES
+
                 for i in range(0, len(raw_data), CAN_PACKET_SIZE_BYTES):
+                    msgs_unpacked = i // CAN_PACKET_SIZE_BYTES
+                    if msgs_unpacked % CAN_MSGS_CHUNK_SIZE == 0 and msgs_unpacked > 0:
+                        percent_unpacked = msgs_unpacked / total_msgs * 100
+                        logger.info(
+                            f"Unpacked {int(percent_unpacked)}% of messages in file."
+                        )
+
                     # Parse raw CAN packet.
                     packet_data = raw_data[i : i + CAN_PACKET_SIZE_BYTES]
                     if len(packet_data) != CAN_PACKET_SIZE_BYTES:
@@ -154,7 +183,17 @@ if __name__ == "__main__":
                     timestamp_ms, msg_id, data_bytes = decode_can_packet(
                         data=packet_data
                     )
-                    delta_timestamp = pd.Timedelta(milliseconds=timestamp_ms)
+                    delta_timestamp = (
+                        pd.Timedelta(milliseconds=timestamp_ms) + overflow_fix_delta_ms
+                    )
+
+                    if delta_timestamp < last_timestamp_ms - pd.Timedelta(minutes=1):
+                        # We currently allocate 17 bits for timestamps, so we need to add 2^17 to undo the overflow.
+                        delta = pd.Timedelta(milliseconds=2**17)
+                        overflow_fix_delta_ms += delta
+                        delta_timestamp += delta
+
+                    last_timestamp_ms = delta_timestamp
                     timestamp = start_timestamp + delta_timestamp
 
                     # Decode CAN packet with JSONCAN.
@@ -164,7 +203,14 @@ if __name__ == "__main__":
                     for signal in parsed_signals:
                         signal_name = signal["name"]
                         signal_value = signal["value"]
-                        signal_unit = signal["unit"]
+                        signal_unit = signal.get("unit", "")
+                        signal_label = signal.get("label", "")
                         csv_writer.writerow(
-                            [timestamp, signal_name, signal_value, signal_unit]
+                            [
+                                timestamp,
+                                signal_name,
+                                signal_value,
+                                signal_label,
+                                signal_unit,
+                            ]
                         )

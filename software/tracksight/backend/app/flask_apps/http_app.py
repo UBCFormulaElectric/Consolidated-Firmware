@@ -17,7 +17,7 @@ app = Blueprint("http_app", __name__)
 
 
 MAX_POINTS_HISTORIC = 1000
-MAX_POINTS_LIVE = 100
+MAX_POINTS_LIVE = 1000
 
 
 def submit_query(

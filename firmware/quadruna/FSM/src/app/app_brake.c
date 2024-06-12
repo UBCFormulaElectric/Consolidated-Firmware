@@ -26,7 +26,7 @@ void app_brake_broadcast(void)
     app_canTx_FSM_RearBrakePressure_set((uint32_t)roundf(rear_pressure));
     app_canAlerts_FSM_Warning_RearBrakePressureOutOfRange_set(rear_pressure_status.status != VALUE_IN_RANGE);
 
-    const bool brake_pressure_ocsc =
-        io_brake_frontPressureSensorOCSC() || io_brake_rearPressureSensorOCSC() || io_brake_hwOCSC();
-    app_canAlerts_FSM_Warning_BrakePressureSensorOCSC_set(brake_pressure_ocsc);
+    app_canAlerts_FSM_Warning_FrontBrakePressureOcSc_set(io_brake_frontPressureSensorOCSC());
+    app_canAlerts_FSM_Warning_RearBrakePressureOcSc_set(io_brake_rearPressureSensorOCSC());
+    app_canAlerts_FSM_Warning_BrakeOcScNotOk_set(io_brake_hwOCSC());
 }

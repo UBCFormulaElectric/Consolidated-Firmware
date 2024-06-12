@@ -15,6 +15,10 @@ import logging
 logger = logging.getLogger("telemetry_logger")
 
 
+BASIC_TIMEOUT_MS = 10_000
+QUERY_TIMEOUT_MS = 100_000
+
+
 class InfluxHandler:
     is_setup = False
 
@@ -35,7 +39,9 @@ class InfluxHandler:
         logger.info(f"Connecting to InfluxDB database at '{url}' with token '{token}'.")
 
         # Checks if the vehicle bucket exists, and if not, creates it
-        with influxdb_client.InfluxDBClient(url=url, token=token, org=org) as client:
+        with influxdb_client.InfluxDBClient(
+            url=url, token=token, org=org, timeout=BASIC_TIMEOUT_MS
+        ) as client:
             if client.buckets_api().find_bucket_by_name(bucket_name=bucket) is None:
                 client.buckets_api().create_bucket(bucket_name=bucket)
 
@@ -54,7 +60,7 @@ class InfluxHandler:
         schema.measurements(bucket: \"{cls.bucket}\")"""
 
         with influxdb_client.InfluxDBClient(
-            url=cls.url, token=cls.token, org=cls.org
+            url=cls.url, token=cls.token, org=cls.org, timeout=BASIC_TIMEOUT_MS
         ) as client:
             return [
                 str(i[0])
@@ -80,7 +86,7 @@ class InfluxHandler:
         )"""
 
         with influxdb_client.InfluxDBClient(
-            url=cls.url, token=cls.token, org=cls.org
+            url=cls.url, token=cls.token, org=cls.org, timeout=BASIC_TIMEOUT_MS
         ) as client:
             return [
                 str(i[0])
@@ -123,7 +129,7 @@ class InfluxHandler:
 
         query_result = {signal: {"times": [], "values": []} for signal in signals}
         with influxdb_client.InfluxDBClient(
-            url=cls.url, token=cls.token, org=cls.org
+            url=cls.url, token=cls.token, org=cls.org, timeout=QUERY_TIMEOUT_MS
         ) as client:
             for signal, value, time in (
                 client.query_api()
@@ -146,7 +152,7 @@ class InfluxHandler:
             raise RuntimeError("InfluxHandler not initialized.")
 
         with influxdb_client.InfluxDBClient(
-            url=cls.url, token=cls.token, org=cls.org
+            url=cls.url, token=cls.token, org=cls.org, timeout=QUERY_TIMEOUT_MS
         ) as client:
             # Index is used as source for time.
             df.set_index("time", inplace=True)
