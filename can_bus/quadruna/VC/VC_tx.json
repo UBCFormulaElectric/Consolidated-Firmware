@@ -84,6 +84,27 @@
             }
         }
     },
+    "INVL_ReadWriteParamCommand": {
+        "msg_id": 33, 
+        "cycle_time": null,
+        "signals": {
+            "INVL_CommandParameterAddress": {
+                "start_bit": 0, 
+                "bits": 16,
+                "start_value": 20
+            },
+            "INVL_CommandReadWrite": {
+                "start_bit": 16, 
+                "enum": "InverterReadWriteCommand",
+                "start_value": 1
+            },
+            "INVL_CommandData": {
+                "start_bit": 32, 
+                "bits": 16,
+                "start_value": 0
+            }
+        }
+    },
     "RightInverterCommand": {
         "msg_id": 82,
         "cycle_time": 10,
@@ -139,6 +160,27 @@
                 "min": -3276.8,
                 "max": 3276.7,
                 "unit": "Nm",
+                "start_value": 0
+            }
+        }
+    },
+    "INVR_ReadWriteParamCommand": {
+        "msg_id": 83, 
+        "cycle_time": null,
+        "signals": {
+            "INVR_CommandParameterAddress": {
+                "start_bit": 0, 
+                "bits": 16,
+                "start_value": 20
+            },
+            "INVR_CommandReadWrite": {
+                "start_bit": 16, 
+                "enum": "InverterReadWriteCommand",
+                "start_value": 1
+            },
+            "INVR_CommandData": {
+                "start_bit": 32, 
+                "bits": 16,
                 "start_value": 0
             }
         }
