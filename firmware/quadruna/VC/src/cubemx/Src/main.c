@@ -231,17 +231,6 @@ int main(void)
     MX_USART3_UART_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
-
-    //just for testing---------------------------------------------------------------------------------------
-    while(1) {
-        HAL_GPIO_WritePin(BUZZER_PWR_EN_GPIO_Port, BUZZER_PWR_EN_Pin, true);
-        HAL_Delay(500);
-        HAL_GPIO_WritePin(BUZZER_PWR_EN_GPIO_Port, BUZZER_PWR_EN_Pin, false);
-        HAL_Delay(2000);
-    }
-    
-    //---------------------------------------------------------------------------------------------------------
-
     tasks_init();
     /* USER CODE END 2 */
 
