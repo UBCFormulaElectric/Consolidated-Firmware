@@ -5,6 +5,7 @@
 #include "app_heartbeatBoardsEnum.h"
 
 #define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
+#define HEARTBEAT_MONITOR_INIT_PERIOD       1000U
 
 typedef struct
 {
