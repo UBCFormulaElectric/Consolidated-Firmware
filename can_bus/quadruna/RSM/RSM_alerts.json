@@ -41,18 +41,22 @@
             "description": "Coolant flow out of range"
         },
         "LeftSuspensionOCSC": {
+            "disabled" : true,
             "id": 410,
             "description": "Rear left suspension open or short circuit"
         },
         "RightSuspensionOCSC": {
+            "disabled" : true,
             "id": 411,
             "description": "Rear right suspension open or short circuit"
         },
         "LoadCell3OCSC": {
+            "disabled" : true,
             "id": 412,
             "description": "Load cell 3 open or short circuit"
         },
         "LoadCell4OCSC": {
+            "disabled" : true,
             "id": 413,
             "description": "Load cell 4 open or short circuit"
         },

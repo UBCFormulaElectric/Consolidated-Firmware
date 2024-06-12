@@ -77,10 +77,12 @@
             "description": "BRAKE_OCSC_OK line routed to BMS for BSPD is not OK."
         },
         "LeftSuspensionOCSC": {
+            "disabled": true,
             "id": 317,
             "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
         },
         "RightSuspensionOCSC": {
+            "disabled": true,
             "id": 318,
             "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
         },
