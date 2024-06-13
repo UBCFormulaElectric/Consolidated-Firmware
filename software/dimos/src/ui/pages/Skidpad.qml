@@ -6,11 +6,11 @@ Item {
 
     readonly property int padRadius: 10
 
-    property real lateralAcceleration: CanQML.VC_AccelerationLateral
+    property real lateralAcceleration: 0 // TODO GPS is not working CanQML.VC_AccelerationLateral
+
 
     Repeater {
         model: [4, 2]
-        delegate: ring
 
         Rectangle {
             required property int modelData
@@ -18,9 +18,9 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
 
-            width: 100*modelData
-            height: 100*modelData
-            radius: 50*modelData
+            width: 100 * modelData
+            height: 100 * modelData
+            radius: 50 * modelData
 
             color: "transparent"
             border.color: "#ffffff"
@@ -32,7 +32,7 @@ Item {
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: -lateralAcceleration*5
+        anchors.verticalCenterOffset: -lateralAcceleration * 5
 
         width: 10
         height: 10

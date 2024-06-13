@@ -119,7 +119,7 @@ Item {
         }
 
         Timer {
-            running: true
+            running: CanQML.faults.length != 0
             interval: 5000
             repeat: true
             onTriggered: {
@@ -137,7 +137,6 @@ Item {
             Repeater {
                 anchors.fill: parent
                 model: CanQML.faults
-                delegate: indicator
 
                 Rectangle {
                     required property int index

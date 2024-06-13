@@ -30,7 +30,7 @@ Item {
         GridLayout {
             implicitWidth: parent.width * 0.85
             Layout.alignment: Qt.AlignHCenter
-            Layout.fillWidth: false
+            Layout.fillWidth: true
             columns: 2
             rows: 2
             columnSpacing: 30
