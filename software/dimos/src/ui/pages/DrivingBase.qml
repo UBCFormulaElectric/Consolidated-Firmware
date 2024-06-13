@@ -137,7 +137,7 @@ Item {
 
             Repeater {
                 anchors.fill: parent
-                model: CanQML.warning
+                model: CanQML.faults // this is indicator for faults
 
                 Rectangle {
                     required property int index
