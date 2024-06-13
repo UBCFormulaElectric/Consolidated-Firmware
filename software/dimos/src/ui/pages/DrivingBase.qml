@@ -30,6 +30,26 @@ Item {
     //     }
     // }
 
+    // Page specifics
+    Item {
+        id: childContainer
+        height: parent.height
+        width: parent.width * child_ratio
+        anchors.right: parent.right
+    }
+
+    Item {
+        id: notifParent
+        height: parent.height
+        width: parent.width * (1 - child_ratio)
+        Image {
+            id: logoImage
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/fe_logo.svg"
+        }
+    }
+
     Component {
         id: errorDelegate
         Item {
@@ -138,26 +158,6 @@ Item {
                     opacity: (index === carousel.currentIndex) ? 1 : 0.3
                 }
             }
-        }
-    }
-
-    // Page specifics
-    Item {
-        id: childContainer
-        height: parent.height
-        width: parent.width * child_ratio
-        anchors.right: parent.right
-    }
-
-    Item {
-        id: notifParent
-        height: parent.height
-        width: parent.width * (1 - child_ratio)
-        Image {
-            id: logoImage
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            source: "qrc:/fe_logo.svg"
         }
     }
 }

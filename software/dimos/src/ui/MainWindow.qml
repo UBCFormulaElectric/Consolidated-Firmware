@@ -125,36 +125,36 @@ Window {
         Switcher {
             id: switcher
         }
-        Shutdown {
-            id: shutdown_element
-            property bool override: false
-            focus: true
-            opacity: CanQML.has_fault && (override === false) ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 1000
-                }
-            }
-
-            DimSwitches {
-                onPushRot: {
-                    if (!shutdown_element.activeFocus) return;
-                    if (CanQML.has_fault) {
-                        shutdown_element.override = true;
-                        mainStack.refocusMainStack();
-                    }
-                }
-            }
-            Connections {
-                target: CanQML
-
-                function onFaultChanged() {
-                    if (CanQML.has_fault) { // fault turns on
-                        shutdown_element.override = false;
-                        shutdown_element.focus = true;
-                    }
-                }
-            }
-        }
+        // Shutdown {
+        //     id: shutdown_element
+        //     property bool override: false
+        //     focus: true
+        //     opacity: CanQML.has_fault && (override === false) ? 1 : 0
+        //     Behavior on opacity {
+        //         NumberAnimation {
+        //             duration: 1000
+        //         }
+        //     }
+        //
+        //     DimSwitches {
+        //         onPushRot: {
+        //             if (!shutdown_element.activeFocus) return;
+        //             if (CanQML.has_fault) {
+        //                 shutdown_element.override = true;
+        //                 mainStack.refocusMainStack();
+        //             }
+        //         }
+        //     }
+        //     Connections {
+        //         target: CanQML
+        //
+        //         function onFaultChanged() {
+        //             if (CanQML.has_fault) { // fault turns on
+        //                 shutdown_element.override = false;
+        //                 shutdown_element.focus = true;
+        //             }
+        //         }
+        //     }
+        // }
     }
 }
