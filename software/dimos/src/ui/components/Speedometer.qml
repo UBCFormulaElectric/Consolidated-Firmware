@@ -14,7 +14,7 @@ Item {
     property real hv_battery_soc: CanQML.BMS_Soc / 100
     property real max_cell_temp: CanQML.BMS_MaxCellTemperature
     property bool startup_animation_running: false;
-    property int speed: CanQML.FSM_LeftWheelSpeed * 1000 * Constants.rpmToSpeed
+    property int speed: Math.round(CanQML.FSM_LeftWheelSpeed)
 
     DimSwitches {
         onF1ButtonPressed: {
