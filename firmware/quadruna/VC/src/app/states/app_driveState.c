@@ -20,6 +20,7 @@
 #define BUZZER_ON_DURATION_MS 2000
 
 static bool         torque_vectoring_switch_is_on;
+static bool         regen_switch_enabled;
 static TimerChannel buzzer_timer;
 
 static const PowerStateConfig power_manager_drive_init = {
@@ -31,7 +32,7 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = false,
+        [EFUSE_CHANNEL_BUZZER] = true,
     },
     .pcm = true,
 };
@@ -67,7 +68,6 @@ static void driveStateRunOnEntry(void)
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
-    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, true);
     app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
@@ -83,10 +83,16 @@ static void driveStateRunOnEntry(void)
     // Read torque vectoring switch only when entering drive state, not during driving
 
     torque_vectoring_switch_is_on = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_enabled          = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
 
     if (torque_vectoring_switch_is_on)
     {
         app_torqueVectoring_init();
+    }
+
+    if (regen_switch_enabled)
+    {
+        app_regen_init();
     }
 }
 
@@ -106,7 +112,6 @@ static void driveStateRunOnTick100Hz(void)
     const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
-    bool       regen_switch_enabled      = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     float      apps_pedal_percentage     = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float      sapps_pedal_percentage    = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
@@ -168,6 +173,9 @@ static void driveStateRunOnExit(void)
     // Disable buzzer on exit drive.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
     app_canTx_VC_BuzzerOn_set(false);
+
+    app_canTx_VC_RegenEnabled_set(false);
+    app_canTx_VC_TorqueVectoringEnabled_set(false);
 }
 
 const State *app_driveState_get(void)

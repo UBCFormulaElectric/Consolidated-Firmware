@@ -4,11 +4,14 @@ This file contains various classes to fully describes a CAN bus: The nodes, mess
 
 from dataclasses import dataclass
 from typing import List, Union, Dict
-
+import logging
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -306,6 +309,10 @@ class CanDatabase:
 
         TODO: Also add packing!
         """
+        if id not in self.msgs:
+            logger.warning(f"Message ID '{id}' is not defined in the JSON.")
+            return []
+
         signals = []
         for signal in self.msgs[id].signals:
             # Interpret raw bytes as an int.
@@ -324,14 +331,23 @@ class CanDatabase:
 
             # Decode the signal value using the scale/offset.
             signal_value = signal_bits * signal.scale + signal.offset
+            signal_data = {"name": signal.name, "value": signal_value}
 
-            # If the signal is an enum, set the value to the entry name.
+            # Insert unit, if it exists.
+            if signal.unit is not None:
+                signal_data["unit"] = signal.unit
+
+            # If the signal is an enum, insert its label.
             if signal.enum is not None:
-                signal_value = signal.enum.items[signal_value]
+                if signal_value not in signal.enum.items:
+                    logger.warning(
+                        f"Signal value '{signal_value}' does not have a matching label in enum '{signal.enum.name}' for signal '{signal.name}'."
+                    )
+                    continue
+
+                signal_data["label"] = signal.enum.items[signal_value]
 
             # Append decoded signal's data.
-            signals.append(
-                {"name": signal.name, "value": signal_value, "unit": signal.unit}
-            )
+            signals.append(signal_data)
 
         return signals

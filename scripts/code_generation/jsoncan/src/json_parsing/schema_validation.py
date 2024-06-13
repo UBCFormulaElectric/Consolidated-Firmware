@@ -68,6 +68,7 @@ tx_msg_schema = Schema(
             str: tx_signal_schema,
         },
         "cycle_time": Or(int, None, lambda x: x >= 0),
+        Optional("disabled"): bool,
         Optional("num_bytes"): Or(int, lambda x: x >= 0 and x <= 8),
         Optional("description"): str,
         Optional("allowed_modes"): [str],
@@ -138,8 +139,32 @@ alerts_schema = Schema(
             "warnings_counts_id": And(int, lambda x: x >= 0),
             "faults_id": And(int, lambda x: x >= 0),
             "faults_counts_id": And(int, lambda x: x >= 0),
-            "warnings": Or({}, {str: Or({}, {"id": int, "description": str})}),
-            "faults": Or({}, {str: Or({}, {"id": int, "description": str})}),
+            "warnings": Or(
+                {},
+                {
+                    str: Or(
+                        {},
+                        {
+                            "id": int,
+                            "description": str,
+                            Optional("disabled"): bool,
+                        },
+                    )
+                },
+            ),
+            "faults": Or(
+                {},
+                {
+                    str: Or(
+                        {},
+                        {
+                            "id": int,
+                            "description": str,
+                            Optional("disabled"): bool,
+                        },
+                    )
+                },
+            ),
         },
         {},
     )

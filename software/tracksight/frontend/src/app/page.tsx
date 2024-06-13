@@ -14,7 +14,7 @@ const Home = () => {
     const [graphs, setGraphs] = useState<number[]>([]);
     const [liveGraphs, setLiveGraphs] = useState<number[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
-    const [theme, setTheme] = useState<boolean>(false);
+    const [theme, setTheme] = useState<boolean>(true);
 
     //add a new graph
     const addGraph = (live: boolean) => {

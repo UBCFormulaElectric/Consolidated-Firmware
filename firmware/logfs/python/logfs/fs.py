@@ -1,9 +1,25 @@
 from typing import Union, Optional, Type, Any
+import logging
 from .disk import LogFsDisk
 from logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
 
 
-READ_ITER_CHUNK_SIZE = 32
+logger = logging.getLogger(__name__)
+
+ONE_MB = 1024 * 1024
+READ_ITER_CHUNK_SIZE = ONE_MB  # 1MB
+
+
+def _bytes_to_size(num_bytes: int) -> str:
+    for order, unit in [
+        (1e9, "GB"),
+        (1e6, "MB"),
+        (1e3, "kB"),
+    ]:
+        if num_bytes >= order:
+            return f"{num_bytes / order:.1f} {unit}"
+
+    return f"{num_bytes:.1f} bytes"
 
 
 def _raise_err(err: LogFsErr) -> None:
@@ -83,6 +99,10 @@ class LogFsFile:
 
                 file_data = data[:num_read] + file_data
                 file_num_read += num_read
+
+                logger.info(
+                    f"Read {_bytes_to_size(num_bytes=min(READ_ITER_CHUNK_SIZE, file_num_read))} from file ({_bytes_to_size(num_bytes=file_num_read)} total)."
+                )
 
             return file_data[:file_num_read]
         else:
@@ -264,7 +284,7 @@ class LogFs:
         # Filter by provided prefix.
         filtered_paths = [path for path in paths if path.startswith(matches)]
         return filtered_paths
-    
+
     def cat(self, path: str) -> None:
         """
         Linux command to print contents of a file.

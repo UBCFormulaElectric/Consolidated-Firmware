@@ -287,7 +287,7 @@ static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [EFUSE_CHANNEL_BUZZER] = NULL,
 };
 static const UART  debug_uart    = { .handle = &huart7 };
-static const UART  imu_uart      = { .handle = &huart2 };
+static const UART  sbg_uart      = { .handle = &huart2 };
 static const UART  modem2G4_uart = { .handle = &huart3 };
 static const UART  modem900_uart = { .handle = &huart1 };
 static const Modem modem         = { .modem2_4G = &modem2G4_uart, .modem900M = &modem900_uart };
@@ -391,10 +391,11 @@ void tasks_init(void)
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
 
-    if (!io_sbgEllipse_init(&imu_uart))
-    {
-        Error_Handler();
-    }
+    // Comment out for now, not using sbg
+    // if (!io_sbgEllipse_init(&sbg_uart))
+    // {
+    //     Error_Handler();
+    // }
 
     if (!io_imu_init())
     {
@@ -589,5 +590,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     if (huart == debug_uart.handle)
     {
         io_chimera_msgRxCallback();
+    }
+    else if (huart == &huart2)
+    {
+        io_sbgEllipse_msgRxCallback();
     }
 }
