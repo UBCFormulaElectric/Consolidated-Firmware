@@ -20,6 +20,7 @@ Window {
         width: Constants.SCREEN_WIDTH
         height: Constants.SCREEN_HEIGHT
         anchors.centerIn: parent
+        rotation: Constants.deploy ? 180 : 0
 
         // todo come up with a more professional solution
         Rectangle {
