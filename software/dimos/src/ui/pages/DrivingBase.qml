@@ -94,6 +94,8 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
 
+        visible: CanQML.faults.length != 0
+
         Squircle {
             anchors.fill: parent
             id: notifContainer
@@ -124,17 +126,6 @@ Item {
                 carousel.incrementCurrentIndex()
                 console.log(CanQML.faults.length)
             }
-        }
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            font.family: "SF Pro"
-            font.bold: true
-            font.pointSize: 28
-            text: "NO FAULTS"
-            color: "#ffffff"
-            opacity: CanQML.faults.length === 0 ? 1 : 0
         }
 
         Row {
