@@ -66,12 +66,6 @@ FocusScope {
         anchors.fill: parent
         source: mainStack
         radius: switcher.activeFocus ? 32 : 0
-        Behavior on radius {
-            NumberAnimation {
-                duration: 50
-                easing.type: Easing.Linear
-            }
-        }
         samples: 32
     }
 
