@@ -111,7 +111,6 @@ void CanRxTask::run()
         can_table_mutex->lock();
         io_canRx_updateRxTableWithMessage(&message);
 #ifdef USING_TARGET_dev
-        app_canRx_BMS_Fault_CellOvertemp_update(true);
         // app_canRx_FSM_LeftWheelSpeed_update(0);
         // app_canRx_FSM_SappsMappedPedalPercentage_update(50);
         // app_canRx_FSM_PappsMappedPedalPercentage_update(30);

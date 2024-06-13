@@ -53,6 +53,8 @@ Item {
     Component {
         id: errorDelegate
         Item {
+            required property var modelData
+
             opacity: PathView.isCurrentItem ? 1 : 0
             anchors.top: parent.top
             anchors.verticalCenter: parent.verticalCenter
@@ -67,7 +69,7 @@ Item {
                 font.family: "SF Pro"
                 font.bold: true
                 font.pointSize: 20
-                text: name
+                text: modelData.name
                 color: "#ffffff"
             }
             Text {
@@ -79,7 +81,7 @@ Item {
                 font.family: "SF Pro"
                 font.pointSize: 12
                 wrapMode: Text.WordWrap
-                text: description
+                text: modelData.description
                 color: "#ffffff"
             }
         }
@@ -111,7 +113,6 @@ Item {
             anchors.bottom: parent.bottom
             anchors.verticalCenter: parent.verticalCenter
             model: CanQML.faults
-            // model: errorModelExample
             delegate: errorDelegate
             path: Path {
                 startX: 0
@@ -136,7 +137,7 @@ Item {
 
             Repeater {
                 anchors.fill: parent
-                model: CanQML.faults
+                model: CanQML.warning
 
                 Rectangle {
                     required property int index
