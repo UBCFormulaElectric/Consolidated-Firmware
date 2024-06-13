@@ -36,6 +36,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
 
 # ======== Host system specific settings ========
+message("🖥️ Host System: ${CMAKE_SYSTEM_NAME}")
 IF (WIN32)
 	message("🪟 Building for Windows")
 	set(BINARY_SUFFIX ".exe")

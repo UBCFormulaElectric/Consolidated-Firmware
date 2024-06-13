@@ -14,15 +14,17 @@ enum class gpio_input
     GPIO5,
     GPIO6,
     GPIO7,
-    GPIO8
+    GPIO8,
+    GPIO_PROGRAM,
 };
 
 // MAKE SURE THIS IS UPDATED WITH ABOVE!!!
 
-constexpr int                            GPIO_COUNT  = 8;
-const std::array<gpio_input, GPIO_COUNT> gpio_inputs = { gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3,
-                                                         gpio_input::GPIO4, gpio_input::GPIO5, gpio_input::GPIO6,
-                                                         gpio_input::GPIO7, gpio_input::GPIO8 };
+constexpr int                            GPIO_COUNT  = 9;
+const std::array<gpio_input, GPIO_COUNT> gpio_inputs = {
+    gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3, gpio_input::GPIO4,       gpio_input::GPIO5,
+    gpio_input::GPIO6, gpio_input::GPIO7, gpio_input::GPIO8, gpio_input::GPIO_PROGRAM
+};
 
 typedef struct
 {
@@ -38,6 +40,7 @@ const std::map<gpio_input, gpio_info> gpio_inputs_metadata{
     { gpio_input::GPIO6, { .name = "ERR", .enum_name = "GPIO6" } },
     { gpio_input::GPIO7, { .name = "ROT_S", .enum_name = "GPIO7" } },
     { gpio_input::GPIO8, { .name = "ROT_B", .enum_name = "GPIO8" } },
+    { gpio_input::GPIO_PROGRAM, { .name = "PROGRAM", .enum_name = "GPIO_PROGRAM" } },
 };
 
 std::map<gpio_input, bool> gpio_init();

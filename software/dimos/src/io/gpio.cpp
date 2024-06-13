@@ -20,6 +20,7 @@ const std::map<gpio_input, gpio_hw_metadata> gpio_input_hw_metadata{
     { gpio_input::GPIO6, { .chip = "/dev/gpiochip6", .line = 2 } },
     { gpio_input::GPIO7, { .chip = "/dev/gpiochip5", .line = 26 } },
     { gpio_input::GPIO8, { .chip = "/dev/gpiochip5", .line = 28 } },
+    { gpio_input::GPIO_PROGRAM, { .chip = "/dev/gpiochip3", .line = 6 } }
 };
 
 std::map<gpio_input, gpiod::line> gpio_lines;
@@ -40,7 +41,8 @@ const std::map<gpio_input, ::std::bitset<32>> gpio_flags{
     { gpio_input::GPIO5, gpiod::line_request::FLAG_BIAS_PULL_DOWN },
     { gpio_input::GPIO6, gpiod::line_request::FLAG_BIAS_PULL_DOWN },
     { gpio_input::GPIO7, gpiod::line_request::FLAG_BIAS_PULL_UP },
-    { gpio_input::GPIO8, gpiod::line_request::FLAG_BIAS_PULL_DOWN }
+    { gpio_input::GPIO8, gpiod::line_request::FLAG_BIAS_PULL_DOWN } { gpio_input::GPIO_PROGRAM,
+                                                                      gpiod::line_request::FLAG_BIAS_PULL_DOWN }
 };
 
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
