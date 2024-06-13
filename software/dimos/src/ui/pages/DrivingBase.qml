@@ -9,26 +9,26 @@ Item {
     default property alias content: childContainer.children
     readonly property real child_ratio: 0.45
 
-    ListModel {
-        id: errorModelExample
-
-        ListElement {
-            name: "huh"
-            description: "i dont need no molly to feel savage, when im on that molly i feel savage"
-        }
-        ListElement {
-            name: "red"
-            description: "all white gucci suit im feeling righteous, i know that the truth is hard to digest"
-        }
-        ListElement {
-            name: "in"
-            description: "so i will sing, my demons ten feet under me, inhale exhale but i cant breathe"
-        }
-        ListElement {
-            name: "work"
-            description: "sometimes, sometimes, someimtes"
-        }
-    }
+    // ListModel {
+    //     id: errorModelExample
+    //
+    //     ListElement {
+    //         name: "huh"
+    //         description: "i dont need no molly to feel savage, when im on that molly i feel savage"
+    //     }
+    //     ListElement {
+    //         name: "red"
+    //         description: "all white gucci suit im feeling righteous, i know that the truth is hard to digest"
+    //     }
+    //     ListElement {
+    //         name: "in"
+    //         description: "so i will sing, my demons ten feet under me, inhale exhale but i cant breathe"
+    //     }
+    //     ListElement {
+    //         name: "work"
+    //         description: "sometimes, sometimes, someimtes"
+    //     }
+    // }
 
     Component {
         id: errorDelegate
@@ -88,8 +88,8 @@ Item {
             id: carousel
             anchors.bottom: parent.bottom
             anchors.verticalCenter: parent.verticalCenter
-            // model: CanQML.faults : switch to CanQML faults not sure how to test rn
-            model: errorModelExample
+            model: CanQML.faults
+            // model: errorModelExample
             delegate: errorDelegate
             path: Path {
                 startX: 0
@@ -100,7 +100,21 @@ Item {
             running: true
             interval: 5000
             repeat: true
-            onTriggered: carousel.incrementCurrentIndex()
+            onTriggered: {
+                carousel.incrementCurrentIndex()
+                console.log(CanQML.faults.length)
+            }
+        }
+
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.family: "SF Pro"
+            font.bold: true
+            font.pointSize: 28
+            text: "NO FAULTS"
+            color: "#ffffff"
+            opacity: CanQML.faults.length === 0 ? 1 : 0
         }
 
         Row {
@@ -111,7 +125,7 @@ Item {
 
             Repeater {
                 anchors.fill: parent
-                model: errorModelExample
+                model: CanQML.faults
                 delegate: indicator
 
                 Rectangle {

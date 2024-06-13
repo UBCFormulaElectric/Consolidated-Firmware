@@ -8,17 +8,37 @@ Item {
 
     property real lateralAcceleration: CanQML.VC_AccelerationLateral
 
+    Repeater {
+        model: [4, 2]
+        delegate: ring
+
+        Rectangle {
+            required property int modelData
+            id: ring
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+
+            width: 100*modelData
+            height: 100*modelData
+            radius: 50*modelData
+
+            color: "transparent"
+            border.color: "#ffffff"
+            border.width: 5
+            opacity: 0.4
+        }
+    }
+
     Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -lateralAcceleration*5
 
-        width: 200
-        height: 200
-        radius: 100
+        width: 10
+        height: 10
+        radius: 5
 
-        color: "transparent"
-        border.color: "#797979"
-        border.width: 5
+        color: "#36FB61"
     }
 
     Text {
