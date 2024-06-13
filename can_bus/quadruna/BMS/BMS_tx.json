@@ -36,16 +36,16 @@
     },
     "ImdStatus": {
         "msg_id": 105,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS IMD Messages",
         "signals": {
             "ImdOkHs": {
                 "bits": 1
             },
             "ImdSecondsSincePowerOn": {
-                "bits": 8,
                 "min": 0,
-                "max": 255,
+                "resolution": 1,
+                "max": 10000,
                 "unit": "Seconds"
             },
             "ImdValidDutyCycle": {
@@ -95,12 +95,12 @@
             }
         }
     },
-    "Charger":{
+    "Charger": {
         "msg_id": 107,
         "cycle_time": 100,
         "description": "Charger infomation for the BMS to broadcast to other boards",
-        "signals":{
-            "ChargerConnected":{
+        "signals": {
+            "ChargerConnected": {
                 "bits": 1
             }
         }

@@ -54,6 +54,8 @@ void app_allStates_runOnTick100Hz(void)
     // app_sbgEllipse_broadcast();
 
     // Set status to false (which blocks drive) if either inverter is faulted, or another board has set a fault.
+
+    app_canTx_VC_ShdnCurrentHighFreq_set(io_efuse_getChannelCurrent(EFUSE_CHANNEL_SHDN));
 }
 
 void app_allStates_runOnTick1Hz(void)
