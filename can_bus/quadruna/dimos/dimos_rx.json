@@ -7,7 +7,6 @@
         "BMS_TractiveSystem",
         "BMS_CellTemperatures",
         "VC_PowerLimit",
-        "VC_GlobalShdnNodeStatus",
-        "VC_EllipseAcceleration"
+        "VC_GlobalShdnNodeStatus"
     ]
 }
