@@ -71,10 +71,12 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_INVL_CommandParameterAddress_set(20);
     app_canTx_VC_INVL_CommandData_set(0);
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
 
     app_canTx_VC_INVR_CommandReadWrite_set(1);
     app_canTx_VC_INVR_CommandParameterAddress_set(20);
     app_canTx_VC_INVR_CommandData_set(0);
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
 
     // Enable buzzer on transition to drive, and start 2s timer.
