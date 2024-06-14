@@ -15,6 +15,7 @@
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_canLogging.h"
+#include "io_pcm.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
