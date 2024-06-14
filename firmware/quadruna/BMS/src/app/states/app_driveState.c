@@ -2,6 +2,7 @@
 #include "app_utils.h"
 #include "io_airs.h"
 #include "app_airs.h"
+#include "io_log.h"
 
 static void driveStateRunOnEntry(void)
 {
@@ -23,6 +24,7 @@ static void driveStateRunOnTick100Hz(void)
         if (air_negative_opened || is_charger_connected)
         {
             app_stateMachine_setNextState(app_initState_get());
+            LOG_INFO("Exit drive to init: (AIR- open=%d, charger=%d)", air_negative_opened, is_charger_connected);
         }
     }
 }
