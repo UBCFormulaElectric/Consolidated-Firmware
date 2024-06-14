@@ -32,7 +32,7 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = false,
+        [EFUSE_CHANNEL_BUZZER] = true,
     },
     .pcm = true,
 };
@@ -68,7 +68,6 @@ static void driveStateRunOnEntry(void)
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
-    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, true);
     app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
