@@ -3,7 +3,7 @@
 #include "io_airs.h"
 #include "app_airs.h"
 
-#define AIR_N_DEBOUNCE_PERIOD (200) //ms
+#define AIR_N_DEBOUNCE_PERIOD (200) // ms
 
 static TimerChannel debounce_timer;
 
@@ -30,7 +30,8 @@ static void driveStateRunOnTick100Hz(void)
 
         // app_timer_runIfCondition(&debounce_timer, air_negative_opened);
 
-        if(app_timer_runIfCondition(&debounce_timer, air_negative_opened) == TIMER_STATE_EXPIRED) {
+        if (app_timer_runIfCondition(&debounce_timer, air_negative_opened) == TIMER_STATE_EXPIRED)
+        {
             air_negative_opened_debounced = true;
         }
 
