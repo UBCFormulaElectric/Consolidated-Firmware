@@ -173,7 +173,7 @@ void app_imd_broadcast()
 {
     app_canTx_BMS_ImdFrequency_set(app_imd_getPwmFrequency());
     app_canTx_BMS_ImdDutyCycle_set(app_imd_getPwmDutyCycle());
-    app_canTx_BMS_ImdSecondsSincePowerOn_set(io_imd_getTimeSincePowerOn());
+    app_canTx_BMS_ImdTimeSincePowerOn_set(io_imd_getTimeSincePowerOn());
 
     const ImdCondition condition = app_imd_getCondition();
     app_canTx_BMS_ImdCondition_set((ImdConditionName)condition.name);
