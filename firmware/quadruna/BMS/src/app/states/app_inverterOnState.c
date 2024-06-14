@@ -4,21 +4,13 @@
 #include "app_utils.h"
 #include "app_timer.h"
 
-#define CHARGING_MILLISECONDS 200
-
 static TimerChannel timer;
-static bool         has_time_passed;
 
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INVERTER_ON_STATE);
-    app_timer_init(&timer, CHARGING_MILLISECONDS);
+    app_timer_init(&timer, INVERTER_BOOTUP_TIME_MS);
     app_timer_restart(&timer);
-}
-
-void app_inverterOnState_init()
-{
-    has_time_passed = false;
 }
 
 static void inverterOnStateRunOnTick1Hz(void)
@@ -32,10 +24,9 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         TimerState timer_state = app_timer_updateAndGetState(&timer);
 
-        if (timer_state == TIMER_STATE_EXPIRED || has_time_passed)
+        if (timer_state == TIMER_STATE_EXPIRED)
         {
             app_stateMachine_setNextState(app_prechargeState_get());
-            has_time_passed = true;
         }
     }
 }

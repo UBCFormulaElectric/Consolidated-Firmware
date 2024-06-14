@@ -1,6 +1,5 @@
 #include "io_efuse.h"
 #include "app_powerManager.h"
-#include "io_pcm.h"
 #include "app_canTx.h"
 
 static PowerStateConfig power_manager_config;
@@ -12,8 +11,6 @@ void app_powerManager_updateConfig(PowerStateConfig new_power_manager_config)
     {
         io_efuse_setChannel((EfuseChannel)efuse, power_manager_config.efuses[efuse]);
     }
-
-    io_pcm_set(power_manager_config.pcm);
 }
 
 PowerStateConfig app_powerManager_getConfig(void)

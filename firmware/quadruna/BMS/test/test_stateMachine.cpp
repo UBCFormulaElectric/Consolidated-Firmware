@@ -560,9 +560,10 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
                          },
                          {
                              // Slow precharge, fails
-                             .air_negative_closes         = true,
-                             .initial_ts_voltage          = 0.0,
-                             .precharge_duration          = PRECHARGE_COMPLETION_UPPER_BOUND + 30,
+                             .air_negative_closes = true,
+                             .initial_ts_voltage  = 0.0,
+                             .precharge_duration  = PRECHARGE_COMPLETION_UPPER_BOUND + INVERTER_BOOTUP_TIME_MS +
+                                                   20U, // Allow inverter on state to complete again
                              .expect_precharge_starts     = true,
                              .expect_precharge_successful = false,
                          } };
@@ -582,7 +583,7 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
         if (test_params[i].expect_precharge_starts)
         {
             // Precharge should start
-            LetTimePass(210U);
+            LetTimePass(INVERTER_BOOTUP_TIME_MS + 10U);
             ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState());
             ASSERT_EQ(fake_io_airs_closePositive_callCount(), 0);
 

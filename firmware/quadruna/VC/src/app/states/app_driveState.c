@@ -34,7 +34,6 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = true,
     },
-    .pcm = true,
 };
 
 void transmitTorqueRequests(float apps_pedal_percentage)
@@ -104,16 +103,14 @@ static void driveStateRunOnTick1Hz(void)
 static void driveStateRunOnTick100Hz(void)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault  = app_inverterFaultCheck();
+    const bool any_board_has_fault = app_faultCheck_checkBoards();
+    const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
-    float      apps_pedal_percentage     = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
-    float      sapps_pedal_percentage    = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
     if (exit_drive_to_init)
     {
@@ -134,6 +131,8 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
     if (regen_switch_enabled)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
@@ -141,7 +140,7 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
-    if (app_bspdWarningCheck(apps_pedal_percentage, sapps_pedal_percentage))
+    if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     {
         // If bspd warning is true, set torque to 0.0
         app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);

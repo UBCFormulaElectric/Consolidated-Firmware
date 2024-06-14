@@ -4,7 +4,6 @@
 typedef struct
 {
     bool efuses[NUM_EFUSE_CHANNELS];
-    bool pcm;
 } PowerStateConfig;
 
 void app_powerManager_updateConfig(PowerStateConfig power_manager_config);
