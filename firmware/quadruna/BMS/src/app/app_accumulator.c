@@ -526,8 +526,8 @@ bool app_accumulator_checkFaults(void)
     app_canAlerts_BMS_Warning_OpenWireCheck_Segment3_GND_set(data.owc_faults.owc_fault_gnd[3]);
     app_canAlerts_BMS_Warning_OpenWireCheck_Segment4_GND_set(data.owc_faults.owc_fault_gnd[4]);
 
-    const bool acc_fault = overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault ||
-                           communication_fault || owc_fault;
+    const bool acc_fault =
+        overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault;
 
     return acc_fault;
 }
