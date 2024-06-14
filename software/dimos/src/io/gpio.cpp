@@ -99,6 +99,8 @@ std::map<gpio_input, bool> gpio_init()
         gpio_lines[i] = r.get_data();
         has_error[i]  = false;
     }
+
+    gpio_write(gpio_input::GPIO_PROGRAM, false);
     return has_error;
 }
 
@@ -144,4 +146,12 @@ Result<gpio_level, line_read_error> read_gpio(const gpio_input i)
         qErrnoWarning(s.c_str());
         return line_read_error::LINE_READ_SYSTEM_ERROR;
     }
+}
+
+Result<std::monostate, line_write_error> write_gpio(gpio_input i, bool level)
+{
+    const gpiod::line &l = gpio_lines.at(i);
+    l.set_direction_output();
+    l.set_value(level);
+    return std::monostate{};
 }

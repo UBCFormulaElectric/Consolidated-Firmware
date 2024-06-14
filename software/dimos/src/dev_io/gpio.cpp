@@ -28,3 +28,8 @@ Result<gpio_level, line_read_error> read_gpio(gpio_input i)
     Q_UNUSED(i);
     return line_read_error::DEV_DUMMY_DATA;
 }
+
+Result<std::monostate, line_write_error> write_gpio(gpio_input i, bool level)
+{
+    return std::monostate{};
+}

@@ -21,10 +21,9 @@ enum class gpio_input
 // MAKE SURE THIS IS UPDATED WITH ABOVE!!!
 
 constexpr int                            GPIO_COUNT  = 9;
-const std::array<gpio_input, GPIO_COUNT> gpio_inputs = {
-    gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3, gpio_input::GPIO4,       gpio_input::GPIO5,
-    gpio_input::GPIO6, gpio_input::GPIO7, gpio_input::GPIO8, gpio_input::GPIO_PROGRAM
-};
+const std::array<gpio_input, GPIO_COUNT> gpio_inputs = { gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3,
+                                                         gpio_input::GPIO4, gpio_input::GPIO5, gpio_input::GPIO6,
+                                                         gpio_input::GPIO7, gpio_input::GPIO8 };
 
 typedef struct
 {
@@ -79,3 +78,9 @@ enum class gpio_level
  * @return the value of the gpio input
  */
 Result<gpio_level, line_read_error> read_gpio(gpio_input i);
+
+enum class line_write_error
+{
+
+};
+Result<std::monostate, line_write_error> write_gpio(gpio_input i, bool level);
