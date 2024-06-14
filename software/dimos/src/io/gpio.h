@@ -15,15 +15,22 @@ enum class gpio_input
     GPIO6,
     GPIO7,
     GPIO8,
+};
+
+enum class gpio_output
+{
     GPIO_PROGRAM,
 };
 
 // MAKE SURE THIS IS UPDATED WITH ABOVE!!!
 
-constexpr int                            GPIO_COUNT  = 9;
-const std::array<gpio_input, GPIO_COUNT> gpio_inputs = { gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3,
-                                                         gpio_input::GPIO4, gpio_input::GPIO5, gpio_input::GPIO6,
-                                                         gpio_input::GPIO7, gpio_input::GPIO8 };
+constexpr int                               GPIO_IN_COUNT = 8;
+const std::array<gpio_input, GPIO_IN_COUNT> gpio_inputs   = { gpio_input::GPIO1, gpio_input::GPIO2, gpio_input::GPIO3,
+                                                              gpio_input::GPIO4, gpio_input::GPIO5, gpio_input::GPIO6,
+                                                              gpio_input::GPIO7, gpio_input::GPIO8 };
+
+constexpr int                                 GPIO_OUT_COUNT = 1;
+const std::array<gpio_output, GPIO_OUT_COUNT> gpio_outputs   = { gpio_output::GPIO_PROGRAM };
 
 typedef struct
 {
@@ -77,10 +84,10 @@ enum class gpio_level
  * @param i the gpio input to read
  * @return the value of the gpio input
  */
-Result<gpio_level, line_read_error> read_gpio(gpio_input i);
+Result<gpio_level, line_read_error> read_gpio(const gpio_input i);
 
 enum class line_write_error
 {
-
+    UNKNOWN_ERROR
 };
-Result<std::monostate, line_write_error> write_gpio(gpio_input i, bool level);
+Result<std::monostate, line_write_error> write_gpio(const gpio_input i, bool level);

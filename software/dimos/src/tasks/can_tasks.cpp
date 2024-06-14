@@ -61,19 +61,19 @@ Result<std::monostate, CanTask::CAN_setup_errors> CanTask::setup()
 {
     Can_Init();
     // tx 100hz
-    tx100Hz.setInterval(TASK_INTERVAL_100HZ);
-    tx100Hz.setSingleShot(false);
-    QObject::connect(&tx100Hz, &QTimer::timeout, &tx100Hzworker, &CanTx100HzTask::run);
-    tx100Hz.start();
+    // tx100Hz.setInterval(TASK_INTERVAL_100HZ);
+    // tx100Hz.setSingleShot(false);
+    // QObject::connect(&tx100Hz, &QTimer::timeout, &tx100Hzworker, &CanTx100HzTask::run);
+    // tx100Hz.start();
     // tx 1hz
-    tx1Hz.setInterval(TASK_INTERVAL_1HZ);
-    tx1Hz.setSingleShot(false);
-    QObject::connect(&tx1Hz, &QTimer::timeout, &tx1Hzworker, &CanTx1HzTask::run);
-    tx1Hz.start();
+    // tx1Hz.setInterval(TASK_INTERVAL_1HZ);
+    // tx1Hz.setSingleShot(false);
+    // QObject::connect(&tx1Hz, &QTimer::timeout, &tx1Hzworker, &CanTx1HzTask::run);
+    // tx1Hz.start();
+
+    // txperiodicworker.start();
 
     rxworker.start();
-    txperiodicworker.start();
-
     qInfo() << "CAN Threads Successfully Initialized";
     return std::monostate{};
 }
