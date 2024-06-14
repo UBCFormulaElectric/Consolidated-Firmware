@@ -2,6 +2,7 @@
 // app
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
+#include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_heartbeatMonitor.h"
 #include "app_lowVoltageBattery.h"
@@ -14,6 +15,7 @@
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_canLogging.h"
+#include "io_pcm.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -21,6 +23,10 @@ static uint16_t heartbeat_cycles = 0;
 
 void app_allStates_runOnTick100Hz(void)
 {
+    // Enable PCM if HV up.
+    const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    io_pcm_set(bms_in_drive);
+
     app_lowVoltageBattery_broadcast();
     app_shdnLoop_broadcast();
     app_currentSensing_broadcast();

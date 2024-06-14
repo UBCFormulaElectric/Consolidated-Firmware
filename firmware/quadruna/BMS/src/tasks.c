@@ -333,7 +333,6 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_inverterOnState_init();
     app_accumulator_init();
     app_tractiveSystem_init();
 

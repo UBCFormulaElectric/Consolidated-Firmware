@@ -19,7 +19,6 @@ static const PowerStateConfig power_manager_shutdown_init = {
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
-    .pcm = false,
 };
 
 static void initStateRunOnEntry(void)
@@ -43,11 +42,12 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    const bool any_board_has_fault = app_boardFaultCheck();
-    const bool inverter_has_fault  = app_inverterFaultCheck();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
-
-    if (app_canRx_BMS_State_get() == BMS_DRIVE_STATE && all_states_ok)
+    // Turn on inverters when requested to do so by the BMS (so we can power them up before HV is applied).
+    // Also, turn them on if HV is already up/coming up.
+    const bool enable_inverters = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
+                                  app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
+                                  app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    if (enable_inverters)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }

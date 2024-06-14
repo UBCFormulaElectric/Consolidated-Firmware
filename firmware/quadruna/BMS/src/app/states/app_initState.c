@@ -51,7 +51,6 @@ static void initStateRunOnTick100Hz(void)
             const bool charger_connected         = app_canRx_BRUSA_IsConnected_get();
             const bool cell_balancing_enabled    = app_canRx_Debug_CellBalancingRequest_get();
             const bool external_charging_request = app_canRx_Debug_StartCharging_get();
-            const bool charging_override_fault   = app_canRx_Debug_FaultEncounteredOverride_get();
             const bool clear_brusa_latch         = app_canRx_Debug_ClearChargerLatchedFault_get();
 
             app_canTx_BMS_ClearLatch_set(clear_brusa_latch);
