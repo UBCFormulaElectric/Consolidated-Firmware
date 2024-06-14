@@ -34,7 +34,6 @@ static const PowerStateConfig power_manager_drive_init = {
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = true,
     },
-    .pcm = true,
 };
 
 void transmitTorqueRequests(float apps_pedal_percentage)

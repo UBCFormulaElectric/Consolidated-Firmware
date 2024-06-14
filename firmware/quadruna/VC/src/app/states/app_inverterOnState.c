@@ -19,7 +19,6 @@ static const PowerStateConfig power_manager_inverter_init = {
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
-    .pcm = true,
 };
 
 static bool prev_start_switch_pos;

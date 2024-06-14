@@ -19,7 +19,6 @@ static const PowerStateConfig power_manager_shutdown_init = {
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
-    .pcm = false,
 };
 
 static void initStateRunOnEntry(void)
