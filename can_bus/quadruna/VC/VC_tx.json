@@ -446,7 +446,7 @@
             "RegenEnabled": {
                 "bits": 1
             },
-            "TorqueVectoringEnabled": {
+            "TorqueVectoringEnabled":{
                 "bits": 1
             }
         }
@@ -650,18 +650,6 @@
             }
         }
     },
-    "EfuseHighFreq": {
-        "msg_id": 231,
-        "cycle_time": 1,
-        "signals": {
-            "ShdnCurrentHighFreq": {
-                "resolution": 0.01,
-                "min": 0,
-                "max": 40,
-                "unit": "A"
-            }
-        }
-    },
     "ImuLinearAcceleration": {
         "msg_id": 225,
         "cycle_time": 100,
@@ -734,7 +722,7 @@
         "cycle_time": 100,
         "description": "Pedal percentage info",
         "signals": {
-            "MappedPedalPercentage": {
+            "MappedPedalPercentage" :{
                 "min": -1,
                 "max": 1,
                 "resolution": 0.01,
