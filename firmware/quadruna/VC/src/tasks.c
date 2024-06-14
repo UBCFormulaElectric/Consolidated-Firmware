@@ -505,6 +505,8 @@ _Noreturn void tasks_run1kHz(void)
     {
         hw_watchdog_checkForTimeouts();
 
+        app_canTx_VC_ShdnCurrentHighFreq_set(io_efuse_getChannelCurrent(EFUSE_CHANNEL_SHDN));
+
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
