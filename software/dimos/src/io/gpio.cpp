@@ -100,7 +100,7 @@ std::map<gpio_input, bool> gpio_init()
         has_error[i]  = false;
     }
 
-    gpio_write(gpio_input::GPIO_PROGRAM, false);
+    write_gpio(gpio_input::GPIO_PROGRAM, false);
     return has_error;
 }
 
