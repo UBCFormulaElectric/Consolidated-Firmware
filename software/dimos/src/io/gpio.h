@@ -46,7 +46,10 @@ const std::map<gpio_input, gpio_info> gpio_inputs_metadata{
     { gpio_input::GPIO6, { .name = "ERR", .enum_name = "GPIO6" } },
     { gpio_input::GPIO7, { .name = "ROT_S", .enum_name = "GPIO7" } },
     { gpio_input::GPIO8, { .name = "ROT_B", .enum_name = "GPIO8" } },
-    { gpio_input::GPIO_PROGRAM, { .name = "PROGRAM", .enum_name = "GPIO_PROGRAM" } },
+};
+
+const std::map<gpio_output, gpio_info> gpio_outputs_metadata{
+    { gpio_output::GPIO_PROGRAM, { .name = "PROGRAM", .enum_name = "GPIO_PROGRAM" } },
 };
 
 std::map<gpio_input, bool> gpio_init();
@@ -90,4 +93,4 @@ enum class line_write_error
 {
     UNKNOWN_ERROR
 };
-Result<std::monostate, line_write_error> write_gpio(const gpio_input i, bool level);
+Result<std::monostate, line_write_error> write_gpio(const gpio_output i, bool level);
