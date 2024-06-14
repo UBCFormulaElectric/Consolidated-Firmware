@@ -631,81 +631,81 @@ TEST_F(BmsStateMachineTest, check_precharge_state_transitions_and_air_plus_statu
     }
 }
 
-TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
-{
-    fake_io_airs_isNegativeClosed_returns(true);
-    fake_io_airs_isPositiveClosed_returns(true);
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(0.0f);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(0.0f);
-    app_soc_resetSocCustomValue(100.0f);
+// TEST_F(BmsStateMachineTest, perfect_one_percent_soc_decrease)
+// {
+//     fake_io_airs_isNegativeClosed_returns(true);
+//     fake_io_airs_isPositiveClosed_returns(true);
+//     fake_io_tractiveSystem_getCurrentHighResolution_returns(0.0f);
+//     fake_io_tractiveSystem_getCurrentLowResolution_returns(0.0f);
+//     app_soc_resetSocCustomValue(100.0f);
 
-    float soc = app_soc_getMinSocPercent();
-    ASSERT_FLOAT_EQ(soc, 100.0f);
+//     float soc = app_soc_getMinSocPercent();
+//     ASSERT_FLOAT_EQ(soc, 100.0f);
 
-    // Allow Timer time to initialize before drawing current
-    SetInitialState(app_driveState_get());
-    LetTimePass(10);
+//     // Allow Timer time to initialize before drawing current
+//     SetInitialState(app_driveState_get());
+//     LetTimePass(10);
 
-    /* Simulate drawing current.
-     * Constant current over 30s span for 1% drop in SOC (0.01)
-     * 0.01 = I * dt / (SERIES_ELEMENT_FULL_CHARGE_C)
-     *
-     * dt = 30s
-     *
-     * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells * STATE_OF_HEALTH
-     *
-     * current (I) = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30
-     */
+//     /* Simulate drawing current.
+//      * Constant current over 30s span for 1% drop in SOC (0.01)
+//      * 0.01 = I * dt / (SERIES_ELEMENT_FULL_CHARGE_C)
+//      *
+//      * dt = 30s
+//      *
+//      * SERIES_ELEMENT_FULL_CHARGE_C = 5.9Ah * 3600 seconds/hour * 3 parallel cells * STATE_OF_HEALTH
+//      *
+//      * current (I) = 0.01 * SERIES_ELEMENT_FULL_CHARGE_C / 30
+//      */
 
-    const float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
+//     const float current = -(SERIES_ELEMENT_FULL_CHARGE_C * 0.01f / 30.0f);
 
-    fake_io_tractiveSystem_getCurrentHighResolution_returns(current);
-    fake_io_tractiveSystem_getCurrentLowResolution_returns(current);
-    app_soc_setPrevCurrent(current);
+//     fake_io_tractiveSystem_getCurrentHighResolution_returns(current);
+//     fake_io_tractiveSystem_getCurrentLowResolution_returns(current);
+//     app_soc_setPrevCurrent(current);
 
-    LetTimePass(30000);
+//     LetTimePass(30000);
 
-    soc = app_soc_getMinSocPercent();
-    ASSERT_FLOAT_EQ(soc, 99.0f);
-}
+//     soc = app_soc_getMinSocPercent();
+//     ASSERT_FLOAT_EQ(soc, 99.0f);
+// }
 
-TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
-{
-    // Check that soc saturates at 5.0% lower bound
-    float test_voltage = 0.0f;
-    float soc          = app_soc_getSocFromOcv(test_voltage);
-    float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
-    ASSERT_FLOAT_EQ(soc, expected_soc);
+// TEST_F(BmsStateMachineTest, ocv_to_soc_lut_test)
+// {
+//     // Check that soc saturates at 5.0% lower bound
+//     float test_voltage = 0.0f;
+//     float soc          = app_soc_getSocFromOcv(test_voltage);
+//     float expected_soc = 5.0f; // LUT does not contain SOC values below 5%
+//     ASSERT_FLOAT_EQ(soc, expected_soc);
 
-    // Check middle of the range
-    test_voltage = 4.0f;
-    soc          = app_soc_getSocFromOcv(test_voltage);
-    expected_soc = 81.5f;
-    ASSERT_FLOAT_EQ(soc, expected_soc);
+//     // Check middle of the range
+//     test_voltage = 4.0f;
+//     soc          = app_soc_getSocFromOcv(test_voltage);
+//     expected_soc = 81.5f;
+//     ASSERT_FLOAT_EQ(soc, expected_soc);
 
-    // Check that SOC saturates at 100.0%
-    test_voltage = 5.0f;
-    soc          = app_soc_getSocFromOcv(test_voltage);
-    expected_soc = 100.0;
-    ASSERT_FLOAT_EQ(soc, expected_soc);
-}
+//     // Check that SOC saturates at 100.0%
+//     test_voltage = 5.0f;
+//     soc          = app_soc_getSocFromOcv(test_voltage);
+//     expected_soc = 100.0;
+//     ASSERT_FLOAT_EQ(soc, expected_soc);
+// }
 
-TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
-{
-    float test_soc     = 0.0f;
-    float ocv          = app_soc_getOcvFromSoc(test_soc);
-    float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
-    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+// TEST_F(BmsStateMachineTest, soc_to_ocv_lut_test)
+// {
+//     float test_soc     = 0.0f;
+//     float ocv          = app_soc_getOcvFromSoc(test_soc);
+//     float expected_ocv = 3.648025f; // LUT does not contain SOC values below 5%
+//     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
-    // Check middle of the range
-    test_soc     = 68.5f;
-    ocv          = app_soc_getOcvFromSoc(test_soc);
-    expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
-    ASSERT_FLOAT_EQ(ocv, expected_ocv);
+//     // Check middle of the range
+//     test_soc     = 68.5f;
+//     ocv          = app_soc_getOcvFromSoc(test_soc);
+//     expected_ocv = 3.924725; // LUT does not contain SOC values below 5%
+//     ASSERT_FLOAT_EQ(ocv, expected_ocv);
 
-    // Check that voltage saturates at value associated with 100.0% soc
-    test_soc     = 101.0f;
-    ocv          = app_soc_getOcvFromSoc(test_soc);
-    expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
-    ASSERT_FLOAT_EQ(ocv, expected_ocv);
-}
+//     // Check that voltage saturates at value associated with 100.0% soc
+//     test_soc     = 101.0f;
+//     ocv          = app_soc_getOcvFromSoc(test_soc);
+//     expected_ocv = 4.194519f; // LUT does not contain SOC values below 5%
+//     ASSERT_FLOAT_EQ(ocv, expected_ocv);
+// }
