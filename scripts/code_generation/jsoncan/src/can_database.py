@@ -328,6 +328,7 @@ class CanDatabase:
                 if signal_bits & (1 << (signal.bits - 1)):
                     signal_bits = ~signal_bits & ((1 << signal.bits) - 1)
                     signal_bits += 1
+                    signal_bits *= -1
 
             # Decode the signal value using the scale/offset.
             signal_value = signal_bits * signal.scale + signal.offset

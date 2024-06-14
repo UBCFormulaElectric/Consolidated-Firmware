@@ -2,25 +2,25 @@
 
 #include <stdbool.h>
 
-/**
- * Check if any baord has faulted
- */
-bool app_boardFaultCheck();
-
-/**
- * Check either right or left inverters have faulted
- */
-bool app_inverterFaultCheck();
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10U)
+#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10U)
 
 /**
  * Initialize apps internal signals.
  */
-void app_bspd_init(void);
+void app_faultCheck_init(void);
+
+/**
+ * Check if any baord has faulted
+ */
+bool app_faultCheck_checkBoards();
+
+/**
+ * Check either right or left inverters have faulted
+ */
+bool app_faultCheck_checkInverters();
 
 /**
  * Check if brakes and apps are active at same time.
  */
-bool app_bspdWarningCheck(float papps_pedal_percentage, float sapps_pedal_percentage);
-
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10U)
-#define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10U)
+bool app_faultCheck_checkSoftwareBspd(float papps_pedal_percentage, float sapps_pedal_percentage);

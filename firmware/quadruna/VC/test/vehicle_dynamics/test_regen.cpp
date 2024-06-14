@@ -1,20 +1,15 @@
 #include <gtest/gtest.h>
+#include <assert.h>
+
+#include "test_vcBaseStateMachineTest.h"
 
 extern "C"
 {
-#include "test_vcBaseStateMachineTest.h"
-#include "app_utils.h"
 #include "app_units.h"
-#include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_canAlerts.h"
-#include "app_canUtils.h"
 #include "app_regen.h"
 #include "app_powerLimiting.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_vehicleDynamics.h"
-#include "math.h"
-#include <assert.h>
 }
 
 class TestRegen : public VcBaseStateMachineTest
