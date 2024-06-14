@@ -169,7 +169,7 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
         SetInitialState(state);
         fake_io_imd_getTimeSincePowerOn_returns(123);
         LetTimePass(10);
-        EXPECT_EQ(123, app_canTx_BMS_ImdSecondsSincePowerOn_get());
+        EXPECT_EQ(123, app_canTx_BMS_ImdTimeSincePowerOn_get());
     }
 }
 
