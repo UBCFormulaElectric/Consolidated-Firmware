@@ -50,11 +50,6 @@ enum class gpiod_line_init_error
     UNKNOWN_SYSTEM_ERROR // system error + deadly case value -> time to check logs
 };
 
-enum class gpio_output_init_error
-{
-    UNKNOWN_ERROR
-};
-
 Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_input i)
 {
     const auto [gpio_name, gpio_enum_name] = gpio_inputs_metadata.at(i);
@@ -93,6 +88,11 @@ Result<gpiod::line, gpiod_line_init_error> create_gpio_input_pin(const gpio_inpu
         return gpiod_line_init_error::INPUT_RANGE_ERROR;
     }
 }
+
+enum class gpio_output_init_error
+{
+    UNKNOWN_ERROR
+};
 
 Result<gpiod::line, gpio_output_init_error> create_gpio_output_pin(const gpio_output i)
 {
@@ -133,6 +133,7 @@ std::map<gpio_input, bool> gpio_init()
             qInfo() << "FUCKKK";
             continue;
         }
+        qInfo() << "Successfully requested output line for" << gpio_outputs_metadata.at(i).enum_name.c_str();
         gpio_output_lines[i] = r.get_data();
     }
 
