@@ -6,7 +6,7 @@
 #include "app_tractiveSystem.h"
 #include "app_imd.h"
 #include "app_airs.h"
-// #include "app_soc.h"
+#include "app_soc.h"
 #include "app_shdnLoop.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
@@ -39,20 +39,17 @@ void app_allStates_runOnTick1Hz(void)
         app_canTx_BMS_ChargerConnected_set(charger_is_connected);
     }
 
-    // const float min_soc = app_soc_getMinSocCoulombs();
+    const float min_soc = app_soc_getMinSocCoulombs();
 
-    // // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
-    // if (min_soc < 0)
-    // {
-    //     if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
-    //     {
-    //         app_soc_resetSocFromVoltage();
-    //     }
-    // }
-    // else
-    // {
-    // app_soc_writeSocToSd(min_soc);
-    // }
+    // Reset SOC from min cell voltage if soc corrupt and voltage readings settled
+    if (min_soc < 0)
+    {
+        if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
+        {
+            app_soc_resetSocFromVoltage();
+        }
+    }
+
 }
 
 bool app_allStates_runOnTick100Hz(void)
@@ -148,16 +145,16 @@ bool app_allStates_runOnTick100Hz(void)
     app_airs_broadcast();
     app_shdnLoop_broadcast();
 
-    // if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
-    // {
-    //     app_soc_updateSocStats();
-    // }
+    if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
+    {
+        app_soc_updateSocStats();
+    }
 
     const bool acc_fault = app_accumulator_checkFaults();
     const bool ts_fault  = app_tractveSystem_checkFaults();
 
     // Update CAN signals for BMS latch statuses.
-    // app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
+    app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
     app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(globals->config->bms_ok_latch));
     app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(globals->config->imd_ok_latch));
     app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(globals->config->bspd_ok_latch));
