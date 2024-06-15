@@ -5,6 +5,8 @@
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
 
+#include "io_canTx.h"
+
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -64,6 +66,7 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
+
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
@@ -168,6 +171,19 @@ static void driveStateRunOnExit(void)
 
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+
+    // Clear latched inverter faults
+    app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVL_CommandReadWrite_set(true);
+    app_canTx_VC_INVL_CommandData_set((uint16_t)0);
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+
+    app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVR_CommandReadWrite_set(true);
+    app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
 
     // Disable buzzer on exit drive.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
