@@ -91,6 +91,8 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(FSM_RearBrakePressure, int)
     REGISTER_CAN_MESSAGE(BMS_TractiveSystemPower, int)
     REGISTER_CAN_MESSAGE(VC_FirstFaultNode, int)
+    REGISTER_CAN_MESSAGE(INVL_GateDriverBoardTemperature, float)
+    REGISTER_CAN_MESSAGE(INVR_MotorTemperature, float)
     // REGISTER_CAN_MESSAGE(VC_AccelerationLateral, float)
 
   public slots:

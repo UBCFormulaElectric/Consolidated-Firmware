@@ -5,7 +5,6 @@ Item {
     anchors.fill: parent
 
     Column {
-        anchors.centerIn: parent
         Text {
             text: Math.round(CanQML.BMS_Soc, 2) + "%"
             color: "white"
@@ -22,6 +21,20 @@ Item {
 
         Text {
             text: Math.round(CanQML.BMS_MaxCellTemperature, 2) + "C"
+            color: "white"
+            font.pixelSize: 80
+            font.bold: true
+        }
+
+        Text {
+            text: Math.round(CanQML.INVL_GateDriverBoardTemperature, 2) + "C"
+            color: "white"
+            font.pixelSize: 80
+            font.bold: true
+        }
+
+        Text {
+            text: Math.round(CanQML.INVR_MotorTemperature, 2) + "C"
             color: "white"
             font.pixelSize: 80
             font.bold: true
