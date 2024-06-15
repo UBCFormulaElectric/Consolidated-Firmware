@@ -82,17 +82,12 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
 
-    // Read torque vectoring switch only when entering drive state, not during driving
-
-    torque_vectoring_switch_is_on = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
-    regen_switch_enabled          = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-
-    if (torque_vectoring_switch_is_on)
+    if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
         app_torqueVectoring_init();
     }
 
-    if (regen_switch_enabled)
+    if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
     {
         app_regen_init();
     }
@@ -114,6 +109,18 @@ static void driveStateRunOnTick100Hz(void)
     const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
+    torque_vectoring_switch_is_on        = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_enabled                 = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+
+    if (!regen_switch_enabled)
+    {
+        app_canTx_VC_RegenEnabled_set(false);
+        app_canTx_VC_Warning_RegenNotAvailable_set(true);
+    }
+
+    if (!torque_vectoring_switch_is_on) {
+        app_canTx_VC_TorqueVectoringEnabled_set(false);
+    }
 
     if (exit_drive_to_init)
     {

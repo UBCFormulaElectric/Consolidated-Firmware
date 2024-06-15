@@ -73,6 +73,7 @@ TEST_F(TestRegen, battery_over_temp_torque_request)
     app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
     SetStateToDrive();
     LetTimePass(1);
+
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
@@ -114,9 +115,9 @@ TEST_F(TestRegen, vehicle_under_speed_torque_request)
     app_canRx_CRIT_RegenSwitch_update(SWITCH_ON);
     SetStateToDrive();
     LetTimePass(1);
+    ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
-    ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
 
     float pedal_percentage = 0.0f;
     app_canRx_FSM_PappsMappedPedalPercentage_update(pedal_percentage);
@@ -167,7 +168,7 @@ TEST_F(TestRegen, battery_full_torque_request)
     ASSERT_FLOAT_EQ(inputs.motor_speed_right_rpm, expected_motor_speed_right_rpm);
 }
 
-TEST_F(TestRegen, regular_run_regen)
+TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
 {
     TearDown();
     SetUp();
@@ -179,6 +180,7 @@ TEST_F(TestRegen, regular_run_regen)
     EXPECT_EQ(VC_DRIVE_STATE, app_canTx_VC_State_get());
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
+
 
     float pedal_percentage      = -1.0f;
     float steering_angle        = 21.0f;
@@ -231,6 +233,15 @@ TEST_F(TestRegen, regular_run_regen)
 
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
+    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == -1.0f);
+
+    app_canRx_CRIT_RegenSwitch_update(SWITCH_OFF);
+
+    LetTimePass(10);
+
+    ASSERT_TRUE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
+    ASSERT_FALSE(app_canTx_VC_RegenEnabled_get());
+    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == 0.0f);
 }
 
 // tapers torque request due to being too close to a full battery
