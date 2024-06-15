@@ -67,15 +67,15 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 static void driveStateRunOnEntry(void)
 {
     // Clear latched inverter faults
-    app_canTx_VC_INVL_CommandReadWrite_set(1);
-    app_canTx_VC_INVL_CommandParameterAddress_set(20);
-    app_canTx_VC_INVL_CommandData_set(0);
+    app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVL_CommandReadWrite_set(true);
+    app_canTx_VC_INVL_CommandData_set((uint16_t)0);
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
 
-    app_canTx_VC_INVR_CommandReadWrite_set(1);
-    app_canTx_VC_INVR_CommandParameterAddress_set(20);
-    app_canTx_VC_INVR_CommandData_set(0);
+    app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVR_CommandReadWrite_set(true);
+    app_canTx_VC_INVR_CommandData_set((uint16_t)0);
     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
 
