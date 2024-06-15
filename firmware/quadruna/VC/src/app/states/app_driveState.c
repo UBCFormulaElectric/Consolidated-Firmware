@@ -107,20 +107,29 @@ static void driveStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool start_switch_off                 = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive                 = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init               = bms_not_in_drive;
-    bool       exit_drive_to_inverter_on        = !all_states_ok || start_switch_off;
-    bool       prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
-    bool       prev_regen_switch_val            = regen_switch_is_on;
-    torque_vectoring_switch_is_on               = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
-    regen_switch_is_on                          = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-    bool turn_regen_led                         = regen_switch_is_on && prev_regen_switch_val;
-    bool turn_tv_led                            = torque_vectoring_switch_is_on && prev_torque_vectoring_switch_val;
+    const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init        = bms_not_in_drive;
+    bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
+    bool       prev_regen_switch_val     = regen_switch_is_on;
+    torque_vectoring_switch_is_on        = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
+    bool turn_tv_led                     = torque_vectoring_switch_is_on;
 
     // Regen + TV LEDs and update warnings
-    app_canTx_VC_RegenEnabled_set(turn_regen_led);
-    app_canTx_VC_Warning_RegenNotAvailable_set(!turn_regen_led);
+    if(turn_regen_led)
+    {
+        app_canTx_VC_RegenEnabled_set(true);
+        app_canTx_VC_Warning_RegenNotAvailable_set(false);
+    }
+    
+    if(!regen_switch_is_on)
+    {
+        app_canTx_VC_RegenEnabled_set(false);
+        app_canTx_VC_Warning_RegenNotAvailable_set(true);
+    }
+
     app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
 
     if (exit_drive_to_init)
