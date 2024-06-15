@@ -84,9 +84,11 @@ class CanQML final : public QObject
     REGISTER_CAN_MESSAGE(FSM_PappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(FSM_SappsMappedPedalPercentage, float)
     REGISTER_CAN_MESSAGE(BMS_Soc, float)
+    REGISTER_CAN_MESSAGE(BMS_MinCellVoltage, float)
+    REGISTER_CAN_MESSAGE(BMS_MaxCellTemperature, float)
+
     REGISTER_CAN_MESSAGE(FSM_FrontBrakePressure, int)
     REGISTER_CAN_MESSAGE(FSM_RearBrakePressure, int)
-    REGISTER_CAN_MESSAGE(BMS_MaxCellTemperature, int)
     REGISTER_CAN_MESSAGE(BMS_TractiveSystemPower, int)
     REGISTER_CAN_MESSAGE(VC_FirstFaultNode, int)
     // REGISTER_CAN_MESSAGE(VC_AccelerationLateral, float)

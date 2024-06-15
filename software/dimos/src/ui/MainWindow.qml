@@ -41,7 +41,7 @@ Window {
             // this is not great practice especially considering that it does not genearlized well
             // if the mainStack was a real component
             DrivingBase {
-                visible: [1, 2, 3, 4].includes(mainStack.currentIndex)
+                visible: [1, 2, 3, 4, 6].includes(mainStack.currentIndex)
                 Image {
                     function getPageIconURL(index: int): string {
                         switch (index) {
@@ -53,6 +53,8 @@ Window {
                                 return "qrc:/SwitcherEventIcons/Endurance.svg"
                             case 4:
                                 return "qrc:/SwitcherEventIcons/Skidpad.svg"
+                            case 6:
+                                return "qrc:/SwitcherEventIcons/Endurance.svg"
                             default:
                                 return ""
                         }
@@ -81,6 +83,10 @@ Window {
                     id: skidpadPage
                     visible: mainStack.currentIndex === 4
                 }
+                ThreeNum {
+                    id: threenum
+                    visible: mainStack.currentIndex === 6
+                }
             }
             DebugSoftware {
                 visible: mainStack.currentIndex === 5
@@ -96,17 +102,20 @@ Window {
                     case 1:
                         nextPage = accelerationPage
                         break;
-                    case 3:
+                    case 2:
                         nextPage = brakingPage
                         break;
-                    case 4:
+                    case 3:
                         nextPage = endurancePage
                         break;
-                    case 5:
+                    case 4:
                         nextPage = skidpadPage
                         break;
-                    case 6:
+                    case 5:
                         nextPage = softwareDebugPage
+                        break;
+                    case 6:
+                        nextPage = threenum;
                         break;
                     default:
                         nextPage = landingPage

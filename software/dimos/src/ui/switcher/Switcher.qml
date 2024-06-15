@@ -37,6 +37,10 @@ FocusScope {
             icon: "qrc:/SwitcherEventIcons/SoftwareDebug.svg"
             name: "Software Debug"
         }
+        ListElement {
+            icon: "qrc:/SwitcherEventIcons/Endurance.svg"
+            name: "Endurance ThreeVal"
+        }
     }
 
     Component {
