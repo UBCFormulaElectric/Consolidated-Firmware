@@ -66,18 +66,6 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
-    // Clear latched inverter faults
-    app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
-    app_canTx_VC_INVL_CommandReadWrite_set(true);
-    app_canTx_VC_INVL_CommandData_set((uint16_t)0);
-    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
-    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
-
-    app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
-    app_canTx_VC_INVR_CommandReadWrite_set(true);
-    app_canTx_VC_INVR_CommandData_set((uint16_t)0);
-    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
-    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
 
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
@@ -123,7 +111,9 @@ static void driveStateRunOnTick100Hz(void)
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    // TODO km: remove
+    // const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    const bool bms_not_in_drive          = false;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
 
@@ -183,6 +173,19 @@ static void driveStateRunOnExit(void)
 
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
+
+    // Clear latched inverter faults
+    app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVL_CommandReadWrite_set(true);
+    app_canTx_VC_INVL_CommandData_set((uint16_t)0);
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+
+    app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
+    app_canTx_VC_INVR_CommandReadWrite_set(true);
+    app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
 
     // Disable buzzer on exit drive.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
