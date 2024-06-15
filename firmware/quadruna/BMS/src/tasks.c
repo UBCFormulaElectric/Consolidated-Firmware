@@ -39,7 +39,7 @@
 #include "app_commitInfo.h"
 #include "app_thermistors.h"
 #include "app_accumulator.h"
-// #include "app_soc.h"
+#include "app_soc.h"
 #include "app_globals.h"
 #include "states/app_initState.h"
 #include "states/app_inverterOnState.h"
@@ -339,7 +339,7 @@ void tasks_init(void)
     // Re-enable if auxiliary thermistors installed
     // app_thermistors_init();
 
-    // app_soc_init();
+    app_soc_init();
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
 
