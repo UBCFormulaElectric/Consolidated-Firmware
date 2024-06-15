@@ -49,7 +49,6 @@ void app_allStates_runOnTick1Hz(void)
             app_soc_resetSocFromVoltage();
         }
     }
-
 }
 
 bool app_allStates_runOnTick100Hz(void)
