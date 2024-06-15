@@ -7,21 +7,24 @@ Item {
     Column {
         anchors.centerIn: parent
         Text {
-            text: "SOC: " + Math.round(CanQML.BMS_Soc, 2) + "%"
+            text: Math.round(CanQML.BMS_Soc, 2) + "%"
             color: "white"
-            font.pixelSize: 40
+            font.pixelSize: 80
+            font.bold: true
         }
 
         Text {
-            text: "MinCellV: " + Math.round(CanQML.BMS_MinCellVoltage, 2) + "V"
+            text: Math.round(CanQML.BMS_MinCellVoltage, 2) + "V"
             color: "white"
-            font.pixelSize: 40
+            font.pixelSize: 80
+            font.bold: true
         }
 
         Text {
-            text: "MaxCellT: " + Math.round(CanQML.BMS_MaxCellTemperature, 2) + "C"
+            text: Math.round(CanQML.BMS_MaxCellTemperature, 2) + "C"
             color: "white"
-            font.pixelSize: 40
+            font.pixelSize: 80
+            font.bold: true
         }
     }
 }
