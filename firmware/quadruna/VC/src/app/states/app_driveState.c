@@ -111,9 +111,7 @@ static void driveStateRunOnTick100Hz(void)
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
     const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    // TODO km: remove
-    // const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    const bool bms_not_in_drive          = false;
+    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init        = bms_not_in_drive;
     bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
 
