@@ -181,7 +181,6 @@ TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
 
-
     float pedal_percentage      = -1.0f;
     float steering_angle        = 21.0f;
     float right_motor_speed_rpm = MOTOR_KMH_TO_RPM(30.0f);

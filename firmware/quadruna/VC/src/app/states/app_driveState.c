@@ -22,7 +22,7 @@
 #define BUZZER_ON_DURATION_MS 2000
 
 static bool         torque_vectoring_switch_is_on;
-static bool         regen_switch_enabled;
+static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
 static const PowerStateConfig power_manager_drive_init = {
@@ -85,11 +85,13 @@ static void driveStateRunOnEntry(void)
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
         app_torqueVectoring_init();
+        torque_vectoring_switch_is_on = true;
     }
 
     if (app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON)
     {
         app_regen_init();
+        regen_switch_is_on = true;
     }
 }
 
@@ -105,22 +107,21 @@ static void driveStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init        = bms_not_in_drive;
-    bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
-    torque_vectoring_switch_is_on        = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
-    regen_switch_enabled                 = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    const bool start_switch_off                 = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive                 = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init               = bms_not_in_drive;
+    bool       exit_drive_to_inverter_on        = !all_states_ok || start_switch_off;
+    bool       prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
+    bool       prev_regen_switch_val            = regen_switch_is_on;
+    torque_vectoring_switch_is_on               = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_is_on                          = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    bool turn_regen_led                         = regen_switch_is_on && prev_regen_switch_val;
+    bool turn_tv_led                            = torque_vectoring_switch_is_on && prev_torque_vectoring_switch_val;
 
-    if (!regen_switch_enabled)
-    {
-        app_canTx_VC_RegenEnabled_set(false);
-        app_canTx_VC_Warning_RegenNotAvailable_set(true);
-    }
-
-    if (!torque_vectoring_switch_is_on) {
-        app_canTx_VC_TorqueVectoringEnabled_set(false);
-    }
+    // Regen + TV LEDs and update warnings
+    app_canTx_VC_RegenEnabled_set(turn_regen_led);
+    app_canTx_VC_Warning_RegenNotAvailable_set(!turn_regen_led);
+    app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
 
     if (exit_drive_to_init)
     {
@@ -143,7 +144,7 @@ static void driveStateRunOnTick100Hz(void)
     // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
-    if (regen_switch_enabled)
+    if (regen_switch_is_on)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
@@ -156,7 +157,7 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
         app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     }
-    else if (apps_pedal_percentage < 0.0f && regen_switch_enabled)
+    else if (apps_pedal_percentage < 0.0f && regen_switch_is_on)
     {
         app_regen_run(apps_pedal_percentage);
     }
