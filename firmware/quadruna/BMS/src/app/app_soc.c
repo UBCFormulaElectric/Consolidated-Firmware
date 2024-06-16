@@ -80,6 +80,33 @@ float app_soc_getSocFromOcv(float voltage)
     return LUT_BASE_SOC + lut_index * 0.5f;
 }
 
+// this function will replace the original LUT implementation
+float app_soc_getSocFromOcvNew(float voltage)
+{
+    float x = voltage;
+
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x4 = x3 * x;
+
+    float soc = 6222.564573f * x4   // Calculate x^4 term
+                - 97776.23992f * x3 // Calculate x^3 term
+                + 575451.344f * x2  // Calculate x^2 term
+                - 1503225.075f * x  // Calculate x term
+                + 1470463.166f;     // Add constant term
+
+    if (soc < 5.0f)
+    {
+        soc = 5.0f;
+    }
+    else if (soc > 100.0f)
+    {
+        soc = 100.0f;
+    }
+
+    return soc;
+}
+
 float app_soc_getOcvFromSoc(float soc_percent)
 {
     uint8_t lut_index = 0;
@@ -96,6 +123,33 @@ float app_soc_getOcvFromSoc(float soc_percent)
     }
 
     return ocv_soc_lut[lut_index];
+}
+
+// this function will replace the original LUT implementation
+float app_soc_getOcvFromSocNew(float soc_percent)
+{
+    float x = soc_percent;
+
+    if (x < 5.0f)
+    {
+        x = 5.0f;
+    }
+    else if (x > 100.0f)
+    {
+        x = 100.0f;
+    }
+
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x4 = x3 * x;
+
+    float ocv = -1.1942e-8f * x4    // Calculate x^4 term
+                + 3.37349e-6f * x3  // Calculate x^3 term
+                - 0.000268105f * x2 // Calculate x^2 term
+                + 0.010717016f * x  // Calculate x term
+                + 3.621617042f;     // Add constant term
+
+    return ocv;
 }
 
 void app_soc_init(void)
@@ -148,13 +202,13 @@ float app_soc_getMinSocPercent(void)
 float app_soc_getMinOcvFromSoc(void)
 {
     float soc_percent = app_soc_getMinSocPercent();
-    return app_soc_getOcvFromSoc(soc_percent);
+    return app_soc_getOcvFromSocNew(soc_percent);
 }
 
 void app_soc_resetSocFromVoltage(void)
 {
     const float min_cell_voltage = app_accumulator_getMinCellVoltage(NULL, NULL);
-    const float soc_percent      = app_soc_getSocFromOcv(min_cell_voltage);
+    const float soc_percent      = app_soc_getSocFromOcvNew(min_cell_voltage);
 
     // convert from percent to coulombs
     stats.charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);

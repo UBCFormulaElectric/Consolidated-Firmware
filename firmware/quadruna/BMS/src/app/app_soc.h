@@ -23,14 +23,28 @@ void app_soc_setPrevCurrent(float current);
 float app_soc_getSocFromOcv(float voltage);
 
 /**
- * @brief Function to retrieve open circuit voltage closest to given soc
+ * @brief Function to calculate soc from open circuit voltage
+ * @param voltage open circuit voltage
+ * @return soc calculated from open circuit voltage
+ */
+float app_soc_getSocFromOcvNew(float voltage);
+
+/**
+ * Function to retrieve open circuit voltage closest to given soc
  * @param soc_percent state of charge in percent
  * @return open circuit voltage closest to given state of charge
  */
 float app_soc_getOcvFromSoc(float soc_percent);
 
 /**
- * @brief Initialize the SOC module.
+ * Function to calculate open circuit voltage from soc
+ * @param soc_percent state of charge in percent
+ * @return open circuit voltage from state of charge
+ */
+float app_soc_getOcvFromSocNew(float soc_percent);
+
+/**
+ * Initialize the SOC module.
  */
 void app_soc_init(void);
 
