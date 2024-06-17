@@ -461,7 +461,8 @@ void app_accumulator_broadcast(void)
     // Calculate and broadcast pack power.
 
     // Derate power based on pack voltage
-    const float current_based_power_limit = (app_accumulator_getPackVoltage() * abs(MAX_TS_DISCHARGE_CURRENT_AMPS)) - POWER_LIMIT_SAFETY_HEADROOM;
+    const float current_based_power_limit =
+        (app_accumulator_getPackVoltage() * abs(MAX_TS_DISCHARGE_CURRENT_AMPS)) - POWER_LIMIT_SAFETY_HEADROOM;
 
     const float temperature_based_power_limit =
         MIN(app_math_linearDerating(max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),

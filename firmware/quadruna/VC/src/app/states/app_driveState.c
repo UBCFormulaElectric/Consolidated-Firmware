@@ -66,7 +66,6 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
-
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
@@ -118,13 +117,13 @@ static void driveStateRunOnTick100Hz(void)
     bool turn_tv_led                     = torque_vectoring_switch_is_on;
 
     // Regen + TV LEDs and update warnings
-    if(turn_regen_led)
+    if (turn_regen_led)
     {
         app_canTx_VC_RegenEnabled_set(true);
         app_canTx_VC_Warning_RegenNotAvailable_set(false);
     }
-    
-    if(!regen_switch_is_on)
+
+    if (!regen_switch_is_on)
     {
         app_canTx_VC_RegenEnabled_set(false);
         app_canTx_VC_Warning_RegenNotAvailable_set(true);
