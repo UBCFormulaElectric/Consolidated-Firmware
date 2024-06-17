@@ -35,6 +35,8 @@ static float translateChargingParams(float charging_value)
 
 static void chargeStateRunOnEntry(void)
 {
+    app_tractiveSystem_init(TS_OVERCURRENT_DEBOUNCE_DURATION_CHARGING_MS);
+
     app_canTx_BMS_State_set(BMS_CHARGE_STATE);
     app_canTx_BMS_ChargerEnable_set(true);
 
@@ -163,6 +165,8 @@ static void chargeStateRunOnExit(void)
     io_airs_openPositive();
     app_canRx_Debug_StartCharging_update(false);
     app_canTx_BMS_ChargerEnable_set(false);
+
+    app_tractiveSystem_init(TS_OVERCURRENT_DEBOUNCE_DURATION_DISCHARGING_MS);
 }
 
 const State *app_chargeState_get(void)

@@ -334,7 +334,8 @@ void tasks_init(void)
     app_canRx_init();
 
     app_accumulator_init();
-    app_tractiveSystem_init();
+    // Assume Discharging condition, re-correct if charge state entered
+    app_tractiveSystem_init(TS_OVERCURRENT_DEBOUNCE_DURATION_DISCHARGING_MS);
 
     // Re-enable if auxiliary thermistors installed
     // app_thermistors_init();
