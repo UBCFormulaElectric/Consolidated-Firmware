@@ -1,8 +1,8 @@
 # OUTPUTS
 # - REQUIRED_LIBRARIES -> list of libraries to link
 
-#gpiod
-if (${LINUX})
+# libgpiod
+if ("${TARGET}" STREQUAL "deploy")
     find_library(GPIOD_LIBRARY NAMES libgpiod gpiod)
     if (NOT GPIOD_LIBRARY)
         message("${GPIOD_LIBRARY}")

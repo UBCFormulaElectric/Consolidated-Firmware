@@ -2,6 +2,7 @@
 
 #include <QtQml>
 #include <QString>
+#include <QObject>
 
 #define SHARED_CONSTANT(type_quali, type, name, value) \
     static inline type_quali type name = value;        \
@@ -17,12 +18,16 @@ class Constants : public QObject
     QML_SINGLETON
 
   public:
-    SHARED_CONSTANT(constexpr, int, SCREEN_WIDTH, 1024);
-    SHARED_CONSTANT(constexpr, int, SCREEN_HEIGHT, 600);
+    SHARED_CONSTANT(constexpr, int, maxBrakePressure, 2500)
+    SHARED_CONSTANT(constexpr, double, rpmToSpeed, 3.1415926 * 60 / 39370)
+    SHARED_CONSTANT(constexpr, int, SCREEN_WIDTH, 1024)
+    SHARED_CONSTANT(constexpr, int, SCREEN_HEIGHT, 600)
 
-#ifdef USING_dimos
-    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "Dimos");
-#elif USING_dimos_dev
-    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "[Development] Dimos");
+#ifdef USING_TARGET_deploy
+    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "Dimos")
+    SHARED_CONSTANT(const, bool, deploy, true)
+#elif USING_TARGET_dev
+    SHARED_CONSTANT(const, QString, WINDOW_TITLE, "[Development] Dimos")
+    SHARED_CONSTANT(const, bool, deploy, false)
 #endif
 };

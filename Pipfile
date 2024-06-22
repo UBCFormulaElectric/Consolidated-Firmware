@@ -25,6 +25,7 @@ pandas = "*"
 pytest = "*"
 python-dateutil = "*"
 requests = "*"
+GitPython = "*"
 influxdb-client = "*"
 flask = "*"
 

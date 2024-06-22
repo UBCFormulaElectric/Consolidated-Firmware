@@ -6,6 +6,10 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+extern "C"
+{
+#include "io_canTx.h"
+}
 
 static std::optional<int> CanInterface;
 
@@ -16,21 +20,21 @@ Result<std::monostate, CanConnectionError> Can_Init()
     if (CanInterface < 0)
     {
         CanInterface = std::nullopt;
-        return SocketError;
+        return CanConnectionError::SocketError;
     }
 
-    sockaddr_can addr;
-    ifreq        ifr;
-
+    ifreq ifr = {};
     // Get interface index
     strcpy(ifr.ifr_name, "can0");
     ioctl(CanInterface.value(), SIOCGIFINDEX, &ifr);
 
     // Bind the socket to the CAN interface
-    addr.can_family  = AF_CAN;
-    addr.can_ifindex = ifr.ifr_ifindex;
+    sockaddr_can addr = {
+        .can_family  = AF_CAN,
+        .can_ifindex = ifr.ifr_ifindex,
+    };
     if (bind(CanInterface.value(), reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) < 0)
-        return BindError;
+        return CanConnectionError::BindError;
 
     return std::monostate{};
 }
@@ -38,16 +42,15 @@ Result<std::monostate, CanConnectionError> Can_Init()
 Result<JsonCanMsg, CanReadError> Can_Read()
 {
     if (!CanInterface.has_value())
-        return ReadInterfaceNotCreated;
+        return CanReadError::ReadInterfaceNotCreated;
 
     can_frame     frame{};
-    const ssize_t readLengthBytes =
-        read(CanInterface.value(), &frame, sizeof(can_frame)); // todo make this react to QThread::requestInterruption
+    const ssize_t readLengthBytes = read(CanInterface.value(), &frame, sizeof(can_frame));
 
     if (readLengthBytes < 0)
-        return SocketReadError;
+        return CanReadError::SocketReadError;
     if (readLengthBytes < sizeof(can_frame))
-        return IncompleteCanFrame;
+        return CanReadError::IncompleteCanFrame;
 
     auto out = JsonCanMsg{
         .std_id = frame.can_id,
@@ -60,17 +63,22 @@ Result<JsonCanMsg, CanReadError> Can_Read()
 Result<std::monostate, CanWriteError> Can_Write(const JsonCanMsg *msg)
 {
     if (!CanInterface.has_value())
-        return WriteInterfaceNotCreated;
+    {
+        qInfo("Can interface not created error!!");
+        return CanWriteError::WriteInterfaceNotCreated;
+    }
 
     try
     {
-        if (write(CanInterface.value(), msg, sizeof(can_frame)) <
-            0) // todo make this react to QThread::requestInterruption
-            return SocketWriteError;
+        if (write(CanInterface.value(), msg, sizeof(can_frame)) < 0)
+        {
+            qInfo("Socket Write Error");
+            return CanWriteError::SocketWriteError;
+        }
     }
     catch (...)
     {
-        return SocketWriteError;
+        return CanWriteError::SocketWriteError;
     }
     return std::monostate{};
 }
