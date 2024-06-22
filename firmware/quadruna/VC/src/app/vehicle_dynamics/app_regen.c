@@ -41,11 +41,8 @@ static RegenBraking_Inputs       regenAttributes = { .enable_active_differential
 static ActiveDifferential_Inputs activeDifferentialInputs;
 static PowerLimiting_Inputs      powerLimitingInputs = { .power_limit_kW = POWER_LIMIT_REGEN_kW };
 
-static bool regen_available;
-
 void app_regen_init(void)
 {
-    regen_available = true;
     app_canTx_VC_RegenEnabled_set(true);
     app_canTx_VC_Warning_RegenNotAvailable_set(false);
 }
@@ -53,7 +50,7 @@ void app_regen_init(void)
 void app_regen_run(float accelerator_pedal_percentage)
 {
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
-    regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
+    bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
 
     if (regen_available)
     {

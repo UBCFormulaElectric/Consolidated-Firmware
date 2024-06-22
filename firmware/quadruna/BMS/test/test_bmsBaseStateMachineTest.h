@@ -34,7 +34,7 @@ extern "C"
 
 #include "app_thermistors.h"
 #include "app_accumulator.h"
-// #include "app_soc.h"
+#include "app_soc.h"
 #include "app_globals.h"
 }
 
@@ -55,10 +55,10 @@ class BmsBaseStateMachineTest : public BaseStateMachineTest
         app_accumulator_init();
         app_tractiveSystem_init();
         app_thermistors_init();
-        // app_soc_init();
+        app_soc_init();
         app_globals_init(&globals_config);
 
-        // app_soc_resetSocCustomValue(100.0f);
+        app_soc_resetSocCustomValue(100.0f);
 
         // Set initial voltages to nominal value
         fake_io_ltc6813CellVoltages_readVoltages_returns(true);

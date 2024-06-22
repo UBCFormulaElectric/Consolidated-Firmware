@@ -1,6 +1,7 @@
 #include "states/app_allStates.h"
 #include "app_utils.h"
 #include "app_imd.h"
+#include "app_soc.h"
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "app_inverterOnState.h"
@@ -28,14 +29,14 @@ static void initStateRunOnTick1Hz(void)
     app_allStates_runOnTick1Hz();
 
     // // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    // if (app_canRx_Debug_ResetSoc_MinCellV_get())
-    // {
-    //     app_soc_resetSocFromVoltage();
-    // }
-    // else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
-    // {
-    //     app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
-    // }
+    if (app_canRx_Debug_ResetSoc_MinCellV_get())
+    {
+        app_soc_resetSocFromVoltage();
+    }
+    else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
+    {
+        app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
+    }
 }
 
 static void initStateRunOnTick100Hz(void)
