@@ -19,7 +19,7 @@ class Constants : public QObject
 
   public:
     SHARED_CONSTANT(constexpr, int, maxBrakePressure, 2500)
-    SHARED_CONSTANT(constexpr, double, rpmToSpeed, 3.1415926*60/39370)
+    SHARED_CONSTANT(constexpr, double, rpmToSpeed, 3.1415926 * 60 / 39370)
     SHARED_CONSTANT(constexpr, int, SCREEN_WIDTH, 1024)
     SHARED_CONSTANT(constexpr, int, SCREEN_HEIGHT, 600)
 

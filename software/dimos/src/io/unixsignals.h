@@ -17,7 +17,7 @@ class UnixSignalHandler : public QObject
     explicit UnixSignalHandler(int signal, QObject *parent = nullptr);
 
     static const int max_signal = 32;
-    
+
   signals:
     // This gives no indication of which signal has been caught; you may achieve
     // that by connecting to a QSignalMapper if required.
