@@ -5,7 +5,7 @@
 
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
-#include "app_heartbeatMonitorConfig.h"
+#include "app_heartbeatMonitor.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"

@@ -2,7 +2,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitorBoard.h"
 #include "app_mainState.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -197,7 +197,7 @@ void tasks_init(void)
     io_brake_light_init(&brake_light);
     app_coolant_init();
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_RSM_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
 

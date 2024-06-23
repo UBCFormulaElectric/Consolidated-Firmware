@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitorBoard.h"
 
-void app_heartbeatMonitor_init(HeartbeatMonitorBoard *hb)
+void app_heartbeatMonitorBoard_init(HeartbeatMonitorBoard *hb)
 {
     assert(
         hb->getter != NULL && hb->resetter != NULL && hb->fault_setter != NULL && hb->fault_getter != NULL &&
@@ -20,7 +20,7 @@ void app_heartbeatMonitor_init(HeartbeatMonitorBoard *hb)
  *  - resetters - update functions for heartbeats on local can tables
  *  - self_checkin - update function for current board
  */
-void app_heartbeatMonitor_checkIn(HeartbeatMonitorBoard *hb)
+void app_heartbeatMonitorBoard_checkIn(HeartbeatMonitorBoard *hb)
 {
     // check in, and reset board on local CAN table
     const bool board_status_good = hb->getter();
@@ -31,12 +31,12 @@ void app_heartbeatMonitor_checkIn(HeartbeatMonitorBoard *hb)
     hb->resetter(false); // reset the CAN table so that it has to be checked in again
 }
 
-void app_heartbeatMonitor_broadcastFaults(const HeartbeatMonitorBoard *hb)
+void app_heartbeatMonitorBoard_broadcastFaults(const HeartbeatMonitorBoard *hb)
 {
     hb->fault_setter(!hb->status);
 }
 
-bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(const HeartbeatMonitorBoard *hb)
+bool app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(const HeartbeatMonitorBoard *hb)
 {
     return hb->fault_getter();
 }

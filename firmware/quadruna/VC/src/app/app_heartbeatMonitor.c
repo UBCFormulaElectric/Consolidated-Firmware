@@ -1,5 +1,5 @@
-#include "app_heartbeatMonitorConfig.h"
 #include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitorBoard.h"
 
 // CAN
 #include "app_canRx.h"
@@ -35,35 +35,35 @@ static bool block_faults = false;
 void app_heartbeatMonitorConfig_init(bool block_faults_init)
 {
     block_faults = block_faults_init;
-    app_heartbeatMonitor_init(&bms_hbmonitor);
-    app_heartbeatMonitor_init(&rsm_hbmonitor);
-    app_heartbeatMonitor_init(&fsm_hbmonitor);
-    app_heartbeatMonitor_init(&crit_hbmonitor);
+    app_heartbeatMonitorBoard_init(&bms_hbmonitor);
+    app_heartbeatMonitorBoard_init(&rsm_hbmonitor);
+    app_heartbeatMonitorBoard_init(&fsm_hbmonitor);
+    app_heartbeatMonitorBoard_init(&crit_hbmonitor);
 }
 
 void app_heartbeatMonitorConfig_checkin(void)
 {
     app_canTx_VC_Heartbeat_set(true);
-    app_heartbeatMonitor_checkIn(&bms_hbmonitor);
-    app_heartbeatMonitor_checkIn(&rsm_hbmonitor);
-    app_heartbeatMonitor_checkIn(&fsm_hbmonitor);
-    app_heartbeatMonitor_checkIn(&crit_hbmonitor);
+    app_heartbeatMonitorBoard_checkIn(&bms_hbmonitor);
+    app_heartbeatMonitorBoard_checkIn(&rsm_hbmonitor);
+    app_heartbeatMonitorBoard_checkIn(&fsm_hbmonitor);
+    app_heartbeatMonitorBoard_checkIn(&crit_hbmonitor);
 }
 
 void app_heartbeatMonitorConfig_broadcastFaults(void)
 {
     if (block_faults)
         return;
-    app_heartbeatMonitor_broadcastFaults(&bms_hbmonitor);
-    app_heartbeatMonitor_broadcastFaults(&rsm_hbmonitor);
-    app_heartbeatMonitor_broadcastFaults(&fsm_hbmonitor);
-    app_heartbeatMonitor_broadcastFaults(&crit_hbmonitor);
+    app_heartbeatMonitorBoard_broadcastFaults(&bms_hbmonitor);
+    app_heartbeatMonitorBoard_broadcastFaults(&rsm_hbmonitor);
+    app_heartbeatMonitorBoard_broadcastFaults(&fsm_hbmonitor);
+    app_heartbeatMonitorBoard_broadcastFaults(&crit_hbmonitor);
 }
 
 bool app_heartBeatMonitorConfig_isSendingMissingHeartbeatFault(void)
 {
-    return app_heartbeatMonitor_isSendingMissingHeartbeatFault(&bms_hbmonitor) ||
-           app_heartbeatMonitor_isSendingMissingHeartbeatFault(&rsm_hbmonitor) ||
-           app_heartbeatMonitor_isSendingMissingHeartbeatFault(&fsm_hbmonitor) ||
-           app_heartbeatMonitor_isSendingMissingHeartbeatFault(&crit_hbmonitor);
+    return app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&bms_hbmonitor) ||
+           app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&rsm_hbmonitor) ||
+           app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&fsm_hbmonitor) ||
+           app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&crit_hbmonitor);
 }

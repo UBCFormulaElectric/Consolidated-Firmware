@@ -5,7 +5,7 @@
 #include "shared.pb.h"
 #include "CRIT.pb.h"
 // app
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitorBoard.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
@@ -449,7 +449,7 @@ void tasks_init(void)
 
     app_shdnLoop_init(crit_bshdn_nodes, CRIT_SHDN_NODE_COUNT);
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
 

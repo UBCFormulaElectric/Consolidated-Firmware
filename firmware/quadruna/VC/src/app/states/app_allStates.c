@@ -48,12 +48,12 @@ void app_allStates_runOnTick100Hz(void)
         app_canTx_VC_ImuAccelerationZ_set(lin_accel_z);
     }
 
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorConfig_checkin();
 
     if (heartbeat_cycles <= IGNORE_HEARTBEAT_CYCLES) // TODO make this part of the heartbeat monitor
         heartbeat_cycles++;
     else
-        app_heartbeatMonitor_broadcastFaults();
+        app_heartbeatMonitorConfig_broadcastFaults();
 
     // Comment out for now - SBG Ellipse is not currently used.
     // io_sbgEllipse_handleLogs();

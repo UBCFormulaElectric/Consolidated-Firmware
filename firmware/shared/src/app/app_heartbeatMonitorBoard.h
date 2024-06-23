@@ -35,22 +35,22 @@ typedef struct
     bool (*const fault_getter)(void);
 } HeartbeatMonitorBoard;
 
-void app_heartbeatMonitor_init(HeartbeatMonitorBoard *hb);
+void app_heartbeatMonitorBoard_init(HeartbeatMonitorBoard *hb);
 
 /**
  * Populates heartbeats_checked_in
  */
-void app_heartbeatMonitor_checkIn(HeartbeatMonitorBoard *hb);
+void app_heartbeatMonitorBoard_checkIn(HeartbeatMonitorBoard *hb);
 
 /**
  * Gets state to broadcast via can, and can callbacks to use to broadcast
  */
-void app_heartbeatMonitor_broadcastFaults(const HeartbeatMonitorBoard *hb);
+void app_heartbeatMonitorBoard_broadcastFaults(const HeartbeatMonitorBoard *hb);
 
 /**
  * @return Whether the heartbeat monitor for the current board has detected any fault
  */
-bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(const HeartbeatMonitorBoard *hb);
+bool app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(const HeartbeatMonitorBoard *hb);
 
 #ifdef TARGET_TEST
 /**

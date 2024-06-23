@@ -345,7 +345,7 @@ void tasks_init(void)
 
     app_shdnLoop_init(bms_bshdn_nodes, BMS_SHDN_NODE_COUNT);
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
 

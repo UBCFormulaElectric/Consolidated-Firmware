@@ -55,8 +55,8 @@ bool app_allStates_runOnTick100Hz(void)
 {
     app_canTx_BMS_Heartbeat_set(true);
 
-    app_heartbeatMonitor_checkIn();
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitorBoard_checkIn();
+    app_heartbeatMonitorBoard_broadcastFaults();
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 

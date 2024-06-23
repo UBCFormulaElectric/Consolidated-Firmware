@@ -5,7 +5,7 @@
 extern "C"
 {
 #include "app_heartbeatBoardsEnum.h"
-#include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitorBoard.h"
 }
 
 // fake can states
@@ -100,7 +100,7 @@ TEST(HeartbeatMonitor, test_check_faults)
     heartbeats_to_check[A_HEARTBEAT_BOARD] = true;
     heartbeats_to_check[E_HEARTBEAT_BOARD] = true;
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &D_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
 
@@ -108,13 +108,13 @@ TEST(HeartbeatMonitor, test_check_faults)
     E_fake_can_fault_state = false;
     A_fake_can_fault_state = false;
 
-    ASSERT_EQ(app_heartbeatMonitor_isSendingMissingHeartbeatFault(), false);
+    ASSERT_EQ(app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(), false);
 
     // check that if there is a fault, it is detected
     E_fake_can_fault_state = false;
     A_fake_can_fault_state = true;
 
-    ASSERT_EQ(app_heartbeatMonitor_isSendingMissingHeartbeatFault(), true);
+    ASSERT_EQ(app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(), true);
 }
 
 TEST(HeartbeatMonitor, test_create)
@@ -132,7 +132,7 @@ TEST(HeartbeatMonitor, test_create)
     heartbeats_to_check[E_HEARTBEAT_BOARD] = true;
 
     // create and assert time fields work
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &D_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
@@ -164,7 +164,7 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
                                                         [D_HEARTBEAT_BOARD] = false,
                                                         [E_HEARTBEAT_BOARD] = true };
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &D_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
@@ -175,7 +175,7 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
         status = true;
     }
 
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitorBoard_broadcastFaults();
 
     ASSERT_FALSE(E_fake_can_fault_state);
     ASSERT_FALSE(A_fake_can_fault_state);
@@ -187,7 +187,7 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
     }
     heartbeat_monitor->status[E_HEARTBEAT_BOARD] = true;
     heartbeat_monitor->status[A_HEARTBEAT_BOARD] = true;
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitorBoard_broadcastFaults();
 
     ASSERT_FALSE(E_fake_can_fault_state);
     ASSERT_FALSE(A_fake_can_fault_state);
@@ -199,7 +199,7 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
     }
     heartbeat_monitor->status[E_HEARTBEAT_BOARD] = false;
     heartbeat_monitor->status[A_HEARTBEAT_BOARD] = true;
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitorBoard_broadcastFaults();
 
     ASSERT_TRUE(E_fake_can_fault_state);
     ASSERT_FALSE(A_fake_can_fault_state);
@@ -209,7 +209,7 @@ TEST(HeartbeatMonitor, test_broadcast_faults)
     {
         status = false;
     }
-    app_heartbeatMonitor_broadcastFaults();
+    app_heartbeatMonitorBoard_broadcastFaults();
 
     ASSERT_TRUE(E_fake_can_fault_state);
     ASSERT_TRUE(A_fake_can_fault_state);
@@ -230,13 +230,13 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     heartbeats_to_check[A_HEARTBEAT_BOARD] = true;
     heartbeats_to_check[E_HEARTBEAT_BOARD] = true;
 
-    app_heartbeatMonitor_init(
+    app_heartbeatMonitorBoard_init(
         heartbeats_to_check, heartbeat_can_getters, heartbeat_can_updaters, &D_fakeCanHeartbeatSetter,
         fault_can_setters, fault_can_getters);
     HeartbeatMonitor *heartbeat_monitor = app_heartbeatMonitor_get();
 
     // assert nothing changed (0 ms)
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorBoard_checkIn();
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
@@ -264,7 +264,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     A_fake_can_heartbeat_state = true;
     D_fake_can_heartbeat_state = false;
 
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorBoard_checkIn();
 
     ASSERT_TRUE(D_fake_can_heartbeat_state);
     ASSERT_FALSE(E_fake_can_heartbeat_state);
@@ -275,7 +275,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
 
     // progress to timeout period and verify all good (300 ms)
     fake_io_time_getCurrentMs_returns(300);
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorBoard_checkIn();
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
@@ -296,7 +296,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
     A_fake_can_heartbeat_state = false;
     D_fake_can_heartbeat_state = false;
 
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorBoard_checkIn();
 
     ASSERT_TRUE(D_fake_can_heartbeat_state);
     ASSERT_FALSE(E_fake_can_heartbeat_state);
@@ -307,7 +307,7 @@ TEST(HeartbeatMonitor, test_check_in_and_tick)
 
     // progress to timeout period and verify A missing (600 ms)
     fake_io_time_getCurrentMs_returns(650);
-    app_heartbeatMonitor_checkIn();
+    app_heartbeatMonitorBoard_checkIn();
 
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[A_HEARTBEAT_BOARD]);
     ASSERT_FALSE(heartbeat_monitor->heartbeats_checked_in[B_HEARTBEAT_BOARD]);
