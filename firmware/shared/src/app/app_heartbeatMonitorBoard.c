@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <stdlib.h>
 #include "app_heartbeatMonitorBoard.h"
 
 void app_heartbeatMonitorBoard_init(HeartbeatMonitorBoard *hb)
@@ -42,8 +41,8 @@ bool app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(const HeartbeatMon
 }
 
 #ifdef TARGET_TEST
-void app_heartbeatMonitor_clearFaults(void)
+void app_heartbeatMonitor_clearFaults(const HeartbeatMonitorBoard *hb)
 {
-    hb_monitor.fault_setters[board](false);
+    hb->fault_setter(false);
 }
 #endif
