@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-static UlogQueue ulog_queue = { .queue = {}, .dequeue_index = 0, .enqueue_index = 0 };
+static UlogQueue ulog_queue = { .dequeue_index = 0, .enqueue_index = 0 };
 
-void app_ulog_init(void (*can_log_tx)(char[ULOG_CHUNK_SIZE]), void (*can_overflow_warning)(bool))
+void app_ulog_init(void (*can_log_tx)(uint32_t), void (*can_overflow_warning)(bool))
 {
     ulog_queue.can_log_tx           = can_log_tx;
     ulog_queue.can_overflow_warning = can_overflow_warning;
@@ -27,22 +27,22 @@ void app_ulog_enqueue(char chunk[ULOG_CHUNK_SIZE])
 
 void app_ulog_log(char msg[])
 {
-    int          msg_len     = strlen(msg);
-    int          extra_chunk = msg_len % ULOG_CHUNK_SIZE != 0;
-    unsigned int chunk_count = msg_len / ULOG_CHUNK_SIZE + extra_chunk;
+    size_t msg_len     = strlen(msg);
+    int    extra_chunk = (int)msg_len % (int)ULOG_CHUNK_SIZE != 0;
+    int    chunk_count = (int)msg_len / (int)ULOG_CHUNK_SIZE + extra_chunk;
 
     // pad with nil chars to the nearest multiple of 8
-    int  padded_len = chunk_count * ULOG_CHUNK_SIZE;
+    int  padded_len = chunk_count * (int)ULOG_CHUNK_SIZE;
     char padded_msg[padded_len];
     for (int i = 0; i < padded_len; i += 1)
     {
-        padded_msg[i] = i < msg_len ? msg[i] : '\0';
+        padded_msg[i] = i < (int)msg_len ? msg[i] : '\0';
     }
 
     // chunk out string and enqueue
     for (int chunk_index = 0; chunk_index < chunk_count; chunk_index += 1)
     {
-        app_ulog_enqueue(&padded_msg[chunk_index * ULOG_CHUNK_SIZE]);
+        app_ulog_enqueue(&padded_msg[chunk_index * (int)ULOG_CHUNK_SIZE]);
     }
 }
 

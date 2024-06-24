@@ -21,7 +21,7 @@ typedef struct
  * @param can_log_tx The tx callback to call when a chunk is ready to be broadcasted.
  * @param can_overflow_warning The warning callback to call if an overflow is detected.
  */
-void app_ulog_init(void (*can_log_tx)(char[ULOG_CHUNK_SIZE]), void (*can_overflow_warning)(bool));
+void app_ulog_init(void (*can_log_tx)(uint32_t), void (*can_overflow_warning)(bool));
 
 /**
  * Log a message through the unstructured logging system, and trigger can_overflow_warning if an overflow is detected.

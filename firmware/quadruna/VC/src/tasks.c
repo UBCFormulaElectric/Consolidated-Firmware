@@ -16,6 +16,7 @@
 #include "app_efuse.h"
 #include "app_shdnLoop.h"
 #include "app_faultCheck.h"
+#include "app_ulog.h"
 
 #include "io_jsoncan.h"
 #include "io_log.h"
@@ -405,6 +406,7 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
     app_canDataCapture_init();
+    app_ulog_init(app_canTx_VC_ULogChunk_set, app_canAlerts_VC_Warning_ULogOverflow_set);
 
     // Empirically, mounting slows down (takes ~500ms) at 200 CAN logs on disk.
     // This is not correlated to the size of each file.
