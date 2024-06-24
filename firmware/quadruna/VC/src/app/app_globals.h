@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "app_heartbeatMonitorBoard.h"
 #include "io_led.h"
 #include "app_timer.h"
 
