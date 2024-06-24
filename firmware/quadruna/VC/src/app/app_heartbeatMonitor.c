@@ -34,7 +34,7 @@ static bool block_faults = false;
 
 void app_heartbeatMonitor_init(bool block_faults_init)
 {
-    block_faults = block_faults;
+    block_faults = block_faults_init;
     app_heartbeatMonitorBoard_init(&bms_hbmonitor);
     app_heartbeatMonitorBoard_init(&rsm_hbmonitor);
     app_heartbeatMonitorBoard_init(&fsm_hbmonitor);
