@@ -54,28 +54,29 @@ TEST_F(HeartbeatMonitorTest, test_check_in_and_tick)
     ASSERT_FALSE(a_hbmonitor.heartbeat_checked_in);
     ASSERT_FALSE(a_hbmonitor.status);
 
-    // check in A and E midway (150 ms)
     MOCK_CAN_HEARTBEAT_STATE = true;
     app_heartbeatMonitorBoard_checkIn(&a_hbmonitor);
     ASSERT_TRUE(a_hbmonitor.heartbeat_checked_in);
     ASSERT_TRUE(a_hbmonitor.status);
 
-    // progress to timeout period and verify all good (300 ms)
-    MOCK_CAN_HEARTBEAT_STATE = false;
+    // after a checkin, the CAN table should be reset to false
     app_heartbeatMonitorBoard_checkIn(&a_hbmonitor);
     ASSERT_FALSE(a_hbmonitor.heartbeat_checked_in);
     ASSERT_TRUE(a_hbmonitor.status);
 
+    // right before the timer expires, the status should still be fine
     fake_io_time_getCurrentMs_returns(timeout_ms - 1);
     app_heartbeatMonitorBoard_checkIn(&a_hbmonitor);
     ASSERT_FALSE(a_hbmonitor.heartbeat_checked_in);
     ASSERT_TRUE(a_hbmonitor.status);
 
+    // only after the timeout, should the status be false
     fake_io_time_getCurrentMs_returns(timeout_ms);
     app_heartbeatMonitorBoard_checkIn(&a_hbmonitor);
     ASSERT_FALSE(a_hbmonitor.heartbeat_checked_in);
     ASSERT_FALSE(a_hbmonitor.status);
 
+    // with one checkin, the status should be fine again
     fake_io_time_getCurrentMs_returns(timeout_ms + 1);
     MOCK_CAN_HEARTBEAT_STATE = true;
     app_heartbeatMonitorBoard_checkIn(&a_hbmonitor);
