@@ -5,7 +5,9 @@
 #include "states/app_driveState.h"
 #include "states/app_inverterOnState.h"
 
+#ifdef TARGET_EMBEDDED
 #include "io_canTx.h"
+#endif
 
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -192,14 +194,17 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVL_CommandParameterAddress_set((uint16_t)20);
     app_canTx_VC_INVL_CommandReadWrite_set(true);
     app_canTx_VC_INVL_CommandData_set((uint16_t)0);
-    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
-    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
 
     app_canTx_VC_INVR_CommandParameterAddress_set((uint16_t)20);
     app_canTx_VC_INVR_CommandReadWrite_set(true);
     app_canTx_VC_INVR_CommandData_set((uint16_t)0);
+
+#ifdef TARGET_EMBEDDED
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
+    io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVR_ReadWriteParamCommand_sendAperiodic();
+#endif
 
     // Disable buzzer on exit drive.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
