@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stddef.h>
 #include "app_heartbeatMonitorBoard.h"
 
 void app_heartbeatMonitorBoard_init(HeartbeatMonitorBoard *hb)
