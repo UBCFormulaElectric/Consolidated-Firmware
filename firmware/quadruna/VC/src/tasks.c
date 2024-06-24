@@ -13,7 +13,6 @@
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_efuse.h"
 #include "app_shdnLoop.h"
 #include "app_faultCheck.h"
 
@@ -265,27 +264,6 @@ static const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS] = {
 
 static const PcmConfig pcm_config = { .pcm_gpio = &npcm_en };
 
-static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
-    [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnStatus_set,
-    [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvStatus_set,
-    [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpStatus_set,
-    [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxStatus_set,
-    [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRStatus_set,
-    [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLStatus_set,
-    [EFUSE_CHANNEL_TELEM]  = NULL,
-    [EFUSE_CHANNEL_BUZZER] = NULL,
-};
-
-static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
-    [EFUSE_CHANNEL_SHDN]   = app_canTx_VC_ShdnCurrent_set,
-    [EFUSE_CHANNEL_LV]     = app_canTx_VC_LvCurrent_set,
-    [EFUSE_CHANNEL_PUMP]   = app_canTx_VC_PumpCurrent_set,
-    [EFUSE_CHANNEL_AUX]    = app_canTx_VC_AuxCurrent_set,
-    [EFUSE_CHANNEL_INV_R]  = app_canTx_VC_InvRCurrent_set,
-    [EFUSE_CHANNEL_INV_L]  = app_canTx_VC_InvLCurrent_set,
-    [EFUSE_CHANNEL_TELEM]  = NULL,
-    [EFUSE_CHANNEL_BUZZER] = NULL,
-};
 static const UART  debug_uart    = { .handle = &huart7 };
 static const UART  sbg_uart      = { .handle = &huart2 };
 static const UART  modem2G4_uart = { .handle = &huart3 };
@@ -415,7 +393,6 @@ void tasks_init(void)
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_VC_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
-    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);
 
@@ -423,7 +400,6 @@ void tasks_init(void)
     app_shdnLoop_init(vc_shdn_nodes, VC_SHDN_NODE_COUNT);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
-    app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
 
     app_canTx_VC_Hash_set(GIT_COMMIT_HASH);
     app_canTx_VC_Clean_set(GIT_COMMIT_CLEAN);
