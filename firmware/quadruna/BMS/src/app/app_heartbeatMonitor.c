@@ -40,3 +40,10 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void)
         return false;
     return app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&vc_hbmonitor);
 }
+
+#ifdef TARGET_TEST
+void app_heartbeatMonitor_clearFaults(void)
+{
+    app_heartbeatMonitorBoard_clearFaults(&vc_hbmonitor);
+}
+#endif

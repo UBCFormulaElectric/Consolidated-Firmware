@@ -41,7 +41,7 @@ bool app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(const HeartbeatMon
 }
 
 #ifdef TARGET_TEST
-void app_heartbeatMonitor_clearFaults(const HeartbeatMonitorBoard *hb)
+void app_heartbeatMonitorBoard_clearFaults(const HeartbeatMonitorBoard *hb)
 {
     hb->fault_setter(false);
 }

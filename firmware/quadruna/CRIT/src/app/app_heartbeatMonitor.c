@@ -68,3 +68,13 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void)
            app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&rsm_hbmonitor) ||
            app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&fsm_hbmonitor);
 }
+
+#ifdef TARGET_TEST
+void app_heartbeatMonitor_clearFaults(void)
+{
+    app_heartbeatMonitorBoard_clearFaults(&bms_hbmonitor);
+    app_heartbeatMonitorBoard_clearFaults(&vc_hbmonitor);
+    app_heartbeatMonitorBoard_clearFaults(&rsm_hbmonitor);
+    app_heartbeatMonitorBoard_clearFaults(&fsm_hbmonitor);
+}
+#endif

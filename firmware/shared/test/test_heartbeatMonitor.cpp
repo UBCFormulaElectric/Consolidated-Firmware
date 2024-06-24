@@ -20,11 +20,7 @@ HeartbeatMonitorBoard a_hbmonitor              = {
 class HeartbeatMonitorTest : public testing::Test
 {
   protected:
-    void SetUp() override
-    {
-        std::cout << "init" << std::endl;
-        app_heartbeatMonitorBoard_init(&a_hbmonitor);
-    }
+    void SetUp() override { app_heartbeatMonitorBoard_init(&a_hbmonitor); }
 };
 
 TEST_F(HeartbeatMonitorTest, test_create)
