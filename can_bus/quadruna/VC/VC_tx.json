@@ -729,5 +729,15 @@
                 "unit": "%"
             }
         }
+    },
+    "ULog": {
+        "msg_id": 231,
+        "cycle_time": 100,
+        "description": "The most recent ulog chunk",
+        "signals": {
+            "ULogChunk": {
+                "bits": 32
+            }
+        }
     }
 }

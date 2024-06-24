@@ -1,17 +1,18 @@
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
 
 #define MAX_ULOG_QUEUE_LENGTH (1000U)
-#define ULOG_CHUNK_SIZE (8U)
+#define ULOG_CHUNK_SIZE (4U) // 4 bytes = 32 bits = max can signal size
 
-// A cyclical queue, used for storing chunks of a log to be dequeued and broadcast at the users discretion.
+// a cyclical queue, used for storing chunks of a log to be dequeued and broadcast at the users discretion
 typedef struct
 {
     // an array of chunks of strings to log, held continguously.
     char         queue[ULOG_CHUNK_SIZE][MAX_ULOG_QUEUE_LENGTH];
     unsigned int dequeue_index;
     unsigned int enqueue_index;
-    void (*can_log_tx)(char[ULOG_CHUNK_SIZE]);
+    void (*can_log_tx)(uint32_t);
     void (*can_overflow_warning)(bool);
 } UlogQueue;
 

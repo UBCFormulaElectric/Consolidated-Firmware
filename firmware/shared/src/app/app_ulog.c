@@ -64,8 +64,17 @@ char *app_ulog_dequeue()
 void app_ulog_broadcast()
 {
     char *chunk = app_ulog_dequeue();
+
     if (chunk != NULL)
     {
-        ulog_queue.can_log_tx(chunk);
+        // convert chars to uint32
+        uint32_t chunkBits;
+        memcpy(&chunkBits, chunk, ULOG_CHUNK_SIZE);
+
+        ulog_queue.can_log_tx(chunkBits);
+    }
+    else
+    {
+        ulog_queue.can_log_tx(0);
     }
 }
