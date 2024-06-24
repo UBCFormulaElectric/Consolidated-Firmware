@@ -66,4 +66,8 @@ void app_heartbeatMonitor_clearFaults(void)
     app_heartbeatMonitorBoard_clearFaults(&vc_hbmonitor);
     app_heartbeatMonitorBoard_clearFaults(&fsm_hbmonitor);
 }
+void app_heartbeatMonitor_blockFaults(bool block)
+{
+    block_faults = block;
+}
 #endif

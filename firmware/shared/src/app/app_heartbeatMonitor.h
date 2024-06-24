@@ -11,4 +11,5 @@ bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void);
 
 #ifdef TARGET_TEST
 void app_heartbeatMonitor_clearFaults(void);
+void app_heartbeatMonitor_blockFaults(bool block_faults);
 #endif
