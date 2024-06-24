@@ -366,7 +366,7 @@ void tasks_init(void)
     app_canAlerts_VC_Warning_HighNumberOfCanDataLogs_set(io_canLogging_getCurrentLog() > HIGH_NUMBER_OF_LOGS_THRESHOLD);
     app_canAlerts_VC_Warning_CanLoggingSdCardNotPresent_set(!sd_card_present);
 
-    app_heartbeatMonitorConfig_init(false);
+    app_heartbeatMonitor_init(false);
     app_efuse_init(efuse_enabled_can_setters, efuse_current_can_setters);
     app_stateMachine_init(app_initState_get());
     io_telemMessage_init(&modem);

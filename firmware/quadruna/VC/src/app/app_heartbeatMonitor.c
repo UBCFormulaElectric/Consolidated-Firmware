@@ -32,16 +32,16 @@ static HeartbeatMonitorBoard crit_hbmonitor = { .getter       = app_canRx_CRIT_H
 
 static bool block_faults = false;
 
-void app_heartbeatMonitorConfig_init(bool block_faults_init)
+void app_heartbeatMonitor_init(bool block_faults_init)
 {
-    block_faults = block_faults_init;
+    block_faults = block_faults;
     app_heartbeatMonitorBoard_init(&bms_hbmonitor);
     app_heartbeatMonitorBoard_init(&rsm_hbmonitor);
     app_heartbeatMonitorBoard_init(&fsm_hbmonitor);
     app_heartbeatMonitorBoard_init(&crit_hbmonitor);
 }
 
-void app_heartbeatMonitorConfig_checkin(void)
+void app_heartbeatMonitor_checkIn(void)
 {
     app_canTx_VC_Heartbeat_set(true);
     app_heartbeatMonitorBoard_checkIn(&bms_hbmonitor);
@@ -50,7 +50,7 @@ void app_heartbeatMonitorConfig_checkin(void)
     app_heartbeatMonitorBoard_checkIn(&crit_hbmonitor);
 }
 
-void app_heartbeatMonitorConfig_broadcastFaults(void)
+void app_heartbeatMonitor_broadcastFaults(void)
 {
     if (block_faults)
         return;
@@ -60,7 +60,7 @@ void app_heartbeatMonitorConfig_broadcastFaults(void)
     app_heartbeatMonitorBoard_broadcastFaults(&crit_hbmonitor);
 }
 
-bool app_heartBeatMonitorConfig_isSendingMissingHeartbeatFault(void)
+bool app_heartBeatMonitor_isSendingMissingHeartbeatFault(void)
 {
     return app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&bms_hbmonitor) ||
            app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&rsm_hbmonitor) ||

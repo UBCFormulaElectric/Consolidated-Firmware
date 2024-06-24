@@ -5,7 +5,7 @@
 #include "shared.pb.h"
 #include "CRIT.pb.h"
 // app
-#include "app_heartbeatMonitorBoard.h"
+#include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_globals.h"
@@ -356,52 +356,6 @@ static const Switches switch_config = {
     .torquevec_switch = &torquevec_switch,
 };
 
-// CRIT rellies on BMS, VC, RSM, FSM
-static const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
-    [BMS_HEARTBEAT_BOARD] = true, [VC_HEARTBEAT_BOARD] = true,   [RSM_HEARTBEAT_BOARD] = true,
-    [FSM_HEARTBEAT_BOARD] = true, [DIM_HEARTBEAT_BOARD] = false, [CRIT_HEARTBEAT_BOARD] = false
-};
-
-// heartbeatGetters - get heartbeat signals from other boards
-static bool (*const heartbeatGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatUpdaters - update local CAN table with heartbeat status
-static void (*const heartbeatUpdaters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canRx_BMS_Heartbeat_update,
-    [VC_HEARTBEAT_BOARD]   = app_canRx_VC_Heartbeat_update,
-    [RSM_HEARTBEAT_BOARD]  = app_canRx_RSM_Heartbeat_update,
-    [FSM_HEARTBEAT_BOARD]  = app_canRx_FSM_Heartbeat_update,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultSetters - broadcast heartbeat faults over CAN
-static void (*const heartbeatFaultSetters[HEARTBEAT_BOARD_COUNT])(bool) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_set,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_set,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_set,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_set,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
-// heartbeatFaultGetters - gets fault statuses over CAN
-static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
-    [BMS_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingBMSHeartbeat_get,
-    [VC_HEARTBEAT_BOARD]   = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get,
-    [RSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingRSMHeartbeat_get,
-    [FSM_HEARTBEAT_BOARD]  = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
-    [DIM_HEARTBEAT_BOARD]  = NULL,
-    [CRIT_HEARTBEAT_BOARD] = NULL
-};
-
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
@@ -449,9 +403,7 @@ void tasks_init(void)
 
     app_shdnLoop_init(crit_bshdn_nodes, CRIT_SHDN_NODE_COUNT);
 
-    app_heartbeatMonitorBoard_init(
-        heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
-        heartbeatFaultSetters, heartbeatFaultGetters);
+    app_heartbeatMonitor_init(false);
 
     app_stateMachine_init(app_mainState_get());
     app_globals_init(&globals_config);
