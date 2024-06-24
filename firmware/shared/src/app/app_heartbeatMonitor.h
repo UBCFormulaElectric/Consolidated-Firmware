@@ -7,4 +7,4 @@ void app_heartbeatMonitor_checkIn(void);
 
 void app_heartbeatMonitor_broadcastFaults(void);
 
-bool app_heartBeatMonitor_isSendingMissingHeartbeatFault(void);
+bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void);

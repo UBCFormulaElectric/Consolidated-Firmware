@@ -60,7 +60,7 @@ void app_heartbeatMonitor_broadcastFaults(void)
     app_heartbeatMonitorBoard_broadcastFaults(&crit_hbmonitor);
 }
 
-bool app_heartBeatMonitor_isSendingMissingHeartbeatFault(void)
+bool app_heartbeatMonitor_isSendingMissingHeartbeatFault(void)
 {
     return app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&bms_hbmonitor) ||
            app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault(&rsm_hbmonitor) ||

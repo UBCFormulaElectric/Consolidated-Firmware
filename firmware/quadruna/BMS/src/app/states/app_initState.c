@@ -5,6 +5,7 @@
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "app_inverterOnState.h"
+#include "app_heartbeatMonitor.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
@@ -45,7 +46,7 @@ static void initStateRunOnTick100Hz(void)
     {
         const bool air_negative_closed = io_airs_isNegativeClosed();
         const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
-        const bool missing_hb          = app_heartbeatMonitorBoard_isSendingMissingHeartbeatFault();
+        const bool missing_hb          = app_heartbeatMonitor_isSendingMissingHeartbeatFault();
 
         if (air_negative_closed && ts_discharged)
         {
