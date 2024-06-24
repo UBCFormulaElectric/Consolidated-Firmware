@@ -27,13 +27,13 @@ void app_ulog_enqueue(char chunk[ULOG_CHUNK_SIZE])
 
 void app_ulog_log(char msg[])
 {
-    unsigned int msg_len     = (unsigned int) strlen(msg);
-    unsigned int    extra_chunk = msg_len % ULOG_CHUNK_SIZE != 0;
-    unsigned int    chunk_count = msg_len / ULOG_CHUNK_SIZE + extra_chunk;
+    unsigned int msg_len     = (unsigned int)strlen(msg);
+    unsigned int extra_chunk = msg_len % ULOG_CHUNK_SIZE != 0;
+    unsigned int chunk_count = msg_len / ULOG_CHUNK_SIZE + extra_chunk;
 
     // pad with nil chars to the nearest multiple of 8
-    unsigned int  padded_len = chunk_count * ULOG_CHUNK_SIZE;
-    char padded_msg[padded_len];
+    unsigned int padded_len = chunk_count * ULOG_CHUNK_SIZE;
+    char         padded_msg[padded_len];
     for (unsigned int i = 0; i < padded_len; i += 1)
     {
         padded_msg[i] = i < msg_len ? msg[i] : '\0';
