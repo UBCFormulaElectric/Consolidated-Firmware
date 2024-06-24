@@ -11,6 +11,7 @@
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "io_bspdTest.h"
+#include "app_heartbeatMonitor.h"
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (30U)
