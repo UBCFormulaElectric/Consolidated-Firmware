@@ -42,6 +42,8 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
+    app_ulog_log("Switched to init state.\n");
+
     // Turn on inverters when requested to do so by the BMS (so we can power them up before HV is applied).
     // Also, turn them on if HV is already up/coming up.
     const bool enable_inverters = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||

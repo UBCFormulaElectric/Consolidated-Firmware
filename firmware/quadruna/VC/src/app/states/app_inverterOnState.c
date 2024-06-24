@@ -25,6 +25,8 @@ static bool prev_start_switch_pos;
 
 static void inverterOnStateRunOnEntry(void)
 {
+    app_ulog_log("Switched to inverter on state.");
+
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);

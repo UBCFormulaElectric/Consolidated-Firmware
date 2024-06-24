@@ -16,6 +16,8 @@
 #include "app_units.h"
 #include "app_signal.h"
 
+#include "app_ulog.h"
+
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define BUZZER_ON_DURATION_MS 2000
 
@@ -64,6 +66,8 @@ void transmitTorqueRequests(float apps_pedal_percentage)
 
 static void driveStateRunOnEntry(void)
 {
+    app_ulog_log("Switched to drive state.\n");
+
     // Enable buzzer on transition to drive, and start 2s timer.
     app_timer_init(&buzzer_timer, BUZZER_ON_DURATION_MS);
     app_timer_restart(&buzzer_timer);
