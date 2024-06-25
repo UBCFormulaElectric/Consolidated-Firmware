@@ -13,7 +13,6 @@
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_shdnLoopNode.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
