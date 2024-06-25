@@ -13,7 +13,7 @@
 #include "app_canDataCapture.h"
 #include "app_commitInfo.h"
 #include "app_powerManager.h"
-#include "app_shdnLoop.h"
+#include "app_shdnLoopNode.h"
 #include "app_faultCheck.h"
 
 #include "io_jsoncan.h"
@@ -205,13 +205,6 @@ static const VcShdnConfig shutdown_config = { .tsms_gpio                   = &ts
                                               .RE_stop_gpio                = &r_shdn_sns,
                                               .splitter_box_interlock_gpio = &sb_ilck_shdn_sns };
 
-static const BoardShdnNode vc_shdn_nodes[VC_SHDN_NODE_COUNT] = {
-    { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set },
-    { io_vcShdn_LEStopFault_get, &app_canTx_VC_LEStopOKStatus_set },
-    { io_vcShdn_REStopFault_get, &app_canTx_VC_REStopOKStatus_set },
-    { io_vcShdn_SplitterBoxInterlockFault_get, &app_canTx_VC_SplitterBoxInterlockOKStatus_set },
-};
-
 static const LvBatteryConfig lv_battery_config = { .lt3650_charger_fault_gpio = nchrg_fault,
                                                    .ltc3786_boost_fault_gpio  = pgood,
                                                    .vbat_vsense_adc_channel   = id_to_adc[VC_AdcNetName_VBAT_SENSE],
@@ -397,7 +390,6 @@ void tasks_init(void)
     io_telemMessage_init(&modem);
 
     io_lowVoltageBattery_init(&lv_battery_config);
-    app_shdnLoop_init(vc_shdn_nodes, VC_SHDN_NODE_COUNT);
     io_currentSensing_init(&current_sensing_config);
     io_efuse_init(efuse_configs);
 
