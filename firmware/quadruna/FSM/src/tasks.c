@@ -8,7 +8,6 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_shdnLoop.h"
 #include "app_apps.h"
 
 #include "io_jsoncan.h"
@@ -30,7 +29,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
 #include "hw_watchdogConfig.h"
-#include "hw_stackWaterMark.h"
+#include "hw_stackWaterMark.h" // TODO enable stackwatermark on the FSM
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_adc.h"
 #include "hw_gpio.h"
@@ -135,9 +134,6 @@ void tasks_preInit(void)
 
 static const FsmShdnConfig fsm_shdn_pin_config = { .fsm_shdn_ok_gpio = fsm_shdn };
 
-static const BoardShdnNode fsm_bshdn_nodes[FSM_SHDN_NODE_COUNT] = { { &io_fsmShdn_FSM_SHDN_OK_get,
-                                                                      &app_canTx_FSM_BOTSOKStatus_set } };
-
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
@@ -161,8 +157,6 @@ void tasks_init(void)
     io_fsmShdn_init(&fsm_shdn_pin_config);
     app_canTx_init();
     app_canRx_init();
-
-    app_shdnLoop_init(fsm_bshdn_nodes, FSM_SHDN_NODE_COUNT);
 
     io_apps_init(&apps_config);
     io_brake_init(&brake_config);

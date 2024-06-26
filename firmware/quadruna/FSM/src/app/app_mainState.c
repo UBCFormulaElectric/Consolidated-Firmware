@@ -1,9 +1,6 @@
 #include "app_mainState.h"
 #include <stddef.h>
-#include "app_utils.h"
 #include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_canAlerts.h"
 #include "app_steering.h"
 #include "app_wheels.h"
 #include "app_apps.h"

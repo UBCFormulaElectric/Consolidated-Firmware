@@ -1,10 +1,6 @@
 #include "app_driveMode.h"
-#include <stdlib.h>
-#include <stdint.h>
-#include <assert.h>
-#include "app_canTx.h"
-#include "app_canAlerts.h"
 #include "io_driveMode.h"
+#include "app_canTx.h"
 
 void app_driveMode_broadcast(void)
 {

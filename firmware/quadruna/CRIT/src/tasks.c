@@ -8,8 +8,6 @@
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
-#include "app_globals.h"
-#include "app_shdnLoop.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -332,8 +330,6 @@ const AdcChannel id_to_adc[] = {
 
 static const UART debug_uart = { .handle = &huart2 };
 
-static const GlobalsConfig globals_config = { .drive_mode = &drive_mode };
-
 static const Leds led_config = {
     .imd_led         = &imd_led,
     .bspd_led        = &bspd_led,
@@ -405,11 +401,6 @@ static bool (*const heartbeatFaultGetters[HEARTBEAT_BOARD_COUNT])(void) = {
 static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn_sen_pin,
                                                      .inertia_sen_ok_gpio = inertia_sen_pin };
 
-static const BoardShdnNode crit_bshdn_nodes[CRIT_SHDN_NODE_COUNT] = {
-    { &io_critShdn_get_INERTIA_SEN_OK_get, &app_canTx_CRIT_InertiaSenOKStatus_set },
-    { &io_critShdn_COCKPIT_ESTOP_OK_get, &app_canTx_CRIT_CockpitEStopOKStatus_set }
-};
-
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
@@ -447,14 +438,11 @@ void tasks_init(void)
     app_canTx_init();
     app_canRx_init();
 
-    app_shdnLoop_init(crit_bshdn_nodes, CRIT_SHDN_NODE_COUNT);
-
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
         heartbeatFaultSetters, heartbeatFaultGetters);
 
     app_stateMachine_init(app_mainState_get());
-    app_globals_init(&globals_config);
 
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
