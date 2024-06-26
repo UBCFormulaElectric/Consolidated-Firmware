@@ -8,7 +8,6 @@
 #include "app_heartbeatMonitor.h"
 #include "app_stateMachine.h"
 #include "app_mainState.h"
-#include "app_globals.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"
@@ -331,8 +330,6 @@ const AdcChannel id_to_adc[] = {
 
 static const UART debug_uart = { .handle = &huart2 };
 
-static const GlobalsConfig globals_config = { .drive_mode = &drive_mode };
-
 static const Leds led_config = {
     .imd_led         = &imd_led,
     .bspd_led        = &bspd_led,
@@ -446,7 +443,6 @@ void tasks_init(void)
         heartbeatFaultSetters, heartbeatFaultGetters);
 
     app_stateMachine_init(app_mainState_get());
-    app_globals_init(&globals_config);
 
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
