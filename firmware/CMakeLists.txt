@@ -87,11 +87,10 @@ endif ()
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
-
 if ("${TARGET}" STREQUAL "deploy")
     add_subdirectory(chimera)
 endif ()
-
 add_subdirectory(logfs)
 add_subdirectory(quadruna)
-add_subdirectory(dev) 
+add_subdirectory(quintuna)
+add_subdirectory(dev)

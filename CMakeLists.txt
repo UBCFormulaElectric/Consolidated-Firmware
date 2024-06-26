@@ -128,7 +128,10 @@ IF ("${PLATFORM}" STREQUAL "firmware")
 		set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
 		message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")
 		set(CMAKE_SYSTEM_NAME Generic)
-		project("UBC Formula Electric Software" C ASM)
+		# https://stackoverflow.com/questions/53633705/cmake-the-c-compiler-is-not-able-to-compile-a-simple-test-program
+		# https://stackoverflow.com/questions/69145727/cmake-arm-gcc-undefined-reference-to-exit
+		set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+		project("UBC Formula Electric Software" C CXX ASM)
 	ELSEIF ("${TARGET}" STREQUAL "test")
 		project("UBC Formula Electric Software" C CXX)
 	ELSE ()
