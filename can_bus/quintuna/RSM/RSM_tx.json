@@ -1,2 +1,15 @@
 {
+    "Vitals": {
+        "msg_id": 400,
+        "cycle_time": 100,
+        "description": "RSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "RsmStates"
+            }
+        }
+    }
 }

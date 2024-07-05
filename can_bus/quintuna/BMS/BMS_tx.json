@@ -1,2 +1,31 @@
 {
+    "Vitals": {
+        "msg_id": 100,
+        "cycle_time": 100,
+        "description": "Vitals message for the BMS.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "BmsState"
+            }
+        }
+    },
+    "LatchedFaults": {
+        "msg_id": 111,
+        "cycle_time": 100,
+        "description": "Latched faults for the BMS",
+        "signals": {
+            "BmsLatchedFault": {
+                "bits": 1
+            },
+            "ImdLatchedFault": {
+                "bits": 1
+            },
+            "BspdLatchedFault": {
+                "bits": 1
+            }
+        }
+    }
 }
