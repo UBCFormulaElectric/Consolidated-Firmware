@@ -1,13 +1,13 @@
 {
-    "warnings_id": 150,
-    "faults_id": 151,
-    "warnings_counts_id": 152,
-    "faults_counts_id": 153,
+    "warnings_id": 401,
+    "faults_id": 402,
+    "warnings_counts_id": 403,
+    "faults_counts_id": 404,
     "warnings": {
     },
     "faults": {
         "DummyFault": {
-            "id": 154,
+            "id": 450,
             "description": "Dummy Fault"
         }
     }

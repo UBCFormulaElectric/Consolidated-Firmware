@@ -1,6 +1,6 @@
 {
     "Vitals": {
-        "msg_id": 100,
+        "msg_id": 400,
         "cycle_time": 100,
         "description": "Vitals message for the BMS.",
         "signals": {
@@ -13,7 +13,7 @@
         }
     },
     "LatchedFaults": {
-        "msg_id": 111,
+        "msg_id": 410,
         "cycle_time": 100,
         "description": "Latched faults for the BMS",
         "signals": {

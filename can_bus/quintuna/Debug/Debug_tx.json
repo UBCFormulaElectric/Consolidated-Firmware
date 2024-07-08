@@ -1,6 +1,6 @@
 {
     "CanMode": {
-        "msg_id": 701,
+        "msg_id": 900,
         "cycle_time": 1000,
         "description": "Signals related to CAN modes.",
         "signals": {
@@ -10,14 +10,14 @@
         }
     },
     "Charging": {
-        "msg_id": 702,
+        "msg_id": 901,
         "cycle_time": 100,
         "description": "Value set by user to start charging BMS.",
         "signals": {
             "StartCharging": {
                 "bits": 1
             },
-            "ClearChargerLatchedFault":{
+            "ClearChargerLatchedFault": {
                 "bits": 1
             },
             "FaultEncounteredOverride": {
@@ -44,7 +44,7 @@
         }
     },
     "CellBalancing": {
-        "msg_id": 703,
+        "msg_id": 902,
         "cycle_time": 1000,
         "description": "Signals related to BMS cell balancing.",
         "signals": {
@@ -78,7 +78,7 @@
         }
     },
     "ResetSoc": {
-        "msg_id": 704,
+        "msg_id": 903,
         "cycle_time": 100,
         "description": "Value set by user to set SOC based on min cell voltage.",
         "signals": {
@@ -97,7 +97,7 @@
         }
     },
     "SetCoolantPump": {
-        "msg_id": 705,
+        "msg_id": 904,
         "cycle_time": 1000,
         "description": "Value set by the user to set the coolant pump flow rate.",
         "signals": {
@@ -112,8 +112,8 @@
             }
         }
     },
-    "SetBSPDTestCurrent":{
-        "msg_id": 706,
+    "SetBSPDTestCurrent": {
+        "msg_id": 905,
         "cycle_time": 100,
         "description": "Enable BSPD Test Current",
         "signals": {

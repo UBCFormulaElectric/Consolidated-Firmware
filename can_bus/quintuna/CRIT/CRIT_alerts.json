@@ -1,57 +1,57 @@
 {
-    "warnings_id": 500,
-    "faults_id": 501,
-    "warnings_counts_id": 550,
-    "faults_counts_id": 551,
+    "warnings_id": 801,
+    "faults_id": 802,
+    "warnings_counts_id": 803,
+    "faults_counts_id": 804,
     "warnings": {
         "StackWaterMarkHighTask1Hz": {
-            "id": 201,
+            "id": 801,
             "description": "1Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask100Hz": {
-            "id": 202,
+            "id": 802,
             "description": "100Hz task stack watermark exceeded."
         },
         "StackWaterMarkHighTask1kHz": {
-            "id": 203,
+            "id": 803,
             "description": "1kHz task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanRx": {
-            "id": 204,
+            "id": 804,
             "description": "CAN RX task stack watermark exceeded."
         },
         "StackWaterMarkHighTaskCanTx": {
-            "id": 205,
+            "id": 805,
             "description": "CAN TX task stack watermark exceeded."
         },
         "WatchdogTimeout": {
-            "id": 206,
+            "id": 806,
             "description": "Watchdog timeout detected."
         },
         "TxOverflow": {
-            "id": 207,
+            "id": 807,
             "description": "CAN TX queue has overflowed."
         },
         "RxOverflow": {
-            "id": 208,
+            "id": 808,
             "description": "CAN RX queue has overflowed."
         }
     },
     "faults": {
         "MissingBMSHeartbeat": {
-            "id": 251,
+            "id": 850,
             "description": "Missing heartbeat signal from the BMS."
         },
         "MissingFSMHeartbeat": {
-            "id": 252,
+            "id": 851,
             "description": "Missing heartbeat signal from the FSM."
         },
         "MissingRSMHeartbeat": {
-            "id": 253,
+            "id": 852,
             "description": "Missing heartbeat signal from the RSM."
         },
         "MissingVCHeartbeat": {
-            "id": 254,
+            "id": 853,
             "description": "Missing heartbeat signal from the VC."
         }
     }

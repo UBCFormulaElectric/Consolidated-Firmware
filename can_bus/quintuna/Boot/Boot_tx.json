@@ -1,6 +1,6 @@
 {
-    "VC": {
-        "msg_id": 1219,
+    "BMS": {
+        "msg_id": 499,
         "cycle_time": 100,
         "signals": {
             "VC_Hash": {
@@ -14,8 +14,8 @@
             }
         }
     },
-    "BMS": {
-        "msg_id": 1209,
+    "FVC": {
+        "msg_id": 599,
         "cycle_time": 100,
         "signals": {
             "BMS_Hash": {
@@ -29,8 +29,8 @@
             }
         }
     },
-    "RSM": {
-        "msg_id": 1239,
+    "RVC": {
+        "msg_id": 699,
         "cycle_time": 100,
         "signals": {
             "RSM_Hash": {
@@ -44,8 +44,8 @@
             }
         }
     },
-    "FSM": {
-        "msg_id": 1229,
+    "RSM": {
+        "msg_id": 799,
         "cycle_time": 100,
         "signals": {
             "FSM_Hash": {
@@ -59,8 +59,8 @@
             }
         }
     },
-    "CRIT": {
-        "msg_id": 1249,
+    "CDIM": {
+        "msg_id": 899,
         "cycle_time": 100,
         "signals": {
             "CRIT_Hash": {
@@ -75,7 +75,7 @@
         }
     },
     "H7Dev": {
-        "msg_id": 1309,
+        "msg_id": 1199,
         "cycle_time": 100,
         "signals": {
             "H7Dev_Hash": {
