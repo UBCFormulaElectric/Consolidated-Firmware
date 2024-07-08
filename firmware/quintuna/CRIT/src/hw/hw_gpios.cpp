@@ -20,17 +20,17 @@ const gpio shdn_r_pin{ SHDN_R_GPIO_Port, SHDN_R_Pin };
 const gpio shdn_g_pin{ SHDN_G_GPIO_Port, SHDN_G_Pin };
 const gpio shdn_b_pin_fake{ 0, MAX_8_BITS_VALUE };
 
-const gpio vc_r_pin{ VC_R_GPIO_Port, VC_R_Pin };
-const gpio vc_g_pin{ VC_G_GPIO_Port, VC_G_Pin };
-const gpio vc_b_pin{ VC_B_GPIO_Port, VC_B_Pin };
+const gpio rvc_r_pin{ VC_R_GPIO_Port, VC_R_Pin };
+const gpio rvc_g_pin{ VC_G_GPIO_Port, VC_G_Pin };
+const gpio rvc_b_pin{ VC_B_GPIO_Port, VC_B_Pin };
 
 const gpio bms_r_pin{ BMS_R_GPIO_Port, BMS_R_Pin };
 const gpio bms_g_pin{ BMS_G_GPIO_Port, BMS_G_Pin };
 const gpio bms_b_pin{ BMS_B_GPIO_Port, BMS_B_Pin };
 
-const gpio fsm_r_pin{ FSM_R_GPIO_Port, FSM_R_Pin };
-const gpio fsm_g_pin{ FSM_G_GPIO_Port, FSM_G_Pin };
-const gpio fsm_b_pin{ FSM_B_GPIO_Port, FSM_B_Pin };
+const gpio fvc_r_pin{ FSM_R_GPIO_Port, FSM_R_Pin };
+const gpio fvc_g_pin{ FSM_G_GPIO_Port, FSM_G_Pin };
+const gpio fvc_b_pin{ FSM_B_GPIO_Port, FSM_B_Pin };
 
 const gpio rsm_r_pin{ RSM_R_GPIO_Port, RSM_R_Pin };
 const gpio rsm_g_pin{ RSM_G_GPIO_Port, RSM_G_Pin };

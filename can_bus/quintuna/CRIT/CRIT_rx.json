@@ -1,11 +1,11 @@
 {
     "messages": [
         "BMS_Vitals",
-        "FSM_Vitals",
+        "FVC_Vitals",
+        "RVC_Vitals",
         "RSM_Vitals",
-        "VC_Vitals",
         "BMS_LatchedFaults",
-        "VC_VehicleDynamics",
-        "VC_GlobalShdnNodeStatus"
+        "RVC_VehicleDynamics",
+        "RVC_GlobalShdnNodeStatus"
     ]
 }

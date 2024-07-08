@@ -13,9 +13,9 @@ const io::binary_led torquevec_led{ hw::torquevec_led_pin };
 
 const io::led shutdown_status_led{ hw::shdn_r_pin, hw::shdn_g_pin, hw::shdn_b_pin_fake };
 
-const io::led vc_status_led{ hw::vc_r_pin, hw::vc_g_pin, hw::vc_b_pin };
 const io::led bms_status_led{ hw::bms_r_pin, hw::bms_g_pin, hw::bms_b_pin };
-const io::led fsm_status_led{ hw::fsm_r_pin, hw::fsm_g_pin, hw::fsm_b_pin };
+const io::led fvc_status_led{ hw::fvc_r_pin, hw::fvc_g_pin, hw::fvc_b_pin };
+const io::led rvc_status_led{ hw::rvc_r_pin, hw::rvc_g_pin, hw::rvc_b_pin };
 const io::led rsm_status_led{ hw::rsm_r_pin, hw::rsm_g_pin, hw::rsm_b_pin };
 const io::led aux_status_led{ hw::aux_r_pin, hw::aux_g_pin, hw::aux_b_pin };
 const io::led crit_status_led{ hw::crit_r_pin, hw::crit_g_pin, hw::crit_b_pin };
