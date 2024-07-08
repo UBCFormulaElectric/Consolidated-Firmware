@@ -25,27 +25,27 @@ template <size_t NODE_COUNT> class monitor
     /**
      * Populates heartbeats_checked_in
      */
-    void checkIn() const;
+    void checkIn() const {}
 
     /**
      * Gets state to broadcast via can, and can callbacks to use to broadcast
      */
-    void broadcastFaults() const;
+    void broadcastFaults() const {}
 
     /**
      * @return Whether the heartbeat monitor for the current board has detected any fault
      */
-    [[nodiscard]] bool isSendingMissingHeartbeatFault() const;
+    [[nodiscard]] bool isSendingMissingHeartbeatFault() const { return false; }
 
     /**
      * Blocks faults from being reported in app_heartbeatMonitor_isSendingMissingHeartbeatFault
      * @param block_faults Whether to block faults
      */
-    void setBlockFaults(bool new_block_faults);
+    void setBlockFaults(bool new_block_faults) { block_faults = new_block_faults; }
 
     /**
      * Resets faults as to report as false, useful for test environments
      */
-    void clearFaults() const;
+    void clearFaults() const {}
 };
 } // namespace app::heartbeat

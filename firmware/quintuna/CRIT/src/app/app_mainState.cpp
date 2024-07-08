@@ -18,10 +18,13 @@ static void mainStateRunOnEntry() {}
 static void mainStateRunOnTick1Hz() {}
 static void mainStateRunOnExit() {}
 
-const State main_state{
+namespace app::critstates
+{
+const app::State main_state{
     .name              = "MAIN",
     .run_on_entry      = mainStateRunOnEntry,
     .run_on_tick_1Hz   = mainStateRunOnTick1Hz,
     .run_on_tick_100Hz = mainStateRunOnTick100Hz,
     .run_on_exit       = mainStateRunOnExit,
 };
+}

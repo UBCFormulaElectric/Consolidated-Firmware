@@ -1,32 +1,41 @@
+message("⚙️ Configuring CRIT")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE SYSTEM_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/main.cpp"
 )
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
+list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
+)
+set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
-
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_led.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_switch.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_heartbeatNode.cpp"
+)
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
 
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 if ("${TARGET}" STREQUAL "deploy")
@@ -95,7 +104,7 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quintuna_CRIT_jsoncan" "quintuna_CRIT_stm32cube")
-    target_link_libraries("quintuna_CRIT_app.elf" "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quintuna_CRIT_boot.elf" "quintuna_CRIT_commit_info")
 
     embedded_image(
@@ -107,3 +116,4 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
+message("")

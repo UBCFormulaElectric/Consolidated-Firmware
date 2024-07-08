@@ -49,5 +49,5 @@ namespace StateMachine
      * @param state_machine The state machine to tick
      */
     void tick100Hz();
-}; // namespace StateMachine
+} // namespace StateMachine
 } // namespace app

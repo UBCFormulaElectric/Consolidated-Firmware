@@ -1,40 +1,189 @@
 #include "tasks.h"
-
-void tasks_preInit() {}
-
-void tasks_init() {}
-
-void tasks_run1Hz()
+extern "C"
 {
+#include "main.h"
+#include "cmsis_os.h"
+}
+
+// app
+#include "app_mainState.h"
+// io
+
+// hw
+#include "hw_utils.h"
+
+// old can stuff
+extern "C"
+{
+#include "app_canRx.h"
+#include "app_canTx.h"
+#include "app_commitInfo.h"
+#include "io_canTx.h"
+#include "io_canRx.h"
+}
+
+void tasks_preInit(void)
+{
+    // hw_bootup_enableInterruptsForApp();
+}
+
+void tasks_init(void)
+{
+    // Configure and initialize SEGGER SystemView.
+    // NOTE: Needs to be done after clock config!
+    // SEGGER_SYSVIEW_Conf();
+    // LOG_INFO("VC reset!");
+
+    // Start DMA/TIM3 for the ADC.
+    // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
+    // HAL_TIM_Base_Start(&htim3);
+
+    // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
+
+    // Re-enable watchdog.
+    // __HAL_DBGMCU_FREEZE_IWDG();
+
+    // hw_hardFaultHandler_init();
+    // hw_can_init(&can);
+    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+
+    // io_canTx_init(io_jsoncan_pushTxMsgToQueue);
+    // io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    // io_can_init(&can_config);
+
+    app_canTx_init();
+    app_canRx_init();
+
+    app::StateMachine::init(&app::critstates::main_state);
+
+    // broadcast commit info
+    app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
+    app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+}
+
+void tasks_runCanTx(void)
+{
+    // io_chimera_sleepTaskIfEnabled();
+
+    // Setup tasks.
     for (;;)
     {
+        // CanMsg tx_msg;
+        // io_can_popTxMsgFromQueue(&tx_msg);
+        // io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 
-void tasks_run100Hz()
+void tasks_runCanRx(void)
 {
+    // io_chimera_sleepTaskIfEnabled();
+
+    // Setup tasks.
     for (;;)
     {
+        // CanMsg rx_msg;
+        // io_can_popRxMsgFromQueue(&rx_msg);
+
+        // JsonCanMsg jsoncan_rx_msg;
+        // io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        // io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
-void tasks_run1kHz()
+void tasks_run1Hz(void)
 {
+    // io_chimera_sleepTaskIfEnabled();
+
+    // Setup tasks.
+    static const TickType_t period_ms = 1000U;
+    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     for (;;)
     {
+        // hw_stackWaterMarkConfig_check();
+        app::StateMachine::tick1Hz();
+
+        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        io_canTx_enqueue1HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        // hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-void tasks_runCanTx()
+void tasks_run100Hz(void)
 {
+    // io_chimera_sleepTaskIfEnabled();
+
+    // Setup tasks.
+    static const TickType_t period_ms = 10;
+    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     for (;;)
     {
+        app::StateMachine::tick100Hz();
+        io_canTx_enqueue100HzMsgs();
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        // hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-void tasks_runCanRx()
+void tasks_run1kHz(void)
 {
+    // io_chimera_sleepTaskIfEnabled();
+
+    // Setup tasks.
+    static const TickType_t period_ms = 1;
+    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
+    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    /* Infinite loop */
     for (;;)
     {
+        // Check in for timeouts for all RTOS tasks
+        // hw_watchdog_checkForTimeouts();
+
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+        io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
+        {
+            // hw_watchdog_checkIn(watchdog);
+        }
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
+
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     if (huart == debug_uart.handle)
+//     {
+//         io_chimera_msgRxCallback();
+//     }
+// }

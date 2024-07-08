@@ -17,3 +17,4 @@ EXTERNCNORET void tasks_runCanTx();
 EXTERNCNORET void tasks_runCanRx();
 
 #undef EXTERNC
+#undef EXTERNCNORET
