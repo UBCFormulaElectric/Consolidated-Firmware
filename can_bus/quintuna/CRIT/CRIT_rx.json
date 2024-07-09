@@ -6,6 +6,7 @@
         "RSM_Vitals",
         "BMS_LatchedFaults",
         "RVC_VehicleDynamics",
-        "RVC_GlobalShdnNodeStatus"
+        "RVC_GlobalShdnNodeStatus",
+        "Debug_CanMode"
     ]
 }

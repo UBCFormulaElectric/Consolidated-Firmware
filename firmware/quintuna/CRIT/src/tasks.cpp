@@ -8,9 +8,13 @@ extern "C"
 // app
 #include "app_mainState.h"
 // io
+#include "io_log.h"
+#include "io_jsoncan.h"
+#include "io_canMsgQueues.h"
 
 // hw
 #include "hw_utils.h"
+#include "hw_cans.h"
 
 // old can stuff
 extern "C"
@@ -22,6 +26,9 @@ extern "C"
 #include "io_canRx.h"
 }
 
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim3;
+
 void tasks_preInit(void)
 {
     // hw_bootup_enableInterruptsForApp();
@@ -31,25 +38,29 @@ void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
-    // SEGGER_SYSVIEW_Conf();
-    // LOG_INFO("VC reset!");
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("CRIT reset!");
 
     // Start DMA/TIM3 for the ADC.
     // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    // HAL_TIM_Base_Start(&htim3);
-
-    // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
+    HAL_TIM_Base_Start(&htim3);
 
     // Re-enable watchdog.
     // __HAL_DBGMCU_FREEZE_IWDG();
-
-    // hw_hardFaultHandler_init();
-    // hw_can_init(&can);
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    // hw_hardFaultHandler_init();
+    hw::can1.init();
 
-    // io_canTx_init(io_jsoncan_pushTxMsgToQueue);
-    // io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    // io_can_init(&can_config);
+    // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
+    io_canTx_init(
+        [](const JsonCanMsg *msg)
+        {
+            hw::CanMsg tx_msg{};
+            io_jsoncan_copyToCanMsg(msg, &tx_msg);
+            io::can1queue.pushTxMsgToQueue(&tx_msg);
+        });
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
+    io::can1queue.init();
 
     app_canTx_init();
     app_canRx_init();
@@ -68,9 +79,8 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        // CanMsg tx_msg;
-        // io_can_popTxMsgFromQueue(&tx_msg);
-        // io_can_transmitMsgFromQueue(&tx_msg);
+        hw::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
+        hw::can1.transmit(&tx_msg);
     }
 }
 
@@ -81,12 +91,11 @@ void tasks_runCanRx(void)
     // Setup tasks.
     for (;;)
     {
-        // CanMsg rx_msg;
-        // io_can_popRxMsgFromQueue(&rx_msg);
+        hw::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
 
-        // JsonCanMsg jsoncan_rx_msg;
-        // io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        // io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 
@@ -107,8 +116,8 @@ void tasks_run1Hz(void)
         // hw_stackWaterMarkConfig_check();
         app::StateMachine::tick1Hz();
 
-        // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-        // io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
+        const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+        io_canTx_enableMode(CAN_MODE_DEBUG, debug_mode_enabled);
         io_canTx_enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the

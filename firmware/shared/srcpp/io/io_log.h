@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdio.h>
 #include "app_utils.h"
 #include "app_canAlerts.h"
 
@@ -36,7 +35,7 @@ Notes
 #include "SEGGER_RTT.h"
 #define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
-#include <stdio.h>
+#include <cstdio>
 #define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
 #endif
 
@@ -49,9 +48,9 @@ Notes
 
 #define MAX_FAULT_COUNT 50
 
-void LOG_ALL_FAULTS(void)
+void LOG_ALL_FAULTS()
 {
-    Fault_Warning_Info buffer[MAX_FAULT_COUNT] = { 0 };
+    Fault_Warning_Info buffer[MAX_FAULT_COUNT] = { { 0, 0, 0 } };
     const uint8_t      fault_count             = app_canAlerts_FaultInfo(buffer);
     LOG_INFO("==================================");
     LOG_INFO("All Faults:");
