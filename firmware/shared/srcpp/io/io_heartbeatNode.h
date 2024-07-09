@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 namespace io::heartbeat
 {
 class node
@@ -17,22 +16,22 @@ class node
 
     // HEARTBEAT CAN SIGNALS
     // getters for heartbeats on the CAN table
-    const std::function<bool(void)> &getter;
+    bool (*const getter)();
     // resetters on the local CAN table for other heartbeats
-    const std::function<void(void)> &resetter;
+    void (*const resetter)();
 
     // FAULT SETGET
-    // fault broadcasters for each board's heartbeat from this board
-    const std::function<void(bool)> &fault_setter;
     // fault getters for each board's heartbeat from this board
-    const std::function<bool(void)> &fault_getter;
+    bool (*const fault_getter)();
+    // fault broadcasters for each board's heartbeat from this board
+    void (*const fault_setter)(bool);
 
   public:
     explicit node(
-        const std::function<bool(void)> &in_getter,
-        const std::function<void(void)> &in_resetter,
-        const std::function<void(bool)> &in_fault_setter,
-        const std::function<bool(void)> &in_fault_getter)
-      : getter(in_getter), resetter(in_resetter), fault_setter(in_fault_setter), fault_getter(in_fault_getter){};
+        bool (*const in_getter)(),
+        void (*const in_resetter)(),
+        bool (*const in_fault_getter)(),
+        void (*const in_fault_setter)(bool))
+      : getter(in_getter), resetter(in_resetter), fault_getter(in_fault_getter), fault_setter(in_fault_setter){};
 };
 } // namespace io::heartbeat

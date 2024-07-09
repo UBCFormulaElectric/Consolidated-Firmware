@@ -1,16 +1,15 @@
 #pragma once
-#include <functional>
 #include "hw_gpio.h"
 
 namespace io::shdn
 {
 class node
 {
-    const hw::gpio                  &pin;
-    const std::function<void(bool)> &can_broadcast;
+    const hw::gpio &pin;
+    void (*const can_broadcast)(bool);
 
   public:
-    explicit node(const hw::gpio &in_pin_in, const std::function<void(bool)> &in_can_broadcast)
+    explicit node(const hw::gpio &in_pin_in, void (*in_can_broadcast)(bool))
       : pin(in_pin_in), can_broadcast(in_can_broadcast)
     {
     }

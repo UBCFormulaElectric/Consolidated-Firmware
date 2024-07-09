@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 #include <utility>
 #include "hw_hal.h"
 
@@ -25,8 +24,8 @@ struct CanMsg
 
 class can
 {
-    const std::function<void(CanMsg *rx_msg)> can_msg_received_callback;
-    USEDCAN_HandleTypeDef *const              handle;
+    void (*const can_msg_received_callback)(const CanMsg *rx_msg);
+    USEDCAN_HandleTypeDef *const handle;
 
   public:
     /**
@@ -34,8 +33,8 @@ class can
      * @param can_handle STM32 HAL CAN handle.
      * @param can_msg_received_callback Callback function to be called when a CAN message is received.
      */
-    explicit can(USEDCAN_HandleTypeDef *const can_handle_in, std::function<void(CanMsg *)> can_msg_received_callback_in)
-      : can_msg_received_callback(std::move(can_msg_received_callback_in)), handle(can_handle_in)
+    explicit can(USEDCAN_HandleTypeDef *can_handle_in, void (*can_msg_received_callback_in)(const CanMsg *))
+      : can_msg_received_callback(can_msg_received_callback_in), handle(can_handle_in)
     {
     }
     /**
