@@ -13,6 +13,7 @@ set(SYSTEM_INCLUDE_DIRS
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR_CPP}")
 
@@ -25,6 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_log.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_jsoncan.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_canMsgQueue.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
 
@@ -37,6 +39,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

@@ -1,9 +1,12 @@
 #pragma once
+#include "app_timer.h"
 
 namespace io::heartbeat
 {
 class node
 {
+#define HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS 200U
+  public:
     // gives if the heartbeat is checked in.
     // unmonitored heartbeats should be false.
     bool heartbeats_checked_in = false;
@@ -13,6 +16,8 @@ class node
     // 2) it was not on our list of heartbeats to check
     // 3) if the heartbeat_checked_in is true but the timeout has not been elapsed.
     bool status = false;
+
+    app::Timer timer{ HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS };
 
     // HEARTBEAT CAN SIGNALS
     // getters for heartbeats on the CAN table
@@ -26,7 +31,6 @@ class node
     // fault broadcasters for each board's heartbeat from this board
     void (*const fault_setter)(bool);
 
-  public:
     explicit node(
         bool (*const in_getter)(),
         void (*const in_resetter)(),
