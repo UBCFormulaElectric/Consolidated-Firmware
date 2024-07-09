@@ -15,6 +15,7 @@ extern "C"
 // hw
 #include "hw_utils.h"
 #include "hw_cans.h"
+#include "hw_bootup.h"
 
 // old can stuff
 extern "C"
@@ -31,7 +32,7 @@ extern TIM_HandleTypeDef htim3;
 
 void tasks_preInit(void)
 {
-    // hw_bootup_enableInterruptsForApp();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init(void)
