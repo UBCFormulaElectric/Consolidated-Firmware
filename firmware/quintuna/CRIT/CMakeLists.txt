@@ -22,6 +22,9 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_switch.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_heartbeatNode.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_log.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_jsoncan.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canMsgQueue.cpp"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR_CPP}")
 
@@ -32,6 +35,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -104,7 +108,7 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("quintuna_CRIT_jsoncan" "quintuna_CRIT_stm32cube")
-    target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quintuna_CRIT_app.elf" "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quintuna_CRIT_boot.elf" "quintuna_CRIT_commit_info")
 
     embedded_image(

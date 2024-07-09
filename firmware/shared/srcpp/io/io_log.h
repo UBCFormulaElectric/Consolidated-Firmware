@@ -1,7 +1,6 @@
 #pragma once
 
 #include "app_utils.h"
-#include "app_canAlerts.h"
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
@@ -46,17 +45,4 @@ Notes
 #define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
 #define LOG_ERROR(format, ...) _LOG(ANSI_BOLD_RED "ERROR", format, ##__VA_ARGS__)
 
-#define MAX_FAULT_COUNT 50
-
-void LOG_ALL_FAULTS()
-{
-    Fault_Warning_Info buffer[MAX_FAULT_COUNT] = { { 0, 0, 0 } };
-    const uint8_t      fault_count             = app_canAlerts_FaultInfo(buffer);
-    LOG_INFO("==================================");
-    LOG_INFO("All Faults:");
-    for (uint8_t i = 0; i < fault_count; i++)
-    {
-        LOG_INFO("%s", buffer[i].name);
-    }
-    LOG_INFO("==================================");
-}
+void LOG_ALL_FAULTS();
