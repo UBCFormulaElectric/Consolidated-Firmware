@@ -11,4 +11,11 @@
 #define Error_Handler0() hw_error(__FILE__, __LINE__, __func__)
 #define Error_Handler1(unused) Error_Handler(unused)
 
-_Noreturn void hw_error(const char *file, int line, const char *func);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    void hw_error(const char *file, int line, const char *func);
+#ifdef __cplusplus
+}
+#endif

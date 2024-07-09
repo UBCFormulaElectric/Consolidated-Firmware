@@ -16,8 +16,9 @@ extern "C"
 #include "hw_utils.h"
 #include "hw_cans.h"
 #include "hw_bootup.h"
+#include "hw_hardFaultHandler.h"
 
-// old can stuff
+// jsoncan stuff
 extern "C"
 {
 #include "app_canRx.h"
@@ -49,7 +50,7 @@ void tasks_init(void)
     // Re-enable watchdog.
     // __HAL_DBGMCU_FREEZE_IWDG();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
-    // hw_hardFaultHandler_init();
+    hw_hardFaultHandler_init();
     hw::can1.init();
 
     // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);

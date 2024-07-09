@@ -32,8 +32,8 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
