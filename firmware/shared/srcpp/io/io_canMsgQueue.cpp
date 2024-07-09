@@ -3,24 +3,9 @@
 
 #include <cstring>
 #include <cassert>
-#include <utility>
 
 namespace io
 {
-CanMsgQueue::CanMsgQueue(
-    std::function<bool(uint32_t)> rx_msg_filter_in,
-    std::function<void(uint32_t)> tx_overflow_callback_in,
-    std::function<void(uint32_t)> rx_overflow_callback_in,
-    std::function<void()>         tx_overflow_clear_callback_in,
-    std::function<void()>         rx_overflow_clear_callback_in)
-  : rx_msg_filter(std::move(rx_msg_filter_in)),
-    tx_overflow_callback(std::move(tx_overflow_callback_in)),
-    rx_overflow_callback(std::move(rx_overflow_callback_in)),
-    tx_overflow_clear_callback(std::move(tx_overflow_clear_callback_in)),
-    rx_overflow_clear_callback(std::move(rx_overflow_clear_callback_in))
-{
-}
-
 void CanMsgQueue::init()
 {
     // Initialize CAN queues.
@@ -65,7 +50,7 @@ hw::CanMsg CanMsgQueue::popRxMsgFromQueue()
     return msg;
 }
 
-void CanMsgQueue::pushRxMsgToQueue(hw::CanMsg *rx_msg)
+void CanMsgQueue::pushRxMsgToQueue(const hw::CanMsg *rx_msg)
 {
     if (!rx_msg_filter(rx_msg->std_id))
         // Early return if we don't care about this msg via configured filter func.

@@ -67,11 +67,11 @@ class CanMsgQueue
         .mq_size   = RX_QUEUE_BYTES,
     };
 
-    std::function<bool(uint32_t)> rx_msg_filter;
-    std::function<void(uint32_t)> tx_overflow_callback;
-    std::function<void(uint32_t)> rx_overflow_callback;
-    std::function<void()>         tx_overflow_clear_callback;
-    std::function<void()>         rx_overflow_clear_callback;
+    bool (*const rx_msg_filter)(uint32_t){};
+    void (*const tx_overflow_callback)(uint32_t){};
+    void (*const rx_overflow_callback)(uint32_t){};
+    void (*const tx_overflow_clear_callback)(){};
+    void (*const rx_overflow_clear_callback)(){};
 
     uint32_t tx_overflow_count = 0;
     uint32_t rx_overflow_count = 0;
@@ -80,11 +80,16 @@ class CanMsgQueue
 
   public:
     explicit CanMsgQueue(
-        std::function<bool(uint32_t)> rx_msg_filter,
-        std::function<void(uint32_t)> tx_overflow_callback,
-        std::function<void(uint32_t)> rx_overflow_callback,
-        std::function<void()>         tx_overflow_clear_callback,
-        std::function<void()>         rx_overflow_clear_callback);
+        bool (*const in_rx_msg_filter)(uint32_t),
+        void (*const in_tx_overflow_callback)(uint32_t),
+        void (*const in_rx_overflow_callback)(uint32_t),
+        void (*const in_tx_overflow_clear_callback)(),
+        void (*const in_rx_overflow_clear_callback)())
+      : rx_msg_filter(in_rx_msg_filter),
+        tx_overflow_callback(in_tx_overflow_callback),
+        rx_overflow_callback(in_rx_overflow_callback),
+        tx_overflow_clear_callback(in_tx_overflow_clear_callback),
+        rx_overflow_clear_callback(in_rx_overflow_clear_callback){};
 
     /**
      * Initialize and start the CAN peripheral.
@@ -115,7 +120,7 @@ class CanMsgQueue
      * Callback fired by config-specific interrupts to receive a message from a given FIFO.
      * @param msg CAN msg to be populated by RXed msg.
      */
-    void pushRxMsgToQueue(hw::CanMsg *rx_msg);
+    void pushRxMsgToQueue(const hw::CanMsg *rx_msg);
 #endif
 };
 } // namespace io

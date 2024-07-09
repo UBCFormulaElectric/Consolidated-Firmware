@@ -6,7 +6,7 @@ extern CAN_HandleTypeDef hcan1;
 
 namespace hw
 {
-const can can1{ &hcan1, [](CanMsg *canMsg) { io::can1queue.pushRxMsgToQueue(canMsg); } };
+const can can1{ &hcan1, [](const CanMsg *canMsg) { io::can1queue.pushRxMsgToQueue(canMsg); } };
 } // namespace hw
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)

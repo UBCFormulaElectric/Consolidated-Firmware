@@ -7,20 +7,20 @@ namespace app::heartbeat
 // constexpr unsigned int HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS = 200U;
 template <size_t NODE_COUNT> class monitor
 {
-    const std::array<const io::heartbeat::node *const, NODE_COUNT> heartbeat_nodes;
-    const std::function<void(bool)>                               &checkin_self;
-    bool                                                           block_faults = false;
+    const std::array<const io::heartbeat::node *const, NODE_COUNT> heartbeat_nodes{};
+    void (*const checkin_self)(bool);
+    bool block_faults = false;
 
   public:
     explicit monitor(
-        const std::function<void(bool)>                               &in_checkin_self,
+        void (*const in_checkin_self)(bool),
         const std::array<const io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes)
-      : heartbeat_nodes(in_heartbeat_nodes), checkin_self(in_checkin_self){};
+      : heartbeat_nodes(std::move(in_heartbeat_nodes)), checkin_self(in_checkin_self){};
     explicit monitor(
-        const std::function<void(bool)>                               &in_checkin_self,
+        void (*const in_checkin_self)(bool),
         const std::array<const io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes,
-        const bool                                                     in_block_faults)
-      : block_faults(in_block_faults), heartbeat_nodes(in_heartbeat_nodes), checkin_self(in_checkin_self){};
+        bool                                                           in_block_faults)
+      : block_faults(in_block_faults), heartbeat_nodes(std::move(in_heartbeat_nodes)), checkin_self(in_checkin_self){};
 
     /**
      * Populates heartbeats_checked_in
