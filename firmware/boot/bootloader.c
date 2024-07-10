@@ -133,8 +133,10 @@ static const Gpio bootloader_pin = {
 
 static uint32_t current_address;
 static bool     update_in_progress;
+static uint32_t program_cache_buffer[CHUNK_SIZE_BYTES / 4];
+static uint32_t program_cache_buffer_idx = 0;
 
-void bootloader_preInit(void)
+void bootloader_preInit()
 {
     // Configure and initialize SEGGER SystemView.
     SEGGER_SYSVIEW_Conf();
@@ -174,6 +176,8 @@ void bootloader_init(void)
         // Jump to app.
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
+
+    verifyAppCodeChecksum();
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
@@ -210,9 +214,33 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
+            uint64_t data                                    = *(uint64_t *)command.data;
+            program_cache_buffer[program_cache_buffer_idx++] = (uint32_t)data & 0xFFFFFFFF;
+            program_cache_buffer[program_cache_buffer_idx++] = (uint32_t)(data >> 32) & 0xFFFFFFFF;
             current_address += sizeof(uint64_t);
         }
+        else if (command.std_id == CONFIRM_CHUNK_ID && update_in_progress)
+        {
+            // Handshake to ensure the addresses are lined up after each chunk
+            uint32_t program_address = *(uint32_t *)command.data;
+            bool     address_aligned = program_address == current_address;
+
+            if (!address_aligned)
+            {
+                current_address = program_address - CHUNK_SIZE_BYTES;
+            }
+
+            CanMsg reply  = { .std_id = CONFIRM_CHUNK_ID, .dlc = 1 };
+            reply.data[0] = (uint8_t)address_aligned;
+            io_can_pushTxMsgToQueue(&reply);
+
+            if (address_aligned)
+            {
+                bootloader_boardSpecific_program(current_address - CHUNK_SIZE_BYTES, program_cache_buffer);
+                program_cache_buffer_idx = 0;
+            }
+        }
+
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
@@ -229,7 +257,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
     }
 }
 
-_Noreturn void bootloader_runTickTask(void)
+void bootloader_runTickTask()
 {
     uint32_t start_ticks = osKernelGetTickCount();
 
