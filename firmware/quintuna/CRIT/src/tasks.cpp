@@ -58,7 +58,7 @@ void tasks_init(void)
         [](const JsonCanMsg *msg)
         {
             hw::CanMsg tx_msg{};
-            io_jsoncan_copyToCanMsg(msg, &tx_msg);
+            io::jsoncan::copyToCanMsg(msg, &tx_msg);
             io::can1queue.pushTxMsgToQueue(&tx_msg);
         });
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -96,7 +96,7 @@ void tasks_runCanRx(void)
         hw::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
 
         JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io::jsoncan::copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }

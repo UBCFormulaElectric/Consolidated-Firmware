@@ -14,24 +14,19 @@ extern "C"
  * to/from jsoncan messages.
  */
 
-/**
- * Enqueue a jsoncan msg to be transmitted on the bus.
- * This just invokes io_can_pushTxMsgToQueue, but we need this intermediate
- * function since jsoncan defines its own CAN message struct.
- * @param msg CAN msg to be TXed.
- */
-void io_jsoncan_pushTxMsgToQueue(const JsonCanMsg *msg);
-
+namespace io::jsoncan
+{
 /**
  * Convert a jsoncan message to our own driver-level CAN message type.
  * @param src Pointer to jsoncan message to be copied from.
  * @param dest Pointer to CAN message to be copied to.
  */
-void io_jsoncan_copyToCanMsg(const JsonCanMsg *src, hw::CanMsg *dest);
+void copyToCanMsg(const JsonCanMsg *src, hw::CanMsg *dest);
 
 /**
  * Convert own driver-level CAN message type to a jsoncan message.
  * @param src Pointer to CAN message to be copied from.
  * @param dest Pointer to jsoncan message to be copied to.
  */
-void io_jsoncan_copyFromCanMsg(const hw::CanMsg *src, JsonCanMsg *dest);
+void copyFromCanMsg(const hw::CanMsg *src, JsonCanMsg *dest);
+} // namespace io::jsoncan
