@@ -29,8 +29,8 @@ namespace io
 // Sizes of CAN TX and RX queues.
 #define TX_QUEUE_SIZE 128
 #define RX_QUEUE_SIZE 128
-#define TX_QUEUE_BYTES (sizeof(hw::CanMsg) * TX_QUEUE_SIZE)
-#define RX_QUEUE_BYTES (sizeof(hw::CanMsg) * RX_QUEUE_SIZE)
+#define TX_QUEUE_BYTES (sizeof(hw::can::CanMsg) * TX_QUEUE_SIZE)
+#define RX_QUEUE_BYTES (sizeof(hw::can::CanMsg) * RX_QUEUE_SIZE)
 
 class CanMsgQueue
 {
@@ -94,25 +94,25 @@ class CanMsgQueue
      * Does not block, calls `tx_overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
-    void pushTxMsgToQueue(const hw::CanMsg *msg);
+    void pushTxMsgToQueue(const hw::can::CanMsg *msg);
 
     /**
      * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
      */
-    hw::CanMsg popTxMsgFromQueue();
+    hw::can::CanMsg popTxMsgFromQueue();
 
     /**
      * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
      * @param rx_fifo Which RX FIFO to receive a message from.
      */
-    hw::CanMsg popRxMsgFromQueue();
+    hw::can::CanMsg popRxMsgFromQueue();
 
 #ifdef TARGET_EMBEDDED
     /**
      * Callback fired by config-specific interrupts to receive a message from a given FIFO.
      * @param msg CAN msg to be populated by RXed msg.
      */
-    void pushRxMsgToQueue(const hw::CanMsg *rx_msg);
+    void pushRxMsgToQueue(const hw::can::CanMsg *rx_msg);
 #endif
 };
 } // namespace io

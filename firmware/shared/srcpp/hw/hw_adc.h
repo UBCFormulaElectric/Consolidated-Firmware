@@ -75,7 +75,7 @@ class Adc
 {
     const float * const voltage_source;
   public:
-    explicit Adc(const float * voltage_source): voltage_source(voltage_source) {};
+    explicit Adc(const float * in_voltage_source): voltage_source(in_voltage_source) {};
     float getVoltage() {
         return *voltage_source;
     }
