@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "app_utils.h"
 #include "hw_utils.h"
 #include "io_log.h"
