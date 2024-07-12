@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <utility>
 #include "hw_hal.h"
 
 namespace hw::can

@@ -1,5 +1,4 @@
 #include "tasks.h"
-// #include "main.h"
 #include "cmsis_os.h"
 
 // app
@@ -12,17 +11,17 @@
 
 // hw
 #include "hw_utils.h"
-#include "hw_cans.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_cans.h"
 #include "hw_adcs.h"
 
 // jsoncan stuff
 extern "C"
 {
+#include "app_commitInfo.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "app_commitInfo.h"
 #include "io_canTx.h"
 #include "io_canRx.h"
 }
