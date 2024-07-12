@@ -64,7 +64,7 @@ const osThreadAttr_t Task1kHz_attributes = {
     .cb_size    = sizeof(Task1kHzControlBlock),
     .stack_mem  = &Task1kHzBuffer[0],
     .stack_size = sizeof(Task1kHzBuffer),
-    .priority   = (osPriority_t)osPriorityRealtime,
+    .priority   = (osPriority_t)osPriorityRealtime1,
 };
 /* Definitions for Task100Hz */
 osThreadId_t         Task100HzHandle;
@@ -596,6 +596,7 @@ static void MX_GPIO_Init(void)
 void StartTask1kHz(void *argument)
 {
     /* USER CODE BEGIN 5 */
+    UNUSED(argument);
     tasks_run1kHz();
     /* USER CODE END 5 */
 }
@@ -610,6 +611,7 @@ void StartTask1kHz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
     tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
@@ -624,6 +626,7 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
     tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
@@ -638,6 +641,7 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
     tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
@@ -652,6 +656,7 @@ void RunTaskCanTx(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
+    UNUSED(argument);
     tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }

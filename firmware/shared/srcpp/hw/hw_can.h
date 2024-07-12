@@ -4,7 +4,7 @@
 #include <utility>
 #include "hw_hal.h"
 
-namespace hw
+namespace hw::can
 {
 #ifdef CANFD
 // STM32 HAL CAN FD handle.
@@ -22,7 +22,7 @@ struct CanMsg
     uint8_t  data[CAN_PAYLOAD_BYTES];
 };
 
-class can
+class CanBus
 {
     void (*const can_msg_received_callback)(const CanMsg *rx_msg);
     USEDCAN_HandleTypeDef *const handle;
@@ -33,14 +33,14 @@ class can
      * @param can_handle STM32 HAL CAN handle.
      * @param can_msg_received_callback Callback function to be called when a CAN message is received.
      */
-    explicit can(USEDCAN_HandleTypeDef *can_handle_in, void (*can_msg_received_callback_in)(const CanMsg *))
+    explicit CanBus(USEDCAN_HandleTypeDef *can_handle_in, void (*can_msg_received_callback_in)(const CanMsg *))
       : can_msg_received_callback(can_msg_received_callback_in), handle(can_handle_in)
     {
     }
     /**
      * Stop and deinitialize the CAN peripheral.
      */
-    ~can();
+    ~CanBus();
 
     void init() const;
 

@@ -12,12 +12,12 @@
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 
-#define MAX_4_BITS_VALUE (uint32_t)(15)
-#define MAX_6_BITS_VALUE (uint32_t)(63)
-#define MAX_8_BITS_VALUE (uint32_t)(255)
-#define MAX_10_BITS_VALUE (uint32_t)(1023)
-#define MAX_12_BITS_VALUE (uint32_t)(4095)
-#define MAX_16_BITS_VALUE (uint32_t)(65535)
+#define MAX_4_BITS_VALUE (uint8_t)(15)
+#define MAX_6_BITS_VALUE (uint8_t)(63)
+#define MAX_8_BITS_VALUE (uint8_t)(255)
+#define MAX_10_BITS_VALUE (uint16_t)(1023)
+#define MAX_12_BITS_VALUE (uint16_t)(4095)
+#define MAX_16_BITS_VALUE (uint16_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
 #define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))

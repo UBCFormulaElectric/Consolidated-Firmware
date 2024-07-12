@@ -1,12 +1,10 @@
 #include "tasks.h"
-extern "C"
-{
-#include "main.h"
+// #include "main.h"
 #include "cmsis_os.h"
-}
 
 // app
 #include "app_mainState.h"
+
 // io
 #include "io_log.h"
 #include "io_jsoncan.h"
@@ -17,6 +15,7 @@ extern "C"
 #include "hw_cans.h"
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_adcs.h"
 
 // jsoncan stuff
 extern "C"
@@ -27,9 +26,6 @@ extern "C"
 #include "io_canTx.h"
 #include "io_canRx.h"
 }
-
-extern ADC_HandleTypeDef hadc1;
-extern TIM_HandleTypeDef htim3;
 
 void tasks_preInit(void)
 {
@@ -43,21 +39,19 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
-    // Start DMA/TIM3 for the ADC.
-    // HAL_ADC_Start_DMA(&hadc1, (uint32_t *)hw_adc_getRawValuesBuffer(), hadc1.Init.NbrOfConversion);
-    HAL_TIM_Base_Start(&htim3);
 
     // Re-enable watchdog.
     // __HAL_DBGMCU_FREEZE_IWDG();
     // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
     hw_hardFaultHandler_init();
-    hw::can1.init();
+    hw::can::can1.init();
+    hw::adc::adc1.init();
 
     // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
     io_canTx_init(
         [](const JsonCanMsg *msg)
         {
-            hw::CanMsg tx_msg{};
+            hw::can::CanMsg tx_msg{};
             io::jsoncan::copyToCanMsg(msg, &tx_msg);
             io::can1queue.pushTxMsgToQueue(&tx_msg);
         });
@@ -81,8 +75,8 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        hw::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
-        hw::can1.transmit(&tx_msg);
+        hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
+        hw::can::can1.transmit(&tx_msg);
     }
 }
 
@@ -93,7 +87,7 @@ void tasks_runCanRx(void)
     // Setup tasks.
     for (;;)
     {
-        hw::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
+        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
 
         JsonCanMsg jsoncan_rx_msg;
         io::jsoncan::copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);

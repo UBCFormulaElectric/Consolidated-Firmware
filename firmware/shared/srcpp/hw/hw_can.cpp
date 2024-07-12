@@ -29,15 +29,15 @@
 #define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-namespace hw
+namespace hw::can
 {
-can::~can()
+CanBus::~CanBus()
 {
     assert(HAL_CAN_Stop(handle) == HAL_OK);
     assert(HAL_CAN_DeInit(handle) == HAL_OK);
 }
 
-void can::init() const
+void CanBus::init() const
 {
     // Configure a single filter bank that accepts any message.
     const CAN_FilterTypeDef filter = { .FilterIdHigh         = MASKMODE_16BIT_ID_OPEN,
@@ -63,7 +63,7 @@ void can::init() const
     assert(HAL_CAN_Start(handle) == HAL_OK);
 }
 
-bool can::transmit(const CanMsg *msg) const
+bool CanBus::transmit(const CanMsg *msg) const
 {
     CAN_TxHeaderTypeDef tx_header = {
         .StdId = msg->std_id,
@@ -98,7 +98,7 @@ bool can::transmit(const CanMsg *msg) const
     return return_status == HAL_OK;
 }
 
-void can::receive(uint32_t rx_fifo) const
+void CanBus::receive(uint32_t rx_fifo) const
 {
     CAN_RxHeaderTypeDef header;
     CanMsg              msg{};

@@ -1,7 +1,7 @@
 #pragma once
 #include "hw_can.h"
 
-namespace hw
+namespace hw::can
 {
-extern const can can1;
+    extern const CanBus can1;
 } // namespace hw
