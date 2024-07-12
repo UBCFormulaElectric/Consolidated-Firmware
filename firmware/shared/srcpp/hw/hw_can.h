@@ -56,4 +56,4 @@ class CanBus
      */
     void receive(uint32_t rx_fifo) const;
 };
-} // namespace hw
+} // namespace hw::can

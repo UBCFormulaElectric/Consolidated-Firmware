@@ -113,4 +113,4 @@ void CanBus::receive(uint32_t rx_fifo) const
 
     can_msg_received_callback(&msg);
 }
-} // namespace hw
+} // namespace hw::can

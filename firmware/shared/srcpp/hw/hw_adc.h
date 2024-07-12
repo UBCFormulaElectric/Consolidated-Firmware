@@ -7,14 +7,13 @@
 
 namespace hw
 {
-template <size_t NUM_ADC_CHANNELS>
-class AdcChip
+template <size_t NUM_ADC_CHANNELS> class AdcChip
 {
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
-    ADC_HandleTypeDef* const hadc;
+    ADC_HandleTypeDef *const               hadc;
     std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
-    std::array<float, NUM_ADC_CHANNELS> adc_voltages;
+    std::array<float, NUM_ADC_CHANNELS>    adc_voltages;
 
     float rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value)
     {
@@ -59,25 +58,23 @@ class AdcChip
     }
 
   public:
-    explicit AdcChip(ADC_HandleTypeDef* const in_hadc): hadc(in_hadc) {};
+    explicit AdcChip(ADC_HandleTypeDef *const in_hadc) : hadc(in_hadc){};
 
-    void init() const {
+    void init() const
+    {
         HAL_ADC_Start_DMA(&hadc1, (uint32_t *)raw_adc_values.data(), hadc1.Init.NbrOfConversion);
         HAL_TIM_Base_Start(&htim3);
     }
 
-    [[nodiscard]] const float * getChannel(uint32_t channel) const {
-        return &adc_voltages[channel];
-    }
+    [[nodiscard]] const float *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
 };
 
 class Adc
 {
-    const float * const voltage_source;
+    const float *const voltage_source;
+
   public:
-    explicit Adc(const float * in_voltage_source): voltage_source(in_voltage_source) {};
-    float getVoltage() {
-        return *voltage_source;
-    }
+    explicit Adc(const float *in_voltage_source) : voltage_source(in_voltage_source){};
+    float getVoltage() { return *voltage_source; }
 };
 } // namespace hw

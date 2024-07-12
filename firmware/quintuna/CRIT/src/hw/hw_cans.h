@@ -3,5 +3,5 @@
 
 namespace hw::can
 {
-    extern const CanBus can1;
-} // namespace hw
+extern const CanBus can1;
+} // namespace hw::can
