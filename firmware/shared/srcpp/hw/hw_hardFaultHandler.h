@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 
 // Right before the the processor enters HardFault_Handler(), the following
 // register values are pushed onto the stack: R0-R4, R12, LR, PC, PSR. These
