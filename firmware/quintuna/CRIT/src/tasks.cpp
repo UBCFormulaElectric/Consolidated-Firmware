@@ -15,6 +15,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+#include "hw_watchdogs.h"
 
 // jsoncan stuff
 extern "C"
@@ -39,8 +40,7 @@ void tasks_init(void)
     LOG_INFO("CRIT reset!");
 
     // Re-enable watchdog.
-    // __HAL_DBGMCU_FREEZE_IWDG();
-    // hw_watchdog_init(hw_watchdogConfig_refresh, hw_watchdogConfig_timeoutCallback);
+    __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
     hw::can::can1.init();
     hw::adc::adc1.init();
@@ -99,8 +99,9 @@ void tasks_run1Hz(void)
 
     // Setup tasks.
     static const TickType_t period_ms = 1000U;
-    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
+    hw::watchdog::WatchdogInstance run1HzWatchdog{RTOS_TASK_1HZ, period_ms};
+    hw::watchdog::monitor.registerWatchdogInstance(&run1HzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -116,7 +117,7 @@ void tasks_run1Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        // hw_watchdog_checkIn(watchdog);
+        run1HzWatchdog.checkIn();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -129,8 +130,8 @@ void tasks_run100Hz(void)
 
     // Setup tasks.
     static const TickType_t period_ms = 10;
-    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    hw::watchdog::WatchdogInstance run100HzWatchdog{RTOS_TASK_100HZ, period_ms};
+    hw::watchdog::monitor.registerWatchdogInstance(&run100HzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -142,7 +143,7 @@ void tasks_run100Hz(void)
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        // hw_watchdog_checkIn(watchdog);
+        run100HzWatchdog.checkIn();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -155,8 +156,9 @@ void tasks_run1kHz(void)
 
     // Setup tasks.
     static const TickType_t period_ms = 1;
-    // WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
-    // hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    hw::watchdog::WatchdogInstance run1kHzWatchdog{RTOS_TASK_1KHZ, period_ms};
+    hw::watchdog::monitor.registerWatchdogInstance(&run1kHzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -165,7 +167,7 @@ void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-        // hw_watchdog_checkForTimeouts();
+        hw::watchdog::monitor.checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
@@ -175,7 +177,7 @@ void tasks_run1kHz(void)
         // equal to the period ms
         if ((TICK_TO_MS(osKernelGetTickCount()) - task_start_ms) <= period_ms)
         {
-            // hw_watchdog_checkIn(watchdog);
+            run1kHzWatchdog.checkIn();
         }
 
         start_ticks += period_ms;
