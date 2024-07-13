@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "cmsis_os.h"
+#include "shared.pb.h"
 
 // app
 #include "app_mainState.h"
@@ -8,6 +9,7 @@
 #include "io_log.h"
 #include "io_jsoncan.h"
 #include "io_canMsgQueues.h"
+#include "io_chimeraConfig.h"
 
 // hw
 #include "hw_utils.h"
@@ -15,6 +17,8 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+#include "hw_uarts.h"
+#include "hw_gpios.h"
 #include "hw_watchdogs.h"
 
 // jsoncan stuff
@@ -42,33 +46,35 @@ void tasks_init(void)
     // Re-enable watchdog.
     __HAL_DBGMCU_FREEZE_IWDG();
     hw_hardFaultHandler_init();
-    hw::can::can1.init();
+
     hw::adc::adc1.init();
 
-    // io_chimera_init(&debug_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &n_chimera_pin);
+    io::chimera::init(
+        &hw::uart::chimera_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &hw::gpio::n_chimera_pin);
+
+    // can
+    hw::can::can1.init();
     io_canTx_init(
         [](const JsonCanMsg *msg)
         {
             hw::can::CanMsg tx_msg{};
             io::jsoncan::copyToCanMsg(msg, &tx_msg);
             io::can1queue.pushTxMsgToQueue(&tx_msg);
-        });
+        }); // TODO this needs to be more sophisticated for multiple busses
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     io::can1queue.init();
-
     app_canTx_init();
     app_canRx_init();
-
-    app::StateMachine::init(&app::critstates::main_state);
-
     // broadcast commit info
     app_canTx_CRIT_Hash_set(GIT_COMMIT_HASH);
     app_canTx_CRIT_Clean_set(GIT_COMMIT_CLEAN);
+
+    app::StateMachine::init(&app::critstates::main_state);
 }
 
 void tasks_runCanTx(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    io::chimera::sleepTaskIfEnabled();
 
     // Setup tasks.
     for (;;)
@@ -80,7 +86,7 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    io::chimera::sleepTaskIfEnabled();
 
     // Setup tasks.
     for (;;)
@@ -95,12 +101,12 @@ void tasks_runCanRx(void)
 
 void tasks_run1Hz(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    io::chimera::sleepTaskIfEnabled();
 
     // Setup tasks.
     static const TickType_t period_ms = 1000U;
 
-    hw::watchdog::WatchdogInstance run1HzWatchdog{RTOS_TASK_1HZ, period_ms};
+    hw::watchdog::WatchdogInstance run1HzWatchdog{ RTOS_TASK_1HZ, period_ms };
     hw::watchdog::monitor.registerWatchdogInstance(&run1HzWatchdog);
 
     static uint32_t start_ticks = 0;
@@ -126,11 +132,11 @@ void tasks_run1Hz(void)
 
 void tasks_run100Hz(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    io::chimera::sleepTaskIfEnabled();
 
     // Setup tasks.
-    static const TickType_t period_ms = 10;
-    hw::watchdog::WatchdogInstance run100HzWatchdog{RTOS_TASK_100HZ, period_ms};
+    static const TickType_t        period_ms = 10;
+    hw::watchdog::WatchdogInstance run100HzWatchdog{ RTOS_TASK_100HZ, period_ms };
     hw::watchdog::monitor.registerWatchdogInstance(&run100HzWatchdog);
 
     static uint32_t start_ticks = 0;
@@ -152,12 +158,12 @@ void tasks_run100Hz(void)
 
 void tasks_run1kHz(void)
 {
-    // io_chimera_sleepTaskIfEnabled();
+    io::chimera::sleepTaskIfEnabled();
 
     // Setup tasks.
     static const TickType_t period_ms = 1;
 
-    hw::watchdog::WatchdogInstance run1kHzWatchdog{RTOS_TASK_1KHZ, period_ms};
+    hw::watchdog::WatchdogInstance run1kHzWatchdog{ RTOS_TASK_1KHZ, period_ms };
     hw::watchdog::monitor.registerWatchdogInstance(&run1kHzWatchdog);
 
     static uint32_t start_ticks = 0;
@@ -185,10 +191,10 @@ void tasks_run1kHz(void)
     }
 }
 
-// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-// {
-//     if (huart == debug_uart.handle)
-//     {
-//         io_chimera_msgRxCallback();
-//     }
-// }
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == hw::uart::chimera_uart.getHandle())
+    {
+        io::chimera::msgRxCallback();
+    }
+}

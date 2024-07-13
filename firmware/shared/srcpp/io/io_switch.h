@@ -6,8 +6,8 @@ namespace io
 class Switch
 {
   public:
-    const hw::gpio &pin;
-    explicit Switch(const hw::gpio &pin_in) : pin(pin_in) {}
+    const hw::Gpio &pin;
+    explicit Switch(const hw::Gpio &pin_in) : pin(pin_in) {}
 
   public:
     [[nodiscard]] bool isClosed() const;

@@ -8,7 +8,7 @@ extern "C"
 
 namespace hw
 {
-class gpio
+class Gpio
 {
 #ifdef TARGET_EMBEDDED
   private:
@@ -16,7 +16,7 @@ class gpio
     const uint16_t      pin;
 
   public:
-    explicit gpio(GPIO_TypeDef *const port_in, const uint16_t pin_in) : port(port_in), pin(pin_in) {}
+    explicit Gpio(GPIO_TypeDef *const port_in, const uint16_t pin_in) : port(port_in), pin(pin_in) {}
 #endif
   public:
     [[nodiscard]] bool readPin() const;

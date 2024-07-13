@@ -1,57 +1,60 @@
 #include "hw_gpio.h"
 
-namespace hw
+namespace hw::gpio
 {
 // switches
-extern const gpio start_switch_gpio;
-extern const gpio regen_switch_gpio;
-extern const gpio torquevec_switch_gpio;
+extern const Gpio start_switch_gpio;
+extern const Gpio regen_switch_gpio;
+extern const Gpio torquevec_switch_gpio;
 
 // binary leds
-extern const gpio imd_r_pin;
-extern const gpio bspd_r_pin;
-extern const gpio ams_r_pin;
+extern const Gpio imd_r_pin;
+extern const Gpio bspd_r_pin;
+extern const Gpio ams_r_pin;
 
-extern const gpio start_led_pin;
-extern const gpio regen_led_pin;
-extern const gpio torquevec_led_pin;
+extern const Gpio start_led_pin;
+extern const Gpio regen_led_pin;
+extern const Gpio torquevec_led_pin;
 
 // rgb leds
-extern const gpio shdn_r_pin;
-extern const gpio shdn_g_pin;
-extern const gpio shdn_b_pin_fake;
+extern const Gpio shdn_r_pin;
+extern const Gpio shdn_g_pin;
+extern const Gpio shdn_b_pin_fake;
 
-extern const gpio bms_r_pin;
-extern const gpio bms_g_pin;
-extern const gpio bms_b_pin;
+extern const Gpio bms_r_pin;
+extern const Gpio bms_g_pin;
+extern const Gpio bms_b_pin;
 
-extern const gpio fvc_r_pin;
-extern const gpio fvc_g_pin;
-extern const gpio fvc_b_pin;
+extern const Gpio fvc_r_pin;
+extern const Gpio fvc_g_pin;
+extern const Gpio fvc_b_pin;
 
-extern const gpio rvc_r_pin;
-extern const gpio rvc_g_pin;
-extern const gpio rvc_b_pin;
+extern const Gpio rvc_r_pin;
+extern const Gpio rvc_g_pin;
+extern const Gpio rvc_b_pin;
 
-extern const gpio rsm_r_pin;
-extern const gpio rsm_g_pin;
-extern const gpio rsm_b_pin;
+extern const Gpio rsm_r_pin;
+extern const Gpio rsm_g_pin;
+extern const Gpio rsm_b_pin;
 
-extern const gpio aux_r_pin;
-extern const gpio aux_g_pin;
-extern const gpio aux_b_pin;
+extern const Gpio aux_r_pin;
+extern const Gpio aux_g_pin;
+extern const Gpio aux_b_pin;
 
-extern const gpio crit_r_pin;
-extern const gpio crit_g_pin;
-extern const gpio crit_b_pin;
+extern const Gpio crit_r_pin;
+extern const Gpio crit_g_pin;
+extern const Gpio crit_b_pin;
 
 // drive mode pins
-extern const gpio n_drive_mode_0_pin;
-extern const gpio n_drive_mode_1_pin;
-extern const gpio n_drive_mode_2_pin;
-extern const gpio n_drive_mode_3_pin;
+extern const Gpio n_drive_mode_0_pin;
+extern const Gpio n_drive_mode_1_pin;
+extern const Gpio n_drive_mode_2_pin;
+extern const Gpio n_drive_mode_3_pin;
 
 // shutdown sensors
-extern const gpio cockpit_estop_sen_pin;
-extern const gpio inertia_sen_pin;
-} // namespace hw
+extern const Gpio cockpit_estop_sen_pin;
+extern const Gpio inertia_sen_pin;
+extern const Gpio n_program_pin;
+extern const Gpio n_chimera_pin;
+extern const Gpio led_pin;
+} // namespace hw::gpio

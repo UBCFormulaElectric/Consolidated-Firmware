@@ -64,7 +64,7 @@ struct WatchdogInstance
         check_in_status = true;
     }
 };
-}
+} // namespace hw::watchdog
 
 /**
  * NOTE: The following functions must be implemented.
@@ -85,14 +85,16 @@ void refresh_hardware_watchdog();
 void timeout_callback(hw::watchdog::WatchdogInstance *watchdog);
 } // namespace hw::watchdogConfig
 
-namespace hw::watchdog{
+namespace hw::watchdog
+{
 
 #define MAX_WATCHDOG_INSTANCES 10
 
 static const class
 {
     mutable std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
-    mutable bool timeout_detected = false;
+    mutable bool                                                   timeout_detected = false;
+
   public:
     void registerWatchdogInstance(WatchdogInstance *watchdog_instance) const
     {

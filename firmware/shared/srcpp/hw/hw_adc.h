@@ -75,6 +75,6 @@ class Adc
 
   public:
     explicit Adc(const float *in_voltage_source) : voltage_source(in_voltage_source){};
-    float getVoltage() { return *voltage_source; }
+    float getVoltage() const { return *voltage_source; }
 };
 } // namespace hw

@@ -5,11 +5,11 @@ namespace io::shdn
 {
 class node
 {
-    const hw::gpio &pin;
+    const hw::Gpio &pin;
     void (*const can_broadcast)(bool);
 
   public:
-    explicit node(const hw::gpio &in_pin_in, void (*in_can_broadcast)(bool))
+    explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
       : pin(in_pin_in), can_broadcast(in_can_broadcast)
     {
     }
