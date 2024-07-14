@@ -107,7 +107,7 @@ void tasks_run1Hz(void)
     static const TickType_t period_ms = 1000U;
 
     hw::watchdog::WatchdogInstance run1HzWatchdog{ RTOS_TASK_1HZ, period_ms };
-    hw::watchdog::monitor.registerWatchdogInstance(&run1HzWatchdog);
+    hw::watchdog::monitor::registerWatchdogInstance(&run1HzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -137,7 +137,7 @@ void tasks_run100Hz(void)
     // Setup tasks.
     static const TickType_t        period_ms = 10;
     hw::watchdog::WatchdogInstance run100HzWatchdog{ RTOS_TASK_100HZ, period_ms };
-    hw::watchdog::monitor.registerWatchdogInstance(&run100HzWatchdog);
+    hw::watchdog::monitor::registerWatchdogInstance(&run100HzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -164,7 +164,7 @@ void tasks_run1kHz(void)
     static const TickType_t period_ms = 1;
 
     hw::watchdog::WatchdogInstance run1kHzWatchdog{ RTOS_TASK_1KHZ, period_ms };
-    hw::watchdog::monitor.registerWatchdogInstance(&run1kHzWatchdog);
+    hw::watchdog::monitor::registerWatchdogInstance(&run1kHzWatchdog);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -173,7 +173,7 @@ void tasks_run1kHz(void)
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-        hw::watchdog::monitor.checkForTimeouts();
+        hw::watchdog::monitor::checkForTimeouts();
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);

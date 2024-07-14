@@ -29,6 +29,9 @@
  *         IWDG has a frequency of 5Hz, or a period of 200ms.
  */
 
+#include <cstdint>
+#include <cassert>
+
 namespace hw::watchdog
 {
 struct WatchdogInstance
@@ -36,15 +39,15 @@ struct WatchdogInstance
     // Is this watchdog ready to be used?
     bool initialized;
     // The tick period of the task being monitored.
-    TickType_t period;
+    uint32_t period;
     // The current deadline of the task being monitored.
-    TickType_t deadline;
+    uint32_t deadline;
     // Has the task being monitored checked in for the current period?
     bool check_in_status;
     // ID to identify the task this watchdog monitors (for debugging only).
     uint8_t task_id;
 
-    explicit WatchdogInstance(uint8_t in_task_id, TickType_t period_in_ticks)
+    explicit WatchdogInstance(uint8_t in_task_id, uint32_t period_in_ticks)
       : initialized(true),
         period(period_in_ticks),
         deadline(period_in_ticks),
@@ -76,79 +79,30 @@ namespace hw::watchdogConfig
 /**
  * Function to refresh the hardware watchdog
  */
-void refresh_hardware_watchdog();
+extern void refresh_hardware_watchdog();
 
 /**
  * Callback function used to perform additional operations prior to the reset of the microcontroller.
  * For example, a message may be written to a log file.
  */
-void timeout_callback(hw::watchdog::WatchdogInstance *watchdog);
+extern void timeout_callback(hw::watchdog::WatchdogInstance *watchdog);
 } // namespace hw::watchdogConfig
 
-namespace hw::watchdog
+namespace hw::watchdog::monitor
 {
+/**
+ * Register a software watchdog instance to the monitor.
+ * @param watchdog_instance - Handle to the software watchdog
+ */
+void registerWatchdogInstance(WatchdogInstance *watchdog_instance);
 
-#define MAX_WATCHDOG_INSTANCES 10
-
-static const class
-{
-    mutable std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
-    mutable bool                                                   timeout_detected = false;
-
-  public:
-    void registerWatchdogInstance(WatchdogInstance *watchdog_instance) const
-    {
-        for (WatchdogInstance *&instance : watchdogs)
-        {
-            if (instance == nullptr)
-            {
-                instance = watchdog_instance;
-                return;
-            }
-        }
-        LOG_ERROR("Failed to register watchdog instance. Maximum number of watchdog instances reached.");
-    }
-
-    /**
-     * Check if any software watchdog has expired.
-     * @note  If no software watchdog has expired, the hardware watchdog is
-     *        refreshed. If any software watchdog has expired, the callback function
-     *        is called and the hardware watchdog will no longer be refreshed.
-     * @note  This function must be called periodically. It is good practice to call
-     *        it from the system tick handler.
-     */
-    void checkForTimeouts() const
-    {
-        // If a timeout is detected, let the hardware watchdog timeout reset the
-        // system. We don't reboot immediately because we need some time to log
-        // information for further debugging.
-        for (WatchdogInstance *watchdog_instance : watchdogs)
-        {
-            // Only check for timeout if the watchdog has been initialized
-            if (!watchdog_instance->initialized)
-                continue;
-
-            if (osKernelGetTickCount() >= watchdog_instance->deadline)
-            {
-                // Check if the check-in status is set
-                if (watchdog_instance->check_in_status)
-                {
-                    // Clear the check-in status
-                    watchdog_instance->check_in_status = false;
-
-                    // Update deadline
-                    watchdog_instance->deadline += watchdog_instance->period;
-
-                    hw::watchdogConfig::refresh_hardware_watchdog();
-                }
-                else
-                {
-                    hw::watchdogConfig::timeout_callback(watchdog_instance);
-                    timeout_detected = true;
-                    break;
-                }
-            }
-        }
-    }
-} monitor;
-} // namespace hw::watchdog
+/**
+ * Check if any software watchdog has expired.
+ * @note  If no software watchdog has expired, the hardware watchdog is
+ *        refreshed. If any software watchdog has expired, the callback function
+ *        is called and the hardware watchdog will no longer be refreshed.
+ * @note  This function must be called periodically. It is good practice to call
+ *        it from the system tick handler.
+ */
+void checkForTimeouts();
+} // namespace hw::watchdog::monitor
