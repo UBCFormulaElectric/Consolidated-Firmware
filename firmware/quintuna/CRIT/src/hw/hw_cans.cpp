@@ -1,8 +1,6 @@
+#include "main.h"
 #include "hw_cans.h"
 #include "io_canMsgQueues.h"
-#include "hw_hal.h"
-
-extern CAN_HandleTypeDef hcan1;
 
 namespace hw::can
 {

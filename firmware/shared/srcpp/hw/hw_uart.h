@@ -1,7 +1,10 @@
 #pragma once
 
 #include <cstdint>
+
+#ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+#endif
 
 // HAL UART type documentation pg 1161:
 // https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf
@@ -10,9 +13,13 @@ namespace hw
 {
 class Uart
 {
+#ifdef TARGET_EMBEDDED
+  private:
     UART_HandleTypeDef *const handle; // pointer to structure containing UART module configuration information
   public:
     explicit Uart(UART_HandleTypeDef *in_handle) : handle(in_handle) {}
+#endif
+  public:
     /**
      * Transmits an amount of data in DMA mode (non-blocking).
      * @param pData Pointer to data buffer (u8 or u16 data elements).

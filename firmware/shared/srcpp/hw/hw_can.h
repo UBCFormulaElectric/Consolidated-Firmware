@@ -1,17 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+#endif
 
 namespace hw::can
 {
-#ifdef CANFD
-// STM32 HAL CAN FD handle.
-typedef FDCAN_HandleTypeDef USEDCAN_HandleTypeDef;
-#else
-// STM32 HAL CAN handle.
-typedef CAN_HandleTypeDef USEDCAN_HandleTypeDef;
-#endif
 #define CAN_PAYLOAD_BYTES 8
 
 struct CanMsg
@@ -24,6 +19,16 @@ struct CanMsg
 class CanBus
 {
     void (*const can_msg_received_callback)(const CanMsg *rx_msg);
+
+#ifdef TARGET_EMBEDDED
+#ifdef CANFD
+    // STM32 HAL CAN FD handle.
+    typedef FDCAN_HandleTypeDef USEDCAN_HandleTypeDef;
+#else
+    // STM32 HAL CAN handle.
+    typedef CAN_HandleTypeDef USEDCAN_HandleTypeDef;
+#endif
+  private:
     USEDCAN_HandleTypeDef *const handle;
 
   public:
@@ -36,6 +41,8 @@ class CanBus
       : can_msg_received_callback(can_msg_received_callback_in), handle(can_handle_in)
     {
     }
+#endif
+  public:
     /**
      * Stop and deinitialize the CAN peripheral.
      */
