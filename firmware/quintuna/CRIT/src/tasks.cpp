@@ -190,11 +190,3 @@ void tasks_run1kHz(void)
         osDelayUntil(start_ticks);
     }
 }
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == hw::uart::chimera_uart.getHandle())
-    {
-        io::chimera::msgRxCallback();
-    }
-}
