@@ -36,7 +36,6 @@ ENDIF ()
 
 # arm toolchain
 IF ("${TARGET}" STREQUAL "deploy")
-	set(TOOLCHAIN_PREFIX "")
 	IF (WIN32)
 		# openocd
 		CPMAddPackage(URL "https://github.com/openocd-org/openocd/releases/download/v0.12.0/openocd-v0.12.0-i686-w64-mingw32.tar.gz"
