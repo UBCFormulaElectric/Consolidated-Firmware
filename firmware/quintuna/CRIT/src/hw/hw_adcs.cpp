@@ -9,5 +9,6 @@ const Adc                       regen_3v3_adc{ adc1.getChannel(ADC1_IN14_REGEN) 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
+    UNUSED(hadc);
     hw::adc::adc1.update_callback();
 }
