@@ -15,7 +15,7 @@
                 "CMAKE_BUILD_TYPE": "Debug",
                 "PLATFORM": "firmware",
                 "TARGET": "deploy",
-                "HANDLE_DEPS": "ON",
+                "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "MINIMAL"
             },
             "binaryDir": "build_fw_dev"
@@ -28,7 +28,7 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "PLATFORM": "firmware",
                 "TARGET": "dev",
-                "HANDLE_DEPS": "ON",
+                "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "ON"
             },
             "binaryDir": "build_fw_deploy"
