@@ -45,7 +45,7 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-if("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "deploy")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
@@ -153,4 +153,4 @@ elseif("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quadruna_CRIT_test" "quadruna_CRIT_jsoncan" "quadruna_CRIT_fakes" "shared_fakes" "m")
-endif()
+ENDIF()

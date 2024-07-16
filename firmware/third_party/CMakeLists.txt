@@ -1,4 +1,4 @@
-if("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "deploy")
     # Import sources files for SBG Systems library
     set(SBG_ECOM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/sbgECom")
     set(SBG_ECOM_INCLUDE_DIRS 
@@ -25,9 +25,9 @@ if("${TARGET}" STREQUAL "deploy")
         "cm7"
         TRUE
     )
-else()
+ELSE()
     add_subdirectory("pybind11")
-endif()
+ENDIF()
 
 
 

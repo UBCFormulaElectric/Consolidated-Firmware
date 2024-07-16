@@ -11,7 +11,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
-Set(FETCHCONTENT_QUIET FALSE)
+
+option(DEBUG_FETCHCONTENT "Enable verbose output for FetchContent" OFF)
+IF (DEBUG_FETCHCONTENT)
+	set(FETCHCONTENT_QUIET OFF)
+ELSE ()
+	set(FETCHCONTENT_QUIET ON)
+ENDIF()
 # cmake_policy(SET CMP0135 NEW)
 
 # ========== INCLUDES ==========
@@ -25,7 +31,7 @@ IF (HANDLE_DEPS)
 	message("🏗️ CMake is now controlling the optional dependencies")
 ELSE ()
 	message("🏠 Completely using your dependencies")
-ENDIF ()
+ENDIF()
 file(
 		DOWNLOAD
 		https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
@@ -38,15 +44,15 @@ message("✅ Download CPM.cmake")
 # ======== Host system specific settings ========
 message("")
 message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
-IF (WIN32)
+IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
 	message("🪟 Building for Windows")
-ELSEIF (APPLE)
+ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
 	message("🍎 Building for Apples")
-ELSEIF (UNIX)
+ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
 	message("🐧 Building for Linux")
-ELSE ()
+ELSE()
 	message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
-ENDIF ()
+ENDIF()
 
 include("python.cmake")
 
@@ -59,7 +65,7 @@ IF (FIX_FORMATTING)
 			COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
 			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
-ENDIF ()
+ENDIF()
 
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
@@ -74,15 +80,15 @@ IF ("${PLATFORM}" STREQUAL "firmware")
 		project("UBC Formula Electric Software" C CXX)
 	ELSE ()
 		message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
-	ENDIF ()
+	ENDIF()
 
 	add_subdirectory(firmware)
 	IF ("${TARGET}" STREQUAL "test")
 		add_subdirectory(scripts/code_generation/fakegen)
-	ENDIF ()
+	ENDIF()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
 	project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
 	add_subdirectory(software/dimos)
 ELSE ()
 	message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
-ENDIF ()
+ENDIF()

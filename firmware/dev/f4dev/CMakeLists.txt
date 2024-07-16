@@ -8,7 +8,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
-if("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
         "f4dev"
         "${IOC_PATH}"
@@ -61,4 +61,4 @@ if("${TARGET}" STREQUAL "deploy")
     )
 
     target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "littlefs_cm4")
-endif()
+ENDIF()

@@ -1,4 +1,7 @@
-include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
+# REQUIRES FOR shared.cmake TO HAVE BEEN INCLUDED
+
+message("")
+message("included tests.cmake")
 
 set(FFF_DIR "${THIRD_PARTY_DIR}/fff")
 

@@ -1,4 +1,8 @@
-include("${CMAKE_SOURCE_DIR}/firmware/cmake/shared.cmake")
+# REQUIRES FOR shared.cmake TO HAVE BEEN INCLUDED
+message("")
+message("💽 [embedded.cmake] Configuring Embedded Build")
+
+option(BUILD_ASM "Build the assembly files" OFF)
 
 # SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
 set(SYSTEMVIEW_DIR "${THIRD_PARTY_DIR}/SEGGER_SystemView_Src")
@@ -6,42 +10,15 @@ set(SYSTEMVIEW_DIR "${THIRD_PARTY_DIR}/SEGGER_SystemView_Src")
 # FreeRTOS patch to enable thread-safe malloc (so we can use the heap with FreeRTOS).
 set(NEWLIB_DIR "${THIRD_PARTY_DIR}/newlib_freertos_patch")
 
-if (NOT STM32CUBEMX_BIN_PATH)
-    if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
-    elseif (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-        set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
-    else ()
-        set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
-    endif ()
-endif ()
-
-if ("${PLATFORM}" STREQUAL "firmware")
-    IF (${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
-        set(LOG4J_PROPERTIES "$ENV{UserProfile}/.stm32cubemx/log4j.properties")
-    ELSE ()
-        set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
-    ENDIF ()
-    message("📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
-    execute_process(
-            COMMAND ${PYTHON_COMMAND}
-            ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
-            --log4j_properties_output ${LOG4J_PROPERTIES}
-    )
-endif ()
-
-find_program(HAS_PROTOBUF_COMPILER protoc)
-IF (NOT HAS_PROTOBUF_COMPILER)
-    IF (${CMAKE_HOST_WIN32})
-        message(FATAL_ERROR "Could not find protoc. Please install it from https://github.com/protocolbuffers/protobuf/releases")
-    ELSEIF (${CMAKE_HOST_LINUX})
-        set(PROTOBUF_COMPILER "\"apt install -y protobuf-compiler\"")
-    ELSEIF (${CMAKE_HOST_APPLE})
-        set(PROTOBUF_COMPILER "\"brew install protobuf\"")
-    ENDIF ()
-    message(FATAL_ERROR "Could not find protoc. Please run ${PROTOBUF_COMPILER} to install it.")
-ENDIF ()
-message("✅ Found protoc at ${HAS_PROTOBUF_COMPILER}")
+IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+    set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
+ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+    set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
+ELSE()
+    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+ENDIF()
 
 set(SHARED_COMPILER_DEFINES
         -D__weak=__attribute__\(\(weak\)\)
@@ -97,6 +74,7 @@ set(CM7_FPU_FLAGS
         -mfpu=fpv5-d16
 )
 
+message("  🔃 Registered embedded_library() function")
 function(embedded_library
         LIB_NAME
         LIB_SRCS
@@ -106,7 +84,7 @@ function(embedded_library
 )
     add_library(${LIB_NAME} STATIC ${LIB_SRCS})
 
-    if (THIRD_PARTY)
+    IF(THIRD_PARTY)
         # Suppress header file warnings for third-party code by marking them as system includes.
         target_include_directories(${LIB_NAME} SYSTEM
                 PUBLIC
@@ -118,26 +96,26 @@ function(embedded_library
                 ${LIB_SRCS}
                 PROPERTIES COMPILE_FLAGS "-w"
         )
-    elseif ()
+    ELSEIF()
         target_include_directories(${LIB_NAME}
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-    endif ()
+    ENDIF()
 
     set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
     set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
     set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
 
-    if ("${ARM_CORE}" STREQUAL "cm4")
+    IF("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
-    elseif ("${ARM_CORE}" STREQUAL "cm7")
+    ELSEIF("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM7_FPU_FLAGS})
-    endif ()
+    ENDIF()
 
     target_compile_definitions(${LIB_NAME}
             PRIVATE
@@ -153,6 +131,7 @@ function(embedded_library
     )
 endfunction()
 
+message("  🔃 Registered embedded_binary() function")
 function(embedded_binary
         BIN_NAME
         BIN_SRCS
@@ -173,15 +152,15 @@ function(embedded_binary
     set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
     set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
 
-    if ("${ARM_CORE}" STREQUAL "cm4")
+    IF("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
-    elseif ("${ARM_CORE}" STREQUAL "cm7")
+    ELSEIF("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM7_FPU_FLAGS})
-    endif ()
+    ENDIF()
 
     target_compile_definitions(${ELF_NAME}
             PRIVATE
@@ -209,7 +188,7 @@ function(embedded_binary
             DEPENDS ${ELF_NAME}
     )
 
-    if(${BUILD_ASM})
+    IF(${BUILD_ASM})
         set(ASM_FILE "${BIN_NAME}.asm")
         set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
         add_custom_target(${ASM_FILE} ALL
@@ -217,16 +196,17 @@ function(embedded_binary
                 COMMAND ${CMAKE_OBJDUMP} -DS ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} > ${ASM_PATH}
                 DEPENDS ${ELF_NAME}
         )
-    endif()
+    ENDIF()
 endfunction()
 
+message("  🔃 Registered embedded_image() function")
 # Generate firmware image package (merged app + bootloader).
 function(embedded_image
-    IMAGE_NAME
-    APP_HEX_TARGET
-    APP_HEX_PATH
-    BOOT_HEX_TARGET
-    BOOT_HEX_PATH
+        IMAGE_NAME
+        APP_HEX_TARGET
+        APP_HEX_PATH
+        BOOT_HEX_TARGET
+        BOOT_HEX_PATH
 )
     message("🖼️ Creating Embedded Image for ${IMAGE_NAME}")
 
@@ -249,6 +229,7 @@ function(embedded_image
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
 
+message("  🔃 Registered generate_stm32cube_code() function")
 # Generate STM32CubeMX driver code for TARGET_NAME using the given IOC_PATH in
 # the directory where this function is called from.
 function(generate_stm32cube_code
@@ -280,6 +261,7 @@ function(generate_stm32cube_code
     )
 endfunction()
 
+message("  🔃 Registered stm32f412rx_cube_library() function")
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
         HAL_CONF_DIR
@@ -352,6 +334,7 @@ function(stm32f412rx_cube_library
     )
 endfunction()
 
+message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
         HAL_CONF_DIR
@@ -421,150 +404,152 @@ function(stm32h733xx_cube_library
     )
 endfunction()
 
+message("  🔃 Registered stm32f4_boot_binary() function")
 function(stm32f4_boot_binary
-    BOOT_NAME
-    SRCS
-    INCLUDE_DIRS
-    CONFIG_DEFINE
-    SYSCALLS
-    IOC_PATH
+        BOOT_NAME
+        SRCS
+        INCLUDE_DIRS
+        CONFIG_DEFINE
+        SYSCALLS
+        IOC_PATH
 )
     generate_stm32cube_code(
-        "${BOOT_NAME}_cubegen"
-        "${IOC_PATH}"
+            "${BOOT_NAME}_cubegen"
+            "${IOC_PATH}"
     )
 
     set(STM32_HAL_SRCS
-        "stm32f4xx_hal_can.c" 
-        "stm32f4xx_hal_crc.c" 
-        "stm32f4xx_hal_cortex.c"
-        "stm32f4xx_hal_exti.c"
-        "stm32f4xx_hal_flash.c"
-        "stm32f4xx_hal_flash_ex.c"
-        "stm32f4xx_hal_gpio.c"
-        "stm32f4xx_hal_rcc_ex.c"
-        "stm32f4xx_hal_rcc.c"
-        "stm32f4xx_hal_tim_ex.c"
-        "stm32f4xx_hal_tim.c"
-        "stm32f4xx_hal.c"
+            "stm32f4xx_hal_can.c"
+            "stm32f4xx_hal_crc.c"
+            "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_exti.c"
+            "stm32f4xx_hal_flash.c"
+            "stm32f4xx_hal_flash_ex.c"
+            "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_rcc_ex.c"
+            "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_tim_ex.c"
+            "stm32f4xx_hal_tim.c"
+            "stm32f4xx_hal.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
     stm32f412rx_cube_library(
-        "${BOOT_NAME}_stm32cube"
-        "${INCLUDE_DIRS}"
-        "${STM32_HAL_SRCS}"
-        "${SYSCALLS}"
-        "${MD5_LOCATION}"
+            "${BOOT_NAME}_stm32cube"
+            "${INCLUDE_DIRS}"
+            "${STM32_HAL_SRCS}"
+            "${SYSCALLS}"
+            "${MD5_LOCATION}"
     )
 
     # Add bootloader-specific files.
-    list (APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_f4.c")
-    list (APPEND INCLUDE_DIRS "${BOOT_DIR}" )
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_f4.c")
+    list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
 
     # Add shared files.
-    list (APPEND SRCS 
-        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    list(APPEND SRCS
+            "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
     )
-    list (APPEND INCLUDE_DIRS 
-        "${SHARED_APP_INCLUDE_DIR}" 
-        "${SHARED_IO_INCLUDE_DIR}" 
-        "${SHARED_HW_INCLUDE_DIR}" 
+    list(APPEND INCLUDE_DIRS
+            "${SHARED_APP_INCLUDE_DIR}"
+            "${SHARED_IO_INCLUDE_DIR}"
+            "${SHARED_HW_INCLUDE_DIR}"
     )
 
     set(ARM_CORE "cm4")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld")
     embedded_binary(
-        "${BOOT_NAME}"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
+            "${BOOT_NAME}"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
     target_link_libraries("${BOOT_NAME}.elf" "${BOOT_NAME}_stm32cube")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
 
+message("  🔃 Registered stm32h7_boot_binary() function")
 function(stm32h7_boot_binary
-    BOOT_NAME
-    SRCS
-    INCLUDE_DIRS
-    CONFIG_DEFINE
-    SYSCALLS
-    IOC_PATH
+        BOOT_NAME
+        SRCS
+        INCLUDE_DIRS
+        CONFIG_DEFINE
+        SYSCALLS
+        IOC_PATH
 )
     generate_stm32cube_code(
-        "${BOOT_NAME}_cubegen"
-        "${IOC_PATH}"
+            "${BOOT_NAME}_cubegen"
+            "${IOC_PATH}"
     )
 
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal_crc.c"
-        "stm32h7xx_hal_crc_ex.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_dma_ex.c"
-        "stm32h7xx_hal_dma.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_fdcan.c"
-        "stm32h7xx_hal_flash.c"
-        "stm32h7xx_hal_flash_ex.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_iwdg.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_tim_ex.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal.c"
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_dma_ex.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_flash.c"
+            "stm32h7xx_hal_flash_ex.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
     stm32h733xx_cube_library(
-        "${BOOT_NAME}_stm32cube"
-        "${INCLUDE_DIRS}"
-        "${STM32_HAL_SRCS}"
-        "${SYSCALLS}"
-        "${MD5_LOCATION}"
+            "${BOOT_NAME}_stm32cube"
+            "${INCLUDE_DIRS}"
+            "${STM32_HAL_SRCS}"
+            "${SYSCALLS}"
+            "${MD5_LOCATION}"
     )
 
     # Add bootloader-specific files.
-    list (APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_h7.c")
-    list (APPEND INCLUDE_DIRS "${BOOT_DIR}" )
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_h7.c")
+    list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
 
     # Add shared files.
-    list (APPEND SRCS 
-        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+    list(APPEND SRCS
+            "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
     )
-    list (APPEND INCLUDE_DIRS 
-        "${SHARED_APP_INCLUDE_DIR}" 
-        "${SHARED_IO_INCLUDE_DIR}" 
-        "${SHARED_HW_INCLUDE_DIR}" 
+    list(APPEND INCLUDE_DIRS
+            "${SHARED_APP_INCLUDE_DIR}"
+            "${SHARED_IO_INCLUDE_DIR}"
+            "${SHARED_HW_INCLUDE_DIR}"
     )
 
     set(ARM_CORE "cm7")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld")
     embedded_binary(
-        "${BOOT_NAME}"
-        "${SRCS}"
-        "${INCLUDE_DIRS}"
-        "${LINKER_SCRIPT}"
-        "${ARM_CORE}"
+            "${BOOT_NAME}"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
     )
     target_link_libraries("${BOOT_NAME}.elf" "${BOOT_NAME}_stm32cube")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")

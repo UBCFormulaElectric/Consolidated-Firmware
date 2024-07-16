@@ -67,12 +67,12 @@ ELSE ()
             ERROR_VARIABLE PIPENV_ERROR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE)
-    if (${PIPENV_RESULT})
+    IF(${PIPENV_RESULT})
         message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}
         Make sure that you have ran \"pipenv install\" in the root directory")
-    else ()
+    ELSE()
         message("  🛣 Pipenv path: ${PIPENV_OUTPUT}")
-    endif ()
+    ENDIF()
 
     # check that dependencies are installed with pipenv
     execute_process(COMMAND pipenv install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)

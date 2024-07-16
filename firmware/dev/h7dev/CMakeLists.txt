@@ -33,7 +33,7 @@ set(EMBEDDED_INCLUDE_DIRS
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
-if ("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "deploy")
     generate_stm32cube_code(
             "h7dev"
             "${IOC_PATH}"
@@ -116,4 +116,4 @@ if ("${TARGET}" STREQUAL "deploy")
             "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
     )
 
-endif ()
+ENDIF()
