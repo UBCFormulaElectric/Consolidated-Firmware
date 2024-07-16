@@ -32,5 +32,5 @@ enum AdcChannel
 };
 
 extern const AdcChip<NUM_ADC_CHANNELS> adc1;
-const Adc                              regen_3v3_adc{ adc1.getChannel(ADC1_IN14_REGEN) };
+extern const Adc regen_3v3_adc;
 } // namespace hw::adc

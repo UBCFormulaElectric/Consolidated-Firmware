@@ -4,7 +4,8 @@
 
 #include <array>
 
-namespace hw::watchdog::monitor {
+namespace hw::watchdog::monitor
+{
 #define MAX_WATCHDOG_INSTANCES 10
 std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
 bool                                                   timeout_detected = false;
@@ -63,4 +64,4 @@ void checkForTimeouts()
         }
     }
 }
-}
+} // namespace hw::watchdog::monitor
