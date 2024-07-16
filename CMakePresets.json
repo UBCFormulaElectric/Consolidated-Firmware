@@ -1,0 +1,33 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "default",
+            "hidden": true,
+            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+            "generator": "Ninja"
+        },
+        {
+            "name": "FW Dev",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "PLATFORM": "firmware",
+                "TARGET": "deploy",
+                "HANDLE_DEPS": "ON",
+                "USE_COMMIT_INFO": "MINIMAL"
+            },
+            "binaryDir": "build_fw_dev"
+        },
+        {
+            "name": "FW Deploy",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "binaryDir": "build_fw_deploy"
+        }
+    ],
+    "buildPresets": [
+    ]
+}

@@ -11,8 +11,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
 set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
-# cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
+# cmake_policy(SET CMP0135 NEW)
 
 # ========== INCLUDES ==========
 include(scripts/code_generation/jsoncan/jsoncan.cmake)
@@ -67,14 +67,8 @@ option(TARGET "The target to build for. Choose between \"dev\", \"deploy\" and \
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-	# ======== Dependency Handling ========
-	IF (HANDLE_DEPS)
-		include(firmware/cmake/dependencies.cmake)
-	ENDIF ()
-
 	# ======== Compiler ========
 	IF ("${TARGET}" STREQUAL "deploy")
-		include("gcc-arm-none-eabi.cmake")
 		project("UBC Formula Electric Software" C ASM)
 	ELSEIF ("${TARGET}" STREQUAL "test")
 		project("UBC Formula Electric Software" C CXX)

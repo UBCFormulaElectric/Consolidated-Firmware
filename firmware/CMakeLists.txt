@@ -5,6 +5,11 @@ include(cmake/shared.cmake)
 # Embedded Options
 option(BUILD_ASM "Build the assembly files" OFF)
 
+# ======== Dependency Handling ========
+IF (HANDLE_DEPS)
+    include(cmake/dependencies.cmake)
+ENDIF ()
+
 # ======== Libraries ========
 # protobufs
 CPMAddPackage(
@@ -16,6 +21,7 @@ CPMAddPackage(
 )
 list(APPEND CMAKE_MODULE_PATH ${NANOPB_REPO_SOURCE_DIR}/extra)
 find_package(Nanopb REQUIRED)
+
 if ("${TARGET}" STREQUAL "deploy")
     add_compile_definitions(TARGET_EMBEDDED)
 
