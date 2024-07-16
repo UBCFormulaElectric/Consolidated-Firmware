@@ -1,5 +1,6 @@
 message("")
 message("⚙️ [shared.cmake] Configuring shared variables and functions")
+set(SHARED_CMAKE_INCLUDED TRUE)
 
 set(FIRMWARE_DIR "${CMAKE_SOURCE_DIR}/firmware")
 set(LINKER_DIR "${FIRMWARE_DIR}/linker")

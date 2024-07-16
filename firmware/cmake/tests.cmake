@@ -1,4 +1,6 @@
-# REQUIRES FOR shared.cmake TO HAVE BEEN INCLUDED
+if(NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+    message(FATAL_ERROR "❌ shared.cmake must be included before tests.cmake")
+endif()
 
 message("")
 message("included tests.cmake")

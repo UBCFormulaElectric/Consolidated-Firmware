@@ -69,7 +69,7 @@ ENDIF()
 
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
-option(TARGET "The target to build for. Choose between \"dev\", \"deploy\" and \"test\"." "dev")
+option(TARGET "The target to build for. Choose between \"embedded\" and \"test\"." "embedded")
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
