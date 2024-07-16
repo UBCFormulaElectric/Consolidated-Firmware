@@ -1,4 +1,6 @@
-# REQUIRES embedded.cmake TO HAVE BEEN INCLUDED
+if(NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+    message(FATAL_ERROR "❌ embedded.cmake must be included before logfs is subdirectoried")
+endif()
 
 set(LOGFS_INCLUDE_DIRS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src"

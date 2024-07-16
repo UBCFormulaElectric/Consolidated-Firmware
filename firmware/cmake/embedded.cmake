@@ -4,6 +4,7 @@ endif()
 
 message("")
 message("💽 [embedded.cmake] Configuring Embedded Build")
+set(EMBEDDED_CMAKE_INCLUDED TRUE)
 
 option(BUILD_ASM "Build the assembly files" OFF)
 
