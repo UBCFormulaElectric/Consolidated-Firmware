@@ -1,11 +1,11 @@
 if(NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ shared.cmake must be included before embedded.cmake")
 endif()
-
 message("")
 message("💽 [embedded.cmake] Configuring Embedded Build")
 set(EMBEDDED_CMAKE_INCLUDED TRUE)
 
+# ===== OPTIONS =====
 option(BUILD_ASM "Build the assembly files" OFF)
 
 # SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
