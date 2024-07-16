@@ -14,7 +14,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "PLATFORM": "firmware",
-                "TARGET": "deploy",
+                "TARGET": "dev",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "MINIMAL"
             },
@@ -27,7 +27,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "PLATFORM": "firmware",
-                "TARGET": "dev",
+                "TARGET": "deploy",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "ON"
             },
