@@ -9,6 +9,7 @@
         },
         {
             "name": "FW Dev",
+            "description": "Development build for the Firmware, including debug information and no optimizations.",
             "inherits": "default",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -21,9 +22,14 @@
         },
         {
             "name": "FW Deploy",
+            "description": "Deployment build for the Firmware, including optimizations and no debug information.",
             "inherits": "default",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "PLATFORM": "firmware",
+                "TARGET": "dev",
+                "HANDLE_DEPS": "ON",
+                "USE_COMMIT_INFO": "ON"
             },
             "binaryDir": "build_fw_deploy"
         }
