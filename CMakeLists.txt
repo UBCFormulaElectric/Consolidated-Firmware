@@ -1,11 +1,10 @@
-message("💡 Starting UBC Formula Electric Generate")
+message("💡 Starting UBC Formula Electric Software Build System")
 
 cmake_minimum_required(VERSION 3.22.3)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
-# use this for debugging
-#set(CMAKE_VERBOSE_MAKEFILE on)
+#set(CMAKE_VERBOSE_MAKEFILE on) # use this for debugging
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Globally accessible paths
@@ -14,17 +13,18 @@ set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 # cmake_policy(SET CMP0135 NEW)
 Set(FETCHCONTENT_QUIET FALSE)
+
+# ========== INCLUDES ==========
 include(scripts/code_generation/jsoncan/jsoncan.cmake)
 include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== CPM ========
+message("")
 option(HANDLE_DEPS "Build build on the server" OFF)
-option(NO_VENV "Disable invoking python scripts from virtual environment" OFF)
 IF (HANDLE_DEPS)
-	message("🏗️ Handling the dependencies")
+	message("🏗️ CMake is now controlling the optional dependencies")
 ELSE ()
-	message("🏠 Using your dependencies")
-	set(NO_VENV ON)
+	message("🏠 Completely using your dependencies")
 ENDIF ()
 file(
 		DOWNLOAD
@@ -36,7 +36,8 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
 
 # ======== Host system specific settings ========
-message("🖥️ Host System: ${CMAKE_SYSTEM_NAME}")
+message("")
+message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 IF (WIN32)
 	message("🪟 Building for Windows")
 ELSEIF (APPLE)
@@ -47,47 +48,7 @@ ELSE ()
 	message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 ENDIF ()
 
-# ======== Python Checks ========
-#checks if python is present
-find_package(Python3 COMPONENTS Interpreter)
-IF (Python3_VERSION VERSION_LESS 3.8)
-	message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
-ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
-	message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
-ENDIF ()
-message("🐍 Found Python ${Python3_VERSION}")
-# checks venv is using venv
-IF (NOT NO_VENV) # USE_VENV in effect
-	find_program(HAS_PIPENV_COMMAND pipenv)
-	IF (NOT HAS_PIPENV_COMMAND)
-		message(FATAL_ERROR "❌ pipenv not found. Please install it with \"pip install pipenv\"")
-	ENDIF ()
-	execute_process(COMMAND pipenv --venv
-					OUTPUT_VARIABLE PIPENV_OUTPUT
-					RESULT_VARIABLE PIPENV_RESULT
-					ERROR_VARIABLE PIPENV_ERROR
-					OUTPUT_STRIP_TRAILING_WHITESPACE
-					ERROR_STRIP_TRAILING_WHITESPACE)
-	if (${PIPENV_RESULT})
-		message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}
-        Make sure that you have ran \"pipenv install\" in the root directory")
-	else ()
-		message("Pipenv path: ${PIPENV_OUTPUT}")
-	endif ()
-ENDIF ()
-
-# generates the usable python command
-IF (WIN32)
-	set(PYTHON_RAW_COMMAND python)
-ELSE ()
-	set(PYTHON_RAW_COMMAND python3)
-ENDIF ()
-IF (NO_VENV)
-	set(PYTHON_COMMAND ${PYTHON_RAW_COMMAND})
-ELSE ()
-	set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
-ENDIF ()
-message("🐍 Using Python Command: \"${PYTHON_COMMAND}\"")
+include("python.cmake")
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
@@ -101,7 +62,9 @@ IF (FIX_FORMATTING)
 ENDIF ()
 
 # ======== Code Time ========
-option(PLATFORM "The platform to build for" "")
+option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
+option(TARGET "The target to build for. Choose between \"dev\", \"deploy\" and \"test\"." "dev")
+message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
 	# ======== Dependency Handling ========
