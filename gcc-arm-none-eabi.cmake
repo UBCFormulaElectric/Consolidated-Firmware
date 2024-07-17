@@ -20,9 +20,10 @@ set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}-objcopy)
 set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}-objdump)
 set(SIZE ${TOOLCHAIN_PREFIX}-size)
 
-set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
-set(CMAKE_EXECUTABLE_SUFFIX_C ".elf")
-set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
+# TODO consider bringing these in? Would change the name of many targets.
+#set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
+#set(CMAKE_EXECUTABLE_SUFFIX_C ".elf")
+#set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
