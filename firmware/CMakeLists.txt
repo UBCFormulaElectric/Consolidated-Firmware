@@ -5,6 +5,7 @@ IF (HANDLE_DEPS)
 ENDIF()
 
 IF("${TARGET}" STREQUAL "binary")
+    include(cmake/stmlib.cmake)
     include(cmake/embedded.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
 
