@@ -16,7 +16,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
     ENDIF()
 
     file(RELATIVE_PATH directory_location_relative ${CMAKE_SOURCE_DIR} ${commit_info_directory})
-    message("  📚 [commit_info.cmake, commit_info_generate_sources()] Registering commit info library ${bind_target} at ${directory_location_relative}")
+    message("  📚 [commit_info.cmake, commit_info_generate_sources()] Registering commit info library ${bind_target}")
 
     execute_process(
         COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
@@ -24,6 +24,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
         --output-source ${src_location}
         WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
+    message("  📚 [commit_info.cmake, commit_info_generate_sources()] Generated commit info files at ${directory_location_relative}")
 
     IF(${USE_COMMIT_INFO} STREQUAL "ON")
         add_custom_command( # we create this one so that it updates the file every build
