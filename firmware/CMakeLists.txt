@@ -7,19 +7,8 @@ ENDIF ()
 IF ("${TARGET}" STREQUAL "binary")
     include(cmake/stmlib.cmake)
     include(cmake/embedded.cmake)
+    include(cmake/bootlib.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
-
-    IF (${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
-        set(LOG4J_PROPERTIES "$ENV{UserProfile}/.stm32cubemx/log4j.properties")
-    ELSE ()
-        set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
-    ENDIF ()
-    message("📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
-    execute_process(
-            COMMAND ${PYTHON_COMMAND}
-            ${SCRIPTS_DIR}/utilities/generate_log4j_properties.py
-            --log4j_properties_output ${LOG4J_PROPERTIES}
-    )
 
     # REQUIRES: LITTLEFS_SOURCE_DIR (from dependencies.cmake)
     set(LITTLEFS_SRCS
