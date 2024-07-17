@@ -55,7 +55,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    IF(${USE_IO})
+    IF (${USE_IO})
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -81,7 +81,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${SHARED_HW_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    ELSE()
+    ELSE ()
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -100,5 +100,5 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${SHARED_APP_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    ENDIF()
+    ENDIF ()
 endfunction()

@@ -1,9 +1,9 @@
-IF(NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+IF (NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ shared.cmake must be included before embedded.cmake")
-ENDIF()
-IF(NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
+ENDIF ()
+IF (NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ stm32lib.cmake must be included before embedded.cmake")
-ENDIF()
+ENDIF ()
 message("")
 message("💽 [embedded.cmake] Configuring Embedded Build")
 set(EMBEDDED_CMAKE_INCLUDED TRUE)
@@ -12,15 +12,15 @@ set(EMBEDDED_CMAKE_INCLUDED TRUE)
 option(BUILD_ASM "Build the assembly files" OFF)
 
 # STM32CUBEMX Binary Path
-IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
-ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
-ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
-ELSE()
+ELSE ()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
-ENDIF()
+ENDIF ()
 
 set(SHARED_COMPILER_DEFINES
         -D__weak=__attribute__\(\(weak\)\)
@@ -86,7 +86,7 @@ function(embedded_library
 )
     add_library(${LIB_NAME} STATIC ${LIB_SRCS})
 
-    IF(THIRD_PARTY)
+    IF (THIRD_PARTY)
         # Suppress header file warnings for third-party code by marking them as system includes.
         target_include_directories(${LIB_NAME} SYSTEM
                 PUBLIC
@@ -98,26 +98,26 @@ function(embedded_library
                 ${LIB_SRCS}
                 PROPERTIES COMPILE_FLAGS "-w"
         )
-    ELSEIF()
+    ELSEIF ()
         target_include_directories(${LIB_NAME}
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-    ENDIF()
+    ENDIF ()
 
     set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
     set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
     set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
 
-    IF("${ARM_CORE}" STREQUAL "cm4")
+    IF ("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
-    ELSEIF("${ARM_CORE}" STREQUAL "cm7")
+    ELSEIF ("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM7_FPU_FLAGS})
-    ENDIF()
+    ENDIF ()
 
     target_compile_definitions(${LIB_NAME}
             PRIVATE
@@ -134,6 +134,7 @@ function(embedded_library
 endfunction()
 
 message("  🔃 Registered embedded_binary() function")
+# Generate an embedded binary target, a hex file, and an optional assembly file.
 function(embedded_binary
         BIN_NAME
         BIN_SRCS
@@ -154,15 +155,15 @@ function(embedded_binary
     set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
     set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
 
-    IF("${ARM_CORE}" STREQUAL "cm4")
+    IF ("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM4_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM4_FPU_FLAGS})
-    ELSEIF("${ARM_CORE}" STREQUAL "cm7")
+    ELSEIF ("${ARM_CORE}" STREQUAL "cm7")
         list(APPEND COMPILER_DEFINES ${CM7_DEFINES})
         list(APPEND COMPILER_FLAGS ${CM7_FPU_FLAGS})
         list(APPEND LINKER_FLAGS ${CM7_FPU_FLAGS})
-    ENDIF()
+    ENDIF ()
 
     target_compile_definitions(${ELF_NAME}
             PRIVATE
@@ -175,12 +176,14 @@ function(embedded_binary
     target_link_options(${ELF_NAME}
             PRIVATE
             ${LINKER_FLAGS}
+            # binary specific linker flags
             -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.map
             -Wl,-gc-sections,--print-memory-usage
             -Wl,-T ${LINKER_SCRIPT}
             --specs=nano.specs
     )
 
+    # 2) Hex file generation
     set(HEX_FILE "${BIN_NAME}.hex")
     set(HEX_PATH "${CMAKE_CURRENT_BINARY_DIR}/${HEX_FILE}")
     # objcopy is used to create a hex, and assembly file from the elf.
@@ -190,7 +193,8 @@ function(embedded_binary
             DEPENDS ${ELF_NAME}
     )
 
-    IF(${BUILD_ASM})
+    # 3?) ASM File Generation
+    IF (${BUILD_ASM})
         set(ASM_FILE "${BIN_NAME}.asm")
         set(ASM_PATH "${CMAKE_CURRENT_BINARY_DIR}/${ASM_FILE}")
         add_custom_target(${ASM_FILE} ALL
@@ -198,7 +202,7 @@ function(embedded_binary
                 COMMAND ${CMAKE_OBJDUMP} -DS ${CMAKE_CURRENT_BINARY_DIR}/${ELF_NAME} > ${ASM_PATH}
                 DEPENDS ${ELF_NAME}
         )
-    ENDIF()
+    ENDIF ()
 endfunction()
 
 message("  🔃 Registered embedded_image() function")

@@ -14,10 +14,10 @@ set(ENV_BIN_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/environment/bin)
 
 option(DEBUG_FETCHCONTENT "Enable verbose output for FetchContent" OFF)
 IF (DEBUG_FETCHCONTENT)
-	set(FETCHCONTENT_QUIET OFF)
+    set(FETCHCONTENT_QUIET OFF)
 ELSE ()
-	set(FETCHCONTENT_QUIET ON)
-ENDIF()
+    set(FETCHCONTENT_QUIET ON)
+ENDIF ()
 # cmake_policy(SET CMP0135 NEW)
 
 # ========== INCLUDES ==========
@@ -28,15 +28,15 @@ include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 message("")
 option(HANDLE_DEPS "Build build on the server" OFF)
 IF (HANDLE_DEPS)
-	message("🏗️ CMake is now controlling the optional dependencies")
+    message("🏗️ CMake is now controlling the optional dependencies")
 ELSE ()
-	message("🏠 Completely using your dependencies")
-ENDIF()
+    message("🏠 Completely using your dependencies")
+ENDIF ()
 file(
-		DOWNLOAD
-		https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-		${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-		EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+        DOWNLOAD
+        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+        EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
 )
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
 message("✅ Download CPM.cmake")
@@ -44,15 +44,15 @@ message("✅ Download CPM.cmake")
 # ======== Host system specific settings ========
 message("")
 message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
-IF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-	message("🪟 Building for Windows")
-ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-	message("🍎 Building for Apples")
-ELSEIF(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-	message("🐧 Building for Linux")
-ELSE()
-	message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
-ENDIF()
+IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    message("🪟 Building for Windows")
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+    message("🍎 Building for Apples")
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+    message("🐧 Building for Linux")
+ELSE ()
+    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+ENDIF ()
 
 include("python.cmake")
 
@@ -60,12 +60,12 @@ include("python.cmake")
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
 option(FIX_FORMATTING "Run clang-format on all boards" OFF)
 IF (FIX_FORMATTING)
-	message("⚙️ Run Clang-Formatting for all boards")
-	execute_process(
-			COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	)
-ENDIF()
+    message("⚙️ Run Clang-Formatting for all boards")
+    execute_process(
+            COMMAND ${PYTHON_COMMAND} ${FIX_FORMATTING_SCRIPT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+ENDIF ()
 
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
@@ -73,22 +73,22 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-	# ======== Compiler ========
-	IF ("${TARGET}" STREQUAL "binary")
-		project("UBC Formula Electric Software" C ASM)
-	ELSEIF ("${TARGET}" STREQUAL "test")
-		project("UBC Formula Electric Software" C CXX)
-	ELSE ()
-		message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
-	ENDIF()
+    # ======== Compiler ========
+    IF ("${TARGET}" STREQUAL "binary")
+        project("UBC Formula Electric Software" C ASM)
+    ELSEIF ("${TARGET}" STREQUAL "test")
+        project("UBC Formula Electric Software" C CXX)
+    ELSE ()
+        message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")
+    ENDIF ()
 
-	add_subdirectory(firmware)
-	IF ("${TARGET}" STREQUAL "test")
-		add_subdirectory(scripts/code_generation/fakegen)
-	ENDIF()
+    add_subdirectory(firmware)
+    IF ("${TARGET}" STREQUAL "test")
+        add_subdirectory(scripts/code_generation/fakegen)
+    ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
-	project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-	add_subdirectory(software/dimos)
+    project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
+    add_subdirectory(software/dimos)
 ELSE ()
-	message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
-ENDIF()
+    message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
+ENDIF ()

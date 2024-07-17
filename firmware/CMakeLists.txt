@@ -2,9 +2,9 @@ include(cmake/shared.cmake)
 include(cmake/dependencies.cmake)
 IF (HANDLE_DEPS)
     include(cmake/optional_deps.cmake)
-ENDIF()
+ENDIF ()
 
-IF("${TARGET}" STREQUAL "binary")
+IF ("${TARGET}" STREQUAL "binary")
     include(cmake/stmlib.cmake)
     include(cmake/embedded.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
@@ -13,7 +13,7 @@ IF("${TARGET}" STREQUAL "binary")
         set(LOG4J_PROPERTIES "$ENV{UserProfile}/.stm32cubemx/log4j.properties")
     ELSE ()
         set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
-    ENDIF()
+    ENDIF ()
     message("📝 Generating log4j.properties at ${LOG4J_PROPERTIES}")
     execute_process(
             COMMAND ${PYTHON_COMMAND}
@@ -40,7 +40,7 @@ IF("${TARGET}" STREQUAL "binary")
             "cm4"
             TRUE
     )
-ELSEIF("${TARGET}" STREQUAL "test")
+ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/tests.cmake)
     add_compile_definitions(TARGET_TEST)
     add_compile_definitions(_USE_MATH_DEFINES)
@@ -59,15 +59,15 @@ ELSEIF("${TARGET}" STREQUAL "test")
     set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include(CTest)
     enable_testing()
-ENDIF()
+ENDIF ()
 
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
 
-IF("${TARGET}" STREQUAL "binary")
+IF ("${TARGET}" STREQUAL "binary")
     add_subdirectory(chimera)
-ENDIF()
+ENDIF ()
 
 add_subdirectory(logfs)
 add_subdirectory(quadruna)
