@@ -143,7 +143,7 @@ function(embedded_binary
         LINKER_SCRIPT
         ARM_CORE
 )
-    message("➕ Creating Embedded Target for ${BIN_NAME}")
+    message("  ➕ Creating Embedded Target for ${BIN_NAME}")
     set(ELF_NAME "${BIN_NAME}.elf")
     add_executable(${ELF_NAME} ${BIN_SRCS})
 
@@ -212,7 +212,7 @@ function(embedded_image
         BOOT_HEX_TARGET
         BOOT_HEX_PATH
 )
-    message("🖼️ Creating Embedded Image for ${IMAGE_NAME}")
+    message("  🖼️ Creating Embedded Image for ${IMAGE_NAME}")
 
     set(APP_METADATA_HEX "${IMAGE_NAME}_app_metadata.hex")
     set(IMAGE_HEX "${IMAGE_NAME}.hex")

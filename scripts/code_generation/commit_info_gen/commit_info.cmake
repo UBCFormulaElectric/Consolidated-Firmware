@@ -16,7 +16,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
     ENDIF()
 
     file(RELATIVE_PATH directory_location_relative ${CMAKE_SOURCE_DIR} ${commit_info_directory})
-    message("📚 Registering commit info library ${bind_target} at ${directory_location_relative}")
+    message("  📚 Registering commit info library ${bind_target} at ${directory_location_relative}")
 
     execute_process(
         COMMAND ${PYTHON_COMMAND} ${GENERATE_COMMIT_INFO_SCRIPT_PY}
