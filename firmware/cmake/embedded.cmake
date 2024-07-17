@@ -34,16 +34,16 @@ set(SHARED_COMPILER_FLAGS
         -mthumb-interwork
         -ffunction-sections
         -fdata-sections
-        -g3
-        -O0
         -fno-common
         -fmessage-length=0
+        -specs=nosys.specs
+        -specs=nano.specs
+
+        # Warnings
         -Wall
         -Werror
         -Wextra
         -pedantic
-        -specs=nosys.specs
-        -specs=nano.specs
         -Wdouble-promotion
         -Wshadow
         -Wundef
@@ -52,6 +52,17 @@ set(SHARED_COMPILER_FLAGS
         -Wno-unused-variable
         -Wno-unused-parameter
 )
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    list(APPEND SHARED_COMPILER_FLAGS
+            -Og
+            -g3
+    )
+else()
+    list(APPEND SHARED_COMPILER_FLAGS
+            -Os
+            -g0
+    )
+endif()
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
@@ -61,6 +72,7 @@ set(SHARED_LINKER_FLAGS
 set(CM4_DEFINES
         -DARM_MATH_CM4
 )
+# FPU flags are compiler and linker flags
 set(CM4_FPU_FLAGS
         -mcpu=cortex-m4
         -mfloat-abi=hard
@@ -70,6 +82,7 @@ set(CM4_FPU_FLAGS
 set(CM7_DEFINES
         -DARM_MATH_CM7
 )
+# FPU flags are compiler and linker flags
 set(CM7_FPU_FLAGS
         -mcpu=cortex-m4
         -mfloat-abi=hard

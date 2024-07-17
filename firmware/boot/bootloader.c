@@ -86,8 +86,11 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // placed in flash. The first word of the vector table contains the initial stack pointer
     // and the second word containers the address of the reset handler. Update stack pointer and
     // program counter accordingly.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
     uint32_t app_sp    = address[0];
     uint32_t app_start = address[1];
+#pragma GCC diagnostic pop
     __set_MSP(app_sp);
     void (*app_reset_handler)(void) = (void (*)(void))app_start;
     app_reset_handler(); // Call app's Reset_Handler, starting the app.
