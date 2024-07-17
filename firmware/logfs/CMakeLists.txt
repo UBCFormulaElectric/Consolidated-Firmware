@@ -9,7 +9,7 @@ file(GLOB_RECURSE LOGFS_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
-IF("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     embedded_library(
         "logfs_cm7"
         "${LOGFS_SRCS}"

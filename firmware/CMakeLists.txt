@@ -4,7 +4,7 @@ IF (HANDLE_DEPS)
     include(cmake/optional_deps.cmake)
 ENDIF()
 
-IF("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     include(cmake/embedded.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
 
@@ -64,7 +64,7 @@ ENDIF()
 add_subdirectory(third_party)
 add_subdirectory(shared)
 
-IF("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     add_subdirectory(chimera)
 ENDIF()
 

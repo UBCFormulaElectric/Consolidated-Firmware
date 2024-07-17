@@ -8,7 +8,7 @@ list (APPEND EMBEDDED_SRCS
     "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
-IF("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
         "f4dev"
         "${IOC_PATH}"

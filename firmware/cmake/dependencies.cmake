@@ -21,7 +21,7 @@ message("  ✅ Found protoc at ${HAS_PROTOBUF_COMPILER}")
 
 message("  🚚 Fetching Sources")
 # Source Dependencies
-IF("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "binary")
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
             NAME STM32CUBEF4

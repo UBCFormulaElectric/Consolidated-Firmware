@@ -69,12 +69,12 @@ ENDIF()
 
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
-option(TARGET "The target to build for. Choose between \"embedded\" and \"test\"." "embedded")
+option(TARGET "The target to build for. Choose between \"binary\" and \"test\"." "binary")
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
 	# ======== Compiler ========
-	IF ("${TARGET}" STREQUAL "deploy")
+	IF ("${TARGET}" STREQUAL "binary")
 		project("UBC Formula Electric Software" C ASM)
 	ELSEIF ("${TARGET}" STREQUAL "test")
 		project("UBC Formula Electric Software" C CXX)

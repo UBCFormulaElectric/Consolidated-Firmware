@@ -14,7 +14,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "PLATFORM": "firmware",
-                "TARGET": "dev",
+                "TARGET": "binary",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "MINIMAL"
             },
@@ -27,11 +27,24 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "PLATFORM": "firmware",
-                "TARGET": "deploy",
+                "TARGET": "binary",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "ON"
             },
             "binaryDir": "build_fw_deploy"
+        },
+        {
+            "name": "FW Test",
+            "description": "Test build for the Firmware, including debug information and no optimizations.",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "PLATFORM": "firmware",
+                "TARGET": "test",
+                "HANDLE_DEPS": "OFF",
+                "USE_COMMIT_INFO": "MINIMAL"
+            },
+            "binaryDir": "build_fw_test"
         }
     ],
     "buildPresets": [

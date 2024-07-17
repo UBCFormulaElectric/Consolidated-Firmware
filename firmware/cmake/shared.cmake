@@ -24,7 +24,7 @@ function(commit_info_library
     ARM_CORE
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
-    IF("${TARGET}" STREQUAL "deploy")
+    IF("${TARGET}" STREQUAL "binary")
         embedded_library(
             "${LIB_NAME}"
             "${COMMIT_INFO_SRC}"
