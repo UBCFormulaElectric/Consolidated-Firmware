@@ -97,7 +97,7 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "logfs_cm7")
 
     # Build bootloader.
     stm32h7_boot_binary(
