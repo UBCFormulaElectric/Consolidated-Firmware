@@ -63,5 +63,5 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info" "littlefs_cm4")
+    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_commit_info")
 ENDIF ()
