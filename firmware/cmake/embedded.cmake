@@ -67,7 +67,7 @@ endif()
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
-        --specs=nano.specs
+        --specs=nosys.specs
 )
 
 set(CM4_DEFINES
@@ -194,8 +194,14 @@ function(embedded_binary
             -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BIN_NAME}.map
             -Wl,-gc-sections,--print-memory-usage
             -Wl,-T ${LINKER_SCRIPT}
-            --specs=nano.specs
     )
+
+    #get_property(ELF_COMPILE_OPTIONS TARGET ${ELF_NAME} PROPERTY COMPILE_OPTIONS)
+    #get_property(ELF_COMPILE_DEFINITIONS TARGET ${ELF_NAME} PROPERTY COMPILE_DEFINITIONS)
+    #get_property(ELF_LINK_OPTIONS TARGET ${ELF_NAME} PROPERTY LINK_OPTIONS)
+    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Options: ${ELF_COMPILE_OPTIONS}")
+    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Compile Definitions: ${ELF_COMPILE_DEFINITIONS}")
+    #message("  📦 [embedded.cmake, embedded_binary()] ${ELF_NAME} Link Options: ${ELF_LINK_OPTIONS}")
 
     # 2) Hex file generation
     set(HEX_FILE "${BIN_NAME}.hex")
