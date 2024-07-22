@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 set(CMAKE_C_COMPILER_ID GNU)
-#set(CMAKE_CXX_COMPILER_ID GNU)
+set(CMAKE_CXX_COMPILER_ID GNU)
 
 # On Apple silicon, this line mysteriously causes loading CMake for unit tests to fail.
 # However, it is equally mysteriously required for building embedded binaries.

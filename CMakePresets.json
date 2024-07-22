@@ -4,13 +4,13 @@
         {
             "name": "default",
             "hidden": true,
-            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
             "generator": "Ninja"
         },
         {
             "name": "FW Dev",
             "description": "Development build for the Firmware, including debug information and no optimizations.",
             "inherits": "default",
+            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "PLATFORM": "firmware",
@@ -25,6 +25,7 @@
             "name": "FW Deploy",
             "description": "Deployment build for the Firmware, including optimizations and no debug information.",
             "inherits": "default",
+            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "PLATFORM": "firmware",
