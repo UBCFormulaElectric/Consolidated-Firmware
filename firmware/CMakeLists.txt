@@ -9,26 +9,6 @@ IF ("${TARGET}" STREQUAL "binary")
     include(cmake/embedded.cmake)
     include(cmake/bootlib.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
-
-    # REQUIRES: LITTLEFS_SOURCE_DIR (from dependencies.cmake)
-    set(LITTLEFS_SRCS
-            "${LITTLEFS_SOURCE_DIR}/lfs.c"
-            "${LITTLEFS_SOURCE_DIR}/lfs_util.c"
-    )
-    embedded_library(
-            "littlefs_cm4"
-            "${LITTLEFS_SRCS}"
-            "${LITTLEFS_SOURCE_DIR}"
-            "cm4"
-            TRUE
-    )
-    embedded_library(
-            "littlefs_cm7"
-            "${LITTLEFS_SRCS}"
-            "${LITTLEFS_SOURCE_DIR}"
-            "cm4"
-            TRUE
-    )
 ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/tests.cmake)
     add_compile_definitions(TARGET_TEST)

@@ -37,14 +37,6 @@ IF("${TARGET}" STREQUAL "binary")
             GIT_TAG 1e1def98759f14a4977ef6234c90dc10cbf43a48
             GIT_SHALLOW TRUE
     )
-
-    # littlefs: Filesystem for microcontrollers
-    CPMAddPackage(
-            NAME LITTLEFS
-            GITHUB_REPOSITORY littlefs-project/littlefs
-            GIT_TAG v2.8.0
-            GIT_SHALLOW TRUE
-    )
 ELSEIF("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
     CPMAddPackage(
