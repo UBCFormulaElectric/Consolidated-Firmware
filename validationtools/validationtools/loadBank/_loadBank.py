@@ -1,5 +1,10 @@
+import datetime
 import pyvisa as visa
 import time
+import numpy as np
+from tqdm import tqdm
+import pandas as pd
+
 
 class loadBank:
     def __init__(self):
@@ -13,7 +18,8 @@ class loadBank:
             print(x)
             if 'DL' in x:
                 resourceTag = x
-
+                break
+            
         if resourceTag == '':
             print("No DL3021 detected.")
             return
