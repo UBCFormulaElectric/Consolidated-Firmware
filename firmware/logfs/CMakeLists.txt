@@ -1,8 +1,4 @@
-if(NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
-    message(FATAL_ERROR "❌ embedded.cmake must be included before logfs is subdirectoried")
-endif()
-
-set(LOGFS_INCLUDE_DIRS 
+set(LOGFS_INCLUDE_DIRS
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 file(GLOB_RECURSE LOGFS_SRCS
@@ -10,6 +6,9 @@ file(GLOB_RECURSE LOGFS_SRCS
 )
 
 IF("${TARGET}" STREQUAL "binary")
+    if(NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+        message(FATAL_ERROR "❌ embedded.cmake must be included before logfs is subdirectoried")
+    endif()
     embedded_library(
         "logfs_cm7"
         "${LOGFS_SRCS}"
