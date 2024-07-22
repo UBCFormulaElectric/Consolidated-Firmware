@@ -16,9 +16,6 @@ execute_process(
 )
 
 # ==== important variables ====
-# SEGGER SystemView library, enables CPU profiling with a J-Link dongle.
-set(SYSTEMVIEW_DIR "${THIRD_PARTY_DIR}/SEGGER_SystemView_Src")
-
 # FreeRTOS patch to enable thread-safe malloc (so we can use the heap with FreeRTOS).
 set(NEWLIB_DIR "${THIRD_PARTY_DIR}/newlib_freertos_patch")
 
@@ -77,9 +74,9 @@ function(stm32f412rx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
             "${HAL_CONF_DIR}"
-            "${SYSTEMVIEW_DIR}/SEGGER"
-            "${SYSTEMVIEW_DIR}/Config"
-            "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
     # HAL sources.
@@ -98,15 +95,15 @@ function(stm32f412rx_cube_library
 
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS
-            "${SYSTEMVIEW_DIR}/SEGGER/*.c"
-            "${SYSTEMVIEW_DIR}/SEGGER/*.S"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
     )
 
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
-    list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
 
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
     # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
@@ -150,9 +147,9 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
             "${HAL_CONF_DIR}"
-            "${SYSTEMVIEW_DIR}/SEGGER"
-            "${SYSTEMVIEW_DIR}/Config"
-            "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
     # HAL sources.
     set(STM32_HAL_SRCS)
@@ -169,13 +166,13 @@ function(stm32h733xx_cube_library
 
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS
-            "${SYSTEMVIEW_DIR}/SEGGER/*.c"
-            "${SYSTEMVIEW_DIR}/SEGGER/*.S"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
     )
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
-    list(APPEND SYSTEMVIEW_SRCS "${SYSTEMVIEW_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SYSTEMVIEW_DIR}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
     # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
