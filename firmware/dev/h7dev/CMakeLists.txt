@@ -9,7 +9,7 @@ file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_can.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
