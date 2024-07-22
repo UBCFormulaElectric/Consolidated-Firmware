@@ -41,7 +41,8 @@
             "cacheVariables": {
                 "FIX_FORMATTING": "OFF",
                 "NO_VENV": "ON"
-            }
+            },
+            "generator": "Makefile"
         },
         {
             "name": "FW Test",
@@ -63,7 +64,8 @@
             "cacheVariables": {
                 "FIX_FORMATTING": "OFF",
                 "NO_VENV": "ON"
-            }
+            },
+            "generator": "Makefile"
         }
     ],
     "buildPresets": [
