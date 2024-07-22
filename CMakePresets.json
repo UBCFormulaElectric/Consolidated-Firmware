@@ -42,7 +42,7 @@
                 "FIX_FORMATTING": "OFF",
                 "NO_VENV": "ON"
             },
-            "generator": "Makefile"
+            "generator": "Unix Makefiles"
         },
         {
             "name": "FW Test",
@@ -65,7 +65,7 @@
                 "FIX_FORMATTING": "OFF",
                 "NO_VENV": "ON"
             },
-            "generator": "Makefile"
+            "generator": "Unix Makefiles"
         }
     ],
     "buildPresets": [
