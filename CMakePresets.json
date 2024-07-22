@@ -54,7 +54,6 @@
                 "PLATFORM": "firmware",
                 "TARGET": "test",
                 "HANDLE_DEPS": "OFF",
-                "USE_COMMIT_INFO": "MINIMAL",
                 "NO_VENV":  "OFF"
             },
             "binaryDir": "build_fw_test"
