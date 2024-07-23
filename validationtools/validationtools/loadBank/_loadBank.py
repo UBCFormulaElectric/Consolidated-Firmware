@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pandas as pd
 
 
-class loadBank:
+class LoadBank:
     def __init__(self):
         '''
         Represents a Rigol DL3021 programmable DC electronic load.
@@ -104,7 +104,7 @@ class loadBank:
 
 # Example usage
 if __name__ == "__main__":
-    load_bank = loadBank()
+    load_bank = LoadBank()
     print(load_bank.get_id())
     load_bank.set_current(1.51)  # Set current to 1.51A
     load_bank.enable_load()
