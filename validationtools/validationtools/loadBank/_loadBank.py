@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 import pandas as pd
 
-
 class LoadBank:
     def __init__(self):
         '''
@@ -101,16 +100,4 @@ class LoadBank:
         returns: string, device identification
         """
         return self.load.query('*IDN?')
-
-# Example usage
-if __name__ == "__main__":
-    load_bank = LoadBank()
-    print(load_bank.get_id())
-    load_bank.set_current(1.51)  # Set current to 1.51A
-    load_bank.enable_load()
-    time.sleep(5)  # Wait for 5 seconds
-    voltage = load_bank.measure_voltage()
-    current = load_bank.measure_current()
-    power = load_bank.measure_power()
-    print(f"Voltage: {voltage} V, Current: {current} A, Power: {power} W")
-    load_bank.disable_load()
+    
