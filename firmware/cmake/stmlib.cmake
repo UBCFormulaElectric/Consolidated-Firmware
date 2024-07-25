@@ -15,11 +15,6 @@ execute_process(
         --log4j_properties_output ${LOG4J_PROPERTIES}
 )
 
-# ==== important variables ====
-# FreeRTOS patch to enable thread-safe malloc (so we can use the heap with FreeRTOS).
-set(NEWLIB_DIR "${THIRD_PARTY_DIR}/newlib_freertos_patch")
-
-
 # ==== STM32CubeMX functions ====
 
 message("  🔃 Registered generate_stm32cube_code() function")
@@ -54,6 +49,9 @@ function(generate_stm32cube_code
 endfunction()
 
 message("  🔃 Registered stm32f412rx_cube_library() function")
+# HAL_CONF_DIR: src/cubemx/Inc
+# HAL_SRCS: the ones that we want, stripped prefixes
+# SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
         HAL_CONF_DIR
@@ -66,14 +64,15 @@ function(stm32f412rx_cube_library
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
+            "${HAL_CONF_DIR}"
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc"
-            "${DRIVERS_DIR}/CMSIS/Include"
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
-            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
-            "${HAL_CONF_DIR}"
+            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
+            "${DRIVERS_DIR}/CMSIS/Include"
+            # SEGGER SystemView includes.
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
@@ -89,8 +88,9 @@ function(stm32f412rx_cube_library
     # FreeRTOS sources.
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2/*.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
     )
 
     # SEGGER SystemView sources.
@@ -98,21 +98,16 @@ function(stm32f412rx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
     )
-
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
-
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
     file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
-    # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
-    file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_DIR}/*.c")
-
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     embedded_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -122,7 +117,8 @@ function(stm32f412rx_cube_library
     )
     target_compile_definitions(${HAL_LIB_NAME}
             PUBLIC
-            -DSTM32F412Rx
+            USE_HAL_DRIVER
+            STM32F412Rx
     )
 endfunction()
 
@@ -139,14 +135,15 @@ function(stm32h733xx_cube_library
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
+            "${HAL_CONF_DIR}"
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
-            "${DRIVERS_DIR}/CMSIS/Include"
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
-            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
-            "${HAL_CONF_DIR}"
+            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
+            "${DRIVERS_DIR}/CMSIS/Include"
+            # SEGGER SystemView includes.
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
@@ -160,8 +157,9 @@ function(stm32h733xx_cube_library
     # FreeRTOS sources.
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2/*.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -175,13 +173,10 @@ function(stm32h733xx_cube_library
     file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
-    # newlib_freertos_patch adds thread-safe malloc so we can use the heap and FreeRTOS.
-    file(GLOB_RECURSE NEWLIB_SRCS "${NEWLIB_DIR}/*.c")
-
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${NEWLIB_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     embedded_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -191,7 +186,8 @@ function(stm32h733xx_cube_library
     )
     target_compile_definitions(${HAL_LIB_NAME}
             PUBLIC
-            -DSTM32H733xx
-            -DCANFD
+            USE_HAL_DRIVER
+            STM32H733xx
+            CANFD
     )
 endfunction()
