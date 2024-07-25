@@ -82,6 +82,12 @@ class PowerSupply:
         """
         self.ps.write(f':INST:NSEL {channel}')
         self.ps.write(':OUTP OFF')
+    
+    def reset(self):
+        """
+        Resets the power supply to its default settings.
+        """
+        self.ps.write('*RST')
 
     def get_id(self):
         """

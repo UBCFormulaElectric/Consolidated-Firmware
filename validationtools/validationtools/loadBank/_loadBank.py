@@ -93,6 +93,12 @@ class LoadBank:
         """
         self.load.write(':INP OFF')
 
+    def reset(self):
+        """
+        Resets the load to its default settings.
+        """
+        self.load.write('*RST')
+        
     def get_id(self):
         """
         Gets the device identification string.
