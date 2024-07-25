@@ -68,7 +68,6 @@ set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
         --specs=nosys.specs
-        --specs=nano.specs
 )
 
 set(CM4_DEFINES
