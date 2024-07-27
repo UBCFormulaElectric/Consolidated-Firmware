@@ -1,4 +1,4 @@
-import FLASK_URL from "./src/app/page"
+import FLASK_URL from "../page"
 
 // Function for getting data
 const getRealtimeData = async (path: string) => {

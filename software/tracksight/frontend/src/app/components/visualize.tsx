@@ -3,7 +3,7 @@ import { Divider, Button, Switch, Space, Modal, Input, message } from 'antd';
 import Graph from './db/graph';
 import LiveGraph from './live/live_graph';
 import { PlotRelayoutEvent } from 'plotly.js';
-import { saveDashboardData } from '../../../dashboardService'
+import { saveDashboardData } from './dashboardService'
 
 const Visualize = (props: {
     addGraph: (live: boolean) => void;
