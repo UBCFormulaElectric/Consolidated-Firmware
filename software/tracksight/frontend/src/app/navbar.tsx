@@ -20,14 +20,11 @@ export default function NavBar() {
           onClick={(e) => {
             switch (e.key) {
               case "home":
-                router.push("/");
-                break;
+                return router.push("/");
               case "visualize":
-                router.push("/visualize");
-                break;
+                return router.push("/visualize");
               case "dashboard":
-                router.push("/dashboard");
-                break;
+                return router.push("/dashboard");
               case "theme":
                 break;
             }
