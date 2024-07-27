@@ -4,6 +4,7 @@ import { Button } from 'antd';
 
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
+import { toast } from 'sonner';
 
 const QueryData = (props: {
     url: string,
@@ -41,8 +42,7 @@ const QueryData = (props: {
 
     const handleSubmit = () => {
         if (!startEpoch || !endEpoch || !measurement || !signals.length) {
-            // TODO replace with shadcn sonner
-            // props.messageApi.open({ type: "error", content: "Please fill out all signal properly" });
+            toast.error("Please fill out all signal properly");
             return;
         }
         const newParams = new URLSearchParams({

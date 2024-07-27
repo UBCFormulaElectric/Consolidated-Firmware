@@ -4,6 +4,7 @@ import { Space, Switch } from 'antd';
 
 import DropdownMenu from '../db/dropdown_menu'
 import { MessageInstance } from 'antd/es/message/interface';
+import { toast } from 'sonner';
 
 const UPDATE_INTERVAL_MS = 1000; // how often the graph updates
 
@@ -43,8 +44,7 @@ const QueryLive = (props: {
                         }
                     })
                     .then((data) => props.setData(data))
-                    // TODO replace with shadcn sonner
-                    // .catch((error) => props.messageApi.open({ type: "error", content: error.toString() })); 
+                    .catch((error) => toast.error(error.toString()));
 
             }, UPDATE_INTERVAL_MS);
 
