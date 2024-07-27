@@ -5,13 +5,13 @@ import LiveGraph from '../components/live/live_graph';
 import { PlotRelayoutEvent } from 'plotly.js';
 import { saveDashboardData } from '../components/dashboardService'
 
-const Visualize = (props: {
+export default function Visualize(props: {
     addGraph: (live: boolean) => void;
     graphs: number[];
     liveGraphs: number[];
     url: string;
     deleteGraph: (graphId: number, live: boolean) => void;
-}) => {
+}) {
     const [sync, setSync] = useState<boolean>(false);
     const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
     // const [dbName, setDbName] = useState<string>("test");
@@ -20,7 +20,6 @@ const Visualize = (props: {
     // const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     //     setDbName(event.target.value);
     // }
-
     const changeSync = (checked: boolean) => {
         setSync(checked);
     };
@@ -36,7 +35,6 @@ const Visualize = (props: {
     //         message.warning('stop trying to save a dashboard without any graphs brother');
     //         return;
     //     }
-
     //     const data: { dbname: string; graphs: Record<string, string[]> } = {
     //         dbname: dbName,
     //         graphs: {}
@@ -44,10 +42,8 @@ const Visualize = (props: {
     //     for (let graphId in graphSignals) {
     //         data.graphs[graphId] = graphSignals[graphId];
     //     }
-
     //     const path = `dashboards/${dbName}`;
     //     const success = await saveDashboardData(path, data);
-
     //     if (success) {
     //         message.success('Dashboard saved successfully!');
     //         setModalOpen(false);
@@ -55,9 +51,7 @@ const Visualize = (props: {
     //         message.error('Error saving the dashboard.');
     //     }
     //     setModalOpen(false);
-
     // };
-
     return (
         <div className="layout">
             <Space direction="vertical" size="large">
@@ -75,7 +69,6 @@ const Visualize = (props: {
                     <Button onClick={() => setModalOpen(true)}>Save Current Loadout</Button>
                     <Modal open={modalOpen} closeIcon={false} title='Save Dashboard'
                         cancelButtonProps={{ onClick: () => setModalOpen(false) }}
-                    // okButtonProps={{ onClick: () =>  }}
                     >
                         {/* <Input placeholder='Name of dashboard...' onChange={handleInputChange}></Input> */}
                     </Modal>
@@ -91,8 +84,7 @@ const Visualize = (props: {
                         sync={sync}
                         zoomData={zoomData}
                         setZoomData={setZoomData}
-                        onDelete={() => props.deleteGraph(graphId, false)}
-                    />
+                        onDelete={() => props.deleteGraph(graphId, false)} />
                 ))}
                 {props.liveGraphs.map((graphId) => (
                     <LiveGraph
@@ -102,12 +94,9 @@ const Visualize = (props: {
                         sync={sync}
                         zoomData={zoomData}
                         setZoomData={setZoomData}
-                        onDelete={() => props.deleteGraph(graphId, true)}
-                    />
+                        onDelete={() => props.deleteGraph(graphId, true)} />
                 ))}
             </div>
         </div>
     );
-};
-
-export default Visualize;
+}
