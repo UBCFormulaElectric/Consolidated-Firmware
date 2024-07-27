@@ -30,8 +30,8 @@ export default function RootLayout({ children }: {
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <NavBar />
-          <main className="bg-white text-[#121212] dark:bg-[#121212] dark:text-white">
+          <main className="min-h-screen bg-white text-[#121212] dark:bg-[#121212] dark:text-white">
+            <NavBar />
             {children}
           </main>
           <Toaster />
