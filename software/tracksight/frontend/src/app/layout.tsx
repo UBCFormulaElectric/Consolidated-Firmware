@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import NavBar from './navbar';
 import ThemeProvider from './ThemeProvider';
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,10 +30,11 @@ export default function RootLayout({ children }: {
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <div className="bg-white text-[#121212] dark:bg-[#121212] dark:text-white">
-            <NavBar />
+          <NavBar />
+          <main className="bg-white text-[#121212] dark:bg-[#121212] dark:text-white">
             {children}
-          </div>
+          </main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -12,7 +12,7 @@ export default function NavBar() {
 
   return (
     <>
-      <div className="p-0 fixed top-0 left-0 right-0">
+      <nav className="p-0 fixed top-0 left-0 right-0">
         <Menu
           theme={theme ? 'dark' : 'light'}
           mode="horizontal"
@@ -43,7 +43,7 @@ export default function NavBar() {
             />
           </div>
         </Menu>
-      </div>
+      </nav>
       <div className="h-14"></div>
     </>
   );
