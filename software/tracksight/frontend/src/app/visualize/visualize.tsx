@@ -1,9 +1,9 @@
 import React, { useState, ReactElement } from 'react';
 import { Divider, Button, Switch, Space, Modal, Input, message } from 'antd';
-import Graph from './db/graph';
-import LiveGraph from './live/live_graph';
+import Graph from '../components/db/graph';
+import LiveGraph from '../components/live/live_graph';
 import { PlotRelayoutEvent } from 'plotly.js';
-import { saveDashboardData } from './dashboardService'
+import { saveDashboardData } from '../components/dashboardService'
 
 const Visualize = (props: {
     addGraph: (live: boolean) => void;

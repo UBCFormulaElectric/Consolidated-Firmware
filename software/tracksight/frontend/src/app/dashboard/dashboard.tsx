@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getRealtimeData, deleteDashboardData } from './dashboardService';
+import { getRealtimeData, deleteDashboardData } from '../components/dashboardService';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Select, Space, Button, Modal, Checkbox, List, message } from 'antd';
 // import { Socket } from "socket.io-client";
-import LiveGraph from './live/live_graph';
+import LiveGraph from '../components/live/live_graph';
 
 // currently a bug where loading dashboards only loads SOME of the signals on graphs (seems indeterministic)
 // found error occurs in livegraphs where it checks if data['id'] == graphId, and thus does not update graph,

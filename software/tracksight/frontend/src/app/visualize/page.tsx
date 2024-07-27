@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import Visualize from "../components/visualize";
+import Visualize from "./visualize";
 
 const FLASK_URL = "http://localhost:5000";
 
