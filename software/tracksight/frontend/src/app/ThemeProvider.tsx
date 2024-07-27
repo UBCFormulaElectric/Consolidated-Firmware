@@ -9,7 +9,9 @@ export enum Theme {
 
 export const ThemeContext = createContext({
     theme: Theme.LIGHT,
-    setTheme: (theme: Theme) => {}
+    setTheme: (theme: Theme) => {
+        console.error("No theme provider found");
+    }
 });
 
 export default function ThemeProvider({ children }: {
