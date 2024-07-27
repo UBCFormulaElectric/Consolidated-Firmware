@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, createContext } from 'react';
 
 export enum Theme {
@@ -10,18 +12,15 @@ export const ThemeContext = createContext({
     setTheme: (theme: Theme) => {}
 });
 
-
-const ThemeProvider = ({ children }: {
-    children: React.ReactNode
-}) => {
+export default function ThemeProvider({ children }: {
+    children: React.ReactNode;
+}) {
     const [theme, setTheme] = useState(Theme.LIGHT);
     return (
-        <ThemeContext.Provider value={{theme, setTheme}}>
+        <ThemeContext.Provider value={{ theme, setTheme }}>
             <div id="themeHandler" className={`${theme === Theme.LIGHT ? "light" : "dark"}`}>
                 {children}
             </div>
         </ThemeContext.Provider>
     );
 }
-
-export default ThemeProvider;
