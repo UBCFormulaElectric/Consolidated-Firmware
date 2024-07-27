@@ -3,19 +3,15 @@ import { Divider, Button, Switch, Space, Modal, Input, message } from 'antd';
 import Graph from './db/graph';
 import LiveGraph from './live/live_graph';
 import { PlotRelayoutEvent } from 'plotly.js';
-import { MessageInstance } from 'antd/es/message/interface';
 import { saveDashboardData } from '../../../dashboardService'
 
-export interface VisualizeProps {
+const Visualize = (props: {
     addGraph: (live: boolean) => void;
     graphs: number[];
     liveGraphs: number[];
     url: string;
     deleteGraph: (graphId: number, live: boolean) => void;
-    messageApi: MessageInstance,
-}
-
-const Visualize = (props: VisualizeProps) => {
+}) => {
     const [sync, setSync] = useState<boolean>(false);
     const [zoomData, setZoomData] = useState<PlotRelayoutEvent>({});
     // const [dbName, setDbName] = useState<string>("test");
@@ -96,7 +92,6 @@ const Visualize = (props: VisualizeProps) => {
                         zoomData={zoomData}
                         setZoomData={setZoomData}
                         onDelete={() => props.deleteGraph(graphId, false)}
-                        messageApi={props.messageApi}
                     />
                 ))}
                 {props.liveGraphs.map((graphId) => (
@@ -108,7 +103,6 @@ const Visualize = (props: VisualizeProps) => {
                         zoomData={zoomData}
                         setZoomData={setZoomData}
                         onDelete={() => props.deleteGraph(graphId, true)}
-                        messageApi={props.messageApi}
                     />
                 ))}
             </div>

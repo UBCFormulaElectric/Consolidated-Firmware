@@ -8,7 +8,6 @@ import { PlotRelayoutEvent } from 'plotly.js';
 import { Card, Button, Space } from 'antd';
 
 import QueryData from './query_data';
-import { MessageInstance } from 'antd/es/message/interface';
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     width: 620,
@@ -19,18 +18,15 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 }
 
-export interface GraphProps {
-    id: number,
-    url: string,
-    sync: boolean,
-    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    zoomData: PlotRelayoutEvent,
-    onDelete: MouseEventHandler<HTMLElement>,
-    messageApi: MessageInstance,
-}
-
-const Graph = (props: GraphProps) => {
-    const [data, setData] = useState<{ [name: string]: { times: Array<string>, values: Array<number> } }>({});
+export default function Graph(props: {
+    id: number;
+    url: string;
+    sync: boolean;
+    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>;
+    zoomData: PlotRelayoutEvent;
+    onDelete: MouseEventHandler<HTMLElement>;
+}) {
+    const [data, setData] = useState<{ [name: string]: { times: Array<string>; values: Array<number>; }; }>({});
     const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
 
     //default graph layout
@@ -49,7 +45,7 @@ const Graph = (props: GraphProps) => {
         setFormattedData([]);
         setGraphLayout(DEFAULT_LAYOUT);
         setData({});
-    }
+    };
 
     // creates a new graph with request signals
     // currently rerendering entire graph everytime there is zoom/change in signal. Not ideal in terms of performance, 
@@ -109,12 +105,12 @@ const Graph = (props: GraphProps) => {
             // TODO: Only sync time axis, not y axis.
             props.setZoomData(e);
         }
-    }
+    };
 
     return (
         <Card
             bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryData url={props.url} setData={setData} messageApi={props.messageApi}></QueryData>
+            <QueryData url={props.url} setData={setData}></QueryData>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
@@ -123,8 +119,7 @@ const Graph = (props: GraphProps) => {
                     displaylogo: false,
                     scrollZoom: true,
                 }}
-                onRelayout={handleZoom}
-            />
+                onRelayout={handleZoom} />
             <br></br>
             <Space.Compact size={"middle"}>
                 <Button block={true} className="clear" onClick={clearData}>Clear</Button>
@@ -133,5 +128,3 @@ const Graph = (props: GraphProps) => {
         </Card>
     );
 }
-
-export default Graph;

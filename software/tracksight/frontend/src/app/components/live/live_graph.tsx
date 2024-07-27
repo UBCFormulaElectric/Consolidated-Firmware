@@ -16,18 +16,15 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
     legend: { "orientation": "h" },
 }
 
-export interface LiveGraphProps {
-    id: number,
-    url: string,
-    sync: boolean,
-    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>
-    zoomData: PlotRelayoutEvent,
-    onDelete: MouseEventHandler<HTMLElement>,
-    messageApi: MessageInstance,
-}
-
-const LiveGraph = (props: LiveGraphProps) => {
-    const [data, setData] = useState<{ [name: string]: { times: Array<string>, values: Array<number> } }>({});
+export default function LiveGraph(props: {
+    id: number;
+    url: string;
+    sync: boolean;
+    setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>;
+    zoomData: PlotRelayoutEvent;
+    onDelete: MouseEventHandler<HTMLElement>;
+}) {
+    const [data, setData] = useState<{ [name: string]: { times: Array<string>; values: Array<number>; }; }>({});
     const [formattedData, setFormattedData] = useState<Plotly.Data[]>([]);
     const [graphLayout, setGraphLayout] = useState<Partial<Plotly.Layout>>(DEFAULT_LAYOUT);
 
@@ -35,7 +32,7 @@ const LiveGraph = (props: LiveGraphProps) => {
         setFormattedData([]);
         setGraphLayout(DEFAULT_LAYOUT);
         setData({});
-    }
+    };
 
     // randomizes colour for graph lines 
     const getRandomColor = () => {
@@ -98,11 +95,11 @@ const LiveGraph = (props: LiveGraphProps) => {
         if (props.sync) {
             props.setZoomData(e);
         }
-    }
+    };
 
     return (
         <Card bodyStyle={{ display: 'flex', flexDirection: 'column' }}>
-            <QueryLive url={props.url} setData={setData} messageApi={props.messageApi}></QueryLive>
+            <QueryLive url={props.url} setData={setData}></QueryLive>
             <Plot
                 data={formattedData} // Pass the array of formatted data objects
                 layout={graphLayout}
@@ -111,8 +108,7 @@ const LiveGraph = (props: LiveGraphProps) => {
                     displaylogo: false,
                     scrollZoom: true,
                 }}
-                onRelayout={handleZoom}
-            />
+                onRelayout={handleZoom} />
             <br></br>
             <Space.Compact size={"middle"}>
                 <Button block={true} className="clear" onClick={clearData}>Clear</Button>
@@ -121,5 +117,3 @@ const LiveGraph = (props: LiveGraphProps) => {
         </Card>
     );
 }
-
-export default LiveGraph;

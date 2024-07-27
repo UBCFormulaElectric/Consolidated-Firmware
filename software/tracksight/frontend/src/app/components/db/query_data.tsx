@@ -4,15 +4,11 @@ import { Button } from 'antd';
 
 import DropdownMenu from './dropdown_menu';
 import TimeStampPicker from './timestamp_picker';
-import { MessageInstance } from 'antd/es/message/interface';
 
-export interface QueryDataProps {
+const QueryData = (props: {
     url: string,
     setData: Dispatch<{ [name: string]: { times: Array<string>, values: Array<number> } }>,
-    messageApi: MessageInstance,
-}
-
-const QueryData = (props: QueryDataProps) => {
+}) => {
     const [measurement, setMeasurement] = useState<string[]>([]);
     const [allMeasurements, setAllMeasurements] = useState<string[]>([]);
 
@@ -45,7 +41,8 @@ const QueryData = (props: QueryDataProps) => {
 
     const handleSubmit = () => {
         if (!startEpoch || !endEpoch || !measurement || !signals.length) {
-            props.messageApi.open({ type: "error", content: "Please fill out all signal properly" });
+            // TODO replace with shadcn sonner
+            // props.messageApi.open({ type: "error", content: "Please fill out all signal properly" });
             return;
         }
         const newParams = new URLSearchParams({
@@ -61,7 +58,8 @@ const QueryData = (props: QueryDataProps) => {
                 }
             })
             .then((data) => props.setData(data))
-            .catch((error) => props.messageApi.open({ type: "error", content: error.toString() }));
+            // TDOO replace with shadcn sonner
+            // .catch((error) => props.messageApi.open({ type: "error", content: error.toString() }));
 
     };
 

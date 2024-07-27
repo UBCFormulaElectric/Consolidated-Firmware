@@ -9,11 +9,9 @@ import LiveGraph from './live/live_graph';
 // found error occurs in livegraphs where it checks if data['id'] == graphId, and thus does not update graph,
 // as id sometimes returns as 0 when returned from websocket process. unsure how to fix. 
 
-
-export interface DashboardProps {
-  deleteGraph: (graphId: number, live: boolean) => void;
-}
-const Dashboard = (props: DashboardProps) => {
+const Dashboard = (props: {
+  // deleteGraph: (graphId: number, live: boolean) => void;
+}) => {
   // const [items, setItems] = useState<Array<{ value: string, label: string }>>([]);
   // const [selectedDashboard, setSelectedDashboard] = useState("");
   // const [toDelete, setToDelete] = useState<string[]>([]);

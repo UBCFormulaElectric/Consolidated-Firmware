@@ -7,13 +7,10 @@ import { MessageInstance } from 'antd/es/message/interface';
 
 const UPDATE_INTERVAL_MS = 1000; // how often the graph updates
 
-export interface QueryLiveProps {
+const QueryLive = (props: {
     url: string,
     setData: Dispatch<{ [name: string]: { times: Array<string>, values: Array<number> } }>,
-    messageApi: MessageInstance,
-}
-
-const QueryLive = (props: QueryLiveProps) => {
+}) => {
     const [signals, setSignals] = useState<string[]>([]);
     const [allSignal, setAllSignal] = useState<string[]>([]);
     const [useLive, setUseLive] = useState<boolean>(false);
@@ -46,7 +43,8 @@ const QueryLive = (props: QueryLiveProps) => {
                         }
                     })
                     .then((data) => props.setData(data))
-                    .catch((error) => props.messageApi.open({ type: "error", content: error.toString() }));
+                    // TODO replace with shadcn sonner
+                    // .catch((error) => props.messageApi.open({ type: "error", content: error.toString() })); 
 
             }, UPDATE_INTERVAL_MS);
 
