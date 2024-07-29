@@ -112,7 +112,7 @@ jobs:
         with:
           board: ${{ matrix.board }}
 
-  test:
+  test-firmware:
     needs: [ clang-format ]
     name: Test Firmware
     runs-on: ubuntu-22.04
@@ -153,8 +153,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` ${{ matrix.car }}_${{ matrix.board }}_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target ${{ matrix.car }}_${{ matrix.board }}_test
 
       - name: Run Tests
         run: |
@@ -187,8 +187,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` shared_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target shared_test
 
       - name: Run tests
         run: |
@@ -221,8 +221,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` fakegen_test
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target fakegen_test
 
       - name: Run tests
         run: |
@@ -254,6 +254,6 @@ jobs:
 
       - name: Build and install `logfs`
         run: |
-          cmake -B $BUILD_DIR -DPLATFORM=firmware -DTARGET=test -DNO_VENV=ON -DHANDLE_DEPS=OFF -DFIX_FORMATTING=OFF
-          make --directory=$BUILD_DIR -j`nproc` install_python_logfs
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target install_python_logfs
           pytest -v firmware/logfs/test

@@ -9,7 +9,7 @@
 # CAN_INCLUDE_DIRS - List of include directories
 function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
-    message("📚 Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
+    message("  📚 [jsoncan.cmake, jsoncan_source()] Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
     set(APP_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/app/app_canTx.c")
     set(APP_CAN_TX_HEADER_OUTPUT "${OUTPUT_DIR}/app/app_canTx.h")
     set(IO_CAN_TX_SRC_OUTPUT "${OUTPUT_DIR}/io/io_canTx.c")
@@ -55,7 +55,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
     )
 
-    if (${USE_IO})
+    IF (${USE_IO})
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -81,7 +81,7 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${SHARED_HW_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    else ()
+    ELSE ()
         set(CAN_SRCS
                 ${APP_CAN_TX_SRC_OUTPUT}
                 ${APP_CAN_TX_HEADER_OUTPUT}
@@ -100,5 +100,5 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
                 ${SHARED_APP_INCLUDE_DIR}
                 PARENT_SCOPE
         )
-    endif ()
+    ENDIF ()
 endfunction()

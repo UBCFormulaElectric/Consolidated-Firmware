@@ -26,10 +26,6 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "lfs.h"
-#define LFS_NO_MALLOC
-#define LFS_CACHE_SIZE 16
-#define LFS_LOOKAHEAD_SIZE 16
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,9 +41,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 SdCard *sd;
-uint8_t read_buffer[LFS_CACHE_SIZE];
-uint8_t prog_buffer[LFS_CACHE_SIZE];
-uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/

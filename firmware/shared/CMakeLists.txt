@@ -2,7 +2,7 @@ file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_APP_INCLUDE_DIR}/*.c")
 file(GLOB_RECURSE SHARED_IO_SRCS "${SHARED_IO_INCLUDE_DIR}/*.c")
 file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/*.c")
 
-if("${TARGET}" STREQUAL "test")
+IF("${TARGET}" STREQUAL "test")
     list(APPEND HDRS_TO_FAKE
             "${SHARED_IO_INCLUDE_DIR}/io_time.h"
             "${SHARED_IO_INCLUDE_DIR}/io_led.h"
@@ -38,4 +38,4 @@ if("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
     target_link_libraries("shared_test" "shared_can" "shared_fakes")
-endif ()
+ENDIF()

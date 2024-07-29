@@ -1,5 +1,6 @@
 #include "hw_can.h"
 #include "io_can.h"
+#undef NDEBUG
 #include <assert.h>
 #include "io_log.h"
 

@@ -8,11 +8,11 @@ set(CMAKE_AUTORCC ON)
 set(UI_SOURCES main.cpp setup.cpp assets/resources.qrc)
 file(GLOB SHARED_FILES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")
 file(GLOB TASKS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tasks/*.cpp")
-if ("${TARGET}" STREQUAL "deploy")
+IF("${TARGET}" STREQUAL "deploy")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/*.cpp")
-elseif ("${TARGET}" STREQUAL "dev")
+ELSEIF("${TARGET}" STREQUAL "dev")
     file(GLOB_RECURSE IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/dev_io/*.cpp")
-endif ()
+ENDIF()
 # Append to IO_SOURCES
 list(APPEND IO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/io/KeyTranslator.cpp")
 set(SOURCES ${UI_SOURCES} ${IO_SOURCES} ${SHARED_FILES} ${TASKS_FILES})
@@ -27,9 +27,9 @@ target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${REQUIRED_LIBRARIES})
 # to tell which configuration it is from macros
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC "USING_TARGET_${TARGET}")
 target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DQT_DEBUG -DQT_MESSAGELOGCONTEXT) # W mans https://stackoverflow.com/a/43549795/6833423
-if(${TARGET} STREQUAL dev)
+IF(${TARGET} STREQUAL dev)
     target_compile_definitions(${EXECUTABLE_NAME} PRIVATE QT_QML_DEBUG)
-endif()
+ENDIF()
 # QML
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES AUTOMOC ON AUTORCC ON)
 qt_add_qml_module(${EXECUTABLE_NAME}
@@ -53,9 +53,9 @@ target_link_libraries(CanQML PUBLIC dimos_can)
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-#    if (${QT_VERSION} VERSION_LESS 6.1.0)
+#    IF(${QT_VERSION} VERSION_LESS 6.1.0)
 #        set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${EXECUTABLE_NAME})
-#    endif ()
+#    ENDIF()
 #    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
 #            ${BUNDLE_ID_OPTION}
 #            MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

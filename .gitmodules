@@ -1,9 +1,6 @@
 [submodule "firmware/third_party/sbgECom"]
 	path = firmware/third_party/sbgECom
 	url = https://github.com/UBCFormulaElectric/sbgECom.git
-[submodule "firmware/third_party/SEGGER_SystemView_Src"]
-	path = firmware/third_party/SEGGER_SystemView_Src
-	url = https://github.com/UBCFormulaElectric/SEGGER_SystemView_Src.git
 [submodule "software/dimos/src/assets"]
 	path = software/dimos/src/assets
 	url = https://github.com/UBCFormulaElectric/dimos-assets.git
