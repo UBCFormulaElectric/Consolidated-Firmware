@@ -4,17 +4,24 @@ import time
 import numpy as np
 from tqdm import tqdm
 import pandas as pd
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 class LoadBank:
     def __init__(self):
         '''
         Represents a Rigol DL3021 programmable DC electronic load.
         '''
+        logger = logging.getLogger(self.__class__.__name__)
         resources = visa.ResourceManager()
 
         resourceTag: str = ''
         for x in resources.list_resources():
-            print(x)
+            logger.debug(f"Found resource: {x}")
             if 'DL' in x:
                 resourceTag = x
                 break

@@ -5,6 +5,12 @@ import numpy as np
 from tqdm import tqdm
 import pandas as pd
 from typing import List, Dict, Union
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 class Scope:
     def __init__(self):
@@ -12,11 +18,12 @@ class Scope:
         Represents a Rigol DS1054Z oscilloscope. You can write commands to the scope as well as collect data
         from it as both screenshots and data points.
         '''
+        logger = logging.getLogger(self.__class__.__name__)
         resources = visa.ResourceManager()
 
         resourceTag: str = ''
         for x in resources.list_resources():
-            print(x)
+            logger.debug(f"Found resource: {x}")
             if (x[23:24] == 'S'): resourceTag = x
 
         if (resourceTag == ''):
