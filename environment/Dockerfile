@@ -39,6 +39,7 @@ RUN pip3 install -r ../requirements.txt
 RUN /bin/sh install_gcc_arm_none_eabi.sh /usr/local
 
 # Install STM32CubeMX for auto-generating code.
+# TODO download this manually when building this container
 RUN python3 install_stm32cubemx.py --install-dir /usr/local/STM32CubeMX --cube-zip ../data/en.stm32cubemx-lin-v6-9-2.zip
 
 # Cleanup copied directory.
