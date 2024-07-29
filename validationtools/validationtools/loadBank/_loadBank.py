@@ -12,7 +12,7 @@ class LoadBank:
         '''
         resources = visa.ResourceManager()
 
-        resourceTag = ''
+        resourceTag: str = ''
         for x in resources.list_resources():
             print(x)
             if 'DL' in x:
@@ -25,7 +25,7 @@ class LoadBank:
 
         self.load = resources.open_resource(resourceTag)
 
-    def set_current(self, current):
+    def set_current(self, current: float) -> None:
         """
         Sets the current for the load in constant current (CC) mode.
 
@@ -33,7 +33,7 @@ class LoadBank:
         """
         self.load.write(f':SOUR:CURR {current}')
 
-    def set_voltage(self, voltage):
+    def set_voltage(self, voltage: float) -> None:
         """
         Sets the voltage for the load in constant voltage (CV) mode.
 
@@ -41,7 +41,7 @@ class LoadBank:
         """
         self.load.write(f':SOUR:VOLT {voltage}')
 
-    def set_resistance(self, resistance):
+    def set_resistance(self, resistance: float) -> None:
         """
         Sets the resistance for the load in constant resistance (CR) mode.
 
@@ -49,7 +49,7 @@ class LoadBank:
         """
         self.load.write(f':SOUR:RES {resistance}')
 
-    def set_power(self, power):
+    def set_power(self, power: float) -> None:
         """
         Sets the power for the load in constant power (CP) mode.
 
@@ -57,7 +57,7 @@ class LoadBank:
         """
         self.load.write(f':SOUR:POW {power}')
 
-    def measure_voltage(self):
+    def measure_voltage(self) -> float:
         """
         Measures the input voltage.
 
@@ -65,7 +65,7 @@ class LoadBank:
         """
         return float(self.load.query(':MEAS:VOLT?'))
 
-    def measure_current(self):
+    def measure_current(self) -> float:
         """
         Measures the input current.
 
@@ -73,7 +73,7 @@ class LoadBank:
         """
         return float(self.load.query(':MEAS:CURR?'))
 
-    def measure_power(self):
+    def measure_power(self) -> float:
         """
         Measures the input power.
 
@@ -81,29 +81,28 @@ class LoadBank:
         """
         return float(self.load.query(':MEAS:POW?'))
 
-    def enable_load(self):
+    def enable_load(self) -> None:
         """
         Enables the load input.
         """
         self.load.write(':INP ON')
 
-    def disable_load(self):
+    def disable_load(self) -> None:
         """
         Disables the load input.
         """
         self.load.write(':INP OFF')
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Resets the load to its default settings.
         """
         self.load.write('*RST')
-        
-    def get_id(self):
+
+    def get_id(self) -> str:
         """
         Gets the device identification string.
 
         returns: string, device identification
         """
         return self.load.query('*IDN?')
-    

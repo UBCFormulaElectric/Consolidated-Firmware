@@ -12,7 +12,7 @@ class PowerSupply:
         '''
         resources = visa.ResourceManager()
 
-        resourceTag = ''
+        resourceTag: str = ''
         for x in resources.list_resources():
             print(x)
             if 'DP' in x:
@@ -25,7 +25,7 @@ class PowerSupply:
 
         self.ps = resources.open_resource(resourceTag)
 
-    def set_voltage(self, voltage, channel=1):
+    def set_voltage(self, voltage: float, channel: int = 1) -> None:
         """
         Sets the voltage for the power supply.
 
@@ -35,7 +35,7 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         self.ps.write(f':VOLT {voltage}')
 
-    def set_current(self, current, channel=1):
+    def set_current(self, current: float, channel: int = 1) -> None:
         """
         Sets the current for the power supply.
 
@@ -45,7 +45,7 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         self.ps.write(f':CURR {current}')
 
-    def measure_voltage(self, channel=1):
+    def measure_voltage(self, channel: int = 1) -> float:
         """
         Measures the output voltage.
 
@@ -55,7 +55,7 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         return float(self.ps.query(':MEAS:VOLT?'))
 
-    def measure_current(self, channel=1):
+    def measure_current(self, channel: int = 1) -> float:
         """
         Measures the output current.
 
@@ -65,7 +65,7 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         return float(self.ps.query(':MEAS:CURR?'))
 
-    def enable_output(self, channel=1):
+    def enable_output(self, channel: int = 1) -> None:
         """
         Enables the output for the specified channel.
 
@@ -74,7 +74,7 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         self.ps.write(':OUTP ON')
 
-    def disable_output(self, channel=1):
+    def disable_output(self, channel: int = 1) -> None:
         """
         Disables the output for the specified channel.
 
@@ -83,13 +83,13 @@ class PowerSupply:
         self.ps.write(f':INST:NSEL {channel}')
         self.ps.write(':OUTP OFF')
     
-    def reset(self):
+    def reset(self) -> None:
         """
         Resets the power supply to its default settings.
         """
         self.ps.write('*RST')
 
-    def get_id(self):
+    def get_id(self) -> str:
         """
         Gets the device identification string.
 
