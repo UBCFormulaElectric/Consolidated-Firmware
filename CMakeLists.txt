@@ -2,8 +2,8 @@ message("💡 Starting UBC Formula Electric Generate")
 
 cmake_minimum_required(VERSION 3.22.3)
 set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 # use this for debugging
 #set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -128,7 +128,10 @@ IF ("${PLATFORM}" STREQUAL "firmware")
 		set(SIZE ${TOOLCHAIN_PREFIX}-size${BINARY_SUFFIX})
 		message("✅ ARM Toolchain Included, using ${CMAKE_C_COMPILER}")
 		set(CMAKE_SYSTEM_NAME Generic)
-		project("UBC Formula Electric Software" C ASM)
+		# https://stackoverflow.com/questions/53633705/cmake-the-c-compiler-is-not-able-to-compile-a-simple-test-program
+		# https://stackoverflow.com/questions/69145727/cmake-arm-gcc-undefined-reference-to-exit
+		set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+		project("UBC Formula Electric Software" C CXX ASM)
 	ELSEIF ("${TARGET}" STREQUAL "test")
 		project("UBC Formula Electric Software" C CXX)
 	ELSE ()

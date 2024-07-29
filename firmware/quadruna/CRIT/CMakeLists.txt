@@ -1,5 +1,4 @@
 set(ARM_CORE "cm4")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -69,6 +68,7 @@ if("${TARGET}" STREQUAL "deploy")
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/CRIT_boot.ioc"
     )
 
+    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
     generate_stm32cube_code(
         "CRIT"
         "${IOC_PATH}"
