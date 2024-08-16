@@ -4,7 +4,7 @@ import Graph from "./db/graph";
 import LiveGraph from "./live/live_graph";
 import { PlotRelayoutEvent } from "plotly.js";
 import { MessageInstance } from "antd/es/message/interface";
-import { saveDashboardData } from "../../../dashboardService";
+import { saveDashboardData } from "../../packages/lib/dashboardService";
 
 export interface VisualizeProps {
   addGraph: (live: boolean) => void;

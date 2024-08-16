@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { getRealtimeData, deleteDashboardData } from '../../../dashboardService';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { Select, Space, Button, Modal, Checkbox, List, message } from 'antd';
+import React, { useEffect, useState } from "react";
+import {
+  getRealtimeData,
+  deleteDashboardData,
+} from "../../packages/lib/dashboardService";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { Select, Space, Button, Modal, Checkbox, List, message } from "antd";
 // import { Socket } from "socket.io-client";
-import LiveGraph from './live/live_graph';
+import LiveGraph from "./live/live_graph";
 
 // currently a bug where loading dashboards only loads SOME of the signals on graphs (seems indeterministic)
 // found error occurs in livegraphs where it checks if data['id'] == graphId, and thus does not update graph,
-// as id sometimes returns as 0 when returned from websocket process. unsure how to fix. 
-
+// as id sometimes returns as 0 when returned from websocket process. unsure how to fix.
 
 export interface DashboardProps {
   deleteGraph: (graphId: number, live: boolean) => void;
@@ -24,7 +26,7 @@ const Dashboard = (props: DashboardProps) => {
   //   setGraphs(prev => ({ ...prev, [graphId]: signals }));
   // };
 
-  // // change handler for selecting dashboard to load from dropdown 
+  // // change handler for selecting dashboard to load from dropdown
   // const handleChange = (value: string) => {
   //   setSelectedDashboard(value);
   // };
@@ -98,7 +100,6 @@ const Dashboard = (props: DashboardProps) => {
   //   });
   // };
 
-
   return (
     <div className="layout">
       {/* <Space size="middle">
@@ -145,7 +146,6 @@ const Dashboard = (props: DashboardProps) => {
           />
         ))}
       </div> */}
-
     </div>
   );
 };
