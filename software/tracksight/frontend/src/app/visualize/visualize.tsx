@@ -1,7 +1,7 @@
 import React, { useState, ReactElement } from "react";
 import { Divider, Button, Switch, Space, Modal, Input, message } from "antd";
-import Graph from "./db/graph";
-import LiveGraph from "./live/live_graph";
+import Graph from "./influxcomponents/graph";
+import LiveGraph from "./livecomponents/live_graph";
 import { PlotRelayoutEvent } from "plotly.js";
 import { MessageInstance } from "antd/es/message/interface";
 import { saveDashboardData } from "../../packages/lib/dashboardService";

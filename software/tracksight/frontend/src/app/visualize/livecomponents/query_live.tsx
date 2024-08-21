@@ -2,7 +2,7 @@
 import { Dispatch, useEffect, useState } from "react";
 import { Space, Switch } from "antd";
 
-import DropdownMenu from "../db/dropdown_menu";
+import DropdownMenu from "../influxcomponents/dropdown_menu";
 import { MessageInstance } from "antd/es/message/interface";
 
 const UPDATE_INTERVAL_MS = 1000; // how often the graph updates

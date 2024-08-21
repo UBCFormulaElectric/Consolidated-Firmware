@@ -1,1 +1,1 @@
-export { default as Sonner } from "./sonner";
+export { Toaster } from "./sonner";
