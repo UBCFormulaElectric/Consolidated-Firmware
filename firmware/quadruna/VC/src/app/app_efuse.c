@@ -1,5 +1,8 @@
 #include "app_efuse.h"
+
 #include <stdbool.h>
+#include <stddef.h>
+
 #include "io_efuse.h"
 #include "app_canTx.h"
 
