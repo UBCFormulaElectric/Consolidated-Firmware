@@ -146,6 +146,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_critShdn.h"
     )
     create_fake_library(
         "quadruna_CRIT_fakes"
