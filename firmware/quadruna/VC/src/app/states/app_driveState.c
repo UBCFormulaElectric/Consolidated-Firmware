@@ -13,7 +13,6 @@
 #include "app_canRx.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerManager.h"
-#include "app_globals.h"
 #include "app_torqueVectoring.h"
 #include "app_faultCheck.h"
 #include "app_regen.h"
