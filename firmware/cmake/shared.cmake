@@ -32,7 +32,7 @@ function(commit_info_library
             "${ARM_CORE}"
             FALSE
         )
-        target_include_directories("${LIB_NAME}" PUBLIC "${COMMIT_INFO_INCLUDE_DIR}")
+        target_include_directories("${LIB_NAME}" INTERFACE "${COMMIT_INFO_INCLUDE_DIR}")
     ELSEIF("${TARGET}" STREQUAL "test")
         get_filename_component(HEADER_DIR "${HEADER_OUTPUT_PATH}" DIRECTORY)
         add_library(

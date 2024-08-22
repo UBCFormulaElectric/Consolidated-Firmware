@@ -15,6 +15,8 @@ execute_process(
         --log4j_properties_output ${LOG4J_PROPERTIES}
 )
 
+file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
+
 # ==== STM32CubeMX functions ====
 
 message("  🔃 Registered generate_stm32cube_code() function")
@@ -89,7 +91,6 @@ function(stm32f412rx_cube_library
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
     )
 
@@ -107,7 +108,7 @@ function(stm32f412rx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
     embedded_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -116,7 +117,7 @@ function(stm32f412rx_cube_library
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32F412Rx
     )
@@ -176,7 +177,7 @@ function(stm32h733xx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
     embedded_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -185,7 +186,7 @@ function(stm32h733xx_cube_library
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            PUBLIC
+            INTERFACE
             USE_HAL_DRIVER
             STM32H733xx
             CANFD

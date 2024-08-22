@@ -117,7 +117,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_CRIT_jsoncan" "quadruna_CRIT_stm32cube")
+    target_link_libraries("quadruna_CRIT_jsoncan" INTERFACE "quadruna_CRIT_stm32cube")
     target_link_libraries("quadruna_CRIT_app.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quadruna_CRIT_boot.elf" "quadruna_CRIT_commit_info")
 

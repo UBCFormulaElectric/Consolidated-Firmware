@@ -138,7 +138,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_jsoncan" "quadruna_VC_stm32cube" "sbg_ecom_cm7")
+    target_link_libraries("quadruna_VC_jsoncan" INTERFACE "quadruna_VC_stm32cube" "sbg_ecom_cm7")
     target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto")
     target_link_libraries("quadruna_VC_boot.elf" "quadruna_VC_commit_info")
 

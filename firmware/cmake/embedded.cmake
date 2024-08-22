@@ -99,12 +99,12 @@ function(embedded_library
         ARM_CORE
         THIRD_PARTY
 )
-    add_library(${LIB_NAME} STATIC ${LIB_SRCS})
+    add_library(${LIB_NAME} INTERFACE ${LIB_SRCS})
 
     IF (THIRD_PARTY)
         # Suppress header file warnings for third-party code by marking them as system includes.
         target_include_directories(${LIB_NAME} SYSTEM
-                PUBLIC
+                INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
 
@@ -115,7 +115,7 @@ function(embedded_library
         )
     ELSEIF ()
         target_include_directories(${LIB_NAME}
-                PUBLIC
+                INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
     ENDIF ()
@@ -135,15 +135,15 @@ function(embedded_library
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME}
-            PRIVATE
+            INTERFACE
             ${COMPILER_DEFINES}
     )
     target_compile_options(${LIB_NAME}
-            PRIVATE
+            INTERFACE
             ${COMPILER_FLAGS}
     )
     target_link_options(${LIB_NAME}
-            PRIVATE
+            INTERFACE
             ${LINKER_FLAGS}
     )
 endfunction()
