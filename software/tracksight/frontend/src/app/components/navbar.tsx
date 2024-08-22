@@ -1,5 +1,5 @@
-import React from 'react';
-import { Menu, Switch, Space } from 'antd';
+import React from "react";
+import { Menu, Switch, Space } from "antd";
 
 export interface NavBarProps {
   updateFunction: (key: string) => void;
@@ -14,11 +14,11 @@ const NavBar = (props: NavBarProps) => {
 
   return (
     <Menu
-      theme={props.theme ? 'dark' : 'light'}
+      theme={props.theme ? "dark" : "light"}
       mode="horizontal"
-      defaultSelectedKeys={['visualize']}
+      defaultSelectedKeys={["visualize"]}
       onClick={(e) => props.updateFunction(e.key)}
-      style={{ flexGrow: 1 }}
+      className="grow"
     >
       <Menu.Item key="visualize">Visualize</Menu.Item>
       <Menu.Item key="dashboards">Dashboards</Menu.Item>
