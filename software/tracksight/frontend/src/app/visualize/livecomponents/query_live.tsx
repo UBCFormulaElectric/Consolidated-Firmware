@@ -3,19 +3,16 @@ import { Dispatch, useEffect, useState } from "react";
 import { Space, Switch } from "antd";
 
 import DropdownMenu from "../influxcomponents/dropdown_menu";
-import { MessageInstance } from "antd/es/message/interface";
+import { toast } from "sonner";
 
 const UPDATE_INTERVAL_MS = 1000; // how often the graph updates
 
-export interface QueryLiveProps {
+const QueryLive = (props: {
   url: string;
   setData: Dispatch<{
     [name: string]: { times: Array<string>; values: Array<number> };
   }>;
-  messageApi: MessageInstance;
-}
-
-const QueryLive = (props: QueryLiveProps) => {
+}) => {
   const [signals, setSignals] = useState<string[]>([]);
   const [allSignal, setAllSignal] = useState<string[]>([]);
   const [useLive, setUseLive] = useState<boolean>(false);
@@ -51,9 +48,7 @@ const QueryLive = (props: QueryLiveProps) => {
             }
           })
           .then((data) => props.setData(data))
-          .catch((error) =>
-            props.messageApi.open({ type: "error", content: error.toString() })
-          );
+          .catch((error) => toast.error(error.toString()));
       }, UPDATE_INTERVAL_MS);
 
       return () => {
@@ -63,7 +58,7 @@ const QueryLive = (props: QueryLiveProps) => {
   }, [useLive, signals]);
 
   return (
-    <div className="flex flex-col">
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <Space direction={"vertical"} size={"small"}>
         <p>Turn live signal on/off</p>
         <Switch onChange={changeLive} checked={useLive} />
