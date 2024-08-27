@@ -5,6 +5,7 @@
 #include "io_faultLatch.h"
 #include "io_airs.h"
 #include "app_inverterOnState.h"
+#include "app_heartbeatMonitor.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 

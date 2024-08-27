@@ -1,14 +1,15 @@
 #include <stddef.h>
-#include "io_fans.h"
-#include "io_brake_light.h"
+
 #include "app_canTx.h"
 #include "app_mainState.h"
 #include "app_canRx.h"
 #include "app_coolant.h"
 #include "app_loadCell.h"
 #include "app_suspension.h"
-
 #include "app_heartbeatMonitor.h"
+
+#include "io_fans.h"
+#include "io_brake_light.h"
 
 void mainStateRunOnTick100Hz(void)
 {
