@@ -58,7 +58,7 @@ const QueryLive = (props: {
   }, [useLive, signals]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div className="flex flex-col">
       <Space direction={"vertical"} size={"small"}>
         <p>Turn live signal on/off</p>
         <Switch onChange={changeLive} checked={useLive} />

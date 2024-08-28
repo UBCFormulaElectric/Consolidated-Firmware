@@ -71,7 +71,7 @@ const QueryData = (props: {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div className="flex flex-col">
       <DropdownMenu
         setOption={setMeasurement}
         selectedOptions={measurement}

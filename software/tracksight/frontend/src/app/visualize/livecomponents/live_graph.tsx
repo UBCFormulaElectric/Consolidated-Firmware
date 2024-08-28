@@ -107,6 +107,7 @@ export default function LiveGraph(props: {
   };
 
   return (
+    // antd card takes this weird object, tailwind doesn't work on it
     <Card bodyStyle={{ display: "flex", flexDirection: "column" }}>
       <QueryLive url={props.url} setData={setData}></QueryLive>
       <Plot
