@@ -37,14 +37,11 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "app_commitInfo.h"
-#include "app_thermistors.h"
 #include "app_accumulator.h"
 #include "app_soc.h"
 #include "app_globals.h"
 #include "states/app_initState.h"
-#include "states/app_inverterOnState.h"
 #include "app_stateMachine.h"
-#include "app_shdnLoop.h"
 
 #include "shared.pb.h"
 #include "BMS.pb.h"
@@ -286,11 +283,6 @@ static const BmsShdnConfig bms_shdn_pin_config = {
     .hvd_ok_gpio     = hvd_ok_shdn_pin,
 };
 
-static const BoardShdnNode bms_bshdn_nodes[BMS_SHDN_NODE_COUNT] = {
-    { &io_bmsShdn_TS_ILCK_OK_get, &app_canTx_BMS_TSIlckOKStatus_set },
-    { &io_bmsShdn_HVD_OK_get, &app_canTx_BMS_HVDShdnOKStatus_set }
-};
-
 void tasks_preInit(void)
 {
     // After booting, re-enable interrupts and ensure the core is using the application's vector table.
@@ -342,8 +334,6 @@ void tasks_init(void)
     app_soc_init();
     app_globals_init(&globals_config);
     app_stateMachine_init(app_initState_get());
-
-    app_shdnLoop_init(bms_bshdn_nodes, BMS_SHDN_NODE_COUNT);
 
     app_heartbeatMonitor_init(
         heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_BMS_Heartbeat_set,
