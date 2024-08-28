@@ -9,7 +9,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
     "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -146,6 +146,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_critShdn.h"
     )
     create_fake_library(
         "quadruna_CRIT_fakes"

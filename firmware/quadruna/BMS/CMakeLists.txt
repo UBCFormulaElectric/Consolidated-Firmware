@@ -9,7 +9,7 @@ list(APPEND APP_SRCS
     "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
     "${SHARED_APP_INCLUDE_DIR}/app_math.c"
     "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
+    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
@@ -163,6 +163,7 @@ elseif("${TARGET}" STREQUAL "test")
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sd.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
     )
     create_fake_library(
         "quadruna_BMS_fakes"
