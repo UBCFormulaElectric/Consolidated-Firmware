@@ -22,17 +22,14 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
   legend: { orientation: "h" },
 };
 
-export interface LiveGraphProps {
+export default function LiveGraph(props: {
   id: number;
   url: string;
   sync: boolean;
   setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>;
   zoomData: PlotRelayoutEvent;
   onDelete: MouseEventHandler<HTMLElement>;
-  messageApi: MessageInstance;
-}
-
-const LiveGraph = (props: LiveGraphProps) => {
+}) {
   const [data, setData] = useState<{
     [name: string]: { times: Array<string>; values: Array<number> };
   }>({});
@@ -110,12 +107,9 @@ const LiveGraph = (props: LiveGraphProps) => {
   };
 
   return (
+    // antd card takes this weird object, tailwind doesn't work on it
     <Card bodyStyle={{ display: "flex", flexDirection: "column" }}>
-      <QueryLive
-        url={props.url}
-        setData={setData}
-        messageApi={props.messageApi}
-      ></QueryLive>
+      <QueryLive url={props.url} setData={setData}></QueryLive>
       <Plot
         data={formattedData} // Pass the array of formatted data objects
         layout={graphLayout}
@@ -128,7 +122,7 @@ const LiveGraph = (props: LiveGraphProps) => {
       />
       <br></br>
       <Space.Compact size={"middle"}>
-        <Button block={true} onClick={clearData}>
+        <Button block={true} className="clear" onClick={clearData}>
           Clear
         </Button>
         <Button
@@ -142,6 +136,4 @@ const LiveGraph = (props: LiveGraphProps) => {
       </Space.Compact>
     </Card>
   );
-};
-
-export default LiveGraph;
+}

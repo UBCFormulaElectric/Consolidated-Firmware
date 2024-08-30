@@ -14,7 +14,6 @@ import { PlotRelayoutEvent } from "plotly.js";
 import { Card, Button, Space } from "antd";
 
 import QueryData from "./query_data";
-import { MessageInstance } from "antd/es/message/interface";
 
 const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
   width: 620,
@@ -25,17 +24,14 @@ const DEFAULT_LAYOUT: Partial<Plotly.Layout> = {
   legend: { orientation: "h" },
 };
 
-export interface GraphProps {
+export default function Graph(props: {
   id: number;
   url: string;
   sync: boolean;
   setZoomData: Dispatch<SetStateAction<PlotRelayoutEvent>>;
   zoomData: PlotRelayoutEvent;
   onDelete: MouseEventHandler<HTMLElement>;
-  messageApi: MessageInstance;
-}
-
-const Graph = (props: GraphProps) => {
+}) {
   const [data, setData] = useState<{
     [name: string]: { times: Array<string>; values: Array<number> };
   }>({});
@@ -120,13 +116,8 @@ const Graph = (props: GraphProps) => {
   };
 
   return (
-    // unsure why card component has to take in this custom property/object. unable to be styled by tailwind
     <Card bodyStyle={{ display: "flex", flexDirection: "column" }}>
-      <QueryData
-        url={props.url}
-        setData={setData}
-        messageApi={props.messageApi}
-      ></QueryData>
+      <QueryData url={props.url} setData={setData}></QueryData>
       <Plot
         data={formattedData} // Pass the array of formatted data objects
         layout={graphLayout}
@@ -139,7 +130,7 @@ const Graph = (props: GraphProps) => {
       />
       <br></br>
       <Space.Compact size={"middle"}>
-        <Button block={true} onClick={clearData}>
+        <Button block={true} className="clear" onClick={clearData}>
           Clear
         </Button>
         <Button
@@ -153,6 +144,4 @@ const Graph = (props: GraphProps) => {
       </Space.Compact>
     </Card>
   );
-};
-
-export default Graph;
+}
