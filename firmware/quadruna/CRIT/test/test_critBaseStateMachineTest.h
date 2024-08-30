@@ -14,7 +14,6 @@ extern "C"
 #include "app_canUtils.h"
 #include "app_utils.h"
 #include "app_mainState.h"
-#include "app_globals.h"
 }
 
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
@@ -33,7 +32,6 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         app_heartbeatMonitor_init(
             heartbeatMonitorChecklist, heartbeatGetters, heartbeatUpdaters, &app_canTx_CRIT_Heartbeat_set,
             heartbeatFaultSetters, heartbeatFaultGetters);
-        app_globals_init(&globals_config);
         app_stateMachine_init(app_mainState_get());
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
@@ -64,9 +62,6 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         fake_io_switches_regen_get_reset();
         fake_io_switches_torquevec_get_reset();
     }
-    // dummy used to initialize shdn_sen_pin
-    const DriveMode drive_mode = {};
-
     // config to forward can functions to shared heartbeat
     // DIM rellies on all boards but itself
     const bool heartbeatMonitorChecklist[HEARTBEAT_BOARD_COUNT] = {
@@ -110,9 +105,5 @@ class CritBaseStateMachineTest : public BaseStateMachineTest
         [FSM_HEARTBEAT_BOARD]  = &app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get,
         [DIM_HEARTBEAT_BOARD]  = NULL,
         [CRIT_HEARTBEAT_BOARD] = NULL
-    };
-
-    const GlobalsConfig globals_config = {
-        .drive_mode = &drive_mode,
     };
 };

@@ -1,17 +1,17 @@
 #include "io_efuse.h"
-#include <stdint.h>
 #include <assert.h>
 
 // TODO: Test ADC voltage -> output current transfer function
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 static const EfuseConfig *configs = NULL;
-static bool               enabled_channels[NUM_EFUSE_CHANNELS];
 
 void io_efuse_init(const EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS])
 {
     configs = efuse_configs;
 }
+
+static bool enabled_channels[NUM_EFUSE_CHANNELS] = { false };
 
 void io_efuse_setChannel(EfuseChannel channel, bool enabled)
 {
