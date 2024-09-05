@@ -99,7 +99,9 @@ function(embedded_library
         ARM_CORE
         THIRD_PARTY
 )
-    add_library(${LIB_NAME} INTERFACE ${LIB_SRCS})
+    add_library(${LIB_NAME} INTERFACE)
+
+    target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
 
     IF (THIRD_PARTY)
         # Suppress header file warnings for third-party code by marking them as system includes.

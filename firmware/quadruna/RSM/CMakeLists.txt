@@ -118,8 +118,8 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quadruna_RSM_jsoncan" INTERFACE "quadruna_RSM_stm32cube")
-    target_link_libraries("quadruna_RSM_app.elf" "quadruna_RSM_stm32cube" "quadruna_RSM_jsoncan" "quadruna_RSM_commit_info" "debug_modules" "m")
-    target_link_libraries("quadruna_RSM_boot.elf" "quadruna_RSM_commit_info")
+    target_link_libraries("quadruna_RSM_app.elf" PRIVATE "quadruna_RSM_stm32cube" "quadruna_RSM_jsoncan" "quadruna_RSM_commit_info" "debug_modules" "m")
+    target_link_libraries("quadruna_RSM_boot.elf" PRIVATE "quadruna_RSM_commit_info")
 
     embedded_image(
             "quadruna_RSM"

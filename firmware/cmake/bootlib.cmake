@@ -76,7 +76,7 @@ function(stm32f4_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" "${BOOT_NAME}_stm32cube")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
 
@@ -154,6 +154,6 @@ function(stm32h7_boot_binary
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
     )
-    target_link_libraries("${BOOT_NAME}.elf" "${BOOT_NAME}_stm32cube")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()

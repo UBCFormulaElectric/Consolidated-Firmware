@@ -108,7 +108,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
     )
-    target_link_libraries("h7dev_boot.elf" "h7dev_commit_info")
+    target_link_libraries("h7dev_boot.elf" PRIVATE "h7dev_commit_info")
 
     embedded_image(
             "h7dev"

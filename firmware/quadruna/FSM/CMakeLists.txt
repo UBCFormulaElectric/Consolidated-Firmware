@@ -120,8 +120,8 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quadruna_FSM_jsoncan" INTERFACE "quadruna_FSM_stm32cube")
-    target_link_libraries("quadruna_FSM_app.elf" "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
-    target_link_libraries("quadruna_FSM_boot.elf" "quadruna_FSM_commit_info")
+    target_link_libraries("quadruna_FSM_app.elf" PRIVATE "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
+    target_link_libraries("quadruna_FSM_boot.elf" PRIVATE "quadruna_FSM_commit_info")
 
     embedded_image(
             "quadruna_FSM"

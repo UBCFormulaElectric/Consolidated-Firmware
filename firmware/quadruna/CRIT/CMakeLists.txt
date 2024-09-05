@@ -46,6 +46,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
+list(REMOVE_ITEM HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -61,6 +62,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    list(REMOVE_ITEM BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/sysmem.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     # Build bootloader.
     stm32f4_boot_binary(
@@ -118,8 +120,8 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quadruna_CRIT_jsoncan" INTERFACE "quadruna_CRIT_stm32cube")
-    target_link_libraries("quadruna_CRIT_app.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
-    target_link_libraries("quadruna_CRIT_boot.elf" "quadruna_CRIT_commit_info")
+    target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 
     embedded_image(
             "quadruna_CRIT"
