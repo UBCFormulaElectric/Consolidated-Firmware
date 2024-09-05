@@ -115,18 +115,14 @@ function(embedded_library
         )
 
         # Suppress source file warnings for third-party code.
-#        set_source_files_properties(
-#                ${LIB_SRCS}
-#                PROPERTIES COMPILE_FLAGS "-w"
-#        )
-        set(COMPILER_FLAGS ${COMPILER_FLAGS} -w)
+        list(APPEND COMPILER_FLAGS -w)
     ELSEIF ()
         target_include_directories(${LIB_NAME}
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
 
-        set(COMPILER_FLAGS ${COMPILER_FLAGS} ${WARNING_COMPILER_FLAGS})
+        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
     ENDIF ()
 
     IF ("${ARM_CORE}" STREQUAL "cm4")

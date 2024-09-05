@@ -46,6 +46,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
 )
+list(REMOVE_ITEM HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -117,7 +118,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_RSM_jsoncan" INTERFACE "quadruna_RSM_stm32cube")
     target_link_libraries("quadruna_RSM_app.elf" PRIVATE "quadruna_RSM_stm32cube" "quadruna_RSM_jsoncan" "quadruna_RSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_RSM_boot.elf" PRIVATE "quadruna_RSM_commit_info")
 

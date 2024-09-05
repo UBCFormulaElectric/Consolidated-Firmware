@@ -18,6 +18,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
 )
+list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
 
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
 
