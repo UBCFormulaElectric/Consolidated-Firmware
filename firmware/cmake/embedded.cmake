@@ -39,8 +39,8 @@ set(SHARED_COMPILER_FLAGS
         -Wl,--gc-sections
         --specs=nosys.specs
         --specs=nano.specs
-
-        # Warnings
+)
+set(WARNING_COMPILER_FLAGS
         -Wall
         -Werror
         -Wextra
@@ -103,6 +103,10 @@ function(embedded_library
 
     target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
 
+    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
+    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
+    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
+
     IF (THIRD_PARTY)
         # Suppress header file warnings for third-party code by marking them as system includes.
         target_include_directories(${LIB_NAME} SYSTEM
@@ -111,20 +115,19 @@ function(embedded_library
         )
 
         # Suppress source file warnings for third-party code.
-        set_source_files_properties(
-                ${LIB_SRCS}
-                PROPERTIES COMPILE_FLAGS "-w"
-        )
+#        set_source_files_properties(
+#                ${LIB_SRCS}
+#                PROPERTIES COMPILE_FLAGS "-w"
+#        )
+        set(COMPILER_FLAGS ${COMPILER_FLAGS} -w)
     ELSEIF ()
         target_include_directories(${LIB_NAME}
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
-    ENDIF ()
 
-    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
-    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
-    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
+        set(COMPILER_FLAGS ${COMPILER_FLAGS} ${WARNING_COMPILER_FLAGS})
+    ENDIF ()
 
     IF ("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})

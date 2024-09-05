@@ -160,7 +160,6 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
