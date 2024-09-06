@@ -16,7 +16,7 @@ IF("${TARGET}" STREQUAL "binary")
         "cm7"
         TRUE
     )
-    target_compile_options(logfs_cm7 INTERFACE
+    target_compile_options(logfs_cm7 PRIVATE
         -O3
     )
 elseif("${TARGET}" STREQUAL "test")

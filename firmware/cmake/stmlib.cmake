@@ -117,7 +117,7 @@ function(stm32f412rx_cube_library
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            INTERFACE
+            PUBLIC
             USE_HAL_DRIVER
             STM32F412Rx
     )
@@ -185,7 +185,7 @@ function(stm32h733xx_cube_library
             TRUE
     )
     target_compile_definitions(${HAL_LIB_NAME}
-            INTERFACE
+            PUBLIC
             USE_HAL_DRIVER
             STM32H733xx
             CANFD
