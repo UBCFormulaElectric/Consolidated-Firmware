@@ -138,6 +138,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
+    target_link_libraries("quadruna_VC_jsoncan" PRIVATE "quadruna_VC_stm32cube")
     target_link_libraries("quadruna_VC_app.elf" PRIVATE "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto")
     target_link_libraries("quadruna_VC_boot.elf" PRIVATE "quadruna_VC_commit_info")
 

@@ -63,6 +63,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    list(REMOVE_ITEM BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/sysmem.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     # Build bootloader.
     stm32f4_boot_binary(
@@ -120,6 +121,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
+    target_link_libraries("quadruna_FSM_jsoncan" PRIVATE "quadruna_FSM_stm32cube")
     target_link_libraries("quadruna_FSM_app.elf" PRIVATE "quadruna_FSM_stm32cube" "quadruna_FSM_jsoncan" "quadruna_FSM_commit_info" "debug_modules" "m")
     target_link_libraries("quadruna_FSM_boot.elf" PRIVATE "quadruna_FSM_commit_info")
 

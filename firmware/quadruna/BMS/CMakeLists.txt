@@ -127,6 +127,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
+    target_link_libraries("quadruna_BMS_jsoncan" PRIVATE "quadruna_BMS_stm32cube")
     target_link_libraries("quadruna_BMS_app.elf" PRIVATE "quadruna_BMS_stm32cube" "quadruna_BMS_jsoncan" "quadruna_BMS_commit_info" "debug_modules")
     target_link_libraries("quadruna_BMS_boot.elf" PRIVATE "quadruna_BMS_commit_info")
 
