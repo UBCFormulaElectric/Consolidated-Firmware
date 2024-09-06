@@ -132,15 +132,15 @@ function(embedded_library
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME}
-            PUBLIC
+            PRIVATE
             ${COMPILER_DEFINES}
     )
     target_compile_options(${LIB_NAME}
-            PUBLIC
+            PRIVATE
             ${COMPILER_FLAGS}
     )
     target_link_options(${LIB_NAME}
-            PUBLIC
+            PRIVATE
             ${LINKER_FLAGS}
     )
 endfunction()
