@@ -39,8 +39,6 @@ set(SHARED_COMPILER_FLAGS
         -Wl,--gc-sections
         --specs=nosys.specs
         --specs=nano.specs
-)
-set(WARNING_COMPILER_FLAGS
         -Wall
         -Werror
         -Wextra
@@ -99,31 +97,29 @@ function(embedded_library
         ARM_CORE
         THIRD_PARTY
 )
-    add_library(${LIB_NAME} INTERFACE)
+    add_library(${LIB_NAME} STATIC ${LIB_SRCS})
 
-    target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
-
-    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
-    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
-    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
-
-    IF (THIRD_PARTY)
+    IF (${THIRD_PARTY})
         # Suppress header file warnings for third-party code by marking them as system includes.
         target_include_directories(${LIB_NAME} SYSTEM
-                INTERFACE
+                PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
 
         # Suppress source file warnings for third-party code.
-        list(APPEND COMPILER_FLAGS -w)
-    ELSEIF ()
-        target_include_directories(${LIB_NAME}
-                INTERFACE
-                ${LIB_INCLUDE_DIRS}
+#        list(APPEND COMPILER_FLAGS -w)
+        set_source_files_properties(
+                ${LIB_SRCS}
+                PROPERTIES COMPILE_FLAGS "-w"
         )
-
-        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
+    ELSE ()
+        target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
+#        list(APPEND COMPILER_FLAGS ${WARNING_COMPILER_FLAGS})
     ENDIF ()
+
+    set(COMPILER_DEFINES ${SHARED_COMPILER_DEFINES})
+    set(COMPILER_FLAGS ${SHARED_COMPILER_FLAGS})
+    set(LINKER_FLAGS ${SHARED_LINKER_FLAGS})
 
     IF ("${ARM_CORE}" STREQUAL "cm4")
         list(APPEND COMPILER_DEFINES ${CM4_DEFINES})
@@ -136,15 +132,15 @@ function(embedded_library
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME}
-            INTERFACE
+            PUBLIC
             ${COMPILER_DEFINES}
     )
     target_compile_options(${LIB_NAME}
-            INTERFACE
+            PUBLIC
             ${COMPILER_FLAGS}
     )
     target_link_options(${LIB_NAME}
-            INTERFACE
+            PUBLIC
             ${LINKER_FLAGS}
     )
 endfunction()
