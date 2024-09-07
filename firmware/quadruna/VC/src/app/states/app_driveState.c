@@ -26,19 +26,6 @@ static bool         torque_vectoring_switch_is_on;
 static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
-static const PowerStateConfig power_manager_drive_init = {
-    .efuses = {
-        [EFUSE_CHANNEL_SHDN] = true,
-        [EFUSE_CHANNEL_LV] = true,
-        [EFUSE_CHANNEL_PUMP] = true,
-        [EFUSE_CHANNEL_AUX] = false,
-        [EFUSE_CHANNEL_INV_R] = true,
-        [EFUSE_CHANNEL_INV_L] = true,
-        [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = true,
-    },
-};
-
 void transmitTorqueRequests(float apps_pedal_percentage)
 {
     const float bms_available_power   = (float)app_canRx_BMS_AvailablePower_get();
@@ -73,7 +60,6 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateConfig(power_manager_drive_init);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
@@ -81,6 +67,8 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_LeftInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
     app_canTx_VC_RightInverterTorqueLimit_set(MAX_TORQUE_REQUEST_NM);
+
+    app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
 
     if (app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON)
     {
@@ -116,7 +104,7 @@ static void driveStateRunOnTick100Hz(void)
     regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
     bool turn_tv_led                     = torque_vectoring_switch_is_on;
-    bool efuse_fault                     = app_powerManager_checkEfuses(POWER_MANAGER_DRIVE);
+    bool efuse_fault                     = app_powerManager_check_efuses(POWER_MANAGER_DRIVE);
 
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
@@ -132,7 +120,7 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
-    
+
     if (exit_drive_to_init || efuse_fault)
     {
         app_stateMachine_setNextState(app_initState_get());

@@ -31,6 +31,8 @@ extern "C"
 // Test fixture definition for any test requiring the state machine. Can also be used for non-state machine related
 // tests.
 
+const int GOOD_CURRENT = 10;
+
 class VcBaseStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -48,6 +50,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
         // Default to starting the state machine in the `init` state
         app_stateMachine_init(app_initState_get());
+        app_powerManager_init();
 
         // Disable heartbeat monitor in the nominal case. To use representative heartbeat behavior,
         // re-enable the heartbeat monitor.
@@ -59,7 +62,6 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
         fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
-        app_powerManager_init();
     }
 
     void TearDown() override
@@ -96,6 +98,25 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
         app_heartbeatMonitor_clearFaults();
+    }
+
+    void configEfuseChannels()
+    {
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_SHDN, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_LV, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_PUMP, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_TELEM, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_BUZZER, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_INV_L, true);
+        fake_io_efuse_isChannelEnabled_returnsForArgs(EFUSE_CHANNEL_INV_R, true);
+
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_SHDN, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_LV, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_PUMP, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_TELEM, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_BUZZER, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_L, GOOD_CURRENT);
+        fake_io_efuse_getChannelCurrent_returnsForArgs(EFUSE_CHANNEL_INV_R, GOOD_CURRENT);
     }
 
     // configs for efuse messages over can
@@ -154,11 +175,4 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     // };
 
     SensorData fake_sensor_data;
-    void SetStateToDrive()
-    {
-        app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-        app_canRx_BMS_State_update(BMS_DRIVE_STATE);
-        app_canRx_FSM_BrakeActuated_update(true);
-        SetInitialState(app_driveState_get());
-    }
 };

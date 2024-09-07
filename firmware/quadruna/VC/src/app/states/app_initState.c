@@ -7,24 +7,12 @@
 #include "app_powerManager.h"
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
-
-static const PowerStateConfig power_manager_shutdown_init = {
-    .efuses = {
-        [EFUSE_CHANNEL_SHDN] = true,
-        [EFUSE_CHANNEL_LV] = true,
-        [EFUSE_CHANNEL_PUMP] = false,
-        [EFUSE_CHANNEL_AUX] = false,
-        [EFUSE_CHANNEL_INV_R] = false,
-        [EFUSE_CHANNEL_INV_L] = false,
-        [EFUSE_CHANNEL_TELEM] = true,
-        [EFUSE_CHANNEL_BUZZER] = false,
-    },
-};
+#include "app_retryHandler.h"
 
 static void initStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INIT_STATE);
-    app_powerManager_updateConfig(power_manager_shutdown_init);
+    app_powerManager_setState(POWER_MANAGER_SHUTDOWN);
 
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
@@ -35,9 +23,6 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
-
-    // Disable buzzer on transition to init.
-    io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
 }
 
 static void initStateRunOnTick100Hz(void)
@@ -47,7 +32,7 @@ static void initStateRunOnTick100Hz(void)
     const bool enable_inverters = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                   app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                   app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    bool efuse_fault = app_powerManager_checkEfuses(POWER_MANAGER_SHUTDOWN);
+    bool efuse_fault = app_powerManager_check_efuses(POWER_MANAGER_SHUTDOWN);
     if (enable_inverters && !efuse_fault)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());

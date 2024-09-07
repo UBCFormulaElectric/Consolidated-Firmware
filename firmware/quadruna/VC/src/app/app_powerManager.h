@@ -5,16 +5,23 @@
 
 #pragma once
 
+typedef enum
+{
+    POWER_MANAGER_SHUTDOWN,
+    POWER_MANAGER_DRIVE,
+    NUM_POWER_STATES
+} PowerManagerState;
+
 typedef struct
 {
-    bool efuses[NUM_EFUSE_CHANNELS];
+    RetryConfig retry_configs[NUM_EFUSE_CHANNELS];
 } PowerStateConfig;
 
 void app_powerManager_updateConfig(PowerStateConfig power_manager_config);
 
 #ifdef TARGET_TEST
 PowerStateConfig app_powerManager_getConfig(void);
-bool             app_powerManager_getEfuse(EfuseChannel channel);
+bool             app_powerManager_getEfuse(PowerManagerState state, EfuseChannel channel);
 #endif
 static PowerManagerState current_power_state;
 

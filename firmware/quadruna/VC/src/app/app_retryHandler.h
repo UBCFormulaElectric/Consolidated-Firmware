@@ -18,6 +18,7 @@ typedef struct
     int   retry_attempts_limit; // Limit for retry protocol attempts
     float min_needed_current;   // Minimum current required for the efuse
 } RetryConfig;
+
 typedef struct
 {
     ProtocolState protocol_state; // Current state of the efuse protocol
