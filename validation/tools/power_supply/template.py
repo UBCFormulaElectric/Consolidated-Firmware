@@ -1,4 +1,4 @@
-from powerSupply import PowerSupply
+from power_supply import PowerSupply
 import time
 
 

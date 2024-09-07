@@ -1,4 +1,4 @@
-from loadBank import LoadBank
+from load_bank import LoadBank
 import time
 
 # Add your code here
