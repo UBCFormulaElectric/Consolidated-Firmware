@@ -66,6 +66,7 @@ bool hw_can_receive(uint32_t rx_fifo, CanMsg *msg)
     }
 
     msg->std_id = header.Identifier;
+
     msg->dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
 
     return true;

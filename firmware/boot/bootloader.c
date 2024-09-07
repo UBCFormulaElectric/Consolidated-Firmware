@@ -214,7 +214,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             // TODO: reply with an ack with correct sequence
-            static char 
+             
             bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
             current_address += sizeof(uint64_t);
         }
