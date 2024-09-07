@@ -5,7 +5,7 @@ Example of how to use the serial debugger.
 import serial
 import serial.tools.list_ports
 import time
-import validationtools.chimera as chimera
+import tools.chimera as chimera
 
 
 # List available COM ports.
@@ -15,22 +15,22 @@ for port in ports:
     print(port.device)
 
 # Transmit data.
-fsm = chimera.FSM(ports[0].device)
+rsm = chimera.RSM(ports[0].device)
 
-# Note: All testable FSM pin names are listed in Consolidated-Firmware/chimera/proto/FSM.proto
+# Note: All testable RSM pin names are listed in Consolidated-Firmware/chimera/proto/RSM.proto
 
 ####### WRITE YOUR SCRIPT HERE
 
 for i in range(4):
-    fsm.gpio_write("LED", True)
-    print("write true", fsm.gpio_read("LED"))
+    rsm.gpio_write("LED", True)
+    print("write true", rsm.gpio_read("LED"))
     time.sleep(0.1)
-    fsm.gpio_write("LED", False)
-    print("write false", fsm.gpio_read("LED"))
+    rsm.gpio_write("LED", False)
+    print("write false", rsm.gpio_read("LED"))
     time.sleep(0.1)
 
 
 # Read ADC value: VBAT_SENSE
-print("read adc", fsm.adc_read("APPS2_3V3"))
+print("read adc", rsm.adc_read("LC3_OUT"))
 
 #######

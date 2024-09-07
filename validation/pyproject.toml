@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "validation"
+version = "0.1.0"
+description = "UBC Formula Electric validation tools."
+authors = ["UBC Formula Electric"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyserial = "^3.5"
+protobuf = "^5.28.0"
+pyvisa = "^1.14.1"
+numpy = "^2.1.1"
+tqdm = "^4.66.5"
+pandas = "^2.2.2"
+pyvisa-py = "^0.7.2"
+zeroconf = "^0.133.0"
+pyusb = "^1.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
