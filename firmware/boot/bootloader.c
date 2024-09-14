@@ -41,6 +41,12 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
+typedef struct
+{
+    uint8_t seq_ack;
+    uint8_t body[7];
+} TCP_Packet;
+
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
@@ -214,23 +220,45 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             // TODO: reply with an ack with correct sequence
-            static char 
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-            current_address += sizeof(uint64_t);
-        }
-        else if (command.std_id == VERIFY_ID && update_in_progress)
-        {
-            // Verify received checksum matches the one saved in flash.
-            CanMsg reply = {
-                .std_id = APP_VALIDITY_ID,
-                .dlc    = 1,
-            };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
-            io_can_pushTxMsgToQueue(&reply);
+            static uint32_t seq    = 0; // seq is larger the the seq in packet.
+            TCP_Packet      packet = (TCP_Packet)command.data;
+            uint8_t        *data   = packet.body;
 
-            // Verify command doubles as exit programming state command.
-            update_in_progress = false;
+            if (seq % 0xff == packet.seq_ack) // if currect seq, do program
+            {
+                // do program
+                bootloader_boardSpecific_program_length(current_address, data, 7);
+                // increment seq , reply the incremented seq.
+                seq += 1;
+                current_address += 7;
+                uint8_t data[8];
+                memcpy(data, &seq, 4);
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 .data = data };
+                io_can_pushTxMsgToQueue(&reply);
+            }
+            else
+            {
+                // reply current seq
+                uint8_t data[8];
+                memcpy(data, &seq, 4);
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 .data = data };
+                io_can_pushTxMsgToQueue(&reply);
+            }
         }
+
+    }
+    else if (command.std_id == VERIFY_ID && update_in_progress)
+    {
+        // Verify received checksum matches the one saved in flash.
+        CanMsg reply = {
+            .std_id = APP_VALIDITY_ID,
+            .dlc    = 1,
+        };
+        reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+        io_can_pushTxMsgToQueue(&reply);
+
+        // Verify command doubles as exit programming state command.
+        update_in_progress = false;
     }
 }
 
