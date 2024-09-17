@@ -32,8 +32,7 @@ void bootloader_boardSpecific_program_length(uint32_t address, uint8_t *data, ui
     const uint32_t FLASH_WORD_BYTES_7 = FLASH_WORD_BYTES * 7;
     static uint8_t buffer[FLASH_WORD_BYTES];
 
-
-    uint32_t       buffer_idx = address % (FLASH_WORD_BYTES);
+    uint32_t buffer_idx = address % (FLASH_WORD_BYTES);
     memcpy(&buffer[buffer_idx], data, length);
 
     // On the STM32H733xx microcontroller, the smallest amount of memory you can
