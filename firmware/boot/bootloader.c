@@ -229,6 +229,7 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 // do program
                 bootloader_boardSpecific_program_length(current_address, data, 7);
                 // increment seq , reply the incremented seq.
+
                 current_address += 7;
                 uint8_t data[8];
                 memcpy(data, &seq, 4);
@@ -245,7 +246,6 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 io_can_pushTxMsgToQueue(&reply);
             }
         }
-
     }
     else if (command.std_id == VERIFY_ID && update_in_progress)
     {
