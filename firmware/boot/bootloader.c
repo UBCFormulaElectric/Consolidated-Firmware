@@ -229,11 +229,11 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 // do program
                 bootloader_boardSpecific_program_length(current_address, data, 7);
                 // increment seq , reply the incremented seq.
-                seq += 1;
                 current_address += 7;
                 uint8_t data[8];
                 memcpy(data, &seq, 4);
                 CanMsg reply = { .std_id = ACK_ID, .dlc = 4 .data = data };
+                seq += 1;
                 io_can_pushTxMsgToQueue(&reply);
             }
             else
