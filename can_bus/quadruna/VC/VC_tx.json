@@ -204,7 +204,6 @@
         }
     },
     "EllipseStatus": {
-        "disabled": true,
         "msg_id": 223,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
@@ -218,7 +217,7 @@
         }
     },
     "EllipseTime": {
-        "disabled": true,
+        
         "msg_id": 209,
         "cycle_time": 100,
         "description": "Timestamp from the SBG Ellipse N sensor.",
@@ -230,7 +229,7 @@
         }
     },
     "EllipseAcceleration": {
-        "disabled": true,
+        
         "msg_id": 201,
         "cycle_time": 1000,
         "description": "Acceleration from the SBG Ellipse N sensor.",
@@ -256,7 +255,7 @@
         }
     },
     "EllipseAngularVelocity": {
-        "disabled": true,
+        
         "msg_id": 203,
         "cycle_time": 1000,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
@@ -282,7 +281,7 @@
         }
     },
     "EllipseEulerAngles": {
-        "disabled": true,
+        
         "msg_id": 222,
         "cycle_time": 1000,
         "description": "Euler angles from the SBG Ellipse N sensor.",
@@ -494,7 +493,7 @@
         }
     },
     "GpsPosInfo": {
-        "disabled": true,
+        
         "msg_id": 217,
         "cycle_time": 100,
         "description": "Car position info",
@@ -541,7 +540,7 @@
         }
     },
     "GpsVelInfo": {
-        "disabled": true,
+        
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",

@@ -356,10 +356,10 @@ void tasks_init(void)
     io_pcm_init(&pcm_config);
 
     // Comment out for now, not using sbg
-    // if (!io_sbgEllipse_init(&sbg_uart))
-    // {
-    //     Error_Handler();
-    // }
+    if (!io_sbgEllipse_init(&sbg_uart))
+    {
+        Error_Handler();
+    }
 
     if (!io_imu_init())
     {
