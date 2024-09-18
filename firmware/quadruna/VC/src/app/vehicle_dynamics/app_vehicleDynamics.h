@@ -35,6 +35,7 @@ typedef struct ActiveDifferential_Inputs
     float motor_speed_right_rpm;
     float power_max_kW;
     float accelerator_pedal_percentage;
+    float requested_torque; 
 } ActiveDifferential_Inputs;
 
 typedef struct ActiveDifferential_Outputs
