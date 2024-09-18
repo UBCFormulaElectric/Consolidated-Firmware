@@ -97,19 +97,15 @@ void app_torqueVectoring_handleAcceleration(void)
     power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
     float estimated_power_limit;
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
-
-    left_pedal_power_request = (accelerator_pedal_percent / 100.0f) * MAX_TORQUE_REQUEST_NM * motor_speed_left_rpm;
-    right_pedal_power_request = (accelerator_pedal_percent / 100.0f) * MAX_TORQUE_REQUEST_NM * motor_speed_right_rpm;
-    min_pedal_power_request = fminf(left_pedal_power_request,right_pedal_power_request);
-
     // Power limit correction
-    float power_limit = fminf(min_pedal_power_request,estimated_power_limit) * (1.0f + pid_power_correction_factor);
+    float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
     // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
     active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
+    active_differential_inputs.requested_torque      = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM / 100.0f;
     app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
     app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
     app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
