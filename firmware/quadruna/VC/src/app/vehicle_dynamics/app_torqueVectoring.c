@@ -1,3 +1,4 @@
+#include <math.h>
 #include "app_timer.h"
 #include "app_torqueVectoring.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -39,6 +40,9 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
+static float left_pedal_power_request;
+static float right_pedal_power_request;
+static float min_pedal_power_request;
 
 void app_torqueVectoring_init(void)
 {
@@ -94,8 +98,12 @@ void app_torqueVectoring_handleAcceleration(void)
     float estimated_power_limit;
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
 
+    left_pedal_power_request = (accelerator_pedal_percent / 100.0f) * MAX_TORQUE_REQUEST_NM * motor_speed_left_rpm;
+    right_pedal_power_request = (accelerator_pedal_percent / 100.0f) * MAX_TORQUE_REQUEST_NM * motor_speed_right_rpm;
+    min_pedal_power_request = fminf(left_pedal_power_request,right_pedal_power_request);
+
     // Power limit correction
-    float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
+    float power_limit = fminf(min_pedal_power_request,estimated_power_limit) * (1.0f + pid_power_correction_factor);
 
     // Active Differential
     active_differential_inputs.power_max_kW          = power_limit;
