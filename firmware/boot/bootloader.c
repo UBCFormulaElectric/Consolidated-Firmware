@@ -220,7 +220,8 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             // TODO: reply with an ack with correct sequence
-            static uint32_t seq = 0; // seq is larger the the seq in packet.
+            //
+            static uint32_t seq = 0;
             TCP_Packet      packet;
             packet.seq_ack = command.data[0];
             uint8_t *data  = packet.body;
