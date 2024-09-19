@@ -14,12 +14,6 @@
 #define APP_VALIDITY_ID 1011
 #define ACK_ID 1012
 
-struct Boot_Message
-{
-    unsigned char seq;
-    uint8_t       body[7];
-}
-
 void           bootloader_preInit(void);
 void           bootloader_init(void);
 _Noreturn void bootloader_runInterfaceTask(void);
