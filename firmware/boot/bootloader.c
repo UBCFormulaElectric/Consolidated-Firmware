@@ -220,9 +220,10 @@ _Noreturn void bootloader_runInterfaceTask(void)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             // TODO: reply with an ack with correct sequence
-            static uint32_t seq    = 0; // seq is larger the the seq in packet.
-            TCP_Packet      packet = (TCP_Packet)command.data;
-            uint8_t        *data   = packet.body;
+            static uint32_t seq = 0; // seq is larger the the seq in packet.
+            TCP_Packet      packet;
+            packet.seq_ack = command.data[0];
+            uint8_t *data  = packet.body;
 
             if (seq % 0xff == packet.seq_ack) // if currect seq, do program
             {
@@ -231,34 +232,39 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 // increment seq , reply the incremented seq.
 
                 current_address += 7;
-                uint8_t data[8];
+                uint8_t dataPacket[8];
                 memcpy(data, &seq, 4);
-                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 .data = data };
+
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 };
+                memcpy(reply.data, dataPacket, 4);
                 seq += 1;
                 io_can_pushTxMsgToQueue(&reply);
             }
             else
             {
                 // reply current seq
-                uint8_t data[8];
+                uint8_t dataPacket[8];
                 memcpy(data, &seq, 4);
-                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 .data = data };
+
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 };
+                memcpy(reply.data, dataPacket, 4);
                 io_can_pushTxMsgToQueue(&reply);
             }
         }
-    }
-    else if (command.std_id == VERIFY_ID && update_in_progress)
-    {
-        // Verify received checksum matches the one saved in flash.
-        CanMsg reply = {
-            .std_id = APP_VALIDITY_ID,
-            .dlc    = 1,
-        };
-        reply.data[0] = (uint8_t)verifyAppCodeChecksum();
-        io_can_pushTxMsgToQueue(&reply);
 
-        // Verify command doubles as exit programming state command.
-        update_in_progress = false;
+        else if (command.std_id == VERIFY_ID && update_in_progress)
+        {
+            // Verify received checksum matches the one saved in flash.
+            CanMsg reply = {
+                .std_id = APP_VALIDITY_ID,
+                .dlc    = 1,
+            };
+            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            io_can_pushTxMsgToQueue(&reply);
+
+            // Verify command doubles as exit programming state command.
+            update_in_progress = false;
+        }
     }
 }
 
