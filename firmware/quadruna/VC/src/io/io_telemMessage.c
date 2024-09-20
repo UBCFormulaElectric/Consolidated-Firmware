@@ -69,15 +69,6 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     t_message.message_6 = rx_msg->data[6];
     t_message.message_7 = rx_msg->data[7];
 
-    // t_message.can_id    = 111;
-    // t_message.message_0 = 117;
-    // t_message.message_1 = 49;
-    // t_message.message_2 = 0;
-    // t_message.message_3 = 0;
-    // t_message.message_4 = 0;
-    // t_message.message_5 = 236;
-    // t_message.message_6 = 202;
-    // t_message.message_7 = 0;
     t_message.time_stamp = (int32_t)io_time_getCurrentMs();
     // encoding message
 
