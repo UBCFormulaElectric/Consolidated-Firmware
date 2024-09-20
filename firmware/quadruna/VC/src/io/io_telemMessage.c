@@ -48,7 +48,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
     // filter messages, rn for faults and warnings and bms (to verify working when running normally)
-    if (rx_msg->std_id != 111 || rx_msg->std_id != 205 || rx_msg->std_id != 206 || rx_msg->std_id != 207 ||
+    if (rx_msg->std_id != 111 && rx_msg->std_id != 205 && rx_msg->std_id != 206 && rx_msg->std_id != 207 &&
         rx_msg->std_id != 208)
     {
         return false;
