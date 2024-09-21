@@ -3,7 +3,8 @@
     "configurePresets": [
         {
             "name": "default",
-            "hidden": true
+            "hidden": true,
+            "generator": "Ninja"
         },
         {
             "name": "FW Dev",
