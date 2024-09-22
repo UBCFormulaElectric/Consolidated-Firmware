@@ -52,7 +52,7 @@ ENDIF ()
 
 # ======== Python Checks ========
 #checks if python is present
-find_package(Python3 COMPONENTS Interpreter)
+find_package(Python3 3.8...3.11 REQUIRED COMPONENTS Interpreter)
 IF (Python3_VERSION VERSION_LESS 3.8)
 	message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
 ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
