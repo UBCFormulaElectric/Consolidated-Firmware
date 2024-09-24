@@ -15,7 +15,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -50,7 +49,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -85,7 +83,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -120,7 +117,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -157,7 +153,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -187,7 +182,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
@@ -221,7 +215,6 @@
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
-      // "runToEntryPoint": "main",
       "servertype": "jlink",
       "serverpath": "JLinkGDBServerCL",
       "serverArgs": [
