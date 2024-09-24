@@ -152,5 +152,4 @@ environment/bin
 CMakeUserPresets.json
 build
 
-zadig.exe
 /can_bus/**/*.plt
