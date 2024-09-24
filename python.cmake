@@ -12,7 +12,7 @@ message("")
 message("🐍 Python Configuration")
 
 # ====== Generate PYTHON_COMMAND ======
-find_package(Python3 3.11.0...3.11.10 COMPONENTS Interpreter)
+find_package(Python3 3.10.0...3.11.12 COMPONENTS Interpreter REQUIRED)
 message("  ℹ️ Found Python ${Python3_VERSION}")
 
 IF (NO_VENV)
