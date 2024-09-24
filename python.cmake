@@ -12,14 +12,8 @@ message("")
 message("🐍 Python Configuration")
 
 # ====== Generate PYTHON_COMMAND ======
-find_package(Python3 COMPONENTS Interpreter)
-IF (Python3_VERSION VERSION_LESS 3.8)
-    message(FATAL_ERROR "❌ Python version 3.8 or greater is required")
-ELSEIF (Python3_VERSION VERSION_GREATER_EQUAL 3.12)
-    message(FATAL_ERROR "⚠️ Python version 3.12 or greater is not supported as pyOCD does not support it")
-ENDIF ()
+find_package(Python3 3.11.0...3.11.10 COMPONENTS Interpreter)
 message("  ℹ️ Found Python ${Python3_VERSION}")
-
 
 IF (NO_VENV)
     set(PYTHON_COMMAND ${Python3_EXECUTABLE})
