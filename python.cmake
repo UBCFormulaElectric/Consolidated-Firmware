@@ -26,22 +26,15 @@ ELSE ()
 ENDIF ()
 message("  📟 Using Python Command: \"${PYTHON_COMMAND}\"")
 
-# ============== Generate PIP_COMMAND ==============
-IF (WIN32)
-    set(PIP_COMMAND pip)
-ELSE ()
-    set(PIP_COMMAND pip3)
-ENDIF ()
-find_program(HAS_PIP_COMMAND pip)
-IF (NOT HAS_PIP_COMMAND)
-    message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
-ELSE ()
-    message("  🔎 Found pip")
-ENDIF ()
-
 # ============== PIP PACKAGES and PIPENV ==============
 IF (NO_VENV)
     message("  📦 Update Python Dependencies")
+    find_program(PIP_COMMAND pip REQUIRED)
+    IF (NOT PIP_COMMAND)
+        message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
+    ENDIF ()
+    message("  🔎 Found pip at \"${PIP_COMMAND}\"")
+
     execute_process(COMMAND ${PIP_COMMAND} install -r ${CMAKE_SOURCE_DIR}/environment/requirements.txt
             RESULT_VARIABLE PIP_INSTALL_STATUS)
     IF (NOT ${PIP_INSTALL_STATUS} EQUAL 0)
