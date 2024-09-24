@@ -28,7 +28,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: VC",
             "port": 0,
             "type": "console"
           }
@@ -62,7 +62,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: BMS",
             "port": 0,
             "type": "console"
           }
@@ -96,7 +96,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: FSM",
             "port": 0,
             "type": "console"
           }
@@ -130,7 +130,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: RSM",
             "port": 0,
             "type": "console"
           }
@@ -195,7 +195,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: F4Dev",
             "port": 0,
             "type": "console"
           }
@@ -228,7 +228,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: CRIT",
+            "label": "Debug logs: H7Dev",
             "port": 0,
             "type": "console"
           }
