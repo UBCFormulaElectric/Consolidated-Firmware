@@ -26,7 +26,7 @@ ENDIF ()
 include(scripts/code_generation/jsoncan/jsoncan.cmake)
 include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
-# ======== CPM ========
+# ======== Dependency Management Configs ========
 message("")
 option(HANDLE_DEPS "Build build on the server" OFF)
 IF (HANDLE_DEPS)
@@ -34,14 +34,8 @@ IF (HANDLE_DEPS)
 ELSE ()
     message("🏠 Completely using your dependencies")
 ENDIF ()
-file(
-        DOWNLOAD
-        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-        EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-message("✅ Download CPM.cmake")
+include(get_cpm.cmake)
+message("✅ Downloaded CPM.cmake")
 
 # ======== Host system specific settings ========
 message("")
