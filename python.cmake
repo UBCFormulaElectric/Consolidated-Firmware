@@ -17,12 +17,18 @@ IF (NO_VENV)
     message("  ℹ️ Found Python ${Python3_VERSION}")
     set(PYTHON_COMMAND ${Python3_EXECUTABLE})
 ELSE ()
+    find_program(PIPENV_COMMAND pipenv REQUIRED)
+    IF (NOT PIPENV_COMMAND)
+        message(FATAL_ERROR "❌ pipenv not found. Please install it with \"pip install pipenv\"")
+    ENDIF ()
+    message("  📟 Using pipenv command: ${PIPENV_COMMAND}")
+
     IF (WIN32)
         set(PYTHON_RAW_COMMAND python)
     ELSE ()
         set(PYTHON_RAW_COMMAND python3)
     ENDIF ()
-    set(PYTHON_COMMAND pipenv run ${PYTHON_RAW_COMMAND})
+    set(PYTHON_COMMAND ${PIPENV_COMMAND} run ${PYTHON_RAW_COMMAND})
 ENDIF ()
 message("  📟 Using Python Command: \"${PYTHON_COMMAND}\"")
 
@@ -44,25 +50,21 @@ IF (NO_VENV)
     ENDIF ()
 ELSE ()
     # check that pipenv exists
-    find_program(HAS_PIPENV_COMMAND pipenv)
-    IF (NOT HAS_PIPENV_COMMAND)
-        message(FATAL_ERROR "❌ pipenv not found. Please install it with \"pip install pipenv\"")
-    ENDIF ()
-    execute_process(COMMAND pipenv --venv
-            OUTPUT_VARIABLE PIPENV_OUTPUT
-            RESULT_VARIABLE PIPENV_RESULT
-            ERROR_VARIABLE PIPENV_ERROR
+    execute_process(COMMAND ${PIPENV_COMMAND} --venv
+            OUTPUT_VARIABLE FIND_PIPENV_OUTPUT
+            RESULT_VARIABLE FIND_PIPENV_RESULT
+            ERROR_VARIABLE FIND_PIPENV_ERROR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE)
-    IF(${PIPENV_RESULT})
-        message(FATAL_ERROR "Pipenv path report error: ${PIPENV_RESULT} ${PIPENV_ERROR}
+    IF(${FIND_PIPENV_RESULT})
+        message(FATAL_ERROR "Pipenv path report error: ${FIND_PIPENV_RESULT} ${FIND_PIPENV_ERROR}
         Make sure that you have ran \"pipenv install\" in the root directory")
     ELSE()
-        message("  🛣 Pipenv path: ${PIPENV_OUTPUT}")
+        message("  🛣 Pipenv path: ${FIND_PIPENV_OUTPUT}")
     ENDIF()
 
     # check that dependencies are installed with pipenv
-    execute_process(COMMAND pipenv install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)
+    execute_process(COMMAND ${PIPENV_COMMAND} install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)
     IF (NOT ${PIPENV_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Error setting up pipenv. Please install/fix pipenv and try again.")
     ENDIF ()
