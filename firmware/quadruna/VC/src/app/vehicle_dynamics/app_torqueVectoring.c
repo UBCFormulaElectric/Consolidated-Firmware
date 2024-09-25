@@ -1,4 +1,3 @@
-#include <math.h>
 #include "app_timer.h"
 #include "app_torqueVectoring.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -40,8 +39,6 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
-static float left_pedal_power_request;
-static float right_pedal_power_request;
 static float min_pedal_power_request;
 
 void app_torqueVectoring_init(void)
