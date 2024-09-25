@@ -35,14 +35,17 @@ message("  📟 Using Python Command: \"${PYTHON_COMMAND}\"")
 # ============== PIP PACKAGES and PIPENV ==============
 IF (NO_VENV)
     message("  📦 Update Python Dependencies")
-    find_program(PIP_COMMAND pip REQUIRED)
-    IF (NOT PIP_COMMAND)
+    set(PIP_COMMAND "${PYTHON_COMMAND} -m pip")
+    execute_process(COMMAND ${PIP_COMMAND} --version RESULT_VARIABLE PIP_CHECK_STATUS)
+    IF (NOT ${PIP_CHECK_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Could not find pip. Please install pip and try again.")
     ENDIF ()
-    message("  🔎 Found pip at \"${PIP_COMMAND}\"")
+    message("  📟 Using pip with \"${PIP_COMMAND}\"")
 
     execute_process(COMMAND ${PIP_COMMAND} install -r ${CMAKE_SOURCE_DIR}/environment/requirements.txt
-            RESULT_VARIABLE PIP_INSTALL_STATUS)
+            RESULT_VARIABLE PIP_INSTALL_STATUS
+            COMMAND_ERROR_IS_FATAL ANY
+    )
     IF (NOT ${PIP_INSTALL_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Could not successfully install Python dependencies")
     ELSE ()
@@ -56,12 +59,12 @@ ELSE ()
             ERROR_VARIABLE FIND_PIPENV_ERROR
             OUTPUT_STRIP_TRAILING_WHITESPACE
             ERROR_STRIP_TRAILING_WHITESPACE)
-    IF(${FIND_PIPENV_RESULT})
+    IF (${FIND_PIPENV_RESULT})
         message(FATAL_ERROR "Pipenv path report error: ${FIND_PIPENV_RESULT} ${FIND_PIPENV_ERROR}
         Make sure that you have ran \"pipenv install\" in the root directory")
-    ELSE()
+    ELSE ()
         message("  🛣 Pipenv path: ${FIND_PIPENV_OUTPUT}")
-    ENDIF()
+    ENDIF ()
 
     # check that dependencies are installed with pipenv
     execute_process(COMMAND ${PIPENV_COMMAND} install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)
