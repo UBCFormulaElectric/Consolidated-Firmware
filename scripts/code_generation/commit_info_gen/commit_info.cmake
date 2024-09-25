@@ -23,6 +23,7 @@ function(commit_info_generate_sources bind_target commit_info_directory)
             --output-header ${header_location}
             --output-source ${src_location}
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
+            COMMAND_ERROR_IS_FATAL ANY
     )
     message("  📚 [commit_info.cmake, commit_info_generate_sources()] Generated commit info files at ${directory_location_relative}")
 
