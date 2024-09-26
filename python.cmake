@@ -33,8 +33,9 @@ ENDIF ()
 message("  📟 Using Python Command: \"${PYTHON_COMMAND}\"")
 
 # ============== PIP PACKAGES and PIPENV ==============
+message("  📦 Update Python Dependencies")
 IF (NO_VENV)
-    message("  📦 Update Python Dependencies")
+    message("  🔍 Finding pip...")
     set(PIP_COMMAND ${PYTHON_COMMAND} -m pip)
     execute_process(COMMAND ${PIP_COMMAND} --version RESULT_VARIABLE PIP_CHECK_STATUS)
     IF (NOT ${PIP_CHECK_STATUS} EQUAL 0)
@@ -48,11 +49,11 @@ IF (NO_VENV)
     )
     IF (NOT ${PIP_INSTALL_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Could not successfully install Python dependencies")
-    ELSE ()
-        message("✅ Python dependencies installed")
     ENDIF ()
+    message("  📦 Pip packages collected")
 ELSE ()
     # check that pipenv exists
+    message("  🔍 Finding pipenv...")
     execute_process(COMMAND ${PIPENV_COMMAND} --venv
             OUTPUT_VARIABLE FIND_PIPENV_OUTPUT
             RESULT_VARIABLE FIND_PIPENV_RESULT
@@ -62,14 +63,15 @@ ELSE ()
     IF (${FIND_PIPENV_RESULT})
         message(FATAL_ERROR "Pipenv path report error: ${FIND_PIPENV_RESULT} ${FIND_PIPENV_ERROR}
         Make sure that you have ran \"pipenv install\" in the root directory")
-    ELSE ()
-        message("  🛣 Pipenv path: ${FIND_PIPENV_OUTPUT}")
     ENDIF ()
+    message("  🛣 Pipenv path: ${FIND_PIPENV_OUTPUT}")
 
     # check that dependencies are installed with pipenv
+    message("  📦 Updating Pipenv dependencies...")
     execute_process(COMMAND ${PIPENV_COMMAND} install RESULT_VARIABLE PIPENV_STATUS OUTPUT_QUIET)
     IF (NOT ${PIPENV_STATUS} EQUAL 0)
         message(FATAL_ERROR "❌ Error setting up pipenv. Please install/fix pipenv and try again.")
     ENDIF ()
     message("  📦 Pipenv Dependencies Updated")
 ENDIF ()
+message("  ✅ Python dependencies installed")
