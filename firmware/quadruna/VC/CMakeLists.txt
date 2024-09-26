@@ -1,3 +1,6 @@
+message("")
+message("⚙️ Configuring VC")
+
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
@@ -47,7 +50,7 @@ list(APPEND HW_SRCS
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-if ("${TARGET}" STREQUAL "deploy")
+IF ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
@@ -135,9 +138,9 @@ if ("${TARGET}" STREQUAL "deploy")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_VC_jsoncan" "quadruna_VC_stm32cube" "sbg_ecom_cm7")
-    target_link_libraries("quadruna_VC_app.elf" "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto")
-    target_link_libraries("quadruna_VC_boot.elf" "quadruna_VC_commit_info")
+    target_link_libraries("quadruna_VC_jsoncan" PRIVATE "quadruna_VC_stm32cube")
+    target_link_libraries("quadruna_VC_app.elf" PRIVATE "quadruna_VC_stm32cube" "quadruna_VC_jsoncan" "quadruna_VC_commit_info" "logfs_cm7" "debug_modules" "m" "telem_proto" "sbg_ecom_cm7")
+    target_link_libraries("quadruna_VC_boot.elf" PRIVATE "quadruna_VC_commit_info")
 
     embedded_image(
             "quadruna_VC"
@@ -146,7 +149,7 @@ if ("${TARGET}" STREQUAL "deploy")
             "quadruna_VC_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/quadruna_VC_boot.hex"
     )
-elseif ("${TARGET}" STREQUAL "test")
+ELSEIF ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
     list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -182,4 +185,4 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quadruna_VC_test" "quadruna_VC_jsoncan" "quadruna_VC_fakes" "shared_fakes")
-endif ()
+ENDIF ()

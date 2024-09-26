@@ -1,3 +1,6 @@
+message("")
+message("⚙️ Configuring H7Dev")
+
 set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
@@ -6,7 +9,7 @@ file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_can.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_lfs.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_fdcan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
@@ -14,8 +17,8 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_lfsConfig.c"
 )
+list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
 
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
 
@@ -33,7 +36,7 @@ set(EMBEDDED_INCLUDE_DIRS
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
-if ("${TARGET}" STREQUAL "deploy")
+IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
             "h7dev"
             "${IOC_PATH}"
@@ -95,7 +98,7 @@ if ("${TARGET}" STREQUAL "deploy")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "littlefs_cm7")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "logfs_cm7")
 
     # Build bootloader.
     stm32h7_boot_binary(
@@ -106,7 +109,7 @@ if ("${TARGET}" STREQUAL "deploy")
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
     )
-    target_link_libraries("h7dev_boot.elf" "h7dev_commit_info")
+    target_link_libraries("h7dev_boot.elf" PRIVATE "h7dev_commit_info")
 
     embedded_image(
             "h7dev"
@@ -116,4 +119,4 @@ if ("${TARGET}" STREQUAL "deploy")
             "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
     )
 
-endif ()
+ENDIF ()
