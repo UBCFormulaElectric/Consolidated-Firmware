@@ -16,7 +16,7 @@
                 "TARGET": "binary",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "MINIMAL",
-                "NO_VENV": "OFF"
+                "NO_VENV": "ON"
             },
             "binaryDir": "build_fw_dev"
         },
@@ -31,7 +31,7 @@
                 "TARGET": "binary",
                 "HANDLE_DEPS": "OFF",
                 "USE_COMMIT_INFO": "ON",
-                "NO_VENV":  "OFF"
+                "NO_VENV":  "ON"
             },
             "binaryDir": "build_fw_deploy"
         },
@@ -39,8 +39,7 @@
             "name": "FW Deploy CI",
             "inherits": "FW Deploy",
             "cacheVariables": {
-                "FIX_FORMATTING": "OFF",
-                "NO_VENV": "ON"
+                "FIX_FORMATTING": "OFF"
             },
             "generator": "Unix Makefiles"
         },
@@ -53,7 +52,7 @@
                 "PLATFORM": "firmware",
                 "TARGET": "test",
                 "HANDLE_DEPS": "OFF",
-                "NO_VENV":  "OFF"
+                "NO_VENV":  "ON"
             },
             "binaryDir": "build_fw_test"
         },
@@ -61,8 +60,7 @@
             "name": "FW Test CI",
             "inherits": "FW Test",
             "cacheVariables": {
-                "FIX_FORMATTING": "OFF",
-                "NO_VENV": "ON"
+                "FIX_FORMATTING": "OFF"
             },
             "generator": "Unix Makefiles"
         }
