@@ -243,7 +243,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/VC/quadruna_VC_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: VC (Quadruna)",
+      // "preLaunchTask": "Build Tests: VC (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -257,7 +257,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/BMS/quadruna_BMS_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: BMS (Quadruna)",
+      // "preLaunchTask": "Build Tests: BMS (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -271,7 +271,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/FSM/quadruna_FSM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: FSM (Quadruna)",
+      // "preLaunchTask": "Build Tests: FSM (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -285,7 +285,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/RSM/quadruna_RSM_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: RSM (Quadruna)",
+      // "preLaunchTask": "Build Tests: RSM (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -299,7 +299,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/quadruna/CRIT/quadruna_CRIT_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: CRIT (Quadruna)",
+      // "preLaunchTask": "Build Tests: CRIT (Quadruna)",
       "linux": {
         "MIMode": "gdb"
       },
@@ -313,7 +313,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "Build Tests: Shared",
+      // "preLaunchTask": "Build Tests: Shared",
       "linux": {
         "MIMode": "gdb"
       },
