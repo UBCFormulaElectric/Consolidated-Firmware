@@ -23,15 +23,7 @@
         "serverpath": "JLinkGDBServerCLEXE",
       },
       "windows": {
-        "linux": {
-        "serverpath": "JLinkGDBServerCLEXE",
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServerCLEXE",
-      },
-      "windows": {
         "serverpath": "JLinkGDBServerCL",
-      },
       },
       "serverArgs": [
         "-speed", "4000"
@@ -73,15 +65,7 @@
         "serverpath": "JLinkGDBServerCLEXE",
       },
       "windows": {
-        "linux": {
         "serverpath": "JLinkGDBServerCLEXE",
-      },
-      "osx": {
-        "serverpath": "JLinkGDBServerCLEXE",
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL",
-      },
       },
       "serverArgs": [
         "-speed", "4000"
