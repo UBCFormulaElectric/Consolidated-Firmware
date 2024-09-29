@@ -16,7 +16,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -50,7 +58,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -84,7 +100,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -118,7 +142,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -154,7 +186,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -183,7 +223,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
@@ -216,7 +264,15 @@
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "jlink",
-      "serverpath": "JLinkGDBServerCL",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
       "serverArgs": [
         "-speed", "4000"
       ],
