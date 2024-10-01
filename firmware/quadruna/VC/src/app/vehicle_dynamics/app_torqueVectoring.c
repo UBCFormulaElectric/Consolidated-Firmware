@@ -39,6 +39,7 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
+static float min_pedal_power_request;
 
 void app_torqueVectoring_init(void)
 {
@@ -93,7 +94,6 @@ void app_torqueVectoring_handleAcceleration(void)
     power_limiting_inputs.accelerator_pedal_percent = accelerator_pedal_percent;
     float estimated_power_limit;
     estimated_power_limit = app_powerLimiting_computeMaxPower(&power_limiting_inputs);
-
     // Power limit correction
     float power_limit = estimated_power_limit * (1.0f + pid_power_correction_factor);
 
@@ -102,6 +102,7 @@ void app_torqueVectoring_handleAcceleration(void)
     active_differential_inputs.motor_speed_left_rpm  = motor_speed_left_rpm;
     active_differential_inputs.motor_speed_right_rpm = motor_speed_right_rpm;
     active_differential_inputs.wheel_angle_deg       = steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE;
+    active_differential_inputs.requested_torque      = accelerator_pedal_percent * MAX_TORQUE_REQUEST_NM;
     app_activeDifferential_computeTorque(&active_differential_inputs, &active_differential_outputs);
     app_canTx_VC_ActiveDiffTorqueLeft_set(active_differential_outputs.torque_left_Nm);
     app_canTx_VC_ActiveDiffTorqueRight_set(active_differential_outputs.torque_right_Nm);
