@@ -48,14 +48,14 @@ void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-    // BREAK_IF_DEBUGGER_CONNECTED()
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canRxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-    // BREAK_IF_DEBUGGER_CONNECTED()
+    BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canTxQueueOverflowClearCallback(void)
