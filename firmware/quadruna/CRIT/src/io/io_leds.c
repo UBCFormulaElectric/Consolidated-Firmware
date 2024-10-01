@@ -39,6 +39,11 @@ void io_led_torquevec_set(bool val)
     io_led_enable(leds->torquevec_led, val);
 }
 
+void io_led_test_set(bool val)
+{
+    io_led_enable(leds->test_led, val);
+}
+
 void set_led_from_board_status(const RgbLed *led, const BoardLEDStatus status)
 {
     switch (status)

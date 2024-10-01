@@ -58,6 +58,9 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 
 void app_leds_update(void)
 {
+    const bool test_led_on = io_switches_start_get();
+    io_led_test_set(test_led_on);
+
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
     io_led_imd_set(imd_fault_latched);
     const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();

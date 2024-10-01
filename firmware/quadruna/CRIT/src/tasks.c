@@ -48,14 +48,14 @@ void canTxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_TxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED()
+    // BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canRxQueueOverflowCallback(uint32_t overflow_count)
 {
     app_canTx_CRIT_RxOverflowCount_set(overflow_count);
     app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-    BREAK_IF_DEBUGGER_CONNECTED()
+    // BREAK_IF_DEBUGGER_CONNECTED()
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -98,6 +98,11 @@ static const BinaryLed torquevec_led = { .gpio = {
                                              .port = TORQUE_VECTORING_LED_GPIO_Port,
                                              .pin  = TORQUE_VECTORING_LED_Pin,
                                          } };
+
+static const BinaryLed test_led = { .gpio = {
+                                        .port = LED_GPIO_Port,
+                                        .pin  = LED_Pin,
+                                    } };
 
 static const Switch start_switch = {
     .gpio = {
@@ -344,6 +349,7 @@ static const Leds led_config = {
     .fsm_status_led  = &fsm_status_led,
     .rsm_status_led  = &rsm_status_led,
     .vc_status_led   = &vc_status_led,
+    .test_led        = &test_led,
 };
 
 static const Switches switch_config = {
