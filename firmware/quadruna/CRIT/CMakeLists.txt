@@ -1,50 +1,54 @@
+message("")
+message("⚙️ Configuring CRIT")
+
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS 
-    "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-    "${SHARED_APP_INCLUDE_DIR}/app_shdnLoop.c"
+list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_stateMachine.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUADRUNA_DIR}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS 
-    "${SHARED_IO_INCLUDE_DIR}/io_led.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_switch.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_can.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
-    "${SHARED_IO_INCLUDE_DIR}/io_rgbLed.c"
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR}/io_led.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_switch.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_can.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_jsoncan.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_chimera.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_rgbLed.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUADRUNA_DIR}")
 
-file(GLOB_RECURSE HW_SRCS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
+file(GLOB_RECURSE HW_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
 )
 list(APPEND HW_SRCS
-    "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-    "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_adcConversions.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_pwmInputFreqOnly.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_stackWaterMark.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
+list(REMOVE_ITEM HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_QUADRUNA_DIR}")
 
-if("${TARGET}" STREQUAL "deploy")
+IF ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     embedded_binary(
@@ -57,6 +61,7 @@ if("${TARGET}" STREQUAL "deploy")
 
     # Bootloader files.
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    list(REMOVE_ITEM BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/sysmem.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     # Build bootloader.
     stm32f4_boot_binary(
@@ -70,37 +75,37 @@ if("${TARGET}" STREQUAL "deploy")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
     generate_stm32cube_code(
-        "CRIT"
-        "${IOC_PATH}"
+            "CRIT"
+            "${IOC_PATH}"
     )
 
     # STM HAL Library
     set(STM32_HAL_SRCS
-        "stm32f4xx_hal_adc_ex.c"
-        "stm32f4xx_hal_adc.c"
-        "stm32f4xx_hal_cortex.c"
-        "stm32f4xx_hal_dma_ex.c"
-        "stm32f4xx_hal_dma.c"
-        "stm32f4xx_hal_exti.c"
-        "stm32f4xx_hal_can.c"
-        "stm32f4xx_hal_gpio.c"
-        "stm32f4xx_hal_iwdg.c"
-        "stm32f4xx_hal_pwr_ex.c"
-        "stm32f4xx_hal_rcc_ex.c"
-        "stm32f4xx_hal_rcc.c"
-        "stm32f4xx_hal_tim_ex.c"
-        "stm32f4xx_hal_tim.c"
-        "stm32f4xx_hal_uart.c"
-        "stm32f4xx_hal.c"
+            "stm32f4xx_hal_adc_ex.c"
+            "stm32f4xx_hal_adc.c"
+            "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_dma_ex.c"
+            "stm32f4xx_hal_dma.c"
+            "stm32f4xx_hal_exti.c"
+            "stm32f4xx_hal_can.c"
+            "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_iwdg.c"
+            "stm32f4xx_hal_pwr_ex.c"
+            "stm32f4xx_hal_rcc_ex.c"
+            "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_tim_ex.c"
+            "stm32f4xx_hal_tim.c"
+            "stm32f4xx_hal_uart.c"
+            "stm32f4xx_hal.c"
     )
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-        "quadruna_CRIT_stm32cube"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
-        "${STM32_HAL_SRCS}"
-        "${SYSCALLS}"
-        "${MD5_LOCATION}"
+            "quadruna_CRIT_stm32cube"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+            "${STM32_HAL_SRCS}"
+            "${SYSCALLS}"
+            "${MD5_LOCATION}"
     )
 
     # JSONCAN
@@ -108,25 +113,25 @@ if("${TARGET}" STREQUAL "deploy")
 
     # CommitInfo
     commit_info_library(
-        "quadruna_CRIT_app.elf"
-        "quadruna_CRIT_commit_info"
-        "${CMAKE_CURRENT_BINARY_DIR}/app"
-        "${ARM_CORE}"
+            "quadruna_CRIT_app.elf"
+            "quadruna_CRIT_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+            "${ARM_CORE}"
     )
 
-    target_link_libraries("quadruna_CRIT_jsoncan" "quadruna_CRIT_stm32cube")
-    target_link_libraries("quadruna_CRIT_app.elf" "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
-    target_link_libraries("quadruna_CRIT_boot.elf" "quadruna_CRIT_commit_info")
+    target_link_libraries("quadruna_CRIT_jsoncan" PRIVATE "quadruna_CRIT_stm32cube")
+    target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 
     embedded_image(
-        "quadruna_CRIT"
-        "quadruna_CRIT_app.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_app.hex"
-        "quadruna_CRIT_boot.hex"
-        "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_boot.hex"
+            "quadruna_CRIT"
+            "quadruna_CRIT_app.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_app.hex"
+            "quadruna_CRIT_boot.hex"
+            "${CMAKE_CURRENT_BINARY_DIR}/quadruna_CRIT_boot.hex"
     )
-    
-elseif("${TARGET}" STREQUAL "test")
+
+elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test")
     list(APPEND TEST_INCLUDE_DIRS "${SHARED_TEST_UTILS_INCLUDE_DIRS}")
@@ -143,14 +148,15 @@ elseif("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_driveMode.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_leds.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_switches.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_critShdn.h"
     )
     create_fake_library(
-        "quadruna_CRIT_fakes"
-        "${HEADERS_TO_FAKE}"
+            "quadruna_CRIT_fakes"
+            "${HEADERS_TO_FAKE}"
     )
 
     target_link_libraries("quadruna_CRIT_test" "quadruna_CRIT_jsoncan" "quadruna_CRIT_fakes" "shared_fakes" "m")
-endif()
+ENDIF ()

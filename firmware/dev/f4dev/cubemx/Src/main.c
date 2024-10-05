@@ -26,10 +26,6 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "lfs.h"
-#define LFS_NO_MALLOC
-#define LFS_CACHE_SIZE 16
-#define LFS_LOOKAHEAD_SIZE 16
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,9 +41,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 SdCard *sd;
-uint8_t read_buffer[LFS_CACHE_SIZE];
-uint8_t prog_buffer[LFS_CACHE_SIZE];
-uint8_t lookahead_buffer[LFS_LOOKAHEAD_SIZE];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -563,6 +556,28 @@ void StartDefaultTask(void *argument)
         }
     }
     /* USER CODE END 5 */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM6)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
 }
 
 /**
