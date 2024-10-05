@@ -161,9 +161,18 @@ static void computeRegenTorqueRequest(
 
 float app_regen_pedalRemapping(float apps_pedal_percentage)
 {
-    apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE) * MAX_PEDAL_PERCENT;
-    apps_pedal_percentage = apps_pedal_percentage < 0.0f ? apps_pedal_percentage / PEDAL_SCALE
-                                                         : apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE);
+    apps_pedal_percentage = (apps_pedal_percentage - PEDAL_SCALE);
 
-    return apps_pedal_percentage;
+    if (apps_pedal_percentage < 0.0f)
+    {
+        return apps_pedal_percentage / PEDAL_SCALE;
+    }
+    else if (apps_pedal_percentage < 0.1f)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        return apps_pedal_percentage / (MAX_PEDAL_PERCENT - PEDAL_SCALE - 0.1f);
+    }
 }
