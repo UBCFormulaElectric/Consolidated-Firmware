@@ -31,8 +31,6 @@ sys.path.insert(
 bus_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../../../can_bus/quadruna")
 )
-print("sys.path[0]:", sys.path[0])
-print(bus_path)
 
 from jsoncan.src.json_parsing.json_can_parsing import JsonCanParser
 from jsoncan.src.can_database import CanDatabase
@@ -67,9 +65,14 @@ class SignalUtil:
             raise RuntimeError("SignalUtil not initialized.")
 
         last_bit = 0
+        last_time = time.time()  # Initialize last_time
+        total_data_received = 0  # Initialize the data counter
+        start_time = time.time()  # Start timer for data measurement
         try:
             while True:
                 # TODO: Lara: Upload actual signals instead!
+
+                current_time = time.time()
 
                 packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
                 logger.info(f"Received data: {packet_size}")
@@ -82,6 +85,8 @@ class SignalUtil:
 
                     # Read in UART message and parse the protobuf
                     bytes_read = cls.ser.read(packet_size)
+                    total_data_received += len(bytes_read) + 1  # Including packetsize byte, log how much data
+
                     message_received = telem_pb2.TelemMessage()
                     message_received.ParseFromString(bytes_read)
 
@@ -137,6 +142,12 @@ class SignalUtil:
                         
                 else:
                     last_bit = packet_size
+                
+                #Check if second has passed
+                if current_time - start_time >= 1.0:
+                    logger.info(f"Total data received in the last second: {total_data_received} bytes")
+                    total_data_received = 0  # Reset the counter
+                    start_time = current_time  # Reset the start time
 
         except Exception as e:
             logger.error("Error receiving/sending proto msg:", e)

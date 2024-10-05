@@ -48,7 +48,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     uint8_t proto_buffer[QUEUE_SIZE] = { 0 };
 
     // filter messages, rn for faults and warnings and bms (to verify working when running normally)
-    if (rx_msg->std_id != 111 && rx_msg->std_id != 205 && rx_msg->std_id != 206 && rx_msg->std_id != 207 &&
+    if (rx_msg->std_id != 111 && rx_msg->std_id != 397 && rx_msg->std_id != 205 && rx_msg->std_id != 206 && rx_msg->std_id != 207 &&
         rx_msg->std_id != 208)
     {
         return false;
@@ -56,7 +56,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     // send it over the correct UART functionality
     pb_ostream_t stream = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
-    // // filling in fields
+    //Filling in fields
     if (rx_msg->dlc > 8)
         return false;
     t_message.can_id    = (int32_t)(rx_msg->std_id);
@@ -106,6 +106,10 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     proto_out_length                 = proto_out[49];
     proto_out[49]                    = 0;
 
+    //Start timing for measuring transmission speeds
+    uint32_t start_time = io_time_getCurrentMs();
+
+
     LOG_INFO("proto popped and on to uart");
     if (modem_900_choice)
     {
@@ -118,5 +122,10 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
         hw_uart_transmitPoll(modem->modem2_4G, &proto_msg_length, UART_LENGTH, UART_LENGTH);
         hw_uart_transmitPoll(modem->modem2_4G, proto_out, (uint8_t)sizeof(proto_out), 100);
     }
+
+    uint32_t end_time = io_time_getCurrentMs();
+    uint32_t transmission_time = end_time - start_time;
+
+    LOG_INFO("Transmission time: %u ms", transmission_time);
     return true;
 }
