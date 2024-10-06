@@ -53,7 +53,7 @@ set(SHARED_COMPILER_FLAGS
 )
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     list(APPEND SHARED_COMPILER_FLAGS
-            -Og # previously O0, idk why this breaks bootloader??
+            -O0 # previously O0, idk why this breaks bootloader??
             -g3
     )
 else()

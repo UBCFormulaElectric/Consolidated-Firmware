@@ -10,6 +10,7 @@ const io::binary_led ams_led{ hw::gpio::ams_r_pin };
 const io::binary_led start_led{ hw::gpio::start_led_pin };
 const io::binary_led regen_led{ hw::gpio::regen_led_pin };
 const io::binary_led torquevec_led{ hw::gpio::torquevec_led_pin };
+const io::binary_led debug_led {hw::gpio::debug_led_pin};
 
 const io::led shutdown_status_led{ hw::gpio::shdn_r_pin, hw::gpio::shdn_g_pin, hw::gpio::shdn_b_pin_fake };
 

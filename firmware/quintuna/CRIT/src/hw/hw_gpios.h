@@ -16,6 +16,8 @@ extern const Gpio start_led_pin;
 extern const Gpio regen_led_pin;
 extern const Gpio torquevec_led_pin;
 
+extern const Gpio debug_led_pin;
+
 // rgb leds
 extern const Gpio shdn_r_pin;
 extern const Gpio shdn_g_pin;

@@ -67,9 +67,9 @@ template <size_t NODE_COUNT> class monitor
         if (block_faults)
             return;
 
-        for (io::heartbeat::node *const node : heartbeat_nodes)
+        for (const io::heartbeat::node *const node : heartbeat_nodes)
         {
-            const bool board_has_fault = node->status;
+            const bool board_has_fault = !node->status;
             node->fault_setter(board_has_fault);
         }
     }

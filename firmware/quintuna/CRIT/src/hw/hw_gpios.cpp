@@ -16,6 +16,8 @@ const Gpio start_led_pin{ START_LED_GPIO_Port, START_LED_Pin };
 const Gpio regen_led_pin{ REGEN_LED_GPIO_Port, REGEN_LED_Pin };
 const Gpio torquevec_led_pin{ TORQUE_VECTORING_LED_GPIO_Port, TORQUE_VECTORING_LED_Pin };
 
+const Gpio debug_led_pin{ LED_GPIO_Port, LED_Pin };
+
 const Gpio shdn_r_pin{ SHDN_R_GPIO_Port, SHDN_R_Pin };
 const Gpio shdn_g_pin{ SHDN_G_GPIO_Port, SHDN_G_Pin };
 const Gpio shdn_b_pin_fake{ 0, MAX_8_BITS_VALUE };
