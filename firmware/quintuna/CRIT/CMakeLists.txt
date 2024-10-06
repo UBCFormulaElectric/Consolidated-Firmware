@@ -1,4 +1,5 @@
-message("⚙️ Configuring CRIT")
+message("")
+message("⚙️ Configuring CRIT (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
 
@@ -49,7 +50,7 @@ set(HW_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
-if ("${TARGET}" STREQUAL "deploy")
+if ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     embedded_binary(
@@ -114,9 +115,9 @@ if ("${TARGET}" STREQUAL "deploy")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_CRIT_jsoncan" "quintuna_CRIT_stm32cube")
-    target_link_libraries("quintuna_CRIT_app.elf" "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
-    target_link_libraries("quintuna_CRIT_boot.elf" "quintuna_CRIT_commit_info")
+    target_link_libraries("quintuna_CRIT_jsoncan" PRIVATE "quintuna_CRIT_stm32cube")
+    target_link_libraries("quintuna_CRIT_app.elf" PRIVATE "quintuna_CRIT_stm32cube" "quintuna_CRIT_jsoncan" "quintuna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quintuna_CRIT_boot.elf" PRIVATE "quintuna_CRIT_commit_info")
 
     embedded_image(
             "quintuna_CRIT"
@@ -127,4 +128,3 @@ if ("${TARGET}" STREQUAL "deploy")
     )
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
-message("")

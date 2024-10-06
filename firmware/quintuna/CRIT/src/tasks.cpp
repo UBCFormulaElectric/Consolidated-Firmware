@@ -80,11 +80,14 @@ void tasks_runCanTx(void)
     for (;;)
     {
         hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
-        hw::can::can1.transmit(&tx_msg);
+        if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)
+        {
+         // idk do something
+        }
     }
 }
 
-void tasks_runCanRx(void)
+void tasks_runCanRx()
 {
     io::chimera::sleepTaskIfEnabled();
 
@@ -99,7 +102,7 @@ void tasks_runCanRx(void)
     }
 }
 
-void tasks_run1Hz(void)
+void tasks_run1Hz()
 {
     io::chimera::sleepTaskIfEnabled();
 
@@ -130,7 +133,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+void tasks_run100Hz()
 {
     io::chimera::sleepTaskIfEnabled();
 
@@ -156,7 +159,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+void tasks_run1kHz()
 {
     io::chimera::sleepTaskIfEnabled();
 

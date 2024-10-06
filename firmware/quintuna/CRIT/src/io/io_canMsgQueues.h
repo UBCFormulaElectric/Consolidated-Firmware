@@ -17,14 +17,14 @@ namespace can1
     {
         app_canTx_CRIT_TxOverflowCount_set(overflow_count);
         app_canAlerts_CRIT_Warning_TxOverflow_set(true);
-        BREAK_IF_DEBUGGER_CONNECTED()
+        // BREAK_IF_DEBUGGER_CONNECTED()
     }
 
     static void RxQueueOverflowCallback(uint32_t overflow_count)
     {
         app_canTx_CRIT_RxOverflowCount_set(overflow_count);
         app_canAlerts_CRIT_Warning_RxOverflow_set(true);
-        BREAK_IF_DEBUGGER_CONNECTED()
+        // BREAK_IF_DEBUGGER_CONNECTED()
     }
 
     static void TxQueueOverflowClearCallback()
