@@ -82,7 +82,7 @@ void tasks_runCanTx(void)
         hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
         if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)
         {
-         // idk do something
+            // idk do something
         }
     }
 }
