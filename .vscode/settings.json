@@ -7,6 +7,6 @@
 			"url": "/can_bus/json/schema_tx.json"
 		}
 	],
-	"cmake.configureOnEdit": true,
-	"cmake.configureOnOpen": true,
+	"cmake.configureOnEdit": false,
+	"cmake.configureOnOpen": false,
 }
