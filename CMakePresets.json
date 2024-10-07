@@ -1,69 +1,69 @@
 {
-    "version": 6,
-    "configurePresets": [
-        {
-            "name": "default",
-            "hidden": true
-        },
-        {
-            "name": "FW Dev",
-            "description": "Development build for the Firmware, including debug information and no optimizations.",
-            "inherits": "default",
-            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "PLATFORM": "firmware",
-                "TARGET": "binary",
-                "HANDLE_DEPS": "OFF",
-                "USE_COMMIT_INFO": "MINIMAL",
-                "NO_VENV": "ON"
-            },
-            "binaryDir": "build_fw_dev"
-        },
-        {
-            "name": "FW Deploy",
-            "description": "Deployment build for the Firmware, including optimizations and no debug information.",
-            "inherits": "default",
-            "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "PLATFORM": "firmware",
-                "TARGET": "binary",
-                "HANDLE_DEPS": "OFF",
-                "USE_COMMIT_INFO": "ON",
-                "NO_VENV": "ON"
-            },
-            "binaryDir": "build_fw_deploy"
-        },
-        {
-            "name": "FW Deploy CI",
-            "inherits": "FW Deploy",
-            "cacheVariables": {
-                "FIX_FORMATTING": "OFF"
-            },
-            "generator": "Unix Makefiles"
-        },
-        {
-            "name": "FW Test",
-            "description": "Test build for the Firmware, including debug information and no optimizations.",
-            "inherits": "default",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "PLATFORM": "firmware",
-                "TARGET": "test",
-                "HANDLE_DEPS": "OFF",
-                "NO_VENV": "ON"
-            },
-            "binaryDir": "build_fw_test"
-        },
-        {
-            "name": "FW Test CI",
-            "inherits": "FW Test",
-            "cacheVariables": {
-                "FIX_FORMATTING": "OFF"
-            },
-            "generator": "Unix Makefiles"
-        }
-    ],
-    "buildPresets": []
+	"version": 6,
+	"configurePresets": [
+		{
+			"name": "default",
+			"hidden": true
+		},
+		{
+			"name": "FW Dev",
+			"description": "Development build for the Firmware, including debug information and no optimizations.",
+			"inherits": "default",
+			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug",
+				"PLATFORM": "firmware",
+				"TARGET": "binary",
+				"HANDLE_DEPS": "OFF",
+				"USE_COMMIT_INFO": "MINIMAL",
+				"NO_VENV": "ON"
+			},
+			"binaryDir": "build_fw_dev"
+		},
+		{
+			"name": "FW Deploy",
+			"description": "Deployment build for the Firmware, including optimizations and no debug information.",
+			"inherits": "default",
+			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"PLATFORM": "firmware",
+				"TARGET": "binary",
+				"HANDLE_DEPS": "OFF",
+				"USE_COMMIT_INFO": "ON",
+				"NO_VENV": "ON"
+			},
+			"binaryDir": "build_fw_deploy"
+		},
+		{
+			"name": "FW Deploy CI",
+			"inherits": "FW Deploy",
+			"cacheVariables": {
+				"FIX_FORMATTING": "OFF"
+			},
+			"generator": "Unix Makefiles"
+		},
+		{
+			"name": "FW Test",
+			"description": "Test build for the Firmware, including debug information and no optimizations.",
+			"inherits": "default",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug",
+				"PLATFORM": "firmware",
+				"TARGET": "test",
+				"HANDLE_DEPS": "OFF",
+				"NO_VENV": "ON"
+			},
+			"binaryDir": "build_fw_test"
+		},
+		{
+			"name": "FW Test CI",
+			"inherits": "FW Test",
+			"cacheVariables": {
+				"FIX_FORMATTING": "OFF"
+			},
+			"generator": "Unix Makefiles"
+		}
+	],
+	"buildPresets": []
 }
