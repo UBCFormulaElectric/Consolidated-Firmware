@@ -10,6 +10,7 @@ set(CMAKE_C_EXTENSIONS ON)
 #set(CMAKE_VERBOSE_MAKEFILE on)
 # Generates a comple_commands.json file which helps with VSCode intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+message("🛠️ Build Type: ${CMAKE_BUILD_TYPE}")
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
