@@ -47,7 +47,12 @@ static void initStateRunOnTick100Hz(void)
     const bool enable_inverters = app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE ||
                                   app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE ||
                                   app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    if (enable_inverters)
+
+    const bool any_board_has_fault = app_faultCheck_checkBoards();
+    const bool inverter_has_fault  = app_faultCheck_checkInverters();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
+
+    if (enable_inverters && all_states_ok)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
     }

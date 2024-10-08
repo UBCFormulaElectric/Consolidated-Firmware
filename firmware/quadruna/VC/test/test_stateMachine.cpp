@@ -197,18 +197,32 @@ TEST_F(VCStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pres
 
 TEST_F(VCStateMachineTest, exit_drive_state_on_left_inverter_fault)
 {
-    auto set_fault   = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
-    auto clear_fault = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_START_STATE); };
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
-    TestFaultBlocksDrive(set_fault, clear_fault);
+    app_canRx_INVL_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+
+    LetTimePass(10);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+
+    LetTimePass(1000);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
 TEST_F(VCStateMachineTest, exit_drive_state_on_right_inverter_fault)
 {
-    auto set_fault   = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE); };
-    auto clear_fault = []() { app_canRx_INVR_VsmState_update(INVERTER_VSM_START_STATE); };
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
 
-    TestFaultBlocksDrive(set_fault, clear_fault);
+    app_canRx_INVR_VsmState_update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+
+    LetTimePass(10);
+    EXPECT_EQ(app_inverterOnState_get(), app_stateMachine_getCurrentState());
+
+    LetTimePass(1000);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
 
 TEST_F(VCStateMachineTest, exit_drive_state_on_bms_fault)
@@ -266,5 +280,16 @@ TEST_F(VCStateMachineTest, BMS_causes_drive_to_inverter_on_to_init)
 
     app_canRx_BMS_State_update(BMS_INIT_STATE);
     LetTimePass(100);
+    EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
+}
+
+TEST_F(VCStateMachineTest, HV_lost_causes_drive_to_init)
+{
+    SetStateToDrive();
+    LetTimePass(100);
+    EXPECT_EQ(app_driveState_get(), app_stateMachine_getCurrentState());
+
+    app_canRx_BMS_State_update(BMS_FAULT_STATE);
+    LetTimePass(1000);
     EXPECT_EQ(app_initState_get(), app_stateMachine_getCurrentState());
 }
