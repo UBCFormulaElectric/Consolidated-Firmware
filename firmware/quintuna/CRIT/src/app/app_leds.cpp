@@ -30,14 +30,14 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
             is_missing_heartbeat = false; // lmao like
             break;
         }
-        case FVC_ALERT_BOARD:
+        case FSM_ALERT_BOARD:
         {
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFVCHeartbeat_get();
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingFSMHeartbeat_get();
             break;
         }
-        case RVC_ALERT_BOARD:
+        case VC_ALERT_BOARD:
         {
-            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingRVCHeartbeat_get();
+            is_missing_heartbeat = app_canAlerts_CRIT_Fault_MissingVCHeartbeat_get();
             break;
         }
         case RSM_ALERT_BOARD:
@@ -88,17 +88,17 @@ void update()
     io::leds::imd_led.set(app_canRx_BMS_ImdLatchedFault_get());
     io::leds::bspd_led.set(app_canRx_BMS_BspdLatchedFault_get());
     io::leds::ams_led.set(app_canRx_BMS_BmsLatchedFault_get());
-    io::leds::start_led.set(app_canRx_RVC_State_get() == RVC_DRIVE_STATE);
-    io::leds::regen_led.set(app_canRx_RVC_RegenEnabled_get());
-    io::leds::torquevec_led.set(app_canRx_RVC_TorqueVectoringEnabled_get());
+    io::leds::start_led.set(app_canRx_VC_State_get() == VC_DRIVE_STATE);
+    io::leds::regen_led.set(app_canRx_VC_RegenEnabled_get());
+    io::leds::torquevec_led.set(app_canRx_VC_TorqueVectoringEnabled_get());
 
     // or driven by BMS_drive_state???
     io::leds::shutdown_status_led.set(board_status_to_rgb(
-        app_canRx_RVC_FirstFaultNode_get() == SHDN_OK ? BoardLEDStatus::OK : BoardLEDStatus::FAULT));
+        app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? BoardLEDStatus::OK : BoardLEDStatus::FAULT));
 
     io::leds::bms_status_led.set(board_status_to_rgb(worstBoardStatus(BMS_ALERT_BOARD)));
-    io::leds::fvc_status_led.set(board_status_to_rgb(worstBoardStatus(FVC_ALERT_BOARD)));
-    io::leds::rvc_status_led.set(board_status_to_rgb(worstBoardStatus(RVC_ALERT_BOARD)));
+    io::leds::fsm_status_led.set(board_status_to_rgb(worstBoardStatus(FSM_ALERT_BOARD)));
+    io::leds::vc_status_led.set(board_status_to_rgb(worstBoardStatus(VC_ALERT_BOARD)));
     io::leds::rsm_status_led.set(board_status_to_rgb(worstBoardStatus(RSM_ALERT_BOARD)));
     io::leds::aux_status_led.set(board_status_to_rgb(BoardLEDStatus::NOT_IMPLEMENTED)); // TODO AUX status
     io::leds::crit_status_led.set(board_status_to_rgb(worstBoardStatus(CRIT_ALERT_BOARD)));

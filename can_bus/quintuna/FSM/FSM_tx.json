@@ -2,13 +2,13 @@
     "Vitals": {
         "msg_id": 500,
         "cycle_time": 100,
-        "description": "VC vitals message.",
+        "description": "FSM vitals message.",
         "signals": {
             "Heartbeat": {
                 "bits": 1
             },
             "State": {
-                "enum": "FVCState"
+                "enum": "FSMState"
             }
         }
     }

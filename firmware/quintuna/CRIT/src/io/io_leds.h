@@ -15,8 +15,8 @@ const io::binary_led debug_led{ hw::gpio::debug_led_pin };
 const io::led shutdown_status_led{ hw::gpio::shdn_r_pin, hw::gpio::shdn_g_pin, hw::gpio::shdn_b_pin_fake };
 
 const io::led bms_status_led{ hw::gpio::bms_r_pin, hw::gpio::bms_g_pin, hw::gpio::bms_b_pin };
-const io::led fvc_status_led{ hw::gpio::fvc_r_pin, hw::gpio::fvc_g_pin, hw::gpio::fvc_b_pin };
-const io::led rvc_status_led{ hw::gpio::rvc_r_pin, hw::gpio::rvc_g_pin, hw::gpio::rvc_b_pin };
+const io::led fsm_status_led{ hw::gpio::fsm_r_pin, hw::gpio::fsm_g_pin, hw::gpio::fsm_b_pin };
+const io::led vc_status_led{ hw::gpio::vc_r_pin, hw::gpio::vc_g_pin, hw::gpio::vc_b_pin };
 const io::led rsm_status_led{ hw::gpio::rsm_r_pin, hw::gpio::rsm_g_pin, hw::gpio::rsm_b_pin };
 const io::led aux_status_led{ hw::gpio::aux_r_pin, hw::gpio::aux_g_pin, hw::gpio::aux_b_pin };
 const io::led crit_status_led{ hw::gpio::crit_r_pin, hw::gpio::crit_g_pin, hw::gpio::crit_b_pin };

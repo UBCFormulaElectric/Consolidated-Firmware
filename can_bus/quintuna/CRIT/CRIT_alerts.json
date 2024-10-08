@@ -42,11 +42,11 @@
             "id": 850,
             "description": "Missing heartbeat signal from the BMS."
         },
-        "MissingFVCHeartbeat": {
+        "MissingFSMHeartbeat": {
             "id": 851,
             "description": "Missing heartbeat signal from the FSM."
         },
-        "MissingRVCHeartbeat": {
+        "MissingVCHeartbeat": {
             "id": 853,
             "description": "Missing heartbeat signal from the VC."
         },

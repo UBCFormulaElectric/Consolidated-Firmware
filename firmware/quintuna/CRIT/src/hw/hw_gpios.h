@@ -27,13 +27,13 @@ extern const Gpio bms_r_pin;
 extern const Gpio bms_g_pin;
 extern const Gpio bms_b_pin;
 
-extern const Gpio fvc_r_pin;
-extern const Gpio fvc_g_pin;
-extern const Gpio fvc_b_pin;
+extern const Gpio fsm_r_pin;
+extern const Gpio fsm_g_pin;
+extern const Gpio fsm_b_pin;
 
-extern const Gpio rvc_r_pin;
-extern const Gpio rvc_g_pin;
-extern const Gpio rvc_b_pin;
+extern const Gpio vc_r_pin;
+extern const Gpio vc_g_pin;
+extern const Gpio vc_b_pin;
 
 extern const Gpio rsm_r_pin;
 extern const Gpio rsm_g_pin;

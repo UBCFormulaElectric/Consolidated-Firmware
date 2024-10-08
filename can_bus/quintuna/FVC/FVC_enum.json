@@ -1,7 +1,0 @@
-{
-    "FVCState": {
-        "FVC_INIT_STATE": 0,
-        "FVC_INVERTER_ON_STATE": 1,
-        "FVC_DRIVE_STATE": 2
-    }
-}

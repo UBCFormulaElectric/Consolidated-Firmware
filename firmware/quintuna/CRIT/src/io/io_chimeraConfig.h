@@ -7,7 +7,7 @@
 
 const hw::Gpio *id_to_gpio(uint32_t net_name)
 {
-    switch ((CRIT_GpioNetName)net_name)
+    switch (static_cast<CRIT_GpioNetName>(net_name))
     {
         CASERETURN(CRIT_GpioNetName_TORQUE_VECTORING_LED, &hw::gpio::torquevec_led_pin);
         CASERETURN(CRIT_GpioNetName_START_LED, &hw::gpio::start_led_pin);
@@ -21,9 +21,9 @@ const hw::Gpio *id_to_gpio(uint32_t net_name)
         CASERETURN(CRIT_GpioNetName_BSPD_R, &hw::gpio::bspd_r_pin);
         CASERETURN(CRIT_GpioNetName_SHDN_R, &hw::gpio::shdn_r_pin);
         CASERETURN(CRIT_GpioNetName_RSM_B, &hw::gpio::rsm_b_pin);
-        CASERETURN(CRIT_GpioNetName_VC_R, &hw::gpio::rvc_r_pin);
-        CASERETURN(CRIT_GpioNetName_VC_B, &hw::gpio::rvc_b_pin);
-        CASERETURN(CRIT_GpioNetName_FSM_R, &hw::gpio::fvc_r_pin);
+        CASERETURN(CRIT_GpioNetName_VC_R, &hw::gpio::vc_r_pin);
+        CASERETURN(CRIT_GpioNetName_VC_B, &hw::gpio::vc_b_pin);
+        CASERETURN(CRIT_GpioNetName_FSM_R, &hw::gpio::fsm_r_pin);
         CASERETURN(CRIT_GpioNetName_BMS_R, &hw::gpio::bms_r_pin);
         CASERETURN(CRIT_GpioNetName_BMS_G, &hw::gpio::bms_g_pin);
         CASERETURN(CRIT_GpioNetName_BMS_B, &hw::gpio::bms_b_pin);
@@ -31,11 +31,11 @@ const hw::Gpio *id_to_gpio(uint32_t net_name)
         CASERETURN(CRIT_GpioNetName_NDRIVE_MODE_1b, &hw::gpio::n_drive_mode_1_pin);
         CASERETURN(CRIT_GpioNetName_IMD_R, &hw::gpio::imd_r_pin);
         CASERETURN(CRIT_GpioNetName_INERTIA_SEN, &hw::gpio::inertia_sen_pin);
-        CASERETURN(CRIT_GpioNetName_FSM_G, &hw::gpio::fvc_g_pin);
-        CASERETURN(CRIT_GpioNetName_FSM_B, &hw::gpio::fvc_b_pin);
+        CASERETURN(CRIT_GpioNetName_FSM_G, &hw::gpio::fsm_g_pin);
+        CASERETURN(CRIT_GpioNetName_FSM_B, &hw::gpio::fsm_b_pin);
         CASERETURN(CRIT_GpioNetName_RSM_R, &hw::gpio::rsm_r_pin);
         CASERETURN(CRIT_GpioNetName_RSM_G, &hw::gpio::rsm_g_pin);
-        CASERETURN(CRIT_GpioNetName_VC_G, &hw::gpio::rvc_g_pin);
+        CASERETURN(CRIT_GpioNetName_VC_G, &hw::gpio::vc_g_pin);
         CASERETURN(CRIT_GpioNetName_SHDN_G, &hw::gpio::shdn_g_pin);
         CASERETURN(CRIT_GpioNetName_NDRIVE_MODE_2b, &hw::gpio::n_drive_mode_2_pin);
         CASERETURN(CRIT_GpioNetName_NDRIVE_MODE_3b, &hw::gpio::n_drive_mode_3_pin);
@@ -54,7 +54,7 @@ const hw::Gpio *id_to_gpio(uint32_t net_name)
 
 const hw::Adc *id_to_adc(uint32_t net_name)
 {
-    switch ((CRIT_AdcNetName)net_name)
+    switch (static_cast<CRIT_AdcNetName>(net_name))
     {
         CASERETURN(CRIT_AdcNetName_REGEN_3V3, &hw::adc::regen_3v3_adc);
         default:

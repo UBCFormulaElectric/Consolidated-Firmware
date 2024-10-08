@@ -1,8 +1,8 @@
 {
-    "RVCState": {
-        "RVC_INIT_STATE": 0,
-        "RVC_INVERTER_ON_STATE": 1,
-        "RVC_DRIVE_STATE": 2
+    "VCState": {
+        "VC_INIT_STATE": 0,
+        "VC_INVERTER_ON_STATE": 1,
+        "VC_DRIVE_STATE": 2
     },
     "ShutdownNode": {
         "SHDN_BSPD_OK": 0,
