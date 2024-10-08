@@ -26,8 +26,8 @@ static bool prev_start_switch_pos;
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
-    app_canTx_VC_LeftInverterEnable_set(false);
-    app_canTx_VC_RightInverterEnable_set(false);
+    app_canTx_VC_LeftInverterEnable_set(true);
+    app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
@@ -53,7 +53,7 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool hv_support_lost =
         app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
 
-    if (hv_support_lost)
+    if (hv_support_lost || inverter_has_fault)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
