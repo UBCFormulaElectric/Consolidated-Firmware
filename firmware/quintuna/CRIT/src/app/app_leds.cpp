@@ -93,8 +93,8 @@ void update()
     io::leds::torquevec_led.set(app_canRx_VC_TorqueVectoringEnabled_get());
 
     // or driven by BMS_drive_state???
-    io::leds::shutdown_status_led.set(board_status_to_rgb(
-        app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? BoardLEDStatus::OK : BoardLEDStatus::FAULT));
+    io::leds::shutdown_status_led.set(
+        board_status_to_rgb(app_canRx_VC_FirstFaultNode_get() == SHDN_OK ? BoardLEDStatus::OK : BoardLEDStatus::FAULT));
 
     io::leds::bms_status_led.set(board_status_to_rgb(worstBoardStatus(BMS_ALERT_BOARD)));
     io::leds::fsm_status_led.set(board_status_to_rgb(worstBoardStatus(FSM_ALERT_BOARD)));
