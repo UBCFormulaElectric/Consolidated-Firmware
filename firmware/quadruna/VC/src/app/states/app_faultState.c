@@ -26,7 +26,7 @@ static void faultStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_FAULT_STATE);
     app_powerManager_updateConfig(power_manager_fault);
-    app_canAlerts_VC_Fault_StateMachine_set(true);
+    app_canTx_VC_Fault_StateMachine_set(true);
 
     // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
@@ -61,7 +61,7 @@ static void faultStateRunOnTick100Hz(void)
 
 static void faultStateRunOnExit(void)
 {
-    app_canAlerts_VC_Fault_StateMachine_set(false);
+    app_canTx_VC_Fault_StateMachine_set(false);
 }
 
 const State *app_faultState_get(void)

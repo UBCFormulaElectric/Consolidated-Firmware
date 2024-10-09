@@ -65,7 +65,7 @@ static void pcmStateRunOnTick100Hz(void)
     {
         io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
         power_manager_pcm.efuses[EFUSE_CHANNEL_INV_L] = true;
-        app_canTx_VC_isAirMinusClosed_set(true);
+        app_canTx_VC_isPrechargeReady_set(true);
     }
 
     if (all_states_ok && bms_in_drive && is_pcm_good)

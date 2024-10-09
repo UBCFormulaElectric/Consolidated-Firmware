@@ -772,12 +772,12 @@
             }
         }
     },
-    "EnablePrecharge": {
+    "InitiatePrecharge": {
         "msg_id": 231,
         "cycle_time": null,
         "description": "Signal to BMS to go into precharge",
         "signals": {
-            "isAirMinusClosed" :{
+            "isPrechargeReady" :{
                 "bits": 1
             }
         }
