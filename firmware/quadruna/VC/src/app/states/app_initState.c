@@ -57,10 +57,10 @@ static void initStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool air_minus_closed = app_canRx_BMS_AirMinus_get();
-    const bool bms_in_drive     = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool air_negative_closed = app_canRx_BMS_AirNegative_get();
+    const bool bms_in_drive        = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (all_states_ok && air_minus_closed && !bms_in_drive)
+    if (all_states_ok && air_negative_closed && !bms_in_drive)
     {
         app_stateMachine_setNextState(app_pcmState_get());
     }

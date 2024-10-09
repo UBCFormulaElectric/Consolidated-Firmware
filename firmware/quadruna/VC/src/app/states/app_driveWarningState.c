@@ -2,14 +2,12 @@
 #include "app_driveState.h"
 
 #include "app_utils.h"
-
-#include "io_airs.h"
-#include "io_faultLatch.h"
-#include "io_airs.h"
+#include "app_canAlerts.h"
+#include "app_canTx.h"
 
 static void driveWarningStateRunOnEntry(void)
 {
-    app_canTx_BMS_State_set(VC_DRIVE_WARNING_STATE);
+    app_canTx_VC_State_set(VC_DRIVE_WARNING_STATE);
     app_canAlerts_VC_Fault_StateMachine_set(true);
 
     app_canTx_VC_LeftInverterEnable_set(true);
@@ -49,7 +47,7 @@ static void driveWarningStateRunOnTick100Hz(void)
 
 static void driveWarningStateRunOnExit(void)
 {
-    app_canAlerts_BMS_Fault_StateMachine_set(false);
+    app_canAlerts_VC_Fault_StateMachine_set(false);
 }
 
 const State *app_driveWarningState_get()
