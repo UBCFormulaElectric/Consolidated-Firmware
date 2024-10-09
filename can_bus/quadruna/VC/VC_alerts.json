@@ -110,6 +110,10 @@
             "disabled": true,
             "id" :561,
             "description" : "Ensure mode is Nominal mode for EKF data used"
-        }  
+        },
+        "StateMachine": {
+            "id": 562,
+            "description": "VC has transitioned to fault state."
+        }
     }
 }

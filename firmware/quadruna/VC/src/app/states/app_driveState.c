@@ -3,7 +3,7 @@
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
-#include "states/app_inverterOnState.h"
+#include "states/app_hvState.h"
 
 #ifdef TARGET_EMBEDDED
 #include "io_canTx.h"
@@ -26,7 +26,7 @@ static bool         torque_vectoring_switch_is_on;
 static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
-static const PowerStateConfig power_manager_drive_init = {
+static const PowerStateConfig power_manager_drive = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
@@ -73,7 +73,7 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateConfig(power_manager_drive_init);
+    app_powerManager_updateConfig(power_manager_drive);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
@@ -107,19 +107,15 @@ static void driveStateRunOnTick100Hz(void)
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
     const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
 
-    const bool start_switch_off = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool hv_support_lost =
-        app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
-    bool bms_left_drive_active =
-        app_canRx_BMS_State_get() == BMS_INVERTER_ON_STATE || app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
-
-    bool exit_drive_to_init        = hv_support_lost;
-    bool exit_drive_to_inverter_on = !all_states_ok || start_switch_off || bms_left_drive_active;
-    bool prev_regen_switch_val     = regen_switch_is_on;
-    torque_vectoring_switch_is_on  = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
-    regen_switch_is_on             = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-    bool turn_regen_led            = regen_switch_is_on && !prev_regen_switch_val;
-    bool turn_tv_led               = torque_vectoring_switch_is_on;
+    const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init    = bms_not_in_drive;
+    bool       exit_drive_to_hv      = !all_states_ok || start_switch_off;
+    bool       prev_regen_switch_val = regen_switch_is_on;
+    torque_vectoring_switch_is_on    = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    bool turn_regen_led              = regen_switch_is_on && !prev_regen_switch_val;
+    bool turn_tv_led                 = torque_vectoring_switch_is_on;
 
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
@@ -139,9 +135,9 @@ static void driveStateRunOnTick100Hz(void)
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
-    else if (exit_drive_to_inverter_on)
+    else if (exit_drive_to_hv)
     {
-        app_stateMachine_setNextState(app_inverterOnState_get());
+        app_stateMachine_setNextState(app_hvState_get());
         return;
     }
 

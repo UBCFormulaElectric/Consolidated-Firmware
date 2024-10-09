@@ -1,8 +1,12 @@
 {
   "VcState": {
     "VC_INIT_STATE": 0,
-    "VC_INVERTER_ON_STATE": 1,
-    "VC_DRIVE_STATE": 2
+    "VC_PCM_STATE": 1,
+    "VC_HV_INIT_STATE": 2,
+    "VC_HV_STATE": 3,
+    "VC_DRIVE_STATE": 4,
+    "VC_DRIVE_WARNING_STATE": 5,
+    "VC_FAULT_STATE": 6
   },
 
   "VcSbgStatus": {

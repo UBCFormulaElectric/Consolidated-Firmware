@@ -1,19 +1,22 @@
-#include "states/app_driveState.h"
-#include "states/app_initState.h"
-#include "app_powerManager.h"
+#include "app_hvState.h"
+#include "app_allStates.h"
+#include "app_driveState.h"
+#include "app_faultState.h"
+
+#include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_utils.h"
-#include "app_faultCheck.h"
-#include <stddef.h>
-#include "io_log.h"
 
-static PowerStateConfig power_manager_inverter_init = {
+#include "app_powerManager.h"
+#include "app_pumpControl.h"
+#include "app_faultCheck.h"
+
+static PowerStateConfig power_manager_hv = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
         [EFUSE_CHANNEL_PUMP] = true,
-        [EFUSE_CHANNEL_AUX] = false,
+        [EFUSE_CHANNEL_AUX] = true,
         [EFUSE_CHANNEL_INV_R] = true,
         [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
@@ -23,23 +26,32 @@ static PowerStateConfig power_manager_inverter_init = {
 
 static bool prev_start_switch_pos;
 
-static void inverterOnStateRunOnEntry(void)
+static void hvStateRunOnEntry(void)
 {
+    app_canTx_VC_State_set(VC_HV_STATE);
+    app_powerManager_updateConfig(power_manager_hv);
+
+    // Disable inverters and apply zero torque upon entering init state
     app_canTx_VC_LeftInverterEnable_set(false);
     app_canTx_VC_RightInverterEnable_set(false);
-    app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
-    app_powerManager_updateConfig(power_manager_inverter_init);
+    app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
+    app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
 
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
     prev_start_switch_pos = true;
 }
 
-static void inverterOnStateRunOnTick100Hz(void)
+static void hvStateRunOnTick1Hz(void)
+{
+    app_allStates_runOnTick1Hz();
+}
+
+static void hvStateRunOnTick100Hz(void)
 {
     const bool any_board_has_fault = app_faultCheck_checkBoards();
     const bool inverter_has_fault  = app_faultCheck_checkInverters();
@@ -50,35 +62,31 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool is_brake_actuated        = app_canRx_FSM_BrakeActuated_get();
 
     const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool hv_support_lost =
-        app_canRx_BMS_State_get() == BMS_INIT_STATE || app_canRx_BMS_State_get() == BMS_FAULT_STATE;
+    const bool bms_in_drive        = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    app_canTx_VC_LeftInverterEnable_set(true);
-    app_canTx_VC_RightInverterEnable_set(true);
-
-    if (hv_support_lost || inverter_has_fault)
+    if (!bms_in_drive || inverter_has_fault)
     {
-        app_stateMachine_setNextState(app_initState_get());
+        app_stateMachine_setNextState(app_faultState_get());
     }
+
+    // Transition to drive state when start-up conditions are passed (see
+    // EV.10.4.3):
     else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
     {
-        // Transition to drive state when start-up conditions are passed (see
-        // EV.10.4.3):
         app_stateMachine_setNextState(app_driveState_get());
     }
 
     prev_start_switch_pos = curr_start_switch_on;
 }
 
-const State *app_inverterOnState_get(void)
+const State *app_hvState_get(void)
 {
-    static State inverter_on_state = {
-        .name              = "INVERTER_ON",
-        .run_on_entry      = inverterOnStateRunOnEntry,
-        .run_on_tick_1Hz   = NULL,
-        .run_on_tick_100Hz = inverterOnStateRunOnTick100Hz,
-        .run_on_exit       = NULL,
+    static State hv_state = {
+        .name              = "HV",
+        .run_on_entry      = hvStateRunOnEntry,
+        .run_on_tick_1Hz   = hvStateRunOnTick1Hz,
+        .run_on_tick_100Hz = hvStateRunOnTick100Hz,
     };
 
-    return &inverter_on_state;
+    return &hv_state;
 }
