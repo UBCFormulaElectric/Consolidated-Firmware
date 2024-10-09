@@ -3,6 +3,7 @@ import sys
 
 from src.can_database import CanDatabase
 from src.json_parsing.json_can_parsing import JsonCanParser
+from src.can_database import CanDatabase
 
 FRAME_BITS = 1 + 2 + 7  # SOF + ACK + EOF
 ID_BITS = 11
