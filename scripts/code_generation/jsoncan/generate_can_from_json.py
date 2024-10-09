@@ -6,6 +6,7 @@ TODO: Why do we need start values???
 
 import argparse
 import os
+from .calc_bus_load import report_bus_load
 from src.json_parsing.json_can_parsing import JsonCanParser
 from src.utils import write_text
 from src.codegen.dbc_generation.dbc_generation import DbcGenerator
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
 
+    report_bus_load(can_db, 500000)
     # Generate DBC file
     write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
     if args.only_dbc:
