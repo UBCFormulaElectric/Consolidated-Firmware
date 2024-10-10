@@ -8,7 +8,6 @@
 static void driveWarningStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_DRIVE_WARNING_STATE);
-    app_canAlerts_VC_Fault_StateMachine_set(true);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
@@ -45,11 +44,6 @@ static void driveWarningStateRunOnTick100Hz(void)
     }
 }
 
-static void driveWarningStateRunOnExit(void)
-{
-    app_canAlerts_VC_Fault_StateMachine_set(false);
-}
-
 const State *app_driveWarningState_get()
 {
     static State driveWarning_state = {
@@ -57,7 +51,6 @@ const State *app_driveWarningState_get()
         .run_on_entry      = driveWarningStateRunOnEntry,
         .run_on_tick_1Hz   = driveWarningStateRunOnTick1Hz,
         .run_on_tick_100Hz = driveWarningStateRunOnTick100Hz,
-        .run_on_exit       = driveWarningStateRunOnExit,
     };
 
     return &driveWarning_state;
