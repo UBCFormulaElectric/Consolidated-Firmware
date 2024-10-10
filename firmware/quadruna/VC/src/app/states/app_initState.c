@@ -1,6 +1,6 @@
 #include "app_initState.h"
 #include "app_allStates.h"
-#include "app_pcmState.h"
+#include "app_inverterOnState.h"
 
 #include "app_canUtils.h"
 #include "app_canTx.h"
@@ -54,15 +54,11 @@ static void initStateRunOnTick1Hz(void)
 static void initStateRunOnTick100Hz(void)
 {
     const bool any_board_has_fault = app_faultCheck_checkBoards();
-    const bool inverter_has_fault  = app_faultCheck_checkInverters();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
-
     const bool air_negative_closed = app_canRx_BMS_AirNegative_get();
-    const bool bms_in_drive        = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    if (all_states_ok && air_negative_closed && !bms_in_drive)
+    if (!any_board_has_fault && air_negative_closed)
     {
-        app_stateMachine_setNextState(app_pcmState_get());
+        app_stateMachine_setNextState(app_inverterOnState_get());
     }
 }
 

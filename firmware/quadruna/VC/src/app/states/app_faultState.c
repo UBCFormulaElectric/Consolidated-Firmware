@@ -9,6 +9,8 @@
 #include "app_powerManager.h"
 #include "app_faultCheck.h"
 
+// TODO: When should we be entering fault state?
+
 static const PowerStateConfig power_manager_fault = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
