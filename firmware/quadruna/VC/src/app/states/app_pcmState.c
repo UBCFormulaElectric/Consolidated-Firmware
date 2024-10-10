@@ -1,6 +1,7 @@
 #include "app_pcmState.h"
 #include "app_allStates.h"
 #include "app_hvInitState.h"
+#include "app_initState.h"
 
 #include "app_canUtils.h"
 #include "app_canTx.h"
@@ -55,6 +56,11 @@ static void pcmStateRunOnTick100Hz(void)
 
     // TODO: check if pcm is good (PCM > 18V)
     const bool is_pcm_good = true;
+
+    if (!bms_in_drive || inverter_has_fault)
+    {
+        app_stateMachine_setNextState(app_initState_get());
+    }
 
     if (all_states_ok && bms_in_drive && is_pcm_good)
     {
