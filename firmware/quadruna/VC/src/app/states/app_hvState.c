@@ -1,7 +1,7 @@
 #include "app_hvState.h"
 #include "app_allStates.h"
 #include "app_driveState.h"
-#include "app_faultState.h"
+#include "app_initState.h"
 
 #include "app_canUtils.h"
 #include "app_canTx.h"
@@ -32,8 +32,8 @@ static void hvStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_hv);
 
     // Disable inverters and apply zero torque upon entering init state
-    app_canTx_VC_LeftInverterEnable_set(false);
-    app_canTx_VC_RightInverterEnable_set(false);
+    app_canTx_VC_LeftInverterEnable_set(true);
+    app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
@@ -66,7 +66,7 @@ static void hvStateRunOnTick100Hz(void)
 
     if (!bms_in_drive || inverter_has_fault)
     {
-        app_stateMachine_setNextState(app_faultState_get());
+        app_stateMachine_setNextState(app_initState_get());
     }
 
     // Transition to drive state when start-up conditions are passed (see

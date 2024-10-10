@@ -16,8 +16,8 @@ static PowerStateConfig power_manager_pcm = {
         [EFUSE_CHANNEL_LV] = true,
         [EFUSE_CHANNEL_PUMP] = false,
         [EFUSE_CHANNEL_AUX] = false,
-        [EFUSE_CHANNEL_INV_R] = false,
-        [EFUSE_CHANNEL_INV_L] = false,
+        [EFUSE_CHANNEL_INV_R] = true,
+        [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
@@ -55,18 +55,6 @@ static void pcmStateRunOnTick100Hz(void)
 
     // TODO: check if pcm is good (PCM > 18V)
     const bool is_pcm_good = true;
-
-    if (!power_manager_pcm.efuses[EFUSE_CHANNEL_INV_R])
-    {
-        io_efuse_setChannel(EFUSE_CHANNEL_INV_R, true);
-        power_manager_pcm.efuses[EFUSE_CHANNEL_INV_R] = true;
-    }
-    else if (!power_manager_pcm.efuses[EFUSE_CHANNEL_INV_L])
-    {
-        io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
-        power_manager_pcm.efuses[EFUSE_CHANNEL_INV_L] = true;
-        app_canTx_VC_isPrechargeReady_set(true);
-    }
 
     if (all_states_ok && bms_in_drive && is_pcm_good)
     {
