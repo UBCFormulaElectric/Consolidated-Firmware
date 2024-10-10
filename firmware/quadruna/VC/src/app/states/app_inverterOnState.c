@@ -60,13 +60,11 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         io_efuse_setChannel(EFUSE_CHANNEL_INV_R, true);
         power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_R] = true;
-        app_canTx_VC_RightInverterEnable_set(true);
     }
     else if (!power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_L])
     {
         io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
         power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_L] = true;
-        app_canTx_VC_LeftInverterEnable_set(true);
     }
     else if (is_inv_on)
     {

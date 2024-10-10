@@ -35,12 +35,10 @@ static void driveWarningStateRunOnTick100Hz(void)
     const bool is_board_in_warning_state =
         vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning;
 
-    if (app_allStates_runOnTick100Hz())
+    app_allStates_runOnTick100Hz();
+    if (!is_board_in_warning_state)
     {
-        if (!is_board_in_warning_state)
-        {
-            app_stateMachine_setNextState(app_driveState_get());
-        }
+        app_stateMachine_setNextState(app_driveState_get());
     }
 }
 
