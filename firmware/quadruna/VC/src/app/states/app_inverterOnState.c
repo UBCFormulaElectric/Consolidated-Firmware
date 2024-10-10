@@ -52,9 +52,9 @@ static void inverterOnStateRunOnTick100Hz(void)
 
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    const bool is_invr_on = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
-    const bool is_invl_on = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
-    const bool is_inv_on  = is_invr_on && is_invl_on;
+    const bool is_invr_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
+    const bool is_invl_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
+    const bool is_inv_ready  = is_invr_ready && is_invl_ready;
 
     if (!power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_R])
     {
@@ -66,12 +66,12 @@ static void inverterOnStateRunOnTick100Hz(void)
         io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
         power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_L] = true;
     }
-    else if (is_inv_on)
+    else if (is_inv_ready)
     {
         app_canTx_VC_isPrechargeReady_set(true);
     }
 
-    if (all_states_ok && bms_in_drive && is_inv_on)
+    if (all_states_ok && bms_in_drive && is_inv_ready)
     {
         app_stateMachine_setNextState(app_pcmState_get());
     }
