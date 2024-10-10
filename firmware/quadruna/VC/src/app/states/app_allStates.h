@@ -7,11 +7,11 @@
  * On-tick 1Hz function for every state in the given state machine
  * @param state_machine The state machine to run on-tick function for
  */
-bool app_allStates_runOnTick1Hz(void);
+void app_allStates_runOnTick1Hz(void);
 
 /**
  * On-tick 100Hz function for every state in the given state machine
  * @param state_machine The state machine to run on-tick function for
  * @return True if the next state is not the fault state, otherwise false
  */
-bool app_allStates_runOnTick100Hz(void);
+void app_allStates_runOnTick100Hz(void);

@@ -31,7 +31,7 @@ static void hvStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_HV_STATE);
     app_powerManager_updateConfig(power_manager_hv);
 
-    // Disable inverters and apply zero torque upon entering init state
+    // Enable inverters and apply zero torque upon entering HV state
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);

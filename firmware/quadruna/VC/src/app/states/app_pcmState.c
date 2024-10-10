@@ -30,10 +30,11 @@ static void pcmStateRunOnEntry(void)
     app_powerManager_updateConfig(power_manager_pcm);
 
     // TODO: enable PCM
+    // io_pcm_set(true);
 
     // Disable inverters and apply zero torque upon entering pcm state
-    app_canTx_VC_LeftInverterEnable_set(false);
-    app_canTx_VC_RightInverterEnable_set(false);
+    app_canTx_VC_LeftInverterEnable_set(true);
+    app_canTx_VC_RightInverterEnable_set(true);
     app_canTx_VC_LeftInverterTorqueCommand_set(0.0f);
     app_canTx_VC_RightInverterTorqueCommand_set(0.0f);
     app_canTx_VC_LeftInverterTorqueLimit_set(0.0f);
