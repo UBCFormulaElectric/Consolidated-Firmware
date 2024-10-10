@@ -129,6 +129,12 @@ static void driveStateRunOnTick100Hz(void)
     //     app_stateMachine_setNextState(app_driveWarningState_get());
     // }
 
+    const bool vc_has_warning   = app_canAlerts_BoardHasWarning(VC_ALERT_BOARD);
+    const bool bms_has_warning  = app_canAlerts_BoardHasWarning(BMS_ALERT_BOARD);
+    const bool fsm_has_warning  = app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD);
+    const bool crit_has_warning = app_canAlerts_BoardHasWarning(CRIT_ALERT_BOARD);
+    const bool rsm_has_warning  = app_canAlerts_BoardHasWarning(RSM_ALERT_BOARD);
+
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
     {
@@ -144,6 +150,10 @@ static void driveStateRunOnTick100Hz(void)
 
     app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
 
+    if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
+    {
+        app_stateMachine_setNextState(app_driveWarningState_get());
+    }
     if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());
