@@ -18,10 +18,17 @@ extern "C"
 #include "app_stateMachine.h"
 #include "app_canUtils.h"
 #include "app_utils.h"
+
 #include "states/app_initState.h"
+#include "states/app_inverterOnState.h"
+#include "states/app_pcmState.h"
+#include "states/app_hvInitState.h"
+#include "states/app_hvState.h"
 #include "states/app_driveState.h"
 #include "states/app_allStates.h"
-#include "states/app_inverterOnState.h"
+#include "states/app_driveWarningState.h"
+#include "states/app_faultState.h"
+
 #include "app_powerManager.h"
 #include "app_efuse.h"
 #include "app_faultCheck.h"
@@ -59,6 +66,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
         fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
+
+        app_heartbeatMonitor_clearFaults();
     }
 
     void TearDown() override
@@ -92,6 +101,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
     {
         app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
         app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+        app_canRx_BMS_AirNegative_update(CONTACTOR_STATE_CLOSED);
         app_canRx_FSM_BrakeActuated_update(true);
         SetInitialState(app_driveState_get());
         app_heartbeatMonitor_clearFaults();

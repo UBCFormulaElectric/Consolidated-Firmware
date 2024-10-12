@@ -65,8 +65,7 @@ static void hvStateRunOnTick100Hz(void)
 
     app_allStates_runOnTick100Hz();
 
-    // TODO: go into fault or init state
-    if (!bms_in_drive || inverter_has_fault)
+    if (!bms_in_drive)
     {
         app_stateMachine_setNextState(app_initState_get());
     }

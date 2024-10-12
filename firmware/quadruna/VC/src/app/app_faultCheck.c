@@ -16,11 +16,10 @@ void app_faultCheck_init(void)
 bool app_faultCheck_checkBoards(void)
 {
     const bool bms_fault  = app_canAlerts_BoardHasFault(BMS_ALERT_BOARD);
-    const bool vc_fault   = app_canAlerts_BoardHasFault(VC_ALERT_BOARD);
     const bool fsm_fault  = app_canAlerts_BoardHasFault(FSM_ALERT_BOARD);
     const bool crit_fault = app_canAlerts_BoardHasFault(CRIT_ALERT_BOARD);
 
-    return (bms_fault || vc_fault || fsm_fault || crit_fault);
+    return (bms_fault || fsm_fault || crit_fault);
 }
 
 bool app_faultCheck_checkInverters()

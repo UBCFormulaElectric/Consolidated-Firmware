@@ -105,15 +105,10 @@ static void driveStateRunOnTick1Hz(void)
 
 static void driveStateRunOnTick100Hz(void)
 {
-    // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool any_board_has_fault = app_faultCheck_checkBoards();
-    const bool inverter_has_fault  = app_faultCheck_checkInverters();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
-
     const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
     const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
     bool       exit_drive_to_init    = bms_not_in_drive;
-    bool       exit_drive_to_hv      = !all_states_ok || start_switch_off;
+    bool       exit_drive_to_hv      = start_switch_off;
     bool       prev_regen_switch_val = regen_switch_is_on;
     torque_vectoring_switch_is_on    = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
     regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
