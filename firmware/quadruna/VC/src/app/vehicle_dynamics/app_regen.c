@@ -40,6 +40,7 @@ static void computeRegenTorqueRequest(
 static RegenBraking_Inputs       regenAttributes = { .enable_active_differential = true };
 static ActiveDifferential_Inputs activeDifferentialInputs;
 static PowerLimiting_Inputs      powerLimitingInputs = { .power_limit_kW = POWER_LIMIT_REGEN_kW };
+static bool                      regen_enabled       = true;
 
 void app_regen_init(void)
 {
@@ -76,11 +77,22 @@ bool app_regen_safetyCheck(RegenBraking_Inputs *regenAttr, ActiveDifferential_In
 
 static bool wheelSpeedInRange(ActiveDifferential_Inputs *inputs)
 {
+    // Hysterisis
     inputs->motor_speed_right_rpm = -(float)app_canRx_INVR_MotorSpeed_get();
     inputs->motor_speed_left_rpm  = (float)app_canRx_INVL_MotorSpeed_get();
 
-    return MOTOR_RPM_TO_KMH(inputs->motor_speed_right_rpm) > SPEED_MIN_kph &&
-           MOTOR_RPM_TO_KMH(inputs->motor_speed_left_rpm) > SPEED_MIN_kph;
+    float min_motor_speed = MOTOR_RPM_TO_KMH(MIN(inputs->motor_speed_right_rpm, inputs->motor_speed_left_rpm));
+
+    if (!regen_enabled && min_motor_speed > 7.0f)
+    {
+        regen_enabled = true;
+    }
+    else if (regen_enabled && min_motor_speed <= SPEED_MIN_kph)
+    {
+        regen_enabled = false;
+    }
+
+    return regen_enabled;
 }
 
 static bool batteryLevelInRange(RegenBraking_Inputs *regenAttr)
@@ -125,8 +137,6 @@ static void computeRegenTorqueRequest(
     PowerLimiting_Inputs      *powerInputs)
 {
     float pedal_percentage = activeDiffInputs->accelerator_pedal_percentage;
-    float min_motor_speed =
-        MOTOR_RPM_TO_KMH(MIN(activeDiffInputs->motor_speed_right_rpm, activeDiffInputs->motor_speed_left_rpm));
 
     powerInputs->accelerator_pedal_percent = -pedal_percentage; // power limiting function requires positive pedal value
     powerInputs->left_motor_temp_C         = app_canRx_INVL_MotorTemperature_get();
@@ -139,10 +149,10 @@ static void computeRegenTorqueRequest(
         regenAttr->derating_value = SOC_LIMIT_DERATING_VALUE;
     }
 
-    if (min_motor_speed <= 10.0f)
-    {
-        regenAttr->derating_value = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph);
-    }
+    // if (min_motor_speed <= 10.0f)
+    // {
+    //     regenAttr->derating_value = (min_motor_speed - SPEED_MIN_kph) / (SPEED_MIN_kph);
+    // }
 
     activeDiffInputs->power_max_kW    = app_powerLimiting_computeMaxPower(powerInputs);
     activeDiffInputs->wheel_angle_deg = app_canRx_FSM_SteeringAngle_get() * APPROX_STEERING_TO_WHEEL_ANGLE;
