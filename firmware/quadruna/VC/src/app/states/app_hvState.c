@@ -61,9 +61,11 @@ static void hvStateRunOnTick100Hz(void)
     const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
     const bool is_brake_actuated        = app_canRx_FSM_BrakeActuated_get();
 
-    const bool bms_ready_for_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    const bool bms_in_drive        = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
+    app_allStates_runOnTick100Hz();
+
+    // TODO: go into fault or init state
     if (!bms_in_drive || inverter_has_fault)
     {
         app_stateMachine_setNextState(app_initState_get());
@@ -71,7 +73,7 @@ static void hvStateRunOnTick100Hz(void)
 
     // Transition to drive state when start-up conditions are passed (see
     // EV.10.4.3):
-    else if (all_states_ok && bms_ready_for_drive && is_brake_actuated && was_start_switch_enabled)
+    else if (all_states_ok && bms_in_drive && is_brake_actuated && was_start_switch_enabled)
     {
         app_stateMachine_setNextState(app_driveState_get());
     }

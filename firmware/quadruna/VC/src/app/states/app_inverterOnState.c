@@ -56,6 +56,8 @@ static void inverterOnStateRunOnTick100Hz(void)
     const bool is_invl_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
     const bool is_inv_ready  = is_invr_ready && is_invl_ready;
 
+    app_allStates_runOnTick100Hz();
+
     if (!power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_R])
     {
         io_efuse_setChannel(EFUSE_CHANNEL_INV_R, true);
