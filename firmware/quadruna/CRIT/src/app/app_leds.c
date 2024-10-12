@@ -2,6 +2,7 @@
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "io_leds.h"
+#include "io_switches.h"
 
 static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 {
@@ -58,6 +59,11 @@ static BoardLEDStatus worstBoardStatus(CanAlertBoard board)
 
 void app_leds_update(void)
 {
+    //ADDING MY CODE HERE
+    const bool setare_task_led = io_switches_start_get();
+    io_setare_task_set(setare_task_led);
+    //END
+
     const bool imd_fault_latched = app_canRx_BMS_ImdLatchedFault_get();
     io_led_imd_set(imd_fault_latched);
     const bool bspd_fault_latched = app_canRx_BMS_BspdLatchedFault_get();

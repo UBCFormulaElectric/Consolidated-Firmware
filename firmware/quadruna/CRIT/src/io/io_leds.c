@@ -39,6 +39,13 @@ void io_led_torquevec_set(bool val)
     io_led_enable(leds->torquevec_led, val);
 }
 
+//ADDING MY FUNCTION HERE
+void io_setare_task_set(bool val)
+{
+    io_led_enable(leds->setare_task, val);
+}
+//END OF MY CODE
+
 void set_led_from_board_status(const RgbLed *led, const BoardLEDStatus status)
 {
     switch (status)

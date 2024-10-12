@@ -74,6 +74,14 @@ static const CanConfig can_config = { .rx_msg_filter              = io_canRx_fil
                                       .tx_overflow_clear_callback = canTxQueueOverflowClearCallback,
                                       .rx_overflow_clear_callback = canRxQueueOverflowClearCallback };
 
+//STEP 1
+//ADDING MY CODE HERE 
+static const BinaryLed setare_task      = { .gpio = {
+                                                .port = LED_GPIO_Port,
+                                                .pin = LED_Pin,
+                                   } };
+//END OF MY CODE
+
 static const BinaryLed imd_led       = { .gpio = {
                                              .port = IMD_R_GPIO_Port,
                                              .pin  = IMD_R_Pin,
@@ -213,7 +221,7 @@ static const RgbLed rsm_status_led = {
 };
 
 static const RgbLed crit_status_led = {
-    .red_gpio = {
+    .red_gpio = {    
         .port = CRIT_DB_R_GPIO_Port,
         .pin = CRIT_DB_R_Pin,
     },
@@ -254,14 +262,14 @@ static const Gpio aux_r_pin = { .port = AUX_DB_R_GPIO_Port, .pin = AUX_DB_R_Pin 
 static const Gpio aux_g_pin = { .port = AUX_DB_G_GPIO_Port, .pin = AUX_DB_G_Pin };
 static const Gpio aux_b_pin = { .port = AUX_DB_B_GPIO_Port, .pin = AUX_DB_B_Pin };
 
-static const Gpio crit_r_pin = { .port = CRIT_DB_R_GPIO_Port, .pin = CRIT_DB_R_Pin };
+static const Gpio crit_r_pin = { .port = CRIT_DB_R_GPIO_Port, .pin = CRIT_DB_R_Pin }; 
 static const Gpio crit_g_pin = { .port = CRIT_DB_G_GPIO_Port, .pin = CRIT_DB_G_Pin };
 static const Gpio crit_b_pin = { .port = CRIT_DB_B_GPIO_Port, .pin = CRIT_DB_B_Pin };
 
 static const Gpio start_led_pin            = { .port = START_LED_GPIO_Port, .pin = START_LED_Pin };
 static const Gpio torque_vectoring_led_pin = { .port = TORQUE_VECTORING_LED_GPIO_Port, .pin  = TORQUE_VECTORING_LED_Pin };
 static const Gpio regen_led_pin            = { .port = REGEN_LED_GPIO_Port, .pin = REGEN_LED_Pin };
-static const Gpio led_pin                  = { .port = LED_GPIO_Port, .pin = LED_Pin };
+static const Gpio led_pin                  = { .port = LED_GPIO_Port, .pin = LED_Pin }; //WRAPPER FOR MY LED IS HERE STEP 2 HERE
 
 static const Gpio start_sig_pin            = { .port = START_SIG_GPIO_Port, .pin = START_SIG_Pin };
 static const Gpio torque_vectoring_sig_pin = { .port = TORQUE_VECTORING_SIG_GPIO_Port, .pin  = TORQUE_VECTORING_SIG_Pin };
@@ -284,7 +292,7 @@ static const DriveMode drive_mode = { .n_drive_mode_0_pin = &n_drive_mode_0_pin,
                                       .n_drive_mode_3_pin = &n_drive_mode_3_pin };
 
 const Gpio *id_to_gpio[] = {
-    [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin,
+    [CRIT_GpioNetName_TORQUE_VECTORING_LED] = &torque_vectoring_led_pin, 
     [CRIT_GpioNetName_START_LED]            = &start_led_pin,
     [CRIT_GpioNetName_REGEN_LED]            = &regen_led_pin,
     [CRIT_GpioNetName_AUX_DB_R]             = &aux_r_pin,
@@ -318,7 +326,7 @@ const Gpio *id_to_gpio[] = {
     [CRIT_GpioNetName_NDRIVE_MODE_0b]       = &n_drive_mode_0_pin,
     [CRIT_GpioNetName_TORQUE_VECTORING_SIG] = &torque_vectoring_sig_pin,
     [CRIT_GpioNetName_REGEN_SIG]            = &regen_sig_pin,
-    [CRIT_GpioNetName_LED]                  = &led_pin,
+    [CRIT_GpioNetName_LED]                  = &led_pin, //THIS IS WHAT IM USING 
     [CRIT_GpioNetName_NPROGRAM_3V3]         = &n_program_pin,
     [CRIT_GpioNetName_START_SIG]            = &start_sig_pin,
     [CRIT_GpioNetName_NCHIMERA]             = &n_chimera_pin,
@@ -344,10 +352,13 @@ static const Leds led_config = {
     .fsm_status_led  = &fsm_status_led,
     .rsm_status_led  = &rsm_status_led,
     .vc_status_led   = &vc_status_led,
+    //adding code here
+    .setare_task     = &setare_task, //STEP 3 CONFIGURING THE LED in THE LEDS
+    //end of my code
 };
 
 static const Switches switch_config = {
-    .start_switch     = &start_switch,
+    .start_switch     = &start_switch, //this is the switch I wanna use 
     .regen_switch     = &regen_switch,
     .torquevec_switch = &torquevec_switch,
 };
