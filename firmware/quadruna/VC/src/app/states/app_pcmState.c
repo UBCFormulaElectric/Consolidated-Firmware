@@ -11,6 +11,8 @@
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
 
+#include "io_pcm.h"
+
 static PowerStateConfig power_manager_pcm = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
@@ -29,8 +31,9 @@ static void pcmStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_PCM_STATE);
     app_powerManager_updateConfig(power_manager_pcm);
 
-    // TODO: enable PCM
-    // io_pcm_set(true);
+    // Enable PCM if HV up
+    const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    io_pcm_set(bms_in_drive);
 
     // Disable inverters and apply zero torque upon entering pcm state
     app_canTx_VC_LeftInverterEnable_set(true);
@@ -57,6 +60,8 @@ static void pcmStateRunOnTick100Hz(void)
 
     // TODO: check if pcm is good (PCM > 18V)
     const bool is_pcm_good = true;
+
+    app_allStates_runOnTick100Hz();
 
     if (!bms_in_drive || inverter_has_fault)
     {

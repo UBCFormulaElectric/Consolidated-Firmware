@@ -120,11 +120,19 @@ static void driveStateRunOnTick100Hz(void)
     bool turn_regen_led              = regen_switch_is_on && !prev_regen_switch_val;
     bool turn_tv_led                 = torque_vectoring_switch_is_on;
 
-    const bool vc_has_warning   = app_canAlerts_BoardHasWarning(VC_ALERT_BOARD);
-    const bool bms_has_warning  = app_canAlerts_BoardHasWarning(BMS_ALERT_BOARD);
-    const bool fsm_has_warning  = app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD);
-    const bool crit_has_warning = app_canAlerts_BoardHasWarning(CRIT_ALERT_BOARD);
-    const bool rsm_has_warning  = app_canAlerts_BoardHasWarning(RSM_ALERT_BOARD);
+    app_allStates_runOnTick100Hz();
+
+    // TODO: Off for quadruna, since it is throwing too many warnings
+    // const bool vc_has_warning   = app_canAlerts_BoardHasWarning(VC_ALERT_BOARD);
+    // const bool bms_has_warning  = app_canAlerts_BoardHasWarning(BMS_ALERT_BOARD);
+    // const bool fsm_has_warning  = app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD);
+    // const bool crit_has_warning = app_canAlerts_BoardHasWarning(CRIT_ALERT_BOARD);
+    // const bool rsm_has_warning  = app_canAlerts_BoardHasWarning(RSM_ALERT_BOARD);
+
+    // if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
+    // {
+    //     app_stateMachine_setNextState(app_driveWarningState_get());
+    // }
 
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
@@ -141,10 +149,6 @@ static void driveStateRunOnTick100Hz(void)
 
     app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
 
-    if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
-    {
-        app_stateMachine_setNextState(app_driveWarningState_get());
-    }
     if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());

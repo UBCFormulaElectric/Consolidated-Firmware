@@ -56,6 +56,8 @@ static void initStateRunOnTick100Hz(void)
     const bool any_board_has_fault = app_faultCheck_checkBoards();
     const bool air_negative_closed = app_canRx_BMS_AirNegative_get();
 
+    app_allStates_runOnTick100Hz();
+
     if (!any_board_has_fault && air_negative_closed)
     {
         app_stateMachine_setNextState(app_inverterOnState_get());
