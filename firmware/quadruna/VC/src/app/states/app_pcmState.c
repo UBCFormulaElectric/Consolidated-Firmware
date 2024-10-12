@@ -53,22 +53,18 @@ static void pcmStateRunOnTick1Hz(void)
 
 static void pcmStateRunOnTick100Hz(void)
 {
-    const bool any_board_has_fault = app_faultCheck_checkBoards();
-    const bool inverter_has_fault  = app_faultCheck_checkInverters();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
-    const bool bms_in_drive        = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
     // TODO: check if pcm is good (PCM > 18V)
     const bool is_pcm_good = true;
 
     app_allStates_runOnTick100Hz();
 
-    if (!bms_in_drive || inverter_has_fault)
+    if (!bms_in_drive)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
-
-    if (all_states_ok && bms_in_drive && is_pcm_good)
+    else if (is_pcm_good)
     {
         app_stateMachine_setNextState(app_hvInitState_get());
     }
