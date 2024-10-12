@@ -76,9 +76,6 @@ function(jsoncan_sources JSONCAN_PY_BOARD OUTPUT_DIR USE_IO CAR)
         set(CAN_INCLUDE_DIRS
                 ${OUTPUT_DIR}/app
                 ${OUTPUT_DIR}/io
-                ${SHARED_APP_INCLUDE_DIR}
-                ${SHARED_IO_INCLUDE_DIR}
-                ${SHARED_HW_INCLUDE_DIR}
                 PARENT_SCOPE
         )
     ELSE ()
