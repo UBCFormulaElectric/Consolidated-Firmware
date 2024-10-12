@@ -3,21 +3,6 @@
         "msg_id": 499,
         "cycle_time": 100,
         "signals": {
-            "VC_Hash": {
-                "bits": 32
-            },
-            "VC_Clean": {
-                "bits": 1
-            },
-            "VC_Status": {
-                "enum": "BootStatus"
-            }
-        }
-    },
-    "FVC": {
-        "msg_id": 599,
-        "cycle_time": 100,
-        "signals": {
             "BMS_Hash": {
                 "bits": 32
             },
@@ -29,23 +14,8 @@
             }
         }
     },
-    "RVC": {
-        "msg_id": 699,
-        "cycle_time": 100,
-        "signals": {
-            "RSM_Hash": {
-                "bits": 32
-            },
-            "RSM_Clean": {
-                "bits": 1
-            },
-            "RSM_Status": {
-                "enum": "BootStatus"
-            }
-        }
-    },
-    "RSM": {
-        "msg_id": 799,
+    "FSM": {
+        "msg_id": 599,
         "cycle_time": 100,
         "signals": {
             "FSM_Hash": {
@@ -59,7 +29,37 @@
             }
         }
     },
-    "CDIM": {
+    "VC": {
+        "msg_id": 699,
+        "cycle_time": 100,
+        "signals": {
+            "VC_Hash": {
+                "bits": 32
+            },
+            "VC_Clean": {
+                "bits": 1
+            },
+            "VC_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "RSM": {
+        "msg_id": 799,
+        "cycle_time": 100,
+        "signals": {
+            "RSM_Hash": {
+                "bits": 32
+            },
+            "RSM_Clean": {
+                "bits": 1
+            },
+            "RSM_Status": {
+                "enum": "BootStatus"
+            }
+        }
+    },
+    "CRIT": {
         "msg_id": 899,
         "cycle_time": 100,
         "signals": {
