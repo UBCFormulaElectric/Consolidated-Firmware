@@ -62,7 +62,7 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Pass to run in debug mode (logs to console).",
-    )
+    )   
     args = parser.parse_args()
 
     if args.debug:
@@ -147,3 +147,21 @@ if __name__ == "__main__":
 
         except KeyboardInterrupt:
             logger.info("Exiting")
+
+    elif args.mode == "mock":
+        if args.data_file is None:
+            raise RuntimeError("In 'mock' mode, you must specify the data file to read from")
+                              
+        test_thread = threading.Thread(
+            target=SignalUtil.read_messages,
+            daemon=True,
+        )
+       
+        try:
+            test_thread.start()
+        except KeyboardInterrupt:
+            logger.info("Exiting")
+
+            if test_thread is not None:
+                test_thread.join()
+            logger.info("Thread stopped")
