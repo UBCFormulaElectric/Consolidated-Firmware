@@ -29,13 +29,15 @@ TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_tu
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t1;
     float                             wheel_angle_t1          = 30.0;
     float                             wheel_speed_left_rpm_t1 = 135, wheel_speed_right_rpm_t1 = 135;
-    active_diff_inputs_t1 = { wheel_angle_t1, wheel_speed_left_rpm_t1, wheel_speed_right_rpm_t1, POWER_LIMIT_CAR_kW };
-    app_activeDifferential_computeTorque(&active_diff_inputs_t1, &actual_active_diff_outputs_t1);
+    // our torque based driving requires a requested torque into so we pass in torque_t1 as are requested torque
     float delta_t1  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t1)) / (2 * WHEELBASE_mm);
     float cl_t1     = 1 + delta_t1;
     float cr_t1     = 1 - delta_t1;
     float torque_t1 = (POWER_TO_TORQUE_CONVERSION_FACTOR * POWER_LIMIT_CAR_kW) /
                       (wheel_speed_left_rpm_t1 * cl_t1 + wheel_speed_right_rpm_t1 * cr_t1 + SMALL_EPSILON);
+    active_diff_inputs_t1 = { wheel_angle_t1, wheel_speed_left_rpm_t1, wheel_speed_right_rpm_t1, POWER_LIMIT_CAR_kW,
+                              torque_t1 };
+    app_activeDifferential_computeTorque(&active_diff_inputs_t1, &actual_active_diff_outputs_t1);
     float expected_torque_left_t1  = cl_t1 * torque_t1;
     float expected_torque_right_t1 = cr_t1 * torque_t1;
     float max_torque_t1            = fmaxf(expected_torque_left_t1, expected_torque_right_t1);
@@ -76,13 +78,15 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right
     float                             wheel_angle_t3          = 30.0;
     float                             wheel_speed_left_rpm_t3 = 135, wheel_speed_right_rpm_t3 = 135;
     float                             power_lim_t3 = 60.0;
-    active_diff_inputs_t3 = { wheel_angle_t3, wheel_speed_left_rpm_t3, wheel_speed_right_rpm_t3, power_lim_t3 };
-    app_activeDifferential_computeTorque(&active_diff_inputs_t3, &actual_active_diff_outputs_t3);
+    // our torque based driving requires a requested torque into so we pass in torque_t3 as are requested torque
     float delta_t3  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t3)) / (2 * WHEELBASE_mm);
     float cl_t3     = 1 + delta_t3;
     float cr_t3     = 1 - delta_t3;
     float torque_t3 = (POWER_TO_TORQUE_CONVERSION_FACTOR * power_lim_t3) /
                       (wheel_speed_left_rpm_t3 * cl_t3 + wheel_speed_right_rpm_t3 * cr_t3 + SMALL_EPSILON);
+    active_diff_inputs_t3 = { wheel_angle_t3, wheel_speed_left_rpm_t3, wheel_speed_right_rpm_t3, power_lim_t3,
+                              torque_t3 };
+    app_activeDifferential_computeTorque(&active_diff_inputs_t3, &actual_active_diff_outputs_t3);
     float expected_torque_left_t3  = cl_t3 * torque_t3;
     float expected_torque_right_t3 = cr_t3 * torque_t3;
     float max_torque_t3            = fmaxf(expected_torque_left_t3, expected_torque_right_t3);
@@ -106,13 +110,15 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_left_
     float                             wheel_angle_t4          = -30.0;
     float                             wheel_speed_left_rpm_t4 = 135, wheel_speed_right_rpm_t4 = 135;
     float                             power_lim_t4 = 60.0;
-    active_diff_inputs_t4 = { wheel_angle_t4, wheel_speed_left_rpm_t4, wheel_speed_right_rpm_t4, power_lim_t4 };
-    app_activeDifferential_computeTorque(&active_diff_inputs_t4, &actual_active_diff_outputs_t4);
+    // our torque based driving requires a requested torque into so we pass in torque_t4 as are requested torque
     float delta_t4  = TRACK_WIDTH_mm * tanf(DEG_TO_RAD(wheel_angle_t4)) / (2 * WHEELBASE_mm);
     float cl_t4     = 1 + delta_t4;
     float cr_t4     = 1 - delta_t4;
     float torque_t4 = (POWER_TO_TORQUE_CONVERSION_FACTOR * power_lim_t4) /
                       (wheel_speed_left_rpm_t4 * cl_t4 + wheel_speed_right_rpm_t4 * cr_t4 + SMALL_EPSILON);
+    active_diff_inputs_t4 = { wheel_angle_t4, wheel_speed_left_rpm_t4, wheel_speed_right_rpm_t4, power_lim_t4,
+                              torque_t4 };
+    app_activeDifferential_computeTorque(&active_diff_inputs_t4, &actual_active_diff_outputs_t4);
     float expected_torque_left_t4  = cl_t4 * torque_t4;
     float expected_torque_right_t4 = cr_t4 * torque_t4;
     float max_torque_t4            = fmaxf(expected_torque_left_t4, expected_torque_right_t4);
