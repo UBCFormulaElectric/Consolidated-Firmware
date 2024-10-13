@@ -466,6 +466,15 @@ _Noreturn void tasks_run100Hz(void)
         app_stateMachine_tick100Hz();
         io_canTx_enqueue100HzMsgs();
 
+        bool regen_switch_on = io_switches_regen_get();
+        if (regen_switch_on) {
+            const float steering_angle = app_canRx_FSM_SteeringAngle_get();
+            // do something with steering_angle received from FSM over CAN
+            // canRx function created with new JSONCAN
+        }
+        bool is_regen_on = app_canTx_CRIT_RegenSwitchState_get();
+        // this is the canTx function created with new JSONCAN (one already exists but just for practice)
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         hw_watchdog_checkIn(watchdog);

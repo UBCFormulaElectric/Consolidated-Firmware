@@ -79,5 +79,15 @@
                 "bits": 1
             }
         }
+    },
+    "RegenSwitch": {
+        "msg_id": 508,
+        "cycle_time": 50,
+        "description": "Faster regen switch state",
+        "signals": {
+            "RegenSwitchState": {
+                "enum": "SwitchState"
+            }
+        }
     }
 }

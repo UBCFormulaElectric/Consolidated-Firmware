@@ -8,6 +8,7 @@
         "BMS_OkStatuses",
         "VC_VehicleDynamics",
         "VC_GlobalShdnNodeStatus",
-        "Debug_CanMode"
+        "Debug_CanMode",
+        "FSM_Steering"
     ]
 }
