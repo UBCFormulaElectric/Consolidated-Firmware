@@ -152,20 +152,19 @@ if __name__ == "__main__":
             raise RuntimeError("In 'mock' mode, you must specify the data file to read from")
 
         SignalUtil.setup(app=app, data_file=args.data_file)
-        SignalUtil.read_messages_from_file()
 
-        # test_thread = threading.Thread(
-        #     target=SignalUtil.read_messages_from_file,
-        #     daemon=True,
-        #     # Initialize the Socket.IO app with the main app.
+        test_thread = threading.Thread(
+            target=SignalUtil.read_messages_from_file,
+            daemon=True,
            
-        # )
-        # try:
-        #     test_thread.start()
-        #     app.run(debug=False, host="0.0.0.0")
-        # except KeyboardInterrupt:
-        #     logger.info("Exiting")
+        )
+        try:
+            test_thread.start()
+            # Initialize the Socket.IO app with the main app.
+            app.run(debug=False, host="0.0.0.0")
+        except KeyboardInterrupt:
+            logger.info("Exiting")
 
-        #     if test_thread is not None:
-        #         test_thread.join()
-        #     logger.info("Thread stopped")
+            if test_thread is not None:
+                test_thread.join()
+            logger.info("Thread stopped")
