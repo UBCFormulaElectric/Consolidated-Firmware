@@ -771,5 +771,15 @@
                 "unit": "%"
             }
         }
+    },
+    "InitiatePrecharge": {
+        "msg_id": 231,
+        "cycle_time": null,
+        "description": "Signal to BMS to go into precharge",
+        "signals": {
+            "isPrechargeReady" :{
+                "bits": 1
+            }
+        }
     }
 }
