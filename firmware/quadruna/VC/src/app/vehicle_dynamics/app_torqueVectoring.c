@@ -39,7 +39,6 @@ static float current_consumption;
 static float left_motor_temp_C;
 static float right_motor_temp_C;
 static float steering_angle_deg;
-static float min_pedal_power_request;
 
 void app_torqueVectoring_init(void)
 {
