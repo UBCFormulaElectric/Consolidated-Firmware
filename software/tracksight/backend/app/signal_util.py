@@ -47,13 +47,17 @@ class SignalUtil:
 
 
     @classmethod
-    def setup(cls, port: str, app, data_file = None ):
-        cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
-        cls.ser.reset_input_buffer()
-        cls.ser.reset_output_buffer()
+    def setup(cls, port: str=None, app=None, data_file=None):
+        if(port):
+            cls.ser = serial.Serial(port=port, baudrate=57600, timeout=1)
+            cls.ser.reset_input_buffer()
+            cls.ser.reset_output_buffer()
+        else:
+            print("Running in mock mode, no port required.")
+
         cls.is_setup = True
         cls.app = app
-        cls.data_file
+        cls.data_file = data_file
 
         cls.can_db = JsonCanParser(bus_path).make_database()
 
@@ -153,7 +157,7 @@ class SignalUtil:
             cls.ser.close()
 
     @classmethod
-    def read_messages_from_file(cls, data_file_path):
+    def read_messages_from_file(cls):
         """
         Read messages from a file to simulate receiving from port. Used for testing front end
         """
@@ -162,14 +166,26 @@ class SignalUtil:
         
         try:
             # Read the CSV file into a DataFrame
-            df = pd.read_csv(data_file_path)
+            df = pd.read_csv(cls.data_file)
 
             # Iterate over each row (simulate message reception over time)
             for index, row in df.iterrows():
-                #Read the time, CanID, and Data
+                    # Read the time, CanID, and Data
+                    time_stamp = row['Time Stamp']
+                    can_id = int(row['Can ID'])
+                    data = int(row['Data'])
+
+                    # Simulating message_received object
+                    class MessageReceived:
+                        def __init__(self, time_stamp, can_id, data):
+                            self.time_stamp = time_stamp
+                            self.can_id = can_id
+                            self.data = data
                     
+                    # Create message_received instance
+                    message_received = MessageReceived(time_stamp, can_id, data)
                     # Make data array out of ints
-                    data_array = cls.make_bytes(message_received.data)
+                    data_array = bytearray(message_received.data)
 
                     # Unpack the data and add the id and meta data
                     signal_list = cls.can_db.unpack(message_received.can_id, data_array)
@@ -216,12 +232,7 @@ class SignalUtil:
                             time.sleep(1)
 
         except Exception as e:
-            logger.error("Error receiving/sending proto msg:", e)
-
-
-
-                
-
+            logger.error("Error:", e)
 
     @classmethod    
     def make_bytes(cls, message):
