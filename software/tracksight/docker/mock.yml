@@ -1,0 +1,11 @@
+name: tracksight-mock
+services:
+  influx:
+    extends:
+      file: common.yml
+      service: influx
+
+  frontend:
+    extends:
+      file: common.yml
+      service: frontend
