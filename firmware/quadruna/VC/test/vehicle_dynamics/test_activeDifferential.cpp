@@ -39,8 +39,9 @@ TEST_F(ActiveDifferentialTest, torques_do_not_exceed_motor_torque_limit_while_tu
     float torque_lim_t1 = (POWER_TO_TORQUE_CONVERSION_FACTOR * POWER_LIMIT_CAR_kW) /
                           (wheel_speed_left_rpm_t1 * cl_t1 + wheel_speed_right_rpm_t1 * cr_t1 + SMALL_EPSILON);
 
-    active_diff_inputs_t1 = { wheel_angle_t1, wheel_speed_left_rpm_t1, wheel_speed_right_rpm_t1, POWER_LIMIT_CAR_kW,
-                              .requested_torque = torque_t1 };
+    active_diff_inputs_t1 = {
+        wheel_angle_t1, wheel_speed_left_rpm_t1, wheel_speed_right_rpm_t1, POWER_LIMIT_CAR_kW, 0.0, torque_t1
+    };
 
     app_activeDifferential_computeTorque(&active_diff_inputs_t1, &actual_active_diff_outputs_t1);
     float expected_torque_left_t1  = cl_t1 * torque_t1;
@@ -82,8 +83,10 @@ TEST_F(ActiveDifferentialTest, no_torques_while_turning_at_zero_power_limit)
     struct ActiveDifferential_Outputs actual_active_diff_outputs_t2;
     float                             wheel_angle_t2          = 30.0;
     float                             wheel_speed_left_rpm_t2 = 135, wheel_speed_right_rpm_t2 = 135;
-    active_diff_inputs_t2                  = { wheel_angle_t2, wheel_speed_left_rpm_t2, wheel_speed_right_rpm_t2, 0.0 };
-    active_diff_inputs_t2.requested_torque = 0.6 * MAX_TORQUE_REQUEST_NM;
+    float                             pedal_percentage = 0.6;
+    float                             torque_t2        = pedal_percentage * MAX_TORQUE_REQUEST_NM;
+
+    active_diff_inputs_t2 = { wheel_angle_t2, wheel_speed_left_rpm_t2, wheel_speed_right_rpm_t2, 0.0, 0.0, torque_t2 };
     app_activeDifferential_computeTorque(&active_diff_inputs_t2, &actual_active_diff_outputs_t2);
     ASSERT_FLOAT_EQ(0.0, actual_active_diff_outputs_t2.torque_left_Nm);
     ASSERT_FLOAT_EQ(0.0, actual_active_diff_outputs_t2.torque_right_Nm);
@@ -106,8 +109,8 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_right
     float torque_lim_t3 = (POWER_TO_TORQUE_CONVERSION_FACTOR * power_lim_t3) /
                           (wheel_speed_left_rpm_t3 * cl_t3 + wheel_speed_right_rpm_t3 * cr_t3 + SMALL_EPSILON);
 
-    active_diff_inputs_t3 = { wheel_angle_t3, wheel_speed_left_rpm_t3, wheel_speed_right_rpm_t3, power_lim_t3,
-                              .requested_torque = torque_t3 };
+    active_diff_inputs_t3 = { wheel_angle_t3, wheel_speed_left_rpm_t3, wheel_speed_right_rpm_t3, power_lim_t3, 0.0,
+                              torque_t3 };
 
     app_activeDifferential_computeTorque(&active_diff_inputs_t3, &actual_active_diff_outputs_t3);
     float expected_torque_left_t3  = cl_t3 * torque_t3;
@@ -150,8 +153,8 @@ TEST_F(ActiveDifferentialTest, torques_follow_expected_ratio_while_turning_left_
     float torque_lim_t4 = (POWER_TO_TORQUE_CONVERSION_FACTOR * power_lim_t4) /
                           (wheel_speed_left_rpm_t4 * cl_t4 + wheel_speed_right_rpm_t4 * cr_t4 + SMALL_EPSILON);
 
-    active_diff_inputs_t4 = { wheel_angle_t4, wheel_speed_left_rpm_t4, wheel_speed_right_rpm_t4, power_lim_t4,
-                              .requested_torque = torque_t4 };
+    active_diff_inputs_t4 = { wheel_angle_t4, wheel_speed_left_rpm_t4, wheel_speed_right_rpm_t4, power_lim_t4, 0.0,
+                              torque_t4 };
 
     app_activeDifferential_computeTorque(&active_diff_inputs_t4, &actual_active_diff_outputs_t4);
     float expected_torque_left_t4  = cl_t4 * torque_t4;
