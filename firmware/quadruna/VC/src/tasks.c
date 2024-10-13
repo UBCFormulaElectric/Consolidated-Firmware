@@ -21,6 +21,7 @@
 #include "io_fileSystem.h"
 #include "io_cans.h"
 #include "io_canQueue.h"
+#include "io_bootloader.h"
 
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
@@ -37,6 +38,28 @@ void tasks_preInitWatchdog(void)
 {
     if (io_fileSystem_init() == FILE_OK)
         io_canLogging_init();
+}
+
+void tasks_JumpToApp(void)
+{
+    // TODO: Potentially stop before deinit
+
+    // De-init all peripherals
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_Stop_IT(&hadc3);
+    HAL_ADC_DeInit(&hadc1);
+    HAL_ADC_DeInit(&hadc3);
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_Abort_IT(&huart2);
+    HAL_UART_Abort_IT(&huart3);
+    HAL_UART_Abort_IT(&huart7);
+    HAL_UART_DeInit(&huart1);
+    HAL_UART_DeInit(&huart2);
+    HAL_UART_DeInit(&huart3);
+    HAL_UART_DeInit(&huart7);
+
+    io_boot_JumpToBootCode();
 }
 
 void tasks_init(void)
@@ -167,6 +190,27 @@ _Noreturn void tasks_runTelem(void)
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
+    }
+}
+
+_Noreturn void tasks_runCanRx(void)
+{
+    io_chimera_sleepTaskIfEnabled();
+
+    for (;;)
+    {
+        CanMsg rx_msg;
+        io_can_popRxMsgFromQueue(&rx_msg);
+        io_telemMessage_pushMsgtoQueue(&rx_msg);
+
+        if (rx_msg->std_id == BOOT_CAN_START)
+        {
+            tasks_JumpToApp(void);
+        }
+
+        JsonCanMsg jsoncan_rx_msg;
+        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 

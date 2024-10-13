@@ -9,4 +9,8 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"stdbool.h": "c",
+		"hw_watchdogconfig.h": "c"
+	},
 }
