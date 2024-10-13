@@ -1,4 +1,5 @@
 #include "io_bootloader.h"
+#include "task.h"
 #include <stdint.h>
 #include <string.h>
 #include "cmsis_gcc.h"
@@ -88,9 +89,10 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 // }
 
 
-void io_boot_JumpToBootCode()
+void io_boot_JumpToBootCode(void)
 {
     //recieve message from CANUP script to jump to bootloader
 
     //need to deintialize all the peripherals in which we configured in main.c
+    modifyStackPointerAndStartApp(&__boot_code_start__);
 }
