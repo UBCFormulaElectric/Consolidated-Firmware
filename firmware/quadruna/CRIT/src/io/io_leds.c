@@ -24,6 +24,11 @@ void io_led_ams_set(bool val)
     io_led_enable(leds->ams_led, val);
 }
 
+void io_led_debug_set(bool val)
+{
+    io_led_enable(leds->debug_led, val);
+}
+
 void io_led_start_set(bool val)
 {
     io_led_enable(leds->start_led, val);
