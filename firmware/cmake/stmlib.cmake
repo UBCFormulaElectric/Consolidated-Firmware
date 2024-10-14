@@ -133,21 +133,40 @@ function(stm32h733xx_cube_library
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
+    set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
-            "${HAL_CONF_DIR}"
-            "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
-            "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
-            "${FREERTOS_DIR}/include"
-            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
-            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
-            "${DRIVERS_DIR}/CMSIS/Include"
-            # SEGGER SystemView includes.
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
-            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+        "${HAL_CONF_DIR}"
+        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
+        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
+        "${FREERTOS_DIR}/include"
+        "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+        "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+        "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
+        "${DRIVERS_DIR}/CMSIS/Include"
+        
+        "${USB_MIDDLEWARE_DIR}/Core/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/AUDIO/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/BillBoard/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CCID/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_ECM/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_RNDIS/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CompositeBuilder/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/CustomHID/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/DFU/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/HID/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/MSC/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/MTP/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/Printer/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/Template/Inc"
+        "${USB_MIDDLEWARE_DIR}/Class/VIDEO/Inc"
+
+        # SEGGER SystemView includes.
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
     # HAL sources.
     set(STM32_HAL_SRCS)
@@ -161,6 +180,27 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+    )
+
+    # USB sources.
+    file(GLOB USB_SRCS
+        "${USB_MIDDLEWARE_DIR}/Core/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/AUDIO/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/BillBoard/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CCID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_ECM/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_RNDIS/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CompositeBuilder/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CustomHID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/DFU/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/HID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/MSC/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/MTP/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/Printer/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/Template/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/VIDEO/Src/*.c"
     )
 
     # SEGGER SystemView sources.
@@ -177,7 +217,7 @@ function(stm32h733xx_cube_library
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${USB_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
     embedded_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
