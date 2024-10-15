@@ -67,7 +67,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-    stm32h733xx_cube_library(
+    stm32h733xx_cube_usb_library(
             "h7dev_stm32cube"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
