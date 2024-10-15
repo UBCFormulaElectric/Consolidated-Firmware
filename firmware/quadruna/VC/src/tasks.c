@@ -332,28 +332,6 @@ void tasks_preInitWatchdog(void)
     }
 }
 
-void tasks_JumpToApp(void)
-{
-    //TODO: Potentially stop before deinit
-
-    //De-init all peripherals
-    HAL_ADC_Stop_IT(&hadc1);
-    HAL_ADC_Stop_IT(&hadc3);
-    HAL_ADC_DeInit(&hadc1);
-    HAL_ADC_DeInit(&hadc3);
-    HAL_TIM_Base_Stop_IT(&htim3);
-    HAL_UART_Abort_IT(&huart1);
-    HAL_UART_Abort_IT(&huart2);
-    HAL_UART_Abort_IT(&huart3);
-    HAL_UART_Abort_IT(&huart7);
-    HAL_UART_DeInit(&huart1);
-    HAL_UART_DeInit(&huart2);
-    HAL_UART_DeInit(&huart3);
-    HAL_UART_DeInit(&huart7);
-    
-    io_boot_JumpToBootCode();
-}
-
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
