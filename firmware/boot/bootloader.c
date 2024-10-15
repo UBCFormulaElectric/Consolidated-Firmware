@@ -41,6 +41,12 @@ typedef enum
     BOOT_STATUS_NO_APP
 } BootStatus;
 
+typedef struct
+{
+    uint8_t seq_ack;
+    uint8_t body[7];
+} TCP_Packet;
+
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
@@ -213,9 +219,40 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            bootloader_boardSpecific_program(current_address, *(uint64_t *)command.data);
-            current_address += sizeof(uint64_t);
+            // TODO: reply with an ack with correct sequence
+            //
+            static uint32_t seq = 0;
+            TCP_Packet      packet;
+            packet.seq_ack = command.data[0];
+            uint8_t *data  = packet.body;
+
+            if (seq % 0xff == packet.seq_ack) // if currect seq, do program
+            {
+                // do program
+                bootloader_boardSpecific_program_length(current_address, data, 7);
+                // increment seq , reply the incremented seq.
+
+                current_address += 7;
+                uint8_t dataPacket[8];
+                memcpy(data, &seq, 4);
+
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 };
+                memcpy(reply.data, dataPacket, 4);
+                seq += 1;
+                io_can_pushTxMsgToQueue(&reply);
+            }
+            else
+            {
+                // reply current seq
+                uint8_t dataPacket[8];
+                memcpy(data, &seq, 4);
+
+                CanMsg reply = { .std_id = ACK_ID, .dlc = 4 };
+                memcpy(reply.data, dataPacket, 4);
+                io_can_pushTxMsgToQueue(&reply);
+            }
         }
+
         else if (command.std_id == VERIFY_ID && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
