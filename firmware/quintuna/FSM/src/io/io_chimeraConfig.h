@@ -9,8 +9,13 @@ const hw::Gpio *id_to_gpio(uint32_t net_name)
 {
     switch (static_cast<FSM_GpioNetName>(net_name))
     {
-        CASERETURN(FSM_GpioNetName_BRAKE_OCSC_OK_3V3, &hw::gpio::bake);
-        CASERETURN(FSM_GpioNetName_NCHIMERA, )
+        CASERETURN(FSM_GpioNetName_BRAKE_OCSC_OK_3V3, &hw::gpio::brake_ocsc_ok_3v3);
+        CASERETURN(FSM_GpioNetName_NCHIMERA, &hw::gpio::n_chimera_pin);
+        CASERETURN(FSM_GpioNetName_LED, &hw::gpio::led);
+        CASERETURN(FSM_GpioNetName_NBSPD_BRAKE_PRESSED_3V3, &hw::gpio::nbspsd_brake_pressed_3v3);
+        CASERETURN(FSM_GpioNetName_NPROGRAM_3V3, &hw::gpio::n_program_3v3);
+        CASERETURN(FSM_GpioNetName_FSM_SHDN, &hw::gpio::fsm_shdn);
+
         default:
             assert(false);
     }
