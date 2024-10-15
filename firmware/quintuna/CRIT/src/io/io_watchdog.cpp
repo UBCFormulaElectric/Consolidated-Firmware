@@ -8,6 +8,7 @@ namespace io{
 
         void watchdogInit(){
             //renabling watchdog
+            SEGGER_SYSVIEW_Conf(); //not sure if this one belongs here... but I think its part of teh init
             __HAL_DBGMCU_FREEZE_IWDG();
             hw_hardFaultHandler_init();
         }

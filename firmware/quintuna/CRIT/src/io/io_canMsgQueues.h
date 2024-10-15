@@ -23,12 +23,12 @@ namespace can1
 
     //should I be doing struct or unit32_t
     const bool popCan1TxMsgFromQueue(struct &tx_msg){
-        transmit_status = hw::can::can1.transmit(tx_msg);    
+        transmit_status = hw::can::can1.transmit(tx_msg);  
+        return transmit_status;  
     }
 
     struct popRxMsgFromCan1Queue(){
         hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
-
     }
 
 
