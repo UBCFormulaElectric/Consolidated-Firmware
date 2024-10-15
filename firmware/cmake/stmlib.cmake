@@ -133,6 +133,76 @@ function(stm32h733xx_cube_library
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
+
+    # Set include directories for STM32Cube library.
+    set(STM32CUBE_INCLUDE_DIRS
+        "${HAL_CONF_DIR}"
+        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
+        "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
+        "${FREERTOS_DIR}/include"
+        "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+        "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+        "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Include"
+        "${DRIVERS_DIR}/CMSIS/Include"
+
+        # SEGGER SystemView includes.
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+        "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+    )
+    # HAL sources.
+    set(STM32_HAL_SRCS)
+    foreach (HAL_SRC ${HAL_SRCS})
+        list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Src/${HAL_SRC}")
+    endforeach ()
+
+    # FreeRTOS sources.
+    file(GLOB RTOS_SRCS
+            "${FREERTOS_DIR}/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+    )
+
+    # SEGGER SystemView sources.
+    file(GLOB SYSTEMVIEW_SRCS
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
+    )
+    # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
+    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
+    list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+
+    # Startup assembly script.
+    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+    embedded_library(
+            "${HAL_LIB_NAME}"
+            "${STM32CUBE_SRCS}"
+            "${STM32CUBE_INCLUDE_DIRS}"
+            "cm7"
+            TRUE
+    )
+    target_compile_definitions(${HAL_LIB_NAME}
+            PUBLIC
+            USE_HAL_DRIVER
+            STM32H733xx
+            CANFD
+    )
+endfunction()
+
+function(stm32h733xx_cube_usb_library
+        HAL_LIB_NAME
+        HAL_CONF_DIR
+        HAL_SRCS
+        SYSCALLS
+        IOC_CHECKSUM
+)
+    set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
+    set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
     set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
