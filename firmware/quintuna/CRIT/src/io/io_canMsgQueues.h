@@ -11,7 +11,7 @@ extern "C"
 
 namespace io
 {
-namespace can1
+namespace can2
 {
     static void TxQueueOverflowCallback(uint32_t overflow_count)
     {
@@ -36,8 +36,8 @@ namespace can1
     {
         app_canAlerts_CRIT_Warning_RxOverflow_set(false);
     }
-} // namespace can1
+} // namespace can2
 
-static CanMsgQueue can1queue{ io_canRx_filterMessageId, can1::TxQueueOverflowCallback, can1::RxQueueOverflowCallback,
-                              can1::TxQueueOverflowClearCallback, can1::RxQueueOverflowClearCallback };
+static CanMsgQueue can2queue{ io_canRx_filterMessageId, can2::TxQueueOverflowCallback, can2::RxQueueOverflowCallback,
+                              can2::TxQueueOverflowClearCallback, can2::RxQueueOverflowClearCallback };
 } // namespace io

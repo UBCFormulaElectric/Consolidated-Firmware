@@ -53,16 +53,16 @@ void tasks_init(void)
         &hw::uart::chimera_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &hw::gpio::n_chimera_pin);
 
     // can
-    hw::can::can1.init();
+    hw::can::can2.init();
     io_canTx_init(
         [](const JsonCanMsg *msg)
         {
             hw::can::CanMsg tx_msg{};
             io::jsoncan::copyToCanMsg(msg, &tx_msg);
-            io::can1queue.pushTxMsgToQueue(&tx_msg);
+            io::can2queue.pushTxMsgToQueue(&tx_msg);
         }); // TODO this needs to be more sophisticated for multiple busses
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
-    io::can1queue.init();
+    io::can2queue.init();
     app_canTx_init();
     app_canRx_init();
     // broadcast commit info
@@ -79,8 +79,8 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
-        if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)
+        hw::can::CanMsg tx_msg = io::can2queue.popTxMsgFromQueue();
+        if (const bool transmit_status = hw::can::can2.transmit(&tx_msg); !transmit_status)
         {
             // idk do something
         }
@@ -94,7 +94,7 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
+        hw::can::CanMsg rx_msg = io::can2queue.popRxMsgFromQueue();
 
         JsonCanMsg jsoncan_rx_msg;
         io::jsoncan::copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
