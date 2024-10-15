@@ -33,7 +33,7 @@ extern "C"
 
 void tasks_preInit(void)
 {
-    hw::bootup::enableInterruptsForApp();
+    hw::bootup::enableInterruptsForApp(); //hardware bootup should just be in main.c
 }
 
 void tasks_init(void)
@@ -43,21 +43,21 @@ void tasks_init(void)
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT reset!");
 
-    // Re-enable watchdog.
-    __HAL_DBGMCU_FREEZE_IWDG();
+    // Re-enable watchdog.________________________wrapped
+    __HAL_DBGMCU_FREEZE_IWDG(); 
     hw_hardFaultHandler_init();
 
-    hw::adc::adc1.init();
+    hw::adc::adc1.init(); 
 
     io::chimera::init(
         &hw::uart::chimera_uart, GpioNetName_crit_net_name_tag, AdcNetName_crit_net_name_tag, &hw::gpio::n_chimera_pin);
 
     // can
-    hw::can::can1.init();
+    hw::can::can1.init();//_________wrapped
     io_canTx_init(
         [](const JsonCanMsg *msg)
         {
-            hw::can::CanMsg tx_msg{};
+            hw::can::CanMsg tx_msg{};//_______wrapped 
             io::jsoncan::copyToCanMsg(msg, &tx_msg);
             io::can1queue.pushTxMsgToQueue(&tx_msg);
         }); // TODO this needs to be more sophisticated for multiple busses
@@ -79,8 +79,8 @@ void tasks_runCanTx(void)
     // Setup tasks.
     for (;;)
     {
-        hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();
-        if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)
+        hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();//___________wrapped from prev
+        if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)//__________wrapped
         {
             // idk do something
         }
@@ -94,7 +94,7 @@ void tasks_runCanRx()
     // Setup tasks.
     for (;;)
     {
-        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
+        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();//_____wrapped
 
         JsonCanMsg jsoncan_rx_msg;
         io::jsoncan::copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
@@ -109,8 +109,8 @@ void tasks_run1Hz()
     // Setup tasks.
     static const TickType_t period_ms = 1000U;
 
-    hw::watchdog::WatchdogInstance run1HzWatchdog{ RTOS_TASK_1HZ, period_ms };
-    hw::watchdog::monitor::registerWatchdogInstance(&run1HzWatchdog);
+    hw::watchdog::WatchdogInstance run1HzWatchdog{ RTOS_TASK_1HZ, period_ms };//_____________wrapped 
+    hw::watchdog::monitor::registerWatchdogInstance(&run1HzWatchdog);//________-wrapped
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -126,7 +126,7 @@ void tasks_run1Hz()
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        run1HzWatchdog.checkIn();
+        run1HzWatchdog.checkIn();//__________wrapped
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -176,7 +176,7 @@ void tasks_run1kHz()
     for (;;)
     {
         // Check in for timeouts for all RTOS tasks
-        hw::watchdog::monitor::checkForTimeouts();
+        hw::watchdog::monitor::checkForTimeouts();//__________________-wrapped
 
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);

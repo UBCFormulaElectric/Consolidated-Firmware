@@ -13,6 +13,25 @@ namespace io
 {
 namespace can1
 {
+    void init(){
+        hw::can::can1.init();
+    }
+
+    struct CanMsgInit(){
+        hw::can::CanMsg tx_msg{};
+    }
+
+    //should I be doing struct or unit32_t
+    const bool popCan1TxMsgFromQueue(struct &tx_msg){
+        transmit_status = hw::can::can1.transmit(tx_msg);    
+    }
+
+    struct popRxMsgFromCan1Queue(){
+        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
+
+    }
+
+
     static void TxQueueOverflowCallback(uint32_t overflow_count)
     {
         app_canTx_CRIT_TxOverflowCount_set(overflow_count);
@@ -36,6 +55,8 @@ namespace can1
     {
         app_canAlerts_CRIT_Warning_RxOverflow_set(false);
     }
+
+
 } // namespace can1
 
 static CanMsgQueue can1queue{ io_canRx_filterMessageId, can1::TxQueueOverflowCallback, can1::RxQueueOverflowCallback,
