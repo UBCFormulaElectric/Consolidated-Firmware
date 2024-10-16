@@ -3,14 +3,13 @@ import sys
 
 from src.can_database import CanDatabase
 from src.json_parsing.json_can_parsing import JsonCanParser
-from src.can_database import CanDatabase
 
 FRAME_BITS = 1 + 2 + 7  # SOF + ACK + EOF
 ID_BITS = 11
 CONTROL_BITS = 1 + 6  # RTR + control
 DATA_BYTE_BITS = 8
 CRC_BITS = 16
-
+sys.stdout.reconfigure(encoding='utf-8')
 # https://www.chiefdelphi.com/t/is-70-can-bus-utilization-bad/392683/2
 BAD_BUS_LOAD = 80
 

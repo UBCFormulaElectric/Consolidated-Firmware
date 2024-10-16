@@ -11,6 +11,7 @@
 			"inherits": "default",
 			"generator": "Unix Makefiles",
 			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+			"generator": "Unix Makefiles",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug",
 				"PLATFORM": "firmware",
@@ -27,6 +28,7 @@
 			"generator": "Unix Makefiles",
 			"inherits": "default",
 			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+			"generator": "Unix Makefiles",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"PLATFORM": "firmware",
@@ -48,6 +50,7 @@
 		{
 			"name": "FW Test",
 			"description": "Test build for the Firmware, including debug information and no optimizations.",
+			"generator": "Unix Makefiles",
 			"inherits": "default",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug",
