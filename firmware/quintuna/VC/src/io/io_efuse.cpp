@@ -6,8 +6,6 @@
 constexpr float ADC_VOLTAGE_TO_CURRENT_A             = 1.720f;
 static bool     enabled_channels[NUM_EFUSE_CHANNELS] = { false };
 
-namespace io::efuse
-{
 const Efuse shdn{ hw::gpio::shdn_pwr_en, hw::gpio::fr_stby1, hw::adc::shdn_pwr_i_sns_adc };
 const Efuse lv{ hw::gpio::shdn_pwr_en, hw::gpio::fr_stby1, hw::adc::shdn_pwr_i_sns_adc };
 const Efuse pump{ hw::gpio::pump_pwr_en, hw::gpio::fr_stby_2, hw::adc::pump_pwr_i_sns_adc };
@@ -79,4 +77,3 @@ void standbyReset(EfuseChannel channel)
     hw::gpio::config.stby_reset_gpio.writePin(false);
     hw::gpio::config.stby_reset_gpio.writePin(true);
 };
-} // namespace io::efuse
