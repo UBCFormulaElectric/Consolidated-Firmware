@@ -108,6 +108,12 @@ endfunction()
 function(log_bus_load TARGET)
     
     set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
+
+    # usually dev board ?? Depends on how validation team is going to use it?
+    if(NOT DEFINED SHARED_CAR) 
+        return()
+    endif()
+
     set(CAN_JSON_DIR ${CAN_DIR}/${SHARED_CAR})
     
     add_custom_command(
