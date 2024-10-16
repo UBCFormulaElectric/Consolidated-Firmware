@@ -6,18 +6,19 @@ TODO: Why do we need start values???
 
 import argparse
 import os
-from .calc_bus_load import report_bus_load
-from src.json_parsing.json_can_parsing import JsonCanParser
-from src.utils import write_text
-from src.codegen.dbc_generation.dbc_generation import DbcGenerator
-from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
-from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
-from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
+
+from calc_bus_load import report_bus_load
 from src.codegen.c_generation.app_can_alerts_module import AppCanAlertsModule
+from src.codegen.c_generation.app_can_data_capture_module import \
+    AppCanDataCaptureModule
+from src.codegen.c_generation.app_can_rx_module import AppCanRxModule
+from src.codegen.c_generation.app_can_tx_module import AppCanTxModule
+from src.codegen.c_generation.app_can_utils_module import AppCanUtilsModule
 from src.codegen.c_generation.io_can_rx_module import IoCanRxModule
 from src.codegen.c_generation.io_can_tx_module import IoCanTxModule
-from src.codegen.c_generation.app_can_data_capture_module import AppCanDataCaptureModule
-
+from src.codegen.dbc_generation.dbc_generation import DbcGenerator
+from src.json_parsing.json_can_parsing import JsonCanParser
+from src.utils import write_text
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -32,8 +33,6 @@ if __name__ == "__main__":
 
     # Parse JSON
     can_db = JsonCanParser(can_data_dir=args.can_data_dir).make_database()
-
-    report_bus_load(can_db, 500000)
     # Generate DBC file
     write_text(DbcGenerator(database=can_db).source(), args.dbc_output)
     if args.only_dbc:

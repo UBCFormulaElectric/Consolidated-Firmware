@@ -1,14 +1,15 @@
 import argparse
+import sys
 
-from src.json_parsing.json_can_parsing import JsonCanParser
 from src.can_database import CanDatabase
+from src.json_parsing.json_can_parsing import JsonCanParser
 
 FRAME_BITS = 1 + 2 + 7  # SOF + ACK + EOF
 ID_BITS = 11
 CONTROL_BITS = 1 + 6  # RTR + control
 DATA_BYTE_BITS = 8
 CRC_BITS = 16
-
+sys.stdout.reconfigure(encoding='utf-8')
 
 def msg_payload_bits(msg):
     return sum(
@@ -34,13 +35,13 @@ def calculate_bus_load(canDatabase : CanDatabase, can_bit_rate):
 def report_bus_load(canDatabase : CanDatabase, can_bit_rate):
     estimated_bus_load = calculate_bus_load(canDatabase, can_bit_rate)
     if estimated_bus_load > 70:
-        print(f"⚠️: Estimated nominal bus load is {round(estimated_bus_load)}%")
+        print(f"⚠️: Estimated bus load is {round(estimated_bus_load)}%")
     else:
-        print(f"Estimated nominal bus load: {round(estimated_bus_load)}%")
+        print(f"👍 Estimated bus load: {round(estimated_bus_load)}%")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--can_data_dir", help="Path to JSON CAN data", default="C:/Users/80419/formula/Consolidated-Firmware/can_bus/quadruna")
+    parser.add_argument("--can_data_dir", help="Path to JSON CAN data")
     parser.add_argument("--can_bit_rate", help="CAN bit rate in bps, e.g. 500000 bps", default=500000, type=int)
     args = parser.parse_args()
     # Parse JSON
