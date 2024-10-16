@@ -4,17 +4,17 @@
 
 namespace hw::can
 {
-const CanBus can1{ &hcan1, [](const CanMsg *canMsg) { io::can1queue.pushRxMsgToQueue(canMsg); } };
+const CanBus can2{ &hcan2, [](const CanMsg *canMsg) { io::can2queue.pushRxMsgToQueue(canMsg); } };
 } // namespace hw::can
 
 extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     UNUSED(hcan);
-    hw::can::can1.receive(CAN_RX_FIFO0);
+    hw::can::can2.receive(CAN_RX_FIFO0);
 }
 
 extern "C" void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     UNUSED(hcan);
-    hw::can::can1.receive(CAN_RX_FIFO1);
+    hw::can::can2.receive(CAN_RX_FIFO1);
 }
