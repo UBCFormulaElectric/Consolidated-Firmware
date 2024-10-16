@@ -9,14 +9,12 @@ const uint8_t TARGET_ADDRESS = 0x6B;
 
 I2c imu_config(&hi2c1, TARGET_ADDRESS, 100);
 
-namespace io::imu
-{
 bool init()
 {
-    if (hw::i2c::imu_config.isTargetReady(&imu_config))
+    if (hw::i2c::imu_config.isTargetReady())
     {
         uint8_t buffer = 0x40; // turn on accelerometer to normal mode
-        return hw::i2c::imu_config.memWrite(&imu_config, 0x10, &buffer, 1);
+        return hw::i2c::imu_config.memWrite(0x10, &buffer, 1);
     }
     return false;
 }
@@ -24,7 +22,7 @@ bool init()
 bool getLinearAccelerationX(float *x_acceleration)
 {
     uint8_t x_data[2];
-    bool    is_read_successful = hw::i2c::imu_config.memRead(&imu_config, 0x28, x_data, 2);
+    bool    is_read_successful = hw::i2c::imu_config.memRead(0x28, x_data, 2);
 
     if (!is_read_successful)
     {
@@ -56,7 +54,7 @@ bool getLinearAccelerationY(float *y_acceleration)
 bool getLinearAccelerationZ(float *z_acceleration)
 {
     uint8_t z_data[2];
-    bool    is_read_successful = hw::i2c::imu_config.memRead(&imu_config, 0x2C, z_data, 2);
+    bool    is_read_successful = hw::i2c::imu_config.memRead(0x2C, z_data, 2);
 
     if (!is_read_successful)
     {
@@ -68,4 +66,3 @@ bool getLinearAccelerationZ(float *z_acceleration)
     *z_acceleration = z_raw * SENSITIVITY * 9.81f / 1000.0f - 9.81f;
     return true;
 }
-} // namespace io::imu

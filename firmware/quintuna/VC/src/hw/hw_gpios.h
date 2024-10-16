@@ -31,5 +31,5 @@ extern const Gpio nchrg_fault;
 extern const Gpio nchrg;
 extern const Gpio n_chimera_pin;
 extern const Gpio nprogram_3v3;
-extern const Gpio sb_ilck_shdn_s;
+extern const Gpio sb_ilck_shdn_sns;
 } // namespace hw::gpio

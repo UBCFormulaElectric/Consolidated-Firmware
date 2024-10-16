@@ -6,8 +6,6 @@
 extern I2C_HandleTypeDef hi2c2;
 #endif
 
-namespace io::imu
-{
 class Imu
 {
     /**
@@ -38,4 +36,3 @@ class Imu
      */
     bool getLinearAccelerationZ(float *z_acceleration);
 };
-} // namespace io::imu

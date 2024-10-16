@@ -42,18 +42,17 @@ enum class AdcChannel
     NUM_ADC_CHANNELS,
     NO_ADC_CHANNEL // for cases where configuration requires an ADC pin, but there is none (TELEM/BUZZER efuses)
 };
-
 extern const AdcChip<NUM_ADC_CHANNELS> adc1;
 extern const AdcChip<Num_ADC_CHANNELS> adc3;
-extern const Adc                       _24v_acc_sns_adc;
-extern const Adc                       lv_pwr_i_sns_adc;
-extern const Adc                       acc_i_sns_adc;
-extern const Adc                       _22v_boost_sns_adc;
-extern const Adc                       inv_r_pwr_i_sns_adc;
-extern const Adc                       inv_l_pwr_i_sns_adc;
-extern const Adc                       bat_i_sns_adc;
-extern const Adc                       shdn_pwr_i_sns_adc;
-extern const Adc                       vbat_sense_adc;
-extern const Adc                       aux_pwr_i_sns_adc;
-extern const Adc                       pump_pwr_i_sns_adc;
+extern const Adc                       _24v_acc_sns;
+extern const Adc                       lv_pwr_i_sns_ad;
+extern const Adc                       acc_i_sns;
+extern const Adc                       _22v_boost_sns;
+extern const Adc                       inv_r_pwr_i_sns;
+extern const Adc                       inv_l_pwr_i_sns;
+extern const Adc                       bat_i_sns;
+extern const Adc                       shdn_pwr_i_sns;
+extern const Adc                       vbat_sense;
+extern const Adc                       aux_pwr_i_sns;
+extern const Adc                       pump_pwr_i_sns;
 } // namespace hw::adc

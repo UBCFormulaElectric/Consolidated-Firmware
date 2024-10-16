@@ -38,8 +38,7 @@ Efuse &getEfuseConfig(EfuseChannel channel)
         case EFUSE_BUZZER:
             return buzzer;
         default:
-            assert(false && "Invalid Efuse Channel!");
-            return nullptr;
+            throw std::runtime_error("Invalid Efuse Channel!");
     }
 }
 
@@ -79,5 +78,5 @@ void standbyReset(EfuseChannel channel)
     hw::gpio::config.stby_reset_gpio.writePin(true);
     hw::gpio::config.stby_reset_gpio.writePin(false);
     hw::gpio::config.stby_reset_gpio.writePin(true);
-}
+};
 } // namespace io::efuse

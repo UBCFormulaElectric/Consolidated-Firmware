@@ -12,8 +12,6 @@ extern "C"
 extern I2C_HandleTypeDef hi2c1;
 #endif
 
-namespace io::i2cPotentiometer
-{
 class i2cPotentiometer
 {
   public:
@@ -35,4 +33,3 @@ class i2cPotentiometer
      */
     uint8_t readWiper();
 };
-} // namespace io::i2cPotentiometer
