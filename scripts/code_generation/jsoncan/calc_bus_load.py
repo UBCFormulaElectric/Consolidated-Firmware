@@ -9,6 +9,11 @@ ID_BITS = 11
 CONTROL_BITS = 1 + 6  # RTR + control
 DATA_BYTE_BITS = 8
 CRC_BITS = 16
+
+# https://www.chiefdelphi.com/t/is-70-can-bus-utilization-bad/392683/2
+BAD_BUS_LOAD = 80
+
+
 sys.stdout.reconfigure(encoding='utf-8')
 
 def msg_payload_bits(msg):
@@ -34,7 +39,7 @@ def calculate_bus_load(canDatabase : CanDatabase, can_bit_rate):
 
 def report_bus_load(canDatabase : CanDatabase, can_bit_rate):
     estimated_bus_load = calculate_bus_load(canDatabase, can_bit_rate)
-    if estimated_bus_load > 70:
+    if estimated_bus_load > BAD_BUS_LOAD:
         print(f"⚠️: Estimated bus load is {round(estimated_bus_load)}%")
     else:
         print(f"👍 Estimated bus load: {round(estimated_bus_load)}%")
