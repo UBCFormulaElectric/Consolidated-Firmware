@@ -85,21 +85,21 @@
         }
     },
     "INVL_ReadWriteParamCommand": {
-        "msg_id": 33, 
+        "msg_id": 33,
         "cycle_time": null,
         "signals": {
             "INVL_CommandParameterAddress": {
-                "start_bit": 0, 
+                "start_bit": 0,
                 "bits": 16,
                 "start_value": 20
             },
             "INVL_CommandReadWrite": {
-                "start_bit": 16, 
+                "start_bit": 16,
                 "enum": "InverterReadWriteCommand",
                 "start_value": 1
             },
             "INVL_CommandData": {
-                "start_bit": 32, 
+                "start_bit": 32,
                 "bits": 16,
                 "start_value": 0
             }
@@ -165,21 +165,21 @@
         }
     },
     "INVR_ReadWriteParamCommand": {
-        "msg_id": 83, 
+        "msg_id": 83,
         "cycle_time": null,
         "signals": {
             "INVR_CommandParameterAddress": {
-                "start_bit": 0, 
+                "start_bit": 0,
                 "bits": 16,
                 "start_value": 20
             },
             "INVR_CommandReadWrite": {
-                "start_bit": 16, 
+                "start_bit": 16,
                 "enum": "InverterReadWriteCommand",
                 "start_value": 1
             },
             "INVR_CommandData": {
-                "start_bit": 32, 
+                "start_bit": 32,
                 "bits": 16,
                 "start_value": 0
             }
@@ -217,7 +217,6 @@
         }
     },
     "EllipseTime": {
-        
         "msg_id": 209,
         "cycle_time": 100,
         "description": "Timestamp from the SBG Ellipse N sensor.",
@@ -229,7 +228,6 @@
         }
     },
     "EllipseAcceleration": {
-        
         "msg_id": 201,
         "cycle_time": 1000,
         "description": "Acceleration from the SBG Ellipse N sensor.",
@@ -255,7 +253,6 @@
         }
     },
     "EllipseAngularVelocity": {
-        
         "msg_id": 203,
         "cycle_time": 1000,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
@@ -281,7 +278,6 @@
         }
     },
     "EllipseEulerAngles": {
-        
         "msg_id": 222,
         "cycle_time": 1000,
         "description": "Euler angles from the SBG Ellipse N sensor.",
@@ -487,13 +483,12 @@
             "RegenEnabled": {
                 "bits": 1
             },
-            "TorqueVectoringEnabled":{
+            "TorqueVectoringEnabled": {
                 "bits": 1
             }
         }
     },
-    "GpsPosInfo": {
-        
+    "EllipseEKFNavPosition": {
         "msg_id": 217,
         "cycle_time": 100,
         "description": "Car position info",
@@ -539,8 +534,7 @@
             }
         }
     },
-    "GpsVelInfo": {
-        
+    "EllipseEKFNavVelocity": {
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",
@@ -550,19 +544,19 @@
             },
             "VelocityNorth": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -120,
                 "max": 120,
                 "unit": "m/s"
             },
             "VelocityNorthAccuracy": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -120,
                 "max": 20,
                 "unit": "m/s"
             },
             "VelocityEast": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -120,
                 "max": 120,
                 "unit": "m/s"
             },
@@ -763,7 +757,7 @@
         "cycle_time": 100,
         "description": "Pedal percentage info",
         "signals": {
-            "MappedPedalPercentage" :{
+            "MappedPedalPercentage": {
                 "min": -1,
                 "max": 1,
                 "resolution": 0.01,

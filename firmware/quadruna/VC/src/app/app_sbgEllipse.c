@@ -3,7 +3,6 @@
 #include "app_canTx.h"
 #include "io_sbgEllipse.h"
 
-// TODO: Not using Ellipse GPS for Comp 2024
 void app_sbgEllipse_broadcast()
 {
     // Status msg
@@ -16,6 +15,22 @@ void app_sbgEllipse_broadcast()
     // Time msg
     const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     app_canTx_VC_EllipseTimestamp_set(timestamp_us);
+
+    // EKF
+    const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+    const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+    const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+
+    app_canTx_VC_VelocityNorth_set(ekf_vel_N);
+    app_canTx_VC_VelocityEast_set(ekf_vel_E);
+    app_canTx_VC_VelocityDown_set(ekf_vel_D);
+
+    // EKF
+    const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
+    const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
+
+    app_canTx_VC_Latitude_set(ekf_pos_lat);
+    app_canTx_VC_Longtitude_set(ekf_pos_long);
 
     // Acceleration msg
     const float forward_accel  = io_sbgEllipse_getImuAccelerations()->x;
