@@ -231,7 +231,6 @@
         }
     },
     "EllipseAcceleration": {
-        
         "msg_id": 201,
         "cycle_time": 1000,
         "description": "Acceleration from the SBG Ellipse N sensor.",
@@ -257,7 +256,6 @@
         }
     },
     "EllipseAngularVelocity": {
-        
         "msg_id": 203,
         "cycle_time": 1000,
         "description": "Angular velocity from the SBG Ellipse N sensor.",
