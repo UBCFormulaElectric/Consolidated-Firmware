@@ -337,7 +337,7 @@
     "Segment0_VoltageStats_1": {
         "msg_id": 125,
         "cycle_time": 100,
-        "description": "BMS Segment 1 Voltage Stats Part 0",
+        "description": "BMS Segment 1 Voltage Stats Part 1",
         "signals": {
             "Seg0_Cell8_Voltage": {
                 "resolution": 0.1,
