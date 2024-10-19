@@ -19,7 +19,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
@@ -61,7 +61,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCLExe",
@@ -103,7 +103,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
@@ -145,7 +145,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
@@ -188,7 +188,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
@@ -268,7 +268,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
@@ -309,7 +309,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",
