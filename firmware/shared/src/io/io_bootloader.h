@@ -5,4 +5,4 @@
 
 #define APP_VALIDITY_ID 1011
 
-void io_boot_JumpToBootCode();
+void io_boot_jumpToBootCode();

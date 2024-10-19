@@ -41,6 +41,8 @@
 #include "hw_adc.h"
 #include "hw_sd.h"
 
+#define BOOT_CAN_START 1012
+
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
@@ -303,7 +305,10 @@ void tasks_JumpToApp(void)
     HAL_UART_DeInit(&huart3);
     HAL_UART_DeInit(&huart7);
 
-    io_boot_JumpToBootCode();
+    CanMsg reply = { .std_id = APP_VALIDITY_ID, .dlc = 0 };
+    io_can_pushTxMsgToQueue(&reply);
+
+    io_boot_jumpToBootCode();
 }
 
 void tasks_init(void)
@@ -498,9 +503,9 @@ _Noreturn void tasks_runCanRx(void)
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
 
-        if (rx_msg->std_id == BOOT_CAN_START)
+        if (rx_msg.std_id == BOOT_CAN_START)
         {
-            tasks_JumpToApp(void);
+            tasks_JumpToApp();
         }
 
         JsonCanMsg jsoncan_rx_msg;
