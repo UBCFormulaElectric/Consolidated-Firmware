@@ -86,6 +86,11 @@ typedef struct
 
 typedef struct
 {
+    float       cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+} DiagnosticVoltageStats;
+
+typedef struct
+{
     uint16_t owc_status[ACCUMULATOR_NUM_SEGMENTS];
     bool     owc_fault_gnd[ACCUMULATOR_NUM_SEGMENTS];
     bool     owc_global_fault;
@@ -96,6 +101,7 @@ typedef struct
     // Cells information
     uint32_t                num_comm_tries;
     VoltageStats            voltage_stats;
+    DiagnosticVoltageStats  diagnostic_voltage_stats;
     AccumulatorMonitorState state;
 
     // OWC information
@@ -125,6 +131,8 @@ static void app_accumulator_calculateVoltageStats(void)
                                         .segment_voltages = { 0U },
                                         .pack_voltage     = 0U };
 
+    DiagnosticVoltageStats temp_diagnostic_voltage_stats = { .cell_voltages = { { 0U } } };
+
     // Find the min and max voltages
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
@@ -132,6 +140,8 @@ static void app_accumulator_calculateVoltageStats(void)
         {
             // Collect each cell voltage to find the min/max
             const float cell_voltage = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
+
+            temp_diagnostic_voltage_stats.cell_voltages[segment][cell] = cell_voltage;
 
             // Get the minimum cell voltage
             if (cell_voltage < temp_voltage_stats.min_voltage.voltage)
@@ -158,6 +168,7 @@ static void app_accumulator_calculateVoltageStats(void)
     }
 
     data.voltage_stats = temp_voltage_stats;
+    data.diagnostic_voltage_stats = temp_diagnostic_voltage_stats;
 }
 
 void app_accumulator_calculateCellsToBalance(void)
@@ -432,6 +443,25 @@ void app_accumulator_broadcast(void)
     app_canTx_BMS_MaxCellVoltageSegment_set(data.voltage_stats.max_voltage.segment);
     app_canTx_BMS_MinCellVoltageIdx_set(data.voltage_stats.min_voltage.cell);
     app_canTx_BMS_MaxCellVoltageIdx_set(data.voltage_stats.max_voltage.cell);
+
+    // Broadcast all cell voltages for Segment 0. --> repetitive code, can this made into a loop?
+    app_canTx_BMS_Seg0_Cell0_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][0]);
+    app_canTx_BMS_Seg0_Cell1_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][1]);
+    app_canTx_BMS_Seg0_Cell2_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][2]);
+    app_canTx_BMS_Seg0_Cell3_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][3]);
+    app_canTx_BMS_Seg0_Cell4_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][4]);
+    app_canTx_BMS_Seg0_Cell5_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][5]);
+    app_canTx_BMS_Seg0_Cell6_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][6]);
+    app_canTx_BMS_Seg0_Cell7_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][7]);
+    app_canTx_BMS_Seg0_Cell8_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][8]);
+    app_canTx_BMS_Seg0_Cell9_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][9]);
+    app_canTx_BMS_Seg0_Cell10_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][10]);
+    app_canTx_BMS_Seg0_Cell11_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][11]);
+    app_canTx_BMS_Seg0_Cell12_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][12]);
+    app_canTx_BMS_Seg0_Cell13_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][13]);
+    app_canTx_BMS_Seg0_Cell14_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][14]);
+    app_canTx_BMS_Seg0_Cell15_Voltage_set(data.diagnostic_voltage_stats.cell_voltages[0][15]);
+
 
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
