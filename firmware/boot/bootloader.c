@@ -175,8 +175,8 @@ void bootloader_init(void)
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
 
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
+        // // Jump to app.
+        // modifyStackPointerAndStartApp(&__app_code_start__);
     }
 }
 
