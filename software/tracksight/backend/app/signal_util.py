@@ -80,7 +80,7 @@ class SignalUtil:
                 current_time = time.time()
 
                 packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
-                logger.info(f"Received data: {packet_size}")
+                #logger.info(f"Received data: {packet_size}")
                 if packet_size in INVALID_PACKET_SIZES:
                     continue
 
@@ -134,7 +134,7 @@ class SignalUtil:
                 
                          # Emit the message
                         if len(cls.signal_df) >= cls.max_df_size:
-                            print(cls.signal_df)
+                            #print(cls.signal_df)
                             InfluxHandler.write(
                                  cls.signal_df, measurement='live'
                             )
@@ -165,71 +165,72 @@ class SignalUtil:
             raise RuntimeError("SignalUtil not initialized.")
         
         try:
-            # Read the CSV file into a DataFrame
-            df = pd.read_csv(cls.data_file)
+            while True:
+                # Read the CSV file into a DataFrame
+                df = pd.read_csv(cls.data_file)
 
-            # Iterate over each row (simulate message reception over time)
-            for index, row in df.iterrows():
-                    # Read the time, CanID, and Data
-                    time_stamp = row['Time Stamp']
-                    can_id = int(row['Can ID'])
-                    data = int(row['Data'])
+                # Iterate over each row (simulate message reception over time)
+                for index, row in df.iterrows():
+                        # Read the time, CanID, and Data
+                        time_stamp = row['Time Stamp']
+                        can_id = int(row['Can ID'])
+                        data = int(row['Data'])
 
-                    # Simulating message_received object
-                    class MessageReceived:
-                        def __init__(self, time_stamp, can_id, data):
-                            self.time_stamp = time_stamp
-                            self.can_id = can_id
-                            self.data = data
+                        # Simulating message_received object
+                        class MessageReceived:
+                            def __init__(self, time_stamp, can_id, data):
+                                self.time_stamp = time_stamp
+                                self.can_id = can_id
+                                self.data = data
+                        
+                        # Create message_received instance
+                        message_received = MessageReceived(time_stamp, can_id, data)
+                        # Make data array out of ints
+                        data_array = bytearray(message_received.data)
+
+                        # Unpack the data and add the id and meta data
+                        signal_list = cls.can_db.unpack(message_received.can_id, data_array)
+
+                        for single_signal in signal_list:
+
+                            # Add the time stamp and get name
+                            single_signal["timestamp"] = message_received.time_stamp
+                            signal_name = single_signal["name"] 
+
+                            # Update the list of availble signals and add it to client signals
+                            if signal_name not in cls.available_signals:
+                                cls.available_signals[signal_name] = True
+                                cls.client_signals[signal_name] = []
+
+                        
+                            # Ensure the value is the correct type (convert to float)
+                            value = int(single_signal["value"])
+
+                            # Create a DataFrame for the new signal
+                            new_signal_df = pd.DataFrame([{
+                                "time": pd.Timestamp.now(tz=get_localzone()),#TODO: Make time more accurate in mili since start
+                                "value": value,
+                                "unit": single_signal["unit"],
+                                "signal": single_signal["name"]
+                            }])
+
+
+                            # Filter out empty or all-NA columns before concatenation
+                            cls.signal_df = cls.signal_df.dropna(axis=1, how='all')
+                            new_signal_df = new_signal_df.dropna(axis=1, how='all')
+                            # Concatenate the new signal DataFrame with the existing one
+                            cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
+
                     
-                    # Create message_received instance
-                    message_received = MessageReceived(time_stamp, can_id, data)
-                    # Make data array out of ints
-                    data_array = bytearray(message_received.data)
+                            # Emit the message
+                            if len(cls.signal_df) >= cls.max_df_size:
+                                print(cls.signal_df)
+                                InfluxHandler.write(
+                                    cls.signal_df, measurement='live'
+                                )
 
-                    # Unpack the data and add the id and meta data
-                    signal_list = cls.can_db.unpack(message_received.can_id, data_array)
-
-                    for single_signal in signal_list:
-
-                        # Add the time stamp and get name
-                        single_signal["timestamp"] = message_received.time_stamp
-                        signal_name = single_signal["name"] 
-
-                        # Update the list of availble signals and add it to client signals
-                        if signal_name not in cls.available_signals:
-                            cls.available_signals[signal_name] = True
-                            cls.client_signals[signal_name] = []
-
-                      
-                        # Ensure the value is the correct type (convert to float)
-                        value = int(single_signal["value"])
-
-                        # Create a DataFrame for the new signal
-                        new_signal_df = pd.DataFrame([{
-                            "time": pd.Timestamp.now(tz=get_localzone()),#TODO: Make time more accurate in mili since start
-                            "value": value,
-                            "unit": single_signal["unit"],
-                            "signal": single_signal["name"]
-                        }])
-
-
-                        # Filter out empty or all-NA columns before concatenation
-                        cls.signal_df = cls.signal_df.dropna(axis=1, how='all')
-                        new_signal_df = new_signal_df.dropna(axis=1, how='all')
-                        # Concatenate the new signal DataFrame with the existing one
-                        cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
-
-                
-                         # Emit the message
-                        if len(cls.signal_df) >= cls.max_df_size:
-                            print(cls.signal_df)
-                            InfluxHandler.write(
-                                 cls.signal_df, measurement='live'
-                            )
-
-                            cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
-                            time.sleep(1)
+                                cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
+                                time.sleep(1)
 
         except Exception as e:
             logger.error("Error:", e)
