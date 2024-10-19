@@ -121,5 +121,15 @@
                 "bits": 1
             }
         }
+    },
+    "CellDiagnostics": {
+        "msg_id": 707,
+        "cycle_time": 1000,
+        "description": "Signals related to BMS cell voltage and temperature diagnostics.",
+        "signals": {
+            "CellDiagnosticsRequest": {
+                "bits": 1
+            }
+        }
     }
 }
