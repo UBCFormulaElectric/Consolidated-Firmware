@@ -55,11 +55,17 @@ bool app_allStates_runOnTick100Hz(void)
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
+    const bool diagnostics_enabled = app_canRx_Debug_CellDiagnosticsRequest_get();
+
     switch (iso_spi_task_state)
     {
         case RUN_CELL_MEASUREMENTS:
         {
             app_accumulator_runCellMeasurements();
+
+            if (diagnostics_enabled) {
+                app_accumulator_calculateDiagnosticVoltageStats();
+            }
 
             if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
             {
