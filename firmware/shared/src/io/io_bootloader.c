@@ -1,5 +1,4 @@
 #include "io_bootloader.h"
-#include "task.h"
 #include <stdint.h>
 #include <string.h>
 #include "cmsis_gcc.h"
@@ -9,15 +8,12 @@
 #include "io_log.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
-#include "hw_crc.h"
 #include "app_commitInfo.h"
-
-#include "io_can.h"
 
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
 
-_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
+static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -55,7 +51,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     uint32_t boot_sp    = address[0];
     uint32_t boot_start = address[1];
 #pragma GCC diagnostic pop
-    __set_MSP(app_sp);
+    __set_MSP(boot_sp);
     void (*boot_reset_handler)(void) = (void (*)(void))boot_start;
     boot_reset_handler(); // Call app's Reset_Handler, starting the app.
 
@@ -66,33 +62,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-// MAY NOT NEED TO RUN VERIFYAPPCODECHECKSUM IF WE ARE JUMPING TO BOOTLOADER AS WE ALREADY TRUST THAT
-// THE BOOTLOADER IS CORRECT AND WELL WRITTEN FOR FLASHING THE CODE ---> Comment out for now
-
-// static BootStatus verifyAppCodeChecksum(void)
-// {
-//     if (*&___boot_code_start__ == 0xFFFFFFFF)
-//     {
-//         // If app initial stack pointer is all 0xFF, assume app is not present.
-//         return BOOT_STATUS_NO_APP;
-//     }
-
-//     //TODO: Figure out how to configure boot_meta_data start in the linker script
-//     Metadata *metadata = (Metadata *)&__app_metadata_start__;
-//     if (metadata->size_bytes > (uint32_t)&__app_code_size__)
-//     {
-//         // App binary size field is invalid.
-//         return BOOT_STATUS_APP_INVALID;
-//     }
-
-//     uint32_t calculated_checksum = hw_crc_calculate(&__app_code_start__, metadata->size_bytes / 4);
-//     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
-// }
-
-_Noreturn void io_boot_JumpToBootCode(void)
+void io_boot_jumpToBootCode()
 {
-    CanMsg reply = { .std_id = APP_VALIDITY_ID, .dlc = 0 };
-    io_can_pushTxMsgToQueue(&reply);
-
     modifyStackPointerAndStartApp(&__boot_code_start__);
 }
