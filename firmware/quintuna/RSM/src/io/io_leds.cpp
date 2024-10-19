@@ -19,5 +19,5 @@ void io_led_set(bool val)
     io::leds::led.set(val)
 }
 
-}
+} //namespace io::leds
 
