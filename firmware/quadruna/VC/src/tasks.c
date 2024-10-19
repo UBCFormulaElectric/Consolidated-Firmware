@@ -40,7 +40,6 @@
 #include "hw_uart.h"
 #include "hw_adc.h"
 #include "hw_sd.h"
-#define BOOT_CAN_START 0x235
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -287,9 +286,9 @@ void tasks_preInitWatchdog(void)
 
 void tasks_JumpToApp(void)
 {
-    //TODO: Potentially stop before deinit
+    // TODO: Potentially stop before deinit
 
-    //De-init all peripherals
+    // De-init all peripherals
     HAL_ADC_Stop_IT(&hadc1);
     HAL_ADC_Stop_IT(&hadc3);
     HAL_ADC_DeInit(&hadc1);
@@ -303,7 +302,7 @@ void tasks_JumpToApp(void)
     HAL_UART_DeInit(&huart2);
     HAL_UART_DeInit(&huart3);
     HAL_UART_DeInit(&huart7);
-    
+
     io_boot_JumpToBootCode();
 }
 
