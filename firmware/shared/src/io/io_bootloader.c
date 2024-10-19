@@ -12,9 +12,10 @@
 #include "hw_crc.h"
 #include "app_commitInfo.h"
 
+#include "io_can.h"
+
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
-
 
 _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -65,8 +66,8 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-//MAY NOT NEED TO RUN VERIFYAPPCODECHECKSUM IF WE ARE JUMPING TO BOOTLOADER AS WE ALREADY TRUST THAT
-//THE BOOTLOADER IS CORRECT AND WELL WRITTEN FOR FLASHING THE CODE ---> Comment out for now
+// MAY NOT NEED TO RUN VERIFYAPPCODECHECKSUM IF WE ARE JUMPING TO BOOTLOADER AS WE ALREADY TRUST THAT
+// THE BOOTLOADER IS CORRECT AND WELL WRITTEN FOR FLASHING THE CODE ---> Comment out for now
 
 // static BootStatus verifyAppCodeChecksum(void)
 // {
@@ -88,11 +89,10 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 //     return calculated_checksum == metadata->checksum ? BOOT_STATUS_APP_VALID : BOOT_STATUS_APP_INVALID;
 // }
 
-
-void io_boot_JumpToBootCode(void)
+_Noreturn void io_boot_JumpToBootCode(void)
 {
-    //recieve message from CANUP script to jump to bootloader
+    CanMsg reply = { .std_id = APP_VALIDITY_ID, .dlc = 0 };
+    io_can_pushTxMsgToQueue(&reply);
 
-    //need to deintialize all the peripherals in which we configured in main.c
     modifyStackPointerAndStartApp(&__boot_code_start__);
 }
