@@ -34,7 +34,7 @@ IF("${TARGET}" STREQUAL "binary")
     CPMAddPackage(
             NAME STM32CUBEH7
             GITHUB_REPOSITORY STMicroelectronics/STM32CubeH7
-            GIT_TAG ebe554a89fd3f958233f1b464757d1891ac59b6d
+            GIT_TAG d0e2e3886ee013b56082e57f48ae9bc6c34c849a
             GIT_SHALLOW TRUE
     )
 
