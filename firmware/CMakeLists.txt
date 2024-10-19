@@ -33,11 +33,10 @@ ENDIF ()
 
 add_subdirectory(third_party)
 add_subdirectory(shared)
-
 IF ("${TARGET}" STREQUAL "binary")
     add_subdirectory(chimera)
 ENDIF ()
-
 add_subdirectory(logfs)
 add_subdirectory(quadruna)
-add_subdirectory(dev) 
+add_subdirectory(quintuna)
+add_subdirectory(dev)

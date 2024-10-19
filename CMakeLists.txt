@@ -2,12 +2,15 @@ message("💡 Starting UBC Formula Electric Software Build System")
 
 cmake_minimum_required(VERSION 3.22.3)
 set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
+# use this for debugging
+#set(CMAKE_VERBOSE_MAKEFILE on)
 # Generates a comple_commands.json file which helps with VSCode intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+message("🛠️ Build Type: ${CMAKE_BUILD_TYPE}")
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR})
@@ -71,7 +74,7 @@ message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build
 IF ("${PLATFORM}" STREQUAL "firmware")
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
-        project("UBC Formula Electric Software" C ASM)
+        project("UBC Formula Electric Software" C CXX ASM)
     ELSEIF ("${TARGET}" STREQUAL "test")
         project("UBC Formula Electric Software" C CXX)
     ELSE ()
