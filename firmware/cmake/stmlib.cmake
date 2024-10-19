@@ -254,8 +254,11 @@ function(stm32h733xx_cube_usb_library
 
     # USB sources.
     file(GLOB USB_SRCS
-        "${USB_MIDDLEWARE_DIR}/Core/Src/*.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+
+
         "${USB_MIDDLEWARE_DIR}/Class/AUDIO/Src/*.c"
         "${USB_MIDDLEWARE_DIR}/Class/BillBoard/Src/*.c"
         "${USB_MIDDLEWARE_DIR}/Class/CCID/Src/*.c"
@@ -272,6 +275,7 @@ function(stm32h733xx_cube_usb_library
         "${USB_MIDDLEWARE_DIR}/Class/Template/Src/*.c"
         "${USB_MIDDLEWARE_DIR}/Class/VIDEO/Src/*.c"
     )
+
 
     # SEGGER SystemView sources.
     file(GLOB SYSTEMVIEW_SRCS
