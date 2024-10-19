@@ -168,7 +168,7 @@ void bootloader_init(void)
 #endif
     )
     {
-        // Deinit peripherals.
+// Deinit peripherals.
 #ifndef BOOT_AUTO
         HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
 #endif

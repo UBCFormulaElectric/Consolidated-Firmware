@@ -59,7 +59,7 @@ void tasks_JumpToApp(void)
     HAL_UART_DeInit(&huart3);
     HAL_UART_DeInit(&huart7);
 
-    CanMsg reply = { .std_id = APP_VALIDITY_ID, .dlc = 0 };
+    CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
     io_can_pushTxMsgToQueue(&reply);
 
     io_boot_jumpToBootCode();
