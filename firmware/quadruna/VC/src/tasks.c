@@ -31,6 +31,7 @@
 #include "io_telemMessage.h"
 #include "io_pcm.h"
 #include "io_time.h"
+#include "io_bootloader.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -42,6 +43,8 @@
 #include "hw_uart.h"
 #include "hw_adc.h"
 #include "hw_sd.h"
+
+#define BOOT_CAN_START 1012
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -330,6 +333,31 @@ void tasks_preInitWatchdog(void)
     }
 }
 
+void tasks_JumpToApp(void)
+{
+    // TODO: Potentially stop before deinit
+
+    // De-init all peripherals
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_Stop_IT(&hadc3);
+    HAL_ADC_DeInit(&hadc1);
+    HAL_ADC_DeInit(&hadc3);
+    HAL_TIM_Base_Stop_IT(&htim3);
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_Abort_IT(&huart2);
+    HAL_UART_Abort_IT(&huart3);
+    HAL_UART_Abort_IT(&huart7);
+    HAL_UART_DeInit(&huart1);
+    HAL_UART_DeInit(&huart2);
+    HAL_UART_DeInit(&huart3);
+    HAL_UART_DeInit(&huart7);
+
+    CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
+    io_can_pushTxMsgToQueue(&reply);
+
+    io_boot_jumpToBootCode();
+}
+
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
@@ -524,6 +552,11 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
+
+        if (rx_msg.std_id == BOOT_CAN_START)
+        {
+            tasks_JumpToApp();
+        }
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
