@@ -17,20 +17,14 @@ namespace can1
         hw::can::can1.init();
     }
 
-    struct CanMsgInit(){
+    void CanMsgInit(){
         hw::can::CanMsg tx_msg{};
     }
 
     //should I be doing struct or unit32_t
-    const bool popCan1TxMsgFromQueue(struct &tx_msg){
-        transmit_status = hw::can::can1.transmit(tx_msg);  
-        return transmit_status;  
+    bool popCan1TxMsgFromQueue(hw::can::CanMsg *tx_msg){
+        return hw::can::can1.transmit(tx_msg);
     }
-
-    struct popRxMsgFromCan1Queue(){
-        hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();
-    }
-
 
     static void TxQueueOverflowCallback(uint32_t overflow_count)
     {
@@ -60,5 +54,11 @@ namespace can1
 } // namespace can1
 
 static CanMsgQueue can1queue{ io_canRx_filterMessageId, can1::TxQueueOverflowCallback, can1::RxQueueOverflowCallback,
-                              can1::TxQueueOverflowClearCallback, can1::RxQueueOverflowClearCallback };
+                              can1::TxQueueOverflowClearCallback, can1::RxQueueOverflowClearCallback};
+
+void popRxMsgFromCan1Queue(){
+    hw::can::CanMsg rx_msg = can1queue.popRxMsgFromQueue();
+}
 } // namespace io
+
+//should I be replacing the last thing with the popRXmessage thing???

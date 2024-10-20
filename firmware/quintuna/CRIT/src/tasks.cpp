@@ -76,21 +76,17 @@ void tasks_init(void)
     app::StateMachine::init(&app::critstates::main_state);
 }
 
-void tasks_runCanTx(void)
+void tasks_runCanTx(void) 
 {
-    io::chimera::sleepTaskIfEnabled();
-    io::can1::CanMsgInit tx_msg = io::can1queue.popTxMsgFromQueue();
+    // io::chimera::sleepTaskIfEnabled();
     // Setup tasks.
-    //for (;;)
-    //{
-        //hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();//___________wrapped from prev
-
-        //if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)//__________wrapped
-        if (const bool transmit_status = io::can1.popCan1TxMsgFromQueue(); !transmit_status)
-        {
-            // idk do something
-        }
-    //}
+    //hw::can::CanMsg tx_msg = io::can1queue.popTxMsgFromQueue();//___________wrapped from prev
+    io::popRxMsgFromCan1Queue();
+    //if (const bool transmit_status = hw::can::can1.transmit(&tx_msg); !transmit_status)//__________wrapped
+    if (const bool transmit_status = io::can1::popCan1TxMsgFromQueue(tx_msg); !transmit_status)
+    {
+        // idk do something
+    }
 }
 
 void tasks_runCanRx()
@@ -101,7 +97,7 @@ void tasks_runCanRx()
   //  for (;;)
   //  {
      //   hw::can::CanMsg rx_msg = io::can1queue.popRxMsgFromQueue();//_____wrapped
-        io::can1::CanMsgInit tx_msg = io::can1queue.popTxMsgFromQueue();
+        io::can1::CanMsgInit rx_msg = io::can1queue.popTxMsgFromQueue();
         JsonCanMsg jsoncan_rx_msg; //is this fine or also depends on HAL? should I make an io layer for the jason calls too?
         io::jsoncan::copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
