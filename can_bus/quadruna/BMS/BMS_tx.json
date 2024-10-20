@@ -232,6 +232,109 @@
             }
         }
     },
+    "Accumulator_Voltage_Stats_Segment_0": {
+        "msg_id": 122,
+        "cycle_time": 100,
+        "description": "Accumulator segment 0 cell voltages.",
+        "signals": {
+            "Voltage_Stats_Seg_0_Cell_0": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_1": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_2": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_3": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_4": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_5": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_6": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_7": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_8": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_9": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_eg_0_Cell_10": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_11": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_12": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_13": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_14": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Voltage_Stats_Seg_0_Cell_15": {
+                "resolution": 0.5,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            }
+        }
+    },
     "CellStats": {
         "msg_id": 123,
         "cycle_time": 100,

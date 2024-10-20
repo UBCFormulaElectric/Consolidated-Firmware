@@ -121,5 +121,15 @@
                 "bits": 1
             }
         }
+    },
+    "cell_diagnostics_mode":{
+        "msg_id": 707,
+        "cycle_time": 100,
+        "description": "Boolean value for tuning on and off diagnostics mode.",
+        "signals": {
+            "toggle_diagnostics_mode": {
+                "bits": 1
+            }
+        }
     }
 }
