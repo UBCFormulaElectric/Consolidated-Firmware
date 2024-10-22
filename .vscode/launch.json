@@ -225,7 +225,7 @@
         "serverpath": "JLinkGDBServerCLExe",
       },
       "osx": {
-        "serverpath": "JLinkGDBServerCLExe",
+        "serverpath": "JLinkGDBServer",
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL",

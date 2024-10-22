@@ -25,8 +25,8 @@ IF("${TARGET}" STREQUAL "binary")
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
             NAME STM32CUBEF4
-            GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
-            GIT_TAG 3e907f83929363b6909ae1d9a3b7305866a67b82
+            GITHUB_REPOSITORY STMicroelectronics/STM32CubeF4
+            GIT_TAG e21c319e17a7f5aef332be677eaff2a0e7c316df
             GIT_SHALLOW TRUE
     )
 

@@ -123,6 +123,122 @@ function(stm32f412rx_cube_library
     )
 endfunction()
 
+# USB Lib for F4
+# HAL_CONF_DIR: src/cubemx/Inc
+# HAL_SRCS: the ones that we want, stripped prefixes
+# SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
+function(stm32f412rx_cube_usb_library
+        HAL_LIB_NAME
+        HAL_CONF_DIR
+        HAL_SRCS
+        SYSCALLS
+        IOC_CHECKSUM
+)
+    set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
+    set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
+    set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
+
+
+    # Set include directories for STM32Cube library.
+    set(STM32CUBE_INCLUDE_DIRS
+            "${HAL_CONF_DIR}"
+            "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc"
+            "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
+            "${FREERTOS_DIR}/include"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F"
+            "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
+            "${DRIVERS_DIR}/CMSIS/Include"
+
+            "${USB_MIDDLEWARE_DIR}/Core/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/AUDIO/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/BillBoard/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CCID/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CDC_ECM/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CDC_RNDIS/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CompositeBuilder/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/CustomHID/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/DFU/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/HID/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/MSC/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/MTP/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/Printer/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/Template/Inc"
+            "${USB_MIDDLEWARE_DIR}/Class/VIDEO/Inc"
+
+            # SEGGER SystemView includes.
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+    )
+
+    # HAL sources.
+    set(STM32_HAL_SRCS)
+    foreach (HAL_SRC ${HAL_SRCS})
+        list(APPEND STM32_HAL_SRCS "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Src/${HAL_SRC}")
+    endforeach ()
+
+    # FreeRTOS sources.
+    file(GLOB RTOS_SRCS
+            "${FREERTOS_DIR}/*.c"
+            "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
+    )
+
+# USB sources.
+file(GLOB USB_SRCS
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+
+        "${USB_MIDDLEWARE_DIR}/Class/AUDIO/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/BillBoard/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CCID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_ECM/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CDC_RNDIS/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CompositeBuilder/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/CustomHID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/DFU/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/HID/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/MSC/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/MTP/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/Printer/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/Template/Src/*.c"
+        "${USB_MIDDLEWARE_DIR}/Class/VIDEO/Src/*.c"
+    )
+
+    # SEGGER SystemView sources.
+    file(GLOB SYSTEMVIEW_SRCS
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.c"
+            "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/*.S"
+    )
+
+    # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
+    list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
+    # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
+    list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+
+    # Startup assembly script.
+    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${USB_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
+    embedded_library(
+            "${HAL_LIB_NAME}"
+            "${STM32CUBE_SRCS}"
+            "${STM32CUBE_INCLUDE_DIRS}"
+            "cm4"
+            TRUE
+    )
+    target_compile_definitions(${HAL_LIB_NAME}
+            PUBLIC
+            USE_HAL_DRIVER
+            STM32F412Rx
+    )
+endfunction()
+
 message("  🔃 Registered stm32h733xx_cube_library() function")
 function(stm32h733xx_cube_library
         HAL_LIB_NAME
