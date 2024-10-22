@@ -36,11 +36,15 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal.c"
             "stm32f4xx_hal_sd.c"
             "stm32f4xx_ll_sdmmc.c"
+            "stm32f4xx_hal.c"
+            "stm32f4xx_hal_pcd.c"
+            "stm32f4xx_hal_pcd_ex.c"
+            "stm32f4xx_ll_usb.c"
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
-    stm32f412rx_cube_library(
+    stm32f412rx_cube_usb_library(
             "f4dev_stm32cube"
             "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
             "${STM32_HAL_SRCS}"
