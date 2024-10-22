@@ -202,9 +202,24 @@ static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data)
  */
 static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data)
 {
-    // TODO: uncomment after initial testing
+    // TODO: uncomment after initial testing, if this occurs skip reading data
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
+
+    app_canTx_VC_EKFSolutionMode_set((VcEKFStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
+
+    // uint32_t status = log_data->ekfNavData.status;
+
+    // if (sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) != SBG_ECOM_SOL_MODE_NAV_POSITION)
+    // {
+    //     uint32_t status = log_data->ekfNavData.status;
+
+    //     bool is_velocity_valid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+    //     bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+
+    //     if (!is_velocity_valid & !is_position_valid)
+    //         return;
+    // }
 
     // velocity data in m/s
     sensor_data.ekf_data.ekf_nav_velocity.north = log_data->ekfNavData.velocity[0];
