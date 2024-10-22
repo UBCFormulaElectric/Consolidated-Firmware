@@ -1,4 +1,5 @@
 #include "io_loadCell.h"
+#include "hw_adc.h"
 
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)
@@ -16,7 +17,7 @@ float loadCell_voltageToMechancialLoad(float voltage)
 
 float loadCell_OCSC(int adcPin_toCheckl)
 {
-    const float voltage = 
+    float voltage = lc3_out.getVoltage();
 }
 
 } // namespace io::loadCell
