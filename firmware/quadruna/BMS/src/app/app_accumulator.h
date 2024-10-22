@@ -102,8 +102,3 @@ void app_accumulator_calculateCellsToBalance(void);
  * Send command to segments to begin balancing based on cells marked for discharge
  */
 void app_accumulator_balanceCells(void);
-
-/**
- * Calculate voltages for all cells in the pack
- */
-void app_accumulator_calculateDiagnosticVoltageStats(void);
