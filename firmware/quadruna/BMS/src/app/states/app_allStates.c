@@ -62,14 +62,20 @@ bool app_allStates_runOnTick100Hz(void)
     app_heartbeatMonitor_broadcastFaults();
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
+
+    // Diagnostics mode state.
     const bool diagnostics_enabled = app_canRx_Debug_toggle_diagnostics_mode_get();
 
     switch (iso_spi_task_state)
     {
         case RUN_CELL_MEASUREMENTS:
         {   
+
+            // Check if diagnostics mode is enabled.
             if (diagnostics_enabled) {
 
+            
+                // Gets the voltage stats of all cells in the battery.
                 app_accumulator_findVoltageStats();
             }
 

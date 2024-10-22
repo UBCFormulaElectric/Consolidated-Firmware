@@ -76,6 +76,7 @@ typedef struct
     float   voltage;
 } CellVoltage;
 
+// Diagnostics mode voltage stat structure.
 typedef struct
 {
     float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
@@ -114,7 +115,8 @@ typedef struct
     bool     balance_pwm_high;
 } Accumulator;
 
-static diagnostic_mode_voltage_stats diagnostic_mode_data;
+// Diagnostics mode voltage stat struct to be transmitted.
+static diagnostic_mode_voltage_stats diagnostic_mode_data; 
 static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
@@ -125,18 +127,27 @@ static TimerChannel over_voltage_fault_timer;
 static TimerChannel under_temp_fault_timer;
 static TimerChannel over_temp_fault_timer;
 
+// Gets the voltage stats for all cells in the battery.
 void app_accumulator_findVoltageStats(void) 
 {
+
+    // Makes a new voltage stat structure.
     diagnostic_mode_voltage_stats voltage_stats = { .cell_voltages = {{ 0U }}};
 
+    // Iterates through each battery segment.
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
     {
+
+        // Iterates through each segment cell.
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
+
+            // Assigns and gets the voltage stat for the cell.
             voltage_stats.cell_voltages[segment][cell] = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
         }
     }
 
+    // Copy the local structure to the structure that gets transmitted.
     memcpy(diagnostic_mode_data.cell_voltages, voltage_stats.cell_voltages, sizeof(voltage_stats.cell_voltages));
 }
 
@@ -445,9 +456,12 @@ bool app_accumulator_runOpenWireCheck(void)
 void app_accumulator_broadcast(void)
 {   
 
+    // Broadcast the voltage values of each cell when diagnostics mode is enabled.
     const bool diagnostics_enabled = app_canRx_Debug_toggle_diagnostics_mode_get();
     if (diagnostics_enabled) 
     {
+
+        // Segment 0 voltages.
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_0_set(diagnostic_mode_data.cell_voltages[0][0]);
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_1_set(diagnostic_mode_data.cell_voltages[0][1]);
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_2_set(diagnostic_mode_data.cell_voltages[0][2]);
@@ -464,6 +478,11 @@ void app_accumulator_broadcast(void)
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_13_set(diagnostic_mode_data.cell_voltages[0][13]);
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_14_set(diagnostic_mode_data.cell_voltages[0][14]);
         app_canTx_BMS_Voltage_Stats_Seg_0_Cell_15_set(diagnostic_mode_data.cell_voltages[0][15]);
+
+        // Segment 1 voltages.
+        // Segment 2 voltages.
+        // Segment 3 voltages.
+        // Segment 4 voltages.
     }
     
     // Broadcast pack voltage.
