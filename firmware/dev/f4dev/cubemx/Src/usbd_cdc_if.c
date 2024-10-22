@@ -50,6 +50,8 @@
 
 /* USER CODE BEGIN PRIVATE_TYPES */
 
+uint8_t buf[7];
+
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -214,6 +216,9 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t *pbuf, uint16_t length)
             /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
             /*******************************************************************************/
         case CDC_SET_LINE_CODING:
+            for (int i = 0; i < 7; i += 1) {
+                buf[i] = pbuf[i];
+            }
 
             break;
 
@@ -257,6 +262,11 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 6 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+    // Test: Send data back
+    uint16_t len = (uint16_t) *Len;
+    CDC_Transmit_FS(Buf, len);
+
     return (USBD_OK);
     /* USER CODE END 6 */
 }
