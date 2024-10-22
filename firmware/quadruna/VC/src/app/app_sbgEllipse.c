@@ -62,8 +62,8 @@ void app_sbgEllipse_broadcast()
     const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
     const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
 
-    app_canTx_VC_Latitude_set(ekf_pos_lat);
-    app_canTx_VC_Longtitude_set(ekf_pos_long);
+    app_canTx_VC_Latitude_set((float)ekf_pos_lat);
+    app_canTx_VC_Longtitude_set((float)ekf_pos_long);
 
     // Acceleration msg
     // const float forward_accel  = io_sbgEllipse_getImuAccelerations()->x;
