@@ -213,6 +213,9 @@
             },
             "EllipseComStatusBitmask": {
                 "bits": 32
+            },
+            "EKFSolutionMode": {
+                "enum": "VcEKFStatus"
             }
         }
     },
@@ -497,7 +500,7 @@
                 "enum": "VcSbgStatus"
             },
             "Latitude": {
-                "resolution": 0.00005,
+                "resolution": 0.01,
                 "min": 47,
                 "max": 50,
                 "unit": "deg"
@@ -509,7 +512,7 @@
                 "unit": "m"
             },
             "Longtitude": {
-                "resolution": 0.00005,
+                "resolution": 0.01,
                 "min": 122,
                 "max": 125,
                 "unit": "deg"
