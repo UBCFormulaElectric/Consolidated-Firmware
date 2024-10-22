@@ -107,7 +107,6 @@
             "description": "Right inverter entered fault state."
         },
         "SBGModeFault":  {
-            "disabled": true,
             "id" :561,
             "description" : "Ensure mode is Nominal mode for EKF data used"
         }  
