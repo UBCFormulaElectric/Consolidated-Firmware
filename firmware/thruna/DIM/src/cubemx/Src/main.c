@@ -122,7 +122,14 @@ static const Switch start_switch = {
     .closed_state = true,
 };
 
-// TODO: Declare Start Switch Struct
+static const Switch aux_switch = { // TODO: Declare Start Switch Struct
+    .gpio = {
+        .port = // CubeMX not working TODO later
+        .pin =  // CubeMX not working TODO later
+    },
+    .closed_state = true,
+
+}
 
 static const RgbLed bms_status_led = {
     .red_gpio = {
@@ -220,7 +227,7 @@ static const GlobalsConfig globals_config = {
     .shdn_led     = &shdn_led,
     .drive_led    = &drive_led,
     .start_switch = &start_switch,
-    // TODO: Add Aux Switch
+    .aux_switch = &aux_switch,// TODO: Add Aux Switch
 
     .bms_status_led = &bms_status_led,
     .dcm_status_led = &dcm_status_led,
