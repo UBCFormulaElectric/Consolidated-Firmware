@@ -19,11 +19,13 @@ typedef struct
     const RgbLed *const    aux_status_led;
     const RgbLed *const    crit_status_led;
     const RgbLed *const    rsm_status_led;
+    const BinaryLed *const    debug_led;
 } Leds;
 
 void io_led_init(const Leds *in_leds);
 #endif
 
+void io_led_debug_set(bool val);
 void io_led_imd_set(bool val);
 void io_led_bspd_set(bool val);
 void io_led_ams_set(bool val);

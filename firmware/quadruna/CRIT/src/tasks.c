@@ -36,6 +36,7 @@
 #include "hw_watchdogConfig.h"
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
+#include "../../../third_party/sbgECom/common/sbgDefines.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
@@ -90,6 +91,10 @@ static const BinaryLed start_led     = { .gpio = {
                                              .port = START_LED_GPIO_Port,
                                              .pin  = START_LED_Pin,
                                      } };
+static const BinaryLed debug_led     = { .gpio = {
+    .port = LED_GPIO_Port,
+    .pin  = LED_Pin,
+} };
 static const BinaryLed regen_led     = { .gpio = {
                                              .port = REGEN_LED_GPIO_Port,
                                              .pin  = REGEN_LED_Pin,
@@ -336,6 +341,7 @@ static const Leds led_config = {
     .ams_led         = &ams_led,
     .shdn_led        = &shdn_led,
     .start_led       = &start_led,
+    .debug_led = &debug_led,
     .regen_led       = &regen_led,
     .torquevec_led   = &torquevec_led,
     .aux_status_led  = &aux_status_led,

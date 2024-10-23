@@ -51,8 +51,11 @@ void app_allStates_runOnTick1Hz(void)
     }
 }
 
+
+
 bool app_allStates_runOnTick100Hz(void)
 {
+
     app_canTx_BMS_Heartbeat_set(true);
 
     app_heartbeatMonitor_checkIn();
@@ -60,10 +63,22 @@ bool app_allStates_runOnTick100Hz(void)
 
     const bool balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
 
+    // Diagnostics mode state.
+    const bool diagnostics_enabled = app_canRx_Debug_toggle_diagnostics_mode_get();
+
     switch (iso_spi_task_state)
     {
         case RUN_CELL_MEASUREMENTS:
-        {
+        {   
+
+            // Check if diagnostics mode is enabled.
+            if (diagnostics_enabled) {
+
+            
+                // Gets the voltage stats of all cells in the battery.
+                app_accumulator_findVoltageStats();
+            }
+
             app_accumulator_runCellMeasurements();
 
             if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)

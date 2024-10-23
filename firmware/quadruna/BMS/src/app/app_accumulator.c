@@ -76,6 +76,13 @@ typedef struct
     float   voltage;
 } CellVoltage;
 
+// Diagnostics mode voltage stat structure.
+typedef struct
+{
+    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+} diagnostic_mode_voltage_stats;
+
+
 typedef struct
 {
     CellVoltage min_voltage;
@@ -108,6 +115,8 @@ typedef struct
     bool     balance_pwm_high;
 } Accumulator;
 
+// Diagnostics mode voltage stat struct to be transmitted.
+static diagnostic_mode_voltage_stats diagnostic_mode_data; 
 static Accumulator data;
 static uint8_t     open_wire_pu_readings;
 static uint8_t     open_wire_pd_readings;
@@ -117,6 +126,30 @@ static TimerChannel under_voltage_fault_timer;
 static TimerChannel over_voltage_fault_timer;
 static TimerChannel under_temp_fault_timer;
 static TimerChannel over_temp_fault_timer;
+
+// Gets the voltage stats for all cells in the battery.
+void app_accumulator_findVoltageStats(void) 
+{
+
+    // Makes a new voltage stat structure.
+    diagnostic_mode_voltage_stats voltage_stats = { .cell_voltages = {{ 0U }}};
+
+    // Iterates through each battery segment.
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+
+        // Iterates through each segment cell.
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+
+            // Assigns and gets the voltage stat for the cell.
+            voltage_stats.cell_voltages[segment][cell] = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
+        }
+    }
+
+    // Copy the local structure to the structure that gets transmitted.
+    memcpy(diagnostic_mode_data.cell_voltages, voltage_stats.cell_voltages, sizeof(voltage_stats.cell_voltages));
+}
 
 static void app_accumulator_calculateVoltageStats(void)
 {
@@ -421,7 +454,37 @@ bool app_accumulator_runOpenWireCheck(void)
 }
 
 void app_accumulator_broadcast(void)
-{
+{   
+
+    // Broadcast the voltage values of each cell when diagnostics mode is enabled.
+    const bool diagnostics_enabled = app_canRx_Debug_toggle_diagnostics_mode_get();
+    if (diagnostics_enabled) 
+    {
+
+        // Segment 0 voltages.
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_0_set(diagnostic_mode_data.cell_voltages[0][0]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_1_set(diagnostic_mode_data.cell_voltages[0][1]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_2_set(diagnostic_mode_data.cell_voltages[0][2]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_3_set(diagnostic_mode_data.cell_voltages[0][3]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_4_set(diagnostic_mode_data.cell_voltages[0][4]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_5_set(diagnostic_mode_data.cell_voltages[0][5]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_6_set(diagnostic_mode_data.cell_voltages[0][6]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_7_set(diagnostic_mode_data.cell_voltages[0][7]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_8_set(diagnostic_mode_data.cell_voltages[0][8]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_9_set(diagnostic_mode_data.cell_voltages[0][9]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_10_set(diagnostic_mode_data.cell_voltages[0][10]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_11_set(diagnostic_mode_data.cell_voltages[0][11]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_12_set(diagnostic_mode_data.cell_voltages[0][12]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_13_set(diagnostic_mode_data.cell_voltages[0][13]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_14_set(diagnostic_mode_data.cell_voltages[0][14]);
+        app_canTx_BMS_Voltage_Stats_Seg_0_Cell_15_set(diagnostic_mode_data.cell_voltages[0][15]);
+
+        // Segment 1 voltages.
+        // Segment 2 voltages.
+        // Segment 3 voltages.
+        // Segment 4 voltages.
+    }
+    
     // Broadcast pack voltage.
     app_canTx_BMS_PackVoltage_set(data.voltage_stats.pack_voltage);
 
