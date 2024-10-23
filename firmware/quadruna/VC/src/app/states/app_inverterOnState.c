@@ -52,9 +52,12 @@ static void inverterOnStateRunOnTick100Hz(void)
 
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    const bool is_invr_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
-    const bool is_invl_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE;
-    const bool is_inv_ready  = is_invr_ready && is_invl_ready;
+    // INVERTER_VSM_WAIT_STATE
+    const bool is_invr_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE ||
+                               app_canRx_INVL_VsmState_get() == INVERTER_VSM_WAIT_STATE;
+    const bool is_invl_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE ||
+                               app_canRx_INVL_VsmState_get() == INVERTER_VSM_WAIT_STATE;
+    const bool is_inv_ready = is_invr_ready && is_invl_ready;
 
     app_allStates_runOnTick100Hz();
 
