@@ -2,6 +2,7 @@
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 #include "app_units.h"
+#include "app_utils.h"
 #include <stdlib.h>
 
 void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)
@@ -13,14 +14,14 @@ void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, Act
     float torque_lim_Nm = app_activeDifferential_powerToTorque(
         inputs->power_max_kW, inputs->motor_speed_left_rpm, inputs->motor_speed_right_rpm, cl, cr);
 
-    float torque_left_Nm  = torque_lim_Nm * (1 + Delta);
-    float torque_right_Nm = torque_lim_Nm * (1 - Delta);
+    float torque_left_Nm  = inputs->requested_torque * (1 + Delta);
+    float torque_right_Nm = inputs->requested_torque * (1 - Delta);
     float torque_max_Nm   = fmaxf(torque_left_Nm, torque_right_Nm);
 
     float scale = 1.0f;
-    if (torque_max_Nm > MAX_TORQUE_REQUEST_NM)
+    if (torque_max_Nm > torque_lim_Nm)
     {
-        scale = MAX_TORQUE_REQUEST_NM / torque_max_Nm;
+        scale = torque_lim_Nm / torque_max_Nm;
     }
 
     outputs->torque_left_Nm  = torque_left_Nm * scale;

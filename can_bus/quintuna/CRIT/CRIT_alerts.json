@@ -1,0 +1,58 @@
+{
+    "warnings_id": 801,
+    "faults_id": 802,
+    "warnings_counts_id": 803,
+    "faults_counts_id": 804,
+    "warnings": {
+        "StackWaterMarkHighTask1Hz": {
+            "id": 801,
+            "description": "1Hz task stack watermark exceeded."
+        },
+        "StackWaterMarkHighTask100Hz": {
+            "id": 802,
+            "description": "100Hz task stack watermark exceeded."
+        },
+        "StackWaterMarkHighTask1kHz": {
+            "id": 803,
+            "description": "1kHz task stack watermark exceeded."
+        },
+        "StackWaterMarkHighTaskCanRx": {
+            "id": 804,
+            "description": "CAN RX task stack watermark exceeded."
+        },
+        "StackWaterMarkHighTaskCanTx": {
+            "id": 805,
+            "description": "CAN TX task stack watermark exceeded."
+        },
+        "WatchdogTimeout": {
+            "id": 806,
+            "description": "Watchdog timeout detected."
+        },
+        "TxOverflow": {
+            "id": 807,
+            "description": "CAN TX queue has overflowed."
+        },
+        "RxOverflow": {
+            "id": 808,
+            "description": "CAN RX queue has overflowed."
+        }
+    },
+    "faults": {
+        "MissingBMSHeartbeat": {
+            "id": 850,
+            "description": "Missing heartbeat signal from the BMS."
+        },
+        "MissingFSMHeartbeat": {
+            "id": 851,
+            "description": "Missing heartbeat signal from the FSM."
+        },
+        "MissingVCHeartbeat": {
+            "id": 853,
+            "description": "Missing heartbeat signal from the VC."
+        },
+        "MissingRSMHeartbeat": {
+            "id": 852,
+            "description": "Missing heartbeat signal from the RSM."
+        }
+    }
+}

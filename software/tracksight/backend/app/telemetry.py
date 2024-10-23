@@ -62,7 +62,7 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="Pass to run in debug mode (logs to console).",
-    )
+    )   
     args = parser.parse_args()
 
     if args.debug:
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         raise RuntimeError(
             "If running telemetry in wireless mode, you must specify the radio serial port!"
         )
-    elif args.mode != "wireless" and args.mode != "log":
+    elif args.mode != "wireless" and args.mode != "log" and args.mode != "mock":
         raise RuntimeError("Mode must be either 'wireless' or 'log'")
 
     # Configs for Influx DB instance.
@@ -113,7 +113,6 @@ if __name__ == "__main__":
 
         try:
             wireless_thread.start()
-
             # Initialize the Socket.IO app with the main app.
             app.run(debug=False, host="0.0.0.0")
         except KeyboardInterrupt:
@@ -147,3 +146,25 @@ if __name__ == "__main__":
 
         except KeyboardInterrupt:
             logger.info("Exiting")
+
+    elif args.mode == "mock":
+        if args.data_file is None:
+            raise RuntimeError("In 'mock' mode, you must specify the data file to read from")
+
+        SignalUtil.setup(app=app, data_file=args.data_file)
+
+        test_thread = threading.Thread(
+            target=SignalUtil.read_messages_from_file,
+            daemon=True,
+           
+        )
+        try:
+            test_thread.start()
+            # Initialize the Socket.IO app with the main app.
+            app.run(debug=False, host="0.0.0.0")
+        except KeyboardInterrupt:
+            logger.info("Exiting")
+
+            if test_thread is not None:
+                test_thread.join()
+            logger.info("Thread stopped")

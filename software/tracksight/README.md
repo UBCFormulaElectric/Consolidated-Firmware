@@ -68,11 +68,21 @@ Example passing in a log file and cleaning:
 This is the mode for using Tracksight to stream CAN bus data wireless from the car. To start everything manually:
 
 1. Start the frontend and InfluxDB database with docker. Navigate to `Consolidated-Firmware/software/tracksight` and run `docker compose -f docker/wireless.yml up --build`.
-2. Start the backend. Navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python3 telemetry.py --debug --mode wireless --serial-port /dev/ttyUSB0`. This will start the backend which (currently) uploads some tester signal values in signal_util.py. Note that you need to do step 1 before this, as well as pass the correct radio serial port (usually `/dev/ttyUSB0` on Linux, change if running on another OS).
+2. Start the backend. Navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python3 telemetry.py --debug --mode wireless --serial-port /dev/ttyUSB0`. This will start the backend which reads real values from the car. Note that you need to do step 1 before this, as well as pass the correct radio serial port (usually `/dev/ttyUSB0` on Linux, change if running on another OS). Remember to forward if using WSL.
+
+If running on Windows, open your device manager and under `Ports (COM & LPT)` you will see what port it is connected to. Example: `COM10`. Pass this in for `--serial-port`
 
 To start everything automatically, navigate to `software/tracksight` and run `./run_wireless.sh`. Pass the serial port to this script using the `--serial-port` or `-p` flag. Note that this method is easier, but less flexibile than starting everything manually. With the backend running in its own terminal, its easier to start/stop it without re-starting the frontend/database Docker compose stack.
 
 Note that if you stop the compose stack, and restart it again, your data will remain since the data is stored on a Docker volume which isn't wiped if the compose stack is brought down. To clear the local database, pass the `-c` or `--clean` flag to `run_wireless.sh`.
+
+### Mock Mode
+
+This is the mode for using Tracksight but mocking the CAN bus messages from car. This allows you to develop frontend/backend without the need to be connected to a serial port. To start everything manually:
+
+1. Start the frontend and InfluxDB database with docker. Navigate to `Consolidated-Firmware/software/tracksight` and run `docker compose -f docker/mock.yml up --build`. Note: this can be done without docker but I have issues setting up Influx without it.
+2. Start backend. Navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python3 telemetry.py --debug --mode mock --data-file mock_data/sample_data1.csv` You will now see data being printed to your console
+3. Open new terminal and navigate to  `Consolidated-Firmware/software/tracksight/frontned/` and run `npm run dev`
 
 ## Log Files
 
