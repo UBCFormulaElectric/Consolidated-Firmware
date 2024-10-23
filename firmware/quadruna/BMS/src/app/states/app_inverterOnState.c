@@ -4,13 +4,9 @@
 #include "app_utils.h"
 #include "app_timer.h"
 
-static TimerChannel timer;
-
 static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_BMS_State_set(BMS_INVERTER_ON_STATE);
-    app_timer_init(&timer, INVERTER_BOOTUP_TIME_MS);
-    app_timer_restart(&timer);
 }
 
 static void inverterOnStateRunOnTick1Hz(void)
@@ -20,11 +16,11 @@ static void inverterOnStateRunOnTick1Hz(void)
 
 static void inverterOnStateRunOnTick100Hz(void)
 {
+    const bool ready_for_precharge = app_canRx_VC_isPrechargeReady_get();
+
     if (app_allStates_runOnTick100Hz())
     {
-        TimerState timer_state = app_timer_updateAndGetState(&timer);
-
-        if (timer_state == TIMER_STATE_EXPIRED)
+        if (ready_for_precharge)
         {
             app_stateMachine_setNextState(app_prechargeState_get());
         }

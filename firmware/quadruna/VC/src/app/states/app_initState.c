@@ -55,6 +55,7 @@ static void initStateRunOnTick100Hz(void)
 {
     const bool any_board_has_fault = app_faultCheck_checkBoards();
     const bool air_negative_closed = app_canRx_BMS_AirNegative_get();
+    // const bool bms_in_precharge = app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
 
     app_allStates_runOnTick100Hz();
 
