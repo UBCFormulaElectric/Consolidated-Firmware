@@ -774,7 +774,7 @@
     },
     "InitiatePrecharge": {
         "msg_id": 231,
-        "cycle_time": null,
+        "cycle_time": 100,
         "description": "Signal to BMS to go into precharge",
         "signals": {
             "isPrechargeReady" :{
