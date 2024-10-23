@@ -28,6 +28,7 @@ extern uint32_t __app_code_size__;
 
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
+
 typedef struct
 {
     uint32_t checksum;
@@ -51,55 +52,6 @@ static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
     BREAK_IF_DEBUGGER_CONNECTED();
-}
-
-_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
-{
-    // Disable interrupts before jumping.
-    __disable_irq();
-
-    // Disable system tick to stop FreeRTOS timebase.
-    SysTick->CTRL = ~SysTick_CTRL_ENABLE_Msk;
-
-    // Clear all pending interrupts by setting all ICPRs (Interrupt Clear Pending Register)
-    // to 0xFFFFFFFF. This is done so no interrupts are queued up when we jump to the app.
-    // (There are 8 registers on the Cortex-M4)
-    for (uint32_t i = 0; i < 8; i++)
-    {
-        NVIC->ICPR[i] = 0xFFFFFFFF;
-    }
-
-    // Update the vector table offset register. When an interrupt is fired,
-    // the microcontroller looks for the corresponding interrupt service handler
-    // at the memory address in the VTOR. We need to update it so the app ISRs
-    // are used.
-    SCB->VTOR = (uint32_t)address;
-
-    // Flush processor pipeline.
-    __ISB();
-
-    // Tell MCU to use the main stack pointer rather than process stack pointer (PSP is used with RTOS)
-    __set_CONTROL(__get_CONTROL() & ~CONTROL_SPSEL_Msk);
-
-    // Modify stack pointer and jump to app code.
-    // In a binary built with our linker settings, the interrupt vector table is the first thing
-    // placed in flash. The first word of the vector table contains the initial stack pointer
-    // and the second word containers the address of the reset handler. Update stack pointer and
-    // program counter accordingly.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t app_sp    = address[0];
-    uint32_t app_start = address[1];
-#pragma GCC diagnostic pop
-    __set_MSP(app_sp);
-    void (*app_reset_handler)(void) = (void (*)(void))app_start;
-    app_reset_handler(); // Call app's Reset_Handler, starting the app.
-
-    // Should never get here!
-    BREAK_IF_DEBUGGER_CONNECTED()
-    for (;;)
-    {
-    }
 }
 
 static BootStatus verifyAppCodeChecksum(void)
@@ -167,15 +119,12 @@ void bootloader_init(void)
 #endif
     )
     {
-        // Deinit peripherals.
+// Deinit peripherals.
 #ifndef BOOT_AUTO
         HAL_GPIO_DeInit(nBOOT_EN_GPIO_Port, nBOOT_EN_Pin);
 #endif
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
-
-        // Jump to app.
-        modifyStackPointerAndStartApp(&__app_code_start__);
     }
 }
 
