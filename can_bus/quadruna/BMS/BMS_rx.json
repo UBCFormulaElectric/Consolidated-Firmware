@@ -1,6 +1,7 @@
 {
     "messages": [
         "VC_Vitals",
+        "VC_InitiatePrecharge",
         "BRUSA_Vitals",
         "Debug_Charging",
         "Debug_CanMode",
