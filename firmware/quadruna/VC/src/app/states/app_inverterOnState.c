@@ -10,14 +10,18 @@
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
 
+#include "app_timer.h"
+
+static TimerChannel timer;
+
 static PowerStateConfig power_manager_inverter_on = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
         [EFUSE_CHANNEL_PUMP] = false,
         [EFUSE_CHANNEL_AUX] = false,
-        [EFUSE_CHANNEL_INV_R] = false,
-        [EFUSE_CHANNEL_INV_L] = false,
+        [EFUSE_CHANNEL_INV_R] = true,
+        [EFUSE_CHANNEL_INV_L] = true,
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
@@ -37,6 +41,9 @@ static void inverterOnStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
+
+    app_timer_init(&timer, 200U);
+    app_timer_restart(&timer);
 }
 
 static void inverterOnStateRunOnTick1Hz(void)
@@ -52,6 +59,8 @@ static void inverterOnStateRunOnTick100Hz(void)
 
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
+    const TimerState timer_state = app_timer_updateAndGetState(&timer);
+
     // const bool is_invr_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE ||
     //                            app_canRx_INVL_VsmState_get() == INVERTER_VSM_WAIT_STATE;
     // const bool is_invl_ready = app_canRx_INVL_VsmState_get() == INVERTER_VSM_READY_STATE ||
@@ -62,7 +71,11 @@ static void inverterOnStateRunOnTick100Hz(void)
 
     io_efuse_setChannel(EFUSE_CHANNEL_INV_R, true);
     io_efuse_setChannel(EFUSE_CHANNEL_INV_L, true);
-    app_canTx_VC_isPrechargeReady_set(true);
+
+    if (timer_state == TIMER_STATE_EXPIRED)
+    {
+        app_canTx_VC_isPrechargeReady_set(true);
+    }
 
     // if (!power_manager_inverter_on.efuses[EFUSE_CHANNEL_INV_R])
     // {
