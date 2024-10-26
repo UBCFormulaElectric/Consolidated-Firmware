@@ -212,7 +212,9 @@ function(stm32h733xx_cube_library
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
-    list(APPEND STM32CUBE_SRCS ${USB_SRCS})
+    if(USB_ENABLED)
+        list(APPEND STM32CUBE_SRCS ${USB_SRCS})
+    endif()
 
     embedded_library(
             "${HAL_LIB_NAME}"
