@@ -1,5 +1,7 @@
 #include "io_loadCell.h"
 #include "hw_adc.h"
+#include "hw_adcs.h"
+
 
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)
@@ -15,49 +17,32 @@ float loadCell_voltageToMechancialLoad(float voltage)
     return 0.0;
 }
 
-float loadCell_OCSC(int adcPin_toCheckl)
+float loadCell_OCSC(Adc adcPin_toCheck)
 {
-    float voltage = lc3_out.getVoltage();
-}
-
-} // namespace io::loadCell
-
-
-
-
-
-
-
-#include "app_loadCell.h"
-
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-#include "io_loadCell.h"
-#include "hw_adc.h"
-#include "io_mechanicalLoad.h"
-
-bool loadCell_OCSC(int adcPin_toCheck)
-{
-    const float voltage = hw_adc_getVoltage(ADC1_IN10_LC3_OUT);
+    float voltage = hw::adc::adcPin_toCheck.getVoltage();
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
 float io_loadCell_getMechanicalLoad3(void)
 {
-    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN10_LC3_OUT));
+    return loadCell_voltageToMechancialLoad(hw::adc::lc3_out.getVoltage());
 }
 
 float io_loadCell_getMechanicalLoad4(void)
 {
-    return loadCell_voltageToMechancialLoad(hw_adc_getVoltage(ADC1_IN0_LC4_OUT));
+    return loadCell_voltageToMechancialLoad(hw::adc::regen_3v3_lc3_out.getVoltage());
 }
 
 bool io_loadCell_sensor3OCSC(void)
 {
-    return loadCell_OCSC(ADC1_IN10_LC3_OUT);
+    return loadCell_OCSC(hw::adc::lc3_out);
 }
 
 bool io_loadCell_sensor4OCSC(void)
 {
-    return loadCell_OCSC(ADC1_IN0_LC4_OUT);
+    return loadCell_OCSC(hw::adc::regen_3v3_lc3_out);
 }
+
+}
+
+} // namespace io::loadCell

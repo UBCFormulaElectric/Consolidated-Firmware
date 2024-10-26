@@ -3,6 +3,10 @@
 namespace io::loadCell
 {
 
+    float loadCell_voltageToMechancialLoad(float voltage)
+
+    float loadCell_OCSC(Adc adcPin_toCheck)
+
     /**
     * @returns mechanical loadd based off adc pin voltage (after op-amp gain)
     */
