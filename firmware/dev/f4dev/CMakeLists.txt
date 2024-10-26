@@ -44,12 +44,13 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
-    stm32f412rx_cube_usb_library(
+    stm32f412rx_cube_library(
             "f4dev_stm32cube"
             "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(

@@ -113,6 +113,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            FALSE
     )
 
     # Telemetry Protocol Buffers
