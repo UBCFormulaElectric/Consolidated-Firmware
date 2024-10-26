@@ -54,7 +54,7 @@ extern const Adc              susp_travel_rr_3v3;
 extern const Adc              susp_travel_rl_3v3;
 extern const Adc              coolanttemp2_3v3;
 extern const Adc              coolanttemp1_3v3;
-extern const Adc                       regen_3v3_lc3_out;
+extern const Adc              regen_3v3_lc3_out;
 }
 
 
