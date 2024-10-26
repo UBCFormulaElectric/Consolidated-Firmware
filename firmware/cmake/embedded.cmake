@@ -251,6 +251,5 @@ function(embedded_image
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
 
-    log_bus_load(${IMAGE_HEX})
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()

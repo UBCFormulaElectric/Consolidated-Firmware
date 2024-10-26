@@ -105,23 +105,25 @@ endfunction()
 
 # post build function to calculate bus load should print the bus load
 # as we are planning to change the bitrates in the future so we can add bit rate as a parameter here 
-function(log_bus_load TARGET)
-    
-    set(CAN_DIR ${REPO_ROOT_DIR}/can_bus)
 
-    # usually dev board ?? Depends on how validation team is going to use it?
-    if(NOT DEFINED SHARED_CAR) 
-        return()
-    endif()
-
-    set(CAN_JSON_DIR ${CAN_DIR}/${SHARED_CAR})
+function(log_bus_load)
+    # Define CAN directory based on repository root directory
+    set(CAN_DIR "${REPO_ROOT_DIR}/can_bus")
+    set(CAN_JSON_DIR "${CAN_DIR}/${SHARED_CAR}")
     
-    add_custom_command(
-        TARGET ${TARGET}
-        POST_BUILD                 
-        COMMAND ${PYTHON_COMMAND} ${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py
-        --can_data_dir ${CAN_JSON_DIR}
-        WORKING_DIRECTORY ${REPO_ROOT_DIR}
+    # Add custom target to calculate bus load
+    message("  ************************ Calculating CAN bus load using JSON CAN data for ${SHARED_CAR}")
+    add_custom_target(
+        can_bus_load ALL
+        COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
+        --can_data_dir "${CAN_JSON_DIR}"
+        WORKING_DIRECTORY "${REPO_ROOT_DIR}"
+        COMMENT "Calculating CAN bus load using JSON CAN data for ${SHARED_CAR}"
     )
 endfunction()
+
+message("--------------------") 
+log_bus_load()
+
+
 
