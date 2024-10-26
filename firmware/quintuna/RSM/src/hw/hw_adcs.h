@@ -45,16 +45,16 @@ enum AdcChannel
 };
 
 extern const AdcChip<NUM_ADC_CHANNELS> adc1;
-const Adc                       acc_fan_i_sns;
-const Adc                       rad_fan_i_sns;
-const Adc                       coolantpressure1_3v3;
-const Adc                       coolantpressure2_3v3;
-const Adc                       lc3_out;
-const Adc                       susp_travel_rr_3v3;
-const Adc                       susp_travel_rl_3v3;
-const Adc                       coolanttemp2_3v3;
-const Adc                       coolanttemp1_3v3;
-const Adc                       regen_3v3_lc3_out;
+extern const Adc              acc_fan_i_sns;
+extern const Adc              rad_fan_i_sns;
+extern const Adc              coolantpressure1_3v3;
+extern const Adc              coolantpressure2_3v3;
+extern const Adc              lc3_out;
+extern const Adc              susp_travel_rr_3v3;
+extern const Adc              susp_travel_rl_3v3;
+extern const Adc              coolanttemp2_3v3;
+extern const Adc              coolanttemp1_3v3;
+extern const Adc                       regen_3v3_lc3_out;
 }
 
 
