@@ -36,9 +36,7 @@ set(EMBEDDED_INCLUDE_DIRS
 file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
 set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
-message("!!!!!! ${TARGET}")
 IF ("${TARGET}" STREQUAL "binary")
-    message("!!!!!! in it ${TARGET}")
     generate_stm32cube_code(
             "h7dev"
             "${IOC_PATH}"
@@ -72,12 +70,13 @@ IF ("${TARGET}" STREQUAL "binary")
 
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-    stm32h733xx_cube_usb_library(
+    stm32h733xx_cube_library(
             "h7dev_stm32cube"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
+            TRUE
     )
 
     embedded_binary(
