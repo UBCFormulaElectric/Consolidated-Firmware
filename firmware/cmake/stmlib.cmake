@@ -172,7 +172,7 @@ function(stm32h733xx_cube_library
     )
 
     if(USB_ENABLED)
-        list(APPEND "${USB_MIDDLEWARE_DIR}/Core/Inc" "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc")
+        list(APPEND STM32CUBE_INCLUDE_DIRS "${USB_MIDDLEWARE_DIR}/Core/Inc" "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc")
     endif()
 
     # HAL sources.
