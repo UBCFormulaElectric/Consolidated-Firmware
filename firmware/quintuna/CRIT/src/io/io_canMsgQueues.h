@@ -22,7 +22,7 @@ namespace can1
     }
 
     //should I be doing struct or unit32_t
-    bool popCan1TxMsgFromQueue(hw::can::CanMsg *tx_msg){
+    bool popMsgFromQueue(hw::can::CanMsg *tx_msg){
         return hw::can::can1.transmit(tx_msg);
     }
 
@@ -57,7 +57,7 @@ static CanMsgQueue can1queue{ io_canRx_filterMessageId, can1::TxQueueOverflowCal
                               can1::TxQueueOverflowClearCallback, can1::RxQueueOverflowClearCallback};
 
 void popRxMsgFromCan1Queue(){
-    hw::can::CanMsg rx_msg = can1queue.popRxMsgFromQueue();
+    hw::can::CanMsg tx_msg = can1queue.popRxMsgFromQueue();
 }
 } // namespace io
 
