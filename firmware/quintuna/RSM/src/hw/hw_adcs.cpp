@@ -2,7 +2,6 @@
 #include <assert.h>
 #include "hw_hal.h"
 #include "hw_adcConversions.h"
-#include "main.h" hello
 
 namespace hw::adc
 {
