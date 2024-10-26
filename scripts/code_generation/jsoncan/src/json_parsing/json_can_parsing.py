@@ -5,18 +5,14 @@ Module for parsing CAN JSON, and returning a CanDatabase object.
 import json
 import os
 from math import ceil
-from typing import Tuple, Any
+from typing import Any, Tuple
 
-from .schema_validation import (
-    validate_bus_json,
-    validate_enum_json,
-    validate_tx_json,
-    validate_alerts_json,
-    AlertsJson,
-)
 from ..can_database import *
-from ..can_database import CanSignal, CanMessage
+from ..can_database import CanMessage, CanSignal
 from ..utils import max_uint_for_bits
+from .schema_validation import (AlertsJson, validate_alerts_json,
+                                validate_bus_json, validate_enum_json,
+                                validate_tx_json)
 
 WARNINGS_ALERTS_CYCLE_TIME = 1000  # 1Hz
 FAULTS_ALERTS_CYCLE_TIME = 100  # 10Hz
@@ -43,7 +39,7 @@ def calc_signal_scale_and_offset(
 
 class JsonCanParser:
     def __init__(self, can_data_dir: str):
-        self._bus_cfg: CanBusConfig | None = None
+        self._bus_cfg: dict[str, CanBusConfig] | None = None
         self._nodes: list[str] = []  # List of node names
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
@@ -73,15 +69,9 @@ class JsonCanParser:
         """
         # Load shared JSON data
         # Parse bus data
-        bus_json_data = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
-        self._bus_cfg = CanBusConfig(
-            default_receiver=bus_json_data["default_receiver"],
-            bus_speed=bus_json_data["bus_speed"],
-            modes=bus_json_data["modes"],
-            default_mode=bus_json_data["default_mode"],
-        )
-        if self._bus_cfg.default_mode not in self._bus_cfg.modes:
-            raise InvalidCanJson(f"Default CAN mode is not in the list of modes.")
+        bus_json_datas = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
+        self._bus_cfg = self._get_parsed_can_bus_config(bus_json_datas)
+
 
         shared_enum_json_data = validate_enum_json(
             self._load_json_file(f"{can_data_dir}/shared_enum")
@@ -98,6 +88,7 @@ class JsonCanParser:
             )
             self._enums[enum_name] = can_enum
             self._shared_enums.append(can_enum)
+
 
         # Parse node's TX, ALERTS, and ENUM JSON
         self._nodes = [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
@@ -121,24 +112,12 @@ class JsonCanParser:
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_tx")
             )
             for tx_node_msg_name, msg_data in node_tx_json_data.items():
-                # Skip if message is disabled
-                msg_disabled, _ = self._get_optional_value(
-                    data=msg_data, key="disabled", default=False
-                )
-                if msg_disabled:
-                    continue
-
-                tx_node_msg_name = f"{node}_{tx_node_msg_name}"
-
-                # Check if this message name is a duplicate
-                if tx_node_msg_name in self._messages:
-                    raise InvalidCanJson(
-                        f"Message '{tx_node_msg_name}' transmitted by node '{node}' is a duplicate, messages must have unique names."
-                    )
-                self._messages[tx_node_msg_name] = self._get_parsed_can_message(
+                message = self._get_parsed_can_message(
                     msg_name=tx_node_msg_name, msg_json_data=msg_data, node=node
                 )
-
+                if message is not None:
+                    self._messages[ f"{node}_{tx_node_msg_name}"] = message
+       
             # Parse ALERTS
             node_alerts_json_data = validate_alerts_json(
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_alerts")
@@ -195,18 +174,69 @@ class JsonCanParser:
                 if rx_msg not in rx_msg.rx_nodes:
                     rx_msg.rx_nodes.append(node)
 
+    def _get_parsed_can_bus_config(self, bus_json_data: list[Dict]) -> dict[str, CanBusConfig]:
+        """
+        Parse JSON data dictionary representing a CAN bus configuration.
+        """
+        dict_bus_cfg = {}
+        for bus in bus_json_data:
+            if bus["default_mode"] not in bus["modes"]:
+                raise InvalidCanJson(
+                    f"Default CAN mode is not in the list of modes for bus '{bus['name']}'."
+                )
+            # no duplicate bus names
+            if bus["name"] in dict_bus_cfg:
+                raise InvalidCanJson(
+                    f"Bus '{bus['name']}' is a duplicate, buses must have unique names."
+                )
+            
+            dict_bus_cfg[bus["name"]] = CanBusConfig(
+                name=bus["name"],
+                default_receiver=bus["default_receiver"],
+                bus_speed=bus["bus_speed"],
+                modes=bus["modes"],
+                default_mode=bus["default_mode"],
+            )
+        return dict_bus_cfg
+    
+    # validate and parse JSON data for CAN messages
     def _get_parsed_can_message(
         self, msg_name: str, msg_json_data: Dict, node: str
     ) -> CanMessage:
         """
         Parse JSON data dictionary representing a CAN message.
         """
+        msg_disabled, _ = self._get_optional_value(
+                    data=msg_json_data, key="disabled", default=False
+                )
+        
+        if msg_disabled:
+            return None
+        
+        tx_node_msg_name = f"{node}_{msg_name}"
+
+        # Validate the message
+        bus = msg_json_data["bus"]
+        if bus not in [bus.name for bus in self._bus_cfg]:
+            raise InvalidCanJson(
+                f"Message '{tx_node_msg_name}' transmitted by '{node}' is on bus '{bus}', which is not defined in the 'bus.json' file."
+            )
+            
+        
+        # Check if this message name is a duplicate
+        if tx_node_msg_name in self._messages:
+            raise InvalidCanJson(
+                f"Message '{tx_node_msg_name}' transmitted by node '{node}' is a duplicate, messages must have unique names."
+            )
+        
+        # construct the data
         msg_id = msg_json_data["msg_id"]
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         msg_modes, _ = self._get_optional_value(
             msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
         )
+        bus = msg_json_data["bus"]
 
         log_cycle_time = msg_cycle_time
         telem_cycle_time = msg_cycle_time
@@ -224,7 +254,7 @@ class JsonCanParser:
             )
 
         for mode in msg_modes:
-            if mode not in self._bus_cfg.modes:
+            if mode not in self._bus_cfg[bus].modes:
                 raise InvalidCanJson(
                     f"Mode '{mode}' for message '{msg_name}' transmitted by '{node}' is not a valid mode. You may need to add it in the 'bus.json' file."
                 )
@@ -282,11 +312,12 @@ class JsonCanParser:
             cycle_time=msg_cycle_time,
             tx_node=node,
             rx_nodes=[
-                self._bus_cfg.default_receiver
+                self._bus_cfg[bus].default_receiver
             ],  # Every msg is received by the default receiver
             modes=msg_modes,
             log_cycle_time=log_cycle_time,
             telem_cycle_time=telem_cycle_time,
+            bus=bus,
         )
 
     def _get_parsed_can_signal(

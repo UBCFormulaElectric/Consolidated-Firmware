@@ -1,12 +1,15 @@
 {
-	"json.schemas": [
-		{
-			"fileMatch": [
-				"/can_bus/json/**/*tx.json"
-			],
-			"url": "/can_bus/json/schema_tx.json"
-		}
-	],
-	"cmake.configureOnEdit": false,
-	"cmake.configureOnOpen": false,
+  "json.schemas": [
+    {
+      "fileMatch": ["/can_bus/json/**/*tx.json"],
+      "url": "/can_bus/json/schema_tx.json"
+    }
+  ],
+  "cmake.configureOnEdit": false,
+  "cmake.configureOnOpen": false,
+  "files.associations": {
+    "*.c": "c",
+    "*.html": "html",
+    "app_allstates.h": "c"
+  }
 }
