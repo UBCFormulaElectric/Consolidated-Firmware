@@ -48,12 +48,33 @@ namespace io::coolant
        
     void init(void)
     {
-        coolant_config.init()
+        coolant_config.init();
     }
 
     void inputCaptureCallback(TIM_HandleTypeDef *htim) {
-        if (htim ==)
+        if (htim == coolant_config.getTimerHandle() &&
+            htim->Channel coolant_config.getTimerActiveChannel()) 
+            {
+                coolant_config.tick();
+            }
     }
+
+    float getFlowRate(void) 
+    {
+        const float freq_read = coolant_config.getFrequency();
+        return freq_read / FLOW_RATE_CONVERSION_FACTOR;
+    }
+
+    void checkIfFlowMeterActive(void) 
+    {
+        coolant_config.checkIfPwmIsActive();
+    }
+
+    bool temperature_ocsc(void) {
+        
+    }
+
+
 
 } // namespace io::coolant
 
