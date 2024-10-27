@@ -8,6 +8,12 @@
 #include "app_canTx.h"
 #include "io_log.h"
 #include "hw_pwms.h"
+#include "hw_adcs.h"
+#include "app_utils.h"
+
+extern "C" {
+#include "app_canTx.h"
+}
 
 // source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
 #define FLOW_RATE_CONVERSION_FACTOR (7.5f)
@@ -41,8 +47,6 @@
 // below are constants for Steinhart Hart EQN used to model temprature as a function of a resistor for a thermistor
 #define BTERM_STEIN_EQN(rtherm) ((float)log((float)(rtherm / R0)) / B_COEFFIECENT)
 
-
-
 namespace io::coolant
 { 
        
@@ -51,6 +55,7 @@ namespace io::coolant
         coolant_config.init();
     }
 
+    //change this. look at active channel
     void inputCaptureCallback(TIM_HandleTypeDef *htim) {
         if (htim == coolant_config.getTimerHandle() &&
             htim->Channel coolant_config.getTimerActiveChannel()) 
@@ -70,11 +75,45 @@ namespace io::coolant
         coolant_config.checkIfPwmIsActive();
     }
 
-    bool temperature_ocsc(void) {
-        
+    bool temperature_ocsc(float v) {
+        return v < TEMPERATURE_VOLTAGE_MIN || v > TEMPERATURE_VOLTAGE_MAX;
     }
 
+    float getTemperature(void) {
+        const float v_read = hw::adc::coolanttemp2_3v3.getVoltage();
+        app_canTx_RSM_Warning_CoolantTempAOCSC_set(temperature_ocsc(v_read));
 
+        const float v_out = CLAMP(v_read, TEMPERATURE_VOLTAGE_MIN, TEMPERATURE_VOLTAGE_MAX);
+        const float r_thermistor = RTHERM(v_out);
+        float       b_term = BTERM_STEIN_EQN(r_thermistor);
+        float       coolant_temp = (1 / (1 / T0 + b_term)); // source: https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation
+        float       coolant_temp_cel = coolant_temp - 273.15f;
+    
+        return coolant_temp_cel;
+    }
+
+    bool pressure_ocsc(float v) {
+        return v < PRESSURE_VOLTAGE_MIN || v > PRESSURE_VOLTAGE_MAX;
+    }
+
+    float getPressureA(void) {
+        const float water_pressure_A = hw::adc::coolantpressure1_3v3.getVoltage();
+        app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure_A));
+
+        return CLAMP(water_pressure_A, 0.0f, PRESSURE_PSI_MAX);
+    }
+
+    float getPressureB(void) {
+        const float water_pressure_B = hw::adc::coolantpressure2_3v3.getVoltage();
+        app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure_B));
+
+        return CLAMP(water_pressure_B, 0.0f, PRESSURE_PSI_MAX);
+    } 
+
+    bool pressureBOCSC(void) 
+    {
+        return (PRESSURE_VOLTAGE_MIN > (hw::adc::coolantpressure2_3v3.getVoltage()) || PRESSURE_VOLTAGE_MAX < (hw::adc::coolantpressure1_3v3.getVoltage()));
+    }
 
 } // namespace io::coolant
 

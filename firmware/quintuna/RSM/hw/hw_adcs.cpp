@@ -4,6 +4,7 @@
 #include "hw_adcConversions.h"
 #include "main.h"
 
+
 namespace hw::adc
 {
     const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1 };
