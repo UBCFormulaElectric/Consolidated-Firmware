@@ -83,7 +83,7 @@ if __name__ == "__main__":
         "--block_size", "-b", type=int, help="Block size in bytes", default=512
     )
     parser.add_argument(
-        "--block_count", "-N", type=int, help="Number of blocks", default=1024 * 1024
+        "--block_count", "-N", type=int, help="Number of blocks", default=1024 * 1024 * 15
     )
     parser.add_argument(
         "--output",
