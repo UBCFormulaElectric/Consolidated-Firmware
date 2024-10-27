@@ -7,6 +7,7 @@ import pandas as pd
 from tzlocal import get_localzone
 import logging
 from logfs import LogFs, LogFsUnixDisk
+import subprocess
 
 logging.basicConfig(level=logging.INFO)
 
@@ -104,9 +105,31 @@ if __name__ == "__main__":
         help="Descriptive name of this session.",
         required=True,
     )
+    parser.add_argument(
+        "--file_range", 
+        "-r", 
+        type=str, 
+        help="Range of file numbers to decode, e.g., '1-200'", 
+        default=None
+    )
+    parser.add_argument(
+        "--mf4",
+        action="store_true",
+        help="call csv_to_mf4 script",
+        default=None
+    )
+
     args = parser.parse_args()
 
-    files_to_decode = args.file.split(",") if args.file is not None else None
+    files_to_decode = []
+    if args.file:
+        files_to_decode = args.file.split(",")
+    elif args.file_range:
+        start, end = map(int, args.file_range.split("-"))
+        files_to_decode = [f"/{i}.txt" for i in range(start, end + 1)]
+    else: 
+        files_to_decode = None
+
     start_timestamp = pd.Timestamp(args.time, tz=get_localzone())
     start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H:%M")
 
@@ -214,3 +237,8 @@ if __name__ == "__main__":
                                 signal_unit,
                             ]
                         )
+    if args.mf4:
+        csv_dir = args.output
+        logger.info("Converting CSV files to MDF format.")
+        subprocess_args = ["python3", "csv_to_mf4.py", "--input", csv_dir]
+        subprocess.run(subprocess_args)
