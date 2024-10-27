@@ -12,7 +12,7 @@
 /* ------------------------------------ Defines ------------------------------------- */
 
 #define UART_RX_PACKET_SIZE 128 // Size of each received UART packet, in bytes
-#define QUEUE_MAX_SIZE 4095     // 4kB
+#define QUEUE_MAX_SIZE 4095     // 4kB, keep data low because it may watchdog
 
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart2;
