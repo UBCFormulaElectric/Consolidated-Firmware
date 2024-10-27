@@ -13,39 +13,15 @@ NUM_SIGNALS_BEFORE_LOG = 100
 logger = logging.getLogger(__name__)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--input",
-        "-i",
-        type=str,
-        help="Path to input directory of CSV files.",
-        default=os.path.join(script_dir, "..", "data"),
-    )
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=str,
-        help="Path to output directory for MDF files.",
-        default=os.path.join(script_dir, "..", "data_mf4"),
-    )
-    parser.add_argument(
-        "--file",
-        "-f",
-        type=str,
-        help="Files to decode (pass multiple with a comma-seperated string)",
-        default=None,
-    )
-    args = parser.parse_args()
-
-    files = args.file.split(",") if args.file is not None else None
+def csv_to_mf4(input, output, file):
+    files = file.split(",") if file is not None else None
 
     try:
-        for csv_name in sorted(os.listdir(path=args.input)):
+        for csv_name in sorted(os.listdir(path=input)):
 
             # Write out MDF file.
             csv_name_no_extension = os.path.splitext(csv_name)
-            out_path = os.path.abspath(os.path.join(args.output, csv_name_no_extension[0] + ".mf4"))
+            out_path = os.path.abspath(os.path.join(output, csv_name_no_extension[0] + ".mf4"))
 
             if os.path.exists(out_path) and files is None:
                 logger.info(f"Skipping '{csv_name}', MDF file '{out_path}' already exists.")
@@ -62,7 +38,7 @@ if __name__ == "__main__":
             logger.info(f"Converting CSV to MDF: {csv_name}")
 
             # Load CSV as a Pandas dataframe.
-            csv_path = os.path.join(args.input, csv_name)
+            csv_path = os.path.join(input, csv_name)
             df = pd.read_csv(csv_path, keep_default_na=False)
 
             # Group signals by signal name.
@@ -112,3 +88,30 @@ if __name__ == "__main__":
             if os.path.exists(out_path):
                 os.remove(out_path)
                 logger.info(f"Deleted incomplete MDF file: {out_path}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--input",
+        "-i",
+        type=str,
+        help="Path to input directory of CSV files.",
+        default=os.path.join(script_dir, "..", "data"),
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        type=str,
+        help="Path to output directory for MDF files.",
+        default=os.path.join(script_dir, "..", "data_mf4"),
+    )
+    parser.add_argument(
+        "--file",
+        "-f",
+        type=str,
+        help="Files to decode (pass multiple with a comma-seperated string)",
+        default=None,
+    )
+    args = parser.parse_args()
+
+    csv_to_mf4(args.input, args.output, args.file)

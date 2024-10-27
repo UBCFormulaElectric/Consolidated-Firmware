@@ -7,7 +7,7 @@ import pandas as pd
 from tzlocal import get_localzone
 import logging
 from logfs import LogFs, LogFsUnixDisk
-import subprocess
+from csv_to_mf4 import csv_to_mf4
 
 logging.basicConfig(level=logging.INFO)
 
@@ -240,5 +240,4 @@ if __name__ == "__main__":
     if args.mf4:
         csv_dir = args.output
         logger.info("Converting CSV files to MDF format.")
-        subprocess_args = ["python3", "csv_to_mf4.py", "--input", csv_dir]
-        subprocess.run(subprocess_args)
+        csv_to_mf4(input=args.output)
