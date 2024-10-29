@@ -133,6 +133,15 @@
             ]
         },
         {
+            "label": "Build Tests: CRIT (Quintuna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quintuna_CRIT_test"
+            ]
+        },
+        {
             "label": "Build Tests: FSM (Quadruna)",
             "group": "build",
             "type": "cmake",
