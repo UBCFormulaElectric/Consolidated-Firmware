@@ -26,7 +26,7 @@ IF("${TARGET}" STREQUAL "binary")
     CPMAddPackage(
             NAME STM32CUBEF4
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
-            GIT_TAG 3e907f83929363b6909ae1d9a3b7305866a67b82
+            GIT_TAG f3e28fdf492dd7839d3a72bbff694bc2809e29c4
             GIT_SHALLOW TRUE
     )
 
@@ -34,7 +34,7 @@ IF("${TARGET}" STREQUAL "binary")
     CPMAddPackage(
             NAME STM32CUBEH7
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH7
-            GIT_TAG 1e1def98759f14a4977ef6234c90dc10cbf43a48
+            GIT_TAG c709838f91f1356cd3461eb2c5981c481dd0884a
             GIT_SHALLOW TRUE
     )
 

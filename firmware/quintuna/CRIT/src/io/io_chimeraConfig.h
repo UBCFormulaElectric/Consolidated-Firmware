@@ -49,6 +49,7 @@ const hw::Gpio *id_to_gpio(uint32_t net_name)
         CASERETURN(CRIT_GpioNetName_LED, &hw::gpio::led_pin);
         default:
             assert(false);
+            return NULL;
     }
 }
 
@@ -59,5 +60,6 @@ const hw::Adc *id_to_adc(uint32_t net_name)
         CASERETURN(CRIT_AdcNetName_REGEN_3V3, &hw::adc::regen_3v3_adc);
         default:
             assert(false);
+            return NULL;
     }
 }
