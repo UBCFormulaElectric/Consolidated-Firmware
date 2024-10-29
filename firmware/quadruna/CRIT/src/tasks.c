@@ -37,10 +37,18 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
 
+#include <stm32f4xx_hal_adc.h>
+#include <stm32f4xx_hal_sd.h>
+#include <stm32f4xx_hal_uart.h>
+
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
 extern UART_HandleTypeDef huart2;
 extern CAN_HandleTypeDef  hcan1;
+extern ADC_HandleTypeDef  hadc3;
+extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart7;
 
 static const CanHandle can = { .can = &hcan1, .can_msg_received_callback = io_can_pushRxMsgToQueue };
 
@@ -404,6 +412,30 @@ static const CritShdnConfig crit_shdn_pin_config = { .cockpit_estop_gpio  = shdn
 void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
+}
+
+
+void tasks_JumpToApp(void)
+{
+    HAL_TIM_Base_Stop_IT(&htim3); // stops the timer and disables the interrupts
+    HAL_TIM_Base_DeInit(&htim3);
+
+    HAL_UART_Abort_IT(&huart1);
+    HAL_UART_Abort_IT(&huart2);
+    HAL_UART_Abort_IT(&huart3); // a communication protocol used for serial communication between devices
+    HAL_UART_Abort_IT(&huart7);
+    HAL_UART_DeInit(&huart1);
+    HAL_UART_DeInit(&huart2);
+    HAL_UART_DeInit(&huart3);
+    HAL_UART_DeInit(&huart7);
+
+    HAL_CAN_IRQHandler(&hcan1);
+    HAL_CAN_DeInit(&hcan1);
+
+    HAL_ADC_Stop_IT(&hadc1);
+    HAL_ADC_Stop_IT(&hadc3);
+    HAL_ADC_DeInit(&hadc1); // analog to digital signals
+    HAL_ADC_DeInit(&hadc3);
 }
 
 void tasks_init(void)
