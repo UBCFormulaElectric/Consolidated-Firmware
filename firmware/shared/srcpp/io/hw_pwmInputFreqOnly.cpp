@@ -2,11 +2,11 @@
 #include "hw_pwmInputFreqOnly.h"
 #include <assert.h>
 
-namespace hw 
+namespace hw
 {
 void PwmInputFreqOnly::setFrequency(float frequency)
 {
-    //TODO: set an assert here
+    // TODO: set an assert here
 
     assert(frequency >= 0);
     frequency_hz = frequency;
@@ -41,31 +41,30 @@ void PwmInputFreqOnly::tick(void)
     // We store the counter values captured during two most recent rising edges.
     // The difference between these two counter values is used to compute the
     // frequency of the PWM input signal.
-    if(first_tick)
+    if (first_tick)
     {
-        curr_rising_edge = 
-            HAL_TIM_ReadCapturedValue(htim, tim_channel);
-        first_tick = false;
+        curr_rising_edge = HAL_TIM_ReadCapturedValue(htim, tim_channel);
+        first_tick       = false;
     }
     else
     {
         prev_rising_edge = curr_rising_edge;
-        curr_rising_edge = 
-            HAL_TIM_ReadCapturedValue(htim, tim_channel);
+        curr_rising_edge = HAL_TIM_ReadCapturedValue(htim, tim_channel);
 
-        uint32_t rising_edge_delta;
+        uint32_t       rising_edge_delta;
         const uint32_t prev_rising = prev_rising_edge;
         const uint32_t curr_rising = curr_rising_edge;
 
-        if(curr_rising > prev_rising)
+        if (curr_rising > prev_rising)
         {
             rising_edge_delta = curr_rising - prev_rising;
-            setFrequency( tim_frequency_hz / (float) rising_edge_delta );
+            setFrequency(tim_frequency_hz / (float)rising_edge_delta);
         }
         else if (curr_rising < prev_rising)
         {
             // Occurs when the counter rolls over
-            //This plus one need to be removed (Ill remove it but need to see if was done intetionally based on legacy code)
+            // This plus one need to be removed (Ill remove it but need to see if was done intetionally based on legacy
+            // code)
             rising_edge_delta = tim_auto_reload_reg - prev_rising + curr_rising + 1;
             setFrequency(tim_frequency_hz / (float)rising_edge_delta);
         }
@@ -82,10 +81,10 @@ void PwmInputFreqOnly::tick(void)
 
 void PwmInputFreqOnly::checkIfPwmIsActive(void)
 {
-    if(++tim_overflow_count == 2U)
+    if (++tim_overflow_count == 2U)
     {
         setFrequency(0.0f);
     }
 }
 
-}
+} // namespace hw
