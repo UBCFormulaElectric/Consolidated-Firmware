@@ -2,7 +2,6 @@
 #include "hw_adc.h"
 #include "hw_adcs.h"
 
-
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
@@ -17,7 +16,7 @@ float loadCell_voltageToMechancialLoad(float voltage)
     return 0.0;
 }
 
-float loadCell_OCSC(Adc adcPin_toCheck)
+bool loadCell_OCSC(Adc adcPin_toCheck)
 {
     float voltage = hw::adc::adcPin_toCheck.getVoltage();
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
@@ -25,7 +24,7 @@ float loadCell_OCSC(Adc adcPin_toCheck)
 
 float io_loadCell_getMechanicalLoad3(void)
 {
-    return loadCell_voltageToMechancialLoad(hw::adc::lc3_out.getVoltage());
+    return loadCell_voltageToMechanical(hw::adc::lc3_out.getVoltage());
 }
 
 float io_loadCell_getMechanicalLoad4(void)

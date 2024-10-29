@@ -1,30 +1,32 @@
 #pragma once
 #include "hw_gpios.h"
+#include "app_canTx.h"
 
-namespace io::fans {
+namespace io::fans
+{
 
-void io_acc_fan_set(bool on);
-void io_rad_fan_set(bool on);
-
-const io
+void acc_fan_set(bool on);
+void rad_fan_set(bool on);
 
 class Fans
 {
-    private:
-        hw::Gpio &acc_fan;
-        hw::Gpio &rad_fan;
+  private:
+    const hw::Gpio &acc_fan;
+    const hw::Gpio &rad_fan;
 
-    public:
-        explicit Fans(const hw::Gpio &acc_fan_in, hw::Gpio &rad_fan_in) : acc_fan(acc_fan_in), rad_fan(rad_fan_in) {}
+  public:
+    explicit Fans(const hw::Gpio &acc_fan_in, const hw::Gpio &rad_fan_in) : acc_fan(acc_fan_in), rad_fan(rad_fan_in) {}
 
-        void acc_fan_set(bool on){
-            acc_fan.writePin(on);
-            app_canTx_RSM_AccumulatorFan_set(on);
-        }
-        
-        void rad_fan_set(bool on) {
-            rad_fan.writePin(on);
-            app_canTx_RSM_RadiatorFan_set(on);
-        }
+    void acc_fan_set(bool on)
+    {
+        acc_fan.writePin(on);
+        app_canTx_RSM_AccumulatorFan_set(on);
+    }
+
+    void rad_fan_set(bool on)
+    {
+        rad_fan.writePin(on);
+        app_canTx_RSM_RadiatorFan_set(on);
+    }
 }
-}
+} // namespace io::fans

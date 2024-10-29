@@ -5,7 +5,6 @@
 namespace hw::adc
 {
 
-
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC
 // measures them based on "rank" (See: ADCEx_regular_rank). The rank starts
@@ -45,14 +44,14 @@ enum AdcChannel
 };
 
 extern const AdcChip<NUM_ADC_CHANNELS> adc1;
-const Adc                       acc_fan_i_sns;
-const Adc                       rad_fan_i_sns;
-const Adc                       coolantpressure1_3v3;
-const Adc                       coolantpressure2_3v3;
-const Adc                       lc3_out;
-const Adc                       susp_travel_rr_3v3;
-const Adc                       susp_travel_rl_3v3;
-const Adc                       coolanttemp2_3v3;
-const Adc                       coolanttemp1_3v3;
-const Adc                       regen_3v3_lc3_out;
-}
+const Adc                              acc_fan_i_sns;
+const Adc                              rad_fan_i_sns;
+const Adc                              coolantpressure1_3v3;
+const Adc                              coolantpressure2_3v3;
+const Adc                              lc3_out;
+const Adc                              susp_travel_rr_3v3;
+const Adc                              susp_travel_rl_3v3;
+const Adc                              coolanttemp2_3v3;
+const Adc                              coolanttemp1_3v3;
+const Adc                              regen_3v3_lc3_out;
+} // namespace hw::adc
