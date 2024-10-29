@@ -11,15 +11,5 @@
                 "enum": "FSMState"
             }
         }
-    },
-    "FSMShdnNodeStatus": {
-        "msg_id": 309,
-        "cycle_time": 100,
-        "description": "FSM Shutdown Node Status",
-        "signals": {
-            "BOTSOKStatus": {
-                "bits": 1
-            }
-        }
     }
 }
