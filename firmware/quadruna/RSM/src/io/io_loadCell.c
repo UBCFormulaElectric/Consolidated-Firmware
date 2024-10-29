@@ -20,7 +20,7 @@ float loadCell_voltageToMechancialLoad(float voltage)
 
 bool loadCell_OCSC(int adcPin_toCheck)
 {
-    const float voltage = hw_adc_getVoltage(adcPin_toCheck);
+    const float voltage = hw_adc_getVoltage(ADC1_IN10_LC3_OUT);
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
