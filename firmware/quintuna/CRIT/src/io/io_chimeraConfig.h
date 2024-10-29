@@ -5,7 +5,7 @@
 #include "hw_adcs.h"
 #include "CRIT.pb.h"
 
-const hw::Gpio *id_to_gpio(CRIT_GpioNetName net_name)
+const hw::Gpio *id_to_gpio(uint32_t net_name)
 {
     switch (static_cast<CRIT_GpioNetName>(net_name))
     {

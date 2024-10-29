@@ -88,7 +88,7 @@ void msgRxCallback()
     if (is_mid_debug_msg)
     {
         DebugMessage msg       = DebugMessage_init_zero;
-        // pb_istream_t in_stream = pb_istream_from_buffer(data, rx_packet_size);
+        pb_istream_t in_stream = pb_istream_from_buffer(data, rx_packet_size);
         assert(pb_decode(&in_stream, DebugMessage_fields, &msg));
 
         switch (msg.which_payload)
