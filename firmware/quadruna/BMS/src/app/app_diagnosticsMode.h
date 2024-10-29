@@ -8,6 +8,6 @@
 #include "ltc6813/io_ltc6813Shared.h"
 
 /**
- * Broadcast state of the accumulator diagnostics over CAN.
+ * Calculate and broadcast state of the accumulator diagnostics over CAN.
  */
 void app_diagnosticsMode_broadcast(void);

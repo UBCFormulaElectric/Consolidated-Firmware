@@ -282,7 +282,7 @@
     "Segment0_VoltageStats_0": {
         "msg_id": 124,
         "cycle_time": 100,
-        "description": "BMS Segment 1 Voltage Stats Part 0",
+        "description": "BMS Segment 0 Voltage Stats Part 0",
         "signals": {
             "Seg0_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -337,7 +337,7 @@
     "Segment0_VoltageStats_1": {
         "msg_id": 125,
         "cycle_time": 100,
-        "description": "BMS Segment 1 Voltage Stats Part 1",
+        "description": "BMS Segment 0 Voltage Stats Part 1",
         "signals": {
             "Seg0_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -475,6 +475,67 @@
             },
             "TSIlckOKStatus": {
                 "bits": 1
+            }
+        }
+    },
+    "Segment0_TemperatureStats": {
+        "msg_id": 144,
+        "cycle_time": 100,
+        "description": "BMS Shutdown Node Status",
+        "signals": {
+            "Seg0_Thermistor0_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor1_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor2_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor3_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor4_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor5_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor6_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0_Thermistor7_Temp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "Seg0AvgTemp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
             }
         }
     }
