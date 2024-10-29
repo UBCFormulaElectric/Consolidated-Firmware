@@ -213,6 +213,49 @@
       },
     },
     {
+      "name": "Debug Embedded: CRIT (Quintuna)",
+      "cwd": "${workspaceRoot}",
+      // binary config
+      "executable": "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT.hex",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_boot.elf",
+        "build_fw_dev/firmware/quintuna/CRIT/quintuna_CRIT_app.elf",
+      ],
+      "preLaunchTask": "Build Embedded: CRIT (Quintuna)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe",
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer",
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL",
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32F412RG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      },
+    },
+    {
       "name": "Debug Embedded: f4dev",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/dev/f4dev/f4dev.elf",
