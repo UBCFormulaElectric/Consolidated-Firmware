@@ -5,5 +5,5 @@
 
 namespace hw::pwm
 {
-    extern const PwmInputFreqOnly coolant_config;
-} // namespace hw:pwm
+extern const PwmInputFreqOnly coolant_config;
+} // namespace hw::pwm
