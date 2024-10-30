@@ -13,7 +13,7 @@ NUM_SIGNALS_BEFORE_LOG = 100
 logger = logging.getLogger(__name__)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-def csv_to_mf4(input: str, output: str, file: str) -> None:
+def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> None:
     """
     Convert csv files to mf4 files. Defaults to taking files in the software/tracksight/backend/data
     to software/tracksight/backend/data_mf4
