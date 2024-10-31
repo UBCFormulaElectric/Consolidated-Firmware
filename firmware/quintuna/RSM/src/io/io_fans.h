@@ -1,6 +1,10 @@
 #pragma once
 #include "hw_gpios.h"
+
+extern "C"
+{
 #include "app_canTx.h"
+}
 
 namespace io::fans
 {

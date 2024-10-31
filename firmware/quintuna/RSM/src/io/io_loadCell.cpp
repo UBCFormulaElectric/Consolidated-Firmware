@@ -9,7 +9,7 @@
 namespace io::loadCell
 {
 
-float loadCell_voltageToMechancialLoad(float voltage)
+float voltageToMechancialLoad(float voltage)
 {
     // TODO: find transfer function (no spec sheet so far just this amazon link:
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
@@ -22,24 +22,24 @@ bool loadCell_OCSC(Adc adcPin_toCheck)
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float io_loadCell_getMechanicalLoad3(void)
+float getMechanicalLoad3(void)
 {
-    return loadCell_voltageToMechanical(hw::adc::lc3_out.getVoltage());
+    return voltageToMechanical(hw::adc::lc3_out.getVoltage());
 }
 
-float io_loadCell_getMechanicalLoad4(void)
+float getMechanicalLoad4(void)
 {
-    return loadCell_voltageToMechancialLoad(hw::adc::regen_3v3_lc3_out.getVoltage());
+    return voltageToMechancialLoad(hw::adc::regen_3v3_lc3_out.getVoltage());
 }
 
-bool io_loadCell_sensor3OCSC(void)
+bool sensor3OCSC(void)
 {
-    return loadCell_OCSC(hw::adc::lc3_out);
+    return OCSC(hw::adc::lc3_out);
 }
 
-bool io_loadCell_sensor4OCSC(void)
+bool sensor4OCSC(void)
 {
-    return loadCell_OCSC(hw::adc::regen_3v3_lc3_out);
+    return OCSC(hw::adc::regen_3v3_lc3_out);
 }
 
 }
