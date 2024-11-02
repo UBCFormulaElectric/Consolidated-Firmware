@@ -1,3 +1,10 @@
 {
-    
+    "DiagnosticsModeDebug": {
+        "SEG_0": 0,
+        "SEG_1": 1,
+        "SEG_2": 2,
+        "SEG_3": 3,
+        "SEG_4": 4,
+        "SEG_ALL": 5
+    }
 }
