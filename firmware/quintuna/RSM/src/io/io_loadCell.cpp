@@ -16,7 +16,7 @@ float voltageToMechancialLoad(float voltage)
     return 0.0;
 }
 
-bool loadCell_OCSC(Adc adcPin_toCheck)
+bool OCSC(Adc adcPin_toCheck)
 {
     float voltage = hw::adc::adcPin_toCheck.getVoltage();
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
