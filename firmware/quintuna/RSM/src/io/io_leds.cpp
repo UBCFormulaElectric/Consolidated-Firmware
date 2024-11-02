@@ -11,7 +11,8 @@ namespace io::leds
 
 void brake_light_set(bool val)
 {
-    io::leds::brake_light.set(val) app_canTx_RSM_BrakeLight_set(val);
+    io::leds::brake_light.set(val);
+    app_canTx_RSM_BrakeLight_set(val);
 }
 
 void io_led_set(bool val)
