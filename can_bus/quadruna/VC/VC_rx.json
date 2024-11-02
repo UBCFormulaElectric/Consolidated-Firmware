@@ -25,6 +25,7 @@
         "INVL_Temperatures3",
         "INVR_InternalStates",
         "INVR_MotorPositionInfo",
-        "INVR_Temperatures3"
+        "INVR_Temperatures3",
+        "Boot_Begin"
     ]
 }
