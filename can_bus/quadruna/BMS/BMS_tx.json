@@ -369,67 +369,7 @@
             }
         }
     },
-    "Segment0_TemperatureStats": {
-        "msg_id": 144,
-        "cycle_time": 100,
-        "description": "BMS Shutdown Node Status",
-        "signals": {
-            "Seg0_Thermistor0_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor1_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor2_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor3_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor4_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor5_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor6_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0_Thermistor7_Temp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            },
-            "Seg0AvgTemp": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 5,
-                "unit": "degC"
-            }
-        }
-    },
+
     "Segment0_VoltageStats_0": {
         "msg_id": 154,
         "cycle_time": 1000,
@@ -1007,6 +947,43 @@
                 "min": 0,
                 "max": 5,
                 "unit": "V"
+            }
+        }
+    },
+    "AverageSegmentTemperatureStats": {
+        "msg_id": 165,
+        "cycle_time": 1000,
+        "description": "Average temperatures for each segment in the accumulator",
+        "signals": {
+            "Seg0_Temp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg1_Temp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg2_Temp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg3_Temp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            },
+            "Seg4_Temp": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
             }
         }
     }
