@@ -9,11 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"stdbool.h": "c",
-		"main.h": "c",
-		"tasks.h": "c",
-		"app_commitinfo.h": "c",
-		"io_bootloader.h": "c"
-	},
 }
