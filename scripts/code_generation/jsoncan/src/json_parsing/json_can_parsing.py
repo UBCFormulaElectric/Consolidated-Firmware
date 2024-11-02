@@ -39,7 +39,7 @@ def calc_signal_scale_and_offset(
 
 class JsonCanParser:
     def __init__(self, can_data_dir: str):
-        self._bus_cfg: dict[str, CanBusConfig] | None = None
+        self._buses_cfg: dict[str, CanBusConfig] | None = None
         self._nodes: list[str] = []  # List of node names
         self._messages: dict[str, CanMessage] = {}  # Dict of msg names to msg objects
         self._enums: dict[str, CanEnum] = {}  # Dict of enum names to enum objects
@@ -57,7 +57,7 @@ class JsonCanParser:
         """
         return CanDatabase(
             nodes=self._nodes,
-            bus_config=self._bus_cfg,
+            bus_config=self._buses_cfg,
             msgs={msg.id: msg for msg in self._messages.values()},
             shared_enums=self._shared_enums,
             alerts=self._alerts,
@@ -70,7 +70,7 @@ class JsonCanParser:
         # Load shared JSON data
         # Parse bus data
         bus_json_datas = validate_bus_json(self._load_json_file(f"{can_data_dir}/bus"))
-        self._bus_cfg = self._get_parsed_can_bus_config(bus_json_datas)
+        self._buses_cfg = self._get_parsed_can_bus_config(bus_json_datas)
 
 
         shared_enum_json_data = validate_enum_json(
@@ -107,11 +107,12 @@ class JsonCanParser:
                     enum_name=enum_name, enum_entries=enum_entries
                 )
 
-            # Parse TX messages
+            # validate tx json schema
             node_tx_json_data = validate_tx_json(
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_tx")
             )
             for tx_node_msg_name, msg_data in node_tx_json_data.items():
+                # Parse TX and store in _messages
                 message = self._get_parsed_can_message(
                     msg_name=tx_node_msg_name, msg_json_data=msg_data, node=node
                 )
@@ -119,6 +120,7 @@ class JsonCanParser:
                     self._messages[ f"{node}_{tx_node_msg_name}"] = message
        
             # Parse ALERTS
+            # validate alerts json schema
             node_alerts_json_data = validate_alerts_json(
                 self._load_json_file(f"{can_data_dir}/{node}/{node}_alerts")
             )
@@ -200,6 +202,7 @@ class JsonCanParser:
         return dict_bus_cfg
     
     # validate and parse JSON data for CAN messages
+    # parse the multiple JSON files for each node
     def _get_parsed_can_message(
         self, msg_name: str, msg_json_data: Dict, node: str
     ) -> CanMessage:
@@ -217,7 +220,7 @@ class JsonCanParser:
 
         # Validate the message
         bus = msg_json_data["bus"]
-        if bus not in [bus.name for bus in self._bus_cfg]:
+        if bus not in [b for b in self._buses_cfg]:
             raise InvalidCanJson(
                 f"Message '{tx_node_msg_name}' transmitted by '{node}' is on bus '{bus}', which is not defined in the 'bus.json' file."
             )
@@ -234,7 +237,7 @@ class JsonCanParser:
         description, _ = self._get_optional_value(msg_json_data, "description", "")
         msg_cycle_time = msg_json_data["cycle_time"]
         msg_modes, _ = self._get_optional_value(
-            msg_json_data, "allowed_modes", [self._bus_cfg.default_mode]
+            msg_json_data, "allowed_modes", [self._buses_cfg.default_mode]
         )
         bus = msg_json_data["bus"]
 
@@ -254,7 +257,7 @@ class JsonCanParser:
             )
 
         for mode in msg_modes:
-            if mode not in self._bus_cfg[bus].modes:
+            if mode not in self._buses_cfg[bus].modes:
                 raise InvalidCanJson(
                     f"Mode '{mode}' for message '{msg_name}' transmitted by '{node}' is not a valid mode. You may need to add it in the 'bus.json' file."
                 )
@@ -312,7 +315,7 @@ class JsonCanParser:
             cycle_time=msg_cycle_time,
             tx_node=node,
             rx_nodes=[
-                self._bus_cfg[bus].default_receiver
+                self._buses_cfg[bus].default_receiver
             ],  # Every msg is received by the default receiver
             modes=msg_modes,
             log_cycle_time=log_cycle_time,
@@ -560,8 +563,8 @@ class JsonCanParser:
                 telem_cycle_time=cycle_time,
                 signals=signals,
                 tx_node=node,
-                rx_nodes=[self._bus_cfg.default_receiver],
-                modes=[self._bus_cfg.default_mode],
+                rx_nodes=[self._buses_cfg.default_receiver],
+                modes=[self._buses_cfg.default_mode],
             )
             for name, msg_id, description, signals, cycle_time in [
                 (
