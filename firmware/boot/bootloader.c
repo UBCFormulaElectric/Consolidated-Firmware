@@ -47,7 +47,6 @@ extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
-
 typedef struct
 {
     uint32_t checksum;
