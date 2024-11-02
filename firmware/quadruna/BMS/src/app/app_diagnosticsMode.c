@@ -18,7 +18,7 @@ typedef struct
 
 static BMSDiagnosticStats data;
 
-static void app_diagnosticsMode_calculateDiagnosticVoltageStats(void)
+void app_diagnosticsMode_calculateDiagnosticVoltageStats(void)
 {
     // Find the min and max voltages
     for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
@@ -32,7 +32,7 @@ static void app_diagnosticsMode_calculateDiagnosticVoltageStats(void)
     }
 }
 
-static void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
+void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 {
     for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
