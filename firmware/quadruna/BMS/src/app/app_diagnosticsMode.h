@@ -8,6 +8,17 @@
 #include "ltc6813/io_ltc6813Shared.h"
 
 /**
- * Calculate and broadcast state of the accumulator diagnostics over CAN.
+ * Broadcast state of the accumulator diagnostics over CAN.
  */
 void app_diagnosticsMode_broadcast(void);
+
+/**
+ * Obtain and store the voltage stats of all cells in the accumulator.
+ */
+static void app_diagnosticsMode_calculateDiagnosticVoltageStats(void);
+
+/**
+ * Calculate the average temperature of each segment.
+ */
+static void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void);
+
