@@ -32,5 +32,14 @@
     "CAN_AccumulatorMonitorState": {
         "CAN_GET_CELL_VOLTAGE_STATE": 0,
         "CAN_GET_CELL_TEMPERATURE_STATE": 1
+    },
+
+    "DiagnosticsMode": {
+        "SEG_0": 0,
+        "SEG_1": 1,
+        "SEG_2": 2,
+        "SEG_3": 3,
+        "SEG_4": 4,
+        "SEG_ALL": 5
     }
 }

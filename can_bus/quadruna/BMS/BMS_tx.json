@@ -284,6 +284,9 @@
         "cycle_time": 100,
         "description": "BMS Segment 0 Voltage Stats Part 0",
         "signals": {
+            "DiagnosticsState": {
+                "enum": "DiagnosticsMode"
+            },
             "Seg0_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -484,55 +487,55 @@
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor1_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor2_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor3_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor4_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor5_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor6_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0_Thermistor7_Temp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             },
             "Seg0AvgTemp": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 5,
-                "unit": "V"
+                "unit": "degC"
             }
         }
     }
