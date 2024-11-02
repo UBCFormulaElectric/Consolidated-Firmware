@@ -369,15 +369,11 @@
             }
         }
     },
-
     "Segment0_VoltageStats_0": {
         "msg_id": 154,
         "cycle_time": 1000,
         "description": "BMS Segment 0 Voltage Stats Part 0",
         "signals": {
-            "DiagnosticsState_Seg_0_VoltageStats_0": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg0_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -433,9 +429,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 0 Voltage Stats Part 1",
         "signals": {
-            "DiagnosticsState_Seg_0_VoltageStats_1": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg0_Cell8_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -491,9 +484,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 0",
         "signals": {
-            "DiagnosticsState_Seg_1_VoltageStats_0": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg1_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -549,9 +539,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 1",
         "signals": {
-            "DiagnosticsState_Seg_1_VoltageStats_1": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg1_Cell8_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -607,9 +594,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 0",
         "signals": {
-            "DiagnosticsState_Seg_2_VoltageStats_0": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg2_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -665,9 +649,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 1",
         "signals": {
-            "DiagnosticsState_Seg_2_VoltageStats_1": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg2_Cell8_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -723,9 +704,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 0",
         "signals": {
-            "DiagnosticsState_Seg_3_VoltageStats_0": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg3_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -781,9 +759,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 1",
         "signals": {
-            "DiagnosticsState_Seg_3_VoltageStats_1": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg3_Cell8_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -839,9 +814,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 4 Voltage Stats Part 0",
         "signals": {
-            "DiagnosticsState_Seg_4_VoltageStats_0": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg4_Cell0_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
@@ -897,9 +869,6 @@
         "cycle_time": 1000,
         "description": "BMS Segment 4 Voltage Stats Part 1",
         "signals": {
-            "DiagnosticsState_Seg_4_VoltageStats_1": {
-                "enum": "DiagnosticsMode"
-            },
             "Seg4_Cell8_Voltage": {
                 "resolution": 0.1,
                 "min": 0,
