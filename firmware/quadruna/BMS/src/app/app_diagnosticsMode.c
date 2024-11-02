@@ -12,7 +12,7 @@
 typedef struct
 {
     float       cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
-    float       segment_temps[ACCUMULATOR_NUM_SEGMENTS];
+    uint8_t       segment_temps[ACCUMULATOR_NUM_SEGMENTS];
 } BMSDiagnosticStats;
 
 static BMSDiagnosticStats data;
@@ -49,31 +49,212 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
             }
         }
 
-        data.segment_temps[curr_segment] = sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT;
+        data.segment_temps[curr_segment] = (uint8_t) sum_segment_temp / NUM_OF_THERMISTORS_PER_SEGMENT;
     }
 }
 
 void app_diagnosticsMode_broadcast(void)
 {
+
     app_diagnosticsMode_calculateDiagnosticVoltageStats();
     app_diagnosticsMode_calculateDiagnosticTemperatureStats();
+    app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
 
-    app_canTx_BMS_Seg0_Cell0_Voltage_set(data.cell_voltages[0][0]);
-    app_canTx_BMS_Seg0_Cell1_Voltage_set(data.cell_voltages[0][1]);
-    app_canTx_BMS_Seg0_Cell2_Voltage_set(data.cell_voltages[0][2]);
-    app_canTx_BMS_Seg0_Cell3_Voltage_set(data.cell_voltages[0][3]);
-    app_canTx_BMS_Seg0_Cell4_Voltage_set(data.cell_voltages[0][4]);
-    app_canTx_BMS_Seg0_Cell5_Voltage_set(data.cell_voltages[0][5]);
-    app_canTx_BMS_Seg0_Cell6_Voltage_set(data.cell_voltages[0][6]);
-    app_canTx_BMS_Seg0_Cell7_Voltage_set(data.cell_voltages[0][7]);
-    app_canTx_BMS_Seg0_Cell8_Voltage_set(data.cell_voltages[0][8]);
-    app_canTx_BMS_Seg0_Cell9_Voltage_set(data.cell_voltages[0][9]);
-    app_canTx_BMS_Seg0_Cell10_Voltage_set(data.cell_voltages[0][10]);
-    app_canTx_BMS_Seg0_Cell11_Voltage_set(data.cell_voltages[0][11]);
-    app_canTx_BMS_Seg0_Cell12_Voltage_set(data.cell_voltages[0][12]);
-    app_canTx_BMS_Seg0_Cell13_Voltage_set(data.cell_voltages[0][13]);
-    app_canTx_BMS_Seg0_Cell14_Voltage_set(data.cell_voltages[0][14]);
-    app_canTx_BMS_Seg0_Cell15_Voltage_set(data.cell_voltages[0][15]);
+    switch() {
+        case 0:
 
-    app_canTx_BMS_Seg0AvgTemp_set(data.segment_temps[0]);
+        app_canTx_BMS_Seg0_Cell0_Voltage_set(data.cell_voltages[0][0]);
+        app_canTx_BMS_Seg0_Cell1_Voltage_set(data.cell_voltages[0][1]);
+        app_canTx_BMS_Seg0_Cell2_Voltage_set(data.cell_voltages[0][2]);
+        app_canTx_BMS_Seg0_Cell3_Voltage_set(data.cell_voltages[0][3]);
+        app_canTx_BMS_Seg0_Cell4_Voltage_set(data.cell_voltages[0][4]);
+        app_canTx_BMS_Seg0_Cell5_Voltage_set(data.cell_voltages[0][5]);
+        app_canTx_BMS_Seg0_Cell6_Voltage_set(data.cell_voltages[0][6]);
+        app_canTx_BMS_Seg0_Cell7_Voltage_set(data.cell_voltages[0][7]);
+        app_canTx_BMS_Seg0_Cell8_Voltage_set(data.cell_voltages[0][8]);
+        app_canTx_BMS_Seg0_Cell9_Voltage_set(data.cell_voltages[0][9]);
+        app_canTx_BMS_Seg0_Cell10_Voltage_set(data.cell_voltages[0][10]);
+        app_canTx_BMS_Seg0_Cell11_Voltage_set(data.cell_voltages[0][11]);
+        app_canTx_BMS_Seg0_Cell12_Voltage_set(data.cell_voltages[0][12]);
+        app_canTx_BMS_Seg0_Cell13_Voltage_set(data.cell_voltages[0][13]);
+        app_canTx_BMS_Seg0_Cell14_Voltage_set(data.cell_voltages[0][14]);
+        app_canTx_BMS_Seg0_Cell15_Voltage_set(data.cell_voltages[0][15]);
+        
+        break;
+        case 1:
+
+        app_canTx_BMS_Seg1_Cell0_Voltage_set(data.cell_voltages[1][0]);
+        app_canTx_BMS_Seg1_Cell1_Voltage_set(data.cell_voltages[1][1]);
+        app_canTx_BMS_Seg1_Cell2_Voltage_set(data.cell_voltages[1][2]);
+        app_canTx_BMS_Seg1_Cell3_Voltage_set(data.cell_voltages[1][3]);
+        app_canTx_BMS_Seg1_Cell4_Voltage_set(data.cell_voltages[1][4]);
+        app_canTx_BMS_Seg1_Cell5_Voltage_set(data.cell_voltages[1][5]);
+        app_canTx_BMS_Seg1_Cell6_Voltage_set(data.cell_voltages[1][6]);
+        app_canTx_BMS_Seg1_Cell7_Voltage_set(data.cell_voltages[1][7]);
+        app_canTx_BMS_Seg1_Cell8_Voltage_set(data.cell_voltages[1][8]);
+        app_canTx_BMS_Seg1_Cell9_Voltage_set(data.cell_voltages[1][9]);
+        app_canTx_BMS_Seg1_Cell10_Voltage_set(data.cell_voltages[1][10]);
+        app_canTx_BMS_Seg1_Cell11_Voltage_set(data.cell_voltages[1][11]);
+        app_canTx_BMS_Seg1_Cell12_Voltage_set(data.cell_voltages[1][12]);
+        app_canTx_BMS_Seg1_Cell13_Voltage_set(data.cell_voltages[1][13]);
+        app_canTx_BMS_Seg1_Cell14_Voltage_set(data.cell_voltages[1][14]);
+        app_canTx_BMS_Seg1_Cell15_Voltage_set(data.cell_voltages[1][15]);
+
+        break;
+        case 2:
+
+        app_canTx_BMS_Seg2_Cell0_Voltage_set(data.cell_voltages[2][0]);
+        app_canTx_BMS_Seg2_Cell1_Voltage_set(data.cell_voltages[2][1]);
+        app_canTx_BMS_Seg2_Cell2_Voltage_set(data.cell_voltages[2][2]);
+        app_canTx_BMS_Seg2_Cell3_Voltage_set(data.cell_voltages[2][3]);
+        app_canTx_BMS_Seg2_Cell4_Voltage_set(data.cell_voltages[2][4]);
+        app_canTx_BMS_Seg2_Cell5_Voltage_set(data.cell_voltages[2][5]);
+        app_canTx_BMS_Seg2_Cell6_Voltage_set(data.cell_voltages[2][6]);
+        app_canTx_BMS_Seg2_Cell7_Voltage_set(data.cell_voltages[2][7]);
+        app_canTx_BMS_Seg2_Cell8_Voltage_set(data.cell_voltages[2][8]);
+        app_canTx_BMS_Seg2_Cell9_Voltage_set(data.cell_voltages[2][9]);
+        app_canTx_BMS_Seg2_Cell10_Voltage_set(data.cell_voltages[2][10]);
+        app_canTx_BMS_Seg2_Cell11_Voltage_set(data.cell_voltages[2][11]);
+        app_canTx_BMS_Seg2_Cell12_Voltage_set(data.cell_voltages[2][12]);
+        app_canTx_BMS_Seg2_Cell13_Voltage_set(data.cell_voltages[2][13]);
+        app_canTx_BMS_Seg2_Cell14_Voltage_set(data.cell_voltages[2][14]);
+        app_canTx_BMS_Seg2_Cell15_Voltage_set(data.cell_voltages[2][15]);
+
+        break;
+        case 3:
+
+        app_canTx_BMS_Seg3_Cell0_Voltage_set(data.cell_voltages[3][0]);
+        app_canTx_BMS_Seg3_Cell1_Voltage_set(data.cell_voltages[3][1]);
+        app_canTx_BMS_Seg3_Cell2_Voltage_set(data.cell_voltages[3][2]);
+        app_canTx_BMS_Seg3_Cell3_Voltage_set(data.cell_voltages[3][3]);
+        app_canTx_BMS_Seg3_Cell4_Voltage_set(data.cell_voltages[3][4]);
+        app_canTx_BMS_Seg3_Cell5_Voltage_set(data.cell_voltages[3][5]);
+        app_canTx_BMS_Seg3_Cell6_Voltage_set(data.cell_voltages[3][6]);
+        app_canTx_BMS_Seg3_Cell7_Voltage_set(data.cell_voltages[3][7]);
+        app_canTx_BMS_Seg3_Cell8_Voltage_set(data.cell_voltages[3][8]);
+        app_canTx_BMS_Seg3_Cell9_Voltage_set(data.cell_voltages[3][9]);
+        app_canTx_BMS_Seg3_Cell10_Voltage_set(data.cell_voltages[3][10]);
+        app_canTx_BMS_Seg3_Cell11_Voltage_set(data.cell_voltages[3][11]);
+        app_canTx_BMS_Seg3_Cell12_Voltage_set(data.cell_voltages[3][12]);
+        app_canTx_BMS_Seg3_Cell13_Voltage_set(data.cell_voltages[3][13]);
+        app_canTx_BMS_Seg3_Cell14_Voltage_set(data.cell_voltages[3][14]);
+        app_canTx_BMS_Seg3_Cell15_Voltage_set(data.cell_voltages[3][15]);
+
+        break;
+        case 4:
+
+        app_canTx_BMS_Seg4_Cell0_Voltage_set(data.cell_voltages[4][0]);
+        app_canTx_BMS_Seg4_Cell1_Voltage_set(data.cell_voltages[4][1]);
+        app_canTx_BMS_Seg4_Cell2_Voltage_set(data.cell_voltages[4][2]);
+        app_canTx_BMS_Seg4_Cell3_Voltage_set(data.cell_voltages[4][3]);
+        app_canTx_BMS_Seg4_Cell4_Voltage_set(data.cell_voltages[4][4]);
+        app_canTx_BMS_Seg4_Cell5_Voltage_set(data.cell_voltages[4][5]);
+        app_canTx_BMS_Seg4_Cell6_Voltage_set(data.cell_voltages[4][6]);
+        app_canTx_BMS_Seg4_Cell7_Voltage_set(data.cell_voltages[4][7]);
+        app_canTx_BMS_Seg4_Cell8_Voltage_set(data.cell_voltages[4][8]);
+        app_canTx_BMS_Seg4_Cell9_Voltage_set(data.cell_voltages[4][9]);
+        app_canTx_BMS_Seg4_Cell10_Voltage_set(data.cell_voltages[4][10]);
+        app_canTx_BMS_Seg4_Cell11_Voltage_set(data.cell_voltages[4][11]);
+        app_canTx_BMS_Seg4_Cell12_Voltage_set(data.cell_voltages[4][12]);
+        app_canTx_BMS_Seg4_Cell13_Voltage_set(data.cell_voltages[4][13]);
+        app_canTx_BMS_Seg4_Cell14_Voltage_set(data.cell_voltages[4][14]);
+        app_canTx_BMS_Seg4_Cell15_Voltage_set(data.cell_voltages[4][15]);
+
+        break;
+        case 5:
+
+        app_canTx_BMS_Seg0_Cell0_Voltage_set(data.cell_voltages[0][0]);
+        app_canTx_BMS_Seg0_Cell1_Voltage_set(data.cell_voltages[0][1]);
+        app_canTx_BMS_Seg0_Cell2_Voltage_set(data.cell_voltages[0][2]);
+        app_canTx_BMS_Seg0_Cell3_Voltage_set(data.cell_voltages[0][3]);
+        app_canTx_BMS_Seg0_Cell4_Voltage_set(data.cell_voltages[0][4]);
+        app_canTx_BMS_Seg0_Cell5_Voltage_set(data.cell_voltages[0][5]);
+        app_canTx_BMS_Seg0_Cell6_Voltage_set(data.cell_voltages[0][6]);
+        app_canTx_BMS_Seg0_Cell7_Voltage_set(data.cell_voltages[0][7]);
+        app_canTx_BMS_Seg0_Cell8_Voltage_set(data.cell_voltages[0][8]);
+        app_canTx_BMS_Seg0_Cell9_Voltage_set(data.cell_voltages[0][9]);
+        app_canTx_BMS_Seg0_Cell10_Voltage_set(data.cell_voltages[0][10]);
+        app_canTx_BMS_Seg0_Cell11_Voltage_set(data.cell_voltages[0][11]);
+        app_canTx_BMS_Seg0_Cell12_Voltage_set(data.cell_voltages[0][12]);
+        app_canTx_BMS_Seg0_Cell13_Voltage_set(data.cell_voltages[0][13]);
+        app_canTx_BMS_Seg0_Cell14_Voltage_set(data.cell_voltages[0][14]);
+        app_canTx_BMS_Seg0_Cell15_Voltage_set(data.cell_voltages[0][15]);
+
+        app_canTx_BMS_Seg1_Cell0_Voltage_set(data.cell_voltages[1][0]);
+        app_canTx_BMS_Seg1_Cell1_Voltage_set(data.cell_voltages[1][1]);
+        app_canTx_BMS_Seg1_Cell2_Voltage_set(data.cell_voltages[1][2]);
+        app_canTx_BMS_Seg1_Cell3_Voltage_set(data.cell_voltages[1][3]);
+        app_canTx_BMS_Seg1_Cell4_Voltage_set(data.cell_voltages[1][4]);
+        app_canTx_BMS_Seg1_Cell5_Voltage_set(data.cell_voltages[1][5]);
+        app_canTx_BMS_Seg1_Cell6_Voltage_set(data.cell_voltages[1][6]);
+        app_canTx_BMS_Seg1_Cell7_Voltage_set(data.cell_voltages[1][7]);
+        app_canTx_BMS_Seg1_Cell8_Voltage_set(data.cell_voltages[1][8]);
+        app_canTx_BMS_Seg1_Cell9_Voltage_set(data.cell_voltages[1][9]);
+        app_canTx_BMS_Seg1_Cell10_Voltage_set(data.cell_voltages[1][10]);
+        app_canTx_BMS_Seg1_Cell11_Voltage_set(data.cell_voltages[1][11]);
+        app_canTx_BMS_Seg1_Cell12_Voltage_set(data.cell_voltages[1][12]);
+        app_canTx_BMS_Seg1_Cell13_Voltage_set(data.cell_voltages[1][13]);
+        app_canTx_BMS_Seg1_Cell14_Voltage_set(data.cell_voltages[1][14]);
+        app_canTx_BMS_Seg1_Cell15_Voltage_set(data.cell_voltages[1][15]);
+
+        app_canTx_BMS_Seg2_Cell0_Voltage_set(data.cell_voltages[2][0]);
+        app_canTx_BMS_Seg2_Cell1_Voltage_set(data.cell_voltages[2][1]);
+        app_canTx_BMS_Seg2_Cell2_Voltage_set(data.cell_voltages[2][2]);
+        app_canTx_BMS_Seg2_Cell3_Voltage_set(data.cell_voltages[2][3]);
+        app_canTx_BMS_Seg2_Cell4_Voltage_set(data.cell_voltages[2][4]);
+        app_canTx_BMS_Seg2_Cell5_Voltage_set(data.cell_voltages[2][5]);
+        app_canTx_BMS_Seg2_Cell6_Voltage_set(data.cell_voltages[2][6]);
+        app_canTx_BMS_Seg2_Cell7_Voltage_set(data.cell_voltages[2][7]);
+        app_canTx_BMS_Seg2_Cell8_Voltage_set(data.cell_voltages[2][8]);
+        app_canTx_BMS_Seg2_Cell9_Voltage_set(data.cell_voltages[2][9]);
+        app_canTx_BMS_Seg2_Cell10_Voltage_set(data.cell_voltages[2][10]);
+        app_canTx_BMS_Seg2_Cell11_Voltage_set(data.cell_voltages[2][11]);
+        app_canTx_BMS_Seg2_Cell12_Voltage_set(data.cell_voltages[2][12]);
+        app_canTx_BMS_Seg2_Cell13_Voltage_set(data.cell_voltages[2][13]);
+        app_canTx_BMS_Seg2_Cell14_Voltage_set(data.cell_voltages[2][14]);
+        app_canTx_BMS_Seg2_Cell15_Voltage_set(data.cell_voltages[2][15]);
+
+        app_canTx_BMS_Seg3_Cell0_Voltage_set(data.cell_voltages[3][0]);
+        app_canTx_BMS_Seg3_Cell1_Voltage_set(data.cell_voltages[3][1]);
+        app_canTx_BMS_Seg3_Cell2_Voltage_set(data.cell_voltages[3][2]);
+        app_canTx_BMS_Seg3_Cell3_Voltage_set(data.cell_voltages[3][3]);
+        app_canTx_BMS_Seg3_Cell4_Voltage_set(data.cell_voltages[3][4]);
+        app_canTx_BMS_Seg3_Cell5_Voltage_set(data.cell_voltages[3][5]);
+        app_canTx_BMS_Seg3_Cell6_Voltage_set(data.cell_voltages[3][6]);
+        app_canTx_BMS_Seg3_Cell7_Voltage_set(data.cell_voltages[3][7]);
+        app_canTx_BMS_Seg3_Cell8_Voltage_set(data.cell_voltages[3][8]);
+        app_canTx_BMS_Seg3_Cell9_Voltage_set(data.cell_voltages[3][9]);
+        app_canTx_BMS_Seg3_Cell10_Voltage_set(data.cell_voltages[3][10]);
+        app_canTx_BMS_Seg3_Cell11_Voltage_set(data.cell_voltages[3][11]);
+        app_canTx_BMS_Seg3_Cell12_Voltage_set(data.cell_voltages[3][12]);
+        app_canTx_BMS_Seg3_Cell13_Voltage_set(data.cell_voltages[3][13]);
+        app_canTx_BMS_Seg3_Cell14_Voltage_set(data.cell_voltages[3][14]);
+        app_canTx_BMS_Seg3_Cell15_Voltage_set(data.cell_voltages[3][15]);
+
+        app_canTx_BMS_Seg4_Cell0_Voltage_set(data.cell_voltages[4][0]);
+        app_canTx_BMS_Seg4_Cell1_Voltage_set(data.cell_voltages[4][1]);
+        app_canTx_BMS_Seg4_Cell2_Voltage_set(data.cell_voltages[4][2]);
+        app_canTx_BMS_Seg4_Cell3_Voltage_set(data.cell_voltages[4][3]);
+        app_canTx_BMS_Seg4_Cell4_Voltage_set(data.cell_voltages[4][4]);
+        app_canTx_BMS_Seg4_Cell5_Voltage_set(data.cell_voltages[4][5]);
+        app_canTx_BMS_Seg4_Cell6_Voltage_set(data.cell_voltages[4][6]);
+        app_canTx_BMS_Seg4_Cell7_Voltage_set(data.cell_voltages[4][7]);
+        app_canTx_BMS_Seg4_Cell8_Voltage_set(data.cell_voltages[4][8]);
+        app_canTx_BMS_Seg4_Cell9_Voltage_set(data.cell_voltages[4][9]);
+        app_canTx_BMS_Seg4_Cell10_Voltage_set(data.cell_voltages[4][10]);
+        app_canTx_BMS_Seg4_Cell11_Voltage_set(data.cell_voltages[4][11]);
+        app_canTx_BMS_Seg4_Cell12_Voltage_set(data.cell_voltages[4][12]);
+        app_canTx_BMS_Seg4_Cell13_Voltage_set(data.cell_voltages[4][13]);
+        app_canTx_BMS_Seg4_Cell14_Voltage_set(data.cell_voltages[4][14]);
+        app_canTx_BMS_Seg4_Cell15_Voltage_set(data.cell_voltages[4][15]);
+        break;
+    }
+
+    if() {
+        app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
+        app_canTx_BMS_Seg1_Temp_set(data.segment_temps[1]);
+        app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
+        app_canTx_BMS_Seg3_Temp_set(data.segment_temps[3]);
+        app_canTx_BMS_Seg4_Temp_set(data.segment_temps[4]);
+    }
 }
