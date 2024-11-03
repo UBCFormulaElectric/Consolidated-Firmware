@@ -50,7 +50,7 @@ static void canRxOverflow(uint32_t unused)
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-add    BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
