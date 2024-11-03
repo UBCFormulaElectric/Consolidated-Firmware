@@ -268,11 +268,24 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
+<<<<<<< HEAD
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
             io_canQueue_pushTx(&reply);
+=======
+            uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
+            reply.data[0]     = valid_app;
+            io_can_pushTxMsgToQueue(&reply);
+>>>>>>> 84916bc2 (IT WORKSSSS)
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
+        }
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, false);
+            modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
 }
