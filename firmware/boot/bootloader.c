@@ -65,6 +65,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // Disable interrupts before jumping.
     __disable_irq();
 
+<<<<<<< HEAD
     // Disable system tick to stop FreeRTOS timebase.
     SysTick->CTRL = ~SysTick_CTRL_ENABLE_Msk;
 
@@ -107,6 +108,12 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     for (;;)
     {
     }
+=======
+    static void canTxOverflow(uint32_t unused)
+    {
+        UNUSED(unused);
+        add BREAK_IF_DEBUGGER_CONNECTED();
+>>>>>>> dc35de8e (We have done it)
 }
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -183,6 +190,12 @@ static const Gpio bootloader_pin = {
     .port = nBOOT_EN_GPIO_Port,
     .pin  = nBOOT_EN_Pin,
 };
+
+#ifndef BOOT_AUTO
+static const Gpio bootloader_pin = {
+    .port = nBOOT_EN_GPIO_Port,
+    .pin  = nBOOT_EN_Pin,
+};
 #endif
 
 static uint32_t current_address;
@@ -211,7 +224,7 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID)
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin))
     {
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);

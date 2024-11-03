@@ -43,7 +43,7 @@ void tasks_preInitWatchdog(void)
 void tasks_JumpToApp(void)
 {
     // TODO: Potentially stop before deinit
-
+    LOG_INFO("WE ARE JUMPING");
     // De-init all peripherals
     HAL_ADC_Stop_IT(&hadc1);
     HAL_ADC_Stop_IT(&hadc3);
@@ -202,6 +202,7 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
+        LOG_INFO("WE ARE IN RX");
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
