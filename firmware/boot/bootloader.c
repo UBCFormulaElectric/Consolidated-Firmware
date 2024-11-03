@@ -50,7 +50,7 @@ static void canRxOverflow(uint32_t unused)
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+add    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -127,12 +127,18 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxOverflow,
 };
 
-#ifndef BOOT_AUTO
 static const Gpio bootloaderLED_pin = {
     .port = LED_GPIO_Port,
     .pin  = LED_Pin,
 };
+
+#ifndef BOOT_AUTO
+static const Gpio bootloader_pin = {
+    .port = nBOOT_EN_GPIO_Port,
+    .pin  = nBOOT_EN_Pin,
+};
 #endif
+
 
 static uint32_t current_address;
 static bool     update_in_progress;
@@ -150,7 +156,7 @@ void bootloader_init(void)
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     io_can_init(&can_config);
-
+    HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, true);
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -161,7 +167,7 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID)
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin))
     {
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
