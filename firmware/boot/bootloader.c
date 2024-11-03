@@ -44,13 +44,13 @@ typedef enum
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    //BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    //BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
@@ -219,11 +219,19 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-            reply.data[0] = (uint8_t)verifyAppCodeChecksum();
+            uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
+            reply.data[0] = valid_app;
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
+        }
+        else if(command.std_id == GO_TO_APP && !update_in_progress)
+        {
+            HAL_TIM_Base_Stop_IT(&htim6);
+            HAL_CRC_DeInit(&hcrc);
+            HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, false);
+            modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
 }
