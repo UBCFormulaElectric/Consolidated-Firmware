@@ -65,7 +65,6 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     // Disable interrupts before jumping.
     __disable_irq();
 
-<<<<<<< HEAD
     // Disable system tick to stop FreeRTOS timebase.
     SysTick->CTRL = ~SysTick_CTRL_ENABLE_Msk;
 
@@ -108,12 +107,6 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     for (;;)
     {
     }
-=======
-    static void canTxOverflow(uint32_t unused)
-    {
-        UNUSED(unused);
-        add BREAK_IF_DEBUGGER_CONNECTED();
->>>>>>> dc35de8e (We have done it)
 }
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
