@@ -80,7 +80,6 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_VC_TxOverflowCount_set(overflow_count);
     app_canAlerts_VC_Warning_TxOverflow_set(true);
-    LOG_INFO("CAN TX OVERFLOW");
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -330,7 +329,7 @@ void tasks_preInitWatchdog(void)
 void tasks_JumpToApp(void)
 {
     // TODO: Potentially stop before deinit
-
+    LOG_INFO("WE ARE JUMPING");
     // De-init all peripherals
     HAL_ADC_Stop_IT(&hadc1);
     HAL_ADC_Stop_IT(&hadc3);
@@ -543,6 +542,7 @@ _Noreturn void tasks_runCanRx(void)
 
     for (;;)
     {
+        LOG_INFO("WE ARE IN RX");
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);

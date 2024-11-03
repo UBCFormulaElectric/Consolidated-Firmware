@@ -80,7 +80,7 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
     if (s != osOK)
     {
         telem_overflow_count++;
-        LOG_WARN("queue problem");
+        //LOG_WARN("queue problem");
     }
     return true;
 }
