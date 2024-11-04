@@ -27,8 +27,6 @@
 
 // clang-format on
 
-
-
 extern const SpiInterface *ltc6813_spi;
 
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay

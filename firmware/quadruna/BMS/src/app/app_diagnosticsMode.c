@@ -243,7 +243,7 @@ void app_diagnosticsMode_broadcast(void)
     if (app_canRx_Debug_SegmentTemperaturesRequest_get())
     {
         app_diagnosticsMode_calculateDiagnosticTemperatureStats();
-        
+
         app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
         app_canTx_BMS_Seg1_Temp_set(data.segment_temps[1]);
         app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
