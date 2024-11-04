@@ -88,6 +88,15 @@
             ]
         },
         {
+            "label": "Build Embedded: CRIT (Quintuna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quintuna_CRIT.hex"
+            ]
+        },
+        {
             "label": "Build Embedded: f4dev",
             "group": "build",
             "type": "cmake",
@@ -121,6 +130,15 @@
             "command": "build",
             "targets": [
                 "quadruna_CRIT_test"
+            ]
+        },
+        {
+            "label": "Build Tests: CRIT (Quintuna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quintuna_CRIT_test"
             ]
         },
         {

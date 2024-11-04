@@ -12,7 +12,7 @@ static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
 
 static uint8_t        cache[HW_DEVICE_SECTOR_SIZE];
 static const LogFsCfg fs_cfg = {
-    .block_count  = 1024 * 1024,
+    .block_count  = 1024 * 1024 * 15, // ~7.5GB
     .block_size   = HW_DEVICE_SECTOR_SIZE,
     .cache        = cache,
     .rd_only      = false,
