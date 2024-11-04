@@ -56,7 +56,7 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 
 void app_diagnosticsMode_broadcast(void)
 {
-    app_diagnosticsMode_calculateDiagnosticVoltageStats();    
+    app_diagnosticsMode_calculateDiagnosticVoltageStats();
 
     switch (app_canRx_Debug_CellDiagnosticsRequest_get())
     {
@@ -76,7 +76,7 @@ void app_diagnosticsMode_broadcast(void)
             app_canTx_BMS_Seg0_Cell12_Voltage_set(data.cell_voltages[0][12]);
             app_canTx_BMS_Seg0_Cell13_Voltage_set(data.cell_voltages[0][13]);
             app_canTx_BMS_Seg0_Cell14_Voltage_set(data.cell_voltages[0][14]);
-            app_canTx_BMS_Seg0_Cell15_Voltage_set(data.cell_voltages[0][15]);            
+            app_canTx_BMS_Seg0_Cell15_Voltage_set(data.cell_voltages[0][15]);
             break;
         case SEG_1:
             app_canTx_BMS_Seg1_Cell0_Voltage_set(data.cell_voltages[1][0]);
