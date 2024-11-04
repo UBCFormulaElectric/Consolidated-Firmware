@@ -4,7 +4,8 @@
 
 #define NUM_OF_THERMISTORS_PER_SEGMENT (8U)
 
-#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
+#define IS_CELL_TEMP_READING(curr_reg_group, curr_reading) \
+    (((curr_reg_group) != AUX_REGISTER_GROUP_B) || ((curr_reading) != REG_GROUP_READING_2))
 
 typedef enum
 {
