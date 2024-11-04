@@ -5,7 +5,8 @@ class BmsFaultTest : public BmsBaseStateMachineTest
 {
 };
 
-TEST_F(BmsFaultTest, check_all_cell_voltages_segment0) {
+TEST_F(BmsFaultTest, check_all_cell_voltages_segment0)
+{
     // Test that every cell voltage in Segment 0 is being properly transmitted to CAN
 
     TearDown();

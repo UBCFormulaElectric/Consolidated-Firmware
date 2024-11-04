@@ -58,7 +58,7 @@ void app_diagnosticsMode_broadcast(void)
 {
     app_diagnosticsMode_calculateDiagnosticVoltageStats();    
 
-    switch(app_canRx_Debug_CellDiagnosticsRequest_get())
+    switch (app_canRx_Debug_CellDiagnosticsRequest_get())
     {
         case SEG_0:
             app_canTx_BMS_Seg0_Cell0_Voltage_set(data.cell_voltages[0][0]);
