@@ -21,4 +21,3 @@ void app_diagnosticsMode_calculateDiagnosticVoltageStats(void);
  * Calculate the average temperature of each segment.
  */
 void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void);
-
