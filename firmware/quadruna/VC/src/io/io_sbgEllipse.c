@@ -1,18 +1,22 @@
-#include "main.h"
-#include <assert.h>
-#include "sbgECom.h"
-#include "interfaces/sbgInterfaceSerial.h"
 #include "io_sbgEllipse.h"
-#include "app_units.h"
+
+#include <assert.h>
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "queue.h"
+
+#include "main.h"
+#include "app_units.h"
+#include "sbgECom.h"
+#include "interfaces/sbgInterfaceSerial.h"
 #include "app_canTx.h"
+#include "io_time.h"
+#include "io_log.h"
 
 /* ------------------------------------ Defines ------------------------------------- */
 
 #define UART_RX_PACKET_SIZE 128 // Size of each received UART packet, in bytes
-#define QUEUE_MAX_SIZE 4095     // 4kB, keep data low because it may watchdog
+#define QUEUE_MAX_SIZE 32       // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
 /* --------------------------------- Variables ---------------------------------- */
 extern UART_HandleTypeDef huart2;
@@ -25,7 +29,7 @@ static SensorData    sensor_data;                         // Struct of all senso
 
 static osMessageQueueId_t sensor_rx_queue_id;
 static StaticQueue_t      rx_queue_control_block;
-static uint8_t            sensor_rx_queue_buf[QUEUE_MAX_SIZE];
+static uint8_t            sensor_rx_queue_buf[QUEUE_MAX_SIZE * UART_RX_PACKET_SIZE];
 static uint32_t           sbg_queue_overflow_count;
 
 static const osMessageQueueAttr_t sensor_rx_queue_attr = {
@@ -34,7 +38,7 @@ static const osMessageQueueAttr_t sensor_rx_queue_attr = {
     .cb_mem    = &rx_queue_control_block,
     .cb_size   = sizeof(StaticQueue_t),
     .mq_mem    = sensor_rx_queue_buf,
-    .mq_size   = QUEUE_MAX_SIZE,
+    .mq_size   = QUEUE_MAX_SIZE * UART_RX_PACKET_SIZE,
 };
 
 /* ------------------------- Static Function Prototypes -------------------------- */
@@ -85,30 +89,34 @@ static SbgErrorCode io_sbgEllipse_read(SbgInterface *interface, void *buffer, si
 
     // Disable interrupts so UART RX callback won't push data to the queue while we're reading from it
     vPortEnterCritical();
+
     *read_bytes = 0;
 
     // Read all available data from the RX queue, up to the requested amount
-    size_t i = 0;
-    while (i < bytes_to_read)
-    {
-        uint8_t data;
+    size_t  i = 0;
+    uint8_t packet[UART_RX_PACKET_SIZE];
 
+    while (*read_bytes < bytes_to_read)
+    {
         if (osMessageQueueGetCount(sensor_rx_queue_id) == 0)
         {
             break;
         }
 
-        if (osMessageQueueGet(sensor_rx_queue_id, &data, NULL, osWaitForever) != osOK)
+        if (osMessageQueueGet(sensor_rx_queue_id, packet, NULL, osWaitForever) != osOK)
         {
             break;
         }
 
-        ((uint8_t *)buffer)[i] = data;
-        (*read_bytes)++;
-        i++;
+        size_t bytes_to_copy =
+            (bytes_to_read - *read_bytes) < UART_RX_PACKET_SIZE ? (bytes_to_read - *read_bytes) : UART_RX_PACKET_SIZE;
+
+        memcpy((uint8_t *)buffer + *read_bytes, packet, bytes_to_copy);
+        *read_bytes += bytes_to_copy;
     }
 
     vPortExitCritical();
+
     return SBG_NO_ERROR;
 }
 
@@ -262,7 +270,7 @@ bool io_sbgEllipse_init(const UART *sbg_uart)
     // Set the callback function (callback is called when a new log is successfully received and parsed)
     sbgEComSetReceiveLogCallback(&com_handle, io_sbgEllipse_logReceivedCallback, NULL);
     // Init RX queue for UART data
-    sensor_rx_queue_id = osMessageQueueNew(QUEUE_MAX_SIZE, sizeof(uint8_t), &sensor_rx_queue_attr);
+    sensor_rx_queue_id = osMessageQueueNew(QUEUE_MAX_SIZE, UART_RX_PACKET_SIZE, &sensor_rx_queue_attr);
 
     assert(sensor_rx_queue_id != NULL);
 
@@ -277,7 +285,14 @@ void io_sbgEllipse_handleLogs(void)
     // Handle logs. Calls the pReadFunc set in sbgInterfaceSerialCreate to read data and parses
     // all logs found in the data. Upon successfully parsing a log, the the receive log callback function set in init is
     // triggered. Incomplete log data will be saved to a buffer in SBG's library to be used once more data is received.
-    sbgEComHandle(&com_handle);
+    SbgErrorCode errorCode = sbgEComHandle(&com_handle);
+    char         buffer[256];
+    sbgEComErrorToString(errorCode, buffer);
+    if (errorCode != SBG_NO_ERROR)
+    {
+        // handle error
+        LOG_INFO("%s", buffer);
+    }
 }
 
 uint32_t io_sbgEllipse_getTimestampUs(void)
@@ -327,13 +342,10 @@ EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData()
 
 void io_sbgEllipse_msgRxCallback(void)
 {
-    for (int i = 0; i < UART_RX_PACKET_SIZE; i++)
+    sbg_queue_overflow_count = 0;
+    if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer, 0, 0) != osOK)
     {
-        sbg_queue_overflow_count = 0;
-
-        if (osMessageQueuePut(sensor_rx_queue_id, &uart_rx_buffer[i], 0, 0) != osOK)
-        {
-            sbg_queue_overflow_count++;
-        }
+        sbg_queue_overflow_count++;
     }
+    LOG_INFO("%d", sbg_queue_overflow_count);
 }
