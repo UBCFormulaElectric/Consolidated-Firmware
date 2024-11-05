@@ -69,13 +69,7 @@ class Logger:
     
 
 # TESTING #  
-def get1():
-    return 1
-
-def get2():
-    return 2
-
-    
+ 
 def main():
     file = r'Your\file\path'
     funcList = ["One", "Two", "Three Float"]
