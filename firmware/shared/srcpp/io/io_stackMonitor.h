@@ -8,8 +8,8 @@ namespace io {
                           // so instead we use a pointer to it.
     float    watermark_threshold;
   public:
-    explicit StackMonitor(osThreadId_t i_handle, const float i_watermark_threshold)
-      : handle(i_handle), watermark_threshold(i_watermark_threshold){};
-    [[nodiscard]] int stack_usage() const;
+    explicit StackMonitor(osThreadId_t i_handle, float i_watermark_threshold);
+    [[nodiscard]] float stack_usage() const;
+    [[nodiscard]] bool is_stack_ok() const;
   };
 }
