@@ -26,7 +26,7 @@ static uint32_t           batch_count = 0;
 
 // Message Queue configuration
 #define QUEUE_SIZE 256
-#define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE * BATCH_SIZE
+#define QUEUE_BYTES sizeof(CanMsgLog) * QUEUE_SIZE *BATCH_SIZE
 #define PATH_LENGTH 8
 static osMessageQueueId_t message_queue_id;
 static StaticQueue_t      queue_control_block;
