@@ -17,7 +17,6 @@ static void mainStateRunOnTick100Hz(void)()
     //add coolant broadcast
     //add suspension broadcast
     app::loadCell::broadcast();
-    app:heartbeat::rsm::
     //app_heartbeatMonitor_checkIn();
     //app_heartbeatMonitor_broadcastFaults();
 
