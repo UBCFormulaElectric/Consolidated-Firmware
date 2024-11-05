@@ -37,9 +37,7 @@
 #include "hw_stackWaterMarkConfig.h"
 #include "hw_hardFaultHandler.h"
 
-#include <stm32f4xx_hal_adc.h>
-#include <stm32f4xx_hal_sd.h>
-#include <stm32f4xx_hal_uart.h>
+#include "hw_hal.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
