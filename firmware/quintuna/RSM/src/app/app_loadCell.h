@@ -1,3 +1,5 @@
 #pragma once
 
-void app_loadcell_broadcast();
+namespace app::loadCell {
+    void broadcast();
+}
