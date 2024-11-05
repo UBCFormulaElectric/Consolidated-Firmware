@@ -106,24 +106,21 @@ endfunction()
 # post build function to calculate bus load should print the bus load
 # as we are planning to change the bitrates in the future so we can add bit rate as a parameter here 
 
-function(log_bus_load)
+function(log_bus_load CAR)
     # Define CAN directory based on repository root directory
     set(CAN_DIR "${REPO_ROOT_DIR}/can_bus")
-    set(CAN_JSON_DIR "${CAN_DIR}/${SHARED_CAR}")
+    set(CAN_JSON_DIR "${CAN_DIR}/${CAR}")
     
-    # Add custom target to calculate bus load
-    message("  ************************ Calculating CAN bus load using JSON CAN data for ${SHARED_CAR}")
     add_custom_target(
-        can_bus_load ALL
-        COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
+        can_bus_load_${CAR}
+        COMMAND python "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
         --can_data_dir "${CAN_JSON_DIR}"
         WORKING_DIRECTORY "${REPO_ROOT_DIR}"
-        COMMENT "Calculating CAN bus load using JSON CAN data for ${SHARED_CAR}"
+        COMMENT "Calculating CAN bus load using JSON CAN data for ${CAR}"
     )
 endfunction()
 
-message("--------------------") 
-log_bus_load()
+log_bus_load("quadruna")
 
 
 
