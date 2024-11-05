@@ -282,7 +282,7 @@
    
     "TractiveSystem": {
         "msg_id": 130,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Tractive System Data",
         "signals": {
             "TractiveSystemVoltage": {
