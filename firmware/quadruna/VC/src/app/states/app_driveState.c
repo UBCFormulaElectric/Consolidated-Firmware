@@ -148,12 +148,12 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_Warning_RegenNotAvailable_set(true);
     }
 
-    app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
+    // app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
 
-    if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
-    {
-        app_stateMachine_setNextState(app_driveWarningState_get());
-    }
+    // if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
+    // {
+    //     app_stateMachine_setNextState(app_driveWarningState_get());
+    // }
     if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());
