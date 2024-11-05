@@ -3,7 +3,6 @@
 #include <cstdint>
 #include "io_stackMonitor.h"
 
-
 namespace app
 {
 struct stack_monitor_config
