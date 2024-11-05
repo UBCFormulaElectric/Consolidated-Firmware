@@ -44,16 +44,16 @@ typedef enum
 static void canRxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    //BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 static void canTxOverflow(uint32_t unused)
 {
     UNUSED(unused);
-    //BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 }
 
-static void modifyStackPointerAndStartApp(const uint32_t *address)
+_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
@@ -139,7 +139,6 @@ static const Gpio bootloader_pin = {
 };
 #endif
 
-
 static uint32_t current_address;
 static bool     update_in_progress;
 
@@ -220,13 +219,13 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .dlc    = 1,
             };
             uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
-            reply.data[0] = valid_app;
+            reply.data[0]     = valid_app;
             io_can_pushTxMsgToQueue(&reply);
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
         }
-        else if(command.std_id == GO_TO_APP && !update_in_progress)
+        else if (command.std_id == GO_TO_APP && !update_in_progress)
         {
             HAL_TIM_Base_Stop_IT(&htim6);
             HAL_CRC_DeInit(&hcrc);
