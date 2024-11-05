@@ -109,7 +109,7 @@ _Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
     }
 }
 
-static void modifyStackPointerAndStartApp(const uint32_t *address)
+_Noreturn static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();

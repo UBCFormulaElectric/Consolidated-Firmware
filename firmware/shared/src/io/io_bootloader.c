@@ -1,17 +1,25 @@
 #include "io_bootloader.h"
 #include <stdint.h>
-#include <string.h>
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
-#include "main.h"
 #include "hw_hal.h"
-#include "io_log.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
-#include "app_commitInfo.h"
+
+#define BOOT_CAN_START 1012
 
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
+
+extern ADC_HandleTypeDef   hadc1;
+extern ADC_HandleTypeDef   hadc3;
+extern FDCAN_HandleTypeDef hfdcan1;
+extern UART_HandleTypeDef  huart7;
+extern TIM_HandleTypeDef   htim3;
+extern UART_HandleTypeDef  huart2;
+extern UART_HandleTypeDef  huart1;
+extern UART_HandleTypeDef  huart3;
+extern SD_HandleTypeDef    hsd1;
 
 static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -56,13 +64,35 @@ static void modifyStackPointerAndStartApp(const uint32_t *address)
     boot_reset_handler(); // Call app's Reset_Handler, starting the app.
 
     // Should never get here!
-    BREAK_IF_DEBUGGER_CONNECTED()
+    BREAK_IF_DEBUGGER_CONNECTED();
     for (;;)
     {
     }
 }
 
-void io_boot_jumpToBootCode()
+void io_bootloader_checkBootMsg(CanMsg *msg)
 {
-    modifyStackPointerAndStartApp(&__boot_code_start__);
+    if (msg->std_id == BOOT_CAN_START)
+    {
+        // DeInit all peripherals and interupts
+        HAL_ADC_Stop_IT(&hadc1);
+        HAL_ADC_Stop_IT(&hadc3);
+        HAL_ADC_DeInit(&hadc1);
+        HAL_ADC_DeInit(&hadc3);
+        HAL_TIM_Base_Stop_IT(&htim3);
+        HAL_UART_Abort_IT(&huart1);
+        HAL_UART_Abort_IT(&huart2);
+        HAL_UART_Abort_IT(&huart3);
+        HAL_UART_Abort_IT(&huart7);
+        HAL_UART_DeInit(&huart1);
+        HAL_UART_DeInit(&huart2);
+        HAL_UART_DeInit(&huart3);
+        HAL_UART_DeInit(&huart7);
+
+        // ackknowledge the msg sent by boot
+        CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
+        io_can_pushTxMsgToQueue(&reply);
+
+        modifyStackPointerAndStartApp(&__boot_code_start__);
+    }
 }
