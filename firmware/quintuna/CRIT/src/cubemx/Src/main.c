@@ -24,7 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.h"
-#include "../../../../../shared/src/io/io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
