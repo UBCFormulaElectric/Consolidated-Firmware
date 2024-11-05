@@ -1,13 +1,36 @@
 #pragma once
+#include "hw_gpios.h"
 
-#include <stdbool.h>
-#include "app_utils.h"
+extern "C"
+{
+#include "app_canTx.h"
+}
 
-#ifdef TARGET_EMBEDDED
-#include "hw_gpio.h"
-void io_fan_init(const Gpio *acc_fan_in, const Gpio *rad_fan_in);
-#endif
+namespace io::fans
+{
 
-void io_acc_fan_set(bool on);
+void acc_fan_set(bool on);
+void rad_fan_set(bool on);
 
-void io_rad_fan_set(bool on);
+class Fans
+{
+  private:
+    const hw::Gpio &acc_fan;
+    const hw::Gpio &rad_fan;
+
+  public:
+    explicit Fans(const hw::Gpio &acc_fan_in, const hw::Gpio &rad_fan_in) : acc_fan(acc_fan_in), rad_fan(rad_fan_in) {}
+
+    void acc_fan_set(bool on)
+    {
+        acc_fan.writePin(on);
+        app_canTx_RSM_AccumulatorFan_set(on);
+    }
+
+    void rad_fan_set(bool on)
+    {
+        rad_fan.writePin(on);
+        app_canTx_RSM_RadiatorFan_set(on);
+    }
+}
+} // namespace io::fans

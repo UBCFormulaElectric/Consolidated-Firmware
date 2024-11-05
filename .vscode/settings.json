@@ -12,6 +12,14 @@
 	"files.associations": {
 		"io_log.h": "c",
 		"hw_pwminputfreqonly.h": "c",
-		"io_coolant.h": "c"
+		"io_coolant.h": "c",
+		"stddef.h": "c",
+		"app_heartbeatmonitor.h": "c",
+		"string_view": "cpp",
+		"iosfwd": "cpp",
+		"ostream": "cpp",
+		"streambuf": "cpp",
+		"app_timer.h": "c",
+		"io_heartbeatnode.h": "c"
 	},
 }
