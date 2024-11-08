@@ -12,7 +12,6 @@
 
 #include "io_pcm.h"
 
-
 static PowerStateConfig power_manager_inverter_on = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
