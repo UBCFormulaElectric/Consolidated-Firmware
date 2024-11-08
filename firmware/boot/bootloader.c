@@ -185,7 +185,7 @@ static const Gpio bootloader_pin = {
 };
 #endif
 
-#ifndef BOOT_AUTO
+#ifdef BOOT_AUTO
 static const Gpio bootloader_pin = {
     .port = nBOOT_EN_GPIO_Port,
     .pin  = nBOOT_EN_Pin,
