@@ -109,12 +109,8 @@ void io_chimera_init(const UART *serial_uart, uint32_t name_gpio, uint32_t name_
     }
 }
 
-void io_chimera_sleepTaskIfEnabled(void)
-{
-    if (chimera_button_pressed)
-    {
-        osDelay(osWaitForever);
-    }
+bool io_chimera_enabled(void) {
+    return chimera_button_pressed;
 }
 
 void io_chimera_msgRxCallback(void)

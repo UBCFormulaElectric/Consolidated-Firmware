@@ -15,22 +15,23 @@ for port in ports:
     print(port.device)
 
 # Transmit data.
-fsm = chimera.FSM(ports[0].device)
+bms = chimera.BMS(ports[2].device)
 
-# Note: All testable FSM pin names are listed in Consolidated-Firmware/chimera/proto/FSM.proto
+# Note: All testable BMS pin names are listed in Consolidated-Firmware/chimera/proto/BMS.proto
 
 ####### WRITE YOUR SCRIPT HERE
 
 for i in range(4):
-    fsm.gpio_write("LED", True)
+    print("here")
+    bms.gpio_write("LED", True)
     print("write true", fsm.gpio_read("LED"))
     time.sleep(0.1)
-    fsm.gpio_write("LED", False)
+    bms.gpio_write("LED", False)
     print("write false", fsm.gpio_read("LED"))
     time.sleep(0.1)
 
 
 # Read ADC value: VBAT_SENSE
-print("read adc", fsm.adc_read("APPS2_3V3"))
+# print("read adc", fsm.adc_read("APPS2_3V3"))
 
 #######
