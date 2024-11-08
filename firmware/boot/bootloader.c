@@ -183,6 +183,7 @@ static const Gpio bootloader_pin = {
     .port = nBOOT_EN_GPIO_Port,
     .pin  = nBOOT_EN_Pin,
 };
+#endif
 
 #ifndef BOOT_AUTO
 static const Gpio bootloader_pin = {
@@ -206,7 +207,6 @@ void bootloader_init(void)
     // HW-level CAN should be initialized in main.c, since it is MCU-specific.
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
-
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -268,14 +268,8 @@ _Noreturn void bootloader_runInterfaceTask(void)
                 .std_id = APP_VALIDITY_ID,
                 .dlc    = 1,
             };
-<<<<<<< HEAD
             reply.data[0] = (uint8_t)verifyAppCodeChecksum();
             io_canQueue_pushTx(&reply);
-=======
-            uint8_t valid_app = (uint8_t)verifyAppCodeChecksum();
-            reply.data[0]     = valid_app;
-            io_can_pushTxMsgToQueue(&reply);
->>>>>>> 84916bc2 (IT WORKSSSS)
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
@@ -284,7 +278,9 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             HAL_TIM_Base_Stop_IT(&htim6);
             HAL_CRC_DeInit(&hcrc);
+#ifdef BOOT_AUTO
             HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, false);
+#endif
             modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
