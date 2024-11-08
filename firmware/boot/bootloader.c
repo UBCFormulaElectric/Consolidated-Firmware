@@ -185,7 +185,7 @@ static const Gpio bootloader_pin = {
 };
 #endif
 
-#ifdef BOOT_AUTO
+#ifdef BOOT_PIN
 static const Gpio bootloader_pin = {
     .port = nBOOT_EN_GPIO_Port,
     .pin  = nBOOT_EN_Pin,
@@ -217,7 +217,11 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin))
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID 
+#ifdef BOOT_PIN
+     && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin)
+#endif
+    )
     {
         HAL_TIM_Base_Stop_IT(&htim6);
         HAL_CRC_DeInit(&hcrc);
