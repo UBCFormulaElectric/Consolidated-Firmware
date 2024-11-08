@@ -39,6 +39,7 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
+    //Hard code PCM to be set to off in init state
     io_pcm_set(false);
     // Disable buzzer on transition to init.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);

@@ -53,8 +53,6 @@ static void hvInitStateRunOnTick100Hz(void)
 
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    app_allStates_runOnTick100Hz();
-
     // TODO: stagger pump and aux (aux is always off)
 
     if (!bms_in_drive)

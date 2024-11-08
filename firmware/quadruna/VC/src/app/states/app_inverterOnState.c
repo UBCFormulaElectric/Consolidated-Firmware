@@ -19,8 +19,8 @@ static PowerStateConfig power_manager_inverter_on = {
         [EFUSE_CHANNEL_LV] = true,
         [EFUSE_CHANNEL_PUMP] = false,
         [EFUSE_CHANNEL_AUX] = false,
-        [EFUSE_CHANNEL_INV_R] = true,
-        [EFUSE_CHANNEL_INV_L] = true,
+        [EFUSE_CHANNEL_INV_R] = false,
+        [EFUSE_CHANNEL_INV_L] = false,
         [EFUSE_CHANNEL_TELEM] = true,
         [EFUSE_CHANNEL_BUZZER] = false,
     },
@@ -40,6 +40,7 @@ static void inverterOnStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
+    // PCM should still be off in inverter on state
     io_pcm_set(false);
 }
 

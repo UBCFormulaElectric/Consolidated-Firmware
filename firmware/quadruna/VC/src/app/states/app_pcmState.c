@@ -55,7 +55,7 @@ static void pcmStateRunOnTick100Hz(void)
 {
     const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
 
-    // TODO: check if pcm is good (PCM > 18V)
+    // TODO: check if pcm is good (PCM > 18V) : Will double check requirements
     const bool is_pcm_good = true;
 
     if (!bms_in_drive)
@@ -64,7 +64,6 @@ static void pcmStateRunOnTick100Hz(void)
     }
     else if (is_pcm_good && bms_in_drive)
     {
-        io_pcm_set(true);
         app_stateMachine_setNextState(app_hvInitState_get());
     }
 }
