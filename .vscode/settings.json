@@ -9,4 +9,13 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
+	"files.associations": {
+		"usb_device.h": "c",
+		"stm32h7xx.h": "c",
+		"stm32h7xx_hal.h": "c",
+		"usbd_core.h": "c",
+		"hw_hal.h": "c",
+		"stdint.h": "c",
+		"stdbool.h": "c"
+	},
 }
