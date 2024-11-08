@@ -58,14 +58,13 @@ static void pcmStateRunOnTick100Hz(void)
     // TODO: check if pcm is good (PCM > 18V)
     const bool is_pcm_good = true;
 
-    app_allStates_runOnTick100Hz();
-
     if (!bms_in_drive)
     {
         app_stateMachine_setNextState(app_initState_get());
     }
-    else if (is_pcm_good)
+    else if (is_pcm_good && bms_in_drive)
     {
+        io_pcm_set(true);
         app_stateMachine_setNextState(app_hvInitState_get());
     }
 }

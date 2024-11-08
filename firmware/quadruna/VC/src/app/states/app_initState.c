@@ -10,6 +10,8 @@
 #include "app_pumpControl.h"
 #include "app_faultCheck.h"
 
+#include "io_pcm.h"
+
 static const PowerStateConfig power_manager_init = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
@@ -37,7 +39,7 @@ static void initStateRunOnEntry(void)
     app_canTx_VC_RightInverterTorqueLimit_set(0.0f);
     app_canTx_VC_LeftInverterDirectionCommand_set(INVERTER_REVERSE_DIRECTION);
     app_canTx_VC_RightInverterDirectionCommand_set(INVERTER_FORWARD_DIRECTION);
-
+    io_pcm_set(false);
     // Disable buzzer on transition to init.
     io_efuse_setChannel(EFUSE_CHANNEL_BUZZER, false);
 }
@@ -55,9 +57,6 @@ static void initStateRunOnTick100Hz(void)
 {
     const bool any_board_has_fault = app_faultCheck_checkBoards();
     const bool air_negative_closed = app_canRx_BMS_AirNegative_get();
-    // const bool bms_in_precharge = app_canRx_BMS_State_get() == BMS_PRECHARGE_STATE;
-
-    app_allStates_runOnTick100Hz();
 
     if (!any_board_has_fault && air_negative_closed)
     {
