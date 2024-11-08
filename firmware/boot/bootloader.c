@@ -127,10 +127,12 @@ static const CanConfig can_config = {
     .tx_overflow_callback = canTxOverflow,
 };
 
+#ifdef BOOT_AUTO
 static const Gpio bootloaderLED_pin = {
     .port = LED_GPIO_Port,
     .pin  = LED_Pin,
 };
+#endif
 
 #ifndef BOOT_AUTO
 static const Gpio bootloader_pin = {
@@ -155,7 +157,9 @@ void bootloader_init(void)
     hw_hardFaultHandler_init();
     hw_crc_init(&hcrc);
     io_can_init(&can_config);
+#ifdef BOOT_AUTO
     HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, true);
+#endif
     // This order is important! The bootloader starts the app when the bootloader
     // enable pin is high, which is caused by pullup resistors internal to each
     // MCU. However, at this point only the PDM is powered up. Empirically, the PDM's
@@ -229,7 +233,9 @@ _Noreturn void bootloader_runInterfaceTask(void)
         {
             HAL_TIM_Base_Stop_IT(&htim6);
             HAL_CRC_DeInit(&hcrc);
+#ifdef BOOT_AUTO
             HAL_GPIO_WritePin(bootloaderLED_pin.port, bootloaderLED_pin.pin, false);
+#endif
             modifyStackPointerAndStartApp(&__app_code_start__);
         }
     }
