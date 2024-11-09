@@ -6,7 +6,7 @@ import csv
 import pandas as pd
 from tzlocal import get_localzone
 import logging
-from logfs import LogFs, LogFsUnixDisk
+from logfs import LogFs, LogFsUnixDisk, LogFsWinDisk
 from csv_to_mf4 import csv_to_mf4
 
 logging.basicConfig(level=logging.INFO)
