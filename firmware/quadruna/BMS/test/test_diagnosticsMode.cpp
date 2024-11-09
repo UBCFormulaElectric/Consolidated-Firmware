@@ -9,7 +9,7 @@ TEST_F(BmsFaultTest, check_all_cell_voltages_segment0)
 {
     /**
      * Test that every cell voltage in Segment 0 is being properly transmitted to CAN
-     */ 
+     */
 
     TearDown();
     SetUp();
@@ -25,7 +25,7 @@ TEST_F(BmsFaultTest, check_all_cell_voltages_segment0)
 TEST_F(BmsFaultTest, check_diagnostics_mode_is_off) 
 {
     /**
-     * Test that neither voltage nor temperature reading are being 
+     * Test that neither voltage nor temperature reading are being
      * transmitted when diagnostics mode is off (even if individual temperature/voltage reading modes are turned on).
      */
 
