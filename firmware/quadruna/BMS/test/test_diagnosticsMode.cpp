@@ -34,5 +34,6 @@ TEST_F(BmsFaultTest, check_diagnostics_mode_is_off)
     float fake_voltage = 3.0f;
     fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(fake_voltage);
     LetTimePass(1000);
-    ASSERT_EQ(3.0f, app_canTx_BMS_Seg0_Cell0_Voltage_get());
+    app_canRx_Debug_BMSDiagnosticsRequest_update(false);
+    ASSERT_EQ(0, app_canTx_BMS_Seg0_Cell0_Voltage_get());
 }
