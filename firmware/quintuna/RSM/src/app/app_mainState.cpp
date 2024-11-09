@@ -20,6 +20,13 @@ static void mainStateRunOnTick100Hz(void)()
     //app_heartbeatMonitor_checkIn();
     //app_heartbeatMonitor_broadcastFaults();
 
+    io::leds::brake_light_set(app_canRx_FSM_BrakeActuated_get());
+    
+    const bool hv_on = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
+    io::fans::acc_fan_set(hv_on);
+    io::fans::rad_fan_set(hv_on);
+
+
 }
 namespace app::critstates
 {
