@@ -51,3 +51,16 @@ TEST_F(BmsFaultTest, check_all_cell_voltages_segment0) {
     // ASSERT_EQ(4.4, app_canTx_BMS_Seg0_Cell14_Voltage_get()); 
     // ASSERT_EQ(4.5, app_canTx_BMS_Seg0_Cell15_Voltage_get());  
 }
+
+TEST_F(BmsFaultTest, check_diagnostics_mode_is_off) {
+    // Test that neither voltage nor temperature reading are being transmitted when diagnostics mode is off (even if individual temperature/voltage reading modes are turned on).
+
+    TearDown();
+    SetUp();
+    float fake_voltage = 3.0f;
+    fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(fake_voltage);
+
+    LetTimePass(1000);
+    
+    ASSERT_EQ(3.0f, app_canTx_BMS_Seg0_Cell0_Voltage_get());
+}

@@ -58,8 +58,6 @@ void app_diagnosticsMode_broadcast(void)
 
     app_diagnosticsMode_calculateDiagnosticVoltageStats();
     
-    
-
     switch(app_canRx_Debug_CellDiagnosticsRequest_get()) {
         case 0:
 
