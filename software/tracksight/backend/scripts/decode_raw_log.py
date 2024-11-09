@@ -64,7 +64,6 @@ if __name__ == "__main__":
         type=str,
         help="Path to disk",
         required=True,
-        # default="E:",
     )
     parser.add_argument(
         "--file",
@@ -78,8 +77,8 @@ if __name__ == "__main__":
         "-t",
         type=str,
         help="Time that this log was collected from, ex: `2024-06-1T12:30` is June 1, 2024 at 12:30PM.",
-        required=True,
-        # default="2024-09-28T12:00",
+        # required=True,
+        default="2024-09-28T12:00",
     )
     parser.add_argument(
         "--block_size", "-b", type=int, help="Block size in bytes", default=512
