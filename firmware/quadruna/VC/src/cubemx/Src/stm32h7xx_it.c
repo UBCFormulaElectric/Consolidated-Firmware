@@ -192,7 +192,7 @@ void DMA1_Stream1_IRQHandler(void)
     HAL_DMA_IRQHandler(&hdma_usart2_rx);
     /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
     traceISR_EXIT();
-/* USER CODE END DMA1_Stream1_IRQn 1 */
+    /* USER CODE END DMA1_Stream1_IRQn 1 */
 }
 
 /**
