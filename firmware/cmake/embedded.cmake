@@ -40,6 +40,7 @@ set(SHARED_COMPILER_FLAGS
         --specs=nosys.specs
         --specs=nano.specs
         -Wall
+        -Werror
         -Wextra
         -pedantic
         -Wdouble-promotion
