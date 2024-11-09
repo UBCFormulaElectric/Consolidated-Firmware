@@ -334,7 +334,7 @@ void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
-    SEGGER_SYSVIEW_Conf();
+    SEGGER_SYSVIEW_Conf(); // aka traceSTART apparently...
     LOG_INFO("VC reset!");
 
     __HAL_DBGMCU_FREEZE_IWDG1();
