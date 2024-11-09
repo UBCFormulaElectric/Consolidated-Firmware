@@ -9,7 +9,6 @@
 			"name": "FW Dev",
 			"description": "Development build for the Firmware, including debug information and no optimizations.",
 			"inherits": "default",
-			"generator": "Unix Makefiles",
 			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug",
@@ -24,7 +23,6 @@
 		{
 			"name": "FW Deploy",
 			"description": "Deployment build for the Firmware, including optimizations and no debug information.",
-			"generator": "Unix Makefiles",
 			"inherits": "default",
 			"toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
 			"cacheVariables": {
