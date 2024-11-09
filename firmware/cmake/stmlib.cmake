@@ -171,7 +171,8 @@ function(stm32h733xx_cube_library
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c")
+    # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
 
     # Startup assembly script.
