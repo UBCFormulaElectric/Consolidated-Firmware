@@ -22,7 +22,7 @@ TEST_F(BmsFaultTest, check_all_cell_voltages_segment0)
     ASSERT_EQ(fake_voltage, app_canTx_BMS_Seg0_Cell1_Voltage_get());
 }
 
-TEST_F(BmsFaultTest, check_diagnostics_mode_is_off) 
+TEST_F(BmsFaultTest, check_diagnostics_mode_is_off)
 {
     /**
      * Test that neither voltage nor temperature reading are being
