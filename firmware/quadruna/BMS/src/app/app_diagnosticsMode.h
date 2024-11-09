@@ -13,9 +13,9 @@
 void app_diagnosticsMode_broadcast(void);
 
 /**
- * Obtain and store the voltage stats of all cells in the accumulator.
+ * Obtain and store the voltage stats of cells in a given segment in the accumulator.
  */
-void app_diagnosticsMode_calculateDiagnosticVoltageStats(void);
+void app_diagnosticsMode_calculateDiagnosticVoltageStats(uint8_t seg_requested);
 
 /**
  * Calculate the average temperature of each segment.

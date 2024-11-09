@@ -17,16 +17,28 @@ typedef struct
 
 static BMSDiagnosticStats data;
 
-void app_diagnosticsMode_calculateDiagnosticVoltageStats(void)
+void app_diagnosticsMode_calculateDiagnosticVoltageStats(uint8_t seg_requested)
 {
-    // Find the min and max voltages
-    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    if (seg_requested == SEG_ALL)
+    {
+        for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+        {
+            for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+            {
+            // Collect each cell voltage and store in temp
+            const float cell_voltage          = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
+            data.cell_voltages[segment][cell] = cell_voltage;
+            }
+        }
+    } else if (seg_requested != NONE)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             // Collect each cell voltage and store in temp
-            const float cell_voltage          = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
-            data.cell_voltages[segment][cell] = cell_voltage;
+            // turn seg_requested into 0 index
+            int8_t seg_num = seg_requested - 1;
+            const float cell_voltage                = io_ltc6813CellVoltages_getCellVoltage(seg_num, cell);
+            data.cell_voltages[seg_num][cell] = cell_voltage;
         }
     }
 }
@@ -56,10 +68,10 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 
 void app_diagnosticsMode_broadcast(void)
 {
-    int cellVoltageDiagnosticSegment = app_canRx_Debug_SegmentCellVoltageRequest_get();
+    uint8_t cellVoltageDiagnosticSegment = app_canRx_Debug_SegmentCellVoltageRequest_get();
     if (cellVoltageDiagnosticSegment != NONE)
     {
-        app_diagnosticsMode_calculateDiagnosticVoltageStats();
+        app_diagnosticsMode_calculateDiagnosticVoltageStats(cellVoltageDiagnosticSegment);
     }
 
     switch (cellVoltageDiagnosticSegment)
