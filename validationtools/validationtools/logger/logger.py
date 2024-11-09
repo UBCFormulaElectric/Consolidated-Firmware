@@ -4,6 +4,7 @@ from datetime import datetime
 import csv
 
 
+
 class Logger:
     def __init__(self, logFolder: str, columns) -> None:
         self.columns = ["Index", "Timestamp", "Elapsed Time [s]", "Time Increment [s]"] + columns
