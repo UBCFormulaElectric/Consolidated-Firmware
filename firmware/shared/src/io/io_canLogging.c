@@ -85,7 +85,8 @@ static bool pushToBuffer(CanMsgLog *msg)
 {
     // the buffer should always have space for the message
     assert(batch_count < BATCH_SIZE);
-    memcpy(&batch_buf.msg[batch_count++], msg, sizeof(CanMsg));
+    memcpy(&batch_buf.msg[batch_count], msg, sizeof(CanMsg));
+    batch_count++;
     if (batch_count >= BATCH_SIZE)
     {
         batch_count = 0;
