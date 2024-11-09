@@ -25,6 +25,7 @@ static const hw::Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
         CASERETURN(GpioNetName_crit_net_name_tag, id_to_gpio(net_name->name.crit_net_name));
         default:
             assert(false);
+            return NULL;
     }
 }
 static const hw::Adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
@@ -38,6 +39,7 @@ static const hw::Adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
         CASERETURN(AdcNetName_crit_net_name_tag, id_to_adc(net_name->name.crit_net_name));
         default:
             assert(false);
+            return NULL;
     }
 }
 
