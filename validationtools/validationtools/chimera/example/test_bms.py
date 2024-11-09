@@ -22,12 +22,11 @@ bms = chimera.BMS(ports[2].device)
 ####### WRITE YOUR SCRIPT HERE
 
 for i in range(4):
-    print("here")
     bms.gpio_write("LED", True)
-    print("write true", fsm.gpio_read("LED"))
+    print("write true", bms.gpio_read("LED"))
     time.sleep(0.1)
     bms.gpio_write("LED", False)
-    print("write false", fsm.gpio_read("LED"))
+    print("write false", bms.gpio_read("LED"))
     time.sleep(0.1)
 
 

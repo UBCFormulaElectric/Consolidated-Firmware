@@ -404,11 +404,10 @@ void tasks_init(void)
 
 _Noreturn void tasks_run1Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    io_chimera_task(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -433,11 +432,10 @@ _Noreturn void tasks_run1Hz(void)
 
 _Noreturn void tasks_run100Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    io_chimera_task(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -459,11 +457,10 @@ _Noreturn void tasks_run100Hz(void)
 
 _Noreturn void tasks_run1kHz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    io_chimera_task(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -490,7 +487,7 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    io_chimera_block();
 
     for (;;)
     {
@@ -509,6 +506,8 @@ _Noreturn void tasks_runCanTx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    io_chimera_block();
+
     for (;;)
     {
         io_telemMessage_broadcastMsgFromQueue();
@@ -517,7 +516,7 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runCanRx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
+    io_chimera_block();
 
     for (;;)
     {
@@ -533,6 +532,8 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
+    io_chimera_block();
+
     if (!sd_card_present)
     {
         osThreadSuspend(osThreadGetId());
