@@ -56,9 +56,8 @@ void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void)
 
 void app_diagnosticsMode_broadcast(void)
 {
-
     int cellVoltageDiagnosticSegment = app_canRx_Debug_SegmentCellVoltageRequest_get();
-    if(cellVoltageDiagnosticSegment != NONE)
+    if (cellVoltageDiagnosticSegment != NONE)
     {
         app_diagnosticsMode_calculateDiagnosticVoltageStats();
     }
