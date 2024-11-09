@@ -2,13 +2,13 @@ import argparse
 import os
 
 from IPython.terminal.embed import InteractiveShellEmbed
-from logfs.disk import LogFsUnixDisk, LogFsWinDisk
+from logfs.disk import LogFsDiskFactory
 from logfs.fs import LogFs
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--disk", "-d", help="Path to disk", default="E:")
+    parser.add_argument("--disk", "-d", help="Path to disk")
     parser.add_argument("--block_size", "-b", help="Block size in bytes", default=512)
     parser.add_argument(
         "--block_count", "-N", help="Number of blocks", default=1024 * 1024
@@ -35,7 +35,7 @@ def main() -> None:
         exit_msg="Leaving the shell.",
     )
     
-    disk = LogFsWinDisk(
+    disk = LogFsDiskFactory.create_disk(
         block_size=args.block_size, block_count=args.block_count, disk_path=args.disk
     )
    
