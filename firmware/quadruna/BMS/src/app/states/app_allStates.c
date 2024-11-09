@@ -145,7 +145,7 @@ bool app_allStates_runOnTick100Hz(void)
     app_airs_broadcast();
     app_shdnLoop_broadcast();
 
-    bool diagnostics_mode_enabled = app_canRx_Debug_CellDiagnosticsRequest_get();
+    bool diagnostics_mode_enabled = app_canRx_Debug_BMSDiagnosticsRequest_get();
     if (diagnostics_mode_enabled)
     {
         app_diagnosticsMode_broadcast();
