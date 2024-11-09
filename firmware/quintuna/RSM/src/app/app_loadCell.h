@@ -1,5 +1,6 @@
 #pragma once
 
-namespace app::loadCell {
-    void broadcast();
+namespace app::loadCell
+{
+void broadcast();
 }
