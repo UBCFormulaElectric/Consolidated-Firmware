@@ -179,11 +179,11 @@ void bootloader_init(void)
      && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin)
 #endif
     )
-    {
-        HAL_TIM_Base_Stop_IT(&htim6);
-        HAL_CRC_DeInit(&hcrc);
-        modifyStackPointerAndStartApp(&__app_code_start__);
-    }
+     {
+         HAL_TIM_Base_Stop_IT(&htim6);
+         HAL_CRC_DeInit(&hcrc);
+         modifyStackPointerAndStartApp(&__app_code_start__);
+     }
 }
 
 _Noreturn void bootloader_runInterfaceTask(void)
