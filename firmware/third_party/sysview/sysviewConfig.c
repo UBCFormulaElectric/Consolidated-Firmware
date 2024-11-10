@@ -19,5 +19,5 @@ void SEGGER_SYSVIEW_Conf(void)
 
 // U32 SEGGER_SYSVIEW_X_GetInterruptId(void)
 // {
-//     return;
+//     return (ICSR & 0x1FF) >> 4;
 // };
