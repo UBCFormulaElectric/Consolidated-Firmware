@@ -51,7 +51,7 @@ typedef struct
 {
     uint32_t checksum;
     uint32_t size_bytes;
-    utin32_t bootloader_status;
+    uint32_t bootloader_status;
 } Metadata;
 
 typedef enum
@@ -218,7 +218,7 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && metadata->bootloader_status == 0)
+    if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID && metadata->bootloader_status == 0
 #ifdef BOOT_PIN
      && !HAL_GPIO_ReadPin(bootloader_pin.port, bootloader_pin.pin)
 #endif
