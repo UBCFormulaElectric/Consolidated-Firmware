@@ -41,9 +41,7 @@ IF("${TARGET}" STREQUAL "binary")
     # SEGGER SystemView for RTT Logging and SystemView profiling
     CPMAddPackage(
             NAME SEGGER_SYSTEMVIEW
-            GITHUB_REPOSITORY UBCFormulaElectric/SEGGER_SystemView_Src
-            GIT_TAG 106cd0cff80eab1ce55a92e7c6ea955c6145b982
-            GIT_SHALLOW TRUE
+            URL https://www.segger.com/downloads/systemview/SystemView_Src_V356b.zip
     )
 ELSEIF("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
