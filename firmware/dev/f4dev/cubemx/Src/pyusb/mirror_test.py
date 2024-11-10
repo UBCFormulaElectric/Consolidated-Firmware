@@ -5,7 +5,6 @@ import time
 import importlib
 module = importlib.import_module("/root/Consolidated-Firmware/validationtools/validationtools/chimera/chimera.py")
 
-
 devboard = usb.core.find(idVendor=0x0483, idProduct=0x5740)
 interface = devboard[0][(1,0)]
 
