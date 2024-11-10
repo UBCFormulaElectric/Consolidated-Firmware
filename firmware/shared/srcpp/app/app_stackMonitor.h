@@ -9,8 +9,8 @@ struct stack_monitor_config
 {
     io::StackMonitor monitor;
     float            watermark_threshold;
-    void             (*broadcast_level)(uint32_t);
-    void             (*broadcast_ok)(bool);
+    void (*broadcast_level)(uint32_t);
+    void (*broadcast_ok)(bool);
 };
 template <size_t T> class StackMonitor
 {
