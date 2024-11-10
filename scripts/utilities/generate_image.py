@@ -72,10 +72,11 @@ if __name__ == "__main__":
         app_hex[i] for i in range(app_hex.minaddr(), app_hex.minaddr() + app_size_bytes)
     ]
     checksum = crc32.calculate(app_code)
-
+    # Bootloader status to keep track of where we are in memory
+    bootloader_status = 0x11
     # Add checksum and app size (in bytes) to the app's metadata region.
     # Keep update to date with the "Metadata" struct in firmware/boot/shared/bootloader.c.
-    metadata_bytes = struct.pack("<LL", checksum, app_size_bytes)
+    metadata_bytes = struct.pack("<LLL", checksum, app_size_bytes, bootloader_status)
     app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(
         metadata_bytes
     )
