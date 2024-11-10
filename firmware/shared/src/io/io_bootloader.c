@@ -10,6 +10,7 @@
 
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
+extern uint32_t __app_meta_start__;
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -75,6 +76,10 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
     if (msg->std_id == BOOT_CAN_START)
     {
         // DeInit all peripherals and interupts
+
+        Metadata* metadata = (Metadata *) &__app_meta_start__;
+        metadata->bootloader_status = 0x00
+        
         HAL_ADC_Stop_IT(&hadc1);
         HAL_ADC_Stop_IT(&hadc3);
         HAL_ADC_DeInit(&hadc1);
