@@ -4,6 +4,7 @@
 #include "app_driveMode.h"
 #include "app_critShdn.h"
 #include "app_critHeartbeat.h"
+#include "app_stackMonitorConfig.h"
 
 static void mainStateRunOnTick100Hz()
 {
@@ -13,6 +14,7 @@ static void mainStateRunOnTick100Hz()
     app::shdn::critShdn.broadcast();
     app::heartbeat::critHeartbeat.checkIn();
     app::heartbeat::critHeartbeat.broadcastFaults();
+    app::crit_stack_monitor.check();
 }
 static void mainStateRunOnEntry() {}
 static void mainStateRunOnTick1Hz() {}
@@ -20,7 +22,7 @@ static void mainStateRunOnExit() {}
 
 namespace app::critstates
 {
-const app::State main_state{
+const State main_state{
     .name              = "MAIN",
     .run_on_entry      = mainStateRunOnEntry,
     .run_on_tick_1Hz   = mainStateRunOnTick1Hz,
