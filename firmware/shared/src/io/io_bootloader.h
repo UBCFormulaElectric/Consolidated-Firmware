@@ -9,5 +9,4 @@ typedef struct
     utin32_t bootloader_status;
 } Metadata;
 
-
 void io_bootloader_checkBootMsg(CanMsg *msg);

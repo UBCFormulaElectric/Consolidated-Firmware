@@ -77,10 +77,10 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
     {
         // DeInit all peripherals and interupts
 
-        Metadata* metadata = (Metadata *) &__app_meta_start__;
+        Metadata *metadata          = (Metadata *)&__app_meta_start__;
         metadata->bootloader_status = 0x00
-        
-        HAL_ADC_Stop_IT(&hadc1);
+
+            HAL_ADC_Stop_IT(&hadc1);
         HAL_ADC_Stop_IT(&hadc3);
         HAL_ADC_DeInit(&hadc1);
         HAL_ADC_DeInit(&hadc3);
