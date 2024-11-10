@@ -22,7 +22,7 @@ static void mainStateRunOnExit() {}
 
 namespace app::critstates
 {
-const app::State main_state{
+const State main_state{
     .name              = "MAIN",
     .run_on_entry      = mainStateRunOnEntry,
     .run_on_tick_1Hz   = mainStateRunOnTick1Hz,

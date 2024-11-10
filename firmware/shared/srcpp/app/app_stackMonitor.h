@@ -9,8 +9,8 @@ struct stack_monitor_config
 {
     io::StackMonitor monitor;
     float            watermark_threshold;
-    void (*broadcast_level)(uint32_t);
-    void (*broadcast_ok)(bool);
+    void             (*broadcast_level)(uint32_t);
+    void             (*broadcast_ok)(bool);
 };
 template <size_t T> class StackMonitor
 {
@@ -19,13 +19,15 @@ template <size_t T> class StackMonitor
   public:
     explicit StackMonitor(const std::array<stack_monitor_config, T> m_swms) : stack_monitors(m_swms)
     {
-        for (const auto &swm : stack_monitors)
+        for (const stack_monitor_config &swm : stack_monitors)
         {
             assert(0.0f < swm.watermark_threshold && swm.watermark_threshold < 1.0f);
+            assert(swm.broadcast_level != nullptr);
+            assert(swm.broadcast_ok != nullptr);
         }
     }
 
-    void check()
+    void check() const
     {
         for (const auto &swm : stack_monitors)
         {
