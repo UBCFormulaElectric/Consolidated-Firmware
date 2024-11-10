@@ -2,7 +2,7 @@
 
 void hw_sysviewConfig_sendSystemDesc(void)
 {
-    SEGGER_SYSVIEW_SendSysDesc("N=VC,C=Cortex-M4,O=FreeRTOS,D=STM32H733VG");
+    SEGGER_SYSVIEW_SendSysDesc("N=VC,C=Cortex-M7,O=FreeRTOS,D=STM32H733VG");
     SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
 
     // CONFIGURE INTERRUPTS HERE
