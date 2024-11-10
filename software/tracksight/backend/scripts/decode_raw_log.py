@@ -1,13 +1,14 @@
-import os
-import sys
 import argparse
-import struct
 import csv
-import pandas as pd
-from tzlocal import get_localzone
 import logging
-from logfs import LogFs, LogFsUnixDisk
+import os
+import struct
+import sys
+
+import pandas as pd
 from csv_to_mf4 import csv_to_mf4
+from logfs import LogFs, LogFsDiskFactory
+from tzlocal import get_localzone
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,9 +20,8 @@ root_dir = os.path.join(script_dir, "..", "..", "..", "..")
 if root_dir not in sys.path:
     sys.path.append(root_dir)
 
-from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
-    JsonCanParser,
-)
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import \
+    JsonCanParser
 
 # Size of an individual packet.
 CAN_PACKET_SIZE_BYTES = 16
@@ -77,7 +77,8 @@ if __name__ == "__main__":
         "-t",
         type=str,
         help="Time that this log was collected from, ex: `2024-06-1T12:30` is June 1, 2024 at 12:30PM.",
-        required=True,
+        # required=True,
+        default="2024-09-28T12:00",
     )
     parser.add_argument(
         "--block_size", "-b", type=int, help="Block size in bytes", default=512
@@ -104,6 +105,7 @@ if __name__ == "__main__":
         type=str,
         help="Descriptive name of this session.",
         required=True,
+        # default="test-drive"
     )
     parser.add_argument(
         "--file_range", 
@@ -116,7 +118,7 @@ if __name__ == "__main__":
         "--mf4",
         action="store_true",
         help="call csv_to_mf4 script",
-        default=None
+        default=True
     )
 
     args = parser.parse_args()
@@ -131,13 +133,15 @@ if __name__ == "__main__":
         files_to_decode = None
 
     start_timestamp = pd.Timestamp(args.time, tz=get_localzone())
-    start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H:%M")
+    
+    # Fix: windows does not allow ':' in file names 
+    start_timestamp_no_spaces = start_timestamp.strftime("%Y-%m-%d_%H_%M")
 
     # Open filesystem.
     logfs = LogFs(
         block_size=args.block_size,
         block_count=args.block_count,
-        disk=LogFsUnixDisk(
+        disk=LogFsDiskFactory.create_disk(
             block_size=args.block_size,
             block_count=args.block_count,
             disk_path=args.disk,
@@ -182,8 +186,8 @@ if __name__ == "__main__":
 
             last_timestamp_ms = pd.Timedelta(milliseconds=0)
             overflow_fix_delta_ms = pd.Timedelta(milliseconds=0)
-
-            with open(file=out_path, mode="w", newline="") as out_file:
+            
+            with open(file=out_path, mode="w+", newline="") as out_file:
                 logger.info(f"Decoding file '{file_path}' to '{out_path}'.")
                 csv_writer = csv.writer(out_file)
                 csv_writer.writerow(CSV_HEADER)

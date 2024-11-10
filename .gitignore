@@ -57,6 +57,7 @@
 *.ini
 
 # Python
+*.pyd
 *.pyc
 __pycache__
 *.egg-info
