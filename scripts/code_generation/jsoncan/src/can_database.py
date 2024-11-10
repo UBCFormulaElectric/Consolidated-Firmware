@@ -2,14 +2,14 @@
 This file contains various classes to fully describes a CAN bus: The nodes, messages, and signals on the bus.
 """
 
-from dataclasses import dataclass
-from typing import List, Union, Dict
 import logging
+from dataclasses import dataclass
+from typing import Dict, List, Union
+
 from strenum import StrEnum
 
 from .json_parsing.schema_validation import AlertsEntry
 from .utils import bits_for_uint, bits_to_bytes, is_int
-
 
 logger = logging.getLogger(__name__)
 
@@ -150,6 +150,8 @@ class CanMessage:
         int, None
     ]  # Interval that this message should be sent via telem at (None if don't capture this msg)
 
+    bus: str  # The bus this message is on
+    
     def bytes(self):
         """
         Length of payload, in bytes.
@@ -178,6 +180,7 @@ class CanBusConfig:
     bus_speed: int
     modes: List[str]
     default_mode: str
+    name: str
 
 
 class CanAlertType(StrEnum):

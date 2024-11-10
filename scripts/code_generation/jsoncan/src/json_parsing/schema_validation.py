@@ -4,7 +4,7 @@ Functions to validate the CAN JSON schema.
 
 from typing import Dict, TypedDict
 
-from schema import Schema, Optional, Or, And
+from schema import And, Optional, Or, Schema
 
 """
 Tx file schemas
@@ -61,6 +61,7 @@ tx_signal_schema = Schema(
 
 tx_msg_schema = Schema(
     {
+        "bus": str,
         "msg_id": And(
             int, lambda x: x >= 0 and x < 2**11
         ),  # Standard CAN uses 11-bit identifiers
@@ -110,7 +111,15 @@ class BusJson(TypedDict):
 
 
 bus_schema = Schema(
-    {"default_receiver": str, "bus_speed": int, "modes": [str], "default_mode": str}
+    [
+        {
+            "name": str,
+            "default_receiver": str,
+            "bus_speed": int,
+            "modes": [str],
+            "default_mode": str,
+        }
+    ]
 )
 
 """

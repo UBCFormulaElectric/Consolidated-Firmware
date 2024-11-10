@@ -1,5 +1,6 @@
 {
     "Vitals": {
+        "bus": "bus1",
         "msg_id": 200,
         "cycle_time": 1000, 
         "signals": {
@@ -7,6 +8,7 @@
         }
     },
     "CanFifoOverflow": {
+        "bus": "bus1",
         "msg_id": 201,
         "cycle_time": 1000, 
         "signals": {
@@ -15,6 +17,7 @@
         }
     }, 
     "WatchdogTimeout": {
+        "bus": "bus1",
         "msg_id": 203, 
         "cycle_time": 1000,
         "signals": {
@@ -22,6 +25,7 @@
         }
     }, 
     "Warnings": {
+        "bus": "bus1",
         "msg_id": 204, 
         "cycle_time": 1000,
         "signals": {
@@ -36,6 +40,7 @@
         }
     }, 
     "StateMachine": {
+        "bus": "bus1",
         "msg_id": 205, 
         "cycle_time": 1000,
         "signals": {
@@ -43,6 +48,7 @@
         }
     },
     "AirShutdownErrors": {
+        "bus": "bus1",
         "msg_id": 207, 
         "cycle_time": 1000,
         "signals": {
@@ -50,6 +56,7 @@
         }
     },
     "InverterSwitches": {
+        "bus": "bus1",
         "msg_id": 212, 
         "cycle_time": 1000,
         "signals": {

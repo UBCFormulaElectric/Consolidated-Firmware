@@ -1,4 +1,4 @@
-import argparse
+wimport argparse
 from src.json_parsing.json_can_parsing import JsonCanParser
 
 FRAME_BITS = 1 + 2 + 7  # SOF + ACK + EOF
@@ -22,7 +22,7 @@ def msg_payload_bits(msg):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--can_data_dir", help="Path to JSON CAN data")
+    parser.add_argument("--can_data_dir", help="Path to JSON CAN data", default="C:/Users/80419/formula/Consolidated-Firmware/can_bus/quadruna")
     parser.add_argument("--can_bit_rate", help="CAN bit rate in bps, e.g. 500000 bps")
     args = parser.parse_args()
 
