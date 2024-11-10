@@ -39,10 +39,10 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "src/cubemx/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
             "f4dev_stm32cube"
-            "src/cubemx/Inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
