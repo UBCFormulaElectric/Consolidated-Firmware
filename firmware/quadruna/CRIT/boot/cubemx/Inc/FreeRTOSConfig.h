@@ -175,6 +175,8 @@ standard names. */
 
 /* USER CODE BEGIN Defines */
 #include "SEGGER_SYSVIEW_FreeRTOS.h"
+#define INCLUDE_xTaskGetIdleTaskHandle 1
+#define INCLUDE_pxTaskGetStackStart 1
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
