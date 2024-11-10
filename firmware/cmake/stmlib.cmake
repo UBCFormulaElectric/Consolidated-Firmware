@@ -78,6 +78,7 @@ function(stm32f412rx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+            "${THIRD_PARTY_DIR}/sysview"
     )
 
     # HAL sources.
@@ -150,6 +151,7 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
+            "${THIRD_PARTY_DIR}/sysview"
     )
     # HAL sources.
     set(STM32_HAL_SRCS)
