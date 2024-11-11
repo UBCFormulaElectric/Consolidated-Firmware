@@ -10,7 +10,7 @@
     "INTERNAL_ERROR": 2,
     "LIMIT_EXCEEDED": 3
   },
-  "VcEKFStatus": {
+  "VcEkfStatus": {
     "UNINITIALIZED": 0,
     "VERTICAL_GYRO": 1,
     "AHRS": 2,

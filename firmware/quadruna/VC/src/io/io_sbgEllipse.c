@@ -214,7 +214,7 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
-    app_canTx_VC_EKFSolutionMode_set((VcEKFStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
+    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
 
     // uint32_t status = log_data->ekfNavData.status;
 
@@ -230,24 +230,24 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     // }
 
     // velocity data in m/s
-    sensor_data.ekf_data.ekf_nav_velocity.north = log_data->ekfNavData.velocity[0];
-    sensor_data.ekf_data.ekf_nav_velocity.east  = log_data->ekfNavData.velocity[1];
-    sensor_data.ekf_data.ekf_nav_velocity.down  = log_data->ekfNavData.velocity[2];
+    sensor_data.ekf_nav_data.velocity.north = log_data->ekfNavData.velocity[0];
+    sensor_data.ekf_nav_data.velocity.east  = log_data->ekfNavData.velocity[1];
+    sensor_data.ekf_nav_data.velocity.down  = log_data->ekfNavData.velocity[2];
 
     // velocity standard dev
-    sensor_data.ekf_data.ekf_nav_velocity.north_std_dev = log_data->ekfNavData.velocityStdDev[0];
-    sensor_data.ekf_data.ekf_nav_velocity.east_std_dev  = log_data->ekfNavData.velocityStdDev[1];
-    sensor_data.ekf_data.ekf_nav_velocity.down_std_dev  = log_data->ekfNavData.velocityStdDev[2];
+    sensor_data.ekf_nav_data.velocity.north_std_dev = log_data->ekfNavData.velocityStdDev[0];
+    sensor_data.ekf_nav_data.velocity.east_std_dev  = log_data->ekfNavData.velocityStdDev[1];
+    sensor_data.ekf_nav_data.velocity.down_std_dev  = log_data->ekfNavData.velocityStdDev[2];
 
     // position data in m
-    sensor_data.ekf_data.ekf_nav_position.latitude  = log_data->ekfNavData.position[0];
-    sensor_data.ekf_data.ekf_nav_position.longitude = log_data->ekfNavData.position[1];
-    sensor_data.ekf_data.ekf_nav_position.altitude  = log_data->ekfNavData.position[2];
+    sensor_data.ekf_nav_data.position.latitude  = log_data->ekfNavData.position[0];
+    sensor_data.ekf_nav_data.position.longitude = log_data->ekfNavData.position[1];
+    sensor_data.ekf_nav_data.position.altitude  = log_data->ekfNavData.position[2];
 
     // position standard dev
-    sensor_data.ekf_data.ekf_nav_position.altitude_std_dev  = log_data->ekfNavData.positionStdDev[0];
-    sensor_data.ekf_data.ekf_nav_position.latitude_std_dev  = log_data->ekfNavData.positionStdDev[1];
-    sensor_data.ekf_data.ekf_nav_position.longitude_std_dev = log_data->ekfNavData.positionStdDev[2];
+    sensor_data.ekf_nav_data.position.altitude_std_dev  = log_data->ekfNavData.positionStdDev[0];
+    sensor_data.ekf_nav_data.position.latitude_std_dev  = log_data->ekfNavData.positionStdDev[1];
+    sensor_data.ekf_nav_data.position.longitude_std_dev = log_data->ekfNavData.positionStdDev[2];
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
@@ -330,14 +330,14 @@ Attitude *io_sbgEllipse_getEulerAngles()
     return &sensor_data.euler_data.euler_angles;
 }
 
-EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData()
+VelocityData *io_sbgEllipse_getEkfNavVelocityData()
 {
-    return &sensor_data.ekf_data.ekf_nav_velocity;
+    return &sensor_data.ekf_nav_data.velocity;
 }
 
-EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData()
+PositionData *io_sbgEllipse_getEkfNavPositionData()
 {
-    return &sensor_data.ekf_data.ekf_nav_position;
+    return &sensor_data.ekf_nav_data.position;
 }
 
 void io_sbgEllipse_msgRxCallback(void)
