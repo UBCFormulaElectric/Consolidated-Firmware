@@ -214,8 +214,8 @@
             "EllipseComStatusBitmask": {
                 "bits": 32
             },
-            "EKFSolutionMode": {
-                "enum": "VcEKFStatus"
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
             }
         }
     },
@@ -493,7 +493,7 @@
             }
         }
     },
-    "EllipseEKFNavPosition": {
+    "EllipseEkfNavPosition": {
         "msg_id": 217,
         "cycle_time": 100,
         "description": "Car position info",
@@ -539,7 +539,7 @@
             }
         }
     },
-    "EllipseEKFNavVelocity": {
+    "EllipseEkfNavVelocity": {
         "msg_id": 218,
         "cycle_time": 100,
         "description": "Car Velocity info",
