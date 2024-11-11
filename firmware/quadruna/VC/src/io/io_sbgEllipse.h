@@ -60,7 +60,7 @@ typedef struct
 typedef struct
 {
     Attitude euler_angles;
-} EulerPacketData;
+} EkfEulerPacketData;
 
 typedef struct
 {
@@ -71,10 +71,10 @@ typedef struct
 
 typedef struct
 {
-    ImuPacketData    imu_data;
-    EulerPacketData  euler_data;
-    StatusPacketData status_data;
-    EkfNavPacketData ekf_nav_data;
+    ImuPacketData      imu_data;
+    EkfEulerPacketData ekf_euler_data;
+    StatusPacketData   status_data;
+    EkfNavPacketData   ekf_nav_data;
 } SensorData;
 
 #ifdef TARGET_EMBEDDED

@@ -190,9 +190,9 @@ static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data)
 static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data)
 {
     // Save euler angles, in deg
-    sensor_data.euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
-    sensor_data.euler_data.euler_angles.pitch = RAD_TO_DEG(log_data->ekfEulerData.euler[1]);
-    sensor_data.euler_data.euler_angles.yaw   = RAD_TO_DEG(log_data->ekfEulerData.euler[2]);
+    sensor_data.ekf_euler_data.euler_angles.roll  = RAD_TO_DEG(log_data->ekfEulerData.euler[0]);
+    sensor_data.ekf_euler_data.euler_angles.pitch = RAD_TO_DEG(log_data->ekfEulerData.euler[1]);
+    sensor_data.ekf_euler_data.euler_angles.yaw   = RAD_TO_DEG(log_data->ekfEulerData.euler[2]);
 }
 
 /*
@@ -327,7 +327,7 @@ Attitude *io_sbgEllipse_getImuAngularVelocities()
 
 Attitude *io_sbgEllipse_getEulerAngles()
 {
-    return &sensor_data.euler_data.euler_angles;
+    return &sensor_data.ekf_euler_data.euler_angles;
 }
 
 VelocityData *io_sbgEllipse_getEkfNavVelocityData()
