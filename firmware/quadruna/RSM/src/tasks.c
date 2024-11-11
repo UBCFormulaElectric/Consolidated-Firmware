@@ -168,21 +168,6 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_JumpToApp(void)
-{
-    HAL_TIM_Base_Stop_IT(&htim3);
-    HAL_TIM_Base_DeInit(&htim3);
-
-    HAL_UART_Abort_IT(&huart1);
-    HAL_UART_DeInit(&huart1);
-
-    HAL_CAN_IRQHandler(&hcan1);
-    HAL_CAN_DeInit(&hcan1);
-
-    HAL_ADC_Stop_IT(&hadc1);
-    HAL_ADC_DeInit(&hadc1);
-}
-
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.

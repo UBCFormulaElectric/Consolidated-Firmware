@@ -289,32 +289,6 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_JumpToApp(void)
-{
-    HAL_TIM_Base_Start(&htim1);
-    HAL_TIM_Base_Start(&htim3);
-    HAL_TIM_Base_Start(&htim15);
-    HAL_TIM_Base_DeInit(&htim1);
-    HAL_TIM_Base_DeInit(&htim3);
-    HAL_TIM_Base_DeInit(&htim15);
-
-    HAL_UART_Abort_IT(&huart1);
-    HAL_UART_DeInit(&huart1);
-
-    HAL_FDCAN_IRQHandler(&hfdcan1);
-    HAL_FDCAN_DeInit(&hfdcan1);
-
-    HAL_ADC_Stop_IT(&hadc1);
-    HAL_ADC_DeInit(&hadc1);
-
-    HAL_SPI_Abort_IT(&hspi2);
-    HAL_SPI_DeInit(&hspi2);
-
-    HAL_CRC_Init(&hcrc); //??
-    //crc de-init not needed if both app and bootloader in
-    //compatible way?
-}
-
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.

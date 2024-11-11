@@ -152,6 +152,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_suspension.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_brake_light.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bootloader.h"
     )
     create_fake_library(
             "quadruna_RSM_fakes"
