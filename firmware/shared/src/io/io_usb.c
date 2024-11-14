@@ -11,7 +11,7 @@
 #define RX_QUEUE_BYTES sizeof(pbuff) * RX_QUEUE_SIZE
 
 // Private globals.
-static const USBConfig *config;
+static const USB *config;
 
 static osMessageQueueId_t tx_queue_id;
 static osMessageQueueId_t rx_queue_id;
@@ -37,7 +37,7 @@ static const osMessageQueueAttr_t rx_queue_attr = {
     .mq_size   = RX_QUEUE_BYTES,
 };
 
-void io_USB_init(const USBConfig *usb)
+void io_USB_init(const USB *usb)
 {
     assert(usb != NULL);
     config = usb;
@@ -65,7 +65,7 @@ void io_usb_pushTxMsgToQueue(const uint8_t *pbuff)
     }
 }
 
-void io_usb_popTxMsgFromQueue(uint8_t *usb)
+void io_usb_popTxMsgFromQueue(uint8_t *pbuff)
 {
     // Pop a msg of the TX queue
     const osStatus_t s = osMessageQueueGet(tx_queue_id, pbuff, NULL, osWaitForever);
@@ -75,17 +75,17 @@ void io_usb_popTxMsgFromQueue(uint8_t *usb)
 void io_usb_transmitMsgFromQueue(uint8_t *pbuff)
 {
     // Transmit the tx_msg onto the bus.
-    hw_usb_transmit(pbuff);
+    hw_USB_CDC_Transmit(&pbuff);
 }
 
-void io_can_popRxMsgFromQueue(uint8_t *pbufff)
+void io_usb_popRxMsgFromQueue(uint8_t *pbuff)
 {
     // Pop a message off the RX queue.
-    const osStatus_t s = osMessageQueueGet(rx_queue_id, pbufff, NULL, osWaitForever);
+    const osStatus_t s = osMessageQueueGet(rx_queue_id, pbuff, NULL, osWaitForever);
     assert(s == osOK);
 }
 
-void io_can_pushRxMsgToQueue(uint8_t *pbufff)
+void io_usb_pushRxMsgToQueue(uint8_t *pbuff)
 {
     static uint32_t rx_overflow_count = 0;
 
@@ -98,6 +98,7 @@ void io_can_pushRxMsgToQueue(uint8_t *pbufff)
 
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
+    uint8_t rx_msg = hw_USB_CDC_Receive(uint8_t *pbuff);
     if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
     {
         // If pushing to the queue failed, the queue is full. Discard the msg and invoke the RX overflow callback.

@@ -23,6 +23,12 @@
 		"stm32f4xx.h": "c",
 		"usbd_cdc_if.h": "c",
 		"cmsis_os.h": "c",
-		"hw_usb.h": "c"
+		"hw_usb.h": "c",
+		"atomic": "cpp",
+		"cstdint": "cpp",
+		"assert.h": "c",
+		"usbd_cdc.h": "c",
+		"string.h": "c",
+		"io_usb.h": "c"
 	},
 }

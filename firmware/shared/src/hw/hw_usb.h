@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "hw_hal.h"//usb is LL API so idk if I'd need this 
-#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
 
 typedef struct
 {
@@ -13,12 +13,13 @@ typedef struct
     // USB_CfgTypeDef *const config; //usb configuration type
     // USB_EPTypeDef *const endpoint; //endpoint type
     // USB_HCTypeDef *const hostType; // host type
-    USBD_CDC_ItfTypeDef *const handle;
+    //USBD_CDC_ItfTypeDef *const handle;
+    USBD_HandleTypeDef *const handle;
 } USB;
 
-static int8_t USB_CDC_Init(void);
-uint8_t USB_CDC_Transmit(USB *usb);
-uint8_t USB_CDC_Receive(USB *usb);
+void int8_t hw_USB_CDC_Init();
+uint8_t hw_USB_CDC_Transmit(uint8_t *buff);
+uint8_t hw_USB_CDC_Receive(uint8_t *buff);
 
 
 

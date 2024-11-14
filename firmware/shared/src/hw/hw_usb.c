@@ -1,17 +1,14 @@
 #include "hw_usb.h" 
 
-uint8_t hw_CDC_TxBuffer(USB *usb, uint8_t *pbuff, uint32_t length){
-    USBD_CDC_SetTxBuffer(usb->handle, pbuff, length, usb->ClassId);
+void hw_USB_CDC_Init(){
+    CDC_Init_FS();
 }
 
-uint8_t hw_CDC_transmitPacket(USB *usb){
-    USBD_CDC_TransmitPacket(usb->handle, usb->ClassId);
+uint8_t hw_USB_CDC_Transmit(uint8_t *pbuff){
+    CDC_Transmit_FS(&pbuff, len(pbuff));
 }
 
-uint8_t hw_CDC_setRXBuffer(USB *usb, uint8_t *pbuff){
-    USBD_CDC_SetRxBuffer(usb, pbuff);
+uint8_t hw_USB_CDC_Receive(uint8_t *pbuff){
+    CDC_Receive_FS(&pbuff, len(pbuff));
 }
 
-uint8_t hw_CDC_RecievePacket(USB *usb){
-    USBD_CDC_ReceivePacket(usb);
-}
