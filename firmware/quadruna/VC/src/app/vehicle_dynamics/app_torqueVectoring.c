@@ -9,6 +9,7 @@
 #include "app_utils.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
+#define TRACTION_WIND_UP(max_torque, wheel_speed) ((max_torque) / (wheel_speed) +2)
 static TimerChannel pid_timeout;
 
 static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
@@ -44,8 +45,11 @@ void app_torqueVectoring_init(void)
 {
     app_canTx_VC_TorqueVectoringEnabled_set(true);
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
+
+    // traction control PID init
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
     traction_control_inputs.pid = &pid_traction_control;
+    traction_control_inputs.pid->derivative_filtering_coeff = 50.0;    
 
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
@@ -112,6 +116,9 @@ void app_torqueVectoring_handleAcceleration(void)
     // Traction Control
     if (run_traction_control)
     {
+        // Have to set windup here as wheel speed is not defined when init
+        traction_control_inputs.pid->integral_windup_max = TRACTION_WIND_UP(MAX_TORQUE_REQUEST_NM, fmaxf(wheel_speed_front_left_kph, wheel_speed_front_right_kph));
+        traction_control_inputs.pid->integral_windup_max = -1 * (TRACTION_WIND_UP(MAX_TORQUE_REQUEST_NM, fmaxf(wheel_speed_front_left_kph, wheel_speed_front_right_kph)));
         traction_control_inputs.motor_speed_left_rpm        = motor_speed_left_rpm;
         traction_control_inputs.motor_speed_right_rpm       = motor_speed_right_rpm;
         traction_control_inputs.torque_left_Nm              = active_differential_outputs.torque_left_Nm;
