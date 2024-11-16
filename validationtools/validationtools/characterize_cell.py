@@ -3,7 +3,7 @@ from validationtools.powerSupply._powerSupply import *
 from validationtools.logger.logger import *
 
 totalCellCapacity = 100000 # mAh Filler Value
-chargingRate      = 1      # 1C Rate in amps Filler Value
+chargingRate      = 0.2      # 1C Rate in amps Filler Value
 
 
 def getCoulombs( current, timeStepSeconds)->float:
@@ -20,7 +20,7 @@ def getChargingRow(logger, powerSupply):
     if lastRow is not None:
         chargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow[5] # Charging Coulombs Col
     else:
-        chargingCoulombs = None
+        chargingCoulombs = 0
     dischargingCoulombs = None
     soc = chargingCoulombs / totalCellCapacity * 100
 
@@ -29,14 +29,15 @@ def getChargingRow(logger, powerSupply):
     return row
 
 def getDischargingRow(logger, loadBank):
-    lastRow = logger.getLastRow
-    voltage = loadBank.measure_voltage
-    current = loadBank.measure_current
+    lastRow = logger.getLastRow()
+    voltage = loadBank.measure_voltage()
+    current = loadBank.measure_current()
     if lastRow is not None:
-        dischargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow[6] # Charging Coulombs Col
+        dischargingCoulombs = getCoulombs(current, logger.getTimeIncrement()) + lastRow["Discharging Coulombs [Ah]"] # Charging Coulombs Col
+        chargingCoulombs = lastRow["Charging Coulombs [Ah]"]
     else:
-        dischargingCoulombs = None
-    chargingCoulombs = None
+        dischargingCoulombs = 0
+        chargingCoulombs = 0
     soc = (1- dischargingCoulombs / totalCellCapacity) * 100
 
     row = [voltage, current, chargingCoulombs, dischargingCoulombs, soc]
@@ -75,20 +76,27 @@ def main()->None:
 
     #     soc = row[-1]
 
+    # loadBank.set_voltage(3.6)
+    loadBank.set_current(chargingRate)
+    loadBank.enable_load()
+
     while(soc > 0):
-        loadBank.set_voltage(1)
-        loadBank.set_current(-chargingRate)
-        row = getChargingRow(logger, loadBank)
+        # loadBank.set_voltage(3.6)
+        loadBank.set_current(chargingRate)
+        
+        row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
 
         time.sleep(10)
         loadBank.set_current(0)
 
-        row = getChargingRow(logger, loadBank)
+        row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
         time.sleep(10)
 
         soc = row[-1]
+
+    loadBank.disable_load()
     
     
      
