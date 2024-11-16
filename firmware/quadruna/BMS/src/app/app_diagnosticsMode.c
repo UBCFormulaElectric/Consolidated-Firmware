@@ -23,19 +23,20 @@ void app_diagnosticsMode_calculateDiagnosticVoltageStats(uint8_t seg_requested)
         {
             for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
             {
-            // Collect each cell voltage and store in temp
-            const float cell_voltage          = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
-            data.cell_voltages[segment][cell] = cell_voltage;
+                // Collect each cell voltage and store in temp
+                const float cell_voltage          = io_ltc6813CellVoltages_getCellVoltage(segment, cell);
+                data.cell_voltages[segment][cell] = cell_voltage;
             }
         }
-    } else if (seg_requested != NONE)
+    }
+    else if (seg_requested != NONE)
     {
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             // Collect each cell voltage and store in temp
             // turn seg_requested into 0 index
-            uint8_t seg_num = seg_requested - 1;
-            const float cell_voltage                = io_ltc6813CellVoltages_getCellVoltage(seg_num, cell);
+            uint8_t     seg_num               = seg_requested - 1;
+            const float cell_voltage          = io_ltc6813CellVoltages_getCellVoltage(seg_num, cell);
             data.cell_voltages[seg_num][cell] = cell_voltage;
         }
     }

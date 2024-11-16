@@ -32,7 +32,7 @@ TEST_F(BmsFaultTest, check_cell_voltage_segment0_cell0)
 TEST_F(BmsFaultTest, check_temperature_segment0)
 {
     /**
-     * Test temperature in segment 0 is being properly transmitted to CAN. 
+     * Test temperature in segment 0 is being properly transmitted to CAN.
      */
 
     // Setting up the environment.
@@ -45,7 +45,6 @@ TEST_F(BmsFaultTest, check_temperature_segment0)
     // Reciving and transmitting the data.
     app_canRx_Debug_BMSDiagnosticsRequest_update(true);
     app_canRx_Debug_SegmentTemperaturesRequest_update(true);
-    //app_diagnosticsMode_broadcast();
 
     // Passing time to let the message transmit.
     LetTimePass(1000);
@@ -57,7 +56,7 @@ TEST_F(BmsFaultTest, check_temperature_segment0)
 TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
 {
     /**
-     * Test that neither voltage nor temperature reading are being transmitted when diagnostics 
+     * Test that neither voltage nor temperature reading are being transmitted when diagnostics
      * mode is off (even if individual temperature/voltage reading modes are turned on).
      */
 
