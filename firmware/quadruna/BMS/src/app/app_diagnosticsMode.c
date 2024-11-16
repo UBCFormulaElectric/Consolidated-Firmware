@@ -36,7 +36,7 @@ void app_diagnosticsMode_calculateDiagnosticVoltageStats(uint8_t seg_requested)
         {
             // Collect each cell voltage and store in temp
             // turn seg_requested into 0 index
-            int8_t seg_num = seg_requested - 1;
+            uint8_t seg_num = seg_requested - 1;
             const float cell_voltage                = io_ltc6813CellVoltages_getCellVoltage(seg_num, cell);
             data.cell_voltages[seg_num][cell] = cell_voltage;
         }
