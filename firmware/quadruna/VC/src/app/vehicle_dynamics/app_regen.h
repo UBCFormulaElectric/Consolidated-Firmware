@@ -4,7 +4,7 @@
 
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
-#define SOC_LIMIT_DERATING_VALUE 0.85f;
+#define SOC_LIMIT_DERATING_VALUE 0.85f
 #define PEDAL_SCALE 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
 
