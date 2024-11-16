@@ -174,7 +174,7 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
 
 /* USER CODE BEGIN Defines */
-#include "SEGGER_SYSVIEW_FreeRTOS.h"
+#include "sysviewFreeRTOSConfigs.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -78,6 +78,7 @@ function(stm32f412rx_cube_library
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
             # SEGGER SystemView includes.
+            "${THIRD_PARTY_DIR}/sysview"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
@@ -112,8 +113,10 @@ function(stm32f412rx_cube_library
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+    # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
+    list(APPEND SYSTEMVIEW_SRCS "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c")
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
@@ -199,8 +202,10 @@ function(stm32h733xx_cube_library
     # We use ARM's embedded GCC compiler, so append the GCC-specific SysCalls.
     list(APPEND SYSTEMVIEW_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER/Syscalls/SEGGER_RTT_Syscalls_GCC.c")
     # Append the FreeRTOS patch to get SystemView to work with FreeRTOS. All of our boards use FreeRTOS 10.3.1.
-    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/*.c")
+    file(GLOB_RECURSE SYSTEMVIEW_FREERTOS_SRCS "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10/SEGGER_SYSVIEW_FreeRTOS.c")
     list(APPEND SYSTEMVIEW_SRCS ${SYSTEMVIEW_FREERTOS_SRCS})
+    # NOTE: the configs for the systemview should be provided in the hardware layer of the respective boards
+    list(APPEND SYSTEMVIEW_SRCS "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c")
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")

@@ -1,10 +1,11 @@
-import os
 import argparse
-import pandas as pd
-import numpy as np
-from asammdf import MDF, Signal
 import logging
+import os
 from datetime import datetime
+
+import numpy as np
+import pandas as pd
+from asammdf import MDF, Signal
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,7 +46,6 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
             # Load CSV as a Pandas dataframe.
             csv_path = os.path.join(input, csv_name)
             df = pd.read_csv(csv_path, keep_default_na=False)
-
             # Group signals by signal name.
             df_signals = (
                 df.groupby("signal")[["time", "value", "unit"]].agg(list).reset_index()
@@ -56,15 +56,15 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
                 # TODO: Support enums/value tables.
                 signal_name = signal["signal"]
                 signal_values = np.array(signal["value"], dtype=float)
-                signal_datetimes = pd.to_datetime(
-                    np.array(signal["time"]), format="ISO8601"
-                )
+                signal_datetimes = pd.to_datetime(np.array(signal["time"]), format="ISO8601")
+                base = signal_datetimes[0]
+                signal_datetimes = signal_datetimes - base
                 signal_unit = signal["unit"][0] if len(signal["unit"]) > 0 else ""
 
                 # Round timestamp to nearest millisecond.
                 signal_timestamps_ms = (signal_datetimes.astype("int64") // 1e6).to_numpy()
                 signal_timestamps_s = signal_timestamps_ms.astype("float64") / 1e3
-                signal_timestamps_ms
+                
 
                 mdf.append(
                     signals=Signal(
