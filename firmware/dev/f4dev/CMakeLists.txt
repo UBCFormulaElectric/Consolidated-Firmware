@@ -2,14 +2,14 @@ message("")
 message("⚙️ Configuring F4Dev")
 
 set(ARM_CORE "cm4")
-set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/f4dev.ioc")
+set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
-file(GLOB EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/*.c")
+file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
-list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
+list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -39,10 +39,10 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # Pass syscalls to the cube library so we can build without warnings.
-    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/syscalls.c")
+    set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
             "f4dev_stm32cube"
-            "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
