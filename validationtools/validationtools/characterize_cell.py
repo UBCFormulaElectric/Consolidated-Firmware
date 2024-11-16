@@ -1,6 +1,6 @@
-from loadBank._loadBank import *
-from powerSupply._powerSupply import *
-from logger.logger import *
+from validationtools.loadBank._loadBank import *
+from validationtools.powerSupply._powerSupply import *
+from validationtools.logger.logger import *
 
 totalCellCapacity = 100000 # mAh Filler Value
 chargingRate      = 1      # 1C Rate in amps Filler Value
@@ -46,8 +46,8 @@ def getDischargingRow(logger, loadBank):
 
 def main()->None:
     loadBank = LoadBank()
-    powerSupply = PowerSupply()
-    soc = 0
+    # powerSupply = PowerSupply()
+    soc = 90
 
     loggingCols = \
     [
@@ -58,23 +58,22 @@ def main()->None:
         "SOC"
     ]
 
-    logger = Logger(loggingCols)
-    logger.startLogging()
+    logger = Logger(r"C:\Users\lkevi\OneDrive\Desktop\Coding\UBCFE\Data", loggingCols)
 
-    while(soc < 100):
-        powerSupply.set_voltage(1)
-        powerSupply.set_current(chargingRate)
-        row = getChargingRow(logger, powerSupply)
-        logger.storeRow(row)
+    # while(soc < 100):
+    #     powerSupply.set_voltage(1)
+    #     powerSupply.set_current(chargingRate)
+    #     row = getChargingRow(logger, powerSupply)
+    #     logger.storeRow(row)
 
-        time.sleep(10)
-        powerSupply.set_current(0)
+    #     time.sleep(10)
+    #     powerSupply.set_current(0)
 
-        row = getChargingRow(logger, powerSupply)
-        logger.storeRow(row)
-        time.sleep(10)
+    #     row = getChargingRow(logger, powerSupply)
+    #     logger.storeRow(row)
+    #     time.sleep(10)
 
-        soc = row[-1]
+    #     soc = row[-1]
 
     while(soc > 0):
         loadBank.set_voltage(1)
@@ -97,16 +96,16 @@ def main()->None:
 
 
 
-if __name__ == "main":
-    # main()
-    l = LoadBank()
+if __name__ == "__main__":
+    main()
+    # l = LoadBank()
 
-    l.set_current(0.500) # set it to draw 500mA
-    l.enable_load()
+    # l.set_current(0.500) # set it to draw 500mA
+    # l.enable_load()
 
-    time.sleep(5) # sleep for 5 seconds before measurment
+    # time.sleep(5) # sleep for 5 seconds before measurment
 
-    V_load = l.measure_voltage()
-    print(V_load)
+    # V_load = l.measure_voltage()
+    # print(V_load)
 
-    l.disable_load()
+    # l.disable_load()
