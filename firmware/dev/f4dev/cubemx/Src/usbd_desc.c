@@ -16,6 +16,11 @@
  *
  ******************************************************************************
  */
+
+// Ignore type conversion errors.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
