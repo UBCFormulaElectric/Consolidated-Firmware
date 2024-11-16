@@ -1,4 +1,4 @@
-# 04/16/2022 13:53:43
+# 06/14/2024 18:03:11
 # Firmware Date-code: 20211209
 # Firmware Version  : 2048
 # Hardware Version  : 23455
@@ -14,8 +14,8 @@ Serial_Number_EEPROM                  ,   1846
 Motor_Type_EEPROM                     ,    198  
 Veh_Flux_EEPROM_(Wb)_x_1000           ,     31  
 Angle_Advance_Factor_EEPROM_x_100     ,      0  
-Gamma_Adjust_EEPROM_(Deg)_x_10        ,   1555  
-Resolver_PWM_Delay_EEPROM_(Counts)    ,   1100  
+Gamma_Adjust_EEPROM_(Deg)_x_10        ,  -1250  
+Resolver_PWM_Delay_EEPROM_(Counts)    ,      0  
 Run_Mode_EEPROM(Trq=0_Spd=1)          ,      0  
 Inv_Cmd_Mode_EEPROM(CAN=0_VSM=1)      ,      0  
 Key_Switch_Mode_EEPROM                ,      0  
@@ -30,7 +30,7 @@ CAN_BMS_Limit_Enable_EEPROM           ,      0
 CAN_Term_Res_Present_EEPROM           ,      1  
 CAN_Command_Message_Active_EEPROM     ,      1  
 CAN_Bit_Rate_EEPROM_(kbps)            ,    500  
-CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,   6181  
+CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,  65535  
 CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)      ,  65535  
 CAN_Fast_Msg_Rate_EEPROM_(ms)         ,     10  
 CAN_Slow_Msg_Rate_EEPROM_(ms)         ,    100  
@@ -58,7 +58,7 @@ Coast_Hi_EEPROM_(V)_x_100             ,      4
 Accel_Max_EEPROM_(V)_x_100            ,    490  
 Pedal_Hi_EEPROM_(V)_x_100             ,    499  
 Motor_Torque_Limit_EEPROM_(Nm)_x_10   ,   1320  
-Regen_Torque_Limit_EEPROM_(Nm)_x_10   ,      0  
+Regen_Torque_Limit_EEPROM_(Nm)_x_10   ,    300  
 Braking_Torque_Limit_EEPROM_(Nm)_x_10 ,      0  
 Kp_Torque_EEPROM_x_10000              ,    100  
 Ki_Torque_EEPROM_x_10000              ,      4  
@@ -66,10 +66,10 @@ Kd_Torque_EEPROM_x_100                ,      0
 Klp_Torque_EEPROM_x_10000             ,      0  
 Torque_Rate_Limit_EEPROM_(Nm)_x_10    ,     50  
 Motor_Overspeed_EEPROM_(RPM)          ,   7000  
-Max_Speed_EEPROM_(RPM)                ,   3500  
+Max_Speed_EEPROM_(RPM)                ,   8000  
 Valet_Mode_Speed_EEPROM_(RPM)         ,      0  
 Regen_Fade_Speed_EEPROM_(RPM)         ,    200  
-Break_Speed_EEPROM_(RPM)              ,   3250  
+Break_Speed_EEPROM_(RPM)              ,   6500  
 Kp_Speed_EEPROM_x_100                 ,   1600  
 Ki_Speed_EEPROM_x_10000               ,      8  
 Kd_Speed_EEPROM_x_100                 ,      0  

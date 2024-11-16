@@ -250,5 +250,6 @@ function(embedded_image
             WORKING_DIRECTORY ${REPO_ROOT_DIR}
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
+
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
 endfunction()
