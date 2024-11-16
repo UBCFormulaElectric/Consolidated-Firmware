@@ -1,6 +1,5 @@
 #include "hw_Gpios.h"
 #include "main.h"
-#include "app.utils.h"
 
 namespace hw::gpio
 {

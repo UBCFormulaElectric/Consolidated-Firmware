@@ -2,25 +2,27 @@
 #include "hw_adc.h"
 #include "hw_adcs.h"
 
+
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
 
-namespace io::loadCell
+inline static bool OCSC(const adcPin_toCheck)
 {
+    const float voltage = hw::adc::adcPin_toCheck.getVoltage();
+    return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
+}
 
-float voltageToMechancialLoad(float voltage)
+inline static float voltageToMechancialLoad(float voltage)
 {
     // TODO: find transfer function (no spec sheet so far just this amazon link:
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
     return 0.0;
 }
 
-bool OCSC(Adc adcPin_toCheck)
+
+namespace io::loadCell
 {
-    float voltage = hw::adc::adcPin_toCheck.getVoltage();
-    return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
-}
 
 float getMechanicalLoad3(void)
 {
@@ -44,4 +46,4 @@ bool sensor4OCSC(void)
 
 }
 
-} // namespace io::loadCell
+ // namespace io::loadCell
