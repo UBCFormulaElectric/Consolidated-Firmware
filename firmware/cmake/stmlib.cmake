@@ -83,10 +83,6 @@ function(stm32f412rx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
-    if(USB_ENABLED)
-        list(APPEND STM32CUBE_INCLUDE_DIRS "${USB_MIDDLEWARE_DIR}/Core/Inc" "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc")
-    endif()
-
     file(GLOB USB_SRCS
         "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
         
@@ -124,7 +120,17 @@ function(stm32f412rx_cube_library
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
     if(USB_ENABLED)
-        list(APPEND STM32CUBE_SRCS ${USB_SRCS})
+        list(APPEND STM32CUBE_SRCS 
+            "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+        )
+
+        list(APPEND STM32CUBE_INCLUDE_DIRS 
+            "${USB_MIDDLEWARE_DIR}/Core/Inc" 
+            "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+        )
     endif()
 
     embedded_library(
@@ -171,10 +177,6 @@ function(stm32h733xx_cube_library
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
-    if(USB_ENABLED)
-        list(APPEND STM32CUBE_INCLUDE_DIRS "${USB_MIDDLEWARE_DIR}/Core/Inc" "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc")
-    endif()
-
     # HAL sources.
     set(STM32_HAL_SRCS)
     foreach (HAL_SRC ${HAL_SRCS})
@@ -187,14 +189,6 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-    )
-
-    file(GLOB USB_SRCS
-        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
     )
 
     # SEGGER SystemView sources.
@@ -212,9 +206,25 @@ function(stm32h733xx_cube_library
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC})
+
+    # Handle usb srcs and include directories.
+    # Currently, all our USB devices are of the Communications Device Class (CDC).
+    # If we want to ever support different device classes, 
+    # you will need to add a argument to this function with the requested class.
     if(USB_ENABLED)
-        list(APPEND STM32CUBE_SRCS ${USB_SRCS})
+        list(APPEND STM32CUBE_SRCS 
+            "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+            "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+        )
+
+        list(APPEND STM32CUBE_INCLUDE_DIRS 
+            "${USB_MIDDLEWARE_DIR}/Core/Inc" 
+            "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+        )
     endif()
+
 
     embedded_library(
             "${HAL_LIB_NAME}"
