@@ -9,9 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"io_log.h": "c",
-		"hw_pwminputfreqonly.h": "c",
-		"io_coolant.h": "c"
-	},
 }
