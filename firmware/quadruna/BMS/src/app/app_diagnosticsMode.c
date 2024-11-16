@@ -9,13 +9,11 @@
 #include <string.h>
 #include <float.h>
 
-typedef struct
+static struct
 {
     float   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
     uint8_t segment_temps[ACCUMULATOR_NUM_SEGMENTS];
-} BMSDiagnosticStats;
-
-static BMSDiagnosticStats data;
+} data;
 
 void app_diagnosticsMode_calculateDiagnosticVoltageStats(uint8_t seg_requested)
 {
