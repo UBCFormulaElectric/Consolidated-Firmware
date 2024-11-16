@@ -25,7 +25,7 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
         HAL_TIM_Base_DeInit(&htim12);
 
         HAL_UART_Abort_IT(&huart1);
-        HAL_UART_DeInit(&huart1)
+        HAL_UART_DeInit(&huart1);
 
         HAL_ADC_Stop_IT(&hadc1);
         HAL_ADC_DeInit(&hadc1);
@@ -36,6 +36,6 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
 
         HAL_CAN_DeInit(&hcan1);
 
-        modifyStackPointerAndStartApp(&__boot_code_start__);
+        io_bootloader_modifyStackPointer(&__boot_code_start__);
     }
 }

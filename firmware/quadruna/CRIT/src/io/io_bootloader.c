@@ -33,6 +33,6 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
 
         HAL_CAN_DeInit(&hcan1);
 
-        modifyStackPointerAndStartApp(&__boot_code_start__);
+        io_bootloader_modifyStackPointer(&__boot_code_start__);
     }
 }

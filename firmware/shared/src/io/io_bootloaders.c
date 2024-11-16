@@ -6,7 +6,7 @@
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
 
-void modifyStackPointerAndStartApp(const uint32_t *address)
+void io_bootloader_modifyStackPointer(const uint32_t *address)
 {
     // Disable interrupts before jumping.
     __disable_irq();
