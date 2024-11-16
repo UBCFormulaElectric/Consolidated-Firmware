@@ -15,18 +15,18 @@ static struct
 } data;
 
 void (*cellVoltageSetters[])(float) = {
-    app_canTx_BMS_Seg0_Cell0_Voltage_set, app_canTx_BMS_Seg0_Cell1_Voltage_set, app_canTx_BMS_Seg0_Cell2_Voltage_set,
-    app_canTx_BMS_Seg0_Cell3_Voltage_set, app_canTx_BMS_Seg0_Cell4_Voltage_set, app_canTx_BMS_Seg0_Cell5_Voltage_set,
-    app_canTx_BMS_Seg0_Cell6_Voltage_set, app_canTx_BMS_Seg0_Cell7_Voltage_set, app_canTx_BMS_Seg0_Cell8_Voltage_set,
-    app_canTx_BMS_Seg0_Cell9_Voltage_set, app_canTx_BMS_Seg0_Cell10_Voltage_set, app_canTx_BMS_Seg0_Cell11_Voltage_set,
-    app_canTx_BMS_Seg0_Cell12_Voltage_set, app_canTx_BMS_Seg0_Cell13_Voltage_set, app_canTx_BMS_Seg0_Cell14_Voltage_set,
+    app_canTx_BMS_Seg0_Cell0_Voltage_set,  app_canTx_BMS_Seg0_Cell1_Voltage_set,  app_canTx_BMS_Seg0_Cell2_Voltage_set,
+    app_canTx_BMS_Seg0_Cell3_Voltage_set,  app_canTx_BMS_Seg0_Cell4_Voltage_set,  app_canTx_BMS_Seg0_Cell5_Voltage_set,
+    app_canTx_BMS_Seg0_Cell6_Voltage_set,  app_canTx_BMS_Seg0_Cell7_Voltage_set,  app_canTx_BMS_Seg0_Cell8_Voltage_set,
+    app_canTx_BMS_Seg0_Cell9_Voltage_set,  app_canTx_BMS_Seg0_Cell10_Voltage_set,  app_canTx_BMS_Seg0_Cell11_Voltage_set,
+    app_canTx_BMS_Seg0_Cell12_Voltage_set,  app_canTx_BMS_Seg0_Cell13_Voltage_set,  app_canTx_BMS_Seg0_Cell14_Voltage_set,
     app_canTx_BMS_Seg0_Cell15_Voltage_set,
 
-    app_canTx_BMS_Seg1_Cell0_Voltage_set, app_canTx_BMS_Seg1_Cell1_Voltage_set, app_canTx_BMS_Seg1_Cell2_Voltage_set,
-    app_canTx_BMS_Seg1_Cell3_Voltage_set, app_canTx_BMS_Seg1_Cell4_Voltage_set, app_canTx_BMS_Seg1_Cell5_Voltage_set,
-    app_canTx_BMS_Seg1_Cell6_Voltage_set, app_canTx_BMS_Seg1_Cell7_Voltage_set, app_canTx_BMS_Seg1_Cell8_Voltage_set,
-    app_canTx_BMS_Seg1_Cell9_Voltage_set, app_canTx_BMS_Seg1_Cell10_Voltage_set, app_canTx_BMS_Seg1_Cell11_Voltage_set,
-    app_canTx_BMS_Seg1_Cell12_Voltage_set, app_canTx_BMS_Seg1_Cell13_Voltage_set, app_canTx_BMS_Seg1_Cell14_Voltage_set,
+    app_canTx_BMS_Seg1_Cell0_Voltage_set,  app_canTx_BMS_Seg1_Cell1_Voltage_set,  app_canTx_BMS_Seg1_Cell2_Voltage_set,
+    app_canTx_BMS_Seg1_Cell3_Voltage_set,  app_canTx_BMS_Seg1_Cell4_Voltage_set,  app_canTx_BMS_Seg1_Cell5_Voltage_set,
+    app_canTx_BMS_Seg1_Cell6_Voltage_set,  app_canTx_BMS_Seg1_Cell7_Voltage_set,  app_canTx_BMS_Seg1_Cell8_Voltage_set,
+    app_canTx_BMS_Seg1_Cell9_Voltage_set,  app_canTx_BMS_Seg1_Cell10_Voltage_set,  app_canTx_BMS_Seg1_Cell11_Voltage_set,
+    app_canTx_BMS_Seg1_Cell12_Voltage_set,  app_canTx_BMS_Seg1_Cell13_Voltage_set,  app_canTx_BMS_Seg1_Cell14_Voltage_set,
     app_canTx_BMS_Seg1_Cell15_Voltage_set,
 
     app_canTx_BMS_Seg2_Cell0_Voltage_set, app_canTx_BMS_Seg2_Cell1_Voltage_set, app_canTx_BMS_Seg2_Cell2_Voltage_set,
