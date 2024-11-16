@@ -12,8 +12,6 @@ TEST_F(BmsFaultTest, check_cell_voltage_segment0_cell0)
      */
 
     // Setting up the environment.
-    TearDown();
-    SetUp();
     float fake_voltage = 1.0f;
     fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(fake_voltage);
 
@@ -38,8 +36,6 @@ TEST_F(BmsFaultTest, check_temperature_segment0)
      */
 
     // Setting up the environment.
-    TearDown();
-    SetUp();
     float fake_temperature = 2.0f;
     fake_io_ltc6813CellTemperatures_getSpecificCellTempDegC_returnsForAnyArgs(fake_temperature);
 
@@ -66,8 +62,6 @@ TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
      */
 
     // Setting up the environment.
-    TearDown();
-    SetUp();
     float fake_voltage = 3.0f;
     fake_io_ltc6813CellVoltages_getCellVoltage_returnsForAnyArgs(fake_voltage);
 
