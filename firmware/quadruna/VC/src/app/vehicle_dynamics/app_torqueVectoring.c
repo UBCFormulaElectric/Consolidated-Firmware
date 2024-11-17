@@ -63,9 +63,9 @@ void app_torqueVectoring_init(void)
 
 void app_torqueVectoring_run(float accelerator_pedal_percentage)
 {
+    // pedal percentage = [0,1] for acceleration range
+    accelerator_pedal_percent = accelerator_pedal_percentage;
     // Read data from CAN
-    // NOTE: Pedal percent CAN is in range 0.0-100.0%
-    accelerator_pedal_percent   = accelerator_pedal_percentage;
     wheel_speed_front_left_kph  = app_canRx_FSM_LeftWheelSpeed_get();
     wheel_speed_front_right_kph = app_canRx_FSM_RightWheelSpeed_get();
     motor_speed_left_rpm        = (float)app_canRx_INVL_MotorSpeed_get();
