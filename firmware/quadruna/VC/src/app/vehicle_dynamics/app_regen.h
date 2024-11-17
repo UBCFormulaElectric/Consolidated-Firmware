@@ -5,7 +5,7 @@
 #define MIN_SCALING_SPEED_kph 35.0f
 #define SPEED_MIN_kph 5.0f
 #define SOC_LIMIT_DERATING_VALUE 0.85f
-#define PEDAL_SCALE 0.3f
+#define PEDAL_SCALE 0.2f // 0.25f, 0.3f
 #define MAX_PEDAL_PERCENT 1.0f
 
 /**
@@ -49,8 +49,8 @@ void app_regen_computeActiveDifferentialTorque(ActiveDifferential_Inputs *inputs
  * Remap Papps and Sapps pedal percentage
  * @param apps_pedal_percentage is the FSM given pedal percentage
  * @return remap pedal percentage from [0.0, 1.0] to
- * regen range:        [0%-30%) [-0.3, 0.0) which then gets mapped [-1.0, 0.0)
+ * regen range:        [0%-20%) [-0.2, 0.0) which then gets mapped [-1.0, 0.0)
  * cruising range:     [30%-40%) [0.0, 0.1) which then gets mapped to [0.0]
- * acceleration range: [40%-100%] [0.1, 1.0] which then gets mapped (0.0, 1.0]
+ * acceleration range: [40%-100%] [0.1, 0.8] which then gets mapped (0.0, 1.0]
  */
 float app_regen_pedalRemapping(float apps_pedal_percentage);

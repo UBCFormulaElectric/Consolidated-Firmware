@@ -243,7 +243,7 @@ TEST_F(TestRegen, regular_run_regen_and_switch_disable_during_drive_state)
 
     ASSERT_FALSE(app_canAlerts_VC_Warning_RegenNotAvailable_get());
     ASSERT_TRUE(app_canTx_VC_RegenEnabled_get());
-    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == -1.0f);
+    ASSERT_TRUE(app_canTx_VC_MappedPedalPercentage_get() == -100.0f);
 
     app_canRx_CRIT_RegenSwitch_update(SWITCH_OFF);
 
