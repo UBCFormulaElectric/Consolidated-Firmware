@@ -50,6 +50,7 @@ void app_regen_init(void)
 
 void app_regen_run(float accelerator_pedal_percentage)
 {
+    // pedal percentage = [-1,0] for deceleration range
     activeDifferentialInputs.accelerator_pedal_percentage = accelerator_pedal_percentage;
     bool regen_available = app_regen_safetyCheck(&regenAttributes, &activeDifferentialInputs);
 

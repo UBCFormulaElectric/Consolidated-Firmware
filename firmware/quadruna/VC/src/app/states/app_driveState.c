@@ -149,16 +149,20 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_BuzzerOn_set(false);
     }
 
-    // regen switched pedal percentage from [0, 100] to [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    // change pedal percentage from [0, 100] to [0.0, 1.0]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
+
+    // regen switches pedal percentage from [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
     if (regen_switch_is_on)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
         sapps_pedal_percentage = app_regen_pedalRemapping(sapps_pedal_percentage);
     }
 
-    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage);
+    // transmit
+    app_canTx_VC_MappedPedalPercentage_set(apps_pedal_percentage * 100.0f);
+
     if (app_faultCheck_checkSoftwareBspd(apps_pedal_percentage, sapps_pedal_percentage))
     {
         // If bspd warning is true, set torque to 0.0
