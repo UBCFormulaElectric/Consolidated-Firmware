@@ -149,11 +149,11 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_BuzzerOn_set(false);
     }
 
-    // change pedal percentage from [0, 100] to [0.0, 1.0]
+    // change pedal percentage from [0.0f, 100.0f] to [0.0f, 1.0f]
     float apps_pedal_percentage  = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
     float sapps_pedal_percentage = app_canRx_FSM_SappsMappedPedalPercentage_get() * 0.01f;
 
-    // regen switches pedal percentage from [0.0, 1.0] to [-0.3, 0.7] and then scaled to [-1,1]
+    // regen switches pedal percentage from [0.0f, 1.0f] to [-0.3f, 0.7f] and then scaled to [-1.0f, 1.0f]
     if (regen_switch_is_on)
     {
         apps_pedal_percentage  = app_regen_pedalRemapping(apps_pedal_percentage);
