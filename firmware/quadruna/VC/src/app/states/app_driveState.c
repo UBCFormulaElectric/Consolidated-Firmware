@@ -119,11 +119,10 @@ static void driveStateRunOnTick100Hz(void)
     /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
        or not before using closed loop features */
 
-    // Regen + TV LEDs and update warnings
+    // Initialize LEDs and update warnings on rising edge
     if (turn_regen_led)
     {
-        app_canTx_VC_RegenEnabled_set(true);
-        app_canTx_VC_Warning_RegenNotAvailable_set(false);
+        app_regen_init();
     }
 
     if (!regen_switch_is_on)
