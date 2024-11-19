@@ -1,14 +1,13 @@
 #pragma once
 
-namespace io::loadCell
-{
-
 float voltageToMechancialLoad(float voltage);
 
 bool OCSC(Adc adcPin_toCheck);
+namespace io::loadCell
+{
 
 /**
- * @returns mechanical loadd based off adc pin voltage (after op-amp gain)
+ * @returns mechanical load based off adc pin voltage (after op-amp gain)
  */
 float getMechanicalLoad3(void);
 

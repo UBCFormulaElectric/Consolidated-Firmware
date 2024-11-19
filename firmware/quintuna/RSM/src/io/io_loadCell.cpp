@@ -2,7 +2,6 @@
 #include "hw_adc.h"
 #include "hw_adcs.h"
 
-
 // TODO: Find actual max and min values
 #define LOADCELL_MINVOLT (0.0f)
 #define LOADCELL_MAXVOLT (0.0f)
@@ -19,7 +18,6 @@ inline static float voltageToMechancialLoad(float voltage)
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
     return 0.0;
 }
-
 
 namespace io::loadCell
 {
@@ -44,6 +42,6 @@ bool sensor4OCSC(void)
     return OCSC(hw::adc::regen_3v3_lc3_out);
 }
 
-}
+} // namespace io::loadCell
 
- // namespace io::loadCell
+// namespace io::loadCell
