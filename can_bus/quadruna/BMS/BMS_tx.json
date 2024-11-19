@@ -369,6 +369,7 @@
         "msg_id": 154,
         "cycle_time": 1000,
         "description": "BMS Segment 0 Voltage Stats Part 0",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg0_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -424,6 +425,7 @@
         "msg_id": 155,
         "cycle_time": 1000,
         "description": "BMS Segment 0 Voltage Stats Part 1",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg0_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -479,6 +481,7 @@
         "msg_id": 156,
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 0",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg1_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -534,6 +537,7 @@
         "msg_id": 157,
         "cycle_time": 1000,
         "description": "BMS Segment 1 Voltage Stats Part 1",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg1_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -589,6 +593,7 @@
         "msg_id": 158,
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 0",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg2_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -644,6 +649,7 @@
         "msg_id": 159,
         "cycle_time": 1000,
         "description": "BMS Segment 2 Voltage Stats Part 1",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg2_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -699,6 +705,7 @@
         "msg_id": 160,
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 0",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg3_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -754,6 +761,7 @@
         "msg_id": 161,
         "cycle_time": 1000,
         "description": "BMS Segment 3 Voltage Stats Part 1",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg3_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -809,6 +817,7 @@
         "msg_id": 162,
         "cycle_time": 1000,
         "description": "BMS Segment 4 Voltage Stats Part 0",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg4_Cell0_Voltage": {
                 "resolution": 0.1,
@@ -864,6 +873,7 @@
         "msg_id": 163,
         "cycle_time": 1000,
         "description": "BMS Segment 4 Voltage Stats Part 1",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg4_Cell8_Voltage": {
                 "resolution": 0.1,
@@ -919,6 +929,7 @@
         "msg_id": 165,
         "cycle_time": 1000,
         "description": "Average temperatures for each segment in the accumulator",
+        "allowed_modes": ["debug"],
         "signals": {
             "Seg0_Temp": {
                 "resolution": 1,
