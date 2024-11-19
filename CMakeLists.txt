@@ -26,17 +26,14 @@ ELSE ()
 ENDIF ()
 # cmake_policy(SET CMP0135 NEW)
 
-# ========== INCLUDES ==========
-include(scripts/code_generation/jsoncan/jsoncan.cmake)
-include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== Dependency Management Configs ========
 message("")
 option(HANDLE_DEPS "Build build on the server" OFF)
 IF (HANDLE_DEPS)
-    message("🏗️ CMake is now controlling the optional dependencies")
+message("🏗️ CMake is now controlling the optional dependencies")
 ELSE ()
-    message("🏠 Completely using your dependencies")
+message("🏠 Completely using your dependencies")
 ENDIF ()
 include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
@@ -45,16 +42,19 @@ message("✅ Downloaded CPM.cmake")
 message("")
 message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-    message("🪟 Building for Windows")
+message("🪟 Building for Windows")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-    message("🍎 Building for Apples")
+message("🍎 Building for Apples")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-    message("🐧 Building for Linux")
+message("🐧 Building for Linux")
 ELSE ()
-    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 ENDIF ()
 
+# ========== INCLUDES ==========
 include("python.cmake")
+include(scripts/code_generation/jsoncan/jsoncan.cmake)
+include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
