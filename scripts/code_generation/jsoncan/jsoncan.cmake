@@ -114,7 +114,7 @@ function(log_bus_load CAR)
     message("  📚 [jsoncan.cmake, log_bus_load()] Registering CAN bus load calculation for ${CAR}")
     add_custom_target(
         can_bus_load_${CAR}
-        COMMAND python "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
+        COMMAND ${PYTHON_COMMAND} "${SCRIPTS_DIR}/code_generation/jsoncan/calc_bus_load.py"
         --can_data_dir "${CAN_JSON_DIR}"
         WORKING_DIRECTORY "${REPO_ROOT_DIR}"
         COMMENT "Calculating CAN bus load using JSON CAN data for ${CAR}"
