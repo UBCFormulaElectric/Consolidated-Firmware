@@ -1,9 +1,6 @@
 [submodule "firmware/third_party/sbgECom"]
 	path = firmware/third_party/sbgECom
 	url = https://github.com/UBCFormulaElectric/sbgECom.git
-[submodule "software/dimos/src/assets"]
-	path = software/dimos/src/assets
-	url = https://github.com/UBCFormulaElectric/dimos-assets.git
 [submodule "scripts/canup"]
 	path = scripts/canup
 	url = https://github.com/UBCFormulaElectric/canup.git
