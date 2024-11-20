@@ -10,19 +10,27 @@
 // Voltage divider for the TS+ voltage sensing
 #define TS_VOLTAGE_DIV (20e+3f / (6 * 1e+6f + 30e3f + 20e3f))
 
-// Offset voltage of output 1. Found through testing
-#define OUTPUT_1_OFFSET (2.5052f)
-// Sensitivity of output 1: 26.7mV/A
-#define OUTPUT_1_SENSITIVITY (1.0f / 26.7e-3f)
+// Offset voltage of output 1.
+#define OUTPUT_1_OFFSET (2.5f)
+// Sensitivity of output 1: 40mV/A
+#define OUTPUT_1_SENSITIVITY (1.0f / 40.0e-3f)
 // Voltage divider from adc --> current sensor output
 #define OUTPUT_1_DIV ((33.0f + 60.4f) / (60.4f))
 
-// Offset voltage of output 2. Found through testing
-#define OUTPUT_2_OFFSET (2.492f)
-// Sensitivity of output 2: 4.0mV/A
-#define OUTPUT_2_SENSITIVITY (1.0f / 4.0e-3f)
+// Offset voltage of output 2. 
+#define OUTPUT_2_OFFSET (2.5f)
+// Sensitivity of output 2: 5.2mV/A
+#define OUTPUT_2_SENSITIVITY (1.0f / 5.2e-3f)
 // Voltage divider from adc --> current sensor output
 #define OUTPUT_2_DIV ((33.0f + 60.4f) / (60.4f))
+
+
+// Current Sensor error calibration parameters (based on experimental data)
+#define OUTPUT1_ERROR_SLOPE (0.5028f)
+#define OUTPUT1_ERROR_OFFSET (-0.0894f)
+#define OUTPUT2_ERROR_SLOPE (0.2417f)
+#define OUTPUT2_ERROR_OFFSET (2.3634f)
+
 
 static const TractiveSystemConfig *config = NULL;
 
@@ -105,13 +113,19 @@ float io_tractiveSystem_getCurrentHighResolution()
     //                                                 60.4k
     // Offset Voltage = 2.5V (Datasheet)
     //
-    // Sensitivity = 26.7mV/A
+    // Sensitivity = 40mV/A
 
     // Output from current sensor:
     const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
-    // Return the current which corresponds to the output voltage
-    return -((hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY);
+    // Calculate the current which corresponds to the output voltage (baed on sensor datasheet)
+    const float high_res_current = ((hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY);
+
+
+    // Error Calibration for High Resolution Current Sensor (based on calibration data)
+    const float  high_res_curr_calibration = high_res_current * OUTPUT1_ERROR_SLOPE + OUTPUT1_ERROR_OFFSET;
+
+    return -(high_res_current + high_res_curr_calibration);
 }
 
 float io_tractiveSystem_getCurrentLowResolution()
@@ -142,11 +156,17 @@ float io_tractiveSystem_getCurrentLowResolution()
     //                                                 60.4k
     // Offset Voltage = 2.5V (Datasheet)
     //
-    // Sensitivity = 4.0mV/A
+    // Sensitivity = 5.2mV/A
 
     // Output from current sensor:
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
-    // Return the current which corresponds to the output voltage
-    return -((hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY);
+    // Calculate the current which corresponds to the output voltage (baed on sensor datasheet)
+    const float low_res_current = ((hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY);
+
+
+    // Error Calibration for Low Resolution Current Sensor (based on calibration data)
+    const float  low_res_curr_calibration = low_res_current * OUTPUT2_ERROR_SLOPE + OUTPUT2_ERROR_OFFSET;
+
+    return -(low_res_current + low_res_curr_calibration);
 }
