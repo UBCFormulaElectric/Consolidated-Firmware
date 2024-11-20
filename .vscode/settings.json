@@ -29,6 +29,9 @@
 		"assert.h": "c",
 		"usbd_cdc.h": "c",
 		"string.h": "c",
-		"io_usb.h": "c"
+		"io_usb.h": "c",
+		"cmsis_os2.h": "c",
+		"io_can.h": "c",
+		"random": "c"
 	},
 }

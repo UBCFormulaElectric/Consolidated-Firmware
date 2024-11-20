@@ -27,6 +27,7 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
+#include "hw_usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -530,7 +531,20 @@ void StartDefaultTask(void *argument)
 {
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
+
     /* USER CODE BEGIN 5 */
+    uint8_t msg;
+    osMessageQueueId_t rx_queue_id hw_usb_init();
+    osDelay(1);
+    uint8_t stat = CDC_Receive_FS(1, sizeof(1));
+    printf("status of recieving %i", stat);
+    osDelay(1);
+    uint8_t status_tx = hw_usb_transmit(1);
+    printf("status of transmit is %i", status_tx);
+    osDelay(1);
+    uint8_t msgFromQUeue = hw_usb_recieve(msg);
+    printf("the popped message is %i", i);
+    osDelay(1);
     UART modem_uart = { .handle = &huart2 };
     /* Infinite loop */
     // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };

@@ -52,6 +52,7 @@
 /* USER CODE BEGIN PRIVATE_TYPES */
 
 uint8_t buf[7];
+osMessageQueueId_t usb;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -152,7 +153,9 @@ static int8_t CDC_Init_FS(void)
     /* Set Application Buffers */
     USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-    hw_usbQueue_init(&hUsbDeviceFS);
+    usb = hw_usb_init();
+    // hw_usbQueue_init(&hUsbDeviceFS);
+    // Init USB, store the queue id in a static variable.
     return (USBD_OK);
     /* USER CODE END 3 */
 }
@@ -264,9 +267,14 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 6 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+    hw_usb_pushRxMsgToQueue(Buf, Len); //pushing onto queue 
+
+    // Push to queue.
+    // hw_usb_rxPush(Buf, Len).
+
     // Test: Send data back
-    uint16_t len = (uint16_t) *Len;
-    CDC_Transmit_FS(Buf, len);
+    // uint16_t len = (uint16_t) *Len;
+    // CDC_Transmit_FS(Buf, len);
 
     return (USBD_OK);
     /* USER CODE END 6 */
