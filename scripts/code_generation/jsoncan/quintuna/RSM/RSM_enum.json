@@ -1,0 +1,7 @@
+{
+    "RsmStates": {
+        "RSM_INIT_STATE": 0,
+        "RSM_DRIVE_STATE": 1
+     }
+        
+}
