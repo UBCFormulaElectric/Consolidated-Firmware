@@ -8,7 +8,7 @@ from logfs.fs import LogFs
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--disk", "-d", help="Path to disk")
+    parser.add_argument("--disk", "-d", help="Path to disk" , required=True)
     parser.add_argument("--block_size", "-b", help="Block size in bytes", default=512)
     parser.add_argument(
         "--block_count", "-N", help="Number of blocks", default=1024 * 1024
