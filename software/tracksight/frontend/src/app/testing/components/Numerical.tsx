@@ -10,7 +10,7 @@ import {
 
 interface DataPoint {
   time: number;
-  [signalName: string]: number; // Dynamic keys for signal values
+  [signalName: string]: number;
 }
 
 interface NumericalGraphProps {
@@ -28,7 +28,7 @@ const NumericalGraph: React.FC<NumericalGraphProps> = ({
   useEffect(() => {
     const newDataPoint: DataPoint = { time: currentTime };
 
-    // Generate random values for each numerical signal
+    // currently generating random values for each numerical signal
     numericalSignals.forEach((signalName) => {
       newDataPoint[signalName] = Math.floor(Math.random() * 100);
     });

@@ -29,7 +29,7 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
   const [stateHistory, setStateHistory] = useState<StateHistoryItem[]>([]);
 
   // Define the total time window displayed on the graph (e.g., last 60 seconds)
-  const timeWindow = 11; // seconds
+  const timeWindow = 11 * 1000; // milliseconds
 
   useEffect(() => {
     // Update state history when currentState changes
@@ -46,7 +46,7 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
         return prevHistory;
       }
     });
-  }, [currentState, currentTime]);
+  }, [currentState]);
 
   useEffect(() => {
     // Remove states that end before the current time window
@@ -59,15 +59,15 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
     );
   }, [currentTime]);
 
-  // Calculate pixels per second
-  const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
-  const pixelsPerSecond = containerWidth / timeWindow;
+  // TODO: actual signals will have variable width based on time window,
+  // will return data points at unspecified intervals and will need to be interpolated
 
-  // Calculate positions and widths for each state
+  const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
+  const pixelsPerMs = containerWidth / timeWindow;
+
   const stateBars: StateBar[] = stateHistory.map((state, index) => {
     const nextState = stateHistory[index + 1];
 
-    // Adjust start and end times to the bounds of the time window
     const stateStartTime = state.startTime;
     const stateEndTime = nextState ? nextState.startTime : currentTime;
 
@@ -75,9 +75,9 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
     const barEndTime = Math.min(stateEndTime, currentTime);
 
     const startOffset =
-      (barStartTime - (currentTime - timeWindow)) * pixelsPerSecond;
+      (barStartTime - (currentTime - timeWindow)) * pixelsPerMs;
     const duration = barEndTime - barStartTime;
-    const width = duration * pixelsPerSecond;
+    const width = duration * pixelsPerMs;
 
     return {
       ...state,
@@ -95,7 +95,6 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
     "#007AFF",
   ];
 
-  // Helper function to get color based on state
   const getStateColor = (state: string): string => {
     const index = enumStates.indexOf(state);
     return stateColors[index % stateColors.length]; // Wrap around if more states
@@ -138,7 +137,7 @@ const EnumerationGraph: React.FC<EnumerationGraphProps> = ({
                   backgroundColor: getStateColor(bar.state),
                 }}
                 title={`${bar.state} (${new Date(
-                  bar.startTime * 1000
+                  bar.startTime
                 ).toLocaleTimeString()})`}
               ></div>
             )
