@@ -5,11 +5,11 @@ import LiveFault from "./components/LiveFault";
 import Timer from "./components/Timer";
 import Live from "./components/Live";
 import EnumerationGraph from "./components/Enumeration";
+import NumericalGraph from "./components/Numerical";
 
 const TestingPage = () => {
-  const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const [currentState, setCurrentState] = useState("VC_INIT_STATE");
-
   const enumStates = [
     "VC_INIT_STATE",
     "VC_PCM_STATE",
@@ -18,17 +18,19 @@ const TestingPage = () => {
     "VC_VD_STATE",
   ];
 
+  const numericalSignals = ["FSM_PAPPS", "BMS_VOLTAGE"];
+
   useEffect(() => {
     const timeInterval = setInterval(() => {
-      setCurrentTime(Math.floor(Date.now() / 1000));
-    }, 1000);
+      setCurrentTime(Date.now());
+    }, 200);
 
     const stateInterval = setInterval(() => {
       setCurrentState((prevState) => {
         const nextIndex = Math.floor(Math.random() * enumStates.length);
         return enumStates[nextIndex];
       });
-    }, 10000);
+    }, 4000);
 
     return () => {
       clearInterval(timeInterval);
@@ -48,10 +50,12 @@ const TestingPage = () => {
         currentTime={currentTime}
         enumStates={enumStates}
       />
+      <NumericalGraph
+        numericalSignals={numericalSignals}
+        currentTime={currentTime}
+      />
     </div>
   );
 };
 
 export default TestingPage;
-
-// TODO: Consider using ScrollArea https://ui.shadcn.com/docs/components/scroll-area
