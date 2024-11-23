@@ -16,7 +16,7 @@ void app_sbgEllipse_broadcast()
     const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    // EKF
+    // Velocity EKF
     const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
     const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
     const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
@@ -25,7 +25,11 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_VelocityEast_set(ekf_vel_E);
     app_canTx_VC_VelocityDown_set(ekf_vel_D);
 
-    // EKF
+    const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
+
+    app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+
+    // Position EKF
     const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
     const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
 
@@ -51,9 +55,9 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_AngularVelocityYaw_set((int)ang_vel_yaw);
 
     // Euler angles msg
-    const float euler_roll  = io_sbgEllipse_getEulerAngles()->roll;
-    const float euler_pitch = io_sbgEllipse_getEulerAngles()->pitch;
-    const float euler_yaw   = io_sbgEllipse_getEulerAngles()->yaw;
+    const float euler_roll  = io_sbgEllipse_getEkfEulerAngles()->roll;
+    const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
+    const float euler_yaw   = io_sbgEllipse_getEkfEulerAngles()->yaw;
 
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);

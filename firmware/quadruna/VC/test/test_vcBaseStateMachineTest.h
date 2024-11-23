@@ -58,7 +58,9 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
 
         fake_io_sbgEllipse_getImuAccelerations_returns(&fake_sensor_data.imu_data.acceleration);
         fake_io_sbgEllipse_getImuAngularVelocities_returns(&fake_sensor_data.imu_data.angular_velocity);
-        fake_io_sbgEllipse_getEulerAngles_returns(&fake_sensor_data.euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfEulerAngles_returns(&fake_sensor_data.ekf_euler_data.euler_angles);
+        fake_io_sbgEllipse_getEkfNavVelocityData_returns(&fake_sensor_data.ekf_nav_data.velocity);
+        fake_io_sbgEllipse_getEkfNavPositionData_returns(&fake_sensor_data.ekf_nav_data.position);
     }
 
     void TearDown() override
@@ -79,7 +81,7 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_pcm_set_reset();
         fake_io_sbgEllipse_getImuAccelerations_reset();
         fake_io_sbgEllipse_getImuAngularVelocities_reset();
-        fake_io_sbgEllipse_getEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfEulerAngles_reset();
     }
 
     void SetInitialState(const State *const initial_state)

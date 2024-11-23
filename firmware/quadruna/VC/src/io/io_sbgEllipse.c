@@ -325,7 +325,7 @@ Attitude *io_sbgEllipse_getImuAngularVelocities()
     return &sensor_data.imu_data.angular_velocity;
 }
 
-Attitude *io_sbgEllipse_getEulerAngles()
+Attitude *io_sbgEllipse_getEkfEulerAngles()
 {
     return &sensor_data.ekf_euler_data.euler_angles;
 }

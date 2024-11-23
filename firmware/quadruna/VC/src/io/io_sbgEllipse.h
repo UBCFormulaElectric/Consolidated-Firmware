@@ -136,7 +136,7 @@ Attitude *io_sbgEllipse_getImuAngularVelocities();
  * - float pitch: Pitch angle in rad
  * - float yaw: Yaw angle in rad
  */
-Attitude *io_sbgEllipse_getEulerAngles();
+Attitude *io_sbgEllipse_getEkfEulerAngles();
 
 /*
  * Get the GPS velocity data as a struct pointer with fields:

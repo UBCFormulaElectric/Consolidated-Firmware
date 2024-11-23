@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "app_utils.h"
 
 /*
  * Broadcast sensor outputs over CAN.
