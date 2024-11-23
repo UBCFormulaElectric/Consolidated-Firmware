@@ -46,15 +46,15 @@ if ("${TARGET}" STREQUAL "binary")
                 "${BOOT_SRCS}"
                 "${BOOT_INCLUDE_DIRS}"
                 "quintuna_SSM"
-                "${CMAKE_CURRENT_DIR}/boot/cubemx/Src/syscalls.c"
-                "${CMAKE_CURRENT_DIR}/boot/cubemx/SSM_boot.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/SSM_boot.c"
         )
         set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/SSM.ioc")
         generate_stm32cube_code("SSM" "${IOC_PATH}")
         set(STM_HAL_SRCS 
                 "stm32f4xx_hal.c"
         )
-   stm32F412rgt_cube_library(
+   stm32f412rx_cube_library(
         "quintuna_SSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
@@ -64,11 +64,13 @@ if ("${TARGET}" STREQUAL "binary")
 
     embedded_binary(
         "quintuna_SSM_app"
-        "${SRC}"
+        "${SRCS}"
         "${INCLUDE_DIRECTORIES}"
         "${LINKER}"
         "${LINKER_SCRIPT}"
     )
+
+    target_link_libraries("quintuna_SSM_app.elf" PRIVATE "quintuna_SSM_stm32cube")
 
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
