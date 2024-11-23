@@ -70,28 +70,26 @@ class SignalUtil:
             raise RuntimeError("SignalUtil not initialized.")
 
         last_bit = 0
-        last_time = time.time()  # Initialize last_time
+        last_time = time.perf_counter()  # Initialize last_time
         total_data_received = 0  # Initialize the data counter
-        start_time = time.time()  # Start timer for data measurement
+        start_time = time.perf_counter()  # Start timer for data measurement
         try:
             while True:
-                # TODO: Lara: Upload actual signals instead!
 
-                current_time = time.time()
+                current_time = time.perf_counter()
 
                 packet_size = int.from_bytes(cls.ser.read(1), byteorder="little")
                 #logger.info(f"Received data: {packet_size}")
+                print("packet size", packet_size)
                 if packet_size in INVALID_PACKET_SIZES:
                     continue
 
-                if (
-                    last_bit == 0 and packet_size != 0
-                ):  # the size will be different due to 0 not often being include
-
+                if (last_bit == 0 and packet_size != 0):  # the size will be different due to 0 not often being include
+                    function_time = time.time_ns()
                     # Read in UART message and parse the protobuf
                     bytes_read = cls.ser.read(packet_size)
                     total_data_received += len(bytes_read) + 1  # Including packetsize byte, log how much data
-
+                   # print("bytes received ", bytes_read)
                     message_received = telem_pb2.TelemMessage()
                     message_received.ParseFromString(bytes_read)
 
@@ -131,7 +129,7 @@ class SignalUtil:
                         # Concatenate the new signal DataFrame with the existing one
                         cls.signal_df = pd.concat([cls.signal_df, new_signal_df], ignore_index=True)
 
-                
+                        #print("time to process ", (time.time_ns() - function_time)/10**6)
                          # Emit the message
                         if len(cls.signal_df) >= cls.max_df_size:
                             #print(cls.signal_df)
@@ -139,9 +137,9 @@ class SignalUtil:
                                  cls.signal_df, measurement='live'
                             )
 
-                            cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
-                            time.sleep(1)
-                        
+                        cls.signal_df = pd.DataFrame(columns=['time', 'value', 'unit', 'signal'])
+                        time.sleep(1)
+
                 else:
                     last_bit = packet_size
                 
@@ -149,7 +147,7 @@ class SignalUtil:
                 if current_time - start_time >= 1.0:
                     logger.info(f"Total data received in the last second: {total_data_received} bytes")
                     total_data_received = 0  # Reset the counter
-                    start_time = current_time  # Reset the start time
+                    start_time = current_time  # Reset the start time   
 
         except Exception as e:
             logger.error("Error receiving/sending proto msg:", e)

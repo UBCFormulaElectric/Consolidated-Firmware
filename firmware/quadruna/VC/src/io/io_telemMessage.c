@@ -19,9 +19,9 @@ static const Modem *modem = NULL;
 #define QUEUE_BYTES CAN_DATA_LENGTH *QUEUE_SIZE
 
 static bool               proto_status;
-static uint8_t            proto_msg_length;
+static uint8_t            proto_msg_length; //not using this
 static StaticQueue_t      queue_control_block;
-static uint8_t            queue_buf[QUEUE_BYTES];
+static uint8_t            queue_buf[QUEUE_BYTES]; //not using this
 static osMessageQueueId_t message_queue_id;
 static uint8_t            proto_out_length;
 
@@ -82,30 +82,31 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
         telem_overflow_count++;
         LOG_WARN("queue problem");
     }
-    else
-    {
-        LOG_INFO("proto pushed to queue");
-    }
     return true;
 }
 
 bool io_telemMessage_broadcastMsgFromQueue(void)
 {
-    uint8_t    proto_out[QUEUE_SIZE] = { 0 };
+    uint8_t    proto_temp[QUEUE_SIZE] = { 0 };
     uint8_t    zero_test             = 0;
-    osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_out, NULL, osWaitForever);
-    proto_out_length                 = proto_out[49];
-    proto_out[49]                    = 0;
+    osStatus_t status                = osMessageQueueGet(message_queue_id, &proto_temp, NULL, osWaitForever);
+    proto_out_length                 = proto_temp[49]; //get length of message from the last index
+    proto_temp[49]                    = 0;
 
-    // Start timing for measuring transmission speeds
+    /* Allocate proper buffer size */
+    uint8_t proto_out[proto_out_length + 1];
+    /* Copy message to output buffer of correct size */
+    memcpy(proto_out, proto_temp, proto_out_length + 1);
+    LOG_INFO("size %d", proto_out_length);
+    /* Start timing for measuring speeds */
     uint32_t start_time = io_time_getCurrentMs();
-
-    LOG_INFO("proto popped and on to uart");
     if (modem_900_choice)
     {
+        LOG_INFO("Encoded message size: %u bytes, %u sizeof", proto_msg_length, sizeof(proto_out));
+        /* Transmit packet size */
         hw_uart_transmitPoll(modem->modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
+        /* Transmit the data */
         hw_uart_transmitPoll(modem->modem900M, proto_out, (uint8_t)sizeof(proto_out), 100);
-        // hw_uart_transmitPoll(modem->modem900M, &zero_test, UART_LENGT/H, UART_LENGTH);
     }
     else
     {
