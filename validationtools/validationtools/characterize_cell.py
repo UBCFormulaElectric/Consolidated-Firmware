@@ -2,13 +2,13 @@ from validationtools.loadBank._loadBank import *
 from validationtools.powerSupply._powerSupply import *
 from validationtools.logger.logger import *
 
-totalCellCapacity = 100000 # mAh Filler Value
-chargingRate      = 0.2      # 1C Rate in amps Filler Value
+totalCellCapacity = 2.600 # Ah From datasheet on google drive
+chargingRate      = 2.6      # 1C Rate in amps 
 
 
 def getCoulombs( current, timeStepSeconds)->float:
-    coulombs = current * timeStepSeconds
-    return coulombs
+    coulombsAh = current * timeStepSeconds /3600 # seconds to hrs conversion
+    return coulombsAh
 
 def getCellSOC(accumulatedCoulombs):
     return accumulatedCoulombs / totalCellCapacity * 100 # In percent
@@ -47,8 +47,8 @@ def getDischargingRow(logger, loadBank):
 
 def main()->None:
     loadBank = LoadBank()
-    # powerSupply = PowerSupply()
-    soc = 90
+    powerSupply = PowerSupply()
+    soc = 100
 
     loggingCols = \
     [
@@ -61,39 +61,36 @@ def main()->None:
 
     logger = Logger(r"C:\Users\lkevi\OneDrive\Desktop\Coding\UBCFE\Data", loggingCols)
 
-    # while(soc < 100):
-    #     powerSupply.set_voltage(1)
-    #     powerSupply.set_current(chargingRate)
-    #     row = getChargingRow(logger, powerSupply)
-    #     logger.storeRow(row)
+    while(soc < 100):
+        row = getChargingRow(logger, powerSupply)
+        logger.storeRow(row)
+        powerSupply.enable_output()
+        powerSupply.set_current(chargingRate)
 
-    #     time.sleep(10)
-    #     powerSupply.set_current(0)
+        time.sleep(30)
+        row = getChargingRow(logger, powerSupply)
+        logger.storeRow(row)
+        powerSupply.enable_output()
 
-    #     row = getChargingRow(logger, powerSupply)
-    #     logger.storeRow(row)
-    #     time.sleep(10)
 
-    #     soc = row[-1]
+        time.sleep(30)
+        soc = row[-1]
 
-    # loadBank.set_voltage(3.6)
     loadBank.set_current(chargingRate)
-    loadBank.enable_load()
 
     while(soc > 0):
-        # loadBank.set_voltage(3.6)
+        row = getDischargingRow(logger, loadBank)
+        logger.storeRow(row)
+        loadBank.enable_load()
         loadBank.set_current(chargingRate)
         
+
+        time.sleep(30)
         row = getDischargingRow(logger, loadBank)
         logger.storeRow(row)
+        loadBank.disable_load()
 
-        time.sleep(10)
-        loadBank.set_current(0)
-
-        row = getDischargingRow(logger, loadBank)
-        logger.storeRow(row)
-        time.sleep(10)
-
+        time.sleep(30)
         soc = row[-1]
 
     loadBank.disable_load()
