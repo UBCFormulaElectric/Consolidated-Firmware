@@ -7,4 +7,5 @@
 void io_chimera_init(const UART *serial_uart, uint32_t net_name_gpio, uint32_t net_name_adc, const Gpio *bootup_gpio);
 void io_chimera_msgRxCallback(void);
 void io_chimera_task(WatchdogHandle *watchdog, uint32_t period_ms);
+void io_chimera_checkerTask(WatchdogHandle *watchdog, uint32_t period_ms);
 void io_chimera_block();
