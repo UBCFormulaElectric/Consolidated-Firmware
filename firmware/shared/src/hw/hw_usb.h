@@ -6,7 +6,6 @@
 #include "cmsis_os.h"
 #include <string.h>
 
-
 osMessageQueueId_t hw_usb_init();
 uint8_t hw_usb_transmit(uint8_t *buff);
 uint8_t hw_usb_recieve(uint8_t *msg);

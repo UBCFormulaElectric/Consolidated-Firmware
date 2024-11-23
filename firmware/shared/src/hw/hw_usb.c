@@ -48,18 +48,19 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t *len){
         printf("not enough space in the queue");
     }
     else{
-        osStatus_t s = osMessageQueuePut(rx_queue_id, &packet, (void *) NULL, osWaitForever);
+        osStatus_t s = osMessageQueuePut(rx_queue_id, &packet,NULL, osWaitForever);
         assert(s == osOK);
     } 
+}
 
 void temp(uint8_t *msg, uint8_t dataRecieve, uint32_t dataLength, uint8_t data) {
-    osMessageQueueId_t rx_queue_id = hw_usb_init();
+    hw_usb_init();
     osDelay(1);
-    uint32_t dataLength = sizeof(dataRecieve);
+    //uint32_t dataLength = sizeof(dataRecieve);
     int8_t stat = CDC_Receive_FS(&dataRecieve, &dataLength);
     printf("status of recieving %i", stat);
     osDelay(1);
-    uint8_t data = 1; 
+    //uint8_t data = 1; 
     uint8_t status_tx = hw_usb_transmit(&data); 
     printf("status of transmit is %i", status_tx);
     osDelay(1);
@@ -68,4 +69,4 @@ void temp(uint8_t *msg, uint8_t dataRecieve, uint32_t dataLength, uint8_t data) 
     osDelay(1);
 }
 
-}
+
