@@ -79,6 +79,10 @@
         "BrakeAppsDisagreement": {
             "id": 564,
             "description": "Brakes and apps are active at same time."
+        },
+        "EllipseSolutionModeWarning": {
+            "id": 565,
+            "description": "SBG Ellipse has switched solution modes."
         }
     },
     "faults": {
