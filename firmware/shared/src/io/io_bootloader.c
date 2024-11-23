@@ -1,16 +1,22 @@
-#include "io_bootloader.h"
 #include <stdint.h>
+
+#include "io_bootloader.h"
+
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
+
 #include "hw_hal.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_utils.h"
+#include "hw_flash.h"
+#include "io_log.h"
 
 #define BOOT_CAN_START 1012
 
 extern uint32_t __boot_code_start__;
 extern uint32_t __boot_code_size__;
 extern uint32_t __app_metadata_start__;
+// extern u_int8_t bootloader_byte;
 
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc3;
@@ -73,14 +79,11 @@ static void modifyStackPointerAndStartApp(const uint32_t *address)
 
 void io_bootloader_checkBootMsg(CanMsg *msg)
 {
+    LOG_INFO("here");
     if (msg->std_id == BOOT_CAN_START)
     {
         // DeInit all peripherals and interupts
-
-        Metadata *metadata          = (Metadata *)&__app_metadata_start__;
-        metadata->bootloader_status = 0x00;
-
-            HAL_ADC_Stop_IT(&hadc1);
+        HAL_ADC_Stop_IT(&hadc1);
         HAL_ADC_Stop_IT(&hadc3);
         HAL_ADC_DeInit(&hadc1);
         HAL_ADC_DeInit(&hadc3);
@@ -94,9 +97,12 @@ void io_bootloader_checkBootMsg(CanMsg *msg)
         HAL_UART_DeInit(&huart3);
         HAL_UART_DeInit(&huart7);
 
-        // ackknowledge the msg sent by boot
+        // acknowledge the msg sent by boot
         CanMsg reply = { .std_id = BOOT_CAN_START, .dlc = 0 };
         io_can_pushTxMsgToQueue(&reply);
+
+        // Set bootloader status, so we stay in boot code
+        // bootloader_byte = 1;
 
         modifyStackPointerAndStartApp(&__boot_code_start__);
     }
