@@ -38,6 +38,30 @@ if ("${TARGET}" STREQUAL "binary")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${TASKS_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
 
+        # Bootloader files.
+        file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32f4_boot_binary(
+                "quintuna_SSM_boot" 
+                "${BOOT_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_SSM"
+                "${CMAKE_CURRENT_DIR}/boot/cubemx/Src/syscalls.c"
+                "${CMAKE_CURRENT_DIR}/boot/cubemx/SSM_boot.c"
+        )
+        set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/SSM.ioc")
+        generate_stm32cube_code("SSM" "${IOC_PATH}")
+        set(STM_HAL_SRCS 
+                "stm32f4xx_hal.c"
+        )
+   stm32F412rgt_cube_library(
+        "quintuna_SSM_stm32cube"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${STM32_HAL_SRCS}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+        "${MD5_LOCATION}"
+    )
+
     embedded_binary(
         "quintuna_SSM_app"
         "${SRC}"
@@ -45,6 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
         "${LINKER}"
         "${LINKER_SCRIPT}"
     )
-    
+
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
