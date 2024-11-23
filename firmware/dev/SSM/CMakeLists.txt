@@ -69,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
                 "stm32f4xx_hal.c"
         )
 
-
    stm32f412rx_cube_library(
         "quintuna_SSM_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
