@@ -82,6 +82,8 @@ class VcBaseStateMachineTest : public BaseStateMachineTest
         fake_io_sbgEllipse_getImuAccelerations_reset();
         fake_io_sbgEllipse_getImuAngularVelocities_reset();
         fake_io_sbgEllipse_getEkfEulerAngles_reset();
+        fake_io_sbgEllipse_getEkfNavVelocityData_reset();
+        fake_io_sbgEllipse_getEkfNavPositionData_reset();
     }
 
     void SetInitialState(const State *const initial_state)
