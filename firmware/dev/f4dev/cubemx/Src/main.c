@@ -28,6 +28,9 @@
 #include "hw_bootup.h"
 #include "hw_uart.h"
 #include "hw_usb.h"
+#include "usbd_cdc_if.h"
+#include "usbd_cdc_if.c"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -530,40 +533,31 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
     /* init code for USB_DEVICE */
-    MX_USB_DEVICE_Init();
-
     /* USER CODE BEGIN 5 */
-    uint8_t msg;
-    osMessageQueueId_t rx_queue_id hw_usb_init();
-    osDelay(1);
-    uint8_t stat = CDC_Receive_FS(1, sizeof(1));
-    printf("status of recieving %i", stat);
-    osDelay(1);
-    uint8_t status_tx = hw_usb_transmit(1);
-    printf("status of transmit is %i", status_tx);
-    osDelay(1);
-    uint8_t msgFromQUeue = hw_usb_recieve(msg);
-    printf("the popped message is %i", i);
-    osDelay(1);
+
+    MX_USB_DEVICE_Init();
+    temp(1, 1, sizeof(uint32_t), 1);
+
     UART modem_uart = { .handle = &huart2 };
+
     /* Infinite loop */
     // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-    uint8_t num; // use this if just want numbers
-    uint8_t predicData[3];
-    predicData[1] = 13;
-    predicData[2] = 10;
-    //  uint8_t = message [8]; //use this if you want fun string
-    for (;;)
-    {
-        // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
-        for (num = 48; num < 57; num++)
-        {
-            predicData[0] = num;
-            hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
-            // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
-            osDelay(1);
-        }
-    }
+    // uint8_t num; // use this if just want numbers
+    // uint8_t predicData[3];
+    // predicData[1] = 13;
+    // predicData[2] = 10;
+    // //  uint8_t = message [8]; //use this if you want fun string
+    // for (;;)
+    // {
+    //     // hw_uart_transmitPoll(&modem_uart, message, sizeof(message), 100); // fun string
+    //     for (num = 48; num < 57; num++)
+    //     {
+    //         predicData[0] = num;
+    //         hw_uart_transmitPoll(&modem_uart, predicData, sizeof(predicData), 100); // this is for 0->255
+    //         // sprintf((char *)message, "B%03dB", i); //Generate dynamic message for fun string
+    //         osDelay(1);
+    //     }
+    // }
     /* USER CODE END 5 */
 }
 

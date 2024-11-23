@@ -32,6 +32,9 @@
 		"io_usb.h": "c",
 		"cmsis_os2.h": "c",
 		"io_can.h": "c",
-		"random": "c"
+		"random": "c",
+		"array": "c",
+		"string": "c",
+		"string_view": "c"
 	},
 }

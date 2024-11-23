@@ -404,11 +404,11 @@ static void IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len)
     {
         if (((value >> 28)) < 0xA)
         {
-            pbuf[2 * idx] = (value >> 28) + '0';
+            pbuf[2 * idx] = (uint8_t)((value >> 28) + '0');
         }
         else
         {
-            pbuf[2 * idx] = (value >> 28) + 'A' - 10;
+            pbuf[2 * idx] = (uint8_t)((value >> 28) + 'A' - 10);
         }
 
         value = value << 4;
