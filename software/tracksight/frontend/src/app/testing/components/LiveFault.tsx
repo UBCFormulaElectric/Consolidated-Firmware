@@ -1,47 +1,101 @@
 import React, { useState, useEffect } from 'react'
 import { DropdownMenuCheckboxes } from './FaultFilters'
 
+const initData = { timestamp: 0, name: 'e' }
+
 const LiveFault: React.FC = () => {
-	// ! TO Be Replaced
+	// TODO change the TS type late
+	const [board1, setBoard1] = useState([initData])
 	const [faults, setFaults] = useState<boolean[]>([false, false, false])
-	const [width, setWidth] = useState<number>(9) // Can't set 0, so buffering
+	const [warnings, setWarnings] = useState<boolean[]>([false, false, false])
+	const [count, setCount] = useState<number>(-1)
 
 	useEffect(() => {
-		const updateScale = () => {
-			setWidth((prev) => prev + 103)
+		const updateCount = () => {
+			setCount((prev) => ++prev)
 		}
 
-		const interval = setInterval(updateScale, 1000)
-		return () => clearInterval(interval)
+		const interval = setInterval(updateCount, 1000)
+		return () => {
+			clearInterval(interval)
+		}
 	}, [])
 
-	const FaultBar: React.FC<{ fault: boolean; index: number }> = ({
-		fault,
-		index,
-	}) => {
+	const FaultBar: React.FC = () => {
+		const FaultDisplay: React.FC<{
+			width: number
+			isFault: Boolean
+			isWarning: Boolean
+		}> = ({ width, isFault, isWarning }) => {
+			if (isFault) {
+				return (
+					<p
+						className='bg-red-500 px-6 py-2 h-1 rounded-full'
+						style={{ width: `${width}px` }}
+					/>
+				)
+			} else if (isWarning) {
+				return (
+					<p
+						className='bg-orange-500 px-6 py-2 h-1 rounded-full'
+						style={{ width: `${width}px` }}
+					/>
+				)
+			} else {
+				return (
+					<p
+						className='px-6 py-2 h-1 rounded-full'
+						style={{ width: `${width}px` }}
+					/>
+				)
+			}
+		}
+
 		return (
 			<div className='flex justify-center w-full h-4 my-2'>
-				{fault ? (
-					<p
-						className='bg-blue-500 px-6 py-2 h-6 rounded-full text-white text-center font-bold '
-						style={{ width: `${width}px` }}>
-						{fault.toString() + index}
-					</p>
-				) : (
-					<span
-						className='bg-black px-6 py-2 h-1 rounded-full'
-						style={{ width: `${width}px` }}></span>
-				)}
+				{board1.map((fault, index) => {
+					const hasFault = fault.name.substring(0, 1) === 'f'
+					const hasWarning = fault.name.substring(0, 1) === 'w'
+
+					if (index < board1.length - 1) {
+						return (
+							<div>
+								<FaultDisplay
+									width={96 * (board1[index + 1].timestamp - fault.timestamp)}
+									isFault={hasFault}
+									isWarning={hasWarning}
+								/>
+							</div>
+						)
+					} else {
+						return (
+							<FaultDisplay
+								width={96 * count}
+								isFault={hasFault}
+								isWarning={hasWarning}
+							/>
+						)
+					}
+				})}
 			</div>
 		)
 	}
 
-	// ! DEBUGGING: REMOVE
+	// ! DEBUGGING: REMOVE ========================
 	const toggleFault = (key: number) => {
 		var newFaults = [...faults]
 		newFaults[key] = !newFaults[key]
-
 		setFaults(newFaults)
+
+		setBoard1((prev) => {
+			const object = {
+				timestamp: prev[prev.length - 1].timestamp + count,
+				name: newFaults[key] ? 'fault1' : 'e',
+			}
+			return [...prev, object]
+		})
+
+		setCount(0)
 	}
 
 	// ! DEBUGGING: REMOVE
@@ -59,6 +113,57 @@ const LiveFault: React.FC = () => {
 			</button>
 		)
 	}
+
+	// ! DEBUGGING: REMOVE
+	const toggleWarning = (key: number) => {
+		var newWarnings = [...warnings]
+		newWarnings[key] = !newWarnings[key]
+		setWarnings(newWarnings)
+
+		setBoard1((prev) => {
+			const object = {
+				timestamp: prev[prev.length - 1].timestamp + count,
+				name: newWarnings[key] ? 'warning1' : 'e',
+			}
+			return [...prev, object]
+		})
+
+		setCount(0)
+	}
+
+	// ! DEBUGGING: REMOVE ================
+	const WarningButton: React.FC<{ warning: boolean; index: number }> = ({
+		warning,
+		index,
+	}) => {
+		return (
+			<button
+				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
+				onClick={() => {
+					toggleWarning(index)
+				}}>
+				{index + ': ' + warnings[index]}
+			</button>
+		)
+	}
+
+	const ResetButton = () => {
+		return (
+			<button
+				className='bg-cyan-200 dark:bg-cyan-800 pr-2 rounded-md px-2 mx-1'
+				onClick={() => {
+					console.log(board1)
+					setBoard1([initData])
+					setFaults([false, false, false])
+					setWarnings([false, false, false])
+					setCount(-1)
+				}}>
+				Reset
+			</button>
+		)
+	}
+
+	// TODO vvv to be worked on.
 
 	const FilterFaults: React.FC<{ fault: boolean; index: number }> = ({
 		fault,
@@ -92,7 +197,12 @@ const LiveFault: React.FC = () => {
 				{faults.map((button, index) => {
 					return <FaultButton fault={button} index={index} key={index} />
 				})}
+				<p className='pr-2'>Toggle Warnings: </p>
+				{warnings.map((button, index) => {
+					return <WarningButton warning={button} index={index} key={index} />
+				})}
 				<p className='pr-2'>Reset: </p>
+				<ResetButton />
 			</div>
 		</div>
 	)
