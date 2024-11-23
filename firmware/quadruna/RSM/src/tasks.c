@@ -264,7 +264,7 @@ _Noreturn void tasks_run1kHz(void)
     static const TickType_t period_ms = 1U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-    io_chimera_task(watchdog, period_ms);
+    io_chimera_checkerTask(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
