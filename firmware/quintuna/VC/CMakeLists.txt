@@ -44,13 +44,15 @@ if ("${TARGET}" STREQUAL "binary")
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
+    target_link_libraries("quintuna_VC_app.elf" PRIVATE "quintuna_VC_stm32cube")
+
     stm32h7_boot_binary(
         "quintuna_VC_boot" 
         "${BOOT_SRCS}"
         "${BOOT_INCLUDE_DIRS}"
         "quintuna_VC"
-        "${CMAKE_CURRENT_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_DIR}/boot/cubemx/VC_boot.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.c"
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
@@ -60,7 +62,32 @@ if ("${TARGET}" STREQUAL "binary")
         "stm32h7xx_hal.c"
     )
 
-    stm32h733rx_cube_library(
+    set(STM32_HAL_SRCS
+        "stm32h7xx_hal_adc_ex.c"
+        "stm32h7xx_hal_adc.c"
+        "stm32h7xx_hal_cortex.c"
+        "stm32h7xx_hal_dma_ex.c"
+        "stm32h7xx_hal_dma.c"
+        "stm32h7xx_hal_exti.c"
+        "stm32h7xx_hal_fdcan.c"
+        "stm32h7xx_hal_gpio.c"
+        "stm32h7xx_hal_iwdg.c"
+        "stm32h7xx_hal_pwr_ex.c"
+        "stm32h7xx_hal_rcc_ex.c"
+        "stm32h7xx_hal_rcc.c"
+        "stm32h7xx_hal_tim_ex.c"
+        "stm32h7xx_hal_tim.c"
+        "stm32h7xx_hal_uart_ex.c"
+        "stm32h7xx_hal_uart.c"
+        "stm32h7xx_ll_sdmmc.c"
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_hal_sd.c"
+        "stm32h7xx_hal.c"
+        "stm32h7xx_hal_i2c.c"
+        "stm32h7xx_hal_i2c_ex.c"
+    )
+
+    stm32h733xx_cube_library(
         "quintuna_VC_stm32cube"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${STM32_HAL_SRCS}"
@@ -75,5 +102,20 @@ if ("${TARGET}" STREQUAL "binary")
         "quintuna_VC_boot.hex"
         "${CMAKE_CURRENT_SOURCE_DIR}/quintuna_VC_boot.hex"
     )
+
+    # JSONCAN
+    jsoncan_embedded_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+
+    # CommitInfo
+    commit_info_library(
+        "quintuna_VC_app.elf"
+        "quintuna_VC_commit_info"
+        "${CMAKE_CURRENT_BINARY_DIR}/app"
+        "${ARM_CORE}"
+    )
+
+    target_link_libraries("quintuna_VC_jsoncan" PRIVATE "quintuna_VC_stm32cube")
+    target_link_libraries("quintuna_VC_app.elf" PRIVATE "quintuna_VC_stm32cube" "quintuna_VC_jsoncan" "quintuna_VC_commit_info" "debug_modules")
+    target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
