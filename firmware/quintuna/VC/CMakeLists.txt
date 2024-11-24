@@ -44,24 +44,20 @@ if ("${TARGET}" STREQUAL "binary")
     file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
 
-    target_link_libraries("quintuna_VC_app.elf" PRIVATE "quintuna_VC_stm32cube")
-
+    # Build bootloader.
     stm32h7_boot_binary(
         "quintuna_VC_boot" 
         "${BOOT_SRCS}"
         "${BOOT_INCLUDE_DIRS}"
         "quintuna_VC"
         "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VC_boot.ioc"
     )
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
     generate_stm32cube_code("VC" "${IOC_PATH}")
 
-    set(STM_HAL_SRCS 
-        "stm32h7xx_hal.c"
-    )
-
+    # STM HAL Library
     set(STM32_HAL_SRCS
         "stm32h7xx_hal_adc_ex.c"
         "stm32h7xx_hal_adc.c"
@@ -95,14 +91,6 @@ if ("${TARGET}" STREQUAL "binary")
         "${MD5_LOCATION}"
     )
 
-    embedded_image(
-        "quintuna_VC"
-        "quintuna_VC_app.hex"
-        "${CMAKE_CURRENT_SOURCE_DIR}/quintuna_VC_app.hex"
-        "quintuna_VC_boot.hex"
-        "${CMAKE_CURRENT_SOURCE_DIR}/quintuna_VC_boot.hex"
-    )
-
     # JSONCAN
     jsoncan_embedded_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
@@ -117,5 +105,14 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("quintuna_VC_jsoncan" PRIVATE "quintuna_VC_stm32cube")
     target_link_libraries("quintuna_VC_app.elf" PRIVATE "quintuna_VC_stm32cube" "quintuna_VC_jsoncan" "quintuna_VC_commit_info" "debug_modules")
     target_link_libraries("quintuna_VC_boot.elf" PRIVATE "quintuna_VC_commit_info")
+
+    embedded_image(
+        "quintuna_VC"
+        "quintuna_VC_app.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_app.hex"
+        "quintuna_VC_boot.hex"
+        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VC_boot.hex"
+    )
+    
 elseif ("${TARGET}" STREQUAL "test")
 endif ()
