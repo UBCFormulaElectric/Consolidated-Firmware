@@ -2,6 +2,7 @@ message("")
 message("⚙️ Configuring SSM (Quintuna)")
 set(ARM_CORE "cm4")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app.ld")
+
 file(GLOB_RECURSE SYSTEM_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c"
@@ -81,8 +82,8 @@ if ("${TARGET}" STREQUAL "binary")
         "quintuna_SSM_app"
         "${SRCS}"
         "${INCLUDE_DIRECTORIES}"
-        "${LINKER}"
         "${LINKER_SCRIPT}"
+        "${ARM_CORE}"
     )
 
     target_link_libraries("quintuna_SSM_app.elf" PRIVATE "quintuna_SSM_stm32cube")
