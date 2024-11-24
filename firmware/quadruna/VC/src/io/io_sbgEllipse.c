@@ -236,13 +236,17 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
         uint32_t status = log_data->ekfNavData.status;
 
         bool is_velocity_valid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-        bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+        // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
 
-        bool is_data_invalid = !is_velocity_valid & !is_position_valid;
+        // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
 
-        if (is_data_invalid) {
+        // if (is_data_invalid) {
+        app_canTx_VC_Warning_VelocityDataInvalid_set(!is_velocity_valid);
+
+        if (!is_velocity_valid)
+        {
             // app_canTx_VC_Warning_EllipseSolutionModeWarning_set(is_data_invalid);
-            io_sbgEllipse_calculateVelocity();
+            // io_sbgEllipse_calculateVelocity();
             return;
         }
     }
