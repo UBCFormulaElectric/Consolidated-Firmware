@@ -55,7 +55,6 @@ static void io_sbgEllipse_processMsg_Imu(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_eulerAngles(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_status(const SbgBinaryLogData *log_data);
 static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log_data);
-static void io_sbgEllipse_calculateVelocity();
 
 /* ------------------------- Static Function Definitions -------------------------- */
 /*
@@ -216,28 +215,44 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
-    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
+    // app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
 
     // uint32_t status = log_data->ekfNavData.status;
 
-    if (sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) != SBG_ECOM_SOL_MODE_NAV_POSITION)
-    {
-        uint32_t status = log_data->ekfNavData.status;
+    // if (sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) != SBG_ECOM_SOL_MODE_NAV_POSITION)
+    // {
+        // uint32_t status = log_data->ekfNavData.status;
 
-        bool is_velocity_valid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+        // bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
         // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
 
         // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
 
         // if (is_data_invalid) {
-        app_canTx_VC_Warning_VelocityDataInvalid_set(!is_velocity_valid);
+        // app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
 
-        if (!is_velocity_valid)
-        {
+        // if (is_velocity_invalid)
+        // {
             // app_canTx_VC_Warning_EllipseSolutionModeWarning_set(is_data_invalid);
             // io_sbgEllipse_calculateVelocity();
-            return;
-        }
+        //     return;
+        // }
+    // }
+
+    uint32_t status = log_data->ekfNavData.status;
+
+    bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+    // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+
+    // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
+
+    // if (is_data_invalid) {
+    // Must fix potential can message spam in rest somehow
+    app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
+
+    if (is_velocity_invalid)
+    {
+        return;
     }
 
     // previous velocity data in m/s
@@ -264,35 +279,6 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     sensor_data.ekf_nav_data.position.altitude_std_dev  = log_data->ekfNavData.positionStdDev[0];
     sensor_data.ekf_nav_data.position.latitude_std_dev  = log_data->ekfNavData.positionStdDev[1];
     sensor_data.ekf_nav_data.position.longitude_std_dev = log_data->ekfNavData.positionStdDev[2];
-}
-
-static void io_sbgEllipse_calculateVelocity() {
-    // Obtaining time interval of task in milliseconds
-    float interval = HAL_TICK_FREQ_100HZ / 1000.0f;
-    // float wheelRadius = 0.23f; // 18 inch -> 0.46 meters (diameter) -> 0.23 meters (radius)
-
-    // float leftMotorRPM = (float) app_canTx_VC_LeftInverterSpeedCommand_get();
-    // float rightMotorRPM = (float) app_canTx_VC_RightInverterSpeedCommand_get();
-
-    // float leftWheelVelocity = wheelRadius * (leftMotorRPM * 2 * M_PI_F) / (60 * GEAR_RATIO);
-    // float rightWheelVelocity = wheelRadius * (rightMotorRPM * 2 * M_PI_F) / (60 * GEAR_RATIO);
-
-    // float velocityNorth = 
-
-    // Integrating IMU accelleration data (v1 = a*t + v0) to obtain the next velocity for each direction
-    // Assuming IMU z-axis is subtracted by one to account for gravity
-    // TODO: Add a low pass filter to the acceleration data to improve accuracy?
-    float finalVelocityNorth = sensor_data.imu_data.acceleration.x * interval + sensor_data.ekf_nav_data.prevVelocity.north;
-    float finalVelocityEast = sensor_data.imu_data.acceleration.y * interval + sensor_data.ekf_nav_data.prevVelocity.east;
-    float finalVelocityDown = (sensor_data.imu_data.acceleration.z) * interval + sensor_data.ekf_nav_data.prevVelocity.down;
-
-    sensor_data.ekf_nav_data.prevVelocity.north = sensor_data.ekf_nav_data.velocity.north;
-    sensor_data.ekf_nav_data.prevVelocity.east  = sensor_data.ekf_nav_data.velocity.east;
-    sensor_data.ekf_nav_data.prevVelocity.down  = sensor_data.ekf_nav_data.velocity.down;
-
-    sensor_data.ekf_nav_data.velocity.north = finalVelocityNorth;
-    sensor_data.ekf_nav_data.velocity.east  = finalVelocityEast;
-    sensor_data.ekf_nav_data.velocity.down  = finalVelocityDown;
 }
 
 /* ------------------------- Public Function Definitions -------------------------- */
