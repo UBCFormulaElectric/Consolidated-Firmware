@@ -78,6 +78,17 @@ if ("${TARGET}" STREQUAL "binary")
         "${MD5_LOCATION}"
     )
 
+        # JSONCAN
+        jsoncan_embedded_library(SSM quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+
+        # CommitInfo
+        commit_info_library(
+                "quintuna_SSM_app.elf"
+                "quintuna_SSM_commit_info"
+                "${CMAKE_CURRENT_BINARY_DIR}/app"
+                "${ARM_CORE}"
+        )
+
     embedded_binary(
         "quintuna_SSM_app"
         "${SRCS}"
