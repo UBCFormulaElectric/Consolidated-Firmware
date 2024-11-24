@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include "hw_adcs.h"
 
-
 // CHECK MIN/MAX VALUES FOR RSM
 
 #define MIN_SUSPENSION_VOLTAGE (0.2f)
@@ -33,4 +32,4 @@ bool rightSensorOCSC(void)
     return !(MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage && rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
 
-} // namespace io::driveMode
+} // namespace io::suspension
