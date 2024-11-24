@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+asammdf = "*"
+tzlocal = "*"
 black = "*"
 cantools = "*"
 cmake = "*"
