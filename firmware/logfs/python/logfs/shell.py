@@ -17,7 +17,7 @@ def main() -> None:
         "--format",
         "-f",
         action="store_true",
-        default=True,
+        default=False,
         help="Format disk (will wipe an existing filesystem)",
     )
     parser.add_argument(
