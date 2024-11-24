@@ -89,13 +89,11 @@ const LiveFault: React.FC = () => {
 
 		setBoard1((prev) => {
 			const object = {
-				timestamp: prev[prev.length - 1].timestamp + count,
+				timestamp: count,
 				name: newFaults[key] ? 'fault1' : 'e',
 			}
 			return [...prev, object]
 		})
-
-		setCount(0)
 	}
 
 	// ! DEBUGGING: REMOVE
@@ -122,13 +120,11 @@ const LiveFault: React.FC = () => {
 
 		setBoard1((prev) => {
 			const object = {
-				timestamp: prev[prev.length - 1].timestamp + count,
+				timestamp: count,
 				name: newWarnings[key] ? 'warning1' : 'e',
 			}
 			return [...prev, object]
 		})
-
-		setCount(0)
 	}
 
 	// ! DEBUGGING: REMOVE ================
