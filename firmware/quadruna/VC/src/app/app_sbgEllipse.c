@@ -4,6 +4,11 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "io_sbgEllipse.h"
+#include "app_units.h"
+#include "app_vehicleDynamicsConstants.h"
+
+static VelocityData app_sbgEllipse_calculateVelocity(void);
+static void velocityRelativeToAbsolute(VelocityData *velocity);
 
 void app_sbgEllipse_broadcast()
 {
@@ -49,10 +54,25 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_Latitude_set((float)ekf_pos_lat);
     // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
 
-    // EKF
-    const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-    const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-    const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    bool is_velocity_invalid = app_canTx_VC_Warning_VelocityDataInvalid_get();
+
+    float ekf_vel_N = 0;
+    float ekf_vel_E = 0;
+    float ekf_vel_D = 0;
+
+    if (is_velocity_invalid) {
+        // Calculation based Velocity
+        VelocityData velocity = app_sbgEllipse_calculateVelocity();
+
+        ekf_vel_N = velocity.north;
+        ekf_vel_E = velocity.east;
+        ekf_vel_D = velocity.down;
+    } else {
+        // EKF
+        ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+        ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+        ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    }
 
     app_canTx_VC_VelocityNorth_set(ekf_vel_N);
     app_canTx_VC_VelocityEast_set(ekf_vel_E);
@@ -91,4 +111,42 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
+}
+
+static VelocityData app_sbgEllipse_calculateVelocity()
+{
+    // These velocity calculations are not going to be super accurate because it
+    // currently does not compute a proper relative y-axis velocity because no yaw rate 
+
+    float wheelRadius = 0.23f; // 18 inch -> 0.46 meters (diameter) -> 0.23 meters (radius)
+
+    float leftMotorRPM = (float)app_canTx_VC_LeftInverterSpeedCommand_get();
+    float rightMotorRPM = (float)app_canTx_VC_RightInverterSpeedCommand_get();
+
+    float leftWheelVelocity = wheelRadius * (leftMotorRPM  * M_PI_F) / (30 * GEAR_RATIO);
+    float rightWheelVelocity = wheelRadius * (rightMotorRPM * M_PI_F) / (30 * GEAR_RATIO);
+
+    VelocityData velocity;
+
+    // This is technically velocity in the x-axis as it is relative
+    velocity.north = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+
+    // This is technically velocity in the y-axis as it is relative
+    velocity.east = 0;
+
+    velocity.down = 0;
+
+    app_sbgEllipse_velocityRelativeToAbsolute2D(&velocity);
+
+    return velocity;
+}
+
+static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity) 
+{
+    // very simple calculation taking the components of the x-axis velocity
+    float yawAngle = io_sbgEllipse_getEulerAngles()->yaw;
+    float velocityX = velocity->north;
+
+    velocity->north = velocityX * cosf(yawAngle);
+    velocity->east = velocityX * sinf(yawAngle);
 }
