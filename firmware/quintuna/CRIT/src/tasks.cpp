@@ -18,7 +18,6 @@
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_uarts.h"
-#include "hw_gpios.h"
 #include "hw_watchdogs.h"
 
 // jsoncan stuff
@@ -31,12 +30,12 @@ extern "C"
 #include "io_canRx.h"
 }
 
-void tasks_preInit(void)
+void tasks_preInit()
 {
     hw::bootup::enableInterruptsForApp();
 }
 
-void tasks_init(void)
+void tasks_init()
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
@@ -72,7 +71,7 @@ void tasks_init(void)
     app::StateMachine::init(&app::critstates::main_state);
 }
 
-void tasks_runCanTx(void)
+void tasks_runCanTx()
 {
     io::chimera::sleepTaskIfEnabled();
 

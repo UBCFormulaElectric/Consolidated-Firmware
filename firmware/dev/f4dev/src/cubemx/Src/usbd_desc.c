@@ -16,6 +16,11 @@
  *
  ******************************************************************************
  */
+
+// Ignore type conversion errors.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -156,9 +161,9 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END = {
     USB_DESC_TYPE_DEVICE, /*bDescriptorType*/
 #if (USBD_LPM_ENABLED == 1)
     0x01,
-    /*bcdUSB */ /* changed to USB version 2.01
-                   in order to support LPM L1 suspend
-                   resume test of USBCV3.0*/
+/*bcdUSB */ /* changed to USB version 2.01
+               in order to support LPM L1 suspend
+               resume test of USBCV3.0*/
 #else
     0x00, /*bcdUSB */
 #endif /* (USBD_LPM_ENABLED == 1) */
@@ -404,11 +409,11 @@ static void IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len)
     {
         if (((value >> 28)) < 0xA)
         {
-            pbuf[2 * idx] = (uint8_t)((value >> 28) + '0');
+            pbuf[2 * idx] = (value >> 28) + '0';
         }
         else
         {
-            pbuf[2 * idx] = (uint8_t)((value >> 28) + 'A' - 10);
+            pbuf[2 * idx] = (value >> 28) + 'A' - 10;
         }
 
         value = value << 4;

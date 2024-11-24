@@ -16,14 +16,17 @@
  *
  ******************************************************************************
  */
+
+// Ignore sign conversion errors.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include "hw_usb.h"
-#include "cmsis_os2.h"
+
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +55,6 @@
 /* USER CODE BEGIN PRIVATE_TYPES */
 
 uint8_t buf[7];
-osMessageQueueId_t usb;
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -153,9 +155,6 @@ static int8_t CDC_Init_FS(void)
     /* Set Application Buffers */
     USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-    usb = hw_usb_init();
-    // hw_usbQueue_init(&hUsbDeviceFS);
-    // Init USB, store the queue id in a static variable.
     return (USBD_OK);
     /* USER CODE END 3 */
 }
@@ -221,7 +220,8 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t *pbuf, uint16_t length)
             /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
             /*******************************************************************************/
         case CDC_SET_LINE_CODING:
-            for (int i = 0; i < 7; i += 1) {
+            for (int i = 0; i < 7; i += 1)
+            {
                 buf[i] = pbuf[i];
             }
 
@@ -267,14 +267,10 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 6 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-    hw_usb_pushRxMsgToQueue(Buf, Len); //pushing onto queue 
-
-    // Push to queue.
-    // hw_usb_rxPush(Buf, Len).
 
     // Test: Send data back
-    // uint16_t len = (uint16_t) *Len;
-    // CDC_Transmit_FS(Buf, len);
+    uint16_t len = (uint16_t)*Len;
+    CDC_Transmit_FS(Buf, len);
 
     return (USBD_OK);
     /* USER CODE END 6 */
@@ -326,7 +322,7 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
     UNUSED(Len);
     UNUSED(epnum);
     /* USER CODE END 13 */
-    return (int8_t)result;
+    return result;
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */

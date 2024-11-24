@@ -82,10 +82,6 @@ bool io_telemMessage_pushMsgtoQueue(CanMsg *rx_msg)
         telem_overflow_count++;
         LOG_WARN("queue problem");
     }
-    else
-    {
-        LOG_INFO("proto pushed to queue");
-    }
     return true;
 }
 
@@ -100,7 +96,6 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     // Start timing for measuring transmission speeds
     uint32_t start_time = io_time_getCurrentMs();
 
-    LOG_INFO("proto popped and on to uart");
     if (modem_900_choice)
     {
         hw_uart_transmitPoll(modem->modem900M, &proto_out_length, UART_LENGTH, UART_LENGTH);
@@ -116,6 +111,5 @@ bool io_telemMessage_broadcastMsgFromQueue(void)
     uint32_t end_time          = io_time_getCurrentMs();
     uint32_t transmission_time = end_time - start_time;
 
-    LOG_INFO("Transmission time: %u ms", transmission_time);
     return true;
 }

@@ -48,7 +48,7 @@
             "type": "cmake",
             "command": "build",
             "targets": [
-                "quadruna_BMS.hex"
+                "quadruna_BMS.hex", "can_bus_load_quadruna"
             ]
         },
         {
@@ -57,7 +57,7 @@
             "type": "cmake",
             "command": "build",
             "targets": [
-                "quadruna_CRIT.hex"
+                "quadruna_CRIT.hex", "can_bus_load_quadruna"
             ]
         },
         {
@@ -66,7 +66,7 @@
             "type": "cmake",
             "command": "build",
             "targets": [
-                "quadruna_FSM.hex"
+                "quadruna_FSM.hex", "can_bus_load_quadruna"
             ]
         },
         {
@@ -75,16 +75,23 @@
             "type": "cmake",
             "command": "build",
             "targets": [
-                "quadruna_RSM.hex"
+                "quadruna_RSM.hex", "can_bus_load_quadruna"
             ]
         },
         {
-            "label": "Build Embedded: VC (Quadruna)",
+          "label": "Build Embedded: VC (Quadruna)",
+          "group": "build",
+          "type": "cmake",
+          "command": "build",
+          "targets": ["quadruna_VC.hex", "can_bus_load_quadruna"],
+        },
+        {
+            "label": "Build Embedded: CRIT (Quintuna)",
             "group": "build",
             "type": "cmake",
             "command": "build",
             "targets": [
-                "quadruna_VC.hex"
+                "quintuna_CRIT.hex", "can_bus_load_quintuna"
             ]
         },
         {
@@ -121,6 +128,15 @@
             "command": "build",
             "targets": [
                 "quadruna_CRIT_test"
+            ]
+        },
+        {
+            "label": "Build Tests: CRIT (Quintuna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quintuna_CRIT_test"
             ]
         },
         {

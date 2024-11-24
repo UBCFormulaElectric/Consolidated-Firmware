@@ -25,25 +25,23 @@ IF("${TARGET}" STREQUAL "binary")
     # STM32F4Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
             NAME STM32CUBEF4
-            GITHUB_REPOSITORY STMicroelectronics/STM32CubeF4
-            GIT_TAG e21c319e17a7f5aef332be677eaff2a0e7c316df
+            GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeF4
+            GIT_TAG f3e28fdf492dd7839d3a72bbff694bc2809e29c4
             GIT_SHALLOW TRUE
     )
 
     # STM32H7Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
     CPMAddPackage(
             NAME STM32CUBEH7
-            GITHUB_REPOSITORY STMicroelectronics/STM32CubeH7
-            GIT_TAG d0e2e3886ee013b56082e57f48ae9bc6c34c849a
+            GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH7
+            GIT_TAG c709838f91f1356cd3461eb2c5981c481dd0884a
             GIT_SHALLOW TRUE
     )
 
     # SEGGER SystemView for RTT Logging and SystemView profiling
     CPMAddPackage(
             NAME SEGGER_SYSTEMVIEW
-            GITHUB_REPOSITORY UBCFormulaElectric/SEGGER_SystemView_Src
-            GIT_TAG 106cd0cff80eab1ce55a92e7c6ea955c6145b982
-            GIT_SHALLOW TRUE
+            URL https://www.segger.com/downloads/systemview/SystemView_Src_V356b.zip
     )
 ELSEIF("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
