@@ -213,20 +213,9 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 {
     // TODO: uncomment after initial testing, if this occurs skip reading data
     
-    // if status bit is set, data invalid
-    // how to handle data:
-    // 1. grab prev val
-    // 4. accelerometer integration?
-    // 5. complementary filter using accel and wheel speed?
-    // p.81: sbg has low pass fir filter for acceleration should probably use
-    // p.87 could also use raw velocity data from sbg (must figure out update frequency)
-    
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
-    // instead of custom warning message use this?
-    // use global variable to check state to reduce bus contention
-    // analgous to test and set methodology of a spinlock
     app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
 
     // uint32_t status = log_data->ekfNavData.status;
