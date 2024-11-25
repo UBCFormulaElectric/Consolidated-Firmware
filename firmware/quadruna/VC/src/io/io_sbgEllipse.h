@@ -48,7 +48,7 @@ typedef struct
 typedef struct
 {
     VelocityData velocity;
-    VelocityData prevVelocity;
+    // VelocityData prevVelocity;
     PositionData position;
 } EkfNavPacketData;
 
