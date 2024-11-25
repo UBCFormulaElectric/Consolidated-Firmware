@@ -241,24 +241,30 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
 
     uint32_t status = log_data->ekfNavData.status;
 
-    bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-    // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+    bool is_moving =
+        (app_canTx_VC_LeftInverterTorqueCommand_get() > 0.0f) || (app_canTx_VC_RightInverterSpeedCommand_get() > 0.0f);
 
-    // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
-
-    // if (is_data_invalid) {
-    // Must fix potential can message spam in rest somehow
-    app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
-
-    if (is_velocity_invalid)
+    if (is_moving)
     {
-        return;
+        bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+        // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+
+        // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
+
+        // if (is_data_invalid) {
+        app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
+
+        if (is_velocity_invalid)
+        {
+            return;
+        }
+
     }
 
     // previous velocity data in m/s
-    sensor_data.ekf_nav_data.prevVelocity.north = sensor_data.ekf_nav_data.velocity.north;
-    sensor_data.ekf_nav_data.prevVelocity.east  = sensor_data.ekf_nav_data.velocity.east;
-    sensor_data.ekf_nav_data.prevVelocity.down  = sensor_data.ekf_nav_data.velocity.down;
+    // sensor_data.ekf_nav_data.prevVelocity.north = sensor_data.ekf_nav_data.velocity.north;
+    // sensor_data.ekf_nav_data.prevVelocity.east  = sensor_data.ekf_nav_data.velocity.east;
+    // sensor_data.ekf_nav_data.prevVelocity.down  = sensor_data.ekf_nav_data.velocity.down;
 
     // velocity data in m/s
     sensor_data.ekf_nav_data.velocity.north = log_data->ekfNavData.velocity[0];
