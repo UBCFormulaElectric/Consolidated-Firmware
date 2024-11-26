@@ -1,7 +1,7 @@
 {
     "Vitals": {
         "msg_id": 502,
-        "cycle_time": 100,
+        "cycle_time": 10,
         "description": "CRIT vitals message.",
         "signals": {
             "Heartbeat": {

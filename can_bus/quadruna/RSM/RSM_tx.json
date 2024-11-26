@@ -16,7 +16,7 @@
 	},
 	"Vitals": {
 		"msg_id": 415, 
-		"cycle_time": 100,
+		"cycle_time": 10,
 		"description": "RSM vitals message.",
 		"signals": {
 			"Heartbeat": {
