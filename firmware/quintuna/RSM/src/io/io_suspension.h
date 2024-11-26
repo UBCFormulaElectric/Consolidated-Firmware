@@ -12,10 +12,10 @@ namespace io::suspension
 
 class SuspensionSensor
 {
-    hw::Adc *src;
+    hw::adc *src;
 
     public:
-        SuspensionSensor(hw::Adc *src) { this->src = src; }
+        SuspensionSensor(hw::adc *src) { this->src = src; }
 
         float getTravel();
         float OCSC();
