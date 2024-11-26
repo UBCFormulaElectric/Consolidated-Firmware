@@ -1,4 +1,5 @@
 #pragma once
+#include "hw_adcs.h"
 #include <stdbool.h>
 
 /**
@@ -26,4 +27,19 @@ bool leftSensorOCSC(void);
  * @return whether or not the right suspension sensor is open or short circuit
  */
 bool rightSensorOCSC(void);
+
+class SuspensionSensor
+{
+    hw::Adc *src;
+
+  public:
+    SuspensionSensor(hw::Adc *src) { this->src = src; }
+
+    float getTravel();
+    float OCSC();
+};
+
+static extern const SuspensionSensor right;
+static extern const SuspensionSensor left;
+
 } // namespace io::suspension

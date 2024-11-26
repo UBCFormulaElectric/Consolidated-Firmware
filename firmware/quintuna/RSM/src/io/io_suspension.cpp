@@ -10,6 +10,21 @@
 namespace io::suspension
 {
 
+static const SuspensionSensor right();
+static const SuspensionSensor left();
+
+float SuspensionSensor::getTravel()
+{
+    return src.getVoltage();
+}
+
+float SuspensionSensor::OCSC()
+{
+    float sensorVoltage = getTravel();
+    return !(MIN_SUSPENSION_VOLTAGE <= sensorVoltage && sensorVoltage <= MAX_SUSPENSION_VOLTAGE);
+}
+
+/*
 float getRearLeftTravel(void)
 {
     return susp_travel_rl_3v3.getVoltage();
@@ -31,5 +46,6 @@ bool rightSensorOCSC(void)
     float rightSensorVoltage = susp_travel_rr_3v3.getVoltage();
     return !(MIN_SUSPENSION_VOLTAGE <= rightSensorVoltage && rightSensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
+*/
 
 } // namespace io::suspension
