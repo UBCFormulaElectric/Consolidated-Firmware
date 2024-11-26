@@ -4,10 +4,11 @@ extern "C"
 {
 #include "SEGGER_SYSVIEW.h"
 #include "io_log.h"
+#include "cmsis_os.h"
+#include "io_can.h"
 }
 
-static int write_num = 0;
-static int read_num  = 0;
+#include "fdcan_demo.h"
 
 void tasks_init()
 {
@@ -19,7 +20,7 @@ void tasks_default()
 {
     for (;;)
     {
-;
+        fd_can_demo_tick();
     }
 }
 
@@ -27,7 +28,8 @@ void tasks_canRx()
 {
     for (;;)
     {
-
+        CanMsg msg;
+        io_can_popRxMsgFromQueue(&msg);
     }
 }
 
@@ -35,6 +37,8 @@ void tasks_canTx()
 {
     for (;;)
     {
-
+        CanMsg msg;
+        io_can_popTxMsgFromQueue(&msg);
+        hw_can_transmit(&msg);
     }
 }
