@@ -1,29 +1,25 @@
 #pragma once
-
-float voltageToMechancialLoad(float voltage);
-
-bool OCSC(Adc adcPin_toCheck);
 namespace io::loadCell
 {
 
-/**
- * @returns mechanical load based off adc pin voltage (after op-amp gain)
- */
-float getMechanicalLoad3(void);
+class LoadCell {
 
-/**
- * @returns mechanical loadd based off adc pin voltage (after op-amp gain)
- */
-float getMechanicalLoad4(void);
+    hw::Adc *src;
 
-/**
- * @returns checks open and short circuit for load cell 3
- */
-bool sensor3OCSC(void);
 
-/**
- * @returns checks open and short circuit for load cell 3
- */
-bool sensor4OCSC(void);
+    public:
+        bool sensorOCSC();
+        float mechanicalLoad();
 
+        LoadCell(hw::Adc *src) {
+            this->src = src;
+        }
+
+    private:
+        float voltageToMechancialLoad(float voltage);
+
+}
+
+static extern const LoadCell sensor3;
+static extern const LoadCell sensor4;
 } // namespace io::loadCell
