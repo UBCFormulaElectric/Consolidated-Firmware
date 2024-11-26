@@ -8,7 +8,8 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c")
+        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c")
 list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 set(EMBEDDED_INCLUDE_DIRS "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}")
 
