@@ -8,7 +8,7 @@ extern "C"
 #include "io_can.h"
 }
 
-#include "fdcan_demo.h"
+#include "fdcan_spam.h"
 
 void tasks_init()
 {
