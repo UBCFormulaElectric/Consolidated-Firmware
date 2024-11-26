@@ -8,10 +8,6 @@ extern "C"
 
 namespace io::fans
 {
-
-void acc_fan_set(bool on);
-void rad_fan_set(bool on);
-
 class Fans
 {
   private:

@@ -7,7 +7,7 @@ namespace io::leds
 
 void brake_light_set(bool val);
 
-const io::binary_led brake_light{ hw::gpio::brake_light_en_pin };
-const io::binary_led led{ hw::gpio::led_pin };
+extern const io::binary_led brake_light{ hw::gpio::brake_light_en_pin };
+extern const io::binary_led led{ hw::gpio::led_pin };
 
 } // namespace io::leds
