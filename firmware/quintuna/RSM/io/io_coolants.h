@@ -5,6 +5,7 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
 #include "hw_pwmInputFreqOnly.h"
+#include "hw_adcs.h"
 namespace io::coolant
 {
 void init(void);
@@ -22,4 +23,15 @@ float getPressureA(void);
 float getPressureB(void);
 
 bool pressureBOCSC(void);
+
+class Coolant
+{
+    Adc *src;
+
+  public:
+    float getPressure();
+
+    Coolant(Adc *src) { this->src = src; }
+} static extern const Coolant a;
+static extern const Coolant   b;
 } // namespace io::coolant
