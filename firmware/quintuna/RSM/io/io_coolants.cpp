@@ -56,7 +56,7 @@ static const Coolant b(coolantpressure2_3v3);
 
 float Coolant::getPressure()
 {
-    const float water_pressure = hw::adc::coolantPressure.getVoltage();
+    const float water_pressure = hw::Adc::coolantPressure.getVoltage();
     app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure));
     return CLAMP(water_pressure, 0.0f, PRESSURE_PSI_MAX);
 }

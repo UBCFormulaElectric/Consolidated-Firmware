@@ -26,12 +26,12 @@ bool pressureBOCSC(void);
 
 class Coolant
 {
-    Adc *src;
+    hw::Adc *src;
 
   public:
     float getPressure();
 
-    Coolant(Adc *src) { this->src = src; }
+    Coolant(hw::Adc *src) { this->src = src; }
 } static extern const Coolant a;
 static extern const Coolant   b;
 } // namespace io::coolant
