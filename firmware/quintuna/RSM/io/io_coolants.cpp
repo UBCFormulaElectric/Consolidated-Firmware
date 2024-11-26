@@ -51,25 +51,35 @@ extern "C"
 namespace io::coolant
 {
 
+static const Coolant a(coolantpressure1_3v3);
+static const Coolant b(coolantpressure2_3v3);
+
+float Coolant::getPressure()
+{
+    const float water_pressure = hw::adc::coolantPressure.getVoltage();
+    app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure));
+    return CLAMP(water_pressure, 0.0f, PRESSURE_PSI_MAX);
+}
+
 void init(void)
 {
-    coolant_config.init();
+    hw::pwm::coolant_config.init();
 }
 
 void inputCaptureCallback(void)
 {
-    coolant_config.tick();
+    hw::pwm::coolant_config.tick();
 }
 
 float getFlowRate(void)
 {
-    const float freq_read = coolant_config.getFrequency();
+    const float freq_read = hw::pwm::coolant_config.getFrequency();
     return freq_read / FLOW_RATE_CONVERSION_FACTOR;
 }
 
 void checkIfFlowMeterActive(void)
 {
-    coolant_config.checkIfPwmIsActive();
+    hw::pwm::coolant_config.checkIfPwmIsActive();
 }
 
 bool temperature_ocsc(float v)
@@ -95,22 +105,6 @@ float getTemperature(void)
 bool pressure_ocsc(float v)
 {
     return v < PRESSURE_VOLTAGE_MIN || v > PRESSURE_VOLTAGE_MAX;
-}
-
-float getPressureA(void)
-{
-    const float water_pressure_A = hw::adc::coolantpressure1_3v3.getVoltage();
-    app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure_A));
-
-    return CLAMP(water_pressure_A, 0.0f, PRESSURE_PSI_MAX);
-}
-
-float getPressureB(void)
-{
-    const float water_pressure_B = hw::adc::coolantpressure2_3v3.getVoltage();
-    app_canTx_RSM_Warning_CoolantPressureAOCSC_set(pressure_ocsc(water_pressure_B));
-
-    return CLAMP(water_pressure_B, 0.0f, PRESSURE_PSI_MAX);
 }
 
 bool pressureBOCSC(void)
