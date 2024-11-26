@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include "hw_can.h"
 #include "cmsis_os.h"
 
@@ -41,25 +42,6 @@ class CanMsgQueue
     uint8_t            tx_queue_buf[TX_QUEUE_BYTES]{};
     uint8_t            rx_queue_buf[RX_QUEUE_BYTES]{};
 
-    const osMessageQueueAttr_t tx_queue_attr = {
-        .name      = "CAN TX Queue",
-        .attr_bits = 0,
-        .cb_mem    = &tx_queue_control_block,
-        .cb_size   = sizeof(StaticQueue_t),
-        .mq_mem    = tx_queue_buf,
-        .mq_size   = TX_QUEUE_BYTES,
-    };
-
-    const osMessageQueueAttr_t rx_queue_attr = {
-        .name      = "CAN RX Queue",
-        .attr_bits = 0,
-        .cb_mem    = &rx_queue_control_block,
-        .cb_size   = sizeof(StaticQueue_t),
-        .mq_mem    = rx_queue_buf,
-        .mq_size   = RX_QUEUE_BYTES,
-    };
-
-    bool (*const rx_msg_filter)(uint32_t){};
     void (*const tx_overflow_callback)(uint32_t){};
     void (*const rx_overflow_callback)(uint32_t){};
     void (*const tx_overflow_clear_callback)(){};
@@ -69,19 +51,38 @@ class CanMsgQueue
     uint32_t rx_overflow_count = 0;
     bool     tx_overflow_flag  = false;
     bool     rx_overflow_flag  = false;
+    const osMessageQueueAttr_t rx_queue_attr;
+    const osMessageQueueAttr_t tx_queue_attr;
 
   public:
     explicit CanMsgQueue(
-        bool (*const in_rx_msg_filter)(uint32_t),
+        const std::string &name,
         void (*const in_tx_overflow_callback)(uint32_t),
         void (*const in_rx_overflow_callback)(uint32_t),
         void (*const in_tx_overflow_clear_callback)(),
         void (*const in_rx_overflow_clear_callback)())
-      : rx_msg_filter(in_rx_msg_filter),
-        tx_overflow_callback(in_tx_overflow_callback),
+      : tx_overflow_callback(in_tx_overflow_callback),
         rx_overflow_callback(in_rx_overflow_callback),
         tx_overflow_clear_callback(in_tx_overflow_clear_callback),
-        rx_overflow_clear_callback(in_rx_overflow_clear_callback){};
+        rx_overflow_clear_callback(in_rx_overflow_clear_callback),
+        rx_queue_attr(
+            {
+                .name      = (name + " RXQ").c_str(),
+                .attr_bits = 0,
+                .cb_mem    = &tx_queue_control_block,
+                .cb_size   = sizeof(StaticQueue_t),
+                .mq_mem    = tx_queue_buf,
+                .mq_size   = TX_QUEUE_BYTES,
+            }),
+        tx_queue_attr(
+            {
+                .name      = (name + " TXQ").c_str(),
+                .attr_bits = 0,
+                .cb_mem    = &rx_queue_control_block,
+                .cb_size   = sizeof(StaticQueue_t),
+                .mq_mem    = rx_queue_buf,
+                .mq_size   = RX_QUEUE_BYTES,
+            }) {}
 
     /**
      * Initialize and start the CAN peripheral.
@@ -99,18 +100,17 @@ class CanMsgQueue
     /**
      * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
      */
-    hw::can::CanMsg popTxMsgFromQueue();
+    [[nodiscard]] hw::can::CanMsg popTxMsgFromQueue() const;
 
     /**
      * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
-     * @param rx_fifo Which RX FIFO to receive a message from.
      */
-    hw::can::CanMsg popRxMsgFromQueue();
+    [[nodiscard]] hw::can::CanMsg popRxMsgFromQueue() const;
 
 #ifdef TARGET_EMBEDDED
     /**
      * Callback fired by config-specific interrupts to receive a message from a given FIFO.
-     * @param msg CAN msg to be populated by RXed msg.
+     * @param rx_msg CAN msg to be populated by RXed msg.
      */
     void pushRxMsgToQueue(const hw::can::CanMsg *rx_msg);
 #endif

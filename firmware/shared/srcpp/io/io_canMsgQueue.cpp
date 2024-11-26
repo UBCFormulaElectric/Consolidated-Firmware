@@ -32,7 +32,7 @@ void CanMsgQueue::pushTxMsgToQueue(const hw::can::CanMsg *msg)
     }
 }
 
-hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue()
+hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue() const
 {
     hw::can::CanMsg msg{};
     // Pop a msg of the TX queue
@@ -41,7 +41,7 @@ hw::can::CanMsg CanMsgQueue::popTxMsgFromQueue()
     return msg;
 }
 
-hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue()
+hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue() const
 {
     hw::can::CanMsg msg{};
     // Pop a message off the RX queue.
@@ -52,10 +52,6 @@ hw::can::CanMsg CanMsgQueue::popRxMsgFromQueue()
 
 void CanMsgQueue::pushRxMsgToQueue(const hw::can::CanMsg *rx_msg)
 {
-    if (!rx_msg_filter(rx_msg->std_id))
-        // Early return if we don't care about this msg via configured filter func.
-        return;
-
     // We defer reading the CAN RX message to another task by storing the
     // message on the CAN RX queue.
     if (osMessageQueuePut(rx_queue_id, rx_msg, 0, 0) != osOK)
