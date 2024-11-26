@@ -47,10 +47,10 @@ class CanMsgQueue
     void (*const tx_overflow_clear_callback)(){};
     void (*const rx_overflow_clear_callback)(){};
 
-    uint32_t tx_overflow_count = 0;
-    uint32_t rx_overflow_count = 0;
-    bool     tx_overflow_flag  = false;
-    bool     rx_overflow_flag  = false;
+    uint32_t                   tx_overflow_count = 0;
+    uint32_t                   rx_overflow_count = 0;
+    bool                       tx_overflow_flag  = false;
+    bool                       rx_overflow_flag  = false;
     const osMessageQueueAttr_t rx_queue_attr;
     const osMessageQueueAttr_t tx_queue_attr;
 
@@ -65,24 +65,24 @@ class CanMsgQueue
         rx_overflow_callback(in_rx_overflow_callback),
         tx_overflow_clear_callback(in_tx_overflow_clear_callback),
         rx_overflow_clear_callback(in_rx_overflow_clear_callback),
-        rx_queue_attr(
-            {
-                .name      = (name + " RXQ").c_str(),
-                .attr_bits = 0,
-                .cb_mem    = &tx_queue_control_block,
-                .cb_size   = sizeof(StaticQueue_t),
-                .mq_mem    = tx_queue_buf,
-                .mq_size   = TX_QUEUE_BYTES,
-            }),
-        tx_queue_attr(
-            {
-                .name      = (name + " TXQ").c_str(),
-                .attr_bits = 0,
-                .cb_mem    = &rx_queue_control_block,
-                .cb_size   = sizeof(StaticQueue_t),
-                .mq_mem    = rx_queue_buf,
-                .mq_size   = RX_QUEUE_BYTES,
-            }) {}
+        rx_queue_attr({
+            .name      = (name + " RXQ").c_str(),
+            .attr_bits = 0,
+            .cb_mem    = &tx_queue_control_block,
+            .cb_size   = sizeof(StaticQueue_t),
+            .mq_mem    = tx_queue_buf,
+            .mq_size   = TX_QUEUE_BYTES,
+        }),
+        tx_queue_attr({
+            .name      = (name + " TXQ").c_str(),
+            .attr_bits = 0,
+            .cb_mem    = &rx_queue_control_block,
+            .cb_size   = sizeof(StaticQueue_t),
+            .mq_mem    = rx_queue_buf,
+            .mq_size   = RX_QUEUE_BYTES,
+        })
+    {
+    }
 
     /**
      * Initialize and start the CAN peripheral.
