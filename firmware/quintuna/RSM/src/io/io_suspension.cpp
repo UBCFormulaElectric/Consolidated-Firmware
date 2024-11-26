@@ -10,8 +10,8 @@
 namespace io::suspension
 {
 
-static const SuspensionSensor right();
-static const SuspensionSensor left();
+static const SuspensionSensor right(coolantpressure1_3v3);
+static const SuspensionSensor left(coolantpressure2_3v3);
 
 float SuspensionSensor::getTravel()
 {
