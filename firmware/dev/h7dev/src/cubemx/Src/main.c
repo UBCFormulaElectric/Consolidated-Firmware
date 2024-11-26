@@ -21,22 +21,18 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "pb_encode.h"
-#include "pb_decode.h"
-#include "sample.pb.h"
-#include "string.h"
-#include "string.h"
+#include <string.h>
+#include "tasks.h"
+
 #include "hw_hardFaultHandler.h"
 #include "hw_can.h"
 #include "hw_sd.h"
 #include "hw_bootup.h"
-#include "hw_uart.h"
 #include "io_can.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
 #include "hw_gpio.h"
 #include "io_log.h"
-#include "hw_utils.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,26 +97,23 @@ const osThreadAttr_t canRxTask_attributes = {
     .priority   = (osPriority_t)osPriorityBelowNormal,
 };
 /* USER CODE BEGIN PV */
-
-int         write_num    = 0;
-int         read_num     = 0;
 int         overflow_num = 0;
-static void callback(uint32_t i)
+static void overflow_callback(uint32_t i)
 {
     overflow_num++;
     // BREAK_IF_DEBUGGER_CONNECTED();
 }
-
 static CanConfig can_config = {
     .rx_msg_filter        = NULL,
-    .tx_overflow_callback = callback,
-    .rx_overflow_callback = callback,
+    .tx_overflow_callback = overflow_callback,
+    .rx_overflow_callback = overflow_callback,
 };
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_SDMMC1_SD_Init(void);
@@ -175,6 +168,9 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
+
     /* USER CODE BEGIN SysInit */
 
     /* USER CODE END SysInit */
@@ -186,12 +182,12 @@ int main(void)
     MX_FDCAN1_Init();
     MX_UART9_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
+
     // __HAL_DBGMCU_FREEZE_IWDG();
-
-    io_can_init(&can_config);
     hw_hardFaultHandler_init();
+    io_can_init(&can_config);
     hw_can_init(&can);
-
     if (sd_inited)
     {
         sd.hsd     = &hsd1;
@@ -199,9 +195,6 @@ int main(void)
         int err    = io_fileSystem_init();
         io_canLogging_init(&can_config);
     }
-
-    SEGGER_SYSVIEW_Conf();
-    LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -316,6 +309,32 @@ void SystemClock_Config(void)
 }
 
 /**
+ * @brief Peripherals Common Clock Configuration
+ * @retval None
+ */
+void PeriphCommonClock_Config(void)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+
+    /** Initializes the peripherals clock
+     */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PLL2.PLL2M           = 1;
+    PeriphClkInitStruct.PLL2.PLL2N           = 80;
+    PeriphClkInitStruct.PLL2.PLL2P           = 2;
+    PeriphClkInitStruct.PLL2.PLL2Q           = 8;
+    PeriphClkInitStruct.PLL2.PLL2R           = 2;
+    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
+    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
+    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+    PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
+}
+
+/**
  * @brief FDCAN1 Initialization Function
  * @param None
  * @retval None
@@ -381,19 +400,19 @@ static void MX_FDCAN2_Init(void)
 
     /* USER CODE END FDCAN2_Init 1 */
     hfdcan2.Instance                  = FDCAN2;
-    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 16;
-    hfdcan2.Init.NominalSyncJumpWidth = 4;
-    hfdcan2.Init.NominalTimeSeg1      = 13;
-    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.NominalPrescaler     = 2;
+    hfdcan2.Init.NominalSyncJumpWidth = 5;
+    hfdcan2.Init.NominalTimeSeg1      = 34;
+    hfdcan2.Init.NominalTimeSeg2      = 5;
     hfdcan2.Init.DataPrescaler        = 1;
-    hfdcan2.Init.DataSyncJumpWidth    = 1;
-    hfdcan2.Init.DataTimeSeg1         = 1;
-    hfdcan2.Init.DataTimeSeg2         = 1;
+    hfdcan2.Init.DataSyncJumpWidth    = 5;
+    hfdcan2.Init.DataTimeSeg1         = 14;
+    hfdcan2.Init.DataTimeSeg2         = 5;
     hfdcan2.Init.MessageRAMOffset     = 0;
     hfdcan2.Init.StdFiltersNbr        = 1;
     hfdcan2.Init.ExtFiltersNbr        = 0;
@@ -561,45 +580,7 @@ static void can_msg_received_callback(CanMsg *rx_msg)
 void runDefaultTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        // UART modem_uart = { .handle = &huart9 };
-        // /* Infinite loop */
-        // // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
-        // // uint8_t num; // use this if just want numbers
-        // // uint8_t predicData[3];
-        // // predicData[1] = 13;
-        // // predicData[2] = 10;
-        // uint8_t buffer[128];
-        // uint8_t message_length;
-        // bool    status;
-
-        // // SimpleMessage message = SimpleMessage_init_zero;
-
-        // for (;;)
-        // {
-        //     /* Create a stream that will write to our buffer. */
-        //     TelemMessage message = TelemMessage_init_zero;
-        //     pb_ostream_t stream  = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
-        //     /* Fill in the lucky number */
-        //     message.can_id     = 53;
-        //     message.data       = 23;
-        //     message.time_stamp = 9;
-
-        //     /* Now we are ready to encode the message! */
-        //     status         = pb_encode(&stream, TelemMessage_fields, &message);
-        //     message_length = (uint8_t)stream.bytes_written;
-        //     // message_length = stream.bytes_written;
-        //     if (status)
-        //     {
-        //         hw_uart_transmitPoll(&modem_uart, &message_length, 1, 100);
-        //         hw_uart_transmitPoll(&modem_uart, buffer, sizeof(buffer), 100); // fun string
-        //     }
-        //     osDelay(10);
-        // }
-    }
+    tasks_default();
     /* USER CODE END 5 */
 }
 
@@ -613,20 +594,7 @@ void runDefaultTask(void *argument)
 void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
-    /* Infinite loop */
-
-    for (unsigned int i = 0; i < 10000; i++)
-    {
-        CanMsg msg = { .std_id = i, .dlc = 8, .data = { 0, 1, 2, 3, 4, 5, 6, 7 } };
-        for (int j = 0; j < 6; j++)
-        {
-            read_num++;
-            // io_canLogging_pushTxMsgToQueue(&msg);
-        }
-        osDelay(1);
-    }
-
-    osDelay(osWaitForever);
+    tasks_canTx();
     /* USER CODE END runCanTxTask */
 }
 
@@ -640,22 +608,7 @@ void runCanTxTask(void *argument)
 void runCanRxTask(void *argument)
 {
     /* USER CODE BEGIN runCanRxTask */
-    /* Infinite loop */
-    static uint32_t count = 0;
-    for (;;)
-    {
-        // CanMsg msg;
-        // io_can_popRxMsgFromQueue(&msg);
-        io_canLogging_recordMsgFromQueue();
-        write_num++;
-        count++;
-
-        if (count > 256)
-        {
-            io_canLogging_sync();
-            count = 0;
-        }
-    }
+    tasks_canRx();
     /* USER CODE END runCanRxTask */
 }
 

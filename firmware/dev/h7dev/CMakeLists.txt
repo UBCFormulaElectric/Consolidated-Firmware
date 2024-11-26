@@ -5,7 +5,10 @@ set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
-file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB_RECURSE EMBEDDED_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+)
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_can.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
@@ -18,23 +21,17 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
 )
-list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/cubemx/Src/sysmem.c")
-
-nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
-
-set(SRCS ${PROTO_SRCS})
-set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
-
 set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
-# Bootloader files.
-file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+# nanopb nonsense
+nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
+set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 
 IF ("${TARGET}" STREQUAL "binary")
     generate_stm32cube_code(
@@ -92,7 +89,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     embedded_library(
             "protobuf_library"
-            "${SRCS}"
+            "${PROTO_SRCS}"
             "${HDRS}"
             "cm7"
             TRUE
@@ -101,6 +98,8 @@ IF ("${TARGET}" STREQUAL "binary")
     target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "protobuf_library" "logfs_cm7")
 
     # Build bootloader.
+    file(GLOB_RECURSE BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     stm32h7_boot_binary(
             "h7dev_boot"
             "${BOOT_SRCS}"
@@ -118,5 +117,4 @@ IF ("${TARGET}" STREQUAL "binary")
             "h7dev_boot.hex"
             "${CMAKE_CURRENT_BINARY_DIR}/h7dev_boot.hex"
     )
-
 ENDIF ()

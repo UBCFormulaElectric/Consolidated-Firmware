@@ -47,7 +47,7 @@ bool hw_can_transmit(const CanMsg *msg)
     tx_header.DataLength          = msg->dlc << 16; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
-    tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
+    tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
 
