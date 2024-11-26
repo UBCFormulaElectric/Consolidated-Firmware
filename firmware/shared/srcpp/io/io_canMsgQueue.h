@@ -57,32 +57,10 @@ class CanMsgQueue
   public:
     explicit CanMsgQueue(
         const std::string &name,
-        void (*const in_tx_overflow_callback)(uint32_t),
-        void (*const in_rx_overflow_callback)(uint32_t),
-        void (*const in_tx_overflow_clear_callback)(),
-        void (*const in_rx_overflow_clear_callback)())
-      : tx_overflow_callback(in_tx_overflow_callback),
-        rx_overflow_callback(in_rx_overflow_callback),
-        tx_overflow_clear_callback(in_tx_overflow_clear_callback),
-        rx_overflow_clear_callback(in_rx_overflow_clear_callback),
-        rx_queue_attr({
-            .name      = (name + " RXQ").c_str(),
-            .attr_bits = 0,
-            .cb_mem    = &tx_queue_control_block,
-            .cb_size   = sizeof(StaticQueue_t),
-            .mq_mem    = tx_queue_buf,
-            .mq_size   = TX_QUEUE_BYTES,
-        }),
-        tx_queue_attr({
-            .name      = (name + " TXQ").c_str(),
-            .attr_bits = 0,
-            .cb_mem    = &rx_queue_control_block,
-            .cb_size   = sizeof(StaticQueue_t),
-            .mq_mem    = rx_queue_buf,
-            .mq_size   = RX_QUEUE_BYTES,
-        })
-    {
-    }
+        void (*in_tx_overflow_callback)(uint32_t),
+        void (*in_rx_overflow_callback)(uint32_t),
+        void (*in_tx_overflow_clear_callback)(),
+        void (*in_rx_overflow_clear_callback)());
 
     /**
      * Initialize and start the CAN peripheral.
