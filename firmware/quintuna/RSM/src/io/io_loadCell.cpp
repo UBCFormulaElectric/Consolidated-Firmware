@@ -12,12 +12,14 @@ namespace io::loadCell
 static const LoadCell sensor3();
 static const LoadCell sensor4();
 
-bool LoadCell::OCSC() {
+bool LoadCell::OCSC()
+{
     const float voltage = hw::Adc::src.getVoltage();
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float LoadCell::mechanicalLoad() {
+float LoadCell::mechanicalLoad()
+{
     return voltageToMechanical(hw::Adc::src.getVoltage());
 }
 
@@ -27,10 +29,6 @@ float LoadCell::voltageToMechancialLoad(float voltage)
     // https://caltsensor.com/product/s-type-load-cells-dyly-103/
     return 0.0;
 }
-
-
-
-
 
 } // namespace io::loadCell
 

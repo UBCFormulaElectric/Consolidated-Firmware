@@ -2,21 +2,18 @@
 namespace io::loadCell
 {
 
-class LoadCell {
-
+class LoadCell
+{
     hw::Adc *src;
 
+  public:
+    bool  sensorOCSC();
+    float mechanicalLoad();
 
-    public:
-        bool sensorOCSC();
-        float mechanicalLoad();
+    LoadCell(hw::Adc *src) { this->src = src; }
 
-        LoadCell(hw::Adc *src) {
-            this->src = src;
-        }
-
-    private:
-        float voltageToMechancialLoad(float voltage);
+  private:
+    float voltageToMechancialLoad(float voltage);
 
 }
 
