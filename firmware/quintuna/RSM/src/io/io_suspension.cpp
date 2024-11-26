@@ -24,5 +24,4 @@ float SuspensionSensor::OCSC()
     return !(MIN_SUSPENSION_VOLTAGE <= sensorVoltage && sensorVoltage <= MAX_SUSPENSION_VOLTAGE);
 }
 
-
 } // namespace io::suspension
