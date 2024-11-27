@@ -45,9 +45,6 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
 
-// RAM allocated:
-extern uint8_t bootloader_byte;
-
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
 typedef struct
@@ -221,8 +218,6 @@ void bootloader_init(void)
     bootloader_boardSpecific_init();
 
     // Some boards don't have a "boot mode" GPIO and just jump directly to app.
-    bool    boot_status = bootloader_byte == 0;
-    uint8_t val         = bootloader_byte;
     if (verifyAppCodeChecksum() == BOOT_STATUS_APP_VALID)
     {
         HAL_TIM_Base_Stop_IT(&htim6);

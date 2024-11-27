@@ -6,17 +6,6 @@ MEMORY
   app_code     (rx)    : ORIGIN = 0x8020400,  LENGTH = 895K
 }
 
-SECTIONS
-{
-  /* Bootloader byte in RAM */
-  .bootloader_byte :
-  {
-    . = ALIGN(4);
-    bootloader_byte = .;
-    BYTE(0); /* Reserve 1 byte */
-  } > ram
-}
-
 __boot_code_start__    = ORIGIN(boot_code);
 __boot_code_size__     = LENGTH(boot_code);
 __app_metadata_start__ = ORIGIN(app_metadata);
