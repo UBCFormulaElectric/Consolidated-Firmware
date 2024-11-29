@@ -46,9 +46,12 @@ uint8_t hw_usb_recieve(){
 //since packet is a POINTER!!!! It's acc pointing to an array that stores 8 bit values!!! if it was uint packet then its just 1 thing!! everyting makes sense NOW!
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
     // message on the RX queue. wrapping it to get a void pointer cuz osMessageQUeuePut takes in a void pointer
-    
+    LOG_INFO("we have entered usb push message into queue");
     uint32_t space = osMessageQueueGetSpace(rx_queue_id);
+        LOG_INFO("we are checking the space %lu", (unsigned long)space);
+
     assert(len < space);
+    LOG_INFO("entering loop to keep putting the messages into the queue");
     for (int i = 0; i < len; i += 1) {
         osStatus_t s = osMessageQueuePut(rx_queue_id, &packet[i], NULL, osWaitForever); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
         assert(s == osOK);
@@ -71,10 +74,11 @@ void hw_usb_example() {
     LOG_INFO("we are entering the infinite loop!!");
     for (;;){
         LOG_INFO("calling usb transmit!");
-        hw_usb_transmit(packet, sizeof(packet));
+        //hw_usb_transmit(packet, strlen(*packet));
+        hw_usb_transmit(packet[i], strlen(packet[i]));
         i++;
         LOG_INFO("transmitted packet %d times yay a cycle!", i);
-        osDelay(30000);
+        osDelay(1000);
     }
 
     //test 2 
