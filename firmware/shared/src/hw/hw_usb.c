@@ -46,6 +46,7 @@ uint8_t hw_usb_recieve(){
 //since packet is a POINTER!!!! It's acc pointing to an array that stores 8 bit values!!! if it was uint packet then its just 1 thing!! everyting makes sense NOW!
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
     // message on the RX queue. wrapping it to get a void pointer cuz osMessageQUeuePut takes in a void pointer
+    
     uint32_t space = osMessageQueueGetSpace(rx_queue_id);
     assert(len < space);
     for (int i = 0; i < len; i += 1) {
@@ -56,19 +57,23 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
 // for the test functionality have an infinite loop that keeps running to see if the rx is 0 once its not zero anymore then we start reaching until were out of bytes 
 //update header files and  includes 
 void hw_usb_example() {
+    LOG_INFO("we are going to call the usb init");
     osMessageQueueId_t rx_queue_id = hw_usb_init();
+    LOG_INFO("WE MADE A QUEUEUEUEU");
     assert (rx_queue_id != NULL);
-    printf("usb initialized!");
+    LOG_INFO("usb initialized! and were gonna send a packet nowwww");
     osDelay(1000);
     const char *packet[] = {"HELLO","HELLO","HELLO"};
-    printf("packet being sent is: %s", *packet);
+    LOG_INFO("packet sent is: %s", *packet);
 
     //test1
     int i = 0;
+    LOG_INFO("we are entering the infinite loop!!");
     for (;;){
+        LOG_INFO("calling usb transmit!");
         hw_usb_transmit(packet, sizeof(packet));
         i++;
-        printf("transmitted packet %d times", i);
+        LOG_INFO("transmitted packet %d times yay a cycle!", i);
         osDelay(30000);
     }
 

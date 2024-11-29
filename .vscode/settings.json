@@ -40,6 +40,7 @@
 		"thread": "c",
 		"io_log.h": "c",
 		"stdio.h": "c",
-		"app_utils.h": "c"
+		"app_utils.h": "c",
+		"app_canalerts.h": "c"
 	},
 }

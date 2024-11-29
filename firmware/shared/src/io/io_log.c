@@ -1,5 +1,7 @@
 #include "io_log.h"
-#include "app_canAlerts.h"
+// #include "app_canAlerts.h"
+#include "../../../../build_fw_test/firmware/quadruna/FSM/app/app_canAlerts.h"
+
 #define MAX_FAULT_COUNT 50
 
 void LOG_ALL_FAULTS(void)
