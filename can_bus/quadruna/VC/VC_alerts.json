@@ -79,6 +79,10 @@
         "BrakeAppsDisagreement": {
             "id": 564,
             "description": "Brakes and apps are active at same time."
+        },
+        "SbgInitFailed": {
+            "id": 565,
+            "description": "Initializing the SBG Ellipse GPS failed"
         }
     },
     "faults": {
@@ -105,10 +109,6 @@
         "RightInverterFault": {
             "id": 556,
             "description": "Right inverter entered fault state."
-        },
-        "SBGModeFault":  {
-            "id" :561,
-            "description" : "Ensure mode is Nominal mode for EKF data used"
-        }  
+        }
     }
 }

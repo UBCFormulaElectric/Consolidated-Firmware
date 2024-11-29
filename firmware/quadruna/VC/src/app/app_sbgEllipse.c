@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
+#include "app_utils.h"
+#include "app_units.h"
 #include "io_sbgEllipse.h"
 
 void app_sbgEllipse_broadcast()

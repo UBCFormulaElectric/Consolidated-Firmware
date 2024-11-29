@@ -261,9 +261,12 @@ bool io_sbgEllipse_init(const UART *sbg_uart)
     // Initialize the SBG serial interface handle
     io_sbgEllipse_createSerialInterface(&sbg_interface);
 
+    SbgErrorCode sbgEComInitCode = sbgEComInit(&com_handle, &sbg_interface);
+
     // Init SBG's communication protocol handle
-    if (sbgEComInit(&com_handle, &sbg_interface) != SBG_NO_ERROR)
+    if (sbgEComInitCode != SBG_NO_ERROR)
     {
+        LOG_INFO("%d", sbgEComInitCode);
         return false;
     }
 
