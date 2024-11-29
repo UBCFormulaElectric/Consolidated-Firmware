@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "app_utils.h"
+#include "app_units.h"
 
 /*
  * Broadcast sensor outputs over CAN.

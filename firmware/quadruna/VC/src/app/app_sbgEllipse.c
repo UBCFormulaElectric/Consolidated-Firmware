@@ -21,20 +21,28 @@ void app_sbgEllipse_broadcast()
     const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
     const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
 
+    const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
+    const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
+    const float ekf_vel_D_accuracy = io_sbgEllipse_getEkfNavVelocityData()->down_std_dev;
+
     app_canTx_VC_VelocityNorth_set(ekf_vel_N);
     app_canTx_VC_VelocityEast_set(ekf_vel_E);
     app_canTx_VC_VelocityDown_set(ekf_vel_D);
 
+    app_canTx_VC_VelocityNorthAccuracy_set(ekf_vel_N_accuracy);
+    app_canTx_VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
+    app_canTx_VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
+
     const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
 
-    app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
 
     // Position EKF
-    const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
-    const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
+    // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
+    // const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
 
-    app_canTx_VC_Latitude_set((float)ekf_pos_lat);
-    app_canTx_VC_Longtitude_set((float)ekf_pos_long);
+    // app_canTx_VC_Latitude_set((float)ekf_pos_lat);
+    // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
 
     // Acceleration msg
     // const float forward_accel  = io_sbgEllipse_getImuAccelerations()->x;

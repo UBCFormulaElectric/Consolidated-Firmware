@@ -500,6 +500,7 @@
         }
     },
     "EllipseEkfNavPosition": {
+        "disabled": true,
         "msg_id": 217,
         "cycle_time": 100,
         "description": "Car position info",
@@ -508,7 +509,7 @@
                 "enum": "VcSbgStatus"
             },
             "Latitude": {
-                "resolution": 0.01,
+                "resolution": 0.00005,
                 "min": 47,
                 "max": 50,
                 "unit": "deg"
@@ -520,7 +521,7 @@
                 "unit": "m"
             },
             "Longtitude": {
-                "resolution": 0.01,
+                "resolution": 0.00005,
                 "min": 122,
                 "max": 125,
                 "unit": "deg"
@@ -554,39 +555,39 @@
                 "enum": "VcSbgStatus"
             },
             "VelocityNorth": {
-                "resolution": 0.1,
-                "min": -120,
-                "max": 120,
+                "resolution": 0.05,
+                "min": -35,
+                "max": 35,
                 "unit": "m/s"
             },
             "VelocityNorthAccuracy": {
                 "resolution": 0.1,
-                "min": -120,
-                "max": 20,
+                "min": 0,
+                "max": 35,
                 "unit": "m/s"
             },
             "VelocityEast": {
-                "resolution": 0.1,
-                "min": -120,
-                "max": 120,
+                "resolution": 0.05,
+                "min": -35,
+                "max": 35,
                 "unit": "m/s"
             },
             "VelocityEastAccuracy": {
                 "resolution": 0.1,
                 "min": 0,
-                "max": 20,
+                "max": 35,
                 "unit": "m/s"
             },
             "VelocityDown": {
-                "resolution": 0.1,
-                "min": 0,
-                "max": 120,
+                "resolution": 0.05,
+                "min": -35,
+                "max": 35,
                 "unit": "m/s"
             },
             "VelocityDownAccuracy": {
                 "resolution": 0.1,
                 "min": 0,
-                "max": 20,
+                "max": 35,
                 "unit": "m/s"
             }
         }
