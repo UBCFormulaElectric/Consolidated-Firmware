@@ -32,6 +32,4 @@ float app_pid_compute(PID *pid, float setpoint, float input);
 
 void app_pid_requestReset(PID *pid);
 
-bool app_gaurd_init(PID *pid); 
-
-bool app_filter_init(PID *pid);
+bool app_guard_init(PID *pid); 

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+
+extern float vehicle_velocity;
+
 /*
  * Broadcast sensor outputs over CAN.
  */

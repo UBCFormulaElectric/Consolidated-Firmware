@@ -26,13 +26,16 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     // NOTE: we want to map K to a vlaue that we can multiple with input torque. K is based on the slip error 
     // we want to map it to torque error, we also want to  make sure we use the torque associated to the wheel from which slip max was taken
 
-    if( slip_ratio_max == slip_ratio_left){
-        correction_torque = k *(wheel_speed_front_left_rpm) + wheel_speed_front_left_rpm; // this will give us err torque
+   if (slip_ratio_max == slip_ratio_left) {
+    correction_torque = k * inputs->torque_left_Nm;    
+    outputs->torque_left_final_Nm  = inputs->torque_left_Nm + correction_torque;
+    outputs->torque_right_final_Nm = inputs->torque_right_Nm;  
     }
     else {
-         correction_torque = k *(wheel_speed_front_right_rpm) + wheel_speed_front_right_rpm;
+    correction_torque = k * inputs->torque_right_Nm; 
+    outputs->torque_right_final_Nm = inputs->torque_right_Nm + correction_torque;
+    outputs->torque_left_final_Nm  = inputs->torque_left_Nm; 
     }
-
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioLeft_set(slip_ratio_left);
     app_canTx_VC_SlipRatioRight_set(slip_ratio_right);
@@ -42,10 +45,6 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     app_canTx_VC_PIDSlipRatioDerivative_set(pid->derivative);
     app_canTx_VC_PIDSlipRatioIntegral_set(pid->integral);
 
-    // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
-
-    outputs->torque_left_final_Nm  =  inputs->torque_left_Nm + correction_torque; 
-    outputs->torque_right_final_Nm =  inputs->torque_right_Nm + correction_torque;
 }
 
 float app_tractionControl_computeSlip(float motor_speed_rpm, float front_wheel_speed_rpm)

@@ -6,7 +6,7 @@ void app_pid_init(PID *pid, const PID_Config *conf)
     pid->Kp         = conf->Kp;
     pid->Ki         = conf->Ki;
     pid->Kd         = conf->Kd;
-    pid->derivative_filtering_coeff = NAN; 
+    pid->derivative_filtering_coeff = 0.0f; // will implement a filter later  
     pid->prev_input = 0.0f;
     pid->integral   = 0.0f;
     pid->integral_windup_min = NAN; 
@@ -26,7 +26,7 @@ float app_pid_compute(PID *pid, float setpoint, float input)
 {
     pid->error = setpoint - input;
 
-    if(app_gaurd_init(pid)){ // if initialized implement the gaurd
+    if(app_guard_init(pid)){ // if initialized implement the gaurd
         if(pid->integral_windup_max > pid->integral && pid->integral > pid->integral_windup_min){
             pid->integral += pid->error;
         }
@@ -34,13 +34,10 @@ float app_pid_compute(PID *pid, float setpoint, float input)
     else{
         pid->integral += pid->error;
     }
+    
+    // removing filtering for now 
 
-    if(app_filter_init(pid)){
-        pid->derivative = pid->derivative_filtering_coeff * (pid->derivative / (1 + pid->derivative_filtering_coeff));
-    }
-    else{
-        pid->derivative = (input - pid->prev_input);
-    }
+    pid->derivative = (input - pid->prev_input);
 
     pid->prev_input = input;
     float output    = pid->Kp * pid->error + pid->Ki * pid->integral - pid->Kd * pid->derivative;
@@ -53,12 +50,11 @@ void app_pid_requestReset(PID *pid)
 {
     pid->prev_input = 0.0f;
     pid->integral   = 0.0f;
+    pid->error      = 0.0f; 
+    pid->derivative = 0.0f;
 }
 
-bool app_gaurd_init(PID *pid){
-    return (pid->integral_windup_max != NAN && pid->integral_windup_min != NAN); 
+bool app_guard_init(PID *pid){
+    return !(isnanf(pid->integral_windup_max) || isnanf(pid->integral_windup_min)); 
 }
 
-bool app_filter_init(PID *pid){
-    return (pid->derivative_filtering_coeff != NAN); 
-}
