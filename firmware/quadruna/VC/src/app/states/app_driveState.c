@@ -115,6 +115,9 @@ static void driveStateRunOnTick100Hz(void)
     regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
     bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
 
+    /* TODO: Vehicle dyanmics people need to make sure to do a check if sensor init failed
+       or not before using closed loop features */
+
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
     {

@@ -362,15 +362,15 @@ void tasks_init(void)
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
 
-    // Comment out for now, not using sbg
-    // if (!io_sbgEllipse_init(&sbg_uart))
-    // {
-    //     Error_Handler();
-    // }
-
+    if (!io_sbgEllipse_init(&sbg_uart))
+    {
+        app_canAlerts_VC_Warning_SbgInitFailed_set(true);
+        LOG_INFO("Sbg initialization failed");
+    }
     if (!io_imu_init())
     {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
     }
 
     app_canTx_init();
