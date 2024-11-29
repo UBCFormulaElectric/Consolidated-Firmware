@@ -201,6 +201,9 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVR_CommandReadWrite_set(true);
     app_canTx_VC_INVR_CommandData_set((uint16_t)0);
 
+    // Clear mapped pedal percentage
+    app_canTx_VC_MappedPedalPercentage_set(0.0f);
+
 #ifdef TARGET_EMBEDDED
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
     io_canTx_VC_INVL_ReadWriteParamCommand_sendAperiodic();
