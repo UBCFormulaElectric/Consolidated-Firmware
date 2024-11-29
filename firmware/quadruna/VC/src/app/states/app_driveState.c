@@ -3,7 +3,8 @@
 #include "states/app_allStates.h"
 #include "states/app_initState.h"
 #include "states/app_driveState.h"
-#include "states/app_inverterOnState.h"
+#include "states/app_hvState.h"
+#include "states/app_driveWarningState.h"
 
 #ifdef TARGET_EMBEDDED
 #include "io_canTx.h"
@@ -11,6 +12,8 @@
 
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "app_canAlerts.h"
+
 #include "app_vehicleDynamicsConstants.h"
 #include "app_powerManager.h"
 #include "app_torqueVectoring.h"
@@ -26,7 +29,7 @@ static bool         torque_vectoring_switch_is_on;
 static bool         regen_switch_is_on;
 static TimerChannel buzzer_timer;
 
-static const PowerStateConfig power_manager_drive_init = {
+static const PowerStateConfig power_manager_drive = {
     .efuses = {
         [EFUSE_CHANNEL_SHDN] = true,
         [EFUSE_CHANNEL_LV] = true,
@@ -73,7 +76,7 @@ static void driveStateRunOnEntry(void)
     app_canTx_VC_BuzzerOn_set(true);
 
     app_canTx_VC_State_set(VC_DRIVE_STATE);
-    app_powerManager_updateConfig(power_manager_drive_init);
+    app_powerManager_updateConfig(power_manager_drive);
 
     app_canTx_VC_LeftInverterEnable_set(true);
     app_canTx_VC_RightInverterEnable_set(true);
@@ -102,18 +105,35 @@ static void driveStateRunOnTick1Hz(void)
 
 static void driveStateRunOnTick100Hz(void)
 {
-    // All states module checks for faults, and returns whether or not a fault was detected.
-    const bool any_board_has_fault = app_faultCheck_checkBoards();
-    const bool inverter_has_fault  = app_faultCheck_checkInverters();
-    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
+    const bool start_switch_off      = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
+    const bool bms_not_in_drive      = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
+    bool       exit_drive_to_init    = bms_not_in_drive;
+    bool       exit_drive_to_hv      = start_switch_off;
+    bool       prev_regen_switch_val = regen_switch_is_on;
+    torque_vectoring_switch_is_on    = app_canRx_CRIT_TorqueVecSwitch_get() == SWITCH_ON;
+    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    bool turn_regen_led              = regen_switch_is_on && !prev_regen_switch_val;
+    bool turn_tv_led                 = torque_vectoring_switch_is_on;
 
-    const bool start_switch_off          = app_canRx_CRIT_StartSwitch_get() == SWITCH_OFF;
-    const bool bms_not_in_drive          = app_canRx_BMS_State_get() != BMS_DRIVE_STATE;
-    bool       exit_drive_to_init        = bms_not_in_drive;
-    bool       exit_drive_to_inverter_on = !all_states_ok || start_switch_off;
-    bool       prev_regen_switch_val     = regen_switch_is_on;
-    regen_switch_is_on                   = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
-    bool turn_regen_led                  = regen_switch_is_on && !prev_regen_switch_val;
+    app_allStates_runOnTick100Hz();
+
+    // TODO: Off for quadruna, since it is throwing too many warnings
+    // const bool vc_has_warning   = app_canAlerts_BoardHasWarning(VC_ALERT_BOARD);
+    // const bool bms_has_warning  = app_canAlerts_BoardHasWarning(BMS_ALERT_BOARD);
+    // const bool fsm_has_warning  = app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD);
+    // const bool crit_has_warning = app_canAlerts_BoardHasWarning(CRIT_ALERT_BOARD);
+    // const bool rsm_has_warning  = app_canAlerts_BoardHasWarning(RSM_ALERT_BOARD);
+
+    // if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
+    // {
+    //     app_stateMachine_setNextState(app_driveWarningState_get());
+    // }
+
+    const bool vc_has_warning   = app_canAlerts_BoardHasWarning(VC_ALERT_BOARD);
+    const bool bms_has_warning  = app_canAlerts_BoardHasWarning(BMS_ALERT_BOARD);
+    const bool fsm_has_warning  = app_canAlerts_BoardHasWarning(FSM_ALERT_BOARD);
+    const bool crit_has_warning = app_canAlerts_BoardHasWarning(CRIT_ALERT_BOARD);
+    const bool rsm_has_warning  = app_canAlerts_BoardHasWarning(RSM_ALERT_BOARD);
 
     // Regen + TV LEDs and update warnings
     if (turn_regen_led)
@@ -128,14 +148,20 @@ static void driveStateRunOnTick100Hz(void)
         app_canTx_VC_Warning_RegenNotAvailable_set(true);
     }
 
+    // app_canTx_VC_TorqueVectoringEnabled_set(turn_tv_led);
+
+    // if (vc_has_warning || bms_has_warning || fsm_has_warning || crit_has_warning || rsm_has_warning)
+    // {
+    //     app_stateMachine_setNextState(app_driveWarningState_get());
+    // }
     if (exit_drive_to_init)
     {
         app_stateMachine_setNextState(app_initState_get());
         return;
     }
-    else if (exit_drive_to_inverter_on)
+    else if (exit_drive_to_hv)
     {
-        app_stateMachine_setNextState(app_inverterOnState_get());
+        app_stateMachine_setNextState(app_hvState_get());
         return;
     }
 

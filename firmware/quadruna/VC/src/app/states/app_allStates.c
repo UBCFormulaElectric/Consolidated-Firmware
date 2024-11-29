@@ -1,4 +1,6 @@
 #include "states/app_allStates.h"
+#include "states/app_faultState.h"
+
 // app
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
@@ -11,11 +13,12 @@
 #include "app_pumpControl.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
+#include "app_faultCheck.h"
+
 // io
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
 #include "io_canLogging.h"
-#include "io_pcm.h"
 
 #define IGNORE_HEARTBEAT_CYCLES 3U
 
@@ -23,15 +26,20 @@ static uint16_t heartbeat_cycles = 0;
 
 void app_allStates_runOnTick100Hz(void)
 {
-    // Enable PCM if HV up.
-    const bool bms_in_drive = app_canRx_BMS_State_get() == BMS_DRIVE_STATE;
-    io_pcm_set(bms_in_drive);
-
     app_lowVoltageBattery_broadcast();
     app_shdnLoop_broadcast();
     app_currentSensing_broadcast();
     app_efuse_broadcast();
     app_shdnLast_broadcast();
+
+    const bool any_board_has_fault = app_faultCheck_checkBoards();
+    const bool inverter_has_fault  = app_faultCheck_checkInverters();
+    const bool all_states_ok       = !(any_board_has_fault || inverter_has_fault);
+
+    if (!all_states_ok)
+    {
+        app_stateMachine_setNextState(app_faultState_get());
+    }
 
     float lin_accel_x = 0;
     float lin_accel_y = 0;

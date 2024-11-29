@@ -7,6 +7,7 @@
         "BMS_OkStatuses",
         "BMS_TractiveSystem",
         "BMS_Vitals",
+        "BMS_Contactors",
         "CRIT_CRITShdnNodeStatus",
         "CRIT_Switches",
         "CRIT_Vitals",
