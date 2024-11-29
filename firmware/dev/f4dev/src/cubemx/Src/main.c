@@ -28,8 +28,6 @@
 #include "hw_bootup.h"
 #include "hw_uart.h"
 #include "hw_usb.h"
-#include "usbd_cdc_if.h"
-#include "usbd_cdc_if.c"
 
 /* USER CODE END Includes */
 
@@ -535,7 +533,7 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    hw_usb_example();
+    //hw_usb_example();
     UART modem_uart = { .handle = &huart2 };
 
     /* Infinite loop */

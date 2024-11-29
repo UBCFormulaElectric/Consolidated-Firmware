@@ -5,7 +5,7 @@
 #include "usbd_cdc_if.h"
 #include "cmsis_os.h"
 #include <string.h>
-//#include "iolog.h"
+#include "io_log.h"
 #define RX_QUEUE_SIZE 10
 
 

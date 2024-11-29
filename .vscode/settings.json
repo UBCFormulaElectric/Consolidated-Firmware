@@ -37,6 +37,9 @@
 		"string": "c",
 		"string_view": "c",
 		"cmsis_compiler.h": "c",
-		"thread": "c"
+		"thread": "c",
+		"io_log.h": "c",
+		"stdio.h": "c",
+		"app_utils.h": "c"
 	},
 }
