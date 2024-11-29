@@ -505,9 +505,6 @@
         "cycle_time": 100,
         "description": "Car position info",
         "signals": {
-            "PositionStatus": {
-                "enum": "VcSbgStatus"
-            },
             "Latitude": {
                 "resolution": 0.00005,
                 "min": 47,
@@ -551,9 +548,6 @@
         "cycle_time": 100,
         "description": "Car Velocity info",
         "signals": {
-            "VelocityStatus": {
-                "enum": "VcSbgStatus"
-            },
             "VelocityNorth": {
                 "resolution": 0.05,
                 "min": -35,

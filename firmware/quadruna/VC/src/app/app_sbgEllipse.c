@@ -5,16 +5,19 @@
 
 void app_sbgEllipse_broadcast()
 {
-    // Status msg
-    const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
-    const uint32_t com_status     = io_sbgEllipse_getComStatus();
+    /* Enable these back when you turn this on in the SBG, otherwise it's still sending
+       CAN messages because another message in the signal is being used */
 
-    app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
-    app_canTx_VC_EllipseComStatusBitmask_set(com_status);
+    // Status msg
+    // const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
+    // const uint32_t com_status     = io_sbgEllipse_getComStatus();
+
+    // app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
+    // app_canTx_VC_EllipseComStatusBitmask_set(com_status);
 
     // Time msg
-    const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
-    app_canTx_VC_EllipseTimestamp_set(timestamp_us);
+    // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
+    // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
     // Velocity EKF
     const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;

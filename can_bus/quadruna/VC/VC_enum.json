@@ -4,12 +4,6 @@
     "VC_INVERTER_ON_STATE": 1,
     "VC_DRIVE_STATE": 2
   },
-  "VcSbgStatus": {
-    "VC_SOLUTION_COMPUTED": 0,
-    "INSUFFICIENT_READINGS": 1,
-    "INTERNAL_ERROR": 2,
-    "LIMIT_EXCEEDED": 3
-  },
   "VcEkfStatus": {
     "UNINITIALIZED": 0,
     "VERTICAL_GYRO": 1,
