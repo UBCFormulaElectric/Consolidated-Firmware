@@ -23,7 +23,7 @@ static const osMessageQueueAttr_t rx_queue_attr = {
 
 void hw_usb_init(){
     //should I pass in MAX_MSG_SIZE or sizeof(uint8_t)? decided MAX for now bc protobuf is 32 at once
-    if (rx_queue_id == NULL){
+    if (rx_queue_id == NULL) {
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
     }
 }
@@ -45,44 +45,49 @@ uint8_t hw_usb_recieve(){
 //since packet is a POINTER!!!! It's acc pointing to an array that stores 8 bit values!!! if it was uint packet then its just 1 thing!! everyting makes sense NOW!
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
     // message on the RX queue. wrapping it to get a void pointer cuz osMessageQUeuePut takes in a void pointer
-    LOG_INFO("we have entered usb push message into queue");
-    uint32_t space = osMessageQueueGetSpace(rx_queue_id);
-        LOG_INFO("we are checking the space %lu", (unsigned long)space);
+    // LOG_INFO("we have entered usb push message into queue");
+    // uint32_t space = osMessageQueueGetSpace(rx_queue_id);
+    // LOG_INFO("we are checking the space %lu", (unsigned long)space);
 
-    assert(len < space);
+    // assert(len < space);
+    LOG_INFO("%d", rx_queue_id);
     LOG_INFO("entering loop to keep putting the messages into the queue");
     for (uint32_t i = 0; i < len; i += 1) {
-        osStatus_t s = osMessageQueuePut(rx_queue_id, &packet[i], 0, osWaitForever); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
-        assert(s == osOK);
+
+        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, 0); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
+        LOG_INFO("%d", status);
     }
 }
 // for the test functionality have an infinite loop that keeps running to see if the rx is 0 once its not zero anymore then we start reaching until were out of bytes 
 //update header files and  includes 
 void hw_usb_example() {
-    LOG_INFO("we are going to call the usb init");
-    hw_usb_init();
-    LOG_INFO("WE MADE A QUEUEUEUEU");
-    assert (rx_queue_id != NULL);
-    LOG_INFO("usb initialized! and were gonna send a packet nowwww");
-    osDelay(1000);
+    // LOG_INFO("we are going to call the usb init");
+    // hw_usb_init();
+    // LOG_INFO("WE MADE A QUEUEUEUEU");
+    // assert (rx_queue_id != NULL);
+    // LOG_INFO("usb initialized! and were gonna send a packet nowwww");
+    // osDelay(1000);
 
-    //test1
-    int i = 0;
-    LOG_INFO("we are entering the infinite loop!!");
-    for (;;){
-        LOG_INFO("calling usb transmit!");
-        //hw_usb_transmit(packet, strlen(*packet));
-        uint8_t *packet = (uint8_t *) "hello";
-        hw_usb_transmit(packet, 5);
-        i++;
-        LOG_INFO("transmitted packet %d times yay a cycle!", i);
+    // //test1
+    // int i = 0;
+    // LOG_INFO("we are entering the infinite loop!!");
+    // for (;;){
+    //     LOG_INFO("calling usb transmit!");
+    //     //hw_usb_transmit(packet, strlen(*packet));
+    //     uint8_t *packet = (uint8_t *) "hello";
+    //     hw_usb_transmit(packet, 5);
+    //     i++;
+    //     LOG_INFO("transmitted packet %d times yay a cycle!", i);
+    //     osDelay(1000);
+    // }
+
+    // test 2 
+    hw_usb_init();
+    for (int i = 0; true; i += 1) {
+        uint8_t result = hw_usb_recieve();
+        LOG_INFO("char: %c", (char) result);
         osDelay(1000);
     }
-
-    //test 2 
-    // while (hw_usb_recieve == 0){
-    //     hw_usb_recieve();
-    // }
     
     // hw_usb_transmit(packet, sizeof(packet));
 }
