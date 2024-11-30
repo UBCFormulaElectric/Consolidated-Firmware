@@ -32,24 +32,24 @@ typedef struct
     float    latitude_std_dev;
     float    longitude_std_dev;
     float    altitude_std_dev;
-} EkfNavPositionData;
+} PositionData;
 
 typedef struct
 {
     uint32_t status;
-    float    north; // North
-    float    east;  // East
-    float    down;  // Down
+    float    north;
+    float    east;
+    float    down;
     float    north_std_dev;
     float    east_std_dev;
     float    down_std_dev;
-} EkfNavVelocityData;
+} VelocityData;
 
 typedef struct
 {
-    EkfNavVelocityData ekf_nav_velocity;
-    EkfNavPositionData ekf_nav_position;
-} EkfData;
+    VelocityData velocity;
+    PositionData position;
+} EkfNavPacketData;
 
 typedef struct
 {
@@ -60,7 +60,7 @@ typedef struct
 typedef struct
 {
     Attitude euler_angles;
-} EulerPacketData;
+} EkfEulerPacketData;
 
 typedef struct
 {
@@ -71,10 +71,10 @@ typedef struct
 
 typedef struct
 {
-    ImuPacketData    imu_data;
-    EulerPacketData  euler_data;
-    StatusPacketData status_data;
-    EkfData          ekf_data;
+    ImuPacketData      imu_data;
+    EkfEulerPacketData ekf_euler_data;
+    StatusPacketData   status_data;
+    EkfNavPacketData   ekf_nav_data;
 } SensorData;
 
 #ifdef TARGET_EMBEDDED
@@ -136,7 +136,7 @@ Attitude *io_sbgEllipse_getImuAngularVelocities();
  * - float pitch: Pitch angle in rad
  * - float yaw: Yaw angle in rad
  */
-Attitude *io_sbgEllipse_getEulerAngles();
+Attitude *io_sbgEllipse_getEkfEulerAngles();
 
 /*
  * Get the GPS velocity data as a struct pointer with fields:
@@ -148,7 +148,7 @@ Attitude *io_sbgEllipse_getEulerAngles();
  * - float velocity_accuracy_e: East velocity accuracy in m/s
  * - float velocity_accuracy_d: Down velocity accuracy in m/s
  */
-EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData();
+VelocityData *io_sbgEllipse_getEkfNavVelocityData();
 
 /*
  * Get the GPS position data as a struct pointer with fields:
@@ -161,7 +161,7 @@ EkfNavVelocityData *io_sbgEllipse_getEkfNavVelocityData();
  * - float altitude_accuracy: Altitude accuracy in meters
  *
  */
-EkfNavPositionData *io_sbgEllipse_getEkfNavPositionData();
+PositionData *io_sbgEllipse_getEkfNavPositionData();
 
 /*
  * Handle SBG Ellipse UART Callbacks

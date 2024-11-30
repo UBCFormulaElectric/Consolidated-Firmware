@@ -4,7 +4,12 @@
 
 namespace hw::can
 {
-const CanBus can1{ &hcan1, [](const CanMsg *canMsg) { io::can1queue.pushRxMsgToQueue(canMsg); } };
+const CanBus can1{ &hcan1, [](const CanMsg *canMsg)
+                   {
+                       if (!io_canRx_filterMessageId(canMsg->std_id))
+                           return;
+                       io::can1queue.pushRxMsgToQueue(canMsg);
+                   } };
 } // namespace hw::can
 
 extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)

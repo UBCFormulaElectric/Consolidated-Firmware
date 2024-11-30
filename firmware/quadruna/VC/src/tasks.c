@@ -61,6 +61,13 @@ static bool     sd_card_present            = true;
 static void canRxCallback(CanMsg *rx_msg)
 {
     io_can_pushRxMsgToQueue(rx_msg); // push to queue
+
+    // Log the message if it needs to be logged
+    if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg->std_id, io_time_getCurrentMs()))
+    {
+        io_canLogging_loggingQueuePush(rx_msg); // push to logging queue
+        read_count++;
+    }
 }
 
 SdCard                 sd  = { .hsd = &hsd1, .timeout = 1000 };
@@ -355,15 +362,15 @@ void tasks_init(void)
     io_efuse_init(efuse_configs);
     io_pcm_init(&pcm_config);
 
-    // Comment out for now, not using sbg
-    // if (!io_sbgEllipse_init(&sbg_uart))
-    // {
-    //     Error_Handler();
-    // }
-
+    if (!io_sbgEllipse_init(&sbg_uart))
+    {
+        app_canAlerts_VC_Warning_SbgInitFailed_set(true);
+        LOG_INFO("Sbg initialization failed");
+    }
     if (!io_imu_init())
     {
         app_canAlerts_VC_Warning_ImuInitFailed_set(true);
+        LOG_INFO("Imu initialization failed");
     }
 
     app_canTx_init();
@@ -522,13 +529,6 @@ _Noreturn void tasks_runCanRx(void)
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-
-        // Log the message if it needs to be logged
-        if (sd_card_present && app_dataCapture_needsLog((uint16_t)rx_msg.std_id, io_time_getCurrentMs()))
-        {
-            io_canLogging_loggingQueuePush(&rx_msg); // push to logging queue
-            read_count++;
-        }
     }
 }
 
