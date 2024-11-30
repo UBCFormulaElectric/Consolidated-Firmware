@@ -75,7 +75,7 @@ void hw_usb_example() {
     for (;;){
         LOG_INFO("calling usb transmit!");
         //hw_usb_transmit(packet, strlen(*packet));
-        hw_usb_transmit(packet[i], strlen(packet[i]));
+        hw_usb_transmit('HELLO', 5);
         i++;
         LOG_INFO("transmitted packet %d times yay a cycle!", i);
         osDelay(1000);
