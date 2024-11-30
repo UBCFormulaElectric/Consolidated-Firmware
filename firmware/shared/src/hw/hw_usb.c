@@ -21,24 +21,23 @@ static const osMessageQueueAttr_t rx_queue_attr = {
 
 //make this a void maybe?
 
-osMessageQueueId_t hw_usb_init(){
+void hw_usb_init(){
     //should I pass in MAX_MSG_SIZE or sizeof(uint8_t)? decided MAX for now bc protobuf is 32 at once
     if (rx_queue_id == NULL){
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
     }
-    return rx_queue_id;
 }
 
 void hw_usb_transmit(uint8_t *msg, uint16_t len){
-    assert(CDC_Transmit_FS(msg, len) == USBD_OK);
+    LOG_INFO("Return status: %d", CDC_Transmit_FS(msg, len));
 }
 
 uint8_t hw_usb_recieve(){
     // Pop a message off the RX queue. rn the message priority is NULL
-    uint8_t *msg;
-    osStatus_t status = osMessageQueueGet(rx_queue_id, msg, NULL, 100);
+    uint8_t msg = 0;
+    osStatus_t status = osMessageQueueGet(rx_queue_id, &msg, NULL, 100);
     if (status == osErrorTimeout) return 0;
-    else if (status == osOK) return *msg;
+    else if (status == osOK) return msg;
     
     return 0;
 }
@@ -52,8 +51,8 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
 
     assert(len < space);
     LOG_INFO("entering loop to keep putting the messages into the queue");
-    for (int i = 0; i < len; i += 1) {
-        osStatus_t s = osMessageQueuePut(rx_queue_id, &packet[i], NULL, osWaitForever); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
+    for (uint32_t i = 0; i < len; i += 1) {
+        osStatus_t s = osMessageQueuePut(rx_queue_id, &packet[i], 0, osWaitForever); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
         assert(s == osOK);
     }
 }
@@ -61,13 +60,11 @@ void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
 //update header files and  includes 
 void hw_usb_example() {
     LOG_INFO("we are going to call the usb init");
-    osMessageQueueId_t rx_queue_id = hw_usb_init();
+    hw_usb_init();
     LOG_INFO("WE MADE A QUEUEUEUEU");
     assert (rx_queue_id != NULL);
     LOG_INFO("usb initialized! and were gonna send a packet nowwww");
     osDelay(1000);
-    const char *packet[] = {"HELLO","HELLO","HELLO"};
-    LOG_INFO("packet sent is: %s", *packet);
 
     //test1
     int i = 0;
@@ -75,7 +72,8 @@ void hw_usb_example() {
     for (;;){
         LOG_INFO("calling usb transmit!");
         //hw_usb_transmit(packet, strlen(*packet));
-        hw_usb_transmit('HELLO', 5);
+        uint8_t *packet = (uint8_t *) "hello";
+        hw_usb_transmit(packet, 5);
         i++;
         LOG_INFO("transmitted packet %d times yay a cycle!", i);
         osDelay(1000);
