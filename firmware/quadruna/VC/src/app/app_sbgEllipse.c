@@ -59,7 +59,13 @@ void app_sbgEllipse_broadcast()
 
     const float vehicle_velocity = sqrtf(SQUARE(ekf_vel_N) + SQUARE(ekf_vel_E) + SQUARE(ekf_vel_D));
 
-    app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
+    if (sbgSolutionMode != POSITION)
+    {
+        app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
+    } else 
+    {
+        app_canTx_VC_VehicleVelocity_set(MPS_TO_KMH(vehicle_velocity));
+    }
 
     // Position EKF
     // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
@@ -109,11 +115,12 @@ static VelocityData app_sbgEllipse_calculateVelocity()
     // These velocity calculations are not going to be super accurate because it
     // currently does not compute a proper relative y-axis velocity because no yaw rate 
 
-    float wheelRadius = 0.23f; // 18 inch -> 0.46 meters (diameter) -> 0.23 meters (radius)
+    float wheelRadius = WHEEL_DIAMETER_IN / 2.0f; // 18 inch -> 0.46 meters (diameter) -> 0.23 meters (radius)
 
     float leftMotorRPM = (float)app_canTx_VC_LeftInverterSpeedCommand_get();
     float rightMotorRPM = (float)app_canTx_VC_RightInverterSpeedCommand_get();
 
+    // 
     float leftWheelVelocity = wheelRadius * (leftMotorRPM  * M_PI_F) / (30 * GEAR_RATIO);
     float rightWheelVelocity = wheelRadius * (rightMotorRPM * M_PI_F) / (30 * GEAR_RATIO);
 
@@ -129,17 +136,17 @@ static VelocityData app_sbgEllipse_calculateVelocity()
 
     velocity.down = 0;
 
-    app_sbgEllipse_velocityRelativeToAbsolute2D(&velocity);
+    // app_sbgEllipse_velocityRelativeToAbsolute2D(&velocity);
 
     return velocity;
 }
 
-static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity) 
-{
-    // very simple calculation taking the components of the x-axis velocity
-    float yawAngle = io_sbgEllipse_getEkfEulerAngles()->yaw;
-    float velocityX = velocity->north;
+// static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity) 
+// {
+//     // very simple calculation taking the components of the x-axis velocity
+//     float yawAngle = io_sbgEllipse_getEkfEulerAngles()->yaw;
+//     float velocityX = velocity->north;
 
-    velocity->north = velocityX * cosf(yawAngle);
-    velocity->east = velocityX * sinf(yawAngle);
-}
+//     velocity->north = velocityX * cosf(yawAngle);
+//     velocity->east = velocityX * sinf(yawAngle);
+// }
