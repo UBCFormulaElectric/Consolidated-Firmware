@@ -86,19 +86,23 @@
     },
     "INVL_ReadWriteParamCommand": {
         "msg_id": 33,
+        "msg_id": 33,
         "cycle_time": null,
         "signals": {
             "INVL_CommandParameterAddress": {
+                "start_bit": 0,
                 "start_bit": 0,
                 "bits": 16,
                 "start_value": 20
             },
             "INVL_CommandReadWrite": {
                 "start_bit": 16,
+                "start_bit": 16,
                 "enum": "InverterReadWriteCommand",
                 "start_value": 1
             },
             "INVL_CommandData": {
+                "start_bit": 32,
                 "start_bit": 32,
                 "bits": 16,
                 "start_value": 0
@@ -166,19 +170,23 @@
     },
     "INVR_ReadWriteParamCommand": {
         "msg_id": 83,
+        "msg_id": 83,
         "cycle_time": null,
         "signals": {
             "INVR_CommandParameterAddress": {
+                "start_bit": 0,
                 "start_bit": 0,
                 "bits": 16,
                 "start_value": 20
             },
             "INVR_CommandReadWrite": {
                 "start_bit": 16,
+                "start_bit": 16,
                 "enum": "InverterReadWriteCommand",
                 "start_value": 1
             },
             "INVR_CommandData": {
+                "start_bit": 32,
                 "start_bit": 32,
                 "bits": 16,
                 "start_value": 0
@@ -213,6 +221,9 @@
             },
             "EllipseComStatusBitmask": {
                 "bits": 32
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
             },
             "EkfSolutionMode": {
                 "enum": "VcEkfStatus"
@@ -489,6 +500,7 @@
                 "bits": 1
             },
             "TorqueVectoringEnabled": {
+            "TorqueVectoringEnabled": {
                 "bits": 1
             },
             "VehicleVelocity": {
@@ -507,6 +519,7 @@
         "signals": {
             "Latitude": {
                 "resolution": 0.01,
+                "resolution": 0.01,
                 "min": 47,
                 "max": 50,
                 "unit": "deg"
@@ -518,6 +531,7 @@
                 "unit": "m"
             },
             "Longtitude": {
+                "resolution": 0.01,
                 "resolution": 0.01,
                 "min": 122,
                 "max": 125,
@@ -543,6 +557,7 @@
             }
         }
     },
+    "EllipseEkfNavVelocity": {
     "EllipseEkfNavVelocity": {
         "msg_id": 218,
         "cycle_time": 100,
@@ -788,6 +803,7 @@
         "cycle_time": 100,
         "description": "Pedal percentage info",
         "signals": {
+            "MappedPedalPercentage": {
             "MappedPedalPercentage": {
                 "min": -1,
                 "max": 1,

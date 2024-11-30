@@ -9,6 +9,11 @@
 
 static VelocityData app_sbgEllipse_calculateVelocity(void);
 static void velocityRelativeToAbsolute(VelocityData *velocity);
+#include "app_units.h"
+#include "app_vehicleDynamicsConstants.h"
+
+static VelocityData app_sbgEllipse_calculateVelocity(void);
+static void velocityRelativeToAbsolute(VelocityData *velocity);
 
 void app_sbgEllipse_broadcast()
 {
@@ -19,8 +24,8 @@ void app_sbgEllipse_broadcast()
     // const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
     // const uint32_t com_status     = io_sbgEllipse_getComStatus();
 
-    // app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
-    // app_canTx_VC_EllipseComStatusBitmask_set(com_status);
+    app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
+    app_canTx_VC_EllipseComStatusBitmask_set(com_status);
 
     // Time msg
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
@@ -86,6 +91,7 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_AccelerationVertical_set(vertical_accel);
 
     // Angular velocity msg
+    // Angular velocity msg
     // const float ang_vel_roll  = io_sbgEllipse_getImuAngularVelocities()->roll;
     // const float ang_vel_pitch = io_sbgEllipse_getImuAngularVelocities()->pitch;
     // const float ang_vel_yaw   = io_sbgEllipse_getImuAngularVelocities()->yaw;
@@ -99,6 +105,9 @@ void app_sbgEllipse_broadcast()
     const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
     const float euler_yaw   = io_sbgEllipse_getEkfEulerAngles()->yaw;
 
+    app_canTx_VC_EulerAnglesRoll_set(euler_roll);
+    app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
+    app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
