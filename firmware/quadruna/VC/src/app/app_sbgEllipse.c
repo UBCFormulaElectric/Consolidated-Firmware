@@ -7,7 +7,7 @@
 #include "app_vehicleDynamicsConstants.h"
 
 static VelocityData app_sbgEllipse_calculateVelocity(void);
-static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity);
+// static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity);
 
 void app_sbgEllipse_broadcast()
 {
