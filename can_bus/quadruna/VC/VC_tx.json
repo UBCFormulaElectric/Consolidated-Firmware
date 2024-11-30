@@ -691,6 +691,31 @@
             }
         }
     },
+    "ImuAngularVelocity": {
+        "msg_id": 227,
+        "cycle_time": 100,
+        "description": "Angular Velocity in x, y and z direction from the IMU",
+        "signals": {
+            "AngularVelocityRoll": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "dps"
+            },
+            "AngularVelocityPitch": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "dps"
+            },
+            "AngularVelocityYaw": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 20,
+                "unit": "dps"
+            }
+        }
+    },
     "ImuLinearAcceleration": {
         "msg_id": 225,
         "cycle_time": 100,

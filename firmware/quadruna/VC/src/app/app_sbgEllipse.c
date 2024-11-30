@@ -26,10 +26,25 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    // Velocity EKF
-    const float ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-    const float ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-    const float ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    bool is_velocity_invalid = app_canTx_VC_Warning_VelocityDataInvalid_get();
+
+    float ekf_vel_N = 0;
+    float ekf_vel_E = 0;
+    float ekf_vel_D = 0;
+
+    if (is_velocity_invalid) {
+        // Calculation based Velocity
+        VelocityData velocity = app_sbgEllipse_calculateVelocity();
+
+        ekf_vel_N = velocity.north;
+        ekf_vel_E = velocity.east;
+        ekf_vel_D = velocity.down;
+    } else {
+        // EKF
+        ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
+        ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
+        ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
+    }
 
     const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
     const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
@@ -53,30 +68,6 @@ void app_sbgEllipse_broadcast()
 
     // app_canTx_VC_Latitude_set((float)ekf_pos_lat);
     // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
-
-    bool is_velocity_invalid = app_canTx_VC_Warning_VelocityDataInvalid_get();
-
-    float ekf_vel_N = 0;
-    float ekf_vel_E = 0;
-    float ekf_vel_D = 0;
-
-    if (is_velocity_invalid) {
-        // Calculation based Velocity
-        VelocityData velocity = app_sbgEllipse_calculateVelocity();
-
-        ekf_vel_N = velocity.north;
-        ekf_vel_E = velocity.east;
-        ekf_vel_D = velocity.down;
-    } else {
-        // EKF
-        ekf_vel_N = io_sbgEllipse_getEkfNavVelocityData()->north;
-        ekf_vel_E = io_sbgEllipse_getEkfNavVelocityData()->east;
-        ekf_vel_D = io_sbgEllipse_getEkfNavVelocityData()->down;
-    }
-
-    app_canTx_VC_VelocityNorth_set(ekf_vel_N);
-    app_canTx_VC_VelocityEast_set(ekf_vel_E);
-    app_canTx_VC_VelocityDown_set(ekf_vel_D);
 
     // EKF
     const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
@@ -125,11 +116,17 @@ static VelocityData app_sbgEllipse_calculateVelocity()
 
     float leftWheelVelocity = wheelRadius * (leftMotorRPM  * M_PI_F) / (30 * GEAR_RATIO);
     float rightWheelVelocity = wheelRadius * (rightMotorRPM * M_PI_F) / (30 * GEAR_RATIO);
+    app_canTx_VC_Im
+    // float yawRate = app_canTx_VC_
+
+    float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+
+
 
     VelocityData velocity;
 
     // This is technically velocity in the x-axis as it is relative
-    velocity.north = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+    velocity.north = 
 
     // This is technically velocity in the y-axis as it is relative
     velocity.east = 0;
@@ -144,7 +141,7 @@ static VelocityData app_sbgEllipse_calculateVelocity()
 static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity) 
 {
     // very simple calculation taking the components of the x-axis velocity
-    float yawAngle = io_sbgEllipse_getEulerAngles()->yaw;
+    float yawAngle = io_sbgEllipse_getEkfEulerAngles()->yaw;
     float velocityX = velocity->north;
 
     velocity->north = velocityX * cosf(yawAngle);
