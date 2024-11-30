@@ -18,7 +18,7 @@ bool LoadCell::OCSC()
     return !(LOADCELL_MINVOLT <= voltage && voltage <= LOADCELL_MAXVOLT);
 }
 
-float LoadCell::mechanicalLoad()
+float LoadCell::getMechanicalLoad()
 {
     return voltageToMechanical(hw::Adc::src.getVoltage());
 }

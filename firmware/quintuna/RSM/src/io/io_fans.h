@@ -11,8 +11,7 @@ namespace io::fans
 class Fans
 {
   private:
-    const hw::Gpio &acc_fan;
-    const hw::Gpio &rad_fan;
+    const hw::Gpio &fan_gpio;
 
   public:
     explicit Fans(const hw::Gpio &acc_fan_in, const hw::Gpio &rad_fan_in) : acc_fan(acc_fan_in), rad_fan(rad_fan_in) {}
@@ -29,4 +28,7 @@ class Fans
         app_canTx_RSM_RadiatorFan_set(on);
     }
 }
+
+extern const static Fans acc_fan;
+extern const static Fans rad_fan;
 } // namespace io::fans

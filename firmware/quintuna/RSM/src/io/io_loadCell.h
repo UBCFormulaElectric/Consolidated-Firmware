@@ -8,9 +8,9 @@ class LoadCell
 
   public:
     bool  is_ocsc();
-    float mechanicalLoad();
+    float getMechanicalLoad();
 
-    LoadCell(hw::Adc *src) { this->src = src; }
+    inline LoadCell(hw::Adc *src) { this->src = src; }
 
   private:
     float voltageToMechancialLoad(float voltage);
