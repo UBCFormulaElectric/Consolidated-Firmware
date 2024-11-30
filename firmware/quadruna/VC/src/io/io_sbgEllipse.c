@@ -215,7 +215,7 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
 
-    // app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
+    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
 
     // uint32_t status = log_data->ekfNavData.status;
 
@@ -252,7 +252,6 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
         // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
 
         // if (is_data_invalid) {
-        app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
 
         if (is_velocity_invalid)
         {

@@ -4,16 +4,10 @@
 #include "app_utils.h"
 #include "app_units.h"
 #include "io_sbgEllipse.h"
-#include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
 
 static VelocityData app_sbgEllipse_calculateVelocity(void);
-static void velocityRelativeToAbsolute(VelocityData *velocity);
-#include "app_units.h"
-#include "app_vehicleDynamicsConstants.h"
-
-static VelocityData app_sbgEllipse_calculateVelocity(void);
-static void velocityRelativeToAbsolute(VelocityData *velocity);
+static void app_sbgEllipse_velocityRelativeToAbsolute2D(VelocityData *velocity);
 
 void app_sbgEllipse_broadcast()
 {
@@ -24,20 +18,20 @@ void app_sbgEllipse_broadcast()
     // const uint16_t general_status = io_sbgEllipse_getGeneralStatus();
     // const uint32_t com_status     = io_sbgEllipse_getComStatus();
 
-    app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
-    app_canTx_VC_EllipseComStatusBitmask_set(com_status);
+    // app_canTx_VC_EllipseGeneralStatusBitmask_set(general_status);
+    // app_canTx_VC_EllipseComStatusBitmask_set(com_status);
 
     // Time msg
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    bool is_velocity_invalid = app_canTx_VC_Warning_VelocityDataInvalid_get();
+    VcEkfStatus sbgSolutionMode = app_canTx_VC_EkfSolutionMode_get();
 
     float ekf_vel_N = 0;
     float ekf_vel_E = 0;
     float ekf_vel_D = 0;
 
-    if (is_velocity_invalid) {
+    if (sbgSolutionMode != POSITION) {
         // Calculation based Velocity
         VelocityData velocity = app_sbgEllipse_calculateVelocity();
 
@@ -75,11 +69,11 @@ void app_sbgEllipse_broadcast()
     // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
 
     // EKF
-    const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
-    const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
+    // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
+    // const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
 
-    app_canTx_VC_Latitude_set((float)ekf_pos_lat);
-    app_canTx_VC_Longtitude_set((float)ekf_pos_long);
+    // app_canTx_VC_Latitude_set((float)ekf_pos_lat);
+    // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
 
     // Acceleration msg
     // const float forward_accel  = io_sbgEllipse_getImuAccelerations()->x;
@@ -108,9 +102,6 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
-    app_canTx_VC_EulerAnglesRoll_set(euler_roll);
-    app_canTx_VC_EulerAnglesPitch_set(euler_pitch);
-    app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
 static VelocityData app_sbgEllipse_calculateVelocity()
@@ -125,7 +116,6 @@ static VelocityData app_sbgEllipse_calculateVelocity()
 
     float leftWheelVelocity = wheelRadius * (leftMotorRPM  * M_PI_F) / (30 * GEAR_RATIO);
     float rightWheelVelocity = wheelRadius * (rightMotorRPM * M_PI_F) / (30 * GEAR_RATIO);
-    app_canTx_VC_Im
     // float yawRate = app_canTx_VC_
 
     float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
