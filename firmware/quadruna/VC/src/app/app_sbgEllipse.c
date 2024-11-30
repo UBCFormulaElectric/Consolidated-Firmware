@@ -25,7 +25,7 @@ void app_sbgEllipse_broadcast()
     // const uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
     // app_canTx_VC_EllipseTimestamp_set(timestamp_us);
 
-    VcEkfStatus sbgSolutionMode = app_canTx_VC_EkfSolutionMode_get();
+    VcEkfStatus sbgSolutionMode = (VcEkfStatus)io_sbgEllipse_geEkfSolutionMode();
 
     float ekf_vel_N = 0;
     float ekf_vel_E = 0;
@@ -116,16 +116,13 @@ static VelocityData app_sbgEllipse_calculateVelocity()
 
     float leftWheelVelocity = wheelRadius * (leftMotorRPM  * M_PI_F) / (30 * GEAR_RATIO);
     float rightWheelVelocity = wheelRadius * (rightMotorRPM * M_PI_F) / (30 * GEAR_RATIO);
-    // float yawRate = app_canTx_VC_
 
     float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
-
-
 
     VelocityData velocity;
 
     // This is technically velocity in the x-axis as it is relative
-    velocity.north = 
+    velocity.north = velocityX;
 
     // This is technically velocity in the y-axis as it is relative
     velocity.east = 0;

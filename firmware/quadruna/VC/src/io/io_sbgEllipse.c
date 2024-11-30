@@ -214,8 +214,8 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
     
     // app_canAlerts_VC_Fault_SBGModeFault_set(sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status) !=
     // SBG_ECOM_SOL_MODE_NAV_POSITION);
-
-    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status));
+    sensor_data.ekf_solution_status = sbgEComLogEkfGetSolutionMode(log_data->ekfNavData.status);
+    app_canTx_VC_EkfSolutionMode_set((VcEkfStatus)sensor_data.ekf_solution_status);
 
     // uint32_t status = log_data->ekfNavData.status;
 
@@ -239,31 +239,26 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
         // }
     // }
 
-    uint32_t status = log_data->ekfNavData.status;
+    // uint32_t status = log_data->ekfNavData.status;
 
-    bool is_moving =
-        (app_canTx_VC_LeftInverterTorqueCommand_get() > 0.0f) || (app_canTx_VC_RightInverterSpeedCommand_get() > 0.0f);
+    // bool is_moving =
+    //     (app_canTx_VC_LeftInverterTorqueCommand_get() > 0.0f) || (app_canTx_VC_RightInverterSpeedCommand_get() > 0.0f);
 
-    if (is_moving)
-    {
-        bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-        // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
+    // if (is_moving)
+    // {
+    //     bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
+    //     // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
 
-        // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
+    //     // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
 
-        // if (is_data_invalid) {
+    //     // if (is_data_invalid) {
 
-        if (is_velocity_invalid)
-        {
-            return;
-        }
+    //     if (is_velocity_invalid)
+    //     {
+    //         return;
+    //     }
 
-    }
-
-    // previous velocity data in m/s
-    // sensor_data.ekf_nav_data.prevVelocity.north = sensor_data.ekf_nav_data.velocity.north;
-    // sensor_data.ekf_nav_data.prevVelocity.east  = sensor_data.ekf_nav_data.velocity.east;
-    // sensor_data.ekf_nav_data.prevVelocity.down  = sensor_data.ekf_nav_data.velocity.down;
+    // }
 
     // velocity data in m/s
     sensor_data.ekf_nav_data.velocity.north = log_data->ekfNavData.velocity[0];
@@ -354,6 +349,10 @@ uint32_t io_sbgEllipse_getOverflowCount(void)
     return sbg_queue_overflow_count;
 }
 
+uint32_t io_sbgEllipse_geEkfSolutionMode(void)
+{
+    return sensor_data.ekf_solution_status;
+}
 Vector3 *io_sbgEllipse_getImuAccelerations()
 {
     return &sensor_data.imu_data.acceleration;

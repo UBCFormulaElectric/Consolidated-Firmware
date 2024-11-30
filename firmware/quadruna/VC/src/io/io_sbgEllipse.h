@@ -48,7 +48,6 @@ typedef struct
 typedef struct
 {
     VelocityData velocity;
-    // VelocityData prevVelocity;
     PositionData position;
 } EkfNavPacketData;
 
@@ -76,6 +75,7 @@ typedef struct
     EkfEulerPacketData ekf_euler_data;
     StatusPacketData   status_data;
     EkfNavPacketData   ekf_nav_data;
+    uint32_t        ekf_solution_status;
 } SensorData;
 
 #ifdef TARGET_EMBEDDED
@@ -114,6 +114,12 @@ uint32_t io_sbgEllipse_getComStatus(void);
  * @return the overflow uint32_t
  */
 uint32_t io_sbgEllipse_getOverflowCount(void);
+
+/*
+ * Get EKF Solution Mode Status
+ * @return the ekf solution mode
+ */
+uint32_t io_sbgEllipse_geEkfSolutionMode(void);
 
 /**
  * Get the IMU accelerations as a struct pointer with fields:

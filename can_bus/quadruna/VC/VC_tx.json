@@ -506,7 +506,7 @@
         "description": "Car position info",
         "signals": {
             "Latitude": {
-                "resolution": 0.01,
+                "resolution": 0.0005,
                 "min": 47,
                 "max": 50,
                 "unit": "deg"
@@ -518,7 +518,7 @@
                 "unit": "m"
             },
             "Longtitude": {
-                "resolution": 0.01,
+                "resolution": 0.0005,
                 "min": 122,
                 "max": 125,
                 "unit": "deg"
