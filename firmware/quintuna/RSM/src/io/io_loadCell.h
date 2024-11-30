@@ -7,7 +7,7 @@ class LoadCell
     hw::Adc *src;
 
   public:
-    bool  sensorOCSC();
+    bool  is_ocsc();
     float mechanicalLoad();
 
     LoadCell(hw::Adc *src) { this->src = src; }
