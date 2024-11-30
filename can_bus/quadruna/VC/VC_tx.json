@@ -696,22 +696,22 @@
         "cycle_time": 100,
         "description": "Angular Velocity in x, y and z direction from the IMU",
         "signals": {
-            "AngularVelocityRoll": {
+            "ImuAngularVelocityRoll": {
                 "resolution": 0.1,
-                "min": 0,
-                "max": 20,
+                "min": -45,
+                "max": 45,
                 "unit": "dps"
             },
-            "AngularVelocityPitch": {
+            "ImuAngularVelocityPitch": {
                 "resolution": 0.1,
-                "min": 0,
-                "max": 20,
+                "min": -45,
+                "max": 45,
                 "unit": "dps"
             },
-            "AngularVelocityYaw": {
+            "ImuAngularVelocityYaw": {
                 "resolution": 0.1,
-                "min": 0,
-                "max": 20,
+                "min": -45,
+                "max": 45,
                 "unit": "dps"
             }
         }

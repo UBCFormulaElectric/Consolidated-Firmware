@@ -48,20 +48,20 @@ void app_allStates_runOnTick100Hz(void)
         app_canTx_VC_ImuAccelerationZ_set(lin_accel_z);
     }
 
-    // float angular_velocity_roll = 0.0f;
-    // float angular_velocity_pitch = 0.0f;
-    // float angular_velocity_yaw = 0.0f;
+    float angular_velocity_roll = 0.0f;
+    float angular_velocity_pitch = 0.0f;
+    float angular_velocity_yaw = 0.0f;
 
-    // bool has_ang_vel_roll = io_imu_getAngularVelocityRoll(&angular_velocity_roll);
-    // bool has_ang_vel_pitch = io_imu_getAngularVelocityPitch(&angular_velocity_pitch);
-    // bool has_ang_vel_yaw = io_imu_getAngularVelocityYaw(&angular_velocity_yaw);
+    bool has_ang_vel_roll = io_imu_getAngularVelocityRoll(&angular_velocity_roll);
+    bool has_ang_vel_pitch = io_imu_getAngularVelocityPitch(&angular_velocity_pitch);
+    bool has_ang_vel_yaw = io_imu_getAngularVelocityYaw(&angular_velocity_yaw);
 
-    // if (has_ang_vel_roll && has_ang_vel_pitch && has_ang_vel_yaw)
-    // {
-    //     app_canTx_VC_ImuAngularVelocityRoll_set(angular_velocity_roll);
-    //     app_canTx_VC_ImuAngularVelocityPitch_set(angular_velocity_pitch);
-    //     app_canTx_VC_ImuAngularVelocityYaw_set(angular_velocity_yaw);
-    // }
+    if (has_ang_vel_roll && has_ang_vel_pitch && has_ang_vel_yaw)
+    {
+        app_canTx_VC_ImuAngularVelocityRoll_set(angular_velocity_roll);
+        app_canTx_VC_ImuAngularVelocityPitch_set(angular_velocity_pitch);
+        app_canTx_VC_ImuAngularVelocityYaw_set(angular_velocity_yaw);
+    }
 
     app_heartbeatMonitor_checkIn();
 
