@@ -175,6 +175,7 @@ function(stm32h733xx_cube_library
         "${DRIVERS_DIR}/CMSIS/Include"
 
         # SEGGER SystemView includes.
+        "${THIRD_PARTY_DIR}/sysview"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
