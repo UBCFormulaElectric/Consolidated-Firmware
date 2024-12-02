@@ -1,0 +1,62 @@
+{
+	"AMK_Actual_Values_1": {
+		"msg_id": 643,
+		"cycle_time": 5,
+		"signals": {
+			"AMK_bReserve": {
+				"bits": 8
+			},
+			"AMK_bSystemReady": {
+				"bits": 1
+			},
+			"AMK_bError": {
+				"bits": 1
+			},
+			"AMK_bWarn": {
+				"bits": 1
+			},
+			"AMK_bQuitDcOn": {
+				"bits": 1
+			},
+			"AMK_bDcOn": {
+				"bits": 1
+			},
+			"AMK_bQuitInverterOn": {
+				"bits": 1
+			},
+			"AMK_bInverterOn": {
+				"bits": 1
+			},
+			"AMK_bDerating": {
+				"bits": 1
+			},
+			"AMK_ActualVelocity": {
+				"bits": 16
+			},
+			"AMK_TorqueCurrent": {
+				"bits": 16
+			},
+			"AMK_MagnetizingCurrent": {
+				"bits": 16
+			}
+		}
+	},
+	"AMK_Actual_Values_2": {
+		"msg_id": 645,
+		"cycle_time": 5,
+		"signals": {
+			"AMK_TempMotor": {
+				"bits": 16
+			},
+			"AMK_TempInverter": {
+				"bits": 16
+			},
+			"AMK_ErrorInfo": {
+				"bits": 16
+			},
+			"AMK_TempIGBT": {
+				"bits": 16
+			}
+		}
+	}
+}
