@@ -65,7 +65,6 @@ function(stm32f412rx_cube_library
 )
     set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-    set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
@@ -82,14 +81,6 @@ function(stm32f412rx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
-    )
-
-    file(GLOB USB_SRCS
-        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-        
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
     )
 
     # HAL sources.
@@ -123,6 +114,8 @@ function(stm32f412rx_cube_library
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
     if(USB_ENABLED)
+        set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
+
         list(APPEND STM32CUBE_SRCS 
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
@@ -161,7 +154,6 @@ function(stm32h733xx_cube_library
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-    set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
@@ -218,6 +210,8 @@ function(stm32h733xx_cube_library
     # If we want to ever support different device classes, 
     # you will need to add a argument to this function with the requested class.
     if(USB_ENABLED)
+        set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
+
         list(APPEND STM32CUBE_SRCS 
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
