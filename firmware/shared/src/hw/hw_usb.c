@@ -1,39 +1,39 @@
 #include "hw_usb.h" 
 
 // Private globals.
-
-// memory for control block
-// Pointer to a memory for the message queue control block object. Refer to Static Object Memory for more information.
-// Default: NULL to use Automatic Dynamic Allocation for the message queue control block.
-
 static StaticQueue_t      rx_queue_control_block;
 static uint8_t            rx_queue_buf[RX_QUEUE_SIZE];
 static osMessageQueueId_t rx_queue_id = NULL;
+static USBD_HandleTypeDef hUsbDeviceFS;
 
 static const osMessageQueueAttr_t rx_queue_attr = {
     .name      = "USB RX Queue",
     .attr_bits = 0,
-    .cb_mem    = &rx_queue_control_block, //or should I do NULL and size 0, right now RTOS is dynamically allocating memroy not with 
-    .cb_size   = sizeof(StaticQueue_t), //this is for the control block like usb control which we don't use so we init but no use! 
-    .mq_mem    = rx_queue_buf, //this  is the size of indivdual data 
-    .mq_size   = sizeof(rx_queue_buf) //max allocated memory needed 
+    .cb_mem    = &rx_queue_control_block, 
+    .cb_size   = sizeof(StaticQueue_t), 
+    .mq_mem    = rx_queue_buf, 
+    .mq_size   = sizeof(rx_queue_buf) 
 };
 
-//make this a void maybe?
-
+//initalizing a queue
 void hw_usb_init(){
-    //should I pass in MAX_MSG_SIZE or sizeof(uint8_t)? decided MAX for now bc protobuf is 32 at once
     if (rx_queue_id == NULL) {
         rx_queue_id = osMessageQueueNew(RX_QUEUE_SIZE, sizeof(uint8_t), &rx_queue_attr);
     }
 }
 
+//checking connection 
+bool hw_usb_checkConnection(){
+    return hUsbDeviceFS.dev_state != USBD_STATE_SUSPENDED;
+}
+
+//trasmitting a message
 void hw_usb_transmit(uint8_t *msg, uint16_t len){
     LOG_INFO("Return status: %d", CDC_Transmit_FS(msg, len));
 }
 
+//reading the message sent to the board from the queue
 uint8_t hw_usb_recieve(){
-    // Pop a message off the RX queue. rn the message priority is NULL
     uint8_t msg = 0;
     osStatus_t status = osMessageQueueGet(rx_queue_id, &msg, NULL, 100);
     if (status == osErrorTimeout) return 0;
@@ -42,122 +42,41 @@ uint8_t hw_usb_recieve(){
     return 0;
 }
 
-//since packet is a POINTER!!!! It's acc pointing to an array that stores 8 bit values!!! if it was uint packet then its just 1 thing!! everyting makes sense NOW!
+//when packet recieved placing the message into the queue one byte at a time
 void hw_usb_pushRxMsgToQueue(uint8_t *packet, uint32_t len){
-    // message on the RX queue. wrapping it to get a void pointer cuz osMessageQUeuePut takes in a void pointer
-    // LOG_INFO("we have entered usb push message into queue");
-    // uint32_t space = osMessageQueueGetSpace(rx_queue_id);
-    // LOG_INFO("we are checking the space %lu", (unsigned long)space);
-
-    // assert(len < space);
-    LOG_INFO("%d", rx_queue_id);
-    LOG_INFO("entering loop to keep putting the messages into the queue");
+    uint32_t space = osMessageQueueGetSpace(rx_queue_id);
+    LOG_INFO("we are checking the space %lu", (unsigned long)space);
+    assert(len < space);
     for (uint32_t i = 0; i < len; i += 1) {
+        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, 0); 
+    }
+    LOG_INFO("Message entered into the queue");
+}
 
-        osStatus_t status = osMessageQueuePut(rx_queue_id, &packet[i], 0, 0); //oswaitforever is okay cuz eventually we'll dequeue it waits till queue opens space
-        LOG_INFO("%d", status);
+//example to test transmitting information and recieving it on the python server
+void hw_usb_transmit_example() {
+    hw_usb_init();
+    LOG_INFO("queue got initialized...");
+    assert (rx_queue_id != NULL);
+    osDelay(1000);
+    int packet_count = 0;
+    for (;;){
+        LOG_INFO("calling usb transmit");
+        uint8_t *packet = (uint8_t *) "hello";
+        //need to decide if we want to add a null indicator at the end
+        hw_usb_transmit(packet, 5);
+        packet_count++;
+        LOG_INFO("transmitted packet %d times", packet_count);
+        osDelay(1000);
     }
 }
-// for the test functionality have an infinite loop that keeps running to see if the rx is 0 once its not zero anymore then we start reaching until were out of bytes 
-//update header files and  includes 
-void hw_usb_example() {
-    // LOG_INFO("we are going to call the usb init");
-    // hw_usb_init();
-    // LOG_INFO("WE MADE A QUEUEUEUEU");
-    // assert (rx_queue_id != NULL);
-    // LOG_INFO("usb initialized! and were gonna send a packet nowwww");
-    // osDelay(1000);
 
-    // //test1
-    // int i = 0;
-    // LOG_INFO("we are entering the infinite loop!!");
-    // for (;;){
-    //     LOG_INFO("calling usb transmit!");
-    //     //hw_usb_transmit(packet, strlen(*packet));
-    //     uint8_t *packet = (uint8_t *) "hello";
-    //     hw_usb_transmit(packet, 5);
-    //     i++;
-    //     LOG_INFO("transmitted packet %d times yay a cycle!", i);
-    //     osDelay(1000);
-    // }
-
-    // test 2 
+//example of reading the recieved msg from teh queue
+void hw_usb_recieve_example() {
     hw_usb_init();
     for (int i = 0; true; i += 1) {
         uint8_t result = hw_usb_recieve();
         LOG_INFO("char: %c", (char) result);
         osDelay(1000);
     }
-    
-    // hw_usb_transmit(packet, sizeof(packet));
 }
-   
-   
-   
-   
-   
-   
-//     osMessageQueueId_t rx_queue_id = hw_usb_init();
-//     assert (rx_queue_id != NULL);
-//     //LOG_INFO("usb initialized!");
-//     osDelay(1000);
-
-//     uint8_t packet[] = {1,2,3,4,5,6};
-//     uint8_t recieved_data[sizeof(packet)];
-//     uint8_t byte = 0;
-
-//     //LOG_INFO("Starting USB communication test");
-//     osDelay(1000);
-// //change loop logi
-//     while(1){
-
-//         //LOG_INFO("waiting for message to be recieved");
-//         osDelay(10000); 
-//         hw_usb_transmit(packet, sizeof(packet));
-//         assert(osMessageQueueGetCount == 0);
-//         osDelay(1000);
-//         //LOG_INFO("the packet has been transmitted");
-
-//         for (uint8_t i =0; i<sizeof(packet); i++){
-//             byte = hw_usb_recieve();
-//             recieved_data[i] = byte; 
-//             //LOG_INFO("data is: %i", byte);
-//         }
-//         //LOG_INFO("testing done!");
-//         break;
-//     }
-// }
-
-
-//Another option is using SM maybeeee??
-
-// void test_state_machine(){
-//     tydef enum{
-//         INIT,
-//         IDLE,
-//         TRANS,
-//         RECIEVED,
-//         TRANSMITTED
-//     } usb_state;
-
-//     usb_state state = INIT;
-
-//     while(1):
-//         switch(state){
-//             case INIT: 
-//                 iolog_init();
-//                 osMessageQueueId_t id = hw_usb_init();
-//                 assert (rx_queue_id != NULL);
-//                 io//LOG_INFO("usb initialized!")
-//                 osDelay(1000);
-
-//                 uint8_t packet[] = {1,2,3,4,5,6};
-//                 uint8_t recieved_data[sizeof(packet)];
-//                 uint8_t byte = 0;
-
-//                 switch IDLE;
-//                 break;
-
-//         }
-
-// }

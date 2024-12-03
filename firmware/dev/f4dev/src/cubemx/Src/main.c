@@ -531,15 +531,14 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void *argument)
 {
     /* init code for USB_DEVICE */
-    LOG_INFO("before initializing MX usb");
     MX_USB_DEVICE_Init();
-    LOG_INFO("after initializing!");
-
+    LOG_INFO("USB has been initializezd...");
+    hw_usb_transmit_example();
     /* USER CODE BEGIN 5 */
-    LOG_INFO("attempting to do the usb example");
-    hw_usb_example();
-    LOG_INFO("OMG EXAMPLE WENT THORUGH! ");
+    //add the usb examples here:
 
+
+    
     UART modem_uart = { .handle = &huart2 };
 
     /* Infinite loop */

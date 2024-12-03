@@ -274,7 +274,7 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     // CDC_Transmit_FS(Buf, len);
     LOG_INFO("before entering the cdc recieve fs queue");
     hw_usb_pushRxMsgToQueue(Buf, *Len);
-    LOG_INFO("WE PUSHED TO QUEUE GAHHH !");
+    LOG_INFO("WE PUSHED TO QUEUE");
 
 
     return (USBD_OK);
