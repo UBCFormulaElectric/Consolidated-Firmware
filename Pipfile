@@ -4,6 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+asammdf = "*"
+tzlocal = "*"
 black = "*"
 cantools = "*"
 cmake = "*"
@@ -13,6 +15,7 @@ google-api-python-client = "*"
 grpcio-tools = "*"
 influxdb-client = "*"
 intelhex = "*"
+IPython = "*"
 jinja2 = "*"
 pandas = "*"
 protobuf = "*"
