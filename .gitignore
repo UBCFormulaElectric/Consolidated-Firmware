@@ -142,6 +142,7 @@ build_fw_dev
 build_fw_dev_wsl
 build_fw_test
 build_fw_test_wsl
+build_fw_sil
 
 build_dimos_deploy*
 build_dimos_dev*
