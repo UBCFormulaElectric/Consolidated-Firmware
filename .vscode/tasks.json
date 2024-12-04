@@ -140,6 +140,15 @@
             ]
         },
         {
+            "label": "Build SIL: FSM (Quadruna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quadruna_FSM_sil"
+            ]
+        },
+        {
             "label": "Build Tests: FSM (Quadruna)",
             "group": "build",
             "type": "cmake",

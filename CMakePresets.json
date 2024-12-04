@@ -73,6 +73,19 @@
         "FIX_FORMATTING": "OFF"
       },
       "generator": "Unix Makefiles"
+    },
+    {
+      "name": "FW SIL",
+      "description": "Build binaries for the software-in-loop.",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PLATFORM": "firmware",
+        "TARGET": "sil",
+        "HANDLE_DEPS": "OFF",
+        "NO_VENV": "ON"
+      },
+      "binaryDir": "build_fw_sil"
     }
   ],
   "buildPresets": []

@@ -28,8 +28,11 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include(CTest)
     enable_testing()
+ELSEIF ("${TARGET}" STREQUAL "sil")
+    include(cmake/sil.cmake)
+    add_compile_definitions(TARGET_TEST)
+    add_compile_definitions(_USE_MATH_DEFINES)
 ENDIF ()
-
 
 add_subdirectory(third_party)
 add_subdirectory(shared)

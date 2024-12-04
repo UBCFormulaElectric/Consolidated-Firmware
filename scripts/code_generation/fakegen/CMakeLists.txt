@@ -12,9 +12,13 @@ create_fake_library(
     "fakegen_test_fakes"
     "${TEST_HDRS_TO_FAKE}"
 )
-compile_gtest_executable(
-    "fakegen_test"
-    "${TEST_SRCS}"
-    "${TEST_INCLUDE_DIRS}"
-)
-target_link_libraries("fakegen_test" "fakegen_test_fakes")
+
+if ("${TARGET}" STREQUAL "test")
+    compile_gtest_executable(
+        "fakegen_test"
+        "${TEST_SRCS}"
+        "${TEST_INCLUDE_DIRS}"
+    )
+
+    target_link_libraries("fakegen_test" "fakegen_test_fakes")
+ENDIF()

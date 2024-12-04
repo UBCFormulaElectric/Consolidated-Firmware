@@ -38,4 +38,27 @@ IF("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
     target_link_libraries("shared_test" "shared_can" "shared_fakes")
+
+ELSEIF("${TARGET}" STREQUAL "sil")
+        list(APPEND HDRS_TO_FAKE
+                "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+                "${SHARED_IO_INCLUDE_DIR}/io_led.h"
+                "${SHARED_IO_INCLUDE_DIR}/io_switch.h"
+                "${SHARED_IO_INCLUDE_DIR}/io_time.h"
+                "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.h"
+        )
+
+        create_fake_library(
+                "shared_fakes"
+                "${HDRS_TO_FAKE}"
+        )
+
+        jsoncan_sources(
+                "shared"
+                "${CMAKE_CURRENT_BINARY_DIR}"
+                FALSE
+                "quadruna"
+        )
+        add_library("shared_can" STATIC "${CAN_SRCS}")
+        target_include_directories("shared_can" PUBLIC "${CAN_INCLUDE_DIRS}")
 ENDIF()
