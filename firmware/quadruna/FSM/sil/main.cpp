@@ -9,6 +9,11 @@
 #include "fake_io_wheels.hpp"
 #include "fake_io_loadCell.hpp"
 
+extern "C" {
+#include "io_canRx.h"
+#include "io_canTx.h"
+}
+
 // App layer.
 extern "C"
 {
@@ -26,9 +31,27 @@ extern "C"
 #include "app_wheels.h"
 }
 
+void io_fakeCan_txCallback(const JsonCanMsg *msg) {
+    printf("can tx:\n");
+    printf("\tid: %d\n", msg->std_id);
+
+    printf("\tdata: ");
+    for (int i = 8; i > 0; i -= 1) {
+        printf("%2x ", msg->data[i]);
+    }
+
+    printf("\n");
+}
+
+void io_fakeCan_rx(JsonCanMsg *msg) {
+    io_canRx_updateRxTableWithMessage(msg);
+}
+
 int main()
 {
-    // Setup can.
+    // Setup can with fake callback for transmission.
+    io_canTx_init(io_fakeCan_txCallback);
+    io_canTx_enableMode(CAN_MODE_DEFAULT, true);
     app_canTx_init();
     app_canRx_init();
 
@@ -37,16 +60,21 @@ int main()
 
     // Start up state machine and begin ticking.
     app_stateMachine_init(app_mainState_get());
-    for (int tick = 0; true; tick += 1)
+
+    for (int time_ms = 0; true; time_ms += 1)
     {
-        if (tick % 1000 == 0)
+        io_canTx_enqueueOtherPeriodicMsgs(time_ms);
+
+        if (time_ms % 1000 == 0)
         {
             app_stateMachine_tick1Hz();
+            io_canTx_enqueue1HzMsgs();
         }
 
-        if (tick % 10 == 0)
+        if (time_ms % 10 == 0)
         {
             app_stateMachine_tick100Hz();
+            io_canTx_enqueue100HzMsgs();
         }
     }
 }
