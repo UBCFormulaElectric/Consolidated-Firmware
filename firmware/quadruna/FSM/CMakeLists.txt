@@ -203,4 +203,8 @@ elseif ("${TARGET}" STREQUAL "sil")
         add_executable(quadruna_FSM_sil "${SRCS}")
         target_include_directories(quadruna_FSM_sil PRIVATE "${INCLUDE_DIRS}")
         target_link_libraries(quadruna_FSM_sil "quadruna_FSM_jsoncan" "quadruna_FSM_fakes" "shared_fakes" "m")
+
+        # Add CZMQ.
+        target_link_libraries (quadruna_FSM_sil ${CZMQ_LIBRARIES})
+        target_include_directories(quadruna_FSM_sil PRIVATE "${CZMQ_INCLUDE_DIRS}")
 ENDIF ()

@@ -51,6 +51,10 @@ ELSEIF("${TARGET}" STREQUAL "test")
             GIT_TAG "release-1.12.1"
             GIT_SHALLOW TRUE
     )
+ELSEIF("${TARGET}" STREQUAL "sil")
+    # CZMQ - Sockets wrapper used for SIL interprocess comms.
+    find_path(CZMQ_INCLUDE_DIRS NAMES czmq.h)
+    find_library(CZMQ_LIBRARIES NAMES czmq)
 ENDIF()
 
 # protobufs

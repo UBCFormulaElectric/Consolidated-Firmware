@@ -140,15 +140,6 @@
             ]
         },
         {
-            "label": "Build SIL: FSM (Quadruna)",
-            "group": "build",
-            "type": "cmake",
-            "command": "build",
-            "targets": [
-                "quadruna_FSM_sil"
-            ]
-        },
-        {
             "label": "Build Tests: FSM (Quadruna)",
             "group": "build",
             "type": "cmake",
@@ -183,6 +174,25 @@
             "targets": [
                 "shared_test"
             ]
-        }
+        },
+        {
+            "label": "Build SIL: FSM (Quadruna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quadruna_FSM_sil"
+            ]
+        },
+        {
+            "label": "Build SIL (Quadruna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quadruna_sil"
+            ],
+            "dependsOn": ["Build SIL: FSM (Quadruna)"]
+        },
     ]
 }
