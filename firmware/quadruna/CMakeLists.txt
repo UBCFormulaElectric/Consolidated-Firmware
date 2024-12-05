@@ -11,3 +11,5 @@ add_subdirectory(BMS)
 add_subdirectory(FSM)
 add_subdirectory(RSM)
 add_subdirectory(CRIT)
+
+add_subdirectory(sil)

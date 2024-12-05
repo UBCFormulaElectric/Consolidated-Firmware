@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// CZMQ for sockets.
+#include <czmq.h>
+
 // Fake io Layer.
 #include "fake_io_apps.hpp"
 #include "fake_io_brake.hpp"
