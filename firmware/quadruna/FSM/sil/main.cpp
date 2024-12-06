@@ -96,19 +96,13 @@ void io_fakeCan_rx(JsonCanMsg *msg)
 int main()
 {
     printf("Starting up SIL FSM\n");
-
-    // Since subcribers connect, and publishers bind,
-    // by default (ie. zsock_new_pub()) there can only be one publisher, and many subscribers.
-    // In order to have the have multiple publishers, and one subscriber, we configure the socket manually.
-    canSocketTx = zsock_new(ZMQ_PUB);
+    
+    // Prefixing the endpoint with ">" connects to the endpoint,
+    // rather than the default bind behavior.
+    canSocketTx = zsock_new_pub(">tcp://localhost:3001");
     if (canSocketTx == NULL)
     {
-        perror("Error opening can rx proxy socket");
-        exit(1);
-    }
-    if (zsock_connect(canSocketTx, "tcp://localhost:3001") == -1)
-    {
-        perror("Error binding can rx proxy socket");
+        perror("Error opening can tx socket");
         exit(1);
     }
 
@@ -173,9 +167,7 @@ int main()
                 }
             }
             else
-            {
                 break;
-            }
         }
 
         // 1 kHz task.
