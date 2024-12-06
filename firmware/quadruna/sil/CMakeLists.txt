@@ -1,7 +1,7 @@
 IF("${TARGET}" STREQUAL "sil")
         file(GLOB_RECURSE SRCS 
-                "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-                "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/manager/*.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/manager/*.cpp"
         )
 
         add_executable(quadruna_sil "${SRCS}")
