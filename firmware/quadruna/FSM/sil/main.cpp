@@ -81,18 +81,34 @@ void io_fakeCan_txCallback(const JsonCanMsg *msg)
 // Insert a JsonCanMsg into the board's internal can system.
 void io_fakeCan_rx(JsonCanMsg *msg)
 {
-    io_canRx_updateRxTableWithMessage(msg);
+    uint64_t uint64Data;
+    memcpy(&uint64Data, msg->data, sizeof(uint64_t));
+    if (uint64Data != 0)
+        printf(
+            "ID: %d, DATA: %016llx, RECEIVED?: %d\n", msg->std_id, uint64Data, io_canRx_filterMessageId(msg->std_id));
+
+    if (io_canRx_filterMessageId(msg->std_id))
+    {
+        io_canRx_updateRxTableWithMessage(msg);
+    };
 }
 
 int main()
 {
     printf("Starting up SIL FSM\n");
 
-    // Initialize sockets for can (pub/sub).
-    canSocketTx = zsock_new_pub("tcp://localhost:3000");
+    // By default (ie. with zsock_new_sub()/zsock_new_pub()),
+    // there can only be one pub, and many subs, since subs connect, and pubs bind.
+    // In order to invert the order (many pubs, and one sub), we must build the socket manually.
+    canSocketTx = zsock_new(ZMQ_PUB);
     if (canSocketTx == NULL)
     {
-        perror("Error opening can tx socket");
+        perror("Error opening can rx proxy socket");
+        exit(1);
+    }
+    if (zsock_connect(canSocketTx, "tcp://localhost:3001") == -1)
+    {
+        perror("Error binding can rx proxy socket");
         exit(1);
     }
 
@@ -134,7 +150,8 @@ int main()
             exit(0);
 
         // FakeCan sockets capture loop.
-        for (;;) {
+        for (;;)
+        {
             // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
             // there is only one such socket attachted to canPollerRx, which is canSocketRx.
             // Socket must be void pointer, uncast, since it may return NULL.
@@ -152,11 +169,12 @@ int main()
                     // Update the internal can table.
                     io_fakeCan_rx(&msg);
                 }
-            } else {
+            }
+            else
+            {
                 break;
             }
         }
-
 
         // 1 kHz task.
         if (time_ms % 1 == 0)

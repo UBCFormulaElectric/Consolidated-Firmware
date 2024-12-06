@@ -39,21 +39,58 @@ pid_t sil_runBoard(const char *bin_path)
     return pid;
 }
 
+static zsock_t *canProxySocketTx;
+static zsock_t *canProxySocketRx;
+
+// Graciously exit process by freeing memory allocated by czmq.
+void exitHandler()
+{
+    zsock_destroy(&canProxySocketTx);
+    zsock_destroy(&canProxySocketRx);
+}
+
 int main()
 {
     printf("Starting up SIL Supervisor\n");
-    zsock_t *canSocketRx = zsock_new_sub("tcp://localhost:3000", "");
+
+    // Normal pub/sub connections are one-to-many, or many-to-one.
+    // To allow for free comms between boards, this process acts as a proxy.
+    // Eg. FSM --> canProxySocketRx --> canProxySocketTx --> VC.
+    canProxySocketTx = zsock_new_pub("tcp://localhost:3000");
+    if (canProxySocketTx == NULL)
+    {
+        perror("Error opening can tx proxy socket");
+        exit(1);
+    }
+
+    // By default (ie. with zsock_new_sub()/zsock_new_pub()),
+    // there can only be one pub, and many subs, since subs connect, and pubs bind.
+    // In order to invert the order (many pubs, and one sub), we must build the socket manually.
+    canProxySocketRx = zsock_new(ZMQ_SUB);
+    if (canProxySocketRx == NULL)
+    {
+        perror("Error opening can rx proxy socket");
+        exit(1);
+    }
+    if (zsock_bind(canProxySocketRx, "tcp://localhost:3001") == -1)
+    {
+        perror("Error binding can rx proxy socket");
+        exit(1);
+    }
+    zsock_set_subscribe(canProxySocketRx, "");
+
+    atexit(exitHandler);
 
     // Spin-up boards.
     sil_runBoard(FSM_SIL_PATH);
 
+    // Forward messages from rx to tx.
     for (int i = 0; true; i += 1)
     {
-        uint64_t data;
-        uint32_t id;
-        zsock_recv(canSocketRx, "448", &id, NULL, &data);
-
-        printf("ID %d: %016llx\r\n", id, data);
+        zmsg_t *msg = zmsg_recv(canProxySocketRx);
+        if (msg == NULL)
+            continue;
+        zmsg_send(&msg, canProxySocketTx);
     }
 
     // Wait for all forks to stop.
