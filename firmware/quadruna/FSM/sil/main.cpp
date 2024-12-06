@@ -97,9 +97,9 @@ int main()
 {
     printf("Starting up SIL FSM\n");
 
-    // By default (ie. with zsock_new_sub()/zsock_new_pub()),
-    // there can only be one pub, and many subs, since subs connect, and pubs bind.
-    // In order to invert the order (many pubs, and one sub), we must build the socket manually.
+    // Since subcribers connect, and publishers bind,
+    // by default (ie. zsock_new_pub()) there can only be one publisher, and many subscribers.
+    // In order to have the have multiple publishers, and one subscriber, we configure the socket manually.
     canSocketTx = zsock_new(ZMQ_PUB);
     if (canSocketTx == NULL)
     {
@@ -112,6 +112,8 @@ int main()
         exit(1);
     }
 
+    // Subscribing to an empty string subscribes to all messages.
+    // Topics in czmq are just prefix strings.
     canSocketRx = zsock_new_sub("tcp://localhost:3000", "");
     if (canSocketRx == NULL)
     {

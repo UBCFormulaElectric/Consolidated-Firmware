@@ -39,59 +39,42 @@ pid_t sil_runBoard(const char *bin_path)
     return pid;
 }
 
-static zsock_t *canProxySocketTx;
-static zsock_t *canProxySocketRx;
+static zactor_t *canProxy;
 
 // Graciously exit process by freeing memory allocated by czmq.
 void exitHandler()
 {
-    zsock_destroy(&canProxySocketTx);
-    zsock_destroy(&canProxySocketRx);
+    zactor_destroy(&canProxy);
 }
 
 int main()
 {
     printf("Starting up SIL Supervisor\n");
-
-    // Normal pub/sub connections are one-to-many, or many-to-one.
-    // To allow for free comms between boards, this process acts as a proxy.
-    // Eg. FSM --> canProxySocketRx --> canProxySocketTx --> VC.
-    canProxySocketTx = zsock_new_pub("tcp://localhost:3000");
-    if (canProxySocketTx == NULL)
-    {
-        perror("Error opening can tx proxy socket");
-        exit(1);
-    }
-
-    // By default (ie. with zsock_new_sub()/zsock_new_pub()),
-    // there can only be one pub, and many subs, since subs connect, and pubs bind.
-    // In order to invert the order (many pubs, and one sub), we must build the socket manually.
-    canProxySocketRx = zsock_new(ZMQ_SUB);
-    if (canProxySocketRx == NULL)
-    {
-        perror("Error opening can rx proxy socket");
-        exit(1);
-    }
-    if (zsock_bind(canProxySocketRx, "tcp://localhost:3001") == -1)
-    {
-        perror("Error binding can rx proxy socket");
-        exit(1);
-    }
-    zsock_set_subscribe(canProxySocketRx, "");
-
     atexit(exitHandler);
 
     // Spin-up boards.
     sil_runBoard(FSM_SIL_PATH);
 
-    // Forward messages from rx to tx.
-    for (int i = 0; true; i += 1)
-    {
-        zmsg_t *msg = zmsg_recv(canProxySocketRx);
-        if (msg == NULL)
-            continue;
-        zmsg_send(&msg, canProxySocketTx);
-    }
+    // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
+    // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
+    // For fake can, we need many-to-many. To do this, we create a proxy between an XSUB and XPUB port.
+    // Individual boards transmit to the XSUB endpoint, which gets forwarded to the XPUB endpoint.
+    // We call the receiver end of the proxy the frontend, and the sender end the badkend.
+    canProxy = zactor_new(zproxy, NULL);
+    if (canProxy == NULL)
+        perror("Error creating proxy");
+
+    // Setup the xsub frontend.
+    if (zstr_sendx(canProxy, "FRONTEND", "XSUB", "tcp://localhost:3001", NULL) == -1)
+        perror("Error setting up xsub frontend on proxy");
+    if (zsock_wait(canProxy) == -1)
+        perror("Error waiting for frontend setup on proxy");
+
+    // Setup the xpub backend.
+    if (zstr_sendx(canProxy, "BACKEND", "XPUB", "tcp://localhost:3000", NULL) == -1)
+        perror("Error setting up xsub backend on proxy");
+    if (zsock_wait(canProxy) == -1)
+        perror("Error waiting for backend setup on proxy");
 
     // Wait for all forks to stop.
     wait(NULL);
