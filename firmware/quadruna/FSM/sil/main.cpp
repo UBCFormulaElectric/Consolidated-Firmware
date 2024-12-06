@@ -133,24 +133,30 @@ int main()
         if (getppid() == 1)
             exit(0);
 
-        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
-        // there is only one such socket attachted to canPollerRx, which is canSocketRx.
-        // Socket must be void pointer, uncast, since it may return NULL.
-        void *socket = zpoller_wait(canPollerRx, 1);
-        if (socket != NULL)
-        {
-            // Receive the message.
-            JsonCanMsg msg = {};
-            if (io_fakeCan_recvJsonCanMsg(socket, &msg) == -1)
+        // FakeCan sockets capture loop.
+        for (;;) {
+            // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
+            // there is only one such socket attachted to canPollerRx, which is canSocketRx.
+            // Socket must be void pointer, uncast, since it may return NULL.
+            void *socket = zpoller_wait(canPollerRx, 1);
+            if (socket != NULL)
             {
-                perror("Error: Invalid can message received");
-            }
-            else
-            {
-                // Update the internal can table.
-                io_fakeCan_rx(&msg);
+                // Receive the message.
+                JsonCanMsg msg = {};
+                if (io_fakeCan_recvJsonCanMsg(socket, &msg) == -1)
+                {
+                    perror("Error: Invalid can message received");
+                }
+                else
+                {
+                    // Update the internal can table.
+                    io_fakeCan_rx(&msg);
+                }
+            } else {
+                break;
             }
         }
+
 
         // 1 kHz task.
         if (time_ms % 1 == 0)
