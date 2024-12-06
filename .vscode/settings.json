@@ -9,10 +9,5 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"*.h": "c",
-		"*.c": "c",
-		"*.hpp": "cpp",
-		"*.cpp": "cpp",
-	},
+    "C_Cpp.autoAddFileAssociations": false
 }
