@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // CZMQ for sockets.
 #include <czmq.h>
@@ -12,7 +13,8 @@
 #include "fake_io_wheels.hpp"
 #include "fake_io_loadCell.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "io_canRx.h"
 #include "io_canTx.h"
 }
@@ -34,24 +36,81 @@ extern "C"
 #include "app_wheels.h"
 }
 
-void io_fakeCan_txCallback(const JsonCanMsg *msg) {
-    printf("can tx:\n");
-    printf("\tid: %d\n", msg->std_id);
+static zsock_t   *canSocketTx;
+static zsock_t   *canSocketRx;
+static zpoller_t *canPollerRx;
 
-    printf("\tdata: ");
-    for (int i = 8; i > 0; i -= 1) {
-        printf("%2x ", msg->data[i]);
-    }
-
-    printf("\n");
+// Graciously exit process by freeing memory allocated by czmq.
+void exitHandler()
+{
+    zpoller_destroy(&canPollerRx);
+    zsock_destroy(&canSocketTx);
+    zsock_destroy(&canSocketRx);
 }
 
-void io_fakeCan_rx(JsonCanMsg *msg) {
+// Can messages are transmitted in std_id, dlc, data order.
+// We cast the 8 byte data array to a uint64_t for easier transmit.
+// Hence, the czmq image of the message is "448" (uint32_t, uint32_t, uint64_t).
+
+// Wrapper around zsock_recv for receiving a JsonCanMsg.
+// Gets a pointer to the destination message.
+// Socket is a void pointer to be consistent with czmq api.
+int io_fakeCan_recvJsonCanMsg(void *socket, JsonCanMsg *msg)
+{
+    return zsock_recv(canSocketRx, "448", &(msg->std_id), &(msg->dlc), msg->data);
+}
+
+// Wrapper around zsock_send for sending a JsonCanMsg.
+// Gets a pointer to the message to send.
+// Socket is a void pointer to be consistent with czmq api.
+int io_fakeCan_sendJsonCanMsg(void *socket, const JsonCanMsg *msg)
+{
+    uint64_t uint64Data;
+    memcpy(&uint64Data, msg->data, sizeof(uint64_t));
+    return zsock_send(canSocketTx, "448", msg->std_id, msg->dlc, uint64Data);
+}
+
+// Interface between sil and canbus.
+// Hook for can to transmit a message via fakeCan.
+void io_fakeCan_txCallback(const JsonCanMsg *msg)
+{
+    if (io_fakeCan_sendJsonCanMsg(canSocketTx, msg) == -1)
+        perror("Error sending jsoncan tx message");
+}
+
+// Insert a JsonCanMsg into the board's internal can system.
+void io_fakeCan_rx(JsonCanMsg *msg)
+{
     io_canRx_updateRxTableWithMessage(msg);
 }
 
 int main()
 {
+    printf("Starting up SIL FSM\n");
+
+    // Initialize sockets for can (pub/sub).
+    canSocketTx = zsock_new_pub("tcp://localhost:3000");
+    if (canSocketTx == NULL)
+    {
+        perror("Error opening can tx socket");
+        exit(1);
+    }
+
+    canSocketRx = zsock_new_sub("tcp://localhost:3000", "");
+    if (canSocketRx == NULL)
+    {
+        perror("Error opening can rx socket");
+        exit(1);
+    }
+
+    // Poll the rx can socket.
+    canPollerRx = zpoller_new(canSocketRx, NULL);
+    if (canPollerRx == NULL)
+    {
+        perror("Error opening can rx poller");
+        exit(1);
+    }
+
     // Setup can with fake callback for transmission.
     io_canTx_init(io_fakeCan_txCallback);
     io_canTx_enableMode(CAN_MODE_DEFAULT, true);
@@ -64,20 +123,53 @@ int main()
     // Start up state machine and begin ticking.
     app_stateMachine_init(app_mainState_get());
 
+    // Register exit handler after creation of sockets, but before main loop,
+    // to avoid czmq's own exit handler warnings.
+    atexit(exitHandler);
     for (int time_ms = 0; true; time_ms += 1)
     {
-        io_canTx_enqueueOtherPeriodicMsgs(time_ms);
+        // Parent process id becomes 1 when parent dies.
+        // Every tick we poll to make sure we exit this child process.
+        if (getppid() == 1)
+            exit(0);
 
-        if (time_ms % 1000 == 0)
+        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
+        // there is only one such socket attachted to canPollerRx, which is canSocketRx.
+        // Socket must be void pointer, uncast, since it may return NULL.
+        void *socket = zpoller_wait(canPollerRx, 1);
+        if (socket != NULL)
         {
-            app_stateMachine_tick1Hz();
-            io_canTx_enqueue1HzMsgs();
+            // Receive the message.
+            JsonCanMsg msg = {};
+            if (io_fakeCan_recvJsonCanMsg(socket, &msg) == -1)
+            {
+                perror("Error: Invalid can message received");
+            }
+            else
+            {
+                // Update the internal can table.
+                io_fakeCan_rx(&msg);
+            }
         }
 
+        // 1 kHz task.
+        if (time_ms % 1 == 0)
+        {
+            io_canTx_enqueueOtherPeriodicMsgs(time_ms);
+        }
+
+        // 100 Hz task.
         if (time_ms % 10 == 0)
         {
             app_stateMachine_tick100Hz();
             io_canTx_enqueue100HzMsgs();
+        }
+
+        // 1 Hz task.
+        if (time_ms % 1000 == 0)
+        {
+            app_stateMachine_tick1Hz();
+            io_canTx_enqueue1HzMsgs();
         }
     }
 }
