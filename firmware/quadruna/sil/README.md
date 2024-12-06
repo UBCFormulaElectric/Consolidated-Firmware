@@ -4,5 +4,9 @@ The vast majority of software we write lives across multiple different binaries,
 
 To be able to run the firmware of multiple boards on our local machines, we use our *Software In Loop*.
 
+## Ports
+- `3000`) Into a board (rx).
+- `3001`) Out of a board (tx).
+
 ## Navigating Software In Loop Source Code
 TODO.
