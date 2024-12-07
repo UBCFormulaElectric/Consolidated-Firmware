@@ -373,49 +373,49 @@
         "signals": {
             "Seg0_Cell0_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell1_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell2_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell3_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell4_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell5_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell6_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell7_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -429,49 +429,49 @@
         "signals": {
             "Seg0_Cell8_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell9_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell10_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell11_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell12_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell13_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell14_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg0_Cell15_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -485,49 +485,49 @@
         "signals": {
             "Seg1_Cell0_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell1_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell2_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell3_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell4_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell5_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell6_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell7_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -541,49 +541,49 @@
         "signals": {
             "Seg1_Cell8_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell9_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell10_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell11_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell12_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell13_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell14_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg1_Cell15_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -597,49 +597,49 @@
         "signals": {
             "Seg2_Cell0_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell1_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell2_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell3_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell4_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell5_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell6_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell7_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -653,49 +653,49 @@
         "signals": {
             "Seg2_Cell8_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell9_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell10_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell11_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell12_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell13_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell14_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg2_Cell15_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -709,49 +709,49 @@
         "signals": {
             "Seg3_Cell0_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell1_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell2_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell3_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell4_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell5_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell6_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell7_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -765,49 +765,49 @@
         "signals": {
             "Seg3_Cell8_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell9_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell10_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell11_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell12_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell13_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell14_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg3_Cell15_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -821,49 +821,49 @@
         "signals": {
             "Seg4_Cell0_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell1_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell2_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell3_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell4_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell5_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell6_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell7_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -877,49 +877,49 @@
         "signals": {
             "Seg4_Cell8_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell9_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell10_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell11_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell12_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell13_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell14_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             },
             "Seg4_Cell15_Voltage": {
                 "resolution": 0.1,
-                "min": 0,
+                "min": -0.1,
                 "max": 5,
                 "unit": "V"
             }
@@ -933,31 +933,31 @@
         "signals": {
             "Seg0_Temp": {
                 "resolution": 1,
-                "min": 0,
+                "min": -1,
                 "max": 100,
                 "unit": "degC"
             },
             "Seg1_Temp": {
                 "resolution": 1,
-                "min": 0,
+                "min": -1,
                 "max": 100,
                 "unit": "degC"
             },
             "Seg2_Temp": {
                 "resolution": 1,
-                "min": 0,
+                "min": -1,
                 "max": 100,
                 "unit": "degC"
             },
             "Seg3_Temp": {
                 "resolution": 1,
-                "min": 0,
+                "min": -1,
                 "max": 100,
                 "unit": "degC"
             },
             "Seg4_Temp": {
                 "resolution": 1,
-                "min": 0,
+                "min": -1,
                 "max": 100,
                 "unit": "degC"
             }
