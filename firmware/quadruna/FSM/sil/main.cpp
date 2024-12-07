@@ -54,7 +54,7 @@ void tasks_init()
     // Setup apps.
     app_apps_init();
 
-    // Start up state machine and begin ticking.
+    // Start up state machine.
     app_stateMachine_init(app_mainState_get());
 }
 
@@ -75,7 +75,7 @@ void tasks_1Hz(uint32_t time_ms)
     io_canTx_enqueue1HzMsgs();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    sil_main(tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz);
+    sil_main(argc, argv, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz);
 }

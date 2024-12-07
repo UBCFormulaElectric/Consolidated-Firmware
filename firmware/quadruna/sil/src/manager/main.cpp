@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include <czmq.h>
 
-#define FSM_SIL_PATH "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil"
-
 // Returns the PID of the subprocess in which the requested binary runs.
-pid_t sil_runBoard(const char *bin_path)
+pid_t sil_runBoard(const char *binPath, const char* boardName)
 {
-    printf("Forking process for %s\n", bin_path);
+    printf("Forking process for %s: %s\n", boardName, binPath);
 
     // Fork returns:
     //  -1 on error,
@@ -22,9 +20,9 @@ pid_t sil_runBoard(const char *bin_path)
 
     if (pid == 0)
     {
-        // Run binary on child process.
-        char const *argv[2] = { bin_path, NULL };
-        if (execv(FSM_SIL_PATH, (char *const *)argv) == -1)
+        // Run binary on child process, argv must be NULL terminated.
+        char const *argv[] = { binPath, boardName, NULL };
+        if (execv(binPath, (char *const *)argv) == -1)
         {
             perror("Error forking process");
             exit(1);
@@ -50,10 +48,10 @@ void exitHandler()
 int main()
 {
     printf("Starting up SIL Supervisor\n");
-    atexit(exitHandler);
 
     // Spin-up boards.
-    sil_runBoard(FSM_SIL_PATH);
+    sil_runBoard("./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", "RSM");
+    sil_runBoard("./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", "FSM");
 
     // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
     // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
@@ -76,6 +74,8 @@ int main()
     if (zsock_wait(canProxy) == -1)
         perror("Error waiting for backend setup on proxy");
 
+    atexit(exitHandler);
+    
     // Wait for all forks to stop.
     wait(NULL);
 }
