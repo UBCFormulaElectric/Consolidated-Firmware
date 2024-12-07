@@ -13,6 +13,9 @@ static zsock_t   *canSocketTx;
 static zsock_t   *canSocketRx;
 static zpoller_t *canPollerRx;
 
+// Note: only valid since the program exits when main exits.
+static const char *boardName;
+
 // Graciously exit process by freeing memory allocated by czmq.
 void sil_exitHandler()
 {
@@ -20,6 +23,18 @@ void sil_exitHandler()
     zsock_destroy(&canSocketTx);
     zsock_destroy(&canSocketRx);
 }
+
+// Utility function for debugging, prints out a JsonCanMsg.
+void sil_printCanMsg(JsonCanMsg *msg) {
+    uint64_t uint64Data;
+    memcpy(&uint64Data, msg->data, sizeof(uint64_t));
+
+    printf(
+        "BOARD: %s, ID: %d, DATA: %016llx, DLC: %d PASSED FILTER?: %d\n", 
+        boardName, msg->std_id, uint64Data, msg->dlc, io_canRx_filterMessageId(msg->std_id)
+    );
+}
+
 // Can messages are transmitted in std_id, dlc, data order.
 // We cast the 8 byte data array to a uint64_t for easier transmit.
 // Hence, the czmq image of the message is "448" (uint32_t, uint32_t, uint64_t).
@@ -35,8 +50,9 @@ int sil_recvJsonCanMsg(void *socket, JsonCanMsg *msg)
 // Wrapper around zsock_send for sending a JsonCanMsg.
 // Gets a pointer to the message to send.
 // Socket is a void pointer to be consistent with czmq api, can be socket or actor.
-int sil_sendJsonCanMsg(void *socket, const JsonCanMsg *msg)
+int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
 {
+    sil_printCanMsg(msg);
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
     return zsock_send(canSocketTx, "448", msg->std_id, msg->dlc, uint64Data);
@@ -46,19 +62,16 @@ int sil_sendJsonCanMsg(void *socket, const JsonCanMsg *msg)
 // Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *msg)
 {
-    if (sil_sendJsonCanMsg(canSocketTx, msg) == -1)
+    // Un-const the message.
+    JsonCanMsg *unconst_msg = (JsonCanMsg *) msg;
+
+    if (sil_sendJsonCanMsg(canSocketTx, unconst_msg) == -1)
         perror("Error sending jsoncan tx message");
 }
 
 // Insert a JsonCanMsg into the board's internal can system.
 void sil_rx(JsonCanMsg *msg)
 {
-    uint64_t uint64Data;
-    memcpy(&uint64Data, msg->data, sizeof(uint64_t));
-    if (uint64Data != 0)
-        printf(
-            "ID: %d, DATA: %016llx, RECEIVED?: %d\n", msg->std_id, uint64Data, io_canRx_filterMessageId(msg->std_id));
-
     if (io_canRx_filterMessageId(msg->std_id))
     {
         io_canRx_updateRxTableWithMessage(msg);
@@ -67,12 +80,21 @@ void sil_rx(JsonCanMsg *msg)
 
 // Main SIL loop logic.
 void sil_main(
+    int argc, char *argv[],
     void tasks_init(),
     void tasks_1Hz(uint32_t time_ms),
     void tasks_100Hz(uint32_t time_ms),
     void tasks_1kHz(uint32_t time_ms))
 {
-    printf("Starting up SIL FSM\n");
+    // Validate arguments.
+    if (argc != 2) {
+        printf("Please invoke this board binary with the following arguments\n");
+        printf("%s <name of board>\n", argv[0]);
+        exit(1);
+    }
+
+    boardName = argv[1];
+    printf("Starting up SIL %s\n", boardName);
 
     // Prefixing the endpoint with ">" connects to the endpoint,
     // rather than the default bind behavior.
