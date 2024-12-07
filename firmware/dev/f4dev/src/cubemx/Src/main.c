@@ -27,6 +27,8 @@
 #include "hw_sd.h"
 #include "hw_bootup.h"
 #include "hw_uart.h"
+#include "hw_usb.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -531,9 +533,14 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    //add the usb examples here:
+
+
+    
     UART modem_uart = { .handle = &huart2 };
+
     /* Infinite loop */
-    // uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
+    uint8_t message[7] = { 66, 79, 79, 66, 83, 13, 10 };
     uint8_t num; // use this if just want numbers
     uint8_t predicData[3];
     predicData[1] = 13;
