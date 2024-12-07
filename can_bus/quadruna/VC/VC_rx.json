@@ -6,6 +6,7 @@
         "BMS_VoltageAndChargeStats",
         "BMS_OkStatuses",
         "BMS_TractiveSystem",
+        "BMS_AvailableCurrentLimit",
         "BMS_Vitals",
         "CRIT_CRITShdnNodeStatus",
         "CRIT_Switches",
