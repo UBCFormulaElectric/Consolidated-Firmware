@@ -20,7 +20,6 @@ TEST_F(BmsFaultTest, check_cell_voltage_segment0_cell0)
 
     // Reciving and transmitting the data.
     app_canRx_Debug_BMSDiagnosticsRequest_update(true);
-    app_canRx_Debug_SegmentCellVoltageRequest_update(SEG_0);
 
     // Passing time to let the message transmit.
     LetTimePass(1000);
@@ -44,7 +43,6 @@ TEST_F(BmsFaultTest, check_temperature_segment0)
 
     // Reciving and transmitting the data.
     app_canRx_Debug_BMSDiagnosticsRequest_update(true);
-    app_canRx_Debug_SegmentTemperaturesRequest_update(true);
 
     // Passing time to let the message transmit.
     LetTimePass(1000);
@@ -69,7 +67,6 @@ TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
 
     // Reciving and transmitting the data.
     app_canRx_Debug_BMSDiagnosticsRequest_update(false);
-    app_canRx_Debug_SegmentCellVoltageRequest_update(SEG_0);
 
     // Passing time to let the message transmit.
     LetTimePass(1000);

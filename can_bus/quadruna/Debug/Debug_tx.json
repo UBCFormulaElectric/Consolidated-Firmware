@@ -125,15 +125,9 @@
     "CellDiagnostics": {
         "msg_id": 707,
         "cycle_time": 1000,
-        "description": "Signals related to BMS cell voltage and temperature diagnostics.",
+        "description": "Signals ",
         "signals": {
             "BMSDiagnosticsRequest": {
-                "bits": 1
-            },
-            "SegmentCellVoltageRequest": {
-                "enum": "SegmentCellVoltageRequest"
-            },
-            "SegmentTemperaturesRequest": {
                 "bits": 1
             }
         }
