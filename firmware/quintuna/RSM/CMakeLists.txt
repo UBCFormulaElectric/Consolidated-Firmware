@@ -85,6 +85,7 @@ if ("${TARGET}" STREQUAL "binary")
         "${STM32_HAL_SRCS}"
         "${CMAKE_CURRENT_SORUCE_DIR}"
         "${MD5_LOCATION}"
+        FALSE
     )
 
     # JSONCAN
