@@ -7,8 +7,10 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_sbgEllipse.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
+#define TRACTION_WIND_UP 0.06f
 static TimerChannel pid_timeout;
 
 static PowerLimiting_Inputs       power_limiting_inputs = { .power_limit_kW = POWER_LIMIT_CAR_kW };
@@ -27,7 +29,7 @@ static bool run_traction_control = false;
 
 static PID   pid_power_correction;
 static float pid_power_correction_factor = 0.0f;
-static PID   pid_traction_control;
+static PID   pid_traction_control = {.integral_windup_max = TRACTION_WIND_UP, .integral_windup_min = -1 * TRACTION_WIND_UP};
 
 static float accelerator_pedal_percent;
 static float wheel_speed_front_left_kph;
@@ -44,8 +46,10 @@ void app_torqueVectoring_init(void)
 {
     app_canTx_VC_TorqueVectoringEnabled_set(true);
     app_pid_init(&pid_power_correction, &PID_POWER_CORRECTION_CONFIG);
+
+    // traction control PID init
     app_pid_init(&pid_traction_control, &PID_TRACTION_CONTROL_CONFIG);
-    traction_control_inputs.pid = &pid_traction_control;
+    traction_control_inputs.pid                             = &pid_traction_control;
 
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
@@ -55,8 +59,8 @@ void app_torqueVectoring_run(float accelerator_pedal_percentage)
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
     accelerator_pedal_percent   = accelerator_pedal_percentage;
-    wheel_speed_front_left_kph  = app_canRx_FSM_LeftWheelSpeed_get();
-    wheel_speed_front_right_kph = app_canRx_FSM_RightWheelSpeed_get();
+    wheel_speed_front_left_kph  = vehicle_velocity;
+    wheel_speed_front_right_kph = vehicle_velocity;
     motor_speed_left_rpm        = (float)app_canRx_INVL_MotorSpeed_get();
     motor_speed_right_rpm       = -1 * (float)app_canRx_INVR_MotorSpeed_get();
     battery_voltage             = app_canRx_BMS_TractiveSystemVoltage_get();
