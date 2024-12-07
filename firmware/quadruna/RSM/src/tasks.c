@@ -31,6 +31,7 @@
 
 #include "shared.pb.h"
 #include "RSM.pb.h"
+#include "hw_hal.h"
 
 extern ADC_HandleTypeDef  hadc1;
 extern TIM_HandleTypeDef  htim3;
