@@ -31,7 +31,7 @@ void sil_printCanMsg(JsonCanMsg *msg)
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
 
     printf(
-        "ACTIVE BOARD: %4s, ID: %d, DATA: %016llx, DLC: %d PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data,
+        "ACTIVE BOARD: %4s, ID: %d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data,
         msg->dlc, io_canRx_filterMessageId(msg->std_id));
 }
 
