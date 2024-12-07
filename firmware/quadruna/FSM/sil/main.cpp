@@ -5,14 +5,6 @@
 // CZMQ for sockets.
 #include <czmq.h>
 
-// Fake io Layer.
-#include "fake_io_apps.hpp"
-#include "fake_io_brake.hpp"
-#include "fake_io_steering.hpp"
-#include "fake_io_suspension.hpp"
-#include "fake_io_wheels.hpp"
-#include "fake_io_loadCell.hpp"
-
 // SIL board functions.
 extern "C"
 {
