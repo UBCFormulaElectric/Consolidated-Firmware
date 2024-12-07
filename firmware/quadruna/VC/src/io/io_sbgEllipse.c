@@ -226,38 +226,9 @@ static void io_sbgEllipse_processMsg_EkfNavVelandPos(const SbgBinaryLogData *log
         // bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
         // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
 
-        // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
-
-        // if (is_data_invalid) {
-        // app_canTx_VC_Warning_VelocityDataInvalid_set(is_velocity_invalid);
-
-        // if (is_velocity_invalid)
-        // {
-            // app_canTx_VC_Warning_EllipseSolutionModeWarning_set(is_data_invalid);
-            // io_sbgEllipse_calculateVelocity();
+        // if (is_velocity_invalid) {
         //     return;
         // }
-    // }
-
-    // uint32_t status = log_data->ekfNavData.status;
-
-    // bool is_moving =
-    //     (app_canTx_VC_LeftInverterTorqueCommand_get() > 0.0f) || (app_canTx_VC_RightInverterSpeedCommand_get() > 0.0f);
-
-    // if (is_moving)
-    // {
-    //     bool is_velocity_invalid = (status & SBG_ECOM_SOL_VELOCITY_VALID) != 0;
-    //     // bool is_position_valid = (status & SBG_ECOM_SOL_POSITION_VALID) != 0;
-
-    //     // bool is_data_invalid = !is_velocity_valid & !is_position_valid;
-
-    //     // if (is_data_invalid) {
-
-    //     if (is_velocity_invalid)
-    //     {
-    //         return;
-    //     }
-
     // }
 
     // velocity data in m/s
