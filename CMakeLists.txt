@@ -2,7 +2,7 @@ message("💡 Starting UBC Formula Electric Software Build System")
 
 cmake_minimum_required(VERSION 3.22.3)
 set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
@@ -26,9 +26,6 @@ ELSE ()
 ENDIF ()
 # cmake_policy(SET CMP0135 NEW)
 
-# ========== INCLUDES ==========
-include(scripts/code_generation/jsoncan/jsoncan.cmake)
-include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== Dependency Management Configs ========
 message("")
@@ -54,7 +51,10 @@ ELSE ()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 ENDIF ()
 
+# ========== INCLUDES ==========
 include("python.cmake")
+include(scripts/code_generation/jsoncan/jsoncan.cmake)
+include(scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)

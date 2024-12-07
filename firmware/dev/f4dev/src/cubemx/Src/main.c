@@ -532,8 +532,6 @@ void StartDefaultTask(void *argument)
 {
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
-    LOG_INFO("USB has been initializezd...");
-    hw_usb_transmit_example();
     /* USER CODE BEGIN 5 */
     //add the usb examples here:
 

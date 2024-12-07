@@ -55,12 +55,14 @@ message("  🔃 Registered stm32f412rx_cube_library() function")
 # HAL_SRCS: the ones that we want, stripped prefixes
 # SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 # USB_ENABLED: flags if usb middleware should be included.
+# USB_ENABLED: flags if usb middleware should be included.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
         HAL_CONF_DIR
         HAL_SRCS
         SYSCALLS
         IOC_CHECKSUM
+        USB_ENABLED
         USB_ENABLED
 )
     set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
@@ -123,6 +125,8 @@ function(stm32f412rx_cube_library
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${SYSCALLS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${NEWLIB_SRCS})
     if(USB_ENABLED)
+        set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
+
         list(APPEND STM32CUBE_SRCS 
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
@@ -158,6 +162,7 @@ function(stm32h733xx_cube_library
         SYSCALLS
         IOC_CHECKSUM
         USB_ENABLED
+        USB_ENABLED
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -175,6 +180,7 @@ function(stm32h733xx_cube_library
         "${DRIVERS_DIR}/CMSIS/Include"
 
         # SEGGER SystemView includes.
+        "${THIRD_PARTY_DIR}/sysview"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
         "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
@@ -225,6 +231,8 @@ function(stm32h733xx_cube_library
     # If we want to ever support different device classes, 
     # you will need to add a argument to this function with the requested class.
     if(USB_ENABLED)
+        set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
+
         list(APPEND STM32CUBE_SRCS 
             "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
             "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
