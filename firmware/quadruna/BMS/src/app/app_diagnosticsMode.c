@@ -85,44 +85,17 @@ void processSegment(uint8_t segment, uint16_t baseIndex)
 
 void app_diagnosticsMode_broadcast(void)
 {
-    // Check which segment's data to broadcast
-    switch (app_canRx_Debug_SegmentCellVoltageRequest_get())
+    // Update all cell voltages
+    for (uint8_t segment = 0; segment < 5; segment++)
     {
-        case SEG_0:
-            processSegment(0, 0);
-            break;
-        case SEG_1:
-            processSegment(1, 16);
-            break;
-        case SEG_2:
-            processSegment(2, 32);
-            break;
-        case SEG_3:
-            processSegment(3, 48);
-            break;
-        case SEG_4:
-            processSegment(4, 64);
-            break;
-        case SEG_ALL:
-            for (uint8_t segment = 0; segment < 5; segment++)
-            {
-                processSegment(segment, segment * 16);
-            }
-            break;
-        case NONE:
-            break;
-        default:
-            // Do nothing
-            break;
+        processSegment(segment, segment * 16);
     }
-    // Broadcast temperature data if requested
-    if (app_canRx_Debug_SegmentTemperaturesRequest_get())
-    {
-        app_diagnosticsMode_calculateDiagnosticTemperatureStats();
-        app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
-        app_canTx_BMS_Seg1_Temp_set(data.segment_temps[1]);
-        app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
-        app_canTx_BMS_Seg3_Temp_set(data.segment_temps[3]);
-        app_canTx_BMS_Seg4_Temp_set(data.segment_temps[4]);
-    }
+
+    // Calculate and update all segment temperatures
+    app_diagnosticsMode_calculateDiagnosticTemperatureStats();
+    app_canTx_BMS_Seg0_Temp_set(data.segment_temps[0]);
+    app_canTx_BMS_Seg1_Temp_set(data.segment_temps[1]);
+    app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
+    app_canTx_BMS_Seg3_Temp_set(data.segment_temps[3]);
+    app_canTx_BMS_Seg4_Temp_set(data.segment_temps[4]);
 }
