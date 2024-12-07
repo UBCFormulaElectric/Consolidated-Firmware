@@ -203,6 +203,15 @@
             ]
         },
         {
+            "label": "Build SIL: CRIT (Quadruna)",
+            "group": "build",
+            "type": "cmake",
+            "command": "build",
+            "targets": [
+                "quadruna_CRIT_sil"
+            ]
+        },
+        {
             "label": "Build SIL (Quadruna)",
             "group": "build",
             "type": "cmake",
@@ -210,7 +219,12 @@
             "targets": [
                 "quadruna_sil"
             ],
-            "dependsOn": ["Build SIL: FSM (Quadruna)",  "Build SIL: RSM (Quadruna)", "Build SIL: VC (Quadruna)"]
+            "dependsOn": [
+                "Build SIL: FSM (Quadruna)",  
+                "Build SIL: RSM (Quadruna)", 
+                "Build SIL: VC (Quadruna)",
+                "Build SIL: CRIT (Quadruna)"
+        ]
         },
     ]
 }
