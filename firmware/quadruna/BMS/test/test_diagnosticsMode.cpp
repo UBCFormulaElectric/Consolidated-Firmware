@@ -54,8 +54,8 @@ TEST_F(BmsFaultTest, check_temperature_segment0)
 TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
 {
     /**
-     * Test that neither voltage nor temperature reading are being transmitted when diagnostics
-     * mode is off (even if individual temperature/voltage reading modes are turned on).
+     * Test that voltage and temperature readings are negative (invalid values)
+     * when BMSDiagnosticsRequest is falseß
      */
 
     // Setting up the environment.
@@ -72,5 +72,6 @@ TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
     LetTimePass(1000);
 
     // Test assertion.
-    ASSERT_EQ(0, app_canTx_BMS_Seg0_Cell0_Voltage_get());
+    ASSERT_EQ((float) -0.1, app_canTx_BMS_Seg0_Cell0_Voltage_get());
+    ASSERT_EQ(-1, app_canTx_BMS_Seg0_Temp_get());
 }
