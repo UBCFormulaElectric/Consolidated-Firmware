@@ -6,9 +6,9 @@ MEMORY
   app_code     (rx)    : ORIGIN = 0x8020400,  LENGTH = 895K
 }
 
-__boot_code_start__ = ORIGIN(boot_code);
-__boot_code_size__ = LENGTH(boot_code);
+__boot_code_start__    = ORIGIN(boot_code);
+__boot_code_size__     = LENGTH(boot_code);
 __app_metadata_start__ = ORIGIN(app_metadata);
 __app_metadata_size__  = LENGTH(app_metadata);
-__app_code_start__ = ORIGIN(app_code);
-__app_code_size__  = LENGTH(app_code);
+__app_code_start__     = ORIGIN(app_code);
+__app_code_size__      = LENGTH(app_code);

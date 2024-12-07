@@ -31,6 +31,7 @@
 #include "io_telemMessage.h"
 #include "io_pcm.h"
 #include "io_time.h"
+#include "io_bootloader.h"
 
 #include "hw_bootup.h"
 #include "hw_utils.h"
@@ -84,7 +85,6 @@ void canTxQueueOverflowCallBack(uint32_t overflow_count)
 {
     app_canTx_VC_TxOverflowCount_set(overflow_count);
     app_canAlerts_VC_Warning_TxOverflow_set(true);
-    LOG_INFO("CAN TX OVERFLOW");
 }
 
 void canTxQueueOverflowClearCallback(void)
@@ -525,6 +525,8 @@ _Noreturn void tasks_runCanRx(void)
         CanMsg rx_msg;
         io_can_popRxMsgFromQueue(&rx_msg);
         io_telemMessage_pushMsgtoQueue(&rx_msg);
+
+        io_bootloader_checkBootMsg(&rx_msg);
 
         JsonCanMsg jsoncan_rx_msg;
         io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
