@@ -25,14 +25,14 @@ void sil_exitHandler()
 }
 
 // Utility function for debugging, prints out a JsonCanMsg.
-void sil_printCanMsg(JsonCanMsg *msg) {
+void sil_printCanMsg(JsonCanMsg *msg)
+{
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
 
     printf(
-        "BOARD: %s, ID: %d, DATA: %016llx, DLC: %d PASSED FILTER?: %d\n", 
-        boardName, msg->std_id, uint64Data, msg->dlc, io_canRx_filterMessageId(msg->std_id)
-    );
+        "BOARD: %s, ID: %d, DATA: %016llx, DLC: %d PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data, msg->dlc,
+        io_canRx_filterMessageId(msg->std_id));
 }
 
 // Can messages are transmitted in std_id, dlc, data order.
@@ -63,7 +63,7 @@ int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
 void sil_txCallback(const JsonCanMsg *msg)
 {
     // Un-const the message.
-    JsonCanMsg *unconst_msg = (JsonCanMsg *) msg;
+    JsonCanMsg *unconst_msg = (JsonCanMsg *)msg;
 
     if (sil_sendJsonCanMsg(canSocketTx, unconst_msg) == -1)
         perror("Error sending jsoncan tx message");
@@ -80,14 +80,16 @@ void sil_rx(JsonCanMsg *msg)
 
 // Main SIL loop logic.
 void sil_main(
-    int argc, char *argv[],
-    void tasks_init(),
-    void tasks_1Hz(uint32_t time_ms),
-    void tasks_100Hz(uint32_t time_ms),
-    void tasks_1kHz(uint32_t time_ms))
+    int   argc,
+    char *argv[],
+    void  tasks_init(),
+    void  tasks_1Hz(uint32_t time_ms),
+    void  tasks_100Hz(uint32_t time_ms),
+    void  tasks_1kHz(uint32_t time_ms))
 {
     // Validate arguments.
-    if (argc != 2) {
+    if (argc != 2)
+    {
         printf("Please invoke this board binary with the following arguments\n");
         printf("%s <name of board>\n", argv[0]);
         exit(1);
