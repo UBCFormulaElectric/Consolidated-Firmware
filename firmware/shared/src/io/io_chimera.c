@@ -6,6 +6,8 @@
 #include "cmsis_os.h"
 
 #include "hw_adc.h"
+#include "hw_watchdog.h"
+#include "hw_utils.h"
 
 #include "shared.pb.h"
 #include "VC.pb.h"
@@ -109,11 +111,58 @@ void io_chimera_init(const UART *serial_uart, uint32_t name_gpio, uint32_t name_
     }
 }
 
-void io_chimera_sleepTaskIfEnabled(void)
+void io_chimera_block()
 {
     if (chimera_button_pressed)
     {
-        osDelay(osWaitForever);
+        osDelayUntil(osWaitForever);
+    }
+}
+
+void io_chimera_task(WatchdogHandle *watchdog, uint32_t period_ms)
+{
+    // Don't run the task if chimera is not enabled.
+    if (!chimera_button_pressed)
+        return;
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        // Check in for timeouts for all RTOS tasks
+        // hw_watchdog_checkForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+void io_chimera_checkerTask(WatchdogHandle *watchdog, uint32_t period_ms)
+{
+    // Don't run the task if chimera is not enabled.
+    if (!chimera_button_pressed)
+        return;
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
+    for (;;)
+    {
+        // Check in for timeouts for all RTOS tasks
+        // hw_watchdog_checkForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        hw_watchdog_checkIn(watchdog);
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 

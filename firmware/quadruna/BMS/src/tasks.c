@@ -346,11 +346,10 @@ void tasks_init(void)
 
 _Noreturn void tasks_run1Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 1000U;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    io_chimera_task(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -375,11 +374,10 @@ _Noreturn void tasks_run1Hz(void)
 
 _Noreturn void tasks_run100Hz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 10;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    io_chimera_task(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -400,11 +398,10 @@ _Noreturn void tasks_run100Hz(void)
 
 _Noreturn void tasks_run1kHz(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
     static const TickType_t period_ms = 1;
     WatchdogHandle         *watchdog  = hw_watchdog_allocateWatchdog();
     hw_watchdog_initWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    io_chimera_checkerTask(watchdog, period_ms);
 
     static uint32_t start_ticks = 0;
     start_ticks                 = osKernelGetTickCount();
@@ -413,8 +410,8 @@ _Noreturn void tasks_run1kHz(void)
     {
         // Check in for timeouts for all RTOS tasks
         hw_watchdog_checkForTimeouts();
-
         const uint32_t task_start_ms = TICK_TO_MS(osKernelGetTickCount());
+
         io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -432,8 +429,7 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
+    io_chimera_block();
     for (;;)
     {
         CanMsg tx_msg;
@@ -444,16 +440,12 @@ _Noreturn void tasks_runCanTx(void)
 
 _Noreturn void tasks_runCanRx(void)
 {
-    io_chimera_sleepTaskIfEnabled();
-
+    io_chimera_block();
     for (;;)
     {
-        CanMsg rx_msg;
-        io_can_popRxMsgFromQueue(&rx_msg);
-
-        JsonCanMsg jsoncan_rx_msg;
-        io_jsoncan_copyFromCanMsg(&rx_msg, &jsoncan_rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        CanMsg tx_msg;
+        io_can_popTxMsgFromQueue(&tx_msg);
+        io_can_transmitMsgFromQueue(&tx_msg);
     }
 }
 
