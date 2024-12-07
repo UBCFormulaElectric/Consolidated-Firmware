@@ -9,12 +9,4 @@
 	],
 	"cmake.configureOnEdit": false,
 	"cmake.configureOnOpen": false,
-	"files.associations": {
-		"hw_can.h": "c",
-		"stdbool.h": "c",
-		"hw_hal.h": "c",
-		"stm32h7xx.h": "c",
-		"stdint.h": "c",
-		"stm32h733xx.h": "c"
-	},
 }
