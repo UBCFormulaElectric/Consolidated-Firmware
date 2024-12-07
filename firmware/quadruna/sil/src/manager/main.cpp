@@ -3,7 +3,7 @@
 #include <czmq.h>
 
 // Returns the PID of the subprocess in which the requested binary runs.
-pid_t sil_runBoard(const char *binPath, const char* boardName)
+pid_t sil_runBoard(const char *binPath, const char *boardName)
 {
     printf("Forking process for %s: %s\n", boardName, binPath);
 
@@ -75,7 +75,7 @@ int main()
         perror("Error waiting for backend setup on proxy");
 
     atexit(exitHandler);
-    
+
     // Wait for all forks to stop.
     wait(NULL);
 }
