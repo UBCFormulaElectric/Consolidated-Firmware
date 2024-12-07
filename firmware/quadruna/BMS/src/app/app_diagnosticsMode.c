@@ -83,6 +83,14 @@ void processSegment(uint8_t segment, uint16_t baseIndex)
     }
 }
 
+void invalidateSegment(uint8_t segment, uint16_t baseIndex)
+{
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        cellVoltageSetters[baseIndex + i]((float) -0.1);
+    }
+}
+
 void app_diagnosticsMode_broadcast(void)
 {
     // Update all cell voltages
@@ -98,4 +106,18 @@ void app_diagnosticsMode_broadcast(void)
     app_canTx_BMS_Seg2_Temp_set(data.segment_temps[2]);
     app_canTx_BMS_Seg3_Temp_set(data.segment_temps[3]);
     app_canTx_BMS_Seg4_Temp_set(data.segment_temps[4]);
+}
+
+void app_diagnosticsMode_invalidateValues(void)
+{
+    for (uint8_t segment = 0; segment < 5; segment++)
+    {
+        invalidateSegment(segment, segment * 16);
+    }
+
+    app_canTx_BMS_Seg0_Temp_set(-1);
+    app_canTx_BMS_Seg1_Temp_set(-1);
+    app_canTx_BMS_Seg2_Temp_set(-1);
+    app_canTx_BMS_Seg3_Temp_set(-1);
+    app_canTx_BMS_Seg4_Temp_set(-1);
 }

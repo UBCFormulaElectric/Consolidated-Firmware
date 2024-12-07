@@ -150,6 +150,10 @@ bool app_allStates_runOnTick100Hz(void)
     {
         app_diagnosticsMode_broadcast();
     }
+    else
+    {
+        app_diagnosticsMode_invalidateValues();
+    }
 
     if (io_airs_isNegativeClosed() && io_airs_isPositiveClosed())
     {

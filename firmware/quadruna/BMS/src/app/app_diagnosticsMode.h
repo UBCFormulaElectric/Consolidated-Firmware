@@ -16,3 +16,8 @@ void app_diagnosticsMode_broadcast(void);
  * Calculate the average temperature of each segment.
  */
 void app_diagnosticsMode_calculateDiagnosticTemperatureStats(void);
+
+/**
+ * Set all cell voltages and segment temperatures to negative values
+ */
+void app_diagnosticsMode_invalidateValues(void);
