@@ -13,9 +13,9 @@
 #define MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS (-88.5f)
 #define MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS (23.6f)
 
-// As per datasheet, our cells can do the max discharge current for up to 3s and the peak charge current for 100ms. We
-// shouldn't be anywhere near the max discharge current during driving, so we can use 100ms for charge and discharge.
-#define TS_OVERCURRENT_DEBOUNCE_DURATION_MS (100U)
+// As per datasheet, our cells can do the max discharge current for up to 3s and the peak charge current for 100ms.
+#define TS_OVERCURRENT_DEBOUNCE_DURATION_CHARGING_MS (100U)
+#define TS_OVERCURRENT_DEBOUNCE_DURATION_DISCHARGING_MS (3000U)
 
 #define CELLS_IN_PARALLEL (3)
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
