@@ -87,7 +87,7 @@ void invalidateSegment(uint8_t segment, uint16_t baseIndex)
 {
     for (uint8_t i = 0; i < 16; i++)
     {
-        cellVoltageSetters[baseIndex + i]((float) -0.1);
+        cellVoltageSetters[baseIndex + i]((float)-0.1);
     }
 }
 

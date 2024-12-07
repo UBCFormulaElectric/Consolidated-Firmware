@@ -72,6 +72,6 @@ TEST_F(BmsFaultTest, check_diagnostics_mode_is_off_on)
     LetTimePass(1000);
 
     // Test assertion.
-    ASSERT_EQ((float) -0.1, app_canTx_BMS_Seg0_Cell0_Voltage_get());
+    ASSERT_EQ((float)-0.1, app_canTx_BMS_Seg0_Cell0_Voltage_get());
     ASSERT_EQ(-1, app_canTx_BMS_Seg0_Temp_get());
 }
