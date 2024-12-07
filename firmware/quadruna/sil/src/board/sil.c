@@ -52,7 +52,6 @@ int sil_recvJsonCanMsg(void *socket, JsonCanMsg *msg)
 // Socket is a void pointer to be consistent with czmq api, can be socket or actor.
 int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
 {
-    sil_printCanMsg(msg);
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
     return zsock_send(canSocketTx, "448", msg->std_id, msg->dlc, uint64Data);
@@ -74,6 +73,7 @@ void sil_rx(JsonCanMsg *msg)
 {
     if (io_canRx_filterMessageId(msg->std_id))
     {
+        sil_printCanMsg(msg);
         io_canRx_updateRxTableWithMessage(msg);
     };
 }
