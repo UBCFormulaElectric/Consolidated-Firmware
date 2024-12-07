@@ -31,7 +31,7 @@ void sil_printCanMsg(JsonCanMsg *msg)
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
 
     printf(
-        "ACTIVE BOARD: %4s, ID: %d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data,
+        "ACTIVE BOARD: %4s, ID: %4d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data,
         msg->dlc, io_canRx_filterMessageId(msg->std_id));
 }
 
@@ -63,7 +63,8 @@ void sil_txCallback(const JsonCanMsg *msg)
 {
     // Un-const the message.
     JsonCanMsg *unconst_msg = (JsonCanMsg *)msg;
-
+    printf("TX | ");
+    sil_printCanMsg(unconst_msg);
     if (sil_sendJsonCanMsg(canSocketTx, unconst_msg) == -1)
         perror("Error sending jsoncan tx message");
 }
@@ -73,6 +74,7 @@ void sil_rx(JsonCanMsg *msg)
 {
     if (io_canRx_filterMessageId(msg->std_id))
     {
+        printf("RX | ");
         sil_printCanMsg(msg);
         io_canRx_updateRxTableWithMessage(msg);
     };
