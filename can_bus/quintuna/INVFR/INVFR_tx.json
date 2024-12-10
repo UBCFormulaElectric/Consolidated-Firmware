@@ -4,40 +4,64 @@
 		"cycle_time": 5,
 		"signals": {
 			"AMK_bReserve": {
-				"bits": 8
+				"start_bit": 0,
+				"bits" : 8
 			},
 			"AMK_bSystemReady": {
-				"bits": 1
+				"start_bit": 8,
+				"bits" : 1
 			},
 			"AMK_bError": {
-				"bits": 1
+				"start_bit": 9,
+				"bits" : 1
 			},
 			"AMK_bWarn": {
-				"bits": 1
+				"start_bit": 10,
+				"bits" : 1
 			},
 			"AMK_bQuitDcOn": {
-				"bits": 1
+				"start_bit": 11,
+				"bits" : 1
 			},
 			"AMK_bDcOn": {
-				"bits": 1
+				"start_bit": 12,
+				"bits" : 1
 			},
 			"AMK_bQuitInverterOn": {
-				"bits": 1
+				"start_bit": 13,
+				"bits" : 1
 			},
 			"AMK_bInverterOn": {
-				"bits": 1
+				"start_bit": 14,
+				"bits" : 1
 			},
 			"AMK_bDerating": {
-				"bits": 1
+				"start_bit": 15,
+				"bits" : 1
 			},
 			"AMK_ActualVelocity": {
-				"bits": 16
+				"start_bit" : 16,
+				"resolution": 0.01,
+				"min" : 0,
+				"max" : 300,
+				"unit" : "RPM",
+				"start_value": 0
 			},
 			"AMK_TorqueCurrent": {
-				"bits": 16
+				"start_bit" : 32,
+				"resolution": 0.1,
+				"min" : 0,
+				"max" : 3000,
+				"unit" : "A",
+				"start_value": 0
 			},
 			"AMK_MagnetizingCurrent": {
-				"bits": 16
+				"start_bit" : 48,
+				"resolution": 0.1,
+				"min" : 0,
+				"max" : 3000,
+				"unit" : "A",
+				"start_value": 0
 			}
 		}
 	},
@@ -46,16 +70,28 @@
 		"cycle_time": 5,
 		"signals": {
 			"AMK_TempMotor": {
-				"bits": 16
+				"start_bit" : 0,
+				"resolution" : 0.1,
+				"min" : -1,
+				"max" : 1000
 			},
 			"AMK_TempInverter": {
-				"bits": 16
+				"start_bit" : 16,
+				"resolution" : 0.1,
+				"min" : -1,
+				"max" : 1000
 			},
 			"AMK_ErrorInfo": {
-				"bits": 16
+				"start_bit" : 32,
+				"resolution" : 0.1,
+				"min" : -1,
+				"max" : 1000
 			},
 			"AMK_TempIGBT": {
-				"bits": 16
+				"start_bit" : 48,
+				"resolution" : 0.1,
+				"min" : -1,
+				"max" : 1000
 			}
 		}
 	}
