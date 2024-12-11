@@ -1,4 +1,3 @@
-
 """
 API for the serial debugger library.
 """
@@ -134,5 +133,3 @@ class CRIT(Board):
         self.board_lib = CRIT_lib
         self.gpio_net_name = "crit_net_name"
         self.adc_net_name = "crit_net_name"
-
-    

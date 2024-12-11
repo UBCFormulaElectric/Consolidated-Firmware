@@ -26,11 +26,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-<<<<<<< HEAD
 #include "hw_usb.h"
-=======
->>>>>>> master
-
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -271,15 +267,9 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
     /* USER CODE BEGIN 6 */
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-
-    // // Test: Send data back
-    // uint16_t len = (uint16_t)*Len;
-    // CDC_Transmit_FS(Buf, len);
     LOG_INFO("before entering the cdc recieve fs queue");
     hw_usb_pushRxMsgToQueue(Buf, *Len);
     LOG_INFO("WE PUSHED TO QUEUE");
-
-    // Test: Send data back
     uint16_t len = (uint16_t)*Len;
     CDC_Transmit_FS(Buf, len);
 

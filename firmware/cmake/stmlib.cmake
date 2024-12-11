@@ -55,7 +55,6 @@ message("  🔃 Registered stm32f412rx_cube_library() function")
 # HAL_SRCS: the ones that we want, stripped prefixes
 # SYSCALLS: most of the functions defined inside are weak references, only used to make sure it builds without error.
 # USB_ENABLED: flags if usb middleware should be included.
-# USB_ENABLED: flags if usb middleware should be included.
 function(stm32f412rx_cube_library
         HAL_LIB_NAME
         HAL_CONF_DIR
@@ -63,11 +62,9 @@ function(stm32f412rx_cube_library
         SYSCALLS
         IOC_CHECKSUM
         USB_ENABLED
-        USB_ENABLED
 )
     set(DRIVERS_DIR "${STM32CUBEF4_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-    set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
@@ -84,14 +81,6 @@ function(stm32f412rx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/SEGGER"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
-    )
-
-    file(GLOB USB_SRCS
-        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-        
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
     )
 
     # HAL sources.
@@ -162,11 +151,9 @@ function(stm32h733xx_cube_library
         SYSCALLS
         IOC_CHECKSUM
         USB_ENABLED
-        USB_ENABLED
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
-    set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
 
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
@@ -198,14 +185,6 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-    )
-
-    file(GLOB USB_SRCS
-        "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-        "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
     )
 
     # SEGGER SystemView sources.

@@ -533,10 +533,6 @@ void StartDefaultTask(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    //add the usb examples here:
-
-
-    
     UART modem_uart = { .handle = &huart2 };
 
     /* Infinite loop */
