@@ -89,6 +89,7 @@ int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
 // Gets zmqMsg, a pointer to the zmsg_t, and dumps the parsed data into the provided canMsg.
 void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
 {
+    // NOTE: zmsg_popstr allocates memory on the heap, which must be freed.
     // Extract std_id.
     char *stdIdStr = zmsg_popstr(zmqMsg);
     if (stdIdStr != NULL)
@@ -112,6 +113,52 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
         uint64_t uint64data = atoi(dataStr);
         memcpy(canMsg->data, &uint64data, 8);
         free(dataStr);
+    }
+}
+
+// Task messages are received in taskTitle, timeMs order.
+// Run a task message.
+void sil_runTaskMsg(
+    zmsg_t *zmqMsg,
+    void    tasks_init(),
+    void    tasks_1Hz(uint32_t timeMs),
+    void    tasks_100Hz(uint32_t timeMs),
+    void    tasks_1kHz(uint32_t timeMs))
+{
+    // NOTE: zmsg_popstr allocates memory on the heap, which must be freed.
+    // Select task function.
+    char *taskName         = zmsg_popstr(zmqMsg);
+    void (*task)(uint32_t) = NULL;
+    if (taskName != NULL)
+    {
+        if (strcmp(taskName, "1Hz") == 0)
+            task = tasks_1Hz;
+        else if (strcmp(taskName, "100Hz") == 0)
+            task = tasks_100Hz;
+        else if (strcmp(taskName, "1kHz") == 0)
+            task = tasks_1kHz;
+        else if (strcmp(taskName, "init") == 0)
+        {
+            // If given an init task, just invoke it.
+            tasks_init();
+        }
+
+        free(taskName);
+    }
+
+    // Invoke the task.
+    if (task != NULL)
+    {
+        // Parse time.
+        char *timeMsStr = zmsg_popstr(zmqMsg);
+        if (timeMsStr != NULL)
+        {
+            uint32_t timeMs = sil_atoiUint32(timeMsStr);
+
+            // Invoke task with parsed time.
+            task(timeMs);
+            free(timeMsStr);
+        }
     }
 }
 
@@ -143,10 +190,10 @@ void sil_canRx(JsonCanMsg *msg)
 void sil_main(
     int   argc,
     char *argv[],
-    void  tasks_init(),
-    void  tasks_1Hz(uint32_t time_ms),
-    void  tasks_100Hz(uint32_t time_ms),
-    void  tasks_1kHz(uint32_t time_ms))
+    void (*tasks_init)(),
+    void (*tasks_1Hz)(uint32_t timeMs),
+    void (*tasks_100Hz)(uint32_t timeMs),
+    void (*tasks_1kHz)(uint32_t timeMs))
 {
     // Validate arguments.
     if (argc != 2)
@@ -190,7 +237,7 @@ void sil_main(
     // Register exit handler after creation of sockets, but before main loop,
     // to avoid CZMQ's own exit handler warnings.
     atexit(sil_exitHandler);
-    for (uint32_t time_ms = 0; true; time_ms += 1)
+    for (uint32_t timeMs = 0; true; timeMs += 1)
     {
         // Parent process id becomes 1 when parent dies.
         // Every tick we poll to make sure we exit this child process.
@@ -221,6 +268,11 @@ void sil_main(
                     sil_parseJsonCanMsg(zmqMsg, &canMsg);
                     sil_canRx(&canMsg);
                 }
+                else if (strcmp(topic, "task") == 0)
+                {
+                    // Task topic case.
+                    sil_runTaskMsg(zmqMsg, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz);
+                }
                 else
                     fprintf(stderr, "Error: Unsupported topic %s", topic);
 
@@ -230,24 +282,6 @@ void sil_main(
             }
             else
                 break;
-        }
-
-        // 1 kHz task.
-        if (time_ms % 1 == 0)
-        {
-            tasks_1kHz(time_ms);
-        }
-
-        // 100 Hz task.
-        if (time_ms % 10 == 0)
-        {
-            tasks_100Hz(time_ms);
-        }
-
-        // 1 Hz task.
-        if (time_ms % 1000 == 0)
-        {
-            tasks_1Hz(time_ms);
         }
     }
 }

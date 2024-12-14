@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <czmq.h>
 
+static zactor_t *proxy;
+static zsock_t  *socketTx;
+
 // Returns the PID of the subprocess in which the requested binary runs.
 pid_t sil_runBoard(const char *binPath, const char *boardName)
 {
@@ -37,24 +40,24 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
     return pid;
 }
 
-static zactor_t *proxy;
+// Send a task message.
+// Tasks are transmited in taskName, timeMs order.
+// Hence the CZMQ image of this message is "ss4" (topic, char *, uint32_t).
+int sil_sendTaskMsg(const char *taskName, uint32_t timeMs)
+{
+    return zsock_send(socketTx, "ss4", "task", taskName, timeMs);
+}
 
 // Graciously exit process by freeing memory allocated by CZMQ.
 void exitHandler()
 {
     zactor_destroy(&proxy);
+    zsock_destroy(&socketTx);
 }
 
 int main()
 {
     printf("Starting up SIL Supervisor\n");
-
-    // Spin-up boards.
-    sil_runBoard("./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", "RSM");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", "FSM");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", "VC");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", "CRIT");
-    sil_runBoard("./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", "BMS");
 
     // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
     // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
@@ -77,7 +80,43 @@ int main()
     if (zsock_wait(proxy) == -1)
         perror("Error waiting for backend setup on proxy");
 
+    // Setup a tx socket into the pub/sub network, to allow the manager to inject messages.
+    // Prefixing the endpoint with ">" connects to the endpoint,
+    // rather than the default bind behavior.
+    socketTx = zsock_new_pub(">tcp://localhost:3001");
+    if (socketTx == NULL)
+    {
+        perror("Error opening tx socket");
+        exit(1);
+    }
+
     atexit(exitHandler);
+
+    // Spin-up boards.
+    sil_runBoard("./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", "RSM");
+    sil_runBoard("./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", "FSM");
+    sil_runBoard("./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", "VC");
+    sil_runBoard("./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", "CRIT");
+    sil_runBoard("./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", "BMS");
+
+    // Control the main loop of all the boards.
+    sil_sendTaskMsg("init", 0);
+    for (int timeMs = 0; true; timeMs += 1)
+    {
+        zclock_sleep(1);
+
+        // 1 kHz task.
+        if (timeMs % 1 == 0)
+            sil_sendTaskMsg("1kHz", timeMs);
+
+        // 100 Hz task.
+        if (timeMs % 10 == 0)
+            sil_sendTaskMsg("100Hz", timeMs);
+
+        // 1 Hz task.
+        if (timeMs % 1000 == 0)
+            sil_sendTaskMsg("1Hz", timeMs);
+    }
 
     // Wait for all forks to stop.
     wait(NULL);
