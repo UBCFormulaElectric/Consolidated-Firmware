@@ -37,12 +37,12 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
     return pid;
 }
 
-static zactor_t *canProxy;
+static zactor_t *proxy;
 
-// Graciously exit process by freeing memory allocated by czmq.
+// Graciously exit process by freeing memory allocated by CZMQ.
 void exitHandler()
 {
-    zactor_destroy(&canProxy);
+    zactor_destroy(&proxy);
 }
 
 int main()
@@ -58,23 +58,23 @@ int main()
 
     // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
     // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
-    // For fake can, we need many-to-many. To do this, we create a proxy between an XSUB and XPUB port.
+    // For fake comms (ie. can), we need many-to-many. To do this, we create a proxy between an XSUB and XPUB port.
     // Individual boards transmit to the XSUB endpoint, which gets forwarded to the XPUB endpoint.
     // We call the receiver end of the proxy the frontend, and the sender end the badkend.
-    canProxy = zactor_new(zproxy, NULL);
-    if (canProxy == NULL)
+    proxy = zactor_new(zproxy, NULL);
+    if (proxy == NULL)
         perror("Error creating proxy");
 
     // Setup the xsub frontend.
-    if (zstr_sendx(canProxy, "FRONTEND", "XSUB", "tcp://localhost:3001", NULL) == -1)
+    if (zstr_sendx(proxy, "FRONTEND", "XSUB", "tcp://localhost:3001", NULL) == -1)
         perror("Error setting up xsub frontend on proxy");
-    if (zsock_wait(canProxy) == -1)
+    if (zsock_wait(proxy) == -1)
         perror("Error waiting for frontend setup on proxy");
 
     // Setup the xpub backend.
-    if (zstr_sendx(canProxy, "BACKEND", "XPUB", "tcp://localhost:3000", NULL) == -1)
+    if (zstr_sendx(proxy, "BACKEND", "XPUB", "tcp://localhost:3000", NULL) == -1)
         perror("Error setting up xsub backend on proxy");
-    if (zsock_wait(canProxy) == -1)
+    if (zsock_wait(proxy) == -1)
         perror("Error waiting for backend setup on proxy");
 
     atexit(exitHandler);

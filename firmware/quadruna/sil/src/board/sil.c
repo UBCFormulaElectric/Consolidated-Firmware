@@ -9,19 +9,53 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 
-static zsock_t   *canSocketTx;
-static zsock_t   *canSocketRx;
-static zpoller_t *canPollerRx;
+static zsock_t   *socketTx;
+static zsock_t   *socketRx;
+static zpoller_t *pollerRx;
 
 // Note: only valid since the program exits when main exits.
 static const char *boardName;
 
+// Utility function to convert char * to uint64_t.
+// Returns 0 if invalid input.
+uint64_t sil_atoiUint64(char *in)
+{
+    uint64_t res = 0;
+    int      len = strlen(in);
+    for (int i = 0; i < len; i += 1)
+    {
+        if ('0' > in[i] || in[i] > '9')
+            return 0;
+
+        res += (in[i] - '0') * pow(10, (len - i - 1));
+    }
+
+    return res;
+}
+
+// Utility function to convert char * to uint32_t.
+// Returns 0 if invalid input.
+uint32_t sil_atoiUint32(char *in)
+{
+    uint32_t res = 0;
+    int      len = strlen(in);
+    for (int i = 0; i < len; i += 1)
+    {
+        if ('0' > in[i] || in[i] > '9')
+            return 0;
+
+        res += (in[i] - '0') * pow(10, (len - i - 1));
+    }
+
+    return res;
+}
+
 // Graciously exit process by freeing memory allocated by czmq.
 void sil_exitHandler()
 {
-    zpoller_destroy(&canPollerRx);
-    zsock_destroy(&canSocketTx);
-    zsock_destroy(&canSocketRx);
+    zpoller_destroy(&pollerRx);
+    zsock_destroy(&socketTx);
+    zsock_destroy(&socketRx);
 }
 
 // Utility function for debugging, prints out a JsonCanMsg.
@@ -37,40 +71,65 @@ void sil_printCanMsg(JsonCanMsg *msg)
 
 // Can messages are transmitted in std_id, dlc, data order.
 // We cast the 8 byte data array to a uint64_t for easier transmit.
-// Hence, the czmq image of the message is "448" (uint32_t, uint32_t, uint64_t).
-
-// Wrapper around zsock_recv for receiving a JsonCanMsg.
-// Gets a pointer to the destination message.
-// Socket is a void pointer to be consistent with czmq api, can be socket or actor.
-int sil_recvJsonCanMsg(void *socket, JsonCanMsg *msg)
-{
-    return zsock_recv(canSocketRx, "448", &(msg->std_id), &(msg->dlc), msg->data);
-}
+// CZMQ topics are sent as a string prefix.
+// Hence, the CZMQ image of the message is "s448" (topic, uint32_t, uint32_t, uint64_t).
+// CZMQ images are like printf format strings, they define the format of a message in an easier foramt.
 
 // Wrapper around zsock_send for sending a JsonCanMsg.
 // Gets a pointer to the message to send.
-// Socket is a void pointer to be consistent with czmq api, can be socket or actor.
+// Socket is a void pointer to be consistent with CZMQ api, can be socket or actor.
 int sil_sendJsonCanMsg(void *socket, JsonCanMsg *msg)
 {
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
-    return zsock_send(canSocketTx, "448", msg->std_id, msg->dlc, uint64Data);
+    return zsock_send(socketTx, "s448", "can", msg->std_id, msg->dlc, uint64Data);
+}
+
+// Parse a JsonCanMsg from a zmsg_t.
+// Gets zmqMsg, a pointer to the zmsg_t, and dumps the parsed data into the provided canMsg.
+void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
+{
+    // Extract std_id.
+    char *stdIdStr = zmsg_popstr(zmqMsg);
+    if (stdIdStr != NULL)
+    {
+        canMsg->std_id = sil_atoiUint32(stdIdStr);
+        free(stdIdStr);
+    }
+
+    // Extract dlc.
+    char *dlcStr = zmsg_popstr(zmqMsg);
+    if (dlcStr != NULL)
+    {
+        canMsg->dlc = sil_atoiUint32(dlcStr);
+        free(dlcStr);
+    }
+
+    // Extract data.
+    char *dataStr = zmsg_popstr(zmqMsg);
+    if (dataStr != NULL)
+    {
+        uint64_t uint64data = atoi(dataStr);
+        memcpy(canMsg->data, &uint64data, 8);
+        free(dataStr);
+    }
 }
 
 // Interface between sil and canbus.
 // Hook for can to transmit a message via fakeCan.
 void sil_txCallback(const JsonCanMsg *msg)
 {
-    // Un-const the message.
-    JsonCanMsg *unconst_msg = (JsonCanMsg *)msg;
-    printf("TX | ");
-    sil_printCanMsg(unconst_msg);
-    if (sil_sendJsonCanMsg(canSocketTx, unconst_msg) == -1)
+    if (sil_sendJsonCanMsg(socketTx, (JsonCanMsg *)msg) == -1)
         perror("Error sending jsoncan tx message");
+    else
+    {
+        printf("TX | ");
+        sil_printCanMsg((JsonCanMsg *)msg);
+    }
 }
 
 // Insert a JsonCanMsg into the board's internal can system.
-void sil_rx(JsonCanMsg *msg)
+void sil_canRx(JsonCanMsg *msg)
 {
     if (io_canRx_filterMessageId(msg->std_id))
     {
@@ -102,34 +161,34 @@ void sil_main(
 
     // Prefixing the endpoint with ">" connects to the endpoint,
     // rather than the default bind behavior.
-    canSocketTx = zsock_new_pub(">tcp://localhost:3001");
-    if (canSocketTx == NULL)
+    socketTx = zsock_new_pub(">tcp://localhost:3001");
+    if (socketTx == NULL)
     {
-        perror("Error opening can tx socket");
+        perror("Error opening tx socket");
         exit(1);
     }
 
     // Subscribing to an empty string subscribes to all messages.
-    // Topics in czmq are just prefix strings.
-    canSocketRx = zsock_new_sub("tcp://localhost:3000", "");
-    if (canSocketRx == NULL)
+    // Topics in CZMQ are just prefix strings.
+    socketRx = zsock_new_sub("tcp://localhost:3000", "");
+    if (socketRx == NULL)
     {
-        perror("Error opening can rx socket");
+        perror("Error opening rx socket");
         exit(1);
     }
 
-    // Poll the rx can socket.
-    canPollerRx = zpoller_new(canSocketRx, NULL);
-    if (canPollerRx == NULL)
+    // Poll the rx socket.
+    pollerRx = zpoller_new(socketRx, NULL);
+    if (pollerRx == NULL)
     {
-        perror("Error opening can rx poller");
+        perror("Error opening rx poller");
         exit(1);
     }
 
     tasks_init();
 
     // Register exit handler after creation of sockets, but before main loop,
-    // to avoid czmq's own exit handler warnings.
+    // to avoid CZMQ's own exit handler warnings.
     atexit(sil_exitHandler);
     for (uint32_t time_ms = 0; true; time_ms += 1)
     {
@@ -138,26 +197,36 @@ void sil_main(
         if (getppid() == 1)
             exit(0);
 
-        // FakeCan sockets capture loop.
+        // Sockets capture loop.
         for (;;)
         {
             // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
-            // there is only one such socket attachted to canPollerRx, which is canSocketRx.
+            // there is only one such socket attachted to pollerRx, which is socketRx.
             // Socket must be void pointer, uncast, since it may return NULL.
-            void *socket = zpoller_wait(canPollerRx, 1);
+            void *socket = zpoller_wait(pollerRx, 1);
             if (socket != NULL)
             {
                 // Receive the message.
-                JsonCanMsg msg = {};
-                if (sil_recvJsonCanMsg(socket, &msg) == -1)
+                char   *topic;
+                zmsg_t *zmqMsg;
+
+                if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
                 {
-                    perror("Error: Invalid can message received");
+                    perror("Error: Failed to receive on socket");
+                }
+                else if (strcmp(topic, "can") == 0)
+                {
+                    // Can topic case.
+                    JsonCanMsg canMsg;
+                    sil_parseJsonCanMsg(zmqMsg, &canMsg);
+                    sil_canRx(&canMsg);
                 }
                 else
-                {
-                    // Update the internal can table.
-                    sil_rx(&msg);
-                }
+                    fprintf(stderr, "Error: Unsupported topic %s", topic);
+
+                // Free up zmq-allocated memory.
+                free(topic);
+                zmsg_destroy(&zmqMsg);
             }
             else
                 break;
