@@ -215,14 +215,15 @@ void sil_main(
         exit(1);
     }
 
-    // Subscribing to an empty string subscribes to all messages.
-    // Topics in CZMQ are just prefix strings.
-    socketRx = zsock_new_sub("tcp://localhost:3000", "");
+    // Topics in CZMQ are just prefix strings in sent messages.
+    socketRx = zsock_new_sub("tcp://localhost:3000", NULL);
     if (socketRx == NULL)
     {
         perror("Error opening rx socket");
         exit(1);
     }
+    zsock_set_subscribe(socketRx, "task");
+    zsock_set_subscribe(socketRx, "can");
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -237,7 +238,7 @@ void sil_main(
     // Register exit handler after creation of sockets, but before main loop,
     // to avoid CZMQ's own exit handler warnings.
     atexit(sil_exitHandler);
-    for (uint32_t timeMs = 0; true; timeMs += 1)
+    for (;;)
     {
         // Parent process id becomes 1 when parent dies.
         // Every tick we poll to make sure we exit this child process.
