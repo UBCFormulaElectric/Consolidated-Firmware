@@ -9,6 +9,13 @@
 #include "io_canRx.h"
 #include "io_canTx.h"
 
+// Count number of invocations to each task.
+static uint64_t tasks_1Hz_count   = 0;
+static uint64_t tasks_100Hz_count = 0;
+static uint64_t tasks_1kHz_count  = 0;
+static uint64_t tasks_init_count  = 0;
+
+// Store socket and poll pointers for graceful exit.
 static zsock_t   *socketTx;
 static zsock_t   *socketRx;
 static zpoller_t *pollerRx;
@@ -59,14 +66,14 @@ void sil_exitHandler()
 }
 
 // Utility function for debugging, prints out a JsonCanMsg.
-void sil_printCanMsg(JsonCanMsg *msg)
+void sil_printCanMsg(bool isTx, JsonCanMsg *msg)
 {
     uint64_t uint64Data;
     memcpy(&uint64Data, msg->data, sizeof(uint64_t));
 
     printf(
-        "ACTIVE BOARD: %4s, ID: %4d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", boardName, msg->std_id, uint64Data,
-        msg->dlc, io_canRx_filterMessageId(msg->std_id));
+        "%s | ACTIVE BOARD: %4s, ID: %4d, DATA: %016llx, DLC: %d, PASSED FILTER?: %d\n", isTx ? "TX" : "RX", boardName,
+        msg->std_id, uint64Data, msg->dlc, io_canRx_filterMessageId(msg->std_id));
 }
 
 // Can messages are transmitted in std_id, dlc, data order.
@@ -116,15 +123,42 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     }
 }
 
+// To keep all tasks in sync, we want to make sure that each board runs the same number of tasks.
+// Because of this, we broadcast to the "taskcounts" topic.
+// In the message, we broadcast the board name, task name, and count.
+// The image of the message is sss8 (topic, char *, char *, uint64_t).
+int sil_sendTaskConfirmation(void *socket, char *taskName)
+{
+    uint64_t *countPtr = NULL;
+    if (strcmp(taskName, "1Hz") == 0)
+        countPtr = &tasks_1Hz_count;
+    else if (strcmp(taskName, "100Hz") == 0)
+        countPtr = &tasks_100Hz_count;
+    else if (strcmp(taskName, "1kHz") == 0)
+        countPtr = &tasks_1kHz_count;
+    else if (strcmp(taskName, "init") == 0)
+        countPtr = &tasks_init_count;
+    else
+        return -1;
+
+    (*countPtr) += 1;
+    return zsock_send(socketTx, "sss8", "task_counts", boardName, taskName, *countPtr);
+}
+
 // Task messages are received in taskTitle, timeMs order.
-// Run a task message.
-void sil_runTaskMsg(
+// Run a task message, and send the verification message.
+// Socket is a void pointer to be consistent with CZMQ api.
+// Returns -1 if an error occured.
+int sil_runTaskMsg(
+    void   *socket,
     zmsg_t *zmqMsg,
     void    tasks_init(),
     void    tasks_1Hz(uint32_t timeMs),
     void    tasks_100Hz(uint32_t timeMs),
     void    tasks_1kHz(uint32_t timeMs))
 {
+    int res = 0;
+
     // NOTE: zmsg_popstr allocates memory on the heap, which must be freed.
     // Select task function.
     char *taskName         = zmsg_popstr(zmqMsg);
@@ -141,9 +175,9 @@ void sil_runTaskMsg(
         {
             // If given an init task, just invoke it.
             tasks_init();
+            free(taskName);
+            return 0;
         }
-
-        free(taskName);
     }
 
     // Invoke the task.
@@ -158,8 +192,14 @@ void sil_runTaskMsg(
             // Invoke task with parsed time.
             task(timeMs);
             free(timeMsStr);
+
+            res = sil_sendTaskConfirmation(socket, taskName);
         }
     }
+
+    if (taskName != NULL)
+        free(taskName);
+    return res;
 }
 
 // Interface between sil and canbus.
@@ -170,8 +210,7 @@ void sil_txCallback(const JsonCanMsg *msg)
         perror("Error sending jsoncan tx message");
     else
     {
-        printf("TX | ");
-        sil_printCanMsg((JsonCanMsg *)msg);
+        sil_printCanMsg(true, (JsonCanMsg *)msg);
     }
 }
 
@@ -180,8 +219,7 @@ void sil_canRx(JsonCanMsg *msg)
 {
     if (io_canRx_filterMessageId(msg->std_id))
     {
-        printf("RX | ");
-        sil_printCanMsg(msg);
+        sil_printCanMsg(false, msg);
         io_canRx_updateRxTableWithMessage(msg);
     };
 }
@@ -233,11 +271,11 @@ void sil_main(
         exit(1);
     }
 
-    tasks_init();
-
     // Register exit handler after creation of sockets, but before main loop,
     // to avoid CZMQ's own exit handler warnings.
     atexit(sil_exitHandler);
+
+    // Main loop.
     for (;;)
     {
         // Parent process id becomes 1 when parent dies.
@@ -245,44 +283,38 @@ void sil_main(
         if (getppid() == 1)
             exit(0);
 
-        // Sockets capture loop.
-        for (;;)
+        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
+        // there is only one such socket attachted to pollerRx, which is socketRx.
+        // Since zpoller_wait may technically also return a zactor,
+        // CZMQ common practice is to make this a void pointer.
+        void *socket = zpoller_wait(pollerRx, 1);
+        if (socket != NULL)
         {
-            // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
-            // there is only one such socket attachted to pollerRx, which is socketRx.
-            // Socket must be void pointer, uncast, since it may return NULL.
-            void *socket = zpoller_wait(pollerRx, 1);
-            if (socket != NULL)
+            // Receive the message.
+            char   *topic;
+            zmsg_t *zmqMsg;
+
+            if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
             {
-                // Receive the message.
-                char   *topic;
-                zmsg_t *zmqMsg;
-
-                if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
-                {
-                    perror("Error: Failed to receive on socket");
-                }
-                else if (strcmp(topic, "can") == 0)
-                {
-                    // Can topic case.
-                    JsonCanMsg canMsg;
-                    sil_parseJsonCanMsg(zmqMsg, &canMsg);
-                    sil_canRx(&canMsg);
-                }
-                else if (strcmp(topic, "task") == 0)
-                {
-                    // Task topic case.
-                    sil_runTaskMsg(zmqMsg, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz);
-                }
-                else
-                    fprintf(stderr, "Error: Unsupported topic %s", topic);
-
-                // Free up zmq-allocated memory.
-                free(topic);
-                zmsg_destroy(&zmqMsg);
+                perror("Error: Failed to receive on socket");
             }
-            else
-                break;
+            else if (strcmp(topic, "can") == 0)
+            {
+                // Can topic case.
+                JsonCanMsg canMsg;
+                sil_parseJsonCanMsg(zmqMsg, &canMsg);
+                sil_canRx(&canMsg);
+            }
+            else if (strcmp(topic, "task") == 0)
+            {
+                // Task topic case.
+                if (sil_runTaskMsg(socketTx, zmqMsg, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz) == -1)
+                    perror("Error running task");
+            }
+
+            // Free up zmq-allocated memory.
+            free(topic);
+            zmsg_destroy(&zmqMsg);
         }
     }
 }

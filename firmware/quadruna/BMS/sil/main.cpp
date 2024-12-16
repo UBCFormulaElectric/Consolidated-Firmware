@@ -123,6 +123,5 @@ void tasks_1Hz(uint32_t time_ms)
 
 int main(int argc, char *argv[])
 {
-    printf("%d\n", argc);
     sil_main(argc, argv, tasks_init, tasks_1Hz, tasks_100Hz, tasks_1kHz);
 }

@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <czmq.h>
 
-static zactor_t *proxy;
-static zsock_t  *socketTx;
+// Store socket poll, and proxy pointers for graceful exit.
+static zactor_t  *proxy;
+static zsock_t   *socketTx;
+static zsock_t   *socketRx;
+static zpoller_t *pollerRx;
 
 // Returns the PID of the subprocess in which the requested binary runs.
 pid_t sil_runBoard(const char *binPath, const char *boardName)
@@ -51,8 +54,10 @@ int sil_sendTaskMsg(const char *taskName, uint32_t timeMs)
 // Graciously exit process by freeing memory allocated by CZMQ.
 void exitHandler()
 {
+    zpoller_destroy(&pollerRx);
     zactor_destroy(&proxy);
     zsock_destroy(&socketTx);
+    zsock_destroy(&socketRx);
 }
 
 int main()
@@ -80,6 +85,8 @@ int main()
     if (zsock_wait(proxy) == -1)
         perror("Error waiting for backend setup on proxy");
 
+    // Open up rx/tx sockets and rx poller, to allow the manager to tap into the pub/sub network.
+
     // Setup a tx socket into the pub/sub network, to allow the manager to inject messages.
     // Prefixing the endpoint with ">" connects to the endpoint,
     // rather than the default bind behavior.
@@ -87,6 +94,23 @@ int main()
     if (socketTx == NULL)
     {
         perror("Error opening tx socket");
+        exit(1);
+    }
+
+    // Topics in CZMQ are just prefix strings in sent messages.
+    socketRx = zsock_new_sub("tcp://localhost:3000", NULL);
+    if (socketRx == NULL)
+    {
+        perror("Error opening rx socket");
+        exit(1);
+    }
+    zsock_set_subscribe(socketRx, "task_counts");
+
+    // Poll the rx socket.
+    pollerRx = zpoller_new(socketRx, NULL);
+    if (pollerRx == NULL)
+    {
+        perror("Error opening rx poller");
         exit(1);
     }
 
@@ -99,11 +123,59 @@ int main()
     sil_runBoard("./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", "CRIT");
     sil_runBoard("./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", "BMS");
 
-    // Control the main loop of all the boards.
+    // Init task.
     sil_sendTaskMsg("init", 0);
+
+    // Control the main loop of all the boards.
     for (int timeMs = 0; true; timeMs += 1)
     {
-        zclock_sleep(1);
+        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
+        // there is only one such socket attachted to pollerRx, which is socketRx.
+        // Since zpoller_wait may technically also return a zactor,
+        // CZMQ common practice is to make this a void pointer.
+        void *socket = zpoller_wait(pollerRx, 1);
+        if (socket != NULL)
+        {
+            // Receive the message.
+            char   *topic;
+            zmsg_t *zmqMsg;
+
+            if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
+            {
+                perror("Error: Failed to receive on socket");
+            }
+            else if (strcmp(topic, "task_counts") == 0)
+            {
+                char *a = zmsg_popstr(zmqMsg);
+                if (a != NULL)
+                {
+                    printf("  %s ", a);
+                    free(a);
+                }
+
+                char *b = zmsg_popstr(zmqMsg);
+                if (b != NULL)
+                {
+                    printf("%s ", b);
+                    free(b);
+                }
+
+                char *c = zmsg_popstr(zmqMsg);
+                if (c != NULL)
+                {
+                    printf("%s\n", c);
+                    free(c);
+                }
+            }
+
+            // Free up zmq-allocated memory.
+            free(topic);
+            zmsg_destroy(&zmqMsg);
+
+            // Skip running tasks.
+            // This will make sure that all rx messages are parsed before transmiting tasks.
+            continue;
+        }
 
         // 1 kHz task.
         if (timeMs % 1 == 0)
