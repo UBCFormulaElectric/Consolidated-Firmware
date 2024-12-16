@@ -129,6 +129,8 @@ int main()
     // Control the main loop of all the boards.
     for (int timeMs = 0; true; timeMs += 1)
     {
+        zclock_sleep(1);
+
         // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
         // there is only one such socket attachted to pollerRx, which is socketRx.
         // Since zpoller_wait may technically also return a zactor,
