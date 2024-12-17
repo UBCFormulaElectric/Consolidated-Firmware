@@ -8,5 +8,11 @@ To be able to run the firmware of multiple boards on our local machines, we use 
 - `3000`) Into a board (rx).
 - `3001`) Out of a board (tx).
 
+## Topics
+- `task`
+- `task_counts`
+- `can`
+- `ready`
+
 ## Navigating Software In Loop Source Code
 TODO.

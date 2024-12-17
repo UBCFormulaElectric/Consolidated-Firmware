@@ -124,7 +124,7 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
 }
 
 // To keep all tasks in sync, we want to make sure that each board runs the same number of tasks.
-// Because of this, we broadcast to the "taskcounts" topic.
+// Because of this, we broadcast to the "task_counts" topic.
 // In the message, we broadcast the board name, task name, and count.
 // The image of the message is sss8 (topic, char *, char *, uint64_t).
 int sil_sendTaskConfirmation(void *socket, char *taskName)
@@ -175,6 +175,7 @@ int sil_runTaskMsg(
         {
             // If given an init task, just invoke it.
             tasks_init();
+            sil_sendTaskConfirmation(socketTx, taskName);
             free(taskName);
             return 0;
         }
@@ -200,6 +201,16 @@ int sil_runTaskMsg(
     if (taskName != NULL)
         free(taskName);
     return res;
+}
+
+// Sends the boardName to the "ready" topic.
+// The image for this message is "ss" (topic, char *).
+// This should be sent when the process is ready to receive messages.
+int sil_sendReady()
+{
+    // Give the manager a 100ms grace period so that it can catch the ready signal.
+    zclock_sleep(100);
+    return zsock_send(socketTx, "ss", "ready", boardName);
 }
 
 // Interface between sil and canbus.
@@ -274,6 +285,9 @@ void sil_main(
     // Register exit handler after creation of sockets, but before main loop,
     // to avoid CZMQ's own exit handler warnings.
     atexit(sil_exitHandler);
+
+    // Tell the parent process we are ready.
+    sil_sendReady();
 
     // Main loop.
     for (;;)

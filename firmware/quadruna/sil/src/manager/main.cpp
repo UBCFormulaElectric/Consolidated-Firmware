@@ -9,6 +9,7 @@ static zsock_t   *socketRx;
 static zpoller_t *pollerRx;
 
 // Returns the PID of the subprocess in which the requested binary runs.
+// Blocks until a ready signal is received from the child board.
 pid_t sil_runBoard(const char *binPath, const char *boardName)
 {
     printf("Forking process for %s: %s\n", boardName, binPath);
@@ -40,6 +41,60 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
 
     // Unreachable from child process, return pid if parent process running.
     printf("  Process forked on pid %ld\n", (long)pid);
+
+    // Block until the board reports ready.
+    // Control the main loop of all the boards.
+    for (;;)
+    {
+        // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
+        // there is only one such socket attachted to pollerRx, which is socketRx.
+        // Since zpoller_wait may technically also return a zactor,
+        // CZMQ common practice is to make this a void pointer.
+        void *socket = zpoller_wait(pollerRx, 1);
+        if (socket != NULL)
+        {
+            // Receive the message.
+            char   *topic;
+            zmsg_t *zmqMsg;
+
+            if (zsock_recv(socket, "sm", &topic, &zmqMsg) == -1)
+            {
+                perror("Error: Failed to receive on socket");
+            }
+            else if (strcmp(topic, "ready") == 0)
+            {
+                // Receive ready topic.
+                // Extract name of reporting board.
+                char *readiedBoardName = zmsg_popstr(zmqMsg);
+                if (readiedBoardName != NULL)
+                {
+                    // Check if returned boardName does not match, and if so, exit and error.
+                    if (strcmp(readiedBoardName, boardName) != 0)
+                    {
+                        fprintf(
+                            stderr, "  Expected to receive ready signal from boardName: %s, instead received from %s",
+                            boardName, readiedBoardName);
+                        exit(1);
+                    }
+
+                    printf("  Received ready signal from %s\n", readiedBoardName);
+
+                    // Free up zmq-allocated memory.
+                    free(topic);
+                    free(readiedBoardName);
+                    zmsg_destroy(&zmqMsg);
+
+                    // Stop blocking.
+                    break;
+                }
+            }
+
+            // Free up zmq-allocated memory.
+            free(topic);
+            zmsg_destroy(&zmqMsg);
+        }
+    }
+
     return pid;
 }
 
@@ -105,6 +160,7 @@ int main()
         exit(1);
     }
     zsock_set_subscribe(socketRx, "task_counts");
+    zsock_set_subscribe(socketRx, "ready");
 
     // Poll the rx socket.
     pollerRx = zpoller_new(socketRx, NULL);
@@ -126,11 +182,14 @@ int main()
     // Init task.
     sil_sendTaskMsg("init", 0);
 
-    // Control the main loop of all the boards.
-    for (int timeMs = 0; true; timeMs += 1)
-    {
-        zclock_sleep(1);
+    uint32_t timeMs = 0;
 
+    // Main loop for manager.
+    // Handles:
+    //  - Reading any incomming messages.
+    //  - Invoking tasks for the boards.
+    for (;;)
+    {
         // zpoller_wait returns reference to the socket that is ready to recieve, or NULL.
         // there is only one such socket attachted to pollerRx, which is socketRx.
         // Since zpoller_wait may technically also return a zactor,
@@ -148,50 +207,48 @@ int main()
             }
             else if (strcmp(topic, "task_counts") == 0)
             {
-                char *a = zmsg_popstr(zmqMsg);
-                if (a != NULL)
+                char *boardName = zmsg_popstr(zmqMsg);
+                if (boardName != NULL)
                 {
-                    printf("  %s ", a);
-                    free(a);
+                    printf("Task count reporting for: %s, ", boardName);
+                    free(boardName);
                 }
 
-                char *b = zmsg_popstr(zmqMsg);
-                if (b != NULL)
+                char *taskName = zmsg_popstr(zmqMsg);
+                if (taskName != NULL)
                 {
-                    printf("%s ", b);
-                    free(b);
+                    printf("Task name: %s, ", taskName);
+                    free(taskName);
                 }
 
-                char *c = zmsg_popstr(zmqMsg);
-                if (c != NULL)
+                char *countStr = zmsg_popstr(zmqMsg);
+                if (countStr != NULL)
                 {
-                    printf("%s\n", c);
-                    free(c);
+                    printf("Count: %s\n", countStr);
+                    free(countStr);
                 }
             }
 
             // Free up zmq-allocated memory.
             free(topic);
             zmsg_destroy(&zmqMsg);
-
-            // Skip running tasks.
-            // This will make sure that all rx messages are parsed before transmiting tasks.
-            continue;
         }
+        else
+        {
+            // Only send tasks once all messages have been consumed.
+            // 1 kHz task.
+            if (timeMs % 1 == 0)
+                sil_sendTaskMsg("1kHz", timeMs);
 
-        // 1 kHz task.
-        if (timeMs % 1 == 0)
-            sil_sendTaskMsg("1kHz", timeMs);
+            // 100 Hz task.
+            if (timeMs % 10 == 0)
+                sil_sendTaskMsg("100Hz", timeMs);
 
-        // 100 Hz task.
-        if (timeMs % 10 == 0)
-            sil_sendTaskMsg("100Hz", timeMs);
+            // 1 Hz task.
+            if (timeMs % 1000 == 0)
+                sil_sendTaskMsg("1Hz", timeMs);
 
-        // 1 Hz task.
-        if (timeMs % 1000 == 0)
-            sil_sendTaskMsg("1Hz", timeMs);
+            timeMs += 1;
+        }
     }
-
-    // Wait for all forks to stop.
-    wait(NULL);
 }
