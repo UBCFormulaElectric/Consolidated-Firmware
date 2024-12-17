@@ -179,10 +179,11 @@ int main()
     sil_runBoard("./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", "CRIT");
     sil_runBoard("./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", "BMS");
 
+    // Keep track of time.
+    uint32_t timeMs = 0;
+
     // Init task.
     sil_sendTaskMsg("init", 0);
-
-    uint32_t timeMs = 0;
 
     // Main loop for manager.
     // Handles:
