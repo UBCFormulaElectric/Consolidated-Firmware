@@ -31,7 +31,7 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
         char const *argv[] = { binPath, boardName, NULL };
         if (execv(binPath, (char *const *)argv) == -1)
         {
-            perror("Error forking process");
+            perror("Error running board binary");
             exit(1);
         }
 
@@ -40,7 +40,7 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
     }
 
     // Unreachable from child process, return pid if parent process running.
-    printf("  Process forked on pid %ld\n", (long)pid);
+    printf("Process forked on pid %ld\n", (long)pid);
 
     // Block until the board reports ready.
     // Control the main loop of all the boards.
@@ -72,12 +72,12 @@ pid_t sil_runBoard(const char *binPath, const char *boardName)
                     if (strcmp(readiedBoardName, boardName) != 0)
                     {
                         fprintf(
-                            stderr, "  Expected to receive ready signal from boardName: %s, instead received from %s",
+                            stderr, "Expected to receive ready signal from boardName: %s, instead received from %s",
                             boardName, readiedBoardName);
                         exit(1);
                     }
 
-                    printf("  Received ready signal from %s\n", readiedBoardName);
+                    printf("Received ready signal from %s\n", readiedBoardName);
 
                     // Free up zmq-allocated memory.
                     free(topic);
@@ -117,7 +117,7 @@ void exitHandler()
 
 int main()
 {
-    printf("Starting up SIL Supervisor\n");
+    printf("Starting up SIL Manager\n");
 
     // See https://zguide.zeromq.org/docs/chapter2/#The-Dynamic-Discovery-Problem - Figure 13.
     // Normal PUB/SUB zmq architectures support one-to-many and many-to-one.
