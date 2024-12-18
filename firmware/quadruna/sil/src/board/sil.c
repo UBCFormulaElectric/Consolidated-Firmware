@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-// CZMQ for sockets.
 #include <czmq.h>
+
+#include "atoi.h"
 
 #include "io_canRx.h"
 #include "io_canTx.h"
@@ -16,40 +16,6 @@ static zpoller_t *pollerRx;
 
 // Note: only valid since the program exits when main exits.
 static const char *boardName;
-
-// Utility function to convert char * to uint64_t.
-// Returns 0 if invalid input.
-uint64_t sil_atoiUint64(char *in)
-{
-    uint64_t res = 0;
-    int      len = strlen(in);
-    for (int i = 0; i < len; i += 1)
-    {
-        if ('0' > in[i] || in[i] > '9')
-            return 0;
-
-        res += (in[i] - '0') * pow(10, (len - i - 1));
-    }
-
-    return res;
-}
-
-// Utility function to convert char * to uint32_t.
-// Returns 0 if invalid input.
-uint32_t sil_atoiUint32(char *in)
-{
-    uint32_t res = 0;
-    int      len = strlen(in);
-    for (int i = 0; i < len; i += 1)
-    {
-        if ('0' > in[i] || in[i] > '9')
-            return 0;
-
-        res += (in[i] - '0') * pow(10, (len - i - 1));
-    }
-
-    return res;
-}
 
 // Graciously exit process by freeing memory allocated by czmq.
 void sil_exitHandler()
@@ -95,7 +61,7 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     char *stdIdStr = zmsg_popstr(zmqMsg);
     if (stdIdStr != NULL)
     {
-        canMsg->std_id = sil_atoiUint32(stdIdStr);
+        canMsg->std_id = sil_atoi_uint32_t(stdIdStr);
         free(stdIdStr);
     }
 
@@ -103,7 +69,7 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     char *dlcStr = zmsg_popstr(zmqMsg);
     if (dlcStr != NULL)
     {
-        canMsg->dlc = sil_atoiUint32(dlcStr);
+        canMsg->dlc = sil_atoi_uint32_t(dlcStr);
         free(dlcStr);
     }
 
@@ -111,7 +77,7 @@ void sil_parseJsonCanMsg(zmsg_t *zmqMsg, JsonCanMsg *canMsg)
     char *dataStr = zmsg_popstr(zmqMsg);
     if (dataStr != NULL)
     {
-        uint64_t uint64data = atoi(dataStr);
+        uint64_t uint64data = sil_atoi_uint64_t(dataStr);
         memcpy(canMsg->data, &uint64data, 8);
         free(dataStr);
     }
@@ -243,7 +209,7 @@ void sil_main(
                 char *newTargetimeMsStr = zmsg_popstr(zmqMsg);
                 if (newTargetimeMsStr != NULL)
                 {
-                    uint32_t newTargetimeMs = sil_atoiUint32(newTargetimeMsStr);
+                    uint32_t newTargetimeMs = sil_atoi_uint32_t(newTargetimeMsStr);
                     targetTimeMs            = newTargetimeMs;
                     free(newTargetimeMsStr);
                 }

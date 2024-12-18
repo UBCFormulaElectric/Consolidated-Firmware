@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <czmq.h>
-#include <stdatomic.h>
+
 #include "board.h"
+#include "atoi.h"
 
 // Store socket poll, and proxy pointers for graceful exit.
 static zactor_t  *proxy;
@@ -22,23 +23,6 @@ size_t boardCount = sizeof(boards) / sizeof(boards[0]);
 
 // Store global reference for time.
 uint32_t timeMs = 0;
-
-// Utility function to convert char * to uint32_t.
-// Returns 0 if invalid input.
-uint32_t sil_atoiUint32(char *in)
-{
-    uint32_t res = 0;
-    int      len = strlen(in);
-    for (int i = 0; i < len; i += 1)
-    {
-        if ('0' > in[i] || in[i] > '9')
-            return 0;
-
-        res += (in[i] - '0') * pow(10, (len - i - 1));
-    }
-
-    return res;
-}
 
 // Graciously exit process by freeing memory allocated by CZMQ.
 void exitHandler()
@@ -97,7 +81,7 @@ void sil_setTime(uint32_t targetMs)
                     if (receivedTimeMsStr != NULL)
                     {
                         // If successful, convert time to uint32_t.
-                        uint32_t receivedTimeMs = sil_atoiUint32(receivedTimeMsStr);
+                        uint32_t receivedTimeMs = sil_atoi_uint32_t(receivedTimeMsStr);
 
                         // Update record.
                         for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
@@ -188,9 +172,7 @@ int main()
 
     // Spin-up boards.
     for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
-    {
         sil_board_run(&boards[boardIndex], pollerRx);
-    }
 
     int64_t start = zclock_mono();
     sil_setTime(1000);

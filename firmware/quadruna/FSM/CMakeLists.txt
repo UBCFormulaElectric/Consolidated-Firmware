@@ -171,8 +171,9 @@ elseif ("${TARGET}" STREQUAL "sil")
                 "${CMAKE_CURRENT_SOURCE_DIR}/sil/*.c"
                 "${CMAKE_CURRENT_SOURCE_DIR}/sil/*.cpp"
                 "${QUADRUNA_SIL_DIR}/src/board/*.c"
+                "${QUADRUNA_SIL_DIR}/src/shared/*.c"
         )
-        set(SIL_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/sil" "${QUADRUNA_SIL_DIR}/src/board")
+        set(SIL_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/sil" "${QUADRUNA_SIL_DIR}/src/board" "${QUADRUNA_SIL_DIR}/src/shared")
 
         # jsoncan.
         jsoncan_library(FSM quadruna "${CMAKE_CURRENT_BINARY_DIR}")
