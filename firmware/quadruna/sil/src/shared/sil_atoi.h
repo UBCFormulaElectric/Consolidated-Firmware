@@ -20,10 +20,5 @@
         return res;                                        \
     }
 
-// Utility function to convert char * to uint32_t.
-// Returns 0 if invalid input.
 SIL_ATOI_UINT_DEF(uint32_t)
-
-// Utility function to convert char * to uint32_t.
-// Returns 0 if invalid input.
 SIL_ATOI_UINT_DEF(uint64_t)
