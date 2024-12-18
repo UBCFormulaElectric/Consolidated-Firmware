@@ -25,7 +25,7 @@ size_t boardCount = sizeof(boards) / sizeof(boards[0]);
 uint32_t timeMs = 0;
 
 // Graciously exit process by freeing memory allocated by CZMQ.
-void exitHandler()
+void sil_exitHandler()
 {
     zpoller_destroy(&pollerRx);
     zactor_destroy(&proxy);
@@ -168,7 +168,7 @@ int main()
         exit(1);
     }
 
-    atexit(exitHandler);
+    atexit(sil_exitHandler);
 
     // Spin-up boards.
     for (size_t boardIndex = 0; boardIndex < boardCount; boardIndex += 1)
