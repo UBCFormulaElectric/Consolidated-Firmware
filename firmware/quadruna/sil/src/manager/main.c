@@ -136,11 +136,11 @@ int main()
     printf("Starting up SIL Manager\n");
 
     Board boards[] = {
-        Board{ .name = "FSM", .binPath = "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", .timeMs = 0 },
-        Board{ .name = "RSM", .binPath = "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", .timeMs = 0 },
-        Board{ .name = "BMS", .binPath = "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", .timeMs = 0 },
-        Board{ .name = "CRIT", .binPath = "./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", .timeMs = 0 },
-        Board{ .name = "VC", .binPath = "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", .timeMs = 0 },
+        { .name = "FSM", .binPath = "./build_fw_sil/firmware/quadruna/FSM/quadruna_FSM_sil", .timeMs = 0 },
+        { .name = "RSM", .binPath = "./build_fw_sil/firmware/quadruna/RSM/quadruna_RSM_sil", .timeMs = 0 },
+        { .name = "BMS", .binPath = "./build_fw_sil/firmware/quadruna/BMS/quadruna_BMS_sil", .timeMs = 0 },
+        { .name = "CRIT", .binPath = "./build_fw_sil/firmware/quadruna/CRIT/quadruna_CRIT_sil", .timeMs = 0 },
+        { .name = "VC", .binPath = "./build_fw_sil/firmware/quadruna/VC/quadruna_VC_sil", .timeMs = 0 },
     };
     size_t boardCount = sizeof(boards) / sizeof(boards[0]);
 
