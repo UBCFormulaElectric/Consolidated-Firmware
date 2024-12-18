@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <czmq.h>
 
-#include "board.h"
-#include "atoi.h"
+#include "sil_board.h"
+#include "sil_atoi.h"
 
 // Store socket poll, and proxy pointers for graceful exit.
 static zactor_t  *proxy;

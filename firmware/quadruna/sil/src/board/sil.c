@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <czmq.h>
 
-#include "atoi.h"
+#include "sil_atoi.h"
 
 #include "io_canRx.h"
 #include "io_canTx.h"
